@@ -74,7 +74,7 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
         dataStructure.create();
         final IDirectory dataFolder = dataStructure.getOriginalData();
         assertEquals(DataStructureV1_0.DIR_ORIGINAL, dataFolder.getName());
-        assertEquals(DataStructureV1_0.DIR_DATA, dataFolder.tryToGetParent().getName());
+        assertEquals(DataStructureV1_0.DIR_DATA, dataFolder.tryGetParent().getName());
     }
 
     @Test
@@ -110,7 +110,8 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
         dataStructure.setExperimentIdentifier(id);
         final IDirectory root = storage.getRoot();
         final IDirectory metaData = Utilities.getSubDirectory(root, DataStructureV1_0.DIR_METADATA);
-        final IDirectory idDir = Utilities.getSubDirectory(metaData, ExperimentIdentifier.EXPERIMENT_IDENTIFIER);
+        final IDirectory idDir =
+                Utilities.getSubDirectory(metaData, ExperimentIdentifier.EXPERIMENT_IDENTIFIER);
         assertEquals("i\n", Utilities.getString(idDir, ExperimentIdentifier.INSTANCE_CODE));
         assertEquals("g\n", Utilities.getString(idDir, ExperimentIdentifier.GROUP_CODE));
         assertEquals("p\n", Utilities.getString(idDir, ExperimentIdentifier.PROJECT_CODE));
@@ -126,7 +127,8 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
         dataStructure.setExperimentIdentifier(id);
         final IDirectory root = storage.getRoot();
         final IDirectory metaData = Utilities.getSubDirectory(root, DataStructureV1_0.DIR_METADATA);
-        final IDirectory idDir = Utilities.getSubDirectory(metaData, ExperimentIdentifier.EXPERIMENT_IDENTIFIER);
+        final IDirectory idDir =
+                Utilities.getSubDirectory(metaData, ExperimentIdentifier.EXPERIMENT_IDENTIFIER);
         assertEquals("i\n", Utilities.getString(idDir, ExperimentIdentifier.INSTANCE_CODE));
         assertEquals("g\n", Utilities.getString(idDir, ExperimentIdentifier.GROUP_CODE));
         assertEquals("p\n", Utilities.getString(idDir, ExperimentIdentifier.PROJECT_CODE));
@@ -205,7 +207,12 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
         }
     }
 
-    @Test
+    //
+    // Note: validation has currently been switched off. We want to make the feature confgurable,
+    // though. At that point, these tests are supposed to work again.
+    //
+
+    @Test(groups = "broken")
     public void testCloseIfNoFormat()
     {
         dataStructure.create();
@@ -220,7 +227,7 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
         }
     }
 
-    @Test
+    @Test(groups = "broken")
     public void testCloseIfNoExperimentID()
     {
         dataStructure.create();
@@ -236,7 +243,7 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
         }
     }
 
-    @Test
+    @Test(groups = "broken")
     public void testCloseIfNoExperimentRegistrator()
     {
         dataStructure.create();
@@ -255,7 +262,7 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
         }
     }
 
-    @Test
+    @Test(groups = "broken")
     public void testCloseIfNoExperimentRegistrationDate()
     {
         dataStructure.create();
@@ -273,7 +280,7 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
         }
     }
 
-    @Test
+    @Test(groups = "broken")
     public void testCloseIfNoMeasurementEntity()
     {
         dataStructure.create();
@@ -299,7 +306,8 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
         dataStructure.create();
         dataStructure.getOriginalData().addKeyValuePair("answer", "42");
         dataStructure.setFormat(UnknownFormatV1_0.UNKNOWN_1_0);
-        final ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier("i", "g", "p", "e");
+        final ExperimentIdentifier experimentIdentifier =
+                new ExperimentIdentifier("i", "g", "p", "e");
         dataStructure.setExperimentIdentifier(experimentIdentifier);
         final ExperimentRegistrationTimestamp experimentRegistratorDate =
                 new ExperimentRegistrationTimestamp(new Date(4711L * 4711000L));

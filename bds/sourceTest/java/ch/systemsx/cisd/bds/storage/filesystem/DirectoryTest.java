@@ -52,7 +52,7 @@ public final class DirectoryTest extends AbstractFileSystemTestCase
         FileUtilities.writeToFile(new File(subDir, "p2"), "property 2");
         File dest = new File(workingDirectory, "destination");
         dest.mkdir();
-        Directory directory = new Directory(dest);
+        final IDirectory directory = NodeFactory.createDirectoryNode(dest);
         INode copiedDir = directory.addFile(dir, null, move);
         assertEquals("dir", copiedDir.getName());
         assertTrue(copiedDir instanceof IDirectory);
@@ -81,14 +81,14 @@ public final class DirectoryTest extends AbstractFileSystemTestCase
     @Test
     public void testGetName()
     {
-        Directory directory = new Directory(workingDirectory);
+        final IDirectory directory = NodeFactory.createDirectoryNode(workingDirectory);
         assertEquals(workingDirectory.getName(), directory.getName());
     }
 
     @Test
     public void testMakeDirectory()
     {
-        Directory directory = new Directory(workingDirectory);
+        final IDirectory directory = NodeFactory.createDirectoryNode(workingDirectory);
         IDirectory subdirectory = directory.makeDirectory("sub-directory");
 
         assertEquals("sub-directory", subdirectory.getName());
@@ -100,7 +100,7 @@ public final class DirectoryTest extends AbstractFileSystemTestCase
     @Test
     public void testMakeDirectoryTwice()
     {
-        Directory directory = new Directory(workingDirectory);
+        final IDirectory directory = NodeFactory.createDirectoryNode(workingDirectory);
         directory.makeDirectory("sub-directory");
         IDirectory subdirectory = directory.makeDirectory("sub-directory");
 
@@ -113,7 +113,7 @@ public final class DirectoryTest extends AbstractFileSystemTestCase
     @Test
     public void testMakeDirectoryButThereIsAlreadyAFileWithSameName()
     {
-        Directory directory = new Directory(workingDirectory);
+        final IDirectory directory = NodeFactory.createDirectoryNode(workingDirectory);
         directory.addKeyValuePair("sub-directory", "value");
         try
         {
@@ -128,7 +128,8 @@ public final class DirectoryTest extends AbstractFileSystemTestCase
     @Test
     public void testAddKeyValuePair()
     {
-        IFile stringFile = new Directory(workingDirectory).addKeyValuePair("answer", "42");
+        IFile stringFile =
+                NodeFactory.createDirectoryNode(workingDirectory).addKeyValuePair("answer", "42");
         assertEquals("42\n", FileUtilities.loadToString(new File(workingDirectory, "answer")));
         assertEquals("42\n", stringFile.getStringContent());
     }
@@ -138,7 +139,7 @@ public final class DirectoryTest extends AbstractFileSystemTestCase
     {
         File dir = new File(workingDirectory, "dir");
         dir.mkdirs();
-        Directory directory = new Directory(dir);
+        final IDirectory directory = NodeFactory.createDirectoryNode(dir);
         directory.addKeyValuePair("p1", "property 1");
         IDirectory subdir = directory.makeDirectory("subdir");
         subdir.addKeyValuePair("p2", "property 2");
@@ -161,7 +162,7 @@ public final class DirectoryTest extends AbstractFileSystemTestCase
     {
         File dir = new File(workingDirectory, "dir");
         dir.mkdirs();
-        IDirectory directory = new Directory(dir);
+        final IDirectory directory = NodeFactory.createDirectoryNode(dir);
         directory.addKeyValuePair("p1", "property 1");
         IDirectory subdir = directory.makeDirectory("subdir");
         subdir.addKeyValuePair("p2", "property 2");

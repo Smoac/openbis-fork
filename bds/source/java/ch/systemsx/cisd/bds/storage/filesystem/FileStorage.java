@@ -29,7 +29,7 @@ import ch.systemsx.cisd.bds.storage.IStorage;
  */
 public class FileStorage implements IStorage
 {
-    private final Directory root;
+    private final IDirectory root;
 
     private boolean mounted;
 
@@ -41,7 +41,7 @@ public class FileStorage implements IStorage
      */
     public FileStorage(File folder)
     {
-        root = new Directory(folder);
+        root = NodeFactory.createDirectoryNode(folder);
     }
 
     public IDirectory getRoot()

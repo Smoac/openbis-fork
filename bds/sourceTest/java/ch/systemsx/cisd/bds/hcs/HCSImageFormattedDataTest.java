@@ -53,6 +53,10 @@ import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
 public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
 
 {
+    private static final int NUMBER_OF_CHANNELS = 1;
+
+    private static final Geometry GEOMETRY = new Geometry(2, 2);
+
     private static final String IMAGE_ROOT_DIRECTORY_NAME = "CP001-1";
 
     private static final String ORIGINAL_TIFF = "original.tiff";
@@ -79,6 +83,17 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
 
     private final void prepareAndCreateFormattedData()
     {
+        prepareAndCreateFormattedData(standardNode, originalNode);
+    }
+
+    private final void prepareAndCreateFormattedDataWithoutOriginal()
+    {
+        prepareAndCreateFormattedData(standardNode, null);
+    }
+
+    private final void prepareAndCreateFormattedData(final IDirectory standardDirNode,
+            final IDirectory originalNodeOrNull)
+    {
         directory = context.mock(IDirectory.class);
         formatParameters = context.mock(IFormatParameters.class);
         final Format format = HCSImageFormatV1_0.HCS_IMAGE_1_0;
@@ -90,6 +105,8 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
                         one(formatParameters).containsParameter(formatParameterName);
                         will(returnValue(true));
                     }
+                    addParameterCheckExpectations(this, GEOMETRY, GEOMETRY, NUMBER_OF_CHANNELS);
+                    prepareGetDataDirectories(this, standardDirNode, originalNodeOrNull);
                 }
             });
         formattedData =
@@ -97,7 +114,24 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
                         null, formatParameters);
     }
 
-    private final void prepareStandardNode()
+    private void prepareGetDataDirectories(Expectations exp, IDirectory standardDirNode,
+            IDirectory originalNodeOrNull)
+    {
+        exp.one(directory).tryGetNode(DataStructureV1_0.DIR_STANDARD);
+        exp.will(Expectations.returnValue(standardDirNode));
+
+        exp.one(formatParameters).getValue(HCSImageFormatV1_0.CONTAINS_ORIGINAL_DATA);
+        boolean containsOriginalData = originalNodeOrNull != null;
+        exp.will(Expectations.returnValue(Utilities.Boolean.fromBoolean(containsOriginalData)));
+
+        if (containsOriginalData)
+        {
+            exp.one(directory).tryGetNode(DataStructureV1_0.DIR_ORIGINAL);
+            exp.will(Expectations.returnValue(originalNodeOrNull));
+        }
+    }
+
+    private final void createStandardNode()
     {
         final File standardDirectory = new File(workingDirectory, DataStructureV1_0.DIR_STANDARD);
         standardDirectory.mkdir();
@@ -107,25 +141,25 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
         standardLeafDirectory = row1.makeDirectory(HCSImageFormattedData.COLUMN + "2");
     }
 
-    private final void prepareOriginalNode()
+    private final void createOriginalNode()
     {
         final File originalDirectory = new File(workingDirectory, DataStructureV1_0.DIR_ORIGINAL);
         originalDirectory.mkdir();
         originalNode = NodeFactory.createDirectoryNode(originalDirectory);
     }
 
-    private final void addParameterCheckExpectations(final Expectations exp)
+    private final void addParameterCheckExpectations(final Expectations exp,
+            Geometry plateGeometry, Geometry wellGeometry, int numberOfChannels)
     {
-        final Geometry geometry = new Geometry(2, 2);
         exp.one(formatParameters).getValue(HCSImageFormatV1_0.NUMBER_OF_CHANNELS);
-        exp.will(Expectations.returnValue(new Integer(1)));
+        exp.will(Expectations.returnValue(new Integer(numberOfChannels)));
         exp.one(formatParameters).getValue(PlateGeometry.PLATE_GEOMETRY);
-        exp.will(Expectations.returnValue(geometry));
+        exp.will(Expectations.returnValue(plateGeometry));
         exp.one(formatParameters).getValue(WellGeometry.WELL_GEOMETRY);
-        exp.will(Expectations.returnValue(geometry));
+        exp.will(Expectations.returnValue(wellGeometry));
     }
 
-    private final void prepareImageRootDirectory() throws IOException
+    private final void createImageRootDirectory() throws IOException
     {
         imageRootDirectory = new File(workingDirectory, IMAGE_ROOT_DIRECTORY_NAME);
         imageRootDirectory.mkdir();
@@ -143,9 +177,8 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
     {
         super.setUp();
         context = new Mockery();
-        prepareAndCreateFormattedData();
-        prepareStandardNode();
-        prepareOriginalNode();
+        createStandardNode();
+        createOriginalNode();
     }
 
     @AfterMethod
@@ -159,6 +192,7 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
     @Test
     public final void testCreateWellFileName()
     {
+        prepareAndCreateFormattedDataWithoutOriginal();
         boolean fail = true;
         try
         {
@@ -177,6 +211,7 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
     @Test
     public final void testGetFormat()
     {
+        prepareAndCreateFormattedDataWithoutOriginal();
         assertEquals(HCSImageFormatV1_0.HCS_IMAGE_1_0, formattedData.getFormat());
         context.assertIsSatisfied();
     }
@@ -184,23 +219,10 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
     @Test
     public final void testAddStandardNodeWithOriginalData() throws IOException
     {
-        prepareImageRootDirectory();
+        createImageRootDirectory();
+        prepareAndCreateFormattedData();
+
         final int channelIndex = 1;
-        context.checking(new Expectations()
-            {
-                {
-                    addParameterCheckExpectations(this);
-
-                    exactly(2).of(directory).tryGetNode(DataStructureV1_0.DIR_STANDARD);
-                    will(returnValue(standardNode));
-
-                    one(directory).tryGetNode(DataStructureV1_0.DIR_ORIGINAL);
-                    will(returnValue(originalNode));
-
-                    one(formatParameters).getValue(HCSImageFormatV1_0.CONTAINS_ORIGINAL_DATA);
-                    will(returnValue(Utilities.Boolean.TRUE));
-                }
-            });
         final NodePath nodePath =
                 formattedData.addStandardNode(imageRootDirectory, ORIGINAL_TIFF, channelIndex,
                         PLATE_LOCATION, WELL_LOCATION);
@@ -222,20 +244,10 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
     @Test
     public final void testAddStandardNodeWithoutOriginalData() throws IOException
     {
-        prepareImageRootDirectory();
+        createImageRootDirectory();
+        prepareAndCreateFormattedDataWithoutOriginal();
+
         final int channelIndex = 1;
-        context.checking(new Expectations()
-            {
-                {
-                    addParameterCheckExpectations(this);
-
-                    exactly(2).of(directory).tryGetNode(DataStructureV1_0.DIR_STANDARD);
-                    will(returnValue(standardNode));
-
-                    one(formatParameters).getValue(HCSImageFormatV1_0.CONTAINS_ORIGINAL_DATA);
-                    will(returnValue(Utilities.Boolean.FALSE));
-                }
-            });
         final NodePath nodePath =
                 formattedData.addStandardNode(imageRootDirectory, ORIGINAL_TIFF, channelIndex,
                         PLATE_LOCATION, WELL_LOCATION);
@@ -257,16 +269,9 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
     @Test
     public final void testTryGetStandardNodeAtWithNoFile()
     {
-        final int channelIndex = 1;
-        context.checking(new Expectations()
-            {
-                {
-                    addParameterCheckExpectations(this);
+        prepareAndCreateFormattedDataWithoutOriginal();
 
-                    one(directory).tryGetNode(DataStructureV1_0.DIR_STANDARD);
-                    will(returnValue(standardNode));
-                }
-            });
+        final int channelIndex = 1;
         final INode node =
                 formattedData.tryGetStandardNodeAt(channelIndex, PLATE_LOCATION, WELL_LOCATION);
         assertNull(node);
@@ -276,19 +281,12 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
     @Test
     public final void testTryGetStandardNodeAtWithFile() throws IOException
     {
+        prepareAndCreateFormattedDataWithoutOriginal();
+
         final File file = new File(workingDirectory, "row2_column1.tiff");
         FileUtils.writeStringToFile(file, "This is my original file...");
         standardLeafDirectory.addFile(file, null, true);
         final int channelIndex = 1;
-        context.checking(new Expectations()
-            {
-                {
-                    addParameterCheckExpectations(this);
-
-                    one(directory).tryGetNode(DataStructureV1_0.DIR_STANDARD);
-                    will(returnValue(standardNode));
-                }
-            });
         final INode node =
                 formattedData.tryGetStandardNodeAt(channelIndex, PLATE_LOCATION, WELL_LOCATION);
         assertNotNull(node);
@@ -298,13 +296,7 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
     @Test
     public final void testTryGetStandardNodeAtWithWrongChannelIndex()
     {
-        context.checking(new Expectations()
-            {
-                {
-                    one(formatParameters).getValue(HCSImageFormatV1_0.NUMBER_OF_CHANNELS);
-                    will(returnValue(new Integer(1)));
-                }
-            });
+        prepareAndCreateFormattedDataWithoutOriginal();
         try
         {
             formattedData.tryGetStandardNodeAt(2, null, null);
@@ -319,16 +311,7 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
     @Test
     public final void testTryGetStandardNodeAtWithWrongPlateLocation()
     {
-        context.checking(new Expectations()
-            {
-                {
-                    one(formatParameters).getValue(HCSImageFormatV1_0.NUMBER_OF_CHANNELS);
-                    will(returnValue(new Integer(1)));
-
-                    one(formatParameters).getValue(PlateGeometry.PLATE_GEOMETRY);
-                    will(returnValue(new Geometry(2, 2)));
-                }
-            });
+        prepareAndCreateFormattedDataWithoutOriginal();
         try
         {
             final Location location = new Location(2, 3);
@@ -344,12 +327,7 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
     @Test
     public final void testTryGetStandardNodeAtWithWrongWellLocation()
     {
-        context.checking(new Expectations()
-            {
-                {
-                    addParameterCheckExpectations(this);
-                }
-            });
+        prepareAndCreateFormattedDataWithoutOriginal();
         try
         {
             formattedData.tryGetStandardNodeAt(1, new Location(2, 2), new Location(3, 2));

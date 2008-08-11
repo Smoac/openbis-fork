@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.bds.Constants;
 import ch.systemsx.cisd.bds.DataStructureV1_0;
@@ -37,6 +38,9 @@ import ch.systemsx.cisd.common.collections.CollectionIO;
 import ch.systemsx.cisd.common.collections.IFromStringConverter;
 import ch.systemsx.cisd.common.collections.IToStringConverter;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.StopException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
  * A <code>IDataStructureHandler</code> implementation for the <code>md5sum</code> directory.
@@ -45,6 +49,9 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
  */
 public final class ChecksumHandler implements IDataStructureHandler
 {
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, ChecksumHandler.class);
+
     private static final ChecksumConverter CHECKSUM_CONVERTER = new ChecksumConverter();
 
     public static final String CHECKSUM_DIRECTORY = "md5sum";
@@ -65,9 +72,15 @@ public final class ChecksumHandler implements IDataStructureHandler
 
     private final List<Checksum> loadChecksumsForAllFilesIn(final IDirectory directory)
     {
+        final long start = System.currentTimeMillis();
         assert directory != null : "Unspecified directory";
         final List<Checksum> checksums = new ArrayList<Checksum>();
         addChecksums(checksums, null, directory);
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("Computation of MD5 checksums took "
+                    + ((System.currentTimeMillis() - start) / 1000.0) + "s");
+        }
         return checksums;
     }
 
@@ -89,11 +102,12 @@ public final class ChecksumHandler implements IDataStructureHandler
     private final void addChecksum(final List<Checksum> checksums, final String path,
             final INode node)
     {
+        StopException.check();
         final String nodePath =
                 (path == null ? "" : path + Constants.PATH_SEPARATOR) + node.getName();
         if (node instanceof IFile)
         {
-            IFile file = (IFile) node;
+            final IFile file = (IFile) node;
             final InputStream inputStream = file.getInputStream();
             try
             {
@@ -104,7 +118,7 @@ public final class ChecksumHandler implements IDataStructureHandler
                 checksums.add(checksum);
             } catch (IOException ex)
             {
-                throw new EnvironmentFailureException("Couldn't calculate checksum for file '"
+                throw new EnvironmentFailureException("Can not calculate checksum for file '"
                         + nodePath + "'");
             } finally
             {

@@ -349,6 +349,13 @@ public interface IFileOperations extends IFileRemover
     public String getContentAsString(File file) throws WrappedIOException;
 
     /**
+     * Returns the content of <var>file</var> as a String. Doesn't append new line at the end.
+     * 
+     * @throws WrappedIOException if an IO error occurs during reading the file
+     */
+    public String getExactContentAsString(File file) throws WrappedIOException;
+
+    /**
      * Returns the content of <var>file</var> as a list of Strings.
      * 
      * @throws WrappedIOException if an IO error occurs during reading the file

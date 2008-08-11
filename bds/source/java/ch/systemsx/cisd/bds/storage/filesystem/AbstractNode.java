@@ -18,23 +18,27 @@ package ch.systemsx.cisd.bds.storage.filesystem;
 
 import java.io.File;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import ch.systemsx.cisd.bds.exception.StorageException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
-import ch.systemsx.cisd.bds.storage.INode;
+import ch.systemsx.cisd.bds.storage.IFileBasedNode;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.filesystem.FileOperations;
 
 /**
  * An abstract implementation of <code>INode</code>.
  * 
  * @author Franz-Josef Elmer
  */
-abstract class AbstractNode implements INode
+abstract class AbstractNode implements IFileBasedNode
 {
     protected final static File moveFileToDirectory(final File source, final File directory,
             final String nameOrNull) throws EnvironmentFailureException
     {
         assert source != null;
-        assert directory != null && directory.isDirectory();
+        assert directory != null
+                && FileOperations.getMonitoredInstanceForCurrentThread().isDirectory(directory);
         final String newName;
         if (nameOrNull == null)
         {
@@ -44,13 +48,15 @@ abstract class AbstractNode implements INode
             newName = nameOrNull;
         }
         final File destination = new File(directory, newName);
-        if (destination.exists() == false)
+        if (FileOperations.getMonitoredInstanceForCurrentThread().exists(destination) == false)
         {
-            final boolean successful = source.renameTo(destination);
+            final boolean successful =
+                    FileOperations.getMonitoredInstanceForCurrentThread().rename(source,
+                            destination);
             if (successful == false)
             {
                 throw EnvironmentFailureException.fromTemplate(
-                        "Couldn't not move file '%s' to directory '%s'.", source.getAbsolutePath(),
+                        "Can not move file '%s' to directory '%s'.", source.getAbsolutePath(),
                         directory.getAbsolutePath());
             }
         }
@@ -71,11 +77,20 @@ abstract class AbstractNode implements INode
         {
             throw new StorageException("Unspecified file.");
         }
-        if (file.exists() == false)
+        if (FileOperations.getMonitoredInstanceForCurrentThread().exists(file) == false)
         {
             throw new StorageException(String.format("Non existing file '%s'.", file
                     .getAbsolutePath()));
         }
+    }
+
+    //
+    // IFileBasedNode
+    //
+
+    public java.io.File getNodeFile()
+    {
+        return nodeFile;
     }
 
     //
@@ -87,10 +102,15 @@ abstract class AbstractNode implements INode
         return nodeFile.getName();
     }
 
-    public final IDirectory tryToGetParent()
+    public String getPath()
+    {
+        return nodeFile.getAbsolutePath();
+    }
+
+    public final IDirectory tryGetParent()
     {
         File dir = nodeFile.getParentFile();
-        return dir == null ? null : new Directory(dir);
+        return dir == null ? null : NodeFactory.internalCreateDirectoryNode(dir);
     }
 
     public final void moveTo(final File directory)
@@ -100,7 +120,7 @@ abstract class AbstractNode implements INode
 
     public boolean isValid()
     {
-        return nodeFile.exists();
+        return FileOperations.getMonitoredInstanceForCurrentThread().canRead(nodeFile);
     }
 
     //
@@ -112,4 +132,21 @@ abstract class AbstractNode implements INode
     {
         return nodeFile.getAbsolutePath();
     }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (obj instanceof IFileBasedNode == false)
+        {
+            return false;
+        }
+        return ObjectUtils.equals(nodeFile, ((IFileBasedNode) obj).getNodeFile());
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return nodeFile.hashCode();
+    }
+
 }

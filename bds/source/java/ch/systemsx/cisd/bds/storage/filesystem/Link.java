@@ -18,9 +18,12 @@ package ch.systemsx.cisd.bds.storage.filesystem;
 
 import java.io.File;
 
+import com.sun.corba.se.impl.orbutil.ObjectUtility;
+
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
-import ch.systemsx.cisd.bds.storage.ILink;
+import ch.systemsx.cisd.bds.storage.IFileBasedLink;
+import ch.systemsx.cisd.bds.storage.IFileBasedNode;
 import ch.systemsx.cisd.bds.storage.INode;
 
 /**
@@ -28,15 +31,15 @@ import ch.systemsx.cisd.bds.storage.INode;
  * 
  * @author Franz-Josef Elmer
  */
-final class Link implements ILink
+final class Link implements IFileBasedLink
 {
     private final String name;
 
-    private final INode reference;
+    private final IFileBasedNode reference;
 
     private IDirectory parent;
 
-    Link(final String name, final INode reference)
+    Link(final String name, final IFileBasedNode reference)
     {
         assert name != null : "A name must be specified.";
         assert reference != null : "Reference can not be null.";
@@ -48,9 +51,19 @@ final class Link implements ILink
     }
 
     /** Sets the parent of this {@link INode}. */
-    final void setParent(final IDirectory parentOrNull)
+    public final void setParent(final IDirectory parentOrNull)
     {
         parent = parentOrNull;
+    }
+
+    public IDirectory tryAsDirectory()
+    {
+        return (reference instanceof IDirectory) ? (IDirectory) reference : null;
+    }
+
+    public IFile tryAsFile()
+    {
+        return (reference instanceof IFile) ? (IFile) reference : null;
     }
 
     //
@@ -62,7 +75,12 @@ final class Link implements ILink
         return name;
     }
 
-    public final IDirectory tryToGetParent()
+    public String getPath()
+    {
+        return parent.getPath() + "/" + getPath();
+    }
+
+    public final IDirectory tryGetParent()
     {
         return parent;
     }
@@ -95,4 +113,36 @@ final class Link implements ILink
         }
         return true;
     }
+
+    public File getNodeFile()
+    {
+        return reference.getNodeFile();
+    }
+
+    //
+    // Object
+    //
+
+    @Override
+    public final String toString()
+    {
+        return getPath();
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (obj instanceof IFileBasedLink == false)
+        {
+            return false;
+        }
+        return ObjectUtility.equals(getPath(), ((IFileBasedLink) obj).getPath());
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return getPath().hashCode();
+    }
+
 }

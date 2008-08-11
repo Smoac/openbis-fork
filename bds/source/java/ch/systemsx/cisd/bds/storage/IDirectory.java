@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.bds.storage;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * Node representing a directory.
@@ -31,6 +32,27 @@ public interface IDirectory extends INode, Iterable<INode>
      * @return <code>null</code> if there is no child node named <code>name</code>.
      */
     public INode tryGetNode(final String name);
+
+    /**
+     * Finds file nodes within this directory (and optionally its sub-directories) which match an
+     * array of extensions.
+     * 
+     * @param extensionsOrNull An array of extensions, ex. {"tiff","tif"}. If this parameter is
+     *            <code>null</code>, all files are returned.
+     * @param recursive If <code>true</code> all sub-directories are searched as well.
+     * @return A list of {@link INode}s with the nodes that matched. This list is <i>not</i>
+     *         ordered.
+     */
+    public List<IFile> listFiles(String[] extensionsOrNull, boolean recursive);
+
+    /**
+     * Finds directory nodes within this directory (and optionally its sub-directories).
+     * 
+     * @param recursive If <code>true</code> all sub-directories are searched as well.
+     * @return A list of {@link INode}s with the nodes that matched. This list is <i>not</i>
+     *         ordered.
+     */
+    public List<IDirectory> listDirectories(boolean recursive);
 
     /**
      * Makes a new subdirectory in this directory. Does nothing if the subdirectory already exists.

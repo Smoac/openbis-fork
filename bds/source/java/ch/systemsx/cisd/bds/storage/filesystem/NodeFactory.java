@@ -16,13 +16,15 @@
 
 package ch.systemsx.cisd.bds.storage.filesystem;
 
-import java.io.IOException;
-
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
+import ch.systemsx.cisd.bds.storage.IFileBasedDirectory;
+import ch.systemsx.cisd.bds.storage.IFileBasedFile;
+import ch.systemsx.cisd.bds.storage.IFileBasedNode;
 import ch.systemsx.cisd.bds.storage.ILink;
 import ch.systemsx.cisd.bds.storage.INode;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.filesystem.FileOperations;
 
 /**
  * A <code>INode</code> factory class.
@@ -37,40 +39,13 @@ public final class NodeFactory
 {
 
     /**
-     * A <code>INode</code> factory method for given <var>file</var>.
-     * <p>
-     * IMPORTANT NOTE: we compare the absolute path against the canonical one to found out whether
-     * it is a link or not. This only works for <i>symbolic</i> links and not for <i>hard</i>
-     * links.
-     * </p>
+     * A <code>INode</code> factory method for given <var>file</var>. It does not support creating
+     * links, because only symbolic links could be recognized.
      */
     public static INode createNode(final java.io.File file) throws EnvironmentFailureException
     {
-        assert file != null : "Unspecified node";
-        final String absolutePath = file.getAbsolutePath();
-        final String canonicalPath = getCanonicalPath(file);
-        if (absolutePath.equals(canonicalPath) == false)
-        {
-            return createLinkNode(file);
-        }
-        if (file.isDirectory())
-        {
-            return createDirectoryNode(file);
-        }
-        return createFileNode(file);
-    }
-
-    private final static String getCanonicalPath(final java.io.File file)
-    {
-        assert file != null : "Unspecified node";
-        try
-        {
-            return file.getCanonicalPath();
-        } catch (IOException ex)
-        {
-            throw new EnvironmentFailureException("Couldn't get canonical path of file '"
-                    + file.getAbsolutePath() + "'", ex);
-        }
+        assert file != null : "Given node can not be null";
+        return internalCreateNode(file);
     }
 
     /**
@@ -79,28 +54,30 @@ public final class NodeFactory
      */
     public final static ILink createLinkNode(final String name, final java.io.File file)
     {
-        assert file != null : "Given file can not be null.";
-        assert name != null : "Given name can not be null.";
-        return new Link(name, createNode(file));
+        assert file != null : "Given file can not be null";
+        assert name != null : "Given name can not be null";
+        return new Link(name, internalCreateNode(file));
     }
 
     /**
-     * Creates a new <code>ILink</code>.
+     * Creates a new <code>ILink</code> assuming that the given file is a symbolic link.
      * <p>
-     * IMPORTANT NOTE: we compare the absolute path against the canonical one to found out whether
-     * it is a link or not. This only works for <i>symbolic</i> links and not for <i>hard</i>
-     * links.
+     * IMPORTANT NOTE: we compare the absolute path against the canonical one to find out whether it
+     * is a link or not. This only works for <i>symbolic</i> links and not for <i>hard</i> links.
      * </p>
      */
-    public final static ILink createLinkNode(final java.io.File file)
+    public final static ILink createSymbolicLinkNode(final java.io.File file)
             throws EnvironmentFailureException
     {
-        final String canonicalPath = getCanonicalPath(file);
         final String absolutePath = file.getAbsolutePath();
-        assert absolutePath.equals(canonicalPath) == false : String.format(
-                "Given file must be a link [absolute=%s,canonical=%s].", absolutePath,
-                canonicalPath);
-        return new Link(file.getName(), createNode(new java.io.File(canonicalPath)));
+        final String canonicalPath =
+                FileOperations.getMonitoredInstanceForCurrentThread().getCanonicalPath(file);
+        if (absolutePath.equals(canonicalPath))
+        {
+            throw new IllegalArgumentException(String.format(
+                    "Given file must be a link [path=%s].", absolutePath));
+        }
+        return new Link(file.getName(), internalCreateNode(new java.io.File(canonicalPath)));
     }
 
     /**
@@ -108,8 +85,13 @@ public final class NodeFactory
      */
     public final static IFile createFileNode(final java.io.File file)
     {
-        assert file != null && file.isFile() : "Given file must be a file";
-        return new File(file);
+        assert file != null : "Given file must not be null";
+        if (FileOperations.getMonitoredInstanceForCurrentThread().isFile(file) == false)
+        {
+            throw new IllegalArgumentException("File '" + file.getAbsolutePath()
+                    + "' is not a file.");
+        }
+        return internalCreateFileNode(file);
     }
 
     /**
@@ -117,7 +99,31 @@ public final class NodeFactory
      */
     public final static IDirectory createDirectoryNode(final java.io.File file)
     {
-        assert file != null && file.isDirectory() : "Given file must be a directory";
+        assert file != null : "Given file must not be null";
+        if (FileOperations.getMonitoredInstanceForCurrentThread().isDirectory(file) == false)
+        {
+            throw new IllegalArgumentException("File '" + file.getAbsolutePath()
+                    + "' is not a directory.");
+        }
+        return internalCreateDirectoryNode(file);
+    }
+
+    static IFileBasedNode internalCreateNode(final java.io.File file)
+    {
+        if (FileOperations.getMonitoredInstanceForCurrentThread().isDirectory(file))
+        {
+            return internalCreateDirectoryNode(file);
+        }
+        return internalCreateFileNode(file);
+    }
+
+    static IFileBasedFile internalCreateFileNode(final java.io.File file)
+    {
+        return new File(file);
+    }
+
+    static IFileBasedDirectory internalCreateDirectoryNode(final java.io.File file)
+    {
         return new Directory(file);
     }
 

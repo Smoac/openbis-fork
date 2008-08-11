@@ -16,30 +16,38 @@
 
 package ch.systemsx.cisd.bds.storage.filesystem;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-
+import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
+import ch.systemsx.cisd.bds.storage.IFileBasedFile;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.utilities.FileUtilities;
+import ch.systemsx.cisd.common.exceptions.WrappedIOException;
+import ch.systemsx.cisd.common.filesystem.FileOperations;
 
 /**
  * An <code>IFile</code> implementation.
  * 
  * @author Franz-Josef Elmer
  */
-final class File extends AbstractNode implements IFile
+final class File extends AbstractNode implements IFileBasedFile
 {
     File(final java.io.File file)
     {
         super(file);
-        assert file.isFile() : "Not a file " + file.getAbsolutePath();
+        assert FileOperations.getMonitoredInstanceForCurrentThread().isFile(file) : "Not a file "
+                + file.getAbsolutePath();
+    }
+
+    public IDirectory tryAsDirectory()
+    {
+        return null;
+    }
+
+    public IFile tryAsFile()
+    {
+        return this;
     }
 
     //
@@ -48,17 +56,14 @@ final class File extends AbstractNode implements IFile
 
     public final byte[] getBinaryContent()
     {
-        final InputStream inputStream = getInputStream();
         try
         {
-            return IOUtils.toByteArray(inputStream);
-        } catch (final IOException ex)
+            return FileOperations.getMonitoredInstanceForCurrentThread().getContentAsByteArray(
+                    nodeFile);
+        } catch (WrappedIOException ex)
         {
-            throw new EnvironmentFailureException("Couldn't get data from file "
-                    + nodeFile.getAbsolutePath(), ex);
-        } finally
-        {
-            IOUtils.closeQuietly(inputStream);
+            throw new EnvironmentFailureException("Can not load data from file "
+                    + nodeFile.getAbsolutePath(), ex.getCause());
         }
     }
 
@@ -66,27 +71,29 @@ final class File extends AbstractNode implements IFile
     {
         try
         {
-            return new FileInputStream(nodeFile);
-        } catch (final FileNotFoundException ex)
+            return FileOperations.getMonitoredInstanceForCurrentThread().getInputStream(nodeFile);
+        } catch (WrappedIOException ex)
         {
-            throw new EnvironmentFailureException("Couldn't open input stream for file "
-                    + nodeFile.getAbsolutePath());
+            throw new EnvironmentFailureException("Can not open input stream for file "
+                    + nodeFile.getAbsolutePath(), ex.getCause());
         }
     }
 
     public final String getStringContent()
     {
-        return FileUtilities.loadToString(nodeFile);
+        return FileOperations.getMonitoredInstanceForCurrentThread().getContentAsString(nodeFile);
     }
 
     public final String getExactStringContent()
     {
-        return FileUtilities.loadExactToString(nodeFile);
+        return FileOperations.getMonitoredInstanceForCurrentThread().getExactContentAsString(
+                nodeFile);
     }
 
     public final List<String> getStringContentList()
     {
-        return FileUtilities.loadToStringList(nodeFile);
+        return FileOperations.getMonitoredInstanceForCurrentThread().getContentAsStringList(
+                nodeFile);
     }
 
     public final void extractTo(final java.io.File directory) throws EnvironmentFailureException
@@ -94,11 +101,12 @@ final class File extends AbstractNode implements IFile
         assert directory != null && directory.isDirectory();
         try
         {
-            FileUtils.copyFileToDirectory(nodeFile, directory);
-        } catch (final IOException ex)
+            FileOperations.getMonitoredInstanceForCurrentThread().copyFileToDirectory(nodeFile,
+                    directory);
+        } catch (WrappedIOException ex)
         {
-            throw EnvironmentFailureException.fromTemplate(ex,
-                    "Couldn't not copy file '%s' to directory '%s'.", nodeFile.getAbsolutePath(),
+            throw EnvironmentFailureException.fromTemplate(ex.getCause(),
+                    "Can not copy file '%s' to directory '%s'.", nodeFile.getAbsolutePath(),
                     directory.getAbsolutePath());
         }
     }

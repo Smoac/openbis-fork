@@ -453,6 +453,11 @@ public class FileOperations implements IFileOperations
         return FileUtilities.loadToString(file);
     }
 
+    public String getExactContentAsString(File file) throws WrappedIOException
+    {
+        return FileUtilities.loadExactToString(file);
+    }
+
     public List<String> getContentAsStringList(File file) throws WrappedIOException
     {
         return FileUtilities.loadToStringList(file);

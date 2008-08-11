@@ -19,11 +19,14 @@ package ch.systemsx.cisd.bds.storage.filesystem;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.INode;
+import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
 
@@ -34,6 +37,18 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
  */
 public class NodeFactoryTest extends AbstractFileSystemTestCase
 {
+    @BeforeTest
+    public void beforeTest()
+    {
+        TimingParameters.setDefault(TimingParameters.createNoRetries(500L));
+    }
+    
+    @AfterTest
+    public void afterTest()
+    {
+        TimingParameters.setDefault(TimingParameters.getStandardParameters());
+    }
+    
     @Test
     public void testCreateFileNode()
     {

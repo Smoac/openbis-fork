@@ -40,9 +40,9 @@ public final class FileTest extends AbstractFileSystemTestCase
     @Test
     public void testGetValueAndGetName()
     {
-        java.io.File file = new java.io.File(workingDirectory, "test.txt");
+        final java.io.File file = new java.io.File(workingDirectory, "test.txt");
         FileUtilities.writeToFile(file, "Hello\nworld!\n");
-        File stringFile = new File(file);
+        final IFile stringFile = NodeFactory.createFileNode(file);
 
         assertEquals("test.txt", stringFile.getName());
         assertEquals("Hello\nworld!\n", stringFile.getStringContent());
@@ -52,9 +52,9 @@ public final class FileTest extends AbstractFileSystemTestCase
     @Test
     public void testExtractTo()
     {
-        java.io.File file = new java.io.File(workingDirectory, "test.txt");
+        final java.io.File file = new java.io.File(workingDirectory, "test.txt");
         FileUtilities.writeToFile(file, "Hello\nworld!\n");
-        File stringFile = new File(file);
+        final IFile stringFile = NodeFactory.createFileNode(file);
 
         java.io.File subdir = new java.io.File(workingDirectory, "subdir");
         subdir.mkdir();
@@ -66,9 +66,9 @@ public final class FileTest extends AbstractFileSystemTestCase
     @Test
     public void testMoveTo()
     {
-        java.io.File dir = new java.io.File(workingDirectory, "dir");
+        final java.io.File dir = new java.io.File(workingDirectory, "dir");
         dir.mkdirs();
-        IDirectory directory = new Directory(dir);
+        final IDirectory directory = NodeFactory.createDirectoryNode(dir);
         IFile file = directory.addKeyValuePair("p1", "property 1");
 
         file.moveTo(workingDirectory);
@@ -81,7 +81,7 @@ public final class FileTest extends AbstractFileSystemTestCase
     @Test
     public void testGetInputStream() throws Exception
     {
-        java.io.File file = new java.io.File(workingDirectory, "test");
+        final java.io.File file = new java.io.File(workingDirectory, "test");
         FileOutputStream fileOutputStream = null;
         try
         {

@@ -29,12 +29,28 @@ public interface INode
     public String getName();
 
     /**
-     * Returns the parent directory of this node or <code>null</code> if it is the root node.
+     * Returns the path of this node.
      */
-    public IDirectory tryToGetParent();
+    public String getPath();
 
     /**
-     * Whether this <code>INode</code> is valid.
+     * Returns the parent directory of this node or <code>null</code> if it is the root node.
+     */
+    public IDirectory tryGetParent();
+
+    /**
+     * Returns this node as a directory, or <code>null</code>, if this node is no directory.
+     */
+    public IDirectory tryAsDirectory();
+    
+    /**
+     * Returns this node as a file, or <code>null</code>, if this node is no file.
+     */
+    public IFile tryAsFile();
+    
+    /**
+     * Whether this <code>INode</code> is valid. As a minimum, a node needs to exist and be readable
+     * in order to be valid. Sub-classes can define additional requirements of validity.
      */
     public boolean isValid();
 

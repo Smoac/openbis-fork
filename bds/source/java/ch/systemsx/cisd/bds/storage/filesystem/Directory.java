@@ -16,32 +16,36 @@
 
 package ch.systemsx.cisd.bds.storage.filesystem;
 
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
-
-import org.apache.commons.io.FileUtils;
+import java.util.List;
 
 import ch.systemsx.cisd.bds.Constants;
 import ch.systemsx.cisd.bds.exception.StorageException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
+import ch.systemsx.cisd.bds.storage.IFileBasedDirectory;
+import ch.systemsx.cisd.bds.storage.IFileBasedLink;
+import ch.systemsx.cisd.bds.storage.IFileBasedNode;
 import ch.systemsx.cisd.bds.storage.ILink;
 import ch.systemsx.cisd.bds.storage.INode;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.utilities.FileUtilities;
+import ch.systemsx.cisd.common.exceptions.WrappedIOException;
+import ch.systemsx.cisd.common.filesystem.FileOperations;
 
 /**
  * An <code>IDirectory</code> implementation.
  * 
  * @author Franz-Josef Elmer
  */
-final class Directory extends AbstractNode implements IDirectory
+final class Directory extends AbstractNode implements IFileBasedDirectory
 {
 
     Directory(final java.io.File directory)
     {
         super(directory);
-        if (directory.isDirectory() == false)
+        if (FileOperations.getMonitoredInstanceForCurrentThread().isDirectory(directory) == false)
         {
             throw new StorageException(String.format("Not a directory '%s'.", directory
                     .getAbsolutePath()));
@@ -50,8 +54,8 @@ final class Directory extends AbstractNode implements IDirectory
 
     private final static java.io.File getNodeFile(final INode node)
     {
-        assert node instanceof AbstractNode : "Must be an instance of AbstractNode.";
-        return ((AbstractNode) node).nodeFile;
+        assert node instanceof IFileBasedNode : "Must be an instance of IFileBasedNode.";
+        return ((IFileBasedNode) node).getNodeFile();
     }
 
     private final static String cleanName(final String name)
@@ -64,6 +68,16 @@ final class Directory extends AbstractNode implements IDirectory
         return name;
     }
 
+    public IDirectory tryAsDirectory()
+    {
+        return this;
+    }
+
+    public IFile tryAsFile()
+    {
+        return null;
+    }
+
     //
     // IDirectory
     //
@@ -74,9 +88,9 @@ final class Directory extends AbstractNode implements IDirectory
         final String path = cleanName(name.replace('\\', Constants.PATH_SEPARATOR));
 
         java.io.File childrenNodeFile = new java.io.File(this.nodeFile, path);
-        if (childrenNodeFile.exists())
+        if (FileOperations.getMonitoredInstanceForCurrentThread().exists(childrenNodeFile))
         {
-            return NodeFactory.createNode(childrenNodeFile);
+            return NodeFactory.internalCreateNode(childrenNodeFile);
         } else
         {
             return null;
@@ -87,22 +101,22 @@ final class Directory extends AbstractNode implements IDirectory
     {
         assert name != null : "Given name can not be null.";
         java.io.File dir = new java.io.File(nodeFile, name);
-        if (dir.exists())
+        if (FileOperations.getMonitoredInstanceForCurrentThread().exists(dir))
         {
-            if (dir.isDirectory() == false)
+            if (FileOperations.getMonitoredInstanceForCurrentThread().isDirectory(dir) == false)
             {
                 throw new StorageException("There already exists a file named '" + name
                         + "' in directory " + this);
             }
-            return new Directory(dir);
+            return NodeFactory.internalCreateDirectoryNode(dir);
         }
-        boolean successful = dir.mkdir();
+        boolean successful = FileOperations.getMonitoredInstanceForCurrentThread().mkdir(dir);
         if (successful == false)
         {
             throw new EnvironmentFailureException("Couldn't create directory "
                     + dir.getAbsolutePath() + " for some unknown reason.");
         }
-        return new Directory(dir);
+        return NodeFactory.internalCreateDirectoryNode(dir);
     }
 
     public final IFile addKeyValuePair(final String key, final String value)
@@ -113,8 +127,8 @@ final class Directory extends AbstractNode implements IDirectory
             throw new IllegalArgumentException("Value for key '" + key + "' not specified.");
         }
         java.io.File file = new java.io.File(nodeFile, key);
-        FileUtilities.writeToFile(file, value);
-        return new File(file);
+        FileOperations.getMonitoredInstanceForCurrentThread().writeToFile(file, value);
+        return NodeFactory.internalCreateFileNode(file);
     }
 
     public final INode addFile(final java.io.File file, final String name, final boolean move)
@@ -136,21 +150,22 @@ final class Directory extends AbstractNode implements IDirectory
         {
             try
             {
-                if (file.isDirectory())
+                if (FileOperations.getMonitoredInstanceForCurrentThread().isDirectory(file))
                 {
-                    FileUtils.copyDirectory(file, newFile);
+                    FileOperations.getMonitoredInstanceForCurrentThread().copyDirectory(file,
+                            newFile);
                 } else
                 {
-                    FileUtils.copyFile(file, newFile);
+                    FileOperations.getMonitoredInstanceForCurrentThread().copyFile(file, newFile);
                 }
-            } catch (IOException ex)
+            } catch (WrappedIOException ex)
             {
                 throw EnvironmentFailureException.fromTemplate(ex,
-                        "Couldn't not copy file '%s' to directory '%s'.", file, nodeFile
+                        "Can not copy file '%s' to directory '%s'.", file, nodeFile
                                 .getAbsolutePath());
             }
         }
-        return NodeFactory.createNode(newFile);
+        return NodeFactory.internalCreateNode(newFile);
     }
 
     public final ILink tryAddLink(final String name, final INode node)
@@ -158,11 +173,10 @@ final class Directory extends AbstractNode implements IDirectory
         assert node != null : "Node can not be null.";
         assert name != null : "Name can not be null.";
         final java.io.File file = getNodeFile(node);
-        final boolean ok =
-                LinkMakerProvider.getLinkMaker().copyImmutably(file, nodeFile, name);
+        final boolean ok = LinkMakerProvider.getLinkMaker().copyImmutably(file, nodeFile, name);
         if (ok)
         {
-            final Link link = (Link) NodeFactory.createLinkNode(name, file);
+            final IFileBasedLink link = (IFileBasedLink) NodeFactory.createLinkNode(name, file);
             link.setParent(this);
             return link;
         }
@@ -173,7 +187,9 @@ final class Directory extends AbstractNode implements IDirectory
     {
         return new Iterator<INode>()
             {
-                private java.io.File[] files = FileUtilities.listFiles(nodeFile);
+                private List<java.io.File> files =
+                        FileOperations.getMonitoredInstanceForCurrentThread()
+                                .listFilesAndDirectories(nodeFile, false);
 
                 private int index;
 
@@ -188,12 +204,13 @@ final class Directory extends AbstractNode implements IDirectory
 
                 public INode next()
                 {
-                    return index >= files.length ? null : NodeFactory.createNode(files[index++]);
+                    return index >= files.size() ? null : NodeFactory.internalCreateNode(files
+                            .get(index++));
                 }
 
                 public boolean hasNext()
                 {
-                    return index < files.length;
+                    return index < files.size();
                 }
             };
     }
@@ -204,11 +221,12 @@ final class Directory extends AbstractNode implements IDirectory
         // ...but might not exist
         try
         {
-            FileUtils.copyDirectoryToDirectory(nodeFile, directory);
-        } catch (IOException ex)
+            FileOperations.getMonitoredInstanceForCurrentThread().copyDirectoryToDirectory(
+                    nodeFile, directory);
+        } catch (WrappedIOException ex)
         {
             throw EnvironmentFailureException.fromTemplate(ex,
-                    "Couldn't copy directory '%s' to directory '%s'.", nodeFile.getAbsolutePath(),
+                    "Can not copy directory '%s' to directory '%s'.", nodeFile.getAbsolutePath(),
                     directory.getAbsolutePath());
         }
     }
@@ -217,26 +235,50 @@ final class Directory extends AbstractNode implements IDirectory
     {
         assert node != null : "Node could not be null";
         final java.io.File file = getNodeFile(node);
-        if (file.isDirectory())
+        if (FileOperations.getMonitoredInstanceForCurrentThread().isDirectory(file))
         {
-            if (FileUtilities.deleteRecursively(file) == false)
+            try
             {
-                throw EnvironmentFailureException.fromTemplate("Couldn't remove directory '%s'.",
+                FileOperations.getMonitoredInstanceForCurrentThread().deleteRecursively(file);
+            } catch (WrappedIOException ex)
+            {
+                throw EnvironmentFailureException.fromTemplate("Can not remove directory '%s'.",
                         file.getAbsolutePath());
             }
-        } else if (file.isFile())
+        } else if (FileOperations.getMonitoredInstanceForCurrentThread().isFile(file))
         {
-            if (file.delete() == false)
+            if (FileOperations.getMonitoredInstanceForCurrentThread().delete(file) == false)
             {
-                throw EnvironmentFailureException.fromTemplate("Couldn't remove file '%s'.", file
+                throw EnvironmentFailureException.fromTemplate("Can not remove file '%s'.", file
                         .getAbsolutePath());
             }
         }
     }
 
-    @Override
-    public final boolean isValid()
+    public List<IFile> listFiles(String[] extensionsOrNull, boolean recursive)
     {
-        return super.isValid() && FileUtilities.checkDirectoryFullyAccessible(nodeFile, "") == null;
+        final List<java.io.File> files =
+                FileOperations.getMonitoredInstanceForCurrentThread().listFiles(nodeFile,
+                        extensionsOrNull, recursive);
+        final List<IFile> nodes = new ArrayList<IFile>(files.size());
+        for (java.io.File f : files)
+        {
+            nodes.add(NodeFactory.internalCreateFileNode(f));
+        }
+        return Collections.unmodifiableList(nodes);
     }
+
+    public List<IDirectory> listDirectories(boolean recursive)
+    {
+        final List<java.io.File> files =
+                FileOperations.getMonitoredInstanceForCurrentThread().listDirectories(nodeFile,
+                        recursive);
+        final List<IDirectory> nodes = new ArrayList<IDirectory>(files.size());
+        for (java.io.File f : files)
+        {
+            nodes.add(NodeFactory.internalCreateDirectoryNode(f));
+        }
+        return Collections.unmodifiableList(nodes);
+    }
+
 }

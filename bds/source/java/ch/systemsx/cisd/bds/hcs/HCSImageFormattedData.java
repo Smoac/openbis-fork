@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.bds.hcs;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import ch.systemsx.cisd.bds.AbstractFormattedData;
@@ -42,38 +44,93 @@ import ch.systemsx.cisd.bds.storage.INode;
 public final class HCSImageFormattedData extends AbstractFormattedData implements
         IHCSImageFormattedData
 {
-
     /** The <i>column</i> (or <i>x</i>) coordinate. */
     public static final String COLUMN = "column";
 
     /** The <i>row</i> (or <i>y</i>) coordinate. */
     public static final String ROW = "row";
 
+    private final DirectoryContentCache standardDataDirectoryCache;
+
+    private final IDirectory originalDataDirectoryOrNull; // set if containsOriginalData is true
+
+    private final boolean containsOriginalData;
+
+    private final Geometry wellGeometry;
+
+    private final Geometry plateGeometry;
+
+    private final int channelCount;
+
+    // It is a kludge to keep this around but IDirectory.addFile() requires a java.io.File and
+    // INodes can not be checked for equal(), so we need it.
+    private File currentImageRootDirectory;
+
+    /** The source directory node from where to copy/link all images. */
+    private IDirectory currentImageRootDirectoryNode;
+
     public HCSImageFormattedData(final FormattedDataContext context)
     {
         super(context);
+        this.containsOriginalData = figureContainsOriginalData(getFormatParameters());
+        if (containsOriginalData)
+        {
+            this.originalDataDirectoryOrNull =
+                    Utilities.getSubDirectory(dataDirectory, DataStructureV1_0.DIR_ORIGINAL);
+        } else
+        {
+            this.originalDataDirectoryOrNull = null;
+        }
+
+        IDirectory standardDataDirectory =
+                Utilities.getSubDirectory(dataDirectory, DataStructureV1_0.DIR_STANDARD);
+        this.standardDataDirectoryCache =
+                new DirectoryContentCache(standardDataDirectory, createChannelDirNameProvider());
+
+        this.wellGeometry = figureWellGeometry(getFormatParameters());
+        this.plateGeometry = figurePlateGeometry(getFormatParameters());
+        this.channelCount = figureChannelCount(getFormatParameters());
+    }
+
+    private static int figureChannelCount(IFormatParameters params)
+    {
+        return ((Integer) params.getValue(HCSImageFormatV1_0.NUMBER_OF_CHANNELS)).intValue();
+    }
+
+    private static Geometry figurePlateGeometry(IFormatParameters params)
+    {
+        return (Geometry) params.getValue(PlateGeometry.PLATE_GEOMETRY);
+    }
+
+    private static Geometry figureWellGeometry(IFormatParameters params)
+    {
+        return (Geometry) params.getValue(WellGeometry.WELL_GEOMETRY);
+    }
+
+    private static boolean figureContainsOriginalData(IFormatParameters params)
+    {
+        return ((Utilities.Boolean) params.getValue(HCSImageFormatV1_0.CONTAINS_ORIGINAL_DATA))
+                .toBoolean();
     }
 
     public final boolean containsOriginalData()
     {
-        return ((Utilities.Boolean) getFormatParameters().getValue(
-                HCSImageFormatV1_0.CONTAINS_ORIGINAL_DATA)).toBoolean();
+        return containsOriginalData;
     }
 
     public final Geometry getWellGeometry()
     {
-        return (Geometry) getFormatParameters().getValue(WellGeometry.WELL_GEOMETRY);
+        return wellGeometry;
     }
 
     public final Geometry getPlateGeometry()
     {
-        return (Geometry) getFormatParameters().getValue(PlateGeometry.PLATE_GEOMETRY);
+        return plateGeometry;
     }
 
     public final int getChannelCount()
     {
-        return ((Integer) getFormatParameters().getValue(HCSImageFormatV1_0.NUMBER_OF_CHANNELS))
-                .intValue();
+        return channelCount;
     }
 
     private final static void checkLocation(final Geometry geometry, final Location location)
@@ -93,7 +150,6 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
             throw new IndexOutOfBoundsException(String.format(
                     "Channel index must start at 1 (given value is %d).", channel));
         }
-        final int channelCount = getChannelCount();
         if (channel > channelCount)
         {
             throw new IndexOutOfBoundsException(String.format(
@@ -111,24 +167,14 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
         return ROW + wellLocation.getY() + "_" + COLUMN + wellLocation.getX() + ".tiff";
     }
 
-    private final IDirectory getStandardDataDirectory() throws DataStructureException
+    private final static String getPlateColumnDirName(final int colNumber)
     {
-        return Utilities.getSubDirectory(dataDirectory, DataStructureV1_0.DIR_STANDARD);
+        return COLUMN + colNumber;
     }
 
-    private final IDirectory getOriginalDataDirectory() throws DataStructureException
+    private final static String getPlateRowDirName(final int rowNumber)
     {
-        return Utilities.getSubDirectory(dataDirectory, DataStructureV1_0.DIR_ORIGINAL);
-    }
-
-    private final static String getPlateColumnDir(final Location plateLocation)
-    {
-        return COLUMN + plateLocation.getX();
-    }
-
-    private final static String getPlateRowDirName(final Location plateLocation)
-    {
-        return ROW + plateLocation.getY();
+        return ROW + rowNumber;
     }
 
     private final static String getChannelName(final int channel)
@@ -148,14 +194,14 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
 
     private final IDirectory getImageRootDirectoryNode(final File imageRootDirectory)
     {
-        final IDirectory originalDataDirectory = getOriginalDataDirectory();
+        assert originalDataDirectoryOrNull != null : "original data directrory not set";
         final String imageRootDirName = imageRootDirectory.getName();
         // If not already present, move the 'imageRootDirectory' to 'original' data directory.
-        if (originalDataDirectory.tryGetNode(imageRootDirName) == null)
+        if (originalDataDirectoryOrNull.tryGetNode(imageRootDirName) == null)
         {
-            originalDataDirectory.addFile(imageRootDirectory, null, true);
+            originalDataDirectoryOrNull.addFile(imageRootDirectory, null, true);
         }
-        final INode imageRootNode = originalDataDirectory.tryGetNode(imageRootDirName);
+        final INode imageRootNode = originalDataDirectoryOrNull.tryGetNode(imageRootDirName);
         if (imageRootNode == null)
         {
             throw new DataStructureException(String.format(
@@ -176,13 +222,7 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
         checkCoordinates(channel, wellLocation, tileLocation);
         try
         {
-            final IDirectory standardDir = getStandardDataDirectory();
-            final IDirectory channelDir =
-                    Utilities.getSubDirectory(standardDir, getChannelName(channel));
-            final IDirectory plateRowDir =
-                    Utilities.getSubDirectory(channelDir, getPlateRowDirName(wellLocation));
-            final IDirectory plateColumnDir =
-                    Utilities.getSubDirectory(plateRowDir, getPlateColumnDir(wellLocation));
+            final IDirectory plateColumnDir = getWellImagesParentDir(channel, wellLocation);
             return plateColumnDir.tryGetNode(createWellFileName(tileLocation));
         } catch (final DataStructureException e)
         {
@@ -190,38 +230,157 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
         }
     }
 
+    private IDirectory getWellImagesParentDir(final int channel, final Location wellLocation)
+    {
+        DirectoryContentCache channelDirCache = standardDataDirectoryCache.getSubdirectory(channel);
+        DirectoryContentCache rowDirCache = channelDirCache.getSubdirectory(wellLocation.getY());
+        DirectoryContentCache colDirCache = rowDirCache.getSubdirectory(wellLocation.getX());
+        return colDirCache.getDirectory();
+    }
+
+    private final void updateImageRootDirectory(final File imageRootDirectory)
+    {
+        assert imageRootDirectory != null : "Given image root directory can not be null.";
+
+        if (imageRootDirectory == currentImageRootDirectory)
+        {
+            return; // small performance optimization
+        }
+        if (imageRootDirectory.equals(currentImageRootDirectory) == false)
+        {
+            this.currentImageRootDirectory = imageRootDirectory;
+            this.currentImageRootDirectoryNode = getImageRootDirectoryNode(imageRootDirectory);
+        }
+    }
+
+    // Allows for easy cached access to sub-directories which are identified by integer numbers.
+    // Allows to access items in sub-directories using the same cached mechanism.
+    // Useful when getting access to an existing directory is an expensive operation.
+    private static class DirectoryContentCache
+    {
+        private final IDirectory currentDir;
+
+        private final Map<Integer, DirectoryContentCache> subdirsCache;
+
+        private final INumberedDirNameProvider nameProviderOrNull;
+
+        public DirectoryContentCache(IDirectory currentDir,
+                INumberedDirNameProvider nameProviderOrNull)
+        {
+            this.currentDir = currentDir;
+            this.nameProviderOrNull = nameProviderOrNull;
+            this.subdirsCache = new HashMap<Integer, DirectoryContentCache>();
+        }
+
+        public DirectoryContentCache getSubdirectory(int directoryNumber)
+        {
+            assert nameProviderOrNull != null : "this directory is no expected to have numbered subdirectories";
+            DirectoryContentCache subdirCache = subdirsCache.get(directoryNumber);
+            if (subdirCache == null)
+            {
+                String subdirName = nameProviderOrNull.getName(directoryNumber);
+                // this operation is cached as it can be expensive
+                IDirectory subdir = currentDir.makeDirectory(subdirName);
+                INumberedDirNameProvider subdirNameProviderOrNull =
+                        nameProviderOrNull.tryGetSubdirectoryProvider();
+                subdirCache = new DirectoryContentCache(subdir, subdirNameProviderOrNull);
+                subdirsCache.put(directoryNumber, subdirCache);
+            }
+            return subdirCache;
+        }
+
+        public IDirectory getDirectory()
+        {
+            return currentDir;
+        }
+    }
+
+    private static interface INumberedDirNameProvider
+    {
+        // name of a sub-directory with a given number
+        String getName(int number);
+
+        // naming schema for directories inside sub-directory
+        INumberedDirNameProvider tryGetSubdirectoryProvider();
+    }
+
+    private static INumberedDirNameProvider createChannelDirNameProvider()
+    {
+        return new INumberedDirNameProvider()
+            {
+
+                public String getName(int channel)
+                {
+                    return getChannelName(channel);
+                }
+
+                public INumberedDirNameProvider tryGetSubdirectoryProvider()
+                {
+                    return createRowDirNameProvider();
+                }
+            };
+    }
+
+    private static INumberedDirNameProvider createRowDirNameProvider()
+    {
+        return new INumberedDirNameProvider()
+            {
+
+                public String getName(int row)
+                {
+                    return getPlateRowDirName(row);
+                }
+
+                public INumberedDirNameProvider tryGetSubdirectoryProvider()
+                {
+                    return createColumnDirNameProvider();
+                }
+            };
+    }
+
+    private static INumberedDirNameProvider createColumnDirNameProvider()
+    {
+        return new INumberedDirNameProvider()
+            {
+
+                public String getName(int column)
+                {
+                    return getPlateColumnDirName(column);
+                }
+
+                public INumberedDirNameProvider tryGetSubdirectoryProvider()
+                {
+                    return null;
+                }
+            };
+    }
+
     public final NodePath addStandardNode(final File imageRootDirectory,
             final String imageRelativePath, final int channel, final Location wellLocation,
             final Location tileLocation) throws DataStructureException
     {
-        assert imageRootDirectory != null : "Given image root directory can not be null.";
         assert imageRelativePath != null : "Given image relative path can not be null.";
-        INode node = tryGetStandardNodeAt(channel, wellLocation, tileLocation);
-        if (node != null)
-        {
-            throw new DataStructureException(
-                    String
-                            .format(
-                                    "A node already exists at channel %d, plate location '%s' and well location '%s'.",
-                                    channel, wellLocation, tileLocation));
-        }
-        final IDirectory standardDir = getStandardDataDirectory();
-        final IDirectory channelDir =
-                Utilities.getOrCreateSubDirectory(standardDir, getChannelName(channel));
-        final IDirectory plateRowDir =
-                Utilities.getOrCreateSubDirectory(channelDir, getPlateRowDirName(wellLocation));
-        final IDirectory plateColumnDir =
-                Utilities.getOrCreateSubDirectory(plateRowDir, getPlateColumnDir(wellLocation));
+
+        check(channel, wellLocation, tileLocation);
+        DirectoryContentCache channelDirCache = standardDataDirectoryCache.getSubdirectory(channel);
+        DirectoryContentCache rowDirCache = channelDirCache.getSubdirectory(wellLocation.getY());
+        DirectoryContentCache colDirCache = rowDirCache.getSubdirectory(wellLocation.getX());
+        final IDirectory plateColumnDir = colDirCache.getDirectory();
+
         final String wellFileName = createWellFileName(tileLocation);
-        if (containsOriginalData())
+        final INode node;
+        if (containsOriginalData)
         {
-            final IDirectory imageRootDirectoryNode = getImageRootDirectoryNode(imageRootDirectory);
-            final INode imageNode = imageRootDirectoryNode.tryGetNode(imageRelativePath);
+            updateImageRootDirectory(imageRootDirectory);
+            // NOTE: existence of the node is checked, it can be slow for remote file systems
+            final INode imageNode = currentImageRootDirectoryNode.tryGetNode(imageRelativePath);
             if (imageNode == null)
             {
-                throw new DataStructureException(String.format(
-                        "No image node with path '%s' could be found in the original directory.",
-                        imageRelativePath));
+                throw new DataStructureException(
+                        String
+                                .format(
+                                        "No image node with path '%s' could be found in the 'original data' directory.",
+                                        imageRelativePath));
             }
             node = plateColumnDir.tryAddLink(wellFileName, imageNode);
         } else
@@ -241,9 +400,78 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
         }
         final char sep = Constants.PATH_SEPARATOR;
         final String standardNodePath =
-                channelDir.getName() + sep + plateRowDir.getName() + sep + plateColumnDir.getName()
+                channelDirCache.getDirectory().getName() + sep
+                        + rowDirCache.getDirectory().getName() + sep + plateColumnDir.getName()
                         + sep + wellFileName;
         return new NodePath(node, standardNodePath);
+    }
+
+    /** Am key class for HCS image files. */
+    private static class ImageFileKey
+    {
+        final private int channel;
+
+        final private Location wellLocation;
+
+        final private Location tileLocation;
+
+        ImageFileKey(final int channel, final Location wellLocation, final Location tileLocation)
+        {
+            assert channel >= 0;
+            assert wellLocation != null;
+            assert tileLocation != null;
+
+            this.channel = channel;
+            this.wellLocation = wellLocation;
+            this.tileLocation = tileLocation;
+        }
+
+        //
+        // Object
+        //
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (obj == null || obj instanceof ImageFileKey == false)
+            {
+                return false;
+            }
+            final ImageFileKey that = (ImageFileKey) obj;
+            return this.channel == that.channel && this.wellLocation.equals(that.wellLocation)
+                    && this.tileLocation.equals(that.tileLocation);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            int hashCode = 17;
+            hashCode = hashCode * 37 + channel;
+            hashCode = hashCode * 37 + wellLocation.hashCode();
+            hashCode = hashCode * 37 + tileLocation.hashCode();
+            return hashCode;
+        }
+    }
+
+    private final HashSet<ImageFileKey> imageFilesStored = new HashSet<ImageFileKey>();
+
+    private void check(final int channel, final Location wellLocation, final Location tileLocation)
+    {
+        checkCoordinates(channel, wellLocation, tileLocation);
+        final ImageFileKey key = new ImageFileKey(channel, wellLocation, tileLocation);
+        final boolean alreadyStored = imageFilesStored.contains(key);
+        if (alreadyStored == false)
+        {
+            imageFilesStored.add(key);
+        }
+        if (alreadyStored)
+        {
+            throw new DataStructureException(
+                    String
+                            .format(
+                                    "A node already exists at channel %d, plate location '%s' and well location '%s'.",
+                                    channel, wellLocation, tileLocation));
+        }
     }
 
     //
