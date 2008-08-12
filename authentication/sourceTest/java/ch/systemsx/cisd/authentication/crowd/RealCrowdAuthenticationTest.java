@@ -45,7 +45,7 @@ import ch.systemsx.cisd.authentication.Principal;
 public class RealCrowdAuthenticationTest
 {
 
-    private static final int PORT_OF_AUTHENTICATION_SERVICE = 0; // FIX!
+    private static final String PORT_OF_AUTHENTICATION_SERVICE = null; // FIX!
 
     private static final String HOST_NAME_OF_AUTHENTICATION_SERVICE = null; // FIX!
 

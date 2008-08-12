@@ -48,7 +48,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  * <i>Crowd</i> server, then authenticates the user.
  * <p>
  * The modus operandi is based on information found at <a
- * href="http://confluence.atlassian.com/display/CROWD/SOAP+API">http://confluence.atlassian.com/display/CROWD/SOAP+API</a>
+ * href="http://confluence.atlassian.com/display/CROWD/SOAP+API"
+ * >http://confluence.atlassian.com/display/CROWD/SOAP+API</a>
  * </p>
  * 
  * @author Franz-Josef Elmer
@@ -167,14 +168,14 @@ public class CrowdAuthenticationService implements IAuthenticationService
 
     private final IRequestExecutor requestExecutor;
 
-    public CrowdAuthenticationService(final String host, final int port, final String application,
-            final String applicationPassword)
+    public CrowdAuthenticationService(final String host, final String port,
+            final String application, final String applicationPassword)
     {
-        this("https://" + host + ":" + port + "/crowd/services/SecurityServer", application,
-                applicationPassword, createExecutor());
+        this("https://" + host + ":" + checkPort(port) + "/crowd/services/SecurityServer",
+                application, applicationPassword, createExecutor());
     }
 
-    public CrowdAuthenticationService(final String url, final String application,
+    CrowdAuthenticationService(final String url, final String application,
             final String applicationPassword, final IRequestExecutor requestExecutor)
     {
         this.url = url;
@@ -188,6 +189,25 @@ public class CrowdAuthenticationService implements IAuthenticationService
                             + url + ", application=" + application + "]";
             operationLog.debug(msg);
         }
+    }
+
+    private static String checkPort(String portStr) throws ConfigurationFailureException
+    {
+        try
+        {
+            // '${' means we have an unresolved Spring variable
+            if (portStr != null && portStr.startsWith("${") == false)
+            {
+                if (Integer.parseInt(portStr) <= 0)
+                {
+                    throw ConfigurationFailureException.fromTemplate("Illegal port '%s'", portStr);
+                }
+            }
+        } catch (NumberFormatException ex)
+        {
+            throw ConfigurationFailureException.fromTemplate("Illegal port '%s'", portStr);
+        }
+        return portStr;
     }
 
     //
@@ -299,7 +319,8 @@ public class CrowdAuthenticationService implements IAuthenticationService
     }
 
     /**
-     * Parses given <i>Crowd</i> XML response and returns a map of found <code>SOAPAttribute</code>s.
+     * Parses given <i>Crowd</i> XML response and returns a map of found <code>SOAPAttribute</code>
+     * s.
      * <p>
      * Never returns <code>null</code> but could returns an empty <code>Map</code>.
      * </p>
