@@ -66,15 +66,12 @@ public final class SampleWithOwnerTest extends AbstractFileSystemTestCase
         }
         try
         {
-            new SampleWithOwner(CODE, TYPE_CODE, TYPE_DESCRIPTION, GROUP_CODE,
-                    DATABASE_INSTANCE_CODE);
+            new SampleWithOwner(CODE, TYPE_CODE, TYPE_DESCRIPTION, GROUP_CODE, "");
             fail();
         } catch (final DataStructureException e)
         {
             // Nothing to do here.
         }
-        assertEquals(false, fail);
-        new SampleWithOwner(CODE, TYPE_CODE, TYPE_DESCRIPTION, GROUP_CODE, "");
     }
 
     @DataProvider
@@ -82,7 +79,7 @@ public final class SampleWithOwnerTest extends AbstractFileSystemTestCase
     {
         return new Object[][]
             {
-                { GROUP_CODE, "" },
+                { GROUP_CODE, DATABASE_INSTANCE_CODE },
                 { "", DATABASE_INSTANCE_CODE }, };
     }
 
@@ -98,7 +95,7 @@ public final class SampleWithOwnerTest extends AbstractFileSystemTestCase
         if (groupCode.length() > 0)
         {
             assertEquals(GROUP_CODE, newSample.getGroupCode());
-            assertEquals("", newSample.getDatabaseInstanceCode());
+            assertEquals(DATABASE_INSTANCE_CODE, newSample.getDatabaseInstanceCode());
         } else
         {
             assertEquals("", newSample.getGroupCode());

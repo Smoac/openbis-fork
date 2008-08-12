@@ -64,23 +64,16 @@ public final class SampleWithOwner extends Sample
         super(code, typeCode, typeDescription);
         assert groupCode != null : "Undefined group code.";
         assert databaseInstanceCode != null : "Undefined database instance code.";
-        assertOneNonEmpty(groupCode, databaseInstanceCode);
+        assertNonEmptyDatabaseInstanceCode(databaseInstanceCode);
         this.groupCode = groupCode;
         this.databaseInstanceCode = databaseInstanceCode;
     }
 
-    private final static void assertOneNonEmpty(final String groupCode,
-            final String databaseInstanceCode)
+    private final static void assertNonEmptyDatabaseInstanceCode(final String databaseInstanceCode)
     {
-        if (groupCode.length() == 0 && databaseInstanceCode.length() == 0)
+        if (databaseInstanceCode.length() == 0)
         {
-            throw new DataStructureException(
-                    "Both, group code and database instance code, are empty.");
-        }
-        if (groupCode.length() > 0 && databaseInstanceCode.length() > 0)
-        {
-            throw new DataStructureException("At most one, the group code OR the database "
-                    + "instance code, must be non empty.");
+            throw new DataStructureException("Empty database instance code.");
         }
     }
 
