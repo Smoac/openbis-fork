@@ -28,7 +28,7 @@ import ch.systemsx.cisd.bds.storage.hdf5.HDF5Storage;
  * 
  * @author Franz-Josef Elmer
  */
-public class DataStructureLoader
+public final class DataStructureLoader
 {
     private final File baseDir;
 

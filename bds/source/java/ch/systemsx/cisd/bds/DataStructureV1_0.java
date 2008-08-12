@@ -29,7 +29,7 @@ import ch.systemsx.cisd.bds.storage.IStorage;
  * 
  * @author Franz-Josef Elmer
  */
-public class DataStructureV1_0 extends AbstractDataStructure
+public class DataStructureV1_0 extends AbstractDataStructure implements IDataStructureV1_X
 {
     public static final String DIR_METADATA = "metadata";
 
@@ -96,7 +96,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
         return Utilities.getOrCreateSubDirectory(root, DIR_DATA);
     }
 
-    private final IDirectory getMetaDataDirectory()
+    final IDirectory getMetaDataDirectory()
     {
         assertOpenOrCreated();
         return Utilities.getOrCreateSubDirectory(root, DIR_METADATA);
@@ -230,7 +230,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
      * @throws DataStructureException if the sample hasn't be loaded nor hasn't be set by
      *             {@link #setSample(Sample)}.
      */
-    public final Sample getSample()
+    public Sample getSample()
     {
         assertOpenOrCreated();
         return Sample.loadFrom(getMetaDataDirectory());
@@ -239,9 +239,9 @@ public class DataStructureV1_0 extends AbstractDataStructure
     /**
      * Sets the measurement entity. Overwrites an already set or loaded value.
      */
-    public final void setSample(final Sample sample)
+    public void setSample(final Sample sample)
     {
-        assert sample != null : "Unspecified measurement entity.";
+        assert sample != null : "Unspecified sample.";
         assertOpenOrCreated();
         sample.saveTo(getMetaDataDirectory());
     }
@@ -302,7 +302,8 @@ public class DataStructureV1_0 extends AbstractDataStructure
         {
             throw new DataStructureException("Unspecified experiment identifier.");
         }
-        if (metaDataDirectory.tryGetNode(ExperimentRegistrationTimestamp.EXPERIMENT_REGISTRATION_TIMESTAMP) == null)
+        if (metaDataDirectory
+                .tryGetNode(ExperimentRegistrationTimestamp.EXPERIMENT_REGISTRATION_TIMESTAMP) == null)
         {
             throw new DataStructureException("Unspecified experiment registration timestamp.");
         }
@@ -349,7 +350,7 @@ public class DataStructureV1_0 extends AbstractDataStructure
         }
     }
 
-    public final Version getVersion()
+    public Version getVersion()
     {
         return VERSION;
     }

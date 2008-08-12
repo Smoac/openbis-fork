@@ -114,7 +114,7 @@ public abstract class EqualsHashCodeTestCase<T>
      * @throws Exception
      */
     @BeforeClass
-    public final void setUp() throws Exception
+    public void setUp() throws Exception
     {
         eq1 = createInstance();
         eq2 = createInstance();

@@ -27,7 +27,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.bds.DataStructureLoader;
-import ch.systemsx.cisd.bds.DataStructureTestV1_0;
+import ch.systemsx.cisd.bds.DataStructureV1_0Test;
 import ch.systemsx.cisd.bds.DataStructureV1_0;
 import ch.systemsx.cisd.bds.Format;
 import ch.systemsx.cisd.bds.FormatParameter;
@@ -100,7 +100,7 @@ public final class HCSDataStructureTestV1_0 extends AbstractFileSystemTestCase
     {
         // Creating...
         dataStructure.create();
-        DataStructureTestV1_0.createExampleDataStructure(storage);
+        DataStructureV1_0Test.createExampleDataStructure(storage);
         setFormatAndFormatParameters();
         dataStructure.close();
         // And loading...

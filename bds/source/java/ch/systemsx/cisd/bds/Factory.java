@@ -29,23 +29,23 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
  * 
  * @author Franz-Josef Elmer
  */
-class Factory<T>
+final class Factory<T>
 {
     private final Map<Version, Class<? extends T>> repository =
             new HashMap<Version, Class<? extends T>>();
 
-    void register(Version version, Class<? extends T> clazz)
+    final void register(final Version version, final Class<? extends T> clazz)
     {
         repository.put(version, clazz);
     }
 
-    Class<? extends T> getClassFor(Version version)
+    final Class<? extends T> getClassFor(final Version version)
     {
 
         Version v = version;
         while (true)
         {
-            Class<? extends T> clazz = repository.get(v);
+            final Class<? extends T> clazz = repository.get(v);
             if (clazz != null)
             {
                 return clazz;
@@ -58,15 +58,15 @@ class Factory<T>
         }
     }
 
-    T create(Class<?> argumentClass, Object argument, Version version)
+    final T create(final Class<?> argumentClass, final Object argument, final Version version)
     {
-        Class<? extends T> clazz = getClassFor(version);
+        final Class<? extends T> clazz = getClassFor(version);
         Constructor<? extends T> constructor;
         try
         {
             constructor = clazz.getConstructor(new Class[]
                 { argumentClass });
-        } catch (Exception ex1)
+        } catch (final Exception ex1)
         {
             throw new EnvironmentFailureException(clazz
                     + " has no constructor with argument of type "
@@ -76,11 +76,11 @@ class Factory<T>
         {
             return constructor.newInstance(new Object[]
                 { argument });
-        } catch (InvocationTargetException ex)
+        } catch (final InvocationTargetException ex)
         {
             throw new DataStructureException("Couldn't create instance of " + clazz
                     + " for version " + version, ex.getCause());
-        } catch (Exception ex)
+        } catch (final Exception ex)
         {
             throw new DataStructureException("Couldn't create instance of " + clazz
                     + " for version " + version, ex);

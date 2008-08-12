@@ -27,6 +27,7 @@ import ch.systemsx.cisd.bds.exception.DataStructureException;
  * before any other method can be invoked. An {@link IllegalStateException} is thrown otherwise.
  * Finally a data structure has to be closed with {@link #close()} in order to commit all changes
  * made since creation or opening.
+ * </p>
  * 
  * @author Franz-Josef Elmer
  */

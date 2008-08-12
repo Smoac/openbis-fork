@@ -16,15 +16,19 @@
 
 package ch.systemsx.cisd.bds;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 
 /**
- * Enity of measurement or calculation covered by the data. This is an immutable value object class.
+ * Entity of measurement or calculation covered by the data. This is an immutable value object
+ * class.
  * 
  * @author Franz-Josef Elmer
  */
-public final class Sample implements IStorable
+public class Sample implements IStorable
 {
     static final String FOLDER = "sample";
 
@@ -39,7 +43,7 @@ public final class Sample implements IStorable
      * 
      * @throws DataStructureException if file missing.
      */
-    final static Sample loadFrom(final IDirectory directory)
+    static Sample loadFrom(final IDirectory directory)
     {
         assert directory != null : "Unspecified directory";
         final IDirectory folder = Utilities.getSubDirectory(directory, FOLDER);
@@ -70,6 +74,15 @@ public final class Sample implements IStorable
         this.code = code;
         assert StringUtils.isEmpty(typeCode) == false : "Undefined sample type code.";
         this.typeCode = typeCode;
+    }
+
+    ToStringBuilder createToStringBuilder()
+    {
+        final ToStringBuilder builder = new ToStringBuilder();
+        builder.append(CODE, code);
+        builder.append(TYPE_CODE, typeCode);
+        builder.append(TYPE_DESCRIPTION, typeDescription);
+        return builder;
     }
 
     /**
@@ -103,7 +116,7 @@ public final class Sample implements IStorable
     /**
      * Saves this instance to the specified directory.
      */
-    public final void saveTo(final IDirectory directory)
+    public void saveTo(final IDirectory directory)
     {
         final IDirectory folder = directory.makeDirectory(FOLDER);
         folder.addKeyValuePair(TYPE_DESCRIPTION, typeDescription);
@@ -127,25 +140,23 @@ public final class Sample implements IStorable
             return false;
         }
         final Sample that = (Sample) obj;
-        return that.code.equals(code) && typeCode.equals(that.typeCode);
+        final EqualsBuilder builder = new EqualsBuilder();
+        builder.append(that.code, code);
+        return builder.isEquals();
     }
 
     @Override
     public final int hashCode()
     {
-        int result = 17;
-        result = 37 * result + code.hashCode();
-        result = 37 * result + typeCode.hashCode();
-        return result;
+        final HashCodeBuilder builder = new HashCodeBuilder();
+        builder.append(code);
+        return builder.toHashCode();
     }
 
     @Override
-    public final String toString()
+    public String toString()
     {
-        final ToStringBuilder builder = new ToStringBuilder();
-        builder.append(CODE, code);
-        builder.append(TYPE_CODE, typeCode);
-        builder.append(TYPE_DESCRIPTION, typeDescription);
+        final ToStringBuilder builder = createToStringBuilder();
         return builder.toString();
     }
 }

@@ -44,7 +44,7 @@ import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
  * 
  * @author Franz-Josef Elmer
  */
-public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
+public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
 {
     private static void assertPartOfString(final String part, final String string)
     {
@@ -208,7 +208,7 @@ public final class DataStructureTestV1_0 extends AbstractFileSystemTestCase
     }
 
     //
-    // Note: validation has currently been switched off. We want to make the feature confgurable,
+    // Note: validation has currently been switched off. We want to make the feature configurable,
     // though. At that point, these tests are supposed to work again.
     //
 

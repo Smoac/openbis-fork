@@ -25,13 +25,14 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
  * 
  * @author Franz-Josef Elmer
  */
-public class DataStructureFactory
+public final class DataStructureFactory
 {
     private static final Factory<IDataStructure> factory = new Factory<IDataStructure>();
 
     static
     {
         factory.register(new Version(1, 0), DataStructureV1_0.class);
+        factory.register(new Version(1, 1), DataStructureV1_1.class);
     }
 
     /**

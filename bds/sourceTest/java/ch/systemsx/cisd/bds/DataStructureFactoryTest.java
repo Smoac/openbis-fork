@@ -46,29 +46,31 @@ public class DataStructureFactoryTest
     }
 
     @Test
-    public void testGetDataStructureClassFor()
+    public final void testGetDataStructureClassFor()
     {
         assertEquals(DataStructureV1_0.class, DataStructureFactory
                 .getDataStructureClassFor(new Version(1, 0)));
-        assertEquals(DataStructureV1_0.class, DataStructureFactory
+        assertEquals(DataStructureV1_1.class, DataStructureFactory
                 .getDataStructureClassFor(new Version(1, 1)));
+        assertEquals(DataStructureV1_1.class, DataStructureFactory
+                .getDataStructureClassFor(new Version(1, 2)));
     }
 
     @Test
-    public void testGetDataStructureClassForIncompatibleVersion()
+    public final void testGetDataStructureClassForIncompatibleVersion()
     {
         try
         {
             DataStructureFactory.getDataStructureClassFor(new Version(2, 0));
             fail("DataStructureException expected.");
-        } catch (DataStructureException e)
+        } catch (final DataStructureException e)
         {
             assertEquals("No class found for version V2.0", e.getMessage());
         }
     }
 
     @Test
-    public void testCreateDataStructure()
+    public final void testCreateDataStructure()
     {
         context.checking(new Expectations()
             {
@@ -78,7 +80,7 @@ public class DataStructureFactoryTest
                 }
 
             });
-        IDataStructure dataStructure =
+        final IDataStructure dataStructure =
                 DataStructureFactory.createDataStructure(storage, new Version(1, 0));
         assertEquals(DataStructureV1_0.class, dataStructure.getClass());
     }
