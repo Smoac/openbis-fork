@@ -64,12 +64,20 @@ public class SelfTest
                 try
                 {
                     selfTestable.check();
+                } catch (EnvironmentFailureException ex)
+                {
+                    notificationLog.error("Self-test failed for self testable '" + selfTestable
+                            + "'. This self-testable is remote and the resource may become "
+                            + "available later, thus continuing anyway.", ex);
+                    // TODO 2008-08-12, Bernd Rinn: ensure we never throw a
+                    // ConfigurationFailureException in any SelfTestable if we are not sure that it
+                    // is a configuration problem rather than a problem with the environment. Then,
+                    // when this is done, remove this catch clause.
                 } catch (ConfigurationFailureException ex)
                 {
                     notificationLog.error("Self-test failed for self testable '" + selfTestable
                             + "'. This self-testable is remote and the resource may become "
-                            + "available later, thus continuing anyway [error message: "
-                            + ex.getMessage() + ".");
+                            + "available later, thus continuing anyway.", ex);
                 }
             } else
             {
