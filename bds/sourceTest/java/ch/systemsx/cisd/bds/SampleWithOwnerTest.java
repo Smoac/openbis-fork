@@ -40,9 +40,9 @@ public final class SampleWithOwnerTest extends AbstractFileSystemTestCase
 
     private static final String CODE = "code";
 
-    private static final String DATABASE_INSTANCE_CODE = "DB1";
+    static final String DATABASE_INSTANCE_CODE = "DB1";
 
-    private static final String GROUP_CODE = "G1";
+    static final String GROUP_CODE = "G1";
 
     @Test
     public final void testConstructor()

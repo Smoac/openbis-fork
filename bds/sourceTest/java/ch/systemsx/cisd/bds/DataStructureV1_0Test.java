@@ -482,14 +482,15 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
 
     private final void createExampleDataStructure()
     {
-        createExampleDataStructure(storage);
+        createExampleDataStructure(storage, new Version(1, 0));
     }
 
-    public final static void createExampleDataStructure(final IStorage storage)
+    public final static void createExampleDataStructure(final IStorage storage,
+            final Version version)
     {
         storage.mount();
         final IDirectory root = storage.getRoot();
-        new Version(1, 0).saveTo(root);
+        version.saveTo(root);
         final IDirectory data = root.makeDirectory(DataStructureV1_0.DIR_DATA);
         final IDirectory originalDataDir = data.makeDirectory(DataStructureV1_0.DIR_ORIGINAL);
         originalDataDir.addKeyValuePair("file1", "This is my first file.");
@@ -506,7 +507,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
         storage.unmount();
     }
 
-    private final static void createExampleChecksum(final IDirectory metaData)
+    final static void createExampleChecksum(final IDirectory metaData)
     {
         final IDirectory checksumDir = metaData.makeDirectory(ChecksumHandler.CHECKSUM_DIRECTORY);
         checksumDir.addKeyValuePair(DataStructureV1_0.DIR_ORIGINAL,

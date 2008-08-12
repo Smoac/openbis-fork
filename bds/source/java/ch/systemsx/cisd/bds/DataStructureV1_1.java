@@ -48,7 +48,7 @@ public final class DataStructureV1_1 extends DataStructureV1_0
      * Returns the sample.
      * <p>
      * For backward compatibility, loads a {@link Sample} when no
-     * <code>SampleWithOwner.GROUP_CODE</code> node could be found in meta data directory.
+     * <code>SampleWithOwner.GROUP_CODE</code> node could be found in sample directory.
      * </p>
      * 
      * @throws DataStructureException if the sample hasn't be loaded nor hasn't be set by
@@ -59,7 +59,8 @@ public final class DataStructureV1_1 extends DataStructureV1_0
     {
         assertOpenOrCreated();
         final IDirectory metaDataDirectory = getMetaDataDirectory();
-        if (metaDataDirectory.tryGetNode(SampleWithOwner.GROUP_CODE) == null)
+        final IDirectory sampleDir = metaDataDirectory.tryGetNode(Sample.FOLDER).tryAsDirectory();
+        if (sampleDir.tryGetNode(SampleWithOwner.GROUP_CODE) == null)
         {
             return Sample.loadFrom(metaDataDirectory);
         }
@@ -68,6 +69,8 @@ public final class DataStructureV1_1 extends DataStructureV1_0
 
     /**
      * Sets the sample. Overwrites an already set or loaded value.
+     * 
+     * @param sample Must be an instance of {@link SampleWithOwner}.
      */
     @Override
     public final void setSample(final Sample sample)

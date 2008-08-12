@@ -16,9 +16,14 @@
 
 package ch.systemsx.cisd.bds;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
+
 import java.io.IOException;
 
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.bds.storage.filesystem.FileStorage;
 import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
@@ -30,6 +35,8 @@ import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
  */
 public final class DataStructureV1_1Test extends AbstractFileSystemTestCase
 {
+    private static final Sample SAMPLE = new Sample("a", "CELL_PLATE", "b");
+
     private FileStorage storage;
 
     private DataStructureV1_1 dataStructure;
@@ -47,4 +54,51 @@ public final class DataStructureV1_1Test extends AbstractFileSystemTestCase
         dataStructure = new DataStructureV1_1(storage);
     }
 
+    @Test
+    public void testGetVersion()
+    {
+        dataStructure.create();
+        assertEquals(new Version(1, 1), dataStructure.getVersion());
+    }
+
+    @Test
+    public void testSetSample()
+    {
+        dataStructure.create();
+        boolean fail = true;
+        try
+        {
+            dataStructure.setSample(SAMPLE);
+        } catch (final AssertionError ex)
+        {
+            fail = false;
+        }
+        assertFalse(fail);
+        dataStructure.setSample(new SampleWithOwner(SAMPLE, "",
+                SampleWithOwnerTest.DATABASE_INSTANCE_CODE));
+    }
+
+    @Test
+    public final void testGetSample()
+    {
+        dataStructure.create();
+        final SampleWithOwner sampleWithOwner =
+                new SampleWithOwner(SAMPLE, "", SampleWithOwnerTest.DATABASE_INSTANCE_CODE);
+        dataStructure.setSample(sampleWithOwner);
+        final Sample sample = dataStructure.getSample();
+        assertTrue(sample instanceof SampleWithOwner);
+        final String databaseInstanceCode = sampleWithOwner.getDatabaseInstanceCode();
+        assertTrue(databaseInstanceCode.length() > 0);
+        assertEquals(databaseInstanceCode, ((SampleWithOwner) sample).getDatabaseInstanceCode());
+    }
+
+    @Test
+    public final void testBackwardCompatible()
+    {
+        DataStructureV1_0Test.createExampleDataStructure(storage, new Version(1, 1));
+        dataStructure.open();
+        final Sample sample = dataStructure.getSample();
+        assertFalse(sample instanceof SampleWithOwner);
+        dataStructure.close();
+    }
 }
