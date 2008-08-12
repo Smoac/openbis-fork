@@ -305,6 +305,7 @@ public class CIFEXServiceImplTest
         context.checking(new Expectations()
             {
                 {
+                    one(authenticationService).isRemote();
                     one(authenticationService).check();
 
                     one(domainModel).getUserManager();
@@ -359,6 +360,7 @@ public class CIFEXServiceImplTest
         context.checking(new Expectations()
             {
                 {
+                    one(authenticationService).isRemote();
                     one(authenticationService).check();
 
                     one(domainModel).getUserManager();
@@ -631,6 +633,7 @@ public class CIFEXServiceImplTest
                     will(returnValue("someRemoteHost"));
                     allowing(httpServletRequest).getRemoteAddr();
                     will(returnValue("someRemoteAddress"));
+                    one(authenticationService).isRemote();
                     one(authenticationService).check();
                     one(authenticationService).authenticateApplication();
                     will(returnValue(null));
@@ -707,6 +710,7 @@ public class CIFEXServiceImplTest
         context.checking(new Expectations()
             {
                 {
+                    one(authenticationService).isRemote();
                     one(authenticationService).check();
                     one(domainModel).getUserManager();
                     will(returnValue(userManager));
@@ -737,6 +741,7 @@ public class CIFEXServiceImplTest
         context.checking(new Expectations()
             {
                 {
+                    one(authenticationService).isRemote();
                     one(authenticationService).check();
                     one(domainModel).getUserManager();
                     will(returnValue(userManager));
@@ -772,6 +777,7 @@ public class CIFEXServiceImplTest
                     one(userManager).tryFindUserByCode(DEFAULT_USER_CODE);
                     will(returnValue(userDTO));
 
+                    one(authenticationService).isRemote();
                     one(authenticationService).check();
                     one(authenticationService).authenticateApplication();
                     will(returnValue(APPLICATION_TOKEN_EXAMPLE));
@@ -843,6 +849,7 @@ public class CIFEXServiceImplTest
                     exactly(2).of(userManager).tryFindUserByCode(DEFAULT_USER_CODE);
                     will(returnValue(oldUser));
 
+                    one(authenticationService).isRemote();
                     one(authenticationService).check();
                     one(authenticationService).authenticateApplication();
                     will(returnValue(APPLICATION_TOKEN_EXAMPLE));
@@ -1085,6 +1092,7 @@ public class CIFEXServiceImplTest
         context.checking(new Expectations()
             {
                 {
+                    one(authenticationService).isRemote();
                     one(authenticationService).check();
                     one(domainModel).getUserManager();
                     will(returnValue(userManager));
@@ -1122,6 +1130,7 @@ public class CIFEXServiceImplTest
                     allowing(domainModel).getUserManager();
                     will(returnValue(userManager));
 
+                    one(authenticationService).isRemote();
                     one(authenticationService).check();
                     one(authenticationService).authenticateApplication();
                     will(returnValue(APPLICATION_TOKEN_EXAMPLE));
