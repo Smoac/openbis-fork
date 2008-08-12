@@ -92,6 +92,9 @@ public final class CIFEXServiceImpl implements ICIFEXService
 
     private static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
+    private static final Logger notificationLog =
+        LogFactory.getLogger(LogCategory.NOTIFY, CIFEXServiceImpl.class);
+
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, CIFEXServiceImpl.class);
 
@@ -125,7 +128,22 @@ public final class CIFEXServiceImpl implements ICIFEXService
                 new LoggingContextHandler(new RequestContextProviderAdapter(requestContextProvider));
         if (hasExternalAuthenticationService())
         {
-            this.externalAuthenticationService.check();
+            if (externalAuthenticationService.isRemote())
+            {
+                try
+                {
+                    this.externalAuthenticationService.check();
+                } catch (ch.systemsx.cisd.common.exceptions.EnvironmentFailureException ex)
+                {
+                    notificationLog.error("Self-test failed for external authentication service '"
+                            + externalAuthenticationService.getClass().getSimpleName()
+                            + "'. This authentication service is remote and the resource may become "
+                            + "available later, thus continuing anyway.", ex);
+                }
+            } else
+            {
+                this.externalAuthenticationService.check();
+            }
         }
     }
 
