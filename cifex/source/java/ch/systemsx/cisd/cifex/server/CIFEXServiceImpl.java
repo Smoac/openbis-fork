@@ -58,6 +58,7 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.server.common.Password;
 import ch.systemsx.cisd.cifex.server.util.FileUploadFeedbackProvider;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.common.exceptions.HighLevelException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LoggingContextHandler;
@@ -93,7 +94,7 @@ public final class CIFEXServiceImpl implements ICIFEXService
     private static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
     private static final Logger notificationLog =
-        LogFactory.getLogger(LogCategory.NOTIFY, CIFEXServiceImpl.class);
+            LogFactory.getLogger(LogCategory.NOTIFY, CIFEXServiceImpl.class);
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, CIFEXServiceImpl.class);
@@ -126,23 +127,34 @@ public final class CIFEXServiceImpl implements ICIFEXService
         this.externalAuthenticationService = externalAuthenticationService;
         loggingContextHandler =
                 new LoggingContextHandler(new RequestContextProviderAdapter(requestContextProvider));
+        checkAuthentication();
+    }
+
+    private void checkAuthentication() throws HighLevelException
+    {
         if (hasExternalAuthenticationService())
         {
-            if (externalAuthenticationService.isRemote())
-            {
-                try
-                {
-                    this.externalAuthenticationService.check();
-                } catch (ch.systemsx.cisd.common.exceptions.EnvironmentFailureException ex)
-                {
-                    notificationLog.error("Self-test failed for external authentication service '"
-                            + externalAuthenticationService.getClass().getSimpleName()
-                            + "'. This authentication service is remote and the resource may become "
-                            + "available later, thus continuing anyway.", ex);
-                }
-            } else
+            try
             {
                 this.externalAuthenticationService.check();
+            } catch (HighLevelException ex)
+            {
+                if (externalAuthenticationService.isRemote()
+                        && ex instanceof ch.systemsx.cisd.common.exceptions.EnvironmentFailureException)
+                {
+                    notificationLog
+                            .error(
+                                    "Self-test failed for external authentication service '"
+                                            + externalAuthenticationService.getClass()
+                                                    .getSimpleName()
+                                            + "'. This authentication service is remote and the resource may become "
+                                            + "available later, thus continuing anyway.", ex);
+                } else
+                {
+                    notificationLog.error("Self-test failed for external authentication service '"
+                            + externalAuthenticationService.getClass().getSimpleName() + "'.", ex);
+                    throw ex;
+                }
             }
         }
     }
