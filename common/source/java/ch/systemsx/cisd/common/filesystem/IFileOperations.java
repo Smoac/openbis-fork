@@ -190,6 +190,61 @@ public interface IFileOperations extends IFileRemover
     public List<File> listFilesAndDirectories(File directory, boolean recursive);
 
     /**
+     * Checks whether a <var>path</var> of some <var>kind</var> is fully accessible to the program.
+     * 
+     * @param kindOfPath description of given <var>path</var>. Mainly used for error messages.
+     * @return <code>null</code> if the <var>directory</var> is fully accessible and an error
+     *         message describing the problem with the <var>directory</var> otherwise.
+     */
+    public String checkPathFullyAccessible(final File path, final String kindOfPath);
+
+    /**
+     * Checks whether a <var>path</var> of some <var>kind</var> is accessible for reading to the
+     * program.
+     * 
+     * @param kindOfPath description of given <var>path</var>. Mainly used for error messages.
+     * @return <code>null</code> if the <var>directory</var> is fully accessible and an error
+     *         message describing the problem with the <var>directory</var> otherwise.
+     */
+    public String checkPathReadAccessible(final File path, final String kindOfPath);
+
+    /**
+     * Checks whether a <var>directory</var> of some <var>kind</var> is fully accessible to the
+     * program (it's a directory, you can read and write in it)
+     * 
+     * @return <code>null</code> if the <var>directory</var> is fully accessible and an error
+     *         message describing the problem with the <var>directory</var> otherwise.
+     */
+    public String checkDirectoryFullyAccessible(final File directory, final String kindOfDirectory);
+
+    /**
+     * Checks whether a <var>directory</var> of some <var>kind</var> is accessible for reading to
+     * the program (it's a directory, you can read and write in it)
+     * 
+     * @return <code>null</code> if the <var>directory</var> is accessible for reading and an error
+     *         message describing the problem with the <var>directory</var> otherwise.
+     */
+    public String checkDirectoryReadAccessible(final File directory, final String kindOfDirectory);
+
+    /**
+     * Checks whether a <var>file</var> of some <var>kindOfFile</var> is accessible for reading to
+     * the program (so it's a file and you can read it)
+     * 
+     * @return <code>null</code> if the <var>file</var> is accessible to reading and an error
+     *         message describing the problem with the <var>file</var> otherwise.
+     */
+    public String checkFileReadAccessible(final File file, final String kindOfFile);
+
+    /**
+     * Checks whether a <var>file</var> of some <var>kindOfFile</var> is accessible for reading and
+     * writing to the program (so it's a file and you can read and write it)
+     * 
+     * @return <code>null</code> if the <var>file</var> is fully accessible and an error message
+     *         describing the problem with the <var>file</var> otherwise.
+     */
+    public String checkFileFullyAccessible(final File file, final String kindOfFile);
+
+    /**
      * Sets the file's last modification time to the current time without changing the content. If
      * the file does not exist, create it empty.
      * 

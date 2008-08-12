@@ -310,6 +310,36 @@ public class FileOperations implements IFileOperations
         return FileUtilities.listFilesAndDirectories(directory, recursive, observerOrNull);
     }
 
+    public String checkPathFullyAccessible(File path, String kindOfPath)
+    {
+        return FileUtilities.checkPathFullyAccessible(path, kindOfPath);
+    }
+
+    public String checkPathReadAccessible(File path, String kindOfPath)
+    {
+        return FileUtilities.checkPathReadAccessible(path, kindOfPath);
+    }
+
+    public String checkDirectoryFullyAccessible(File directory, String kindOfDirectory)
+    {
+        return FileUtilities.checkDirectoryFullyAccessible(directory, kindOfDirectory);
+    }
+
+    public String checkDirectoryReadAccessible(File directory, String kindOfDirectory)
+    {
+        return FileUtilities.checkDirectoryReadAccessible(directory, kindOfDirectory);
+    }
+
+    public String checkFileFullyAccessible(File file, String kindOfFile)
+    {
+        return FileUtilities.checkFileFullyAccessible(file, kindOfFile);
+    }
+
+    public String checkFileReadAccessible(File file, String kindOfFile)
+    {
+        return FileUtilities.checkFileReadAccessible(file, kindOfFile);
+    }
+
     public void touch(File file) throws WrappedIOException
     {
         try
