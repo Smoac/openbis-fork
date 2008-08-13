@@ -16,23 +16,28 @@
 
 package ch.systemsx.cisd.dbmigration;
 
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 
 /**
+ * A <code>IMigrationStep</code> implementation for test.
+ * 
  * @author Izabela Adamczyk
  */
 public class MigrationStepFrom001To002 implements IMigrationStep
 {
 
-    public Status performPostMigration(final JdbcTemplate jdbcTemplate)
-    {
+    //
+    // IMigrationStep
+    //
 
+    public final Status performPostMigration(final SimpleJdbcTemplate simpleJdbcTemplate)
+    {
         return Status.OK;
     }
 
-    public Status performPreMigration(final JdbcTemplate jdbcTemplate)
+    public final Status performPreMigration(final SimpleJdbcTemplate simpleJdbcTemplate)
     {
         return Status.OK;
     }

@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.dbmigration;
 
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 
@@ -44,11 +44,11 @@ public interface IMigrationStep
     /**
      * Called before the SQL migration is performed.
      */
-    public Status performPreMigration(JdbcTemplate jdbcTemplate);
+    public Status performPreMigration(final SimpleJdbcTemplate simpleJdbcTemplate);
 
     /**
      * Called after the SQL migration has been performed.
      */
-    public Status performPostMigration(JdbcTemplate jdbcTemplate);
+    public Status performPostMigration(final SimpleJdbcTemplate simpleJdbcTemplate);
 
 }

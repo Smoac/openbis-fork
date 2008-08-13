@@ -22,7 +22,7 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.apache.commons.lang.StringUtils;
-import org.springframework.jdbc.core.support.JdbcDaoSupport;
+import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
 
 import ch.systemsx.cisd.common.Script;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -40,7 +40,8 @@ import ch.systemsx.cisd.common.utilities.ClassUtils;
  * 
  * @author Izabela Adamczyk
  */
-public class JavaMigrationStepExecutor extends JdbcDaoSupport implements IJavaMigrationStepExecutor
+public class JavaMigrationStepExecutor extends SimpleJdbcDaoSupport implements
+        IJavaMigrationStepExecutor
 {
     private static final String JAVA_MIGRATION_STEP_PREFIX = "--JAVA";
 
@@ -127,18 +128,23 @@ public class JavaMigrationStepExecutor extends JdbcDaoSupport implements IJavaMi
         }
     }
 
+    //
+    // IJavaMigrationStepExecutor
+    //
+
     /**
      * Returns null if MigrationStep has not been found and status returned by
-     * {@link  IMigrationStep#performPreMigration(org.springframework.jdbc.core.JdbcTemplate)}
+     * {@link  IMigrationStep#performPreMigration(org.springframework.jdbc.core.simple.SimpleJdbcTemplate)}
      * otherwise.
      */
-    public Status tryPerformPreMigration(final Script sqlScript)
+    public final Status tryPerformPreMigration(final Script sqlScript)
 
     {
         final IMigrationStep migrationStep = tryExtractMigrationStep(sqlScript);
         if (migrationStep != null)
         {
-            final Status preMigrationStatus = migrationStep.performPreMigration(getJdbcTemplate());
+            final Status preMigrationStatus =
+                    migrationStep.performPreMigration(getSimpleJdbcTemplate());
             return preMigrationStatus;
         } else
         {
@@ -148,16 +154,16 @@ public class JavaMigrationStepExecutor extends JdbcDaoSupport implements IJavaMi
 
     /**
      * Returns null if MigrationStep has not been found and status returned by
-     * {@link  IMigrationStep#performPostMigration(org.springframework.jdbc.core.JdbcTemplate)}
+     * {@link  IMigrationStep#performPostMigration(org.springframework.jdbc.core.simple.SimpleJdbcTemplate)}
      * otherwise.
      */
-    public Status tryPerformPostMigration(final Script sqlScript)
+    public final Status tryPerformPostMigration(final Script sqlScript)
     {
         final IMigrationStep migrationStep = tryExtractMigrationStep(sqlScript);
         if (migrationStep != null)
         {
             final Status postMigrationStatus =
-                    migrationStep.performPostMigration(getJdbcTemplate());
+                    migrationStep.performPostMigration(getSimpleJdbcTemplate());
             return postMigrationStatus;
         } else
         {

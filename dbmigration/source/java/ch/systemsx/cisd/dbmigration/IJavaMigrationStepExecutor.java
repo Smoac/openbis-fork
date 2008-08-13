@@ -19,11 +19,21 @@ package ch.systemsx.cisd.dbmigration;
 import ch.systemsx.cisd.common.Script;
 import ch.systemsx.cisd.common.exceptions.Status;
 
-
+/**
+ * A migration step executor.
+ * 
+ * @author Christian Ribeaud
+ */
 public interface IJavaMigrationStepExecutor
 {
 
+    /**
+     * Performs some step after the migration has happened.
+     */
     public Status tryPerformPostMigration(final Script sqlScript);
 
+    /**
+     * Performs some step before the migration has happened.
+     */
     public Status tryPerformPreMigration(final Script sqlScript);
 }
