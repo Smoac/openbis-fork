@@ -16,10 +16,11 @@
 
 package ch.systemsx.cisd.common.utilities;
 
+import static org.testng.AssertJUnit.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.io.FileUtils;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeMethod;
 
@@ -66,8 +67,9 @@ public abstract class AbstractFileSystemTestCase
     @BeforeMethod
     public void setUp() throws IOException
     {
-        FileUtils.cleanDirectory(workingDirectory);
-        assert workingDirectory.isDirectory() && workingDirectory.listFiles().length == 0;
+        FileUtilities.deleteRecursively(workingDirectory);
+        workingDirectory.mkdir();
+        assertTrue(workingDirectory.isDirectory() && workingDirectory.listFiles().length == 0);
     }
 
     @AfterClass
