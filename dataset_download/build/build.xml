@@ -57,8 +57,8 @@
     <copy file="${lib}/commons-codec/commons-codec.jar" todir="${dist.download-service.lib}" />
     <property name="dist.file" value="${dist.file.prefix}-${version.number}-r${revision.number}.zip" />
     <zip basedir="${dist}" destfile="${dist.file}">
-      <zipfileset dir="${original.dist}" excludes="**.download-service.sh" prefix="${mainfolder}" />
-      <zipfileset file="${original.dist}.download-service.sh" filemode="755" prefix="${mainfolder}" />
+      <zipfileset dir="${original.dist}" excludes="**/download-service.sh" prefix="${mainfolder}" />
+      <zipfileset file="${original.dist}/download-service.sh" filemode="755" prefix="${mainfolder}" />
     </zip>
     <delete dir="${dist.download-service}" />
   </target>
