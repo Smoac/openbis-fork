@@ -64,7 +64,7 @@ class SVNUtilities
     private static final String SPRINT_PATTERN_PREFIX = "S";
     
     /** Pattern which matches the sprint tagging */
-    static final String SPRINT_TAG_PATTERN_STRING = SPRINT_PATTERN_PREFIX + "[0-9]+";
+    static final String SPRINT_TAG_PATTERN_STRING = SPRINT_PATTERN_PREFIX + "[0-9]+(\\.[0-9])?";
     
     /** The regular expression that a release branch has to match. */
     static final String RELEASE_BRANCH_PATTERN_STRING = RELEASE_PATTERN_PREFIX + "x";
