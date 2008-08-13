@@ -41,7 +41,7 @@ scp download-server-*.zip $SPRINT_SERVER:.
 # If sprint install script is present and executable, run it!
 if [ -x $SPRINT_INSTALL_SCRIPT ]; then
     echo Installing server remotely...
-    cat $SPRINT_INSTALL_SCRIPT | ssh -T $SPRINT_SERVER "cat > /tmp/$SPRINT_INSTALL_SCRIPT ; chmod 755 /tmp/$SPRINT_INSTALL_SCRIPT ; /tmp/$SPRINT_INSTALL_SCRIPT $VER ; rm -f /tmp/$SPRINT_INSTALL_SCRIPT"
+    cat $SPRINT_INSTALL_SCRIPT | ssh -T $SPRINT_SERVER "cat > ~/$SPRINT_INSTALL_SCRIPT ; chmod 755 ~/$SPRINT_INSTALL_SCRIPT ; ~/$SPRINT_INSTALL_SCRIPT $VER ; rm -f ~/$SPRINT_INSTALL_SCRIPT"
 fi
 
 echo Done!
