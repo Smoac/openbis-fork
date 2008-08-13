@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.filesystem;
 
 import java.io.File;
 
 import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
 import ch.systemsx.cisd.common.exceptions.WrappedIOException;
-import ch.systemsx.cisd.common.filesystem.FileLinkUtilities;
 
 /**
  * A {@link IFileImmutableCopier} that uses a native method to create hard links.

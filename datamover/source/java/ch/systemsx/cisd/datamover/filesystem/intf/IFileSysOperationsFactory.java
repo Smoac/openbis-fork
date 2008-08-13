@@ -17,8 +17,8 @@ package ch.systemsx.cisd.datamover.filesystem.intf;
 
 import java.io.File;
 
+import ch.systemsx.cisd.common.filesystem.IImmutableCopier;
 import ch.systemsx.cisd.common.filesystem.IPathCopier;
-import ch.systemsx.cisd.common.utilities.IImmutableCopier;
 
 /**
  * A role that provides access to the roles which perform file system operations.

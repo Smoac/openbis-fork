@@ -22,11 +22,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.CallableExecutor;
 import ch.systemsx.cisd.common.process.FileRenamingCallable;
-import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
 
 /**

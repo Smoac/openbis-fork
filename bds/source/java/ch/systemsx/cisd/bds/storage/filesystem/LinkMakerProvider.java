@@ -18,8 +18,8 @@ package ch.systemsx.cisd.bds.storage.filesystem;
 
 import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.utilities.FastRecursiveHardLinkMaker;
-import ch.systemsx.cisd.common.utilities.IImmutableCopier;
+import ch.systemsx.cisd.common.filesystem.FastRecursiveHardLinkMaker;
+import ch.systemsx.cisd.common.filesystem.IImmutableCopier;
 
 /**
  * A provider of {@link IImmutableCopier} implementations.

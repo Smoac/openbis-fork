@@ -31,8 +31,8 @@ import ch.systemsx.cisd.bds.exception.StorageException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.INode;
-import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
-import ch.systemsx.cisd.common.utilities.FileUtilities;
+import ch.systemsx.cisd.common.filesystem.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**
  * Test cases for corresponding {@link Directory} class.

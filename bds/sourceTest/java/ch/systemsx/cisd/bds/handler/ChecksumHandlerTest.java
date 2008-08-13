@@ -30,8 +30,8 @@ import org.testng.annotations.Test;
 import static org.testng.AssertJUnit.*;
 
 import ch.systemsx.cisd.bds.storage.filesystem.NodeFactory;
-import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
-import ch.systemsx.cisd.common.utilities.FileUtilities;
+import ch.systemsx.cisd.common.filesystem.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**
  * Test cases for corresponding {@link ChecksumHandler} class.
@@ -103,9 +103,9 @@ public final class ChecksumHandlerTest extends AbstractFileSystemTestCase
 
     @Override
     @BeforeMethod
-    public void setup() throws IOException
+    public void setUp() throws IOException
     {
-        super.setup();
+        super.setUp();
         prepareChecksumHandler();
         prepareWorkingDirectory();
     }

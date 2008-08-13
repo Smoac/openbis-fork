@@ -20,8 +20,8 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileSystemUtils;
 
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher.IFreeSpaceProvider;
-import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
  * A simple <code>IFreeSpaceProvider</code> implementation based on {@link FileSystemUtils}.

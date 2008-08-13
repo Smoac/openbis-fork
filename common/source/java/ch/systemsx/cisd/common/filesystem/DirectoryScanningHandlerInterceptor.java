@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.filesystem;
 
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IScannedStore;
+import ch.systemsx.cisd.common.filesystem.DirectoryScanningTimerTask.IScannedStore;
 
 /**
  * An <code>IDirectoryScanningHandler</code> implementation which simply delegates the method

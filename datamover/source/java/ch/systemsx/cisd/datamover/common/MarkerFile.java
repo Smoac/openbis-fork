@@ -19,8 +19,8 @@ package ch.systemsx.cisd.datamover.common;
 import java.io.File;
 
 import ch.systemsx.cisd.common.Constants;
-import ch.systemsx.cisd.common.utilities.FileUtilities;
-import ch.systemsx.cisd.common.utilities.StoreItem;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.filesystem.StoreItem;
 
 /**
  * Manipulations on marker files. Should not use string types in the interface.

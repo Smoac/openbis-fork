@@ -23,8 +23,8 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
-import ch.systemsx.cisd.common.utilities.FileUtilities;
+import ch.systemsx.cisd.common.filesystem.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**
  * Test cases for corresponding {@link MailClient} class.

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.filesystem;
 
 import static org.testng.AssertJUnit.*;
 
@@ -29,10 +29,11 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.collections.CollectionIO;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.filesystem.HardLinkMaker;
+import ch.systemsx.cisd.common.filesystem.IImmutableCopier;
+import ch.systemsx.cisd.common.filesystem.RecursiveHardLinkMaker;
 import ch.systemsx.cisd.common.logging.LogInitializer;
-import ch.systemsx.cisd.common.utilities.FileUtilities;
-import ch.systemsx.cisd.common.utilities.IImmutableCopier;
-import ch.systemsx.cisd.common.utilities.RecursiveHardLinkMaker;
 
 /**
  * Test cases for the {@link RecursiveHardLinkMaker}.

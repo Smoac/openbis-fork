@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.filesystem;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -22,9 +22,9 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
+import ch.systemsx.cisd.common.filesystem.DirectoryScanningTimerTask.IScannedStore;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
-import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IScannedStore;
 
 /**
  * A <code>IScannedStore</code> implementation for directories.

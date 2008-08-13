@@ -28,7 +28,6 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.logging.LogInitializer;
-import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 import static org.testng.AssertJUnit.*;
 

@@ -43,7 +43,6 @@ import ch.systemsx.cisd.common.exceptions.WrappedIOException;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
  * Monitoring for (potentially hanging) file operations. Supposed to be used on remote file systems.

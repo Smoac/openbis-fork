@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.filesystem;
 
 import static org.testng.AssertJUnit.assertTrue;
 
@@ -23,6 +23,8 @@ import java.io.IOException;
 
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeMethod;
+
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**
  * An <code>abstract</code> test case which accesses the file system.

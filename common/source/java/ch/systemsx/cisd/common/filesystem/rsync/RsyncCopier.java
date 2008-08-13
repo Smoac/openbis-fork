@@ -32,6 +32,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
+import ch.systemsx.cisd.common.filesystem.IDirectoryImmutableCopier;
 import ch.systemsx.cisd.common.filesystem.IPathCopier;
 import ch.systemsx.cisd.common.filesystem.rsync.RsyncVersionChecker.RsyncVersion;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -40,7 +41,6 @@ import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper.IProcessHandler;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper.OutputReadingStrategy;
-import ch.systemsx.cisd.common.utilities.IDirectoryImmutableCopier;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
 

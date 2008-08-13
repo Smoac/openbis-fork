@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
-import ch.systemsx.cisd.common.utilities.FileUtilities;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**
  * A class that formats the SQL schema scripts. The output will have a canonical form that is easy

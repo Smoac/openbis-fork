@@ -26,7 +26,7 @@ import org.apache.commons.io.FilenameUtils;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.utilities.FileUtilities;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 
 /**
@@ -63,15 +63,15 @@ public class ConfigParameters
     public ConfigParameters(final Properties properties)
     {
         refreshTimeInterval = PropertyUtils.getInt(properties, REFRESH_TIME_INTERVAL, 60) * 1000;
-        datamoversWorkingDirectories = obtainMapFrom(properties, DATAMOVERS, WORKING_DIRECTORY);
-        if (datamoversWorkingDirectories.isEmpty())
-        {
-            throw new ConfigurationFailureException("At least one datamover should be specified.");
-        }
         targets = obtainMapFrom(properties, TARGETS, LOCATION);
         if (targets.isEmpty())
         {
             throw new ConfigurationFailureException("At least one target should be specified.");
+        }
+        datamoversWorkingDirectories = obtainMapFrom(properties, DATAMOVERS, WORKING_DIRECTORY);
+        if (datamoversWorkingDirectories.isEmpty())
+        {
+            throw new ConfigurationFailureException("At least one datamover should be specified.");
         }
     }
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.filesystem;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -33,12 +33,13 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StopException;
+import ch.systemsx.cisd.common.filesystem.IDirectoryScanningHandler.HandleInstruction;
+import ch.systemsx.cisd.common.filesystem.IDirectoryScanningHandler.HandleInstructionFlag;
 import ch.systemsx.cisd.common.logging.ConditionalNotificationLogger;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.IDirectoryScanningHandler.HandleInstruction;
-import ch.systemsx.cisd.common.utilities.IDirectoryScanningHandler.HandleInstructionFlag;
+import ch.systemsx.cisd.common.utilities.ITimerTaskStatusProvider;
 
 /**
  * A {@link TimerTask} that scans a source directory for entries that are accepted by some

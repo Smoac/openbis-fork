@@ -29,8 +29,8 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.filesystem.NodeFactory;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.test.EqualsHashCodeTestCase;
-import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
  * Test cases for corresponding {@link Sample} class.

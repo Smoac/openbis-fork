@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.filesystem;
 
 import java.io.File;
 
@@ -22,8 +22,10 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.filesystem.rsync.RsyncBasedRecursiveHardLinkMaker;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.OSUtilities;
 
 /**
  * A fast {@link IImmutableCopier} that uses a fallback option whenever one of the fast copiers for

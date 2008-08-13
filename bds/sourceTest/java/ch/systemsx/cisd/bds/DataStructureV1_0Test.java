@@ -37,7 +37,7 @@ import ch.systemsx.cisd.bds.handler.MappingFileHandler;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IStorage;
 import ch.systemsx.cisd.bds.storage.filesystem.FileStorage;
-import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.common.filesystem.AbstractFileSystemTestCase;
 
 /**
  * Test cases for corresponding {@link DataStructureV1_0} class.

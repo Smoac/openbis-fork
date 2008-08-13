@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.datamover.filesystem;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.utilities.IStoreHandler;
+import ch.systemsx.cisd.common.filesystem.IStoreHandler;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
 import ch.systemsx.cisd.datamover.filesystem.remote.RemotePathMover;

@@ -14,22 +14,25 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.filesystem;
 
-import java.io.File;
+import ch.systemsx.cisd.common.utilities.IStopSignaler;
 
 /**
- * A role for handling paths. The paths are supposed to go away when they have been handled
- * successfully.
+ * Handles items in the file store.
+ * <p>
+ * Note that this interface is a higher abstraction of {@link IPathHandler} which works with
+ * {@link java.io.File}.
+ * </p>
  * 
- * @see IStoreHandler
- * @author Bernd Rinn
+ * @see IPathHandler
+ * @author Tomasz Pylak
  */
-public interface IPathHandler extends IStopSignaler
+public interface IStoreHandler extends IStopSignaler
 {
     /**
-     * Handles the <var>path</var>. Successful handling is indicated by <var>path</var> being gone
+     * Handles given <var>item</var>. Successful handling is indicated by <var>item</var> being gone
      * when the method returns.
      */
-    public void handle(File path);
+    void handle(StoreItem item);
 }

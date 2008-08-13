@@ -20,10 +20,10 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IDescribingActivitySensor;
 import ch.systemsx.cisd.common.exceptions.StatusWithResult;
+import ch.systemsx.cisd.common.filesystem.AbstractCopyActivitySensor;
+import ch.systemsx.cisd.common.filesystem.StoreItem;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.AbstractCopyActivitySensor;
-import ch.systemsx.cisd.common.utilities.StoreItem;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 
 /**

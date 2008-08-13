@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.filesystem;
 
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IScannedStore;
+import ch.systemsx.cisd.common.filesystem.DirectoryScanningTimerTask.IScannedStore;
 
 /**
  * A helper class for {@link DirectoryScanningTimerTask} which performs operations before and after

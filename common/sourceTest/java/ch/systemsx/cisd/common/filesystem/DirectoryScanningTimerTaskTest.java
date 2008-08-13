@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.filesystem;
 
-import static ch.systemsx.cisd.common.utilities.FileUtilities.ACCEPT_ALL_FILTER;
+import static ch.systemsx.cisd.common.filesystem.FileUtilities.ACCEPT_ALL_FILTER;
 import static org.testng.AssertJUnit.*;
 
 import java.io.File;
@@ -33,6 +33,9 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.collections.CollectionIO;
+import ch.systemsx.cisd.common.filesystem.DirectoryScanningTimerTask;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.filesystem.IPathHandler;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.test.LogMonitoringAppender;

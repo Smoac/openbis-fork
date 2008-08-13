@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.datasetdownload;
 
 import java.io.File;
 
-import ch.systemsx.cisd.common.utilities.FileUtilities;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 final class RenderingContext
 {

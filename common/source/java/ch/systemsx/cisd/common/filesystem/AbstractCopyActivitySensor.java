@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.filesystem;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.log4j.Logger;

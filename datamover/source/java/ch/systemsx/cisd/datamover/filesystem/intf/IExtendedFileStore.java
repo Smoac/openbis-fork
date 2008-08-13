@@ -18,7 +18,7 @@ package ch.systemsx.cisd.datamover.filesystem.intf;
 
 import java.io.File;
 
-import ch.systemsx.cisd.common.utilities.StoreItem;
+import ch.systemsx.cisd.common.filesystem.StoreItem;
 
 /**
  * An {@link IFileStore} with additional capabilites.

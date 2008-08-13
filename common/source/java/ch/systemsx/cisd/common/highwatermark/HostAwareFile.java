@@ -19,8 +19,8 @@ package ch.systemsx.cisd.common.highwatermark;
 import java.io.File;
 import java.io.Serializable;
 
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
-import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
  * A {@link java.io.File} that is aware of the host it is located on.

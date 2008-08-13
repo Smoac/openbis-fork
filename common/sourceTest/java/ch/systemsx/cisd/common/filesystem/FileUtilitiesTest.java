@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.filesystem;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
@@ -40,6 +40,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.concurrent.IActivityObserver;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.parser.filter.ExcludeEmptyAndCommentLineFilter;
 
 /**
@@ -190,9 +191,8 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
     @Test
     public void testLoadToStringResource() throws Exception
     {
-        final String thisFile =
-                FileUtilities.loadToString(getClass(),
-                        "/ch/systemsx/cisd/common/utilities/FileUtilitiesTest.class");
+        final String resourceName = "/" + getClass().getCanonicalName().replaceAll("\\.", "/") + ".class";
+        final String thisFile = FileUtilities.loadToString(getClass(), resourceName);
         assert thisFile != null;
         assert thisFile.indexOf("FileUtilitiesTest") >= 0;
     }
@@ -383,7 +383,8 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
     @Test
     public final void testCopyResourceToTempFile()
     {
-        final String resourceName = "/ch/systemsx/cisd/common/utilities/FileUtilities.class";
+        final String resourceName =
+                "/" + FileUtilities.class.getCanonicalName().replaceAll("\\.", "/") + ".class";
         final String absoluteTempFileName =
                 FileUtilities.copyResourceToTempFile(resourceName, "pre", "post");
         assertNotNull(absoluteTempFileName);
@@ -495,8 +496,7 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
         observer.count = 0;
         final List<File> list5 = FileUtilities.listDirectories(dir, false, observer);
         assertEquals(2, list5.size());
-        assertEquals(new HashSet<File>(Arrays.asList(subDir, subDir3)), new HashSet<File>(
-                list5));
+        assertEquals(new HashSet<File>(Arrays.asList(subDir, subDir3)), new HashSet<File>(list5));
         assertTrue("" + observer.count, observer.count >= list5.size());
     }
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.filesystem;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -59,6 +59,8 @@ import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.parser.filter.AlwaysAcceptLineFilter;
 import ch.systemsx.cisd.common.parser.filter.ILineFilter;
+import ch.systemsx.cisd.common.utilities.OSUtilities;
+import ch.systemsx.cisd.common.utilities.StringUtilities;
 
 /**
  * Some useful utility methods for files and directories.

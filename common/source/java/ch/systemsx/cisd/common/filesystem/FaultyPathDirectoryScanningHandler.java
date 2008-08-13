@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.filesystem;
 
 import java.io.File;
 import java.util.HashSet;
@@ -26,9 +26,10 @@ import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.collections.CollectionIO;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.filesystem.DirectoryScanningTimerTask.IScannedStore;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IScannedStore;
+import ch.systemsx.cisd.common.utilities.IStopSignaler;
 
 /**
  * An <code>IDirectoryScanningHandler</code> which manages faulty paths.

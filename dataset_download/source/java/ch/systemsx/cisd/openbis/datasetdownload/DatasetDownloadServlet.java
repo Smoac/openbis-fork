@@ -45,9 +45,9 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.FileUtilities;
 import ch.systemsx.cisd.lims.base.IDataSetService;
 import ch.systemsx.cisd.lims.base.dto.ExternalData;
 import ch.systemsx.cisd.lims.base.dto.LocatorType;

@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.datamover.filesystem.intf;
 
-import ch.systemsx.cisd.common.utilities.StoreItem;
+import ch.systemsx.cisd.common.filesystem.StoreItem;
 
 /**
  * Bean for the location of a {@link StoreItem} on a local or remote file system.

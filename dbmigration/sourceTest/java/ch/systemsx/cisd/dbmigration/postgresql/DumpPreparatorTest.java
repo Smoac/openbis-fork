@@ -25,7 +25,7 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.utilities.FileUtilities;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.dbmigration.SimpleDatabaseMetaData;
 import ch.systemsx.cisd.dbmigration.SimpleTableMetaData;
 

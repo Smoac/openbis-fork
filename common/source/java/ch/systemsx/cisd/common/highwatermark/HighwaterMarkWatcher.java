@@ -31,10 +31,10 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.CallableExecutor;
-import ch.systemsx.cisd.common.utilities.FileUtilities;
 
 /**
  * A high water mark watcher.

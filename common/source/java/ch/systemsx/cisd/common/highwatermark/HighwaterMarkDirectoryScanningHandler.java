@@ -18,10 +18,10 @@ package ch.systemsx.cisd.common.highwatermark;
 
 import java.io.File;
 
-import ch.systemsx.cisd.common.utilities.DirectoryScanningHandlerInterceptor;
-import ch.systemsx.cisd.common.utilities.IDirectoryScanningHandler;
-import ch.systemsx.cisd.common.utilities.StoreItem;
-import ch.systemsx.cisd.common.utilities.DirectoryScanningTimerTask.IScannedStore;
+import ch.systemsx.cisd.common.filesystem.DirectoryScanningHandlerInterceptor;
+import ch.systemsx.cisd.common.filesystem.IDirectoryScanningHandler;
+import ch.systemsx.cisd.common.filesystem.StoreItem;
+import ch.systemsx.cisd.common.filesystem.DirectoryScanningTimerTask.IScannedStore;
 
 /**
  * A <code>DirectoryScanningHandlerInterceptor</code> extension which bases its decision on the

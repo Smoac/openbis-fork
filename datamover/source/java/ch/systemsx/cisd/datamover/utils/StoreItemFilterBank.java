@@ -19,7 +19,7 @@ package ch.systemsx.cisd.datamover.utils;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.common.utilities.StoreItem;
+import ch.systemsx.cisd.common.filesystem.StoreItem;
 
 /**
  * A filter bank of {@link IStoreItemFilter} instances. A {@link StoreItem} tries to passes the
