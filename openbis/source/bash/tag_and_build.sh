@@ -12,14 +12,14 @@ fi
 
 TODAY=`date "+%Y-%m-%d"`
 VER=$1
+SUBVER=0
 if [ $2 ]; then
 	SUBVER=$2
-else
-	SUBVER=0
 fi
 FULL_VER=S$VER.$SUBVER
 SPRINT_SERVER=sprint-openbis.ethz.ch
 CISD_SERVER=cisd-vesuvio.ethz.ch
+SPRINT_INSTALL_SCRIPT=sprint_install.sh
 
 svn checkout svn+ssh://source.systemsx.ch/repos/cisd/build_resources/trunk build_resources
 cd build_resources
@@ -38,9 +38,10 @@ echo Copying new openBIS components to \'$SPRINT_SERVER\'...
 scp openBIS-server-*.zip $SPRINT_SERVER:.
 scp download-server-*.zip $SPRINT_SERVER:.
 
-# if [ -x sprint_install.sh ]
-#    echo Installing server remotely...
-#    cat sprint_install.sh | ssh -T $SPRINT_SERVER
-# fi
+# If sprint install script is present and executable, run it!
+if [ -x $SPRINT_INSTALL_SCRIPT ]; then
+    echo Installing server remotely...
+    cat $SPRINT_INSTALL_SCRIPT | ssh -T $SPRINT_SERVER "cat > /tmp/$SPRINT_INSTALL_SCRIPT ; chmod 755 /tmp/$SPRINT_INSTALL_SCRIPT ; /tmp/$SPRINT_INSTALL_SCRIPT $VER ; rm -f /tmp/$SPRINT_INSTALL_SCRIPT"
+fi
 
 echo Done!
