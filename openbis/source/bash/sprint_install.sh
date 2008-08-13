@@ -27,13 +27,13 @@ rm sprint
 mkdir sprint-$VER
 ln -s sprint-$VER sprint
 cd sprint
-unzip ../openBIS-server-S$VER-* 
+unzip ../openBIS-server-S$VER*
 cd openBIS-server
 ./install.sh $PWD ../../service.properties
 
 echo Installing download server...
 cd ..
-unzip ../download-server-S$VER-* 
+unzip ../download-server-S$VER* 
 cd download-server
 cp ~/old/sprint-$PREV_VER/download-server/etc/service.properties etc/
 chmod 700 download-service.sh
