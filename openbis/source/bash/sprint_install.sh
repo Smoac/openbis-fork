@@ -1,4 +1,5 @@
 #!/bin/bash
+# Performs the sprint components installation.
 # This script assumes that you already are on the sprint server and must be run from that place
 # in the home directory.
 

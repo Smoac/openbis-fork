@@ -1,4 +1,7 @@
 #!/bin/bash
+# Tags, builds the software components, uploads them to sprint server 
+# and places a copy of them on the sprint server ready for installation. 
+#
 # This script assumes that you have a SSH access on 'sprint-openbis.ethz.ch' 
 # and 'cisd-vesuvio.ethz.ch'. This is typically configured in the SSH config file.
 
