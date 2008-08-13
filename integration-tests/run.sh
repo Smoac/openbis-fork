@@ -579,7 +579,6 @@ function assert_correct_experiment_info {
     assert_pattern_present $res 1 "DATA_ACQUISITION.processing-dir.Processing parameters from file .*processing-parameters.txt"
     assert_pattern_present $res 2 "DATA_ACQUISITION.*HCS_IMAGE.*NEMO.*EXP1.*HCS_IMAGE\/.*3VCP[[:digit:]].*microX.*3VCP[[:digit:]]" 
     assert_pattern_present $res 5 "IMAGE_ANALYSIS.*HCS_IMAGE_ANALYSIS_DATA.*NEMO.*EXP1.*HCS_IMAGE_ANALYSIS_DATA.*3VCP[[:digit:]].*microX.*3VCP[[:digit:]]" 
-
 }
 
 function assert_empty_in_out_folders {
@@ -620,8 +619,7 @@ function assert_correct_content_of_plate_3VCP1_in_store {
     
     echo == check data structure version
     assert_equals_as_in_file 1 $raw_data_set/version/major
-    assert_equals_as_in_file 0 $raw_data_set/version/minor
-    
+    assert_equals_as_in_file 1 $raw_data_set/version/minor
     
     echo == check annotations
     local annotations_dir="$raw_data_set/annotations"
@@ -645,21 +643,29 @@ function assert_correct_content_of_plate_3VCP1_in_store {
     echo == check metadata
     local metadata_dir=$raw_data_set/metadata
     assert_dir_exists $metadata_dir
+    # Data set
     assert_equals_as_in_file microX-3VCP1 $metadata_dir/data_set/code
     assert_equals_as_in_file TRUE $metadata_dir/data_set/is_measured
     assert_equals_as_in_file FALSE $metadata_dir/data_set/is_complete
     assert_equals_as_in_file HCS_IMAGE $metadata_dir/data_set/observable_type
     assert_equals_as_in_file microX $metadata_dir/data_set/producer_code
+    # Sample
     assert_equals_as_in_file 3VCP1 $metadata_dir/sample/code
     assert_equals_as_in_file CELL_PLATE $metadata_dir/sample/type_code
+    assert_equals_as_in_file 'Screening Plate' $metadata_dir/sample/type_description
+    assert_equals_as_in_file CISD $metadata_dir/sample/group_code
+    assert_equals_as_in_file CISD $metadata_dir/sample/database_instance_code
+    # Experiment identifier
     assert_equals_as_in_file CISD $metadata_dir/experiment_identifier/instance_code
     assert_equals_as_in_file CISD $metadata_dir/experiment_identifier/group_code
     assert_equals_as_in_file NEMO $metadata_dir/experiment_identifier/project_code
     assert_equals_as_in_file EXP1 $metadata_dir/experiment_identifier/experiment_code
+    # Experiment registration
     assert_file_exists $metadata_dir/experiment_registration_timestamp
     assert_file_exists $metadata_dir/experiment_registrator/email
     assert_file_exists $metadata_dir/experiment_registrator/first_name
     assert_file_exists $metadata_dir/experiment_registrator/last_name
+    # Format
     assert_equals_as_in_file HCS_IMAGE $metadata_dir/format/code
     assert_equals_as_in_file 1 $metadata_dir/format/version/major
     assert_equals_as_in_file 0 $metadata_dir/format/version/minor
@@ -667,9 +673,6 @@ function assert_correct_content_of_plate_3VCP1_in_store {
     assert_pattern_present $metadata_dir/md5sum/original 1 ".* microX_200801011213_3VCP1/TIFF/blabla_3VCP1_K13_8_w460.tif"
     assert_pattern_present $metadata_dir/md5sum/original 1 ".* microX_200801011213_3VCP1/TIFF/blabla_3VCP1_M03_2_w530.tif"
     assert_pattern_present $metadata_dir/md5sum/original 1 ".* microX_200801011213_3VCP1/TIFF/readme-not.txt"
-    assert_equals_as_in_file 3VCP1 $metadata_dir/sample/code
-    assert_equals_as_in_file 'CELL_PLATE' $metadata_dir/sample/type_code
-    assert_equals_as_in_file 'Screening Plate' $metadata_dir/sample/type_description
     assert_file_exists $metadata_dir/standard_original_mapping
     
     echo == check format parameters
