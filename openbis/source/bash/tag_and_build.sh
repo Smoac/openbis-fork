@@ -29,4 +29,10 @@ scp *.zip $CISD_SERVER:$SPRINT_DIR
 echo Copying new openBIS components to '$SPRINT_SERVER'... 
 scp openBIS-server-*.zip $SPRINT_SERVER:.
 scp download-server-*.zip $SPRINT_SERVER:.
+
+# if [ -x sprint_install.sh ]
+#    echo Installing server remotely...
+#    cat sprint_install.sh | ssh -T $SPRINT_SERVER
+# fi
+
 echo Done!
