@@ -27,10 +27,12 @@ import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import ch.systemsx.cisd.common.Script;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.utilities.ClassUtils;
 
 /**
- * Allows to extract {@link IMigrationStep} class from migration script and run the pre- and post-
- * migration java steps. Example of the script containing Java Migration Step definition:
+ * Allows to extract {@link IMigrationStep} class from migration script and run the <i>pre</i>- and
+ * <i>post</i>- migration java steps.<br>
+ * Example of the script containing Java Migration Step definition:
  * 
  * <pre>
  * -- JAVA ch.systemsx.cisd.openbis.db.migration.MigrationStepFrom022To023
@@ -89,55 +91,36 @@ public class JavaMigrationStepExecutor extends JdbcDaoSupport implements IJavaMi
             {
 
                 msg =
-                        String
-                                .format(
-                                        "Migration script '%s' contains more than one Java Migration Steps.",
-                                        sqlScript.getName());
-
+                        String.format("Migration script '%s' contains more "
+                                + "than one Java Migration Steps.", sqlScript.getName());
             } else
             {
                 msg =
-                        String
-                                .format(
-                                        "Java Migration Step should be defined in the first non-blank line of the migration script '%s'.",
-                                        sqlScript.getName());
-
+                        String.format("Java Migration Step should be defined in the first "
+                                + "non-blank line of the migration script '%s'.", sqlScript
+                                .getName());
             }
-
             throw new EnvironmentFailureException(msg);
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private IMigrationStep tryExtractMigrationStepFromLine(final String lineToProcess)
+    private final IMigrationStep tryExtractMigrationStepFromLine(final String lineToProcess)
     {
         final String line = StringUtils.deleteWhitespace(lineToProcess);
         if (line != null && line.startsWith(JAVA_MIGRATION_STEP_PREFIX))
         {
             final String className = StringUtils.removeStart(line, JAVA_MIGRATION_STEP_PREFIX);
-            String msg;
             try
             {
-                final Class clazz = Class.forName(className);
-                final Object object = clazz.newInstance();
-                return (IMigrationStep) object;
+                return (IMigrationStep) ClassUtils.createInstance(Class.forName(className));
             } catch (final ClassNotFoundException ex)
             {
-                msg = String.format("Class '%s' not found.", className);
-
-            } catch (final InstantiationException ex)
+                throw new EnvironmentFailureException(String.format("Class '%s' not found.",
+                        className));
+            } catch (final RuntimeException ex)
             {
-                msg =
-                        String.format(
-                                "Cannot instantiate class '%s' (EnvironmentFailureException).",
-                                className);
-            } catch (final IllegalAccessException ex)
-            {
-                msg =
-                        String.format("Cannot instantiate class '%s' (IllegalAccessException).",
-                                className);
+                throw new EnvironmentFailureException(ex.getMessage());
             }
-            throw new EnvironmentFailureException(msg);
         } else
         {
             return null;
@@ -155,7 +138,6 @@ public class JavaMigrationStepExecutor extends JdbcDaoSupport implements IJavaMi
         final IMigrationStep migrationStep = tryExtractMigrationStep(sqlScript);
         if (migrationStep != null)
         {
-
             final Status preMigrationStatus = migrationStep.performPreMigration(getJdbcTemplate());
             return preMigrationStatus;
         } else

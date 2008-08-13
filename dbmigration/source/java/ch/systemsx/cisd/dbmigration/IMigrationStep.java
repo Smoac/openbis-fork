@@ -22,10 +22,20 @@ import ch.systemsx.cisd.common.exceptions.Status;
 
 /**
  * An interface which must be implemented by all classes providing Java code that performs migration
- * steps prior (pre) or after (post) the SQL migration script ran. Canonical name of class
- * implementing this interface (preceded by <code>-- JAVA </code>) may be included in the first
- * line of SQL migration script. <Example:
- * <code> -- JAVA ch.systemsx.cisd.openbis.db.migration.MigrationStepFrom022To023</code>
+ * steps prior (<i>pre</i>) or after (<i>post</i>) the SQL migration script ran.
+ * <p>
+ * Canonical name of class implementing this interface (preceded by <code>-- JAVA </code>) may be
+ * included in the first line of SQL migration script.<br>
+ * Example:
+ * 
+ * <pre>
+ *  -- JAVA ch.systemsx.cisd.openbis.db.migration.MigrationStepFrom022To023
+ * </pre>
+ * 
+ * </p>
+ * <p>
+ * Implementations are expected to be stateless and have a public empty constructor.
+ * </p>
  * 
  * @author Izabela Adamczyk
  */
