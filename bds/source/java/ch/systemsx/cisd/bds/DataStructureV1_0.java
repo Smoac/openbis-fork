@@ -335,7 +335,7 @@ public class DataStructureV1_0 extends AbstractDataStructure implements IDataStr
     }
 
     @Override
-    public final void performClosing()
+    public void performClosing()
     {
         super.performClosing();
         final IDirectory metaDataDirectory = getMetaDataDirectory();

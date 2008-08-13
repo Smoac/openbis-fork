@@ -31,6 +31,8 @@ public class ExperimentIdentifier implements IStorable
 
     static final String INSTANCE_CODE = "instance_code";
 
+    static final String INSTANCE_GLOBAL_CODE = "instance_global_code";
+
     static final String GROUP_CODE = "group_code";
 
     static final String PROJECT_CODE = "project_code";

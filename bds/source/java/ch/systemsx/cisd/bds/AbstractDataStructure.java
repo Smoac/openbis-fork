@@ -121,7 +121,7 @@ abstract class AbstractDataStructure implements IDataStructure, IDataStructureHa
         mountStorage();
         performOpening();
         Version loadedVersion = Version.loadFrom(root);
-        if (loadedVersion.isBackwardsCompatibleWith(getVersion()) == false)
+        if (getVersion().isBackwardsCompatibleWith(loadedVersion) == false)
         {
             throw new DataStructureException("Version of loaded data structure is " + loadedVersion
                     + " which is not backward compatible with " + getVersion());
@@ -134,8 +134,8 @@ abstract class AbstractDataStructure implements IDataStructure, IDataStructureHa
         assertOpenOrCreated();
         getVersion().saveTo(root);
         performClosing();
-        //TODO 2008-07-03, Bernd Rinn: make this optional
-        //assertValid();
+        // TODO 2008-07-03, Bernd Rinn: make this optional
+        // assertValid();
         storage.unmount();
     }
 }

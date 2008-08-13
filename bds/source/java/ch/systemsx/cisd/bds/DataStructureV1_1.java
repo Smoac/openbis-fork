@@ -34,6 +34,26 @@ public final class DataStructureV1_1 extends DataStructureV1_0
         super(storage);
     }
 
+    /**
+     * Returns the sample with its owner (a group or a database instance).
+     * <p>
+     * This is only available in version 1.1. Using this method with data structure version 1.0
+     * throws an exception.
+     * </p>
+     * 
+     * @throws DataStructureException if trying to use this method with data structure of version
+     *             1.0.
+     */
+    public final SampleWithOwner getSampleWithOwner()
+    {
+        final Sample sample = getSample();
+        if (sample instanceof SampleWithOwner == false)
+        {
+            throw new DataStructureException("Can not be used in data structure v1.0.");
+        }
+        return (SampleWithOwner) sample;
+    }
+
     //
     // DataStructureV1_0
     //
@@ -53,6 +73,7 @@ public final class DataStructureV1_1 extends DataStructureV1_0
      * 
      * @throws DataStructureException if the sample hasn't be loaded nor hasn't be set by
      *             {@link #setSample(Sample)}.
+     * @return a {@link Sample} or {@link SampleWithOwner} (if v1.1).
      */
     @Override
     public final Sample getSample()
@@ -78,7 +99,19 @@ public final class DataStructureV1_1 extends DataStructureV1_0
         assert sample != null : "Unspecified sample.";
         assert sample instanceof SampleWithOwner : "Must be an instance of SampleWithOwner.";
         assertOpenOrCreated();
-        ((SampleWithOwner) sample).saveTo(getMetaDataDirectory());
+        sample.saveTo(getMetaDataDirectory());
     }
 
+    @Override
+    public final void performClosing()
+    {
+        if (getSample() instanceof SampleWithOwner)
+        {
+            super.performClosing();
+        } else
+        {
+            throw new DataStructureException(
+                    "The owner (group or database instance) has not been set.");
+        }
+    }
 }

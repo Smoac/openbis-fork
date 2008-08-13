@@ -40,7 +40,9 @@ public final class SampleWithOwnerTest extends AbstractFileSystemTestCase
 
     private static final String CODE = "code";
 
-    static final String DATABASE_INSTANCE_CODE = "DB1";
+    static final String INSTANCE_CODE = "DB1";
+
+    static final String INSTANCE_GLOBAL_CODE = "111-222";
 
     static final String GROUP_CODE = "G1";
 
@@ -50,7 +52,7 @@ public final class SampleWithOwnerTest extends AbstractFileSystemTestCase
         boolean fail = true;
         try
         {
-            new SampleWithOwner(CODE, TYPE_CODE, TYPE_DESCRIPTION, null, null);
+            new SampleWithOwner(CODE, TYPE_CODE, TYPE_DESCRIPTION, null, null, null);
         } catch (final AssertionError ex)
         {
             fail = false;
@@ -58,7 +60,7 @@ public final class SampleWithOwnerTest extends AbstractFileSystemTestCase
         assertEquals(false, fail);
         try
         {
-            new SampleWithOwner(CODE, TYPE_CODE, TYPE_DESCRIPTION, "", "");
+            new SampleWithOwner(CODE, TYPE_CODE, TYPE_DESCRIPTION, "", "", "");
             fail();
         } catch (final DataStructureException e)
         {
@@ -66,7 +68,15 @@ public final class SampleWithOwnerTest extends AbstractFileSystemTestCase
         }
         try
         {
-            new SampleWithOwner(CODE, TYPE_CODE, TYPE_DESCRIPTION, GROUP_CODE, "");
+            new SampleWithOwner(CODE, TYPE_CODE, TYPE_DESCRIPTION, "", "", GROUP_CODE);
+            fail();
+        } catch (final DataStructureException e)
+        {
+            // Nothing to do here.
+        }
+        try
+        {
+            new SampleWithOwner(CODE, TYPE_CODE, TYPE_DESCRIPTION, "", INSTANCE_CODE, GROUP_CODE);
             fail();
         } catch (final DataStructureException e)
         {
@@ -79,27 +89,30 @@ public final class SampleWithOwnerTest extends AbstractFileSystemTestCase
     {
         return new Object[][]
             {
-                { GROUP_CODE, DATABASE_INSTANCE_CODE },
-                { "", DATABASE_INSTANCE_CODE }, };
+                { INSTANCE_GLOBAL_CODE, INSTANCE_CODE, GROUP_CODE },
+                { INSTANCE_GLOBAL_CODE, INSTANCE_CODE, "" }, };
     }
 
     @Test(dataProvider = "getSampleData")
-    public final void testLoadFrom(final String groupCode, final String databaseInstanceCode)
+    public final void testLoadFrom(final String instanceGlobalCode, final String instanceCode,
+            final String groupCode)
     {
         final IDirectory directory = NodeFactory.createDirectoryNode(workingDirectory);
         final Sample sample =
-                new SampleWithOwner(CODE, TYPE_CODE, TYPE_DESCRIPTION, groupCode,
-                        databaseInstanceCode);
+                new SampleWithOwner(CODE, TYPE_CODE, TYPE_DESCRIPTION, instanceGlobalCode,
+                        instanceCode, groupCode);
         sample.saveTo(directory);
         final SampleWithOwner newSample = SampleWithOwner.loadFrom(directory);
         if (groupCode.length() > 0)
         {
             assertEquals(GROUP_CODE, newSample.getGroupCode());
-            assertEquals(DATABASE_INSTANCE_CODE, newSample.getDatabaseInstanceCode());
+            assertEquals(INSTANCE_CODE, newSample.getInstanceCode());
+            assertEquals(INSTANCE_GLOBAL_CODE, newSample.getInstanceGlobalCode());
         } else
         {
             assertEquals("", newSample.getGroupCode());
-            assertEquals(DATABASE_INSTANCE_CODE, newSample.getDatabaseInstanceCode());
+            assertEquals(INSTANCE_CODE, newSample.getInstanceCode());
+            assertEquals(INSTANCE_GLOBAL_CODE, newSample.getInstanceGlobalCode());
         }
     }
 }

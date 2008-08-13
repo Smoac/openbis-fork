@@ -654,7 +654,8 @@ function assert_correct_content_of_plate_3VCP1_in_store {
     assert_equals_as_in_file CELL_PLATE $metadata_dir/sample/type_code
     assert_equals_as_in_file 'Screening Plate' $metadata_dir/sample/type_description
     assert_equals_as_in_file CISD $metadata_dir/sample/group_code
-    assert_equals_as_in_file CISD $metadata_dir/sample/database_instance_code
+    assert_equals_as_in_file CISD $metadata_dir/sample/instance_code
+	assert_file_exists $metadata_dir/sample/instance_global_code
     # Experiment identifier
     assert_equals_as_in_file CISD $metadata_dir/experiment_identifier/instance_code
     assert_equals_as_in_file CISD $metadata_dir/experiment_identifier/group_code

@@ -19,12 +19,15 @@ package ch.systemsx.cisd.bds;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 
 import java.io.IOException;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.bds.exception.DataStructureException;
+import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.filesystem.FileStorage;
 import ch.systemsx.cisd.common.utilities.AbstractFileSystemTestCase;
 
@@ -74,8 +77,8 @@ public final class DataStructureV1_1Test extends AbstractFileSystemTestCase
             fail = false;
         }
         assertFalse(fail);
-        dataStructure.setSample(new SampleWithOwner(SAMPLE, "",
-                SampleWithOwnerTest.DATABASE_INSTANCE_CODE));
+        dataStructure.setSample(new SampleWithOwner(SAMPLE,
+                SampleWithOwnerTest.INSTANCE_GLOBAL_CODE, SampleWithOwnerTest.INSTANCE_CODE, ""));
     }
 
     @Test
@@ -83,22 +86,61 @@ public final class DataStructureV1_1Test extends AbstractFileSystemTestCase
     {
         dataStructure.create();
         final SampleWithOwner sampleWithOwner =
-                new SampleWithOwner(SAMPLE, "", SampleWithOwnerTest.DATABASE_INSTANCE_CODE);
+                new SampleWithOwner(SAMPLE, SampleWithOwnerTest.INSTANCE_GLOBAL_CODE,
+                        SampleWithOwnerTest.INSTANCE_CODE, "");
         dataStructure.setSample(sampleWithOwner);
         final Sample sample = dataStructure.getSample();
         assertTrue(sample instanceof SampleWithOwner);
-        final String databaseInstanceCode = sampleWithOwner.getDatabaseInstanceCode();
+        final String databaseInstanceCode = sampleWithOwner.getInstanceCode();
         assertTrue(databaseInstanceCode.length() > 0);
-        assertEquals(databaseInstanceCode, ((SampleWithOwner) sample).getDatabaseInstanceCode());
+        assertEquals(databaseInstanceCode, dataStructure.getSampleWithOwner().getInstanceCode());
+    }
+
+    @Test
+    public void testOpenVersionV1_0()
+    {
+        DataStructureV1_0Test.createExampleDataStructure(storage, new Version(1, 0));
+        storage.mount();
+        final IDirectory root = storage.getRoot();
+        new Version(1, 1).saveTo(root);
+        storage.unmount();
+        dataStructure.open();
     }
 
     @Test
     public final void testBackwardCompatible()
     {
-        DataStructureV1_0Test.createExampleDataStructure(storage, new Version(1, 1));
+        DataStructureV1_0Test.createExampleDataStructure(storage, new Version(1, 0));
         dataStructure.open();
         final Sample sample = dataStructure.getSample();
         assertFalse(sample instanceof SampleWithOwner);
+        try
+        {
+            dataStructure.getSampleWithOwner();
+            fail();
+        } catch (final DataStructureException e)
+        {
+            // Nothing to do here.
+        }
+    }
+
+    @Test
+    public final void testClose()
+    {
+        DataStructureV1_0Test.createExampleDataStructure(storage, new Version(1, 0));
+        dataStructure.open();
+        try
+        {
+            dataStructure.close();
+            fail();
+        } catch (final DataStructureException ex)
+        {
+            // Nothing to do here.
+        }
+        final SampleWithOwner sampleWithOwner =
+                new SampleWithOwner(SAMPLE, SampleWithOwnerTest.INSTANCE_GLOBAL_CODE,
+                        SampleWithOwnerTest.INSTANCE_CODE, "");
+        dataStructure.setSample(sampleWithOwner);
         dataStructure.close();
     }
 }

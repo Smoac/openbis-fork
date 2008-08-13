@@ -129,7 +129,7 @@ public class Sample implements IStorable
     //
 
     @Override
-    public final boolean equals(final Object obj)
+    public boolean equals(final Object obj)
     {
         if (obj == this)
         {
@@ -146,7 +146,7 @@ public class Sample implements IStorable
     }
 
     @Override
-    public final int hashCode()
+    public int hashCode()
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(code);

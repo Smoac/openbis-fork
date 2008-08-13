@@ -402,17 +402,6 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testOpenVersionV1_1()
-    {
-        createExampleDataStructure();
-        storage.mount();
-        final IDirectory root = storage.getRoot();
-        new Version(1, 1).saveTo(root);
-        storage.unmount();
-        dataStructure.open();
-    }
-
-    @Test
     public void testOpenVersionV2_0()
     {
         createExampleDataStructure();
