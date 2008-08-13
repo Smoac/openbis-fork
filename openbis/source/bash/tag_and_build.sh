@@ -15,13 +15,18 @@ CISD_SERVER=cisd-vesuvio.ethz.ch
 
 svn checkout svn+ssh://source.systemsx.ch/repos/cisd/build_resources/trunk build_resources
 cd build_resources
+echo Tagging openBIS to S$VER...
 ./tag_sprint.sh openbis S$VER
+echo Building openBIS...
 ./build.sh openbis S$VER
 
+echo Copying new openBIS components to '$CISD_SERVER'... 
 OPENBIS_PATH=/localhome/cisd/sprint_builds/openBIS
 SPRINT_DIR=$OPENBIS_PATH/$TODAY-$FULL_VER
 echo "mkdir -p $SPRINT_DIR"  | ssh -T hal
 scp *.zip $CISD_SERVER:$SPRINT_DIR
 
+echo Copying new openBIS components to '$SPRINT_SERVER'... 
 scp openBIS-server-*.zip $SPRINT_SERVER:.
 scp download-server-*.zip $SPRINT_SERVER:.
+echo Done!
