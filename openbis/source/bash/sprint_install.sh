@@ -11,13 +11,16 @@ VER=$1
 PREV_VER=$(( $VER - 1 ))
 DB_SNAPSHOT=db_snapshots/sprint$PREV_VER-lims_productive.sql
 
+echo Stopping the components...
 ./sprint/openBIS-server/apache-tomcat/bin/shutdown.sh
 ./sprint/download-server/download-service.sh stop
 
+echo Making a database dump...
 pg_dump -U postgres -O lims_productive > $DB_SNAPSHOT
 tar -cf - $DB_SNAPSHOT | bzip2 >db_snapshots/sprint$PREV_VER-lims_productive.tar.bz2
 rm -f $DB_SNAPSHOT
 
+echo Installing openBIS server...
 mv sprint-$PREV_VER old
 rm sprint
 mkdir sprint-$VER
@@ -27,6 +30,7 @@ unzip ../openBIS-server-S$VER-*
 cd openBIS-server
 ./install.sh $PWD ../../service.properties
 
+echo Installing download server...
 cd ..
 unzip ../download-server-S$VER-* 
 cd download-server
@@ -34,5 +38,9 @@ cp ~/old/sprint-$PREV_VER/download-server/etc/service.properties etc/
 chmod 700 download-service.sh
 export JAVA_HOME=/usr
 ./download-service.sh start
+
+echo Doing some cleaning...
 cd
 mv *.zip tmp
+
+echo Done!
