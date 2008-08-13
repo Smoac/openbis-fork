@@ -59,8 +59,6 @@ public class QueueingPathRemoverServiceTest
             }
         };
 
-    private final QueueingPathRemoverService shredder = QueueingPathRemoverService.getInstance();
-
     @BeforeTest
     public void setUp()
     {
@@ -88,7 +86,7 @@ public class QueueingPathRemoverServiceTest
         f.createNewFile();
         f.deleteOnExit();
         assertTrue(f.exists());
-        shredder.removeRecursively(f);
+        QueueingPathRemoverService.removeRecursively(f);
         assertFalse(f.exists());
         ConcurrencyUtilities.sleep(WAIT_MILLIS);
         assertEquals(0, workingDirectory.list(SHREDDER_FILTER).length);
@@ -108,7 +106,7 @@ public class QueueingPathRemoverServiceTest
             (new File(f, "f" + i)).createNewFile();
         }
         assertTrue(f.exists());
-        shredder.removeRecursively(f);
+        QueueingPathRemoverService.removeRecursively(f);
         assertFalse(f.exists());
         ConcurrencyUtilities.sleep(WAIT_MILLIS);
         assertEquals(0, workingDirectory.list(SHREDDER_FILTER).length);
@@ -126,7 +124,7 @@ public class QueueingPathRemoverServiceTest
         }
         for (File f : list)
         {
-            shredder.removeRecursively(f);
+            QueueingPathRemoverService.removeRecursively(f);
             assertFalse(f.exists());
         }
         ConcurrencyUtilities.sleep(WAIT_MILLIS);
@@ -145,7 +143,7 @@ public class QueueingPathRemoverServiceTest
         }
         for (File f : list)
         {
-            shredder.removeRecursively(f);
+            QueueingPathRemoverService.removeRecursively(f);
             ConcurrencyUtilities.sleep(DELAY_MILLIS);
             assertFalse(f.exists());
         }

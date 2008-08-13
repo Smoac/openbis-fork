@@ -20,16 +20,20 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 
 import org.apache.commons.io.FileCopyUtils;
+import org.apache.commons.io.FileSystemUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.concurrent.IActivityObserver;
 import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
@@ -49,7 +53,7 @@ import ch.systemsx.cisd.common.utilities.FileUtilities;
 public class FileOperations implements IFileOperations
 {
 
-    // @Private
+    @Private
     final static Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, IFileOperations.class);
 
@@ -129,7 +133,7 @@ public class FileOperations implements IFileOperations
 
     private final IActivityObserver observerOrNull;
 
-    // @Private
+    @Private
     FileOperations(TimingParameters timingParametersOrNull, IActivityObserver observerOrNull)
     {
         this.timingParametersOrNull = timingParametersOrNull;
@@ -367,6 +371,11 @@ public class FileOperations implements IFileOperations
         return FileUtilities.deleteRecursively(fileToRemove, null, observerOrNull);
     }
 
+    public boolean removeRecursivelyQueueing(File fileToRemove)
+    {
+        return QueueingPathRemoverService.removeRecursively(fileToRemove);
+    }
+
     public void move(File source, File destination) throws WrappedIOException
     {
         if (destination.isDirectory())
@@ -518,15 +527,57 @@ public class FileOperations implements IFileOperations
         }
     }
 
-    // @Private
+    @Private
     IInputStream internalGetIInputStream(File file) throws FileNotFoundException
     {
         return new InputStreamAdapter(new FileInputStream(file));
     }
 
+    public OutputStream getOutputStream(File file) throws WrappedIOException
+    {
+        return new IOutputStreamAdapter(getIOutputStream(file));
+    }
+
+    public IOutputStream getIOutputStream(File file) throws WrappedIOException
+    {
+        try
+        {
+            final IOutputStream os = internalGetIOutputStream(file);
+            if (timingParametersOrNull != null)
+            {
+                return MonitoringProxy.create(IOutputStream.class, os).timing(
+                        timingParametersOrNull).name(
+                        "output stream <" + file.getAbsolutePath() + ">").get();
+            } else
+            {
+                return os;
+            }
+        } catch (IOException ex)
+        {
+            throw new WrappedIOException(ex);
+        }
+    }
+
+    @Private
+    IOutputStream internalGetIOutputStream(File file) throws FileNotFoundException
+    {
+        return new OutputStreamAdapter(new FileOutputStream(file));
+    }
+
     public void writeToFile(File file, String content) throws WrappedIOException
     {
         FileUtilities.writeToFile(file, content);
+    }
+
+    public long freeSpaceKb(String path) throws WrappedIOException
+    {
+        try
+        {
+            return FileSystemUtils.freeSpaceKb(path);
+        } catch (IOException ex)
+        {
+            throw new WrappedIOException(ex);
+        }
     }
 
 }

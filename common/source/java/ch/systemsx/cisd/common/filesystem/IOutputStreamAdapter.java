@@ -17,31 +17,31 @@
 package ch.systemsx.cisd.common.filesystem;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.OutputStream;
 
 import ch.systemsx.cisd.common.exceptions.WrappedIOException;
 
 /**
- * An adapter for {@link IInputStream} that extends {@link java.io.InputStream}.
+ * An adapter for {@link IOutputStream} that extends {@link java.io.OutputStream}.
  *
  * @author Bernd Rinn
  */
-public class IInputStreamAdapter extends InputStream
+public class IOutputStreamAdapter extends OutputStream
 {
 
-    private final IInputStream delegate;
+    private final IOutputStream delegate;
     
-    public IInputStreamAdapter(IInputStream delegate)
+    public IOutputStreamAdapter(IOutputStream delegate)
     {
         this.delegate = delegate;
     }
     
     @Override
-    public int available() throws IOException
+    public void write(int b) throws IOException
     {
         try
         {
-            return delegate.available();
+            delegate.write(b);
         } catch (WrappedIOException ex)
         {
             throw ex.getCause();
@@ -61,23 +61,11 @@ public class IInputStreamAdapter extends InputStream
     }
 
     @Override
-    public synchronized void mark(int readlimit)
-    {
-        delegate.mark(readlimit);
-    }
-
-    @Override
-    public boolean markSupported()
-    {
-        return delegate.markSupported();
-    }
-
-    @Override
-    public int read() throws IOException
+    public void flush() throws IOException
     {
         try
         {
-            return delegate.read();
+            delegate.flush();
         } catch (WrappedIOException ex)
         {
             throw ex.getCause();
@@ -85,11 +73,11 @@ public class IInputStreamAdapter extends InputStream
     }
 
     @Override
-    public int read(byte[] b, int off, int len) throws IOException
+    public void write(byte[] b, int off, int len) throws IOException
     {
         try
         {
-            return delegate.read(b, off, len);
+            delegate.write(b, off, len);
         } catch (WrappedIOException ex)
         {
             throw ex.getCause();
@@ -97,35 +85,11 @@ public class IInputStreamAdapter extends InputStream
     }
 
     @Override
-    public int read(byte[] b) throws IOException
+    public void write(byte[] b) throws IOException
     {
         try
         {
-            return delegate.read(b);
-        } catch (WrappedIOException ex)
-        {
-            throw ex.getCause();
-        }
-    }
-
-    @Override
-    public synchronized void reset() throws IOException
-    {
-        try
-        {
-            delegate.reset();
-        } catch (WrappedIOException ex)
-        {
-            throw ex.getCause();
-        }
-    }
-
-    @Override
-    public long skip(long n) throws IOException
-    {
-        try
-        {
-            return delegate.skip(n);
+            delegate.write(b);
         } catch (WrappedIOException ex)
         {
             throw ex.getCause();

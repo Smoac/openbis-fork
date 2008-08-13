@@ -19,7 +19,7 @@ package ch.systemsx.cisd.common.filesystem;
 import ch.systemsx.cisd.common.exceptions.WrappedIOException;
 
 /**
- * In interface for {@link java.io.InputStream}.
+ * An interface for {@link java.io.InputStream}.
  *
  * @author Bernd Rinn
  */

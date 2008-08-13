@@ -22,13 +22,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.collections.ExtendedBlockingQueueFactory;
 import ch.systemsx.cisd.common.collections.ExtendedLinkedBlockingQueue;
 import ch.systemsx.cisd.common.collections.IExtendedBlockingQueue;
 import ch.systemsx.cisd.common.collections.PersistentExtendedBlockingQueueDecorator;
 import ch.systemsx.cisd.common.collections.RecordBasedQueuePersister;
-import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
 import ch.systemsx.cisd.common.exceptions.StopException;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
@@ -36,8 +36,9 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
- * A service for removing (deep) paths. It provides a {@link IFileRemover} that marks {@link File}s
- * for deletion and queues them up, using a separate thread to actually delete them.
+ * A service for removing (deep) paths. It provides a method {@link #removeRecursively(File)} that
+ * marks {@link File}s for deletion and queues them up, using a separate thread to actually delete
+ * them.
  * <p>
  * Note that the service needs to be started via {@link #start(File, TimingParameters)}.
  * <p>
@@ -46,7 +47,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  * 
  * @author Bernd Rinn
  */
-public class QueueingPathRemoverService implements IFileRemover
+public class QueueingPathRemoverService
 {
 
     private final static Logger operationLog =
@@ -54,7 +55,7 @@ public class QueueingPathRemoverService implements IFileRemover
 
     private static final int INITIAL_RECORD_SIZE = 128;
 
-    // @Private
+    @Private
     final static String SHREDDER_PREFIX = ".SHREDDER_";
 
     private static final AtomicInteger counter = new AtomicInteger();
@@ -66,18 +67,6 @@ public class QueueingPathRemoverService implements IFileRemover
     private static Thread thread = null;
 
     private static IFileRemover deepRemover = null;
-
-    private static IFileRemover queueingRemover = null;
-
-    private static QueueingPathRemoverService instance = new QueueingPathRemoverService();
-
-    /**
-     * Returns the instance of the shredder.
-     */
-    public static final QueueingPathRemoverService getInstance()
-    {
-        return instance;
-    }
 
     /**
      * Initializes the shredder thread. Will not persist over program restart. <i>Needs to be called
@@ -107,33 +96,12 @@ public class QueueingPathRemoverService implements IFileRemover
      * @param queueFileOrNull If not <code>null</code>, the file will be used to persist the items
      *            to be deleted over program restart.
      */
-    public static final void start(final File queueFileOrNull, TimingParameters parameters)
+    public static synchronized final void start(final File queueFileOrNull,
+            TimingParameters parameters)
     {
         final ISimpleLogger logger = new Log4jSimpleLogger(operationLog);
         final IFileRemover monitoringProxy = FileOperations.createMonitoredInstance(parameters);
         deepRemover = new LoggingPathRemoverDecorator(monitoringProxy, logger, false);
-        queueingRemover = MonitoringProxy.create(IFileRemover.class, new IFileRemover()
-            {
-                public boolean removeRecursively(File fileToRemove)
-                {
-                    if (fileToRemove.isFile())
-                    {
-                        return fileToRemove.delete();
-                    } else
-                    {
-                        final String name =
-                                SHREDDER_PREFIX + System.currentTimeMillis() + "-"
-                                        + counter.incrementAndGet() + "-" + fileToRemove.getName();
-                        final File shredderFile = new File(fileToRemove.getParentFile(), name);
-                        final boolean ok = fileToRemove.renameTo(shredderFile);
-                        if (ok)
-                        {
-                            queue.add(shredderFile);
-                        }
-                        return ok;
-                    }
-                }
-            }).timing(parameters).errorLog(logger).get();
         if (queueFileOrNull != null)
         {
             final PersistentExtendedBlockingQueueDecorator<File> persistentQueue =
@@ -171,6 +139,33 @@ public class QueueingPathRemoverService implements IFileRemover
         thread.start();
     }
 
+    /**
+     * Deletes <var>fileToRemove</var>, if necessary recursively. If it is a file, it will be
+     * deleted immediately, if it is a directory, it will be queued up for asynchronous deletion.
+     * <p>
+     * <i>This method does not monitor file system operations for hangs. If you need this
+     * functionality, use {@link IFileOperations#removeRecursivelyQueueing(File)} instead!</i>
+     */
+    public static boolean removeRecursively(File fileToRemove)
+    {
+        if (fileToRemove.isFile())
+        {
+            return fileToRemove.delete();
+        } else
+        {
+            final String name =
+                    SHREDDER_PREFIX + System.currentTimeMillis() + "-" + counter.incrementAndGet()
+                            + "-" + fileToRemove.getName();
+            final File shredderFile = new File(fileToRemove.getParentFile(), name);
+            final boolean ok = fileToRemove.renameTo(shredderFile);
+            if (ok)
+            {
+                queue.add(shredderFile);
+            }
+            return ok;
+        }
+    }
+
     private static final void close()
     {
         if (queueCloseableOrNull != null)
@@ -179,7 +174,10 @@ public class QueueingPathRemoverService implements IFileRemover
         }
     }
 
-    public static final void stop()
+    /**
+     * Stop the service.
+     */
+    public static synchronized final void stop()
     {
         thread.interrupt();
         close();
@@ -189,7 +187,13 @@ public class QueueingPathRemoverService implements IFileRemover
         deepRemover = null;
     }
 
-    public static final boolean stopAndWait(long timeoutMillis)
+    /**
+     * Stop the service and wait for it to finish, but at most <var>timeoutMillis</var>
+     * milli-seconds.
+     * 
+     * @return <code>true</code>, if stopping was successful, <code>false</code> otherwise.
+     */
+    public static synchronized final boolean stopAndWait(long timeoutMillis)
     {
         thread.interrupt();
         try
@@ -198,18 +202,24 @@ public class QueueingPathRemoverService implements IFileRemover
         } catch (InterruptedException ex)
         {
         }
-        final boolean ok = (thread.isAlive() == false);
         close();
-        return ok;
+        thread = null;
+        queue = null;
+        queueCloseableOrNull = null;
+        deepRemover = null;
+        return (thread.isAlive() == false);
     }
 
-    public static final boolean isRunning()
-    {
-        return queueingRemover != null;
-    }
-    
     /**
-     * Return list of shredder items.
+     * Returns <code>true</code>, if the service is currently running, <code>false</code> otherwise.
+     */
+    public static synchronized final boolean isRunning()
+    {
+        return deepRemover != null;
+    }
+
+    /**
+     * Returns the list of currently queued up shredder items.
      */
     public static final List<File> listShredderItems(File queueFile)
     {
@@ -219,11 +229,6 @@ public class QueueingPathRemoverService implements IFileRemover
     private QueueingPathRemoverService()
     {
         // Cannot be instantiated.
-    }
-
-    public boolean removeRecursively(File fileToRemove)
-    {
-        return queueingRemover.removeRecursively(fileToRemove);
     }
 
 }

@@ -23,6 +23,7 @@ import java.io.InputStream;
 
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.concurrent.IActivityObserver;
@@ -37,6 +38,7 @@ import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
  * 
  * @author Bernd Rinn
  */
+@Friend(toClasses = FileOperations.class)
 public class FileOperationsTest
 {
 

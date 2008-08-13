@@ -20,7 +20,10 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
+
+import org.apache.commons.io.FileSystemUtils;
 
 import ch.systemsx.cisd.common.exceptions.WrappedIOException;
 
@@ -263,6 +266,17 @@ public interface IFileOperations extends IFileRemover
     public void deleteRecursively(File fileToRemove) throws WrappedIOException;
 
     /**
+     * Removes the given <var>fileToRemove</var>, if necessary recursively. If it is a file, it will
+     * be deleted immediately, if it is a directory, it will be queued up for asynchronous deletion.
+     * 
+     * @param fileToRemove File or directory to remove. If it is a directory, it will be removed
+     *            asynchronous recursively.
+     * @return <code>true</code> if the file or directory was removed successfully and
+     *         <code>false</code> otherwise.
+     */
+    public boolean removeRecursivelyQueueing(File fileToRemove);
+
+    /**
      * Move <var>source</var> to <var>destinationDirectory</var>.
      * 
      * @param source File or directory to move. Must exist when this method is called.
@@ -432,10 +446,34 @@ public interface IFileOperations extends IFileRemover
     public IInputStream getIInputStream(File file) throws WrappedIOException;
 
     /**
+     * Returns a monitored {@link InputStream} of <var>file</var>.
+     * 
+     * @throws WrappedIOException if an IO error occurs during opening the stream
+     */
+    public OutputStream getOutputStream(File file) throws WrappedIOException;
+
+    /**
+     * Returns a monitored {@link IInputStream} of <var>file</var>.
+     * 
+     * @throws WrappedIOException if an IO error occurs during opening the stream
+     */
+    public IOutputStream getIOutputStream(File file) throws WrappedIOException;
+
+    /**
      * Writes <var>content</var> to <var>file</var>. If <var>file</var> already exists, it will be
      * overwritten.
      * 
      * @throws WrappedIOException if an IO error occurs during writing
      */
     public void writeToFile(File file, String content) throws WrappedIOException;
+
+    //
+    // File system
+    //
+
+    /**
+     * @see FileSystemUtils#freeSpaceKb(String)
+     */
+    public long freeSpaceKb(String path) throws WrappedIOException;
+
 }
