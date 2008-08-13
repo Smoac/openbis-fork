@@ -95,17 +95,6 @@ public class CheckedExceptionTunnel extends RuntimeException
     }
 
     /**
-     * Returns the original exception before being wrapped for an {@link WrappedIOException}.
-     */
-    public final static IOException unwrapIfNecessary(final WrappedIOException exception)
-    {
-        assert exception != null : "Exception not specified.";
-
-        // We are sure that the wrapped exception is an 'IOException'.
-        return (IOException) exception.getCause();
-    }
-
-    /**
      * Returns the original exception before being wrapped, if the exception has been wrapped, or
      * <var>exception</var> otherwise.
      */

@@ -39,4 +39,10 @@ public class WrappedIOException extends CheckedExceptionTunnel
         assert checkedException != null;
     }
 
+    @Override
+    public IOException getCause()
+    {
+        return (IOException) super.getCause();
+    }
+
 }
