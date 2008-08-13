@@ -24,7 +24,6 @@ import javax.sql.DataSource;
 
 import org.apache.log4j.Logger;
 import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
 
 import ch.systemsx.cisd.common.Script;
 import ch.systemsx.cisd.common.db.ISqlScriptExecutor;
@@ -32,6 +31,7 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
+import ch.systemsx.cisd.dbmigration.AbstractDatabaseAdminDAO;
 import ch.systemsx.cisd.dbmigration.DBUtilities;
 import ch.systemsx.cisd.dbmigration.DatabaseVersionLogDAO;
 import ch.systemsx.cisd.dbmigration.IDatabaseAdminDAO;
@@ -43,7 +43,7 @@ import ch.systemsx.cisd.dbmigration.MassUploadFileType;
  * 
  * @author Franz-Josef Elmer
  */
-public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabaseAdminDAO
+public class PostgreSQLAdminDAO extends AbstractDatabaseAdminDAO
 {
     private static final String SQL_FILE_TYPE = ".sql";
 
@@ -61,16 +61,6 @@ public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabas
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, PostgreSQLAdminDAO.class);
 
-    private final ISqlScriptExecutor scriptExecutor;
-
-    private final IMassUploader massUploader;
-
-    private final String owner;
-
-    private final String databaseName;
-
-    private final String databaseURL;
-
     /**
      * Creates an instance.
      * 
@@ -84,22 +74,7 @@ public class PostgreSQLAdminDAO extends SimpleJdbcDaoSupport implements IDatabas
     public PostgreSQLAdminDAO(DataSource dataSource, ISqlScriptExecutor scriptExecutor,
             IMassUploader massUploader, String owner, String databaseName, String databaseURL)
     {
-        this.scriptExecutor = scriptExecutor;
-        this.massUploader = massUploader;
-        this.owner = owner;
-        this.databaseName = databaseName;
-        this.databaseURL = databaseURL;
-        setDataSource(dataSource);
-    }
-
-    public String getDatabaseName()
-    {
-        return databaseName;
-    }
-
-    public String getDatabaseURL()
-    {
-        return databaseURL;
+        super(dataSource, scriptExecutor, massUploader, owner, databaseName, databaseURL);
     }
 
     public void createOwner()

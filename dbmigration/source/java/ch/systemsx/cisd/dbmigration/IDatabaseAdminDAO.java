@@ -34,7 +34,12 @@ public interface IDatabaseAdminDAO
      * Returns the complete URL of the database to be created / dropped.
      */
     public String getDatabaseURL();
-
+    
+    /**
+     * Returns meta data and maximum primary keys of all tables.
+     */
+    public DatabaseDefinition getDatabaseDefinition();
+    
     /**
      * Creates the owner/user of the database. Implementation should handle the case of already
      * existing owner/user gracefully.

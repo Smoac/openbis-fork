@@ -32,12 +32,20 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.JFileChooser;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
+
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
+import ch.systemsx.cisd.common.utilities.OSUtilities;
+import ch.systemsx.cisd.dbmigration.SimpleDatabaseMetaData;
+import ch.systemsx.cisd.dbmigration.SimpleTableMetaData;
 
 /**
  * Helper application which creates 'mass upload' files to be used to setup the database from a
@@ -52,6 +60,10 @@ import org.apache.commons.io.IOUtils;
  */
 public class DumpPreparator
 {
+    private static final String MAC_POSTGRESQL_PATH = "/opt/local/lib/postgresql83/bin/";
+
+    private static final String DUMP_EXEC = "pg_dump";
+
     private static final Set<String> FILTERED_SCHEMA_LINES =
             new LinkedHashSet<String>(Arrays.asList("SET client_encoding = 'UTF8';",
                     "COMMENT ON SCHEMA public IS 'Standard public schema';",
@@ -83,35 +95,66 @@ public class DumpPreparator
             dumpFile = new File(args[1]);
         }
         System.out.println("Parsing PostgreSQL dump file " + dumpFile.getAbsolutePath());
-        createUploadFiles(dumpFile, destination);
+        createUploadFiles(dumpFile, destination, false);
         System.out.println("Dump preparation successfully finished.");
     }
 
     /**
-     * Creates all files necessary to setup a database from the specified PostgreSQL dump file.
+     * Creates a dump of the specified database and stores it into the specified file.
+     */
+    public final static boolean createDatabaseDump(final String dataBaseName, final File dumpFile)
+    {
+        final String dumpExec = getDumpExecutable();
+        final String dumpFilePath = dumpFile.getAbsolutePath();
+        final List<String> command =
+                Arrays.asList(dumpExec, "-U", "postgres", "--no-owner", "-f", dumpFilePath,
+                        dataBaseName);
+        final Logger rootLogger = Logger.getRootLogger();
+        final boolean ok = ProcessExecutionHelper.runAndLog(command, rootLogger, rootLogger);
+        return ok;
+    }
+
+    private final static String getDumpExecutable()
+    {
+        final Set<String> paths = OSUtilities.getSafeOSPath();
+        paths.add(MAC_POSTGRESQL_PATH);
+        final File dumbExec = OSUtilities.findExecutable(DUMP_EXEC, paths);
+        if (dumbExec == null)
+        {
+            throw new EnvironmentFailureException("Cannot locate executable file: " + DUMP_EXEC);
+        }
+        return dumbExec.getAbsolutePath();
+    }
+
+    /**
+     * Creates all files necessary to setup a database from the specified PostgreSQL dump file and
+     * returns meta data which allows to access the tab-separated files.
      * 
+     * @param writeEmptyTabFiles If <code>true</code> tab files are created also for empty tables.
      * @param destination Destination folder in which the folder with the files will be created. The
      *            folder will be named after the database version extracted from the dump.
      */
-    public static void createUploadFiles(File dumpFile, File destination) throws IOException
+    public static SimpleDatabaseMetaData createUploadFiles(File dumpFile, File destination,
+            boolean writeEmptyTabFiles) throws IOException
     {
         Reader reader = new FileReader(dumpFile);
         try
         {
-            createUploadFiles(reader, destination);
+            return createUploadFiles(reader, destination, writeEmptyTabFiles);
         } finally
         {
             IOUtils.closeQuietly(reader);
         }
     }
 
-    static void createUploadFiles(Reader dumpReader, File destinationFolder) throws IOException
+    static SimpleDatabaseMetaData createUploadFiles(Reader dumpReader, File destinationFolder,
+            boolean writeEmptyTabFiles) throws IOException
     {
         BufferedReader reader = new BufferedReader(dumpReader);
         String line;
         State state = State.SCHEMA;
         UploadFileManager uploadFileManager =
-                new UploadFileManager(destinationFolder, FILTERED_SCHEMA_LINES);
+                new UploadFileManager(destinationFolder, FILTERED_SCHEMA_LINES, writeEmptyTabFiles);
         while ((line = reader.readLine()) != null)
         {
             if (line.length() != 0 && line.startsWith("--") == false)
@@ -119,7 +162,7 @@ public class DumpPreparator
                 state = state.processLine(line, uploadFileManager);
             }
         }
-        uploadFileManager.save();
+        return uploadFileManager.save();
     }
 
     private static enum State
@@ -145,7 +188,7 @@ public class DumpPreparator
                 Matcher matcher = COPY_PATTERN.matcher(line);
                 if (matcher.matches())
                 {
-                    manager.createUploadFile(matcher.group(1));
+                    manager.createUploadFile(matcher.group(1), matcher.group(2));
                 } else
                 {
                     throw new IllegalArgumentException(
@@ -184,7 +227,7 @@ public class DumpPreparator
             }
         };
 
-        private static final Pattern COPY_PATTERN = Pattern.compile("COPY (\\w*).*");
+        private static final Pattern COPY_PATTERN = Pattern.compile("COPY (\\w*) \\((.*)\\).*");
 
         State processLine(String line, UploadFileManager manager)
         {
@@ -215,10 +258,13 @@ public class DumpPreparator
 
         private Table currentTable;
 
-        UploadFileManager(File destinationFolder, Set<String> filteredSchemaLines)
+        private final boolean writeEmptyTabFiles;
+
+        UploadFileManager(File destinationFolder, Set<String> filteredSchemaLines, boolean writeEmptyTabFiles)
         {
             this.destinationFolder = destinationFolder;
             this.filteredSchemaLines = filteredSchemaLines;
+            this.writeEmptyTabFiles = writeEmptyTabFiles;
         }
 
         void addSchemaLine(String line)
@@ -234,10 +280,26 @@ public class DumpPreparator
             finishPrinter.println(line);
         }
 
-        void createUploadFile(String tableName)
+        void createUploadFile(String tableName, String columns)
         {
-            currentTable = new Table(tableName);
+            currentTable = new Table(tableName, extractColumnNames(columns));
             tables.put(tableName, currentTable);
+        }
+        
+        private List<String> extractColumnNames(String columns)
+        {
+            List<String> list = new ArrayList<String>();
+            StringTokenizer tokenizer = new StringTokenizer(columns, ",");
+            while (tokenizer.hasMoreTokens())
+            {
+                String token = tokenizer.nextToken().trim();
+                if (token.startsWith("\"") && token.endsWith("\""))
+                {
+                    token = token.substring(1, Math.max(1, token.length() - 1));
+                }
+                list.add(token);
+            }
+            return list;
         }
 
         boolean addTableLine(String line)
@@ -255,22 +317,26 @@ public class DumpPreparator
             return false;
         }
 
-        void save() throws IOException
+        SimpleDatabaseMetaData save() throws IOException
         {
             String databaseVersion = getDatabaseVersion();
             File folder = createDestinationFolder();
             writeTo(folder, "schema-" + databaseVersion + ".sql", Arrays.asList(schemaScript
                     .toString()));
+            ArrayList<SimpleTableMetaData> metaData = new ArrayList<SimpleTableMetaData>();
             for (Table table : tables.values())
             {
+                SimpleTableMetaData tableMetaData = table.getTableMetaData();
+                metaData.add(tableMetaData);
                 List<String> rows = table.getRows();
-                if (rows.size() > 0)
+                if (writeEmptyTabFiles || rows.size() > 0)
                 {
-                    writeTo(folder, table.getUploadFileName(), rows);
+                    writeTo(folder, tableMetaData.getTableFileName(), rows);
                 }
             }
             writeTo(folder, "finish-" + databaseVersion + ".sql", Arrays.asList(finishScript
                     .toString()));
+            return new SimpleDatabaseMetaData(databaseVersion, metaData);
         }
 
         private void writeTo(File folder, String fileName, List<String> lines) throws IOException
@@ -279,7 +345,6 @@ public class DumpPreparator
             try
             {
                 final File file = new File(folder, fileName);
-                System.out.println("   create " + file.getAbsolutePath());
                 writer = new PrintWriter(new FileWriter(file), true);
                 for (String line : lines)
                 {
@@ -365,13 +430,14 @@ public class DumpPreparator
     {
         private static int counter;
 
-        private final String uploadFileName;
-
         private final List<String> rows = new ArrayList<String>();
 
-        Table(String tableName)
+        private final SimpleTableMetaData tableMetaData;
+
+        Table(String tableName, List<String> columnNames)
         {
-            uploadFileName = String.format("%03d=%s.tsv", ++counter, tableName);
+            String uploadFileName = String.format("%03d=%s.tsv", ++counter, tableName);
+            tableMetaData = new SimpleTableMetaData(tableName, uploadFileName, columnNames);
         }
 
         void addRow(String line)
@@ -379,9 +445,9 @@ public class DumpPreparator
             rows.add(line);
         }
 
-        public final String getUploadFileName()
+        public final SimpleTableMetaData getTableMetaData()
         {
-            return uploadFileName;
+            return tableMetaData;
         }
 
         public final List<String> getRows()

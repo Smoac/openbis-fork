@@ -21,10 +21,13 @@ import static org.testng.AssertJUnit.assertEquals;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.List;
 
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.utilities.FileUtilities;
+import ch.systemsx.cisd.dbmigration.SimpleDatabaseMetaData;
+import ch.systemsx.cisd.dbmigration.SimpleTableMetaData;
 
 /**
  * @author Franz-Josef Elmer
@@ -60,7 +63,7 @@ public class DumpPreparatorTest
                     + "-- Data for Name: data_types; Type: TABLE DATA; Schema: public; Owner: felmer\n"
                     + "--\n"
                     + "\n"
-                    + "COPY data_types (id, code, description) FROM stdin;\n"
+                    + "COPY data_types (id, \"location\", description) FROM stdin;\n"
                     + "1\tVARCHAR\tVariable length character\n"
                     + "2\tINTEGER\tInteger\n"
                     + "3\tREAL\tReal number, i.e. an inexact, variable-precision numeric type\n"
@@ -107,7 +110,7 @@ public class DumpPreparatorTest
         File folder = new File(TEST_FOLDER, "011");
         folder.mkdirs();
         assertEquals(true, folder.exists());
-        DumpPreparator.createUploadFiles(reader, folder);
+        SimpleDatabaseMetaData metaData = DumpPreparator.createUploadFiles(reader, folder, false);
 
         assertEquals(true, folder.isDirectory());
         assertEquals("SET standard_conforming_strings = off;\n\n", FileUtilities
@@ -123,5 +126,23 @@ public class DumpPreparatorTest
                 "ALTER TABLE ONLY data\n" + "    ADD CONSTRAINT data_pk PRIMARY KEY (id);\n\n",
                 FileUtilities.loadToString(new File(folder, "finish-011.sql")));
         assertEquals(4, folder.listFiles().length);
+        assertEquals("011", metaData.getDatabaseVersion());
+        assertEquals("DATA_VALUES", metaData.tryToGetTableMetaData("Data_Values").getTableName());
+        List<SimpleTableMetaData> tables = metaData.getTables();
+        assertEquals(4, tables.size());
+        checkTableMetaData("data", "[id, registration_timestamp, obty_id]", tables, 0);
+        checkTableMetaData("data_types", "[id, location, description]", tables, 1);
+        checkTableMetaData("data_values", "[id, data_id, saco_id, value]", tables, 2);
+        checkTableMetaData("database_version_logs", "[db_version, module_name, run_status]", tables, 3);
+    }
+    
+    private void checkTableMetaData(String expectedTableName, String expectedColumns,
+            List<SimpleTableMetaData> list, int index)
+    {
+        SimpleTableMetaData metaData = list.get(index);
+        assertEquals(expectedTableName.toUpperCase(), metaData.getTableName());
+        String expectedFileName = "00" + (index + 1) + "=" + expectedTableName + ".tsv";
+        assertEquals(expectedFileName, metaData.getTableFileName());
+        assertEquals(expectedColumns.toUpperCase(), metaData.getColumnNames().toString());
     }
 }

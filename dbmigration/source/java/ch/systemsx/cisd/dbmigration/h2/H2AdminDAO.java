@@ -27,7 +27,6 @@ import javax.sql.DataSource;
 
 import org.apache.log4j.Logger;
 import org.h2.tools.DeleteDbFiles;
-import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
 
 import ch.systemsx.cisd.common.Script;
 import ch.systemsx.cisd.common.db.ISqlScriptExecutor;
@@ -36,6 +35,7 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.FileUtilities;
+import ch.systemsx.cisd.dbmigration.AbstractDatabaseAdminDAO;
 import ch.systemsx.cisd.dbmigration.DatabaseVersionLogDAO;
 import ch.systemsx.cisd.dbmigration.IDatabaseAdminDAO;
 import ch.systemsx.cisd.dbmigration.IMassUploader;
@@ -46,7 +46,7 @@ import ch.systemsx.cisd.dbmigration.MassUploadFileType;
  * 
  * @author Bernd Rinn
  */
-public class H2AdminDAO extends SimpleJdbcDaoSupport implements IDatabaseAdminDAO
+public class H2AdminDAO extends AbstractDatabaseAdminDAO
 {
     private static final String DROP_ALL_OBJECTS_SQL = "drop all objects;";
 
@@ -64,15 +64,7 @@ public class H2AdminDAO extends SimpleJdbcDaoSupport implements IDatabaseAdminDA
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, H2AdminDAO.class);
 
-    private final String databaseName;
-
     private final String databaseDir;
-
-    private final String databaseURL;
-
-    private final ISqlScriptExecutor scriptExecutor;
-
-    private final IMassUploader massUploader;
 
     /**
      * Creates an instance.
@@ -86,10 +78,7 @@ public class H2AdminDAO extends SimpleJdbcDaoSupport implements IDatabaseAdminDA
     public H2AdminDAO(DataSource dataSource, ISqlScriptExecutor scriptExecutor,
             IMassUploader massUploader, String databaseName, String databaseURL)
     {
-        this.scriptExecutor = scriptExecutor;
-        this.massUploader = massUploader;
-        this.databaseName = databaseName;
-        this.databaseURL = databaseURL;
+        super(dataSource, scriptExecutor, massUploader, null, databaseName, databaseURL);
         final Matcher dbDirPartMatcherOrNull = dbDirPartPattern.matcher(databaseURL);
         if (dbDirPartMatcherOrNull.matches())
         {
@@ -98,17 +87,6 @@ public class H2AdminDAO extends SimpleJdbcDaoSupport implements IDatabaseAdminDA
         {
             this.databaseDir = ".";
         }
-        setDataSource(dataSource);
-    }
-
-    public String getDatabaseName()
-    {
-        return databaseName;
-    }
-
-    public String getDatabaseURL()
-    {
-        return databaseURL;
     }
 
     public void createOwner()
