@@ -53,8 +53,6 @@ import ch.systemsx.cisd.dbmigration.SimpleTableMetaData;
  * <p>
  * <b>Important:</b> When creating the dump file with <code>pg_dump</code> use the option
  * <b>--no-owner</b>.
- * <p>
- * Note, that this is a stand alone class which only uses J2EE library classes.
  * 
  * @author Franz-Josef Elmer
  */

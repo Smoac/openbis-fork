@@ -13,7 +13,3 @@ layer databases = [postgresql]
 
 check layeringOf generic databases
 
-[dumpPreparator] = ${package}.postgresql.DumpPreparator
-[cisdClasses-dumpPreparator] = ch.systemsx.cisd.* excluding [dumpPreparator]
-check [dumpPreparator] independentOf [cisdClasses-dumpPreparator]
-
