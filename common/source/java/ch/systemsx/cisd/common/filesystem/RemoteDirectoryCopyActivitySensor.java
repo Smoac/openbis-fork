@@ -56,7 +56,8 @@ public final class RemoteDirectoryCopyActivitySensor extends AbstractCopyActivit
         try
         {
             final long lastChanged =
-                    FileUtilities.lastChangedRelative(target, true, thresholdMillis);
+                    FileOperations.getMonitoredInstanceForCurrentThread().lastChangedRelative(
+                            target, true, thresholdMillis);
             return StatusWithResult.create(lastChanged);
         } catch (UnknownLastChangedException ex)
         {

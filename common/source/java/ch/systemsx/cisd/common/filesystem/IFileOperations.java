@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.apache.commons.io.FileSystemUtils;
 
+import ch.systemsx.cisd.common.exceptions.UnknownLastChangedException;
 import ch.systemsx.cisd.common.exceptions.WrappedIOException;
 
 /**
@@ -191,6 +192,54 @@ public interface IFileOperations extends IFileRemover
      *         ist not a directory.
      */
     public List<File> listFilesAndDirectories(File directory, boolean recursive);
+
+    /**
+     * @return The time when any file in (or below) <var>path</var> has last been changed in the
+     *         file system.
+     * @throws UnknownLastChangedException if the <var>path</var> does not exist or is not readable.
+     */
+    public long lastChanged(final File path) throws UnknownLastChangedException;
+
+    /**
+     * Determines the time (in milliseconds since start of the epoch) when any item below
+     * <var>path</var> has last been changed in the file system.
+     * 
+     * @param path The path (file or directory) to check for last change.
+     * @param subDirectoriesOnly If <code>true</code>, only subdirectories of <var>path</var> are
+     *            checked, if <var>path</var> is a directory. If <var>path</var> is a file, this
+     *            parameter is ignored. When considering what this parameter is good for, note that
+     *            the mtime of a directory is changed when an entry in the directory changes.
+     * @param stopWhenFindYounger If &gt; 0, the recursive search for younger file will be stopped
+     *            when a file or directory is found that is younger than the time specified in this
+     *            parameter. Supposed to be used when one does not care about the absolute youngest
+     *            entry, but only, if there are entries that are "young enough".
+     * @return The time when any file in (or below) <var>path</var> has last been changed in the
+     *         file system.
+     * @throws UnknownLastChangedException if the <var>path</var> does not exist or is not readable.
+     */
+    public long lastChanged(final File path, final boolean subDirectoriesOnly,
+            final long stopWhenFindYounger) throws UnknownLastChangedException;
+
+    /**
+     * Determines the time (in milliseconds since start of the epoch) when any item below
+     * <var>path</var> has last been changed in the file system.
+     * 
+     * @param path The path (file or directory) to check for last change.
+     * @param subDirectoriesOnly If <code>true</code>, only subdirectories of <var>path</var> are
+     *            checked, if <var>path</var> is a directory. If <var>path</var> is a file, this
+     *            parameter is ignored. When considering what this parameter is good for, note that
+     *            the mtime of a directory is changed when an entry in the directory changes.
+     * @param stopWhenFindYoungerRelative If &gt; 0, the recursive search for younger file will be
+     *            stopped when a file or directory is found that is younger than
+     *            <code>System.currentTimeMillis() - stopWhenYoungerRelative</code>. Supposed to be
+     *            used when one does not care about the absolute youngest entry, but only, if there
+     *            are entries that are "young enough".
+     * @return The time when any file in (or below) <var>path</var> has last been changed in the
+     *         file system.
+     * @throws UnknownLastChangedException if the <var>path</var> does not exist or is not readable.
+     */
+    public long lastChangedRelative(final File path, final boolean subDirectoriesOnly,
+            final long stopWhenFindYoungerRelative) throws UnknownLastChangedException;
 
     /**
      * Checks whether a <var>path</var> of some <var>kind</var> is fully accessible to the program.

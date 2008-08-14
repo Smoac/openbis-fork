@@ -39,6 +39,7 @@ import ch.systemsx.cisd.common.concurrent.IActivityObserver;
 import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
 import ch.systemsx.cisd.common.concurrent.RecordingActivityObserverSensor;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.exceptions.UnknownLastChangedException;
 import ch.systemsx.cisd.common.exceptions.WrappedIOException;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -313,6 +314,25 @@ public class FileOperations implements IFileOperations
         return FileUtilities.listFilesAndDirectories(directory, recursive, observerOrNull);
     }
 
+    public long lastChanged(File path) throws UnknownLastChangedException
+    {
+        return FileUtilities.lastChanged(path, false, 0L, observerOrNull);
+    }
+
+    public long lastChanged(File path, boolean subDirectoriesOnly, long stopWhenFindYounger)
+            throws UnknownLastChangedException
+    {
+        return FileUtilities.lastChanged(path, subDirectoriesOnly, stopWhenFindYounger,
+                observerOrNull);
+    }
+
+    public long lastChangedRelative(File path, boolean subDirectoriesOnly,
+            long stopWhenFindYoungerRelative) throws UnknownLastChangedException
+    {
+        return FileUtilities.lastChangedRelative(path, subDirectoriesOnly,
+                stopWhenFindYoungerRelative, observerOrNull);
+    }
+
     public String checkPathFullyAccessible(File path, String kindOfPath)
     {
         return FileUtilities.checkPathFullyAccessible(path, kindOfPath);
@@ -513,9 +533,9 @@ public class FileOperations implements IFileOperations
             final IInputStream is = internalGetIInputStream(file);
             if (timingParametersOrNull != null)
             {
-                return MonitoringProxy.create(IInputStream.class, is).timing(
-                        timingParametersOrNull).name(
-                        "input stream <" + file.getAbsolutePath() + ">").get();
+                return MonitoringProxy.create(IInputStream.class, is)
+                        .timing(timingParametersOrNull).name(
+                                "input stream <" + file.getAbsolutePath() + ">").get();
             } else
             {
                 return is;
