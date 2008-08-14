@@ -68,15 +68,14 @@ public final class DataStructureV1_1Test extends AbstractFileSystemTestCase
     public void testSetSample()
     {
         dataStructure.create();
-        boolean fail = true;
         try
         {
             dataStructure.setSample(SAMPLE);
-        } catch (final AssertionError ex)
+            fail();
+        } catch (final DataStructureException ex)
         {
-            fail = false;
+            // Nothing to do here.
         }
-        assertFalse(fail);
         dataStructure.setSample(new SampleWithOwner(SAMPLE,
                 SampleWithOwnerTest.INSTANCE_GLOBAL_CODE, SampleWithOwnerTest.INSTANCE_CODE, ""));
     }
