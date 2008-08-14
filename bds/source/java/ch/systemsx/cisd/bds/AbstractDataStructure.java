@@ -132,8 +132,8 @@ abstract class AbstractDataStructure implements IDataStructure, IDataStructureHa
     public final void close()
     {
         assertOpenOrCreated();
-        getVersion().saveTo(root);
         performClosing();
+        getVersion().saveTo(root);
         // TODO 2008-07-03, Bernd Rinn: make this optional
         // assertValid();
         storage.unmount();

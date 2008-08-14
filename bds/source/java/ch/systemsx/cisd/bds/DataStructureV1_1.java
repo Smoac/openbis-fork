@@ -97,9 +97,11 @@ public final class DataStructureV1_1 extends DataStructureV1_0
     public final void setSample(final Sample sample)
     {
         assert sample != null : "Unspecified sample.";
-        assert sample instanceof SampleWithOwner : "Must be an instance of SampleWithOwner.";
-        assertOpenOrCreated();
-        sample.saveTo(getMetaDataDirectory());
+        if (sample instanceof SampleWithOwner == false)
+        {
+            throw new DataStructureException("Must be an instance of SampleWithOwner.");
+        }
+        super.setSample(sample);
     }
 
     @Override
