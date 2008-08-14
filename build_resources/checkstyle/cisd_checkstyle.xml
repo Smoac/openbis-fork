@@ -3,9 +3,9 @@
     This configuration file was written by the eclipse-cs plugin configuration editor
 -->
 <!--
-    Checkstyle-Configuration: CISD checks
+    Checkstyle-Configuration: CISD Checks
     Description: 
-The mandatory checks for the CISD source code repository.
+CISD mandatory checks.
 -->
 <!DOCTYPE module PUBLIC "-//Puppy Crawl//DTD Check Configuration 1.2//EN" "http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
 <module name="Checker">
@@ -31,7 +31,7 @@ The mandatory checks for the CISD source code repository.
         <module name="ParameterName"/>
         <module name="StaticVariableName"/>
         <module name="TypeName">
-            <property name="format" value="^[A-Z][a-zA-Z0-9]*(V[0-9]+_[0-9]+)?$"/>
+            <property name="format" value="^[A-Z][a-zA-Z0-9]*(V[0-9]+_([0-9]+|X))?(Test)?$"/>
         </module>
         <module name="EmptyForInitializerPad">
             <property name="option" value="space"/>
