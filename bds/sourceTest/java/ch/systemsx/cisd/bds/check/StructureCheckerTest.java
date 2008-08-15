@@ -22,6 +22,11 @@ import java.io.IOException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+/**
+ * Test cases for corresponding {@link StructureChecker} class.
+ * 
+ * @author Christian Ribeaud
+ */
 public class StructureCheckerTest extends AbstractCheckerTest
 {
     private final boolean verbose = false;

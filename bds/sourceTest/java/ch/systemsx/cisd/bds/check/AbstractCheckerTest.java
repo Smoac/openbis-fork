@@ -26,9 +26,11 @@ import ch.systemsx.cisd.bds.storage.filesystem.NodeFactory;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
 
 /**
+ * An abstract test class for the checkers.
+ * 
  * @author Izabela Adamczyk
  */
-public class AbstractCheckerTest
+public abstract class AbstractCheckerTest
 {
 
     protected final String errorFoundNotTrimmed(final String path, final String file,
