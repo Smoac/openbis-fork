@@ -15,12 +15,7 @@
 	<classpathentry kind="lib" path="/libraries/commons-lang/commons-lang.jar" sourcepath="/libraries/commons-lang/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/testng/testng-jdk15.jar" sourcepath="/libraries/testng/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/junit/junit.jar"/>
-	<classpathentry kind="lib" path="/libraries/jmock/third-party-libs/cglib-2.1_3-src.jar"/>
 	<classpathentry kind="lib" path="/libraries/jmock/jmock.jar"/>
-	<classpathentry kind="lib" path="/libraries/jmock/third-party-libs/cglib-nodep-2.1_3.jar"/>
-	<classpathentry kind="lib" path="/libraries/jmock/third-party-libs/hamcrest-api-1.0.jar"/>
-	<classpathentry kind="lib" path="/libraries/jmock/third-party-libs/hamcrest-library-1.0.jar"/>
-	<classpathentry kind="lib" path="/libraries/jmock/third-party-libs/objenesis-1.0.jar"/>
 	<classpathentry kind="lib" path="/libraries/commons-io/commons-io.jar" sourcepath="/libraries/commons-io/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/commons-fileupload/commons-fileupload.jar" sourcepath="/libraries/commons-fileupload/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/gwt-ext/gwtext.jar"/>
@@ -34,5 +29,9 @@
 	<classpathentry kind="lib" path="/libraries/spring/webmvc/spring-webmvc.jar" sourcepath="/libraries/spring/webmvc/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/restrictionchecker/restrictions.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/server-common"/>
+	<classpathentry kind="lib" path="/libraries/cglib/cglib-nodep.jar"/>
+	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-core.jar"/>
+	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-library.jar"/>
+	<classpathentry kind="lib" path="/libraries/jmock/objenesis/objenesis-1.0.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

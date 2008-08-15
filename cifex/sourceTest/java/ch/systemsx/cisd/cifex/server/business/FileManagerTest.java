@@ -653,7 +653,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                 {
                     allowing(daoFactory).getFileDAO();
                     will(returnValue(fileDAO));
-                    one(fileDAO).createFile(this.with(new IsInstanceOf<FileDTO>(FileDTO.class)));
+                    one(fileDAO).createFile((FileDTO) this.with(new IsInstanceOf(FileDTO.class)));
                 }
             });
         final FileDTO createdFileDTO =
