@@ -149,6 +149,9 @@ public final class StructureChecker extends AbstractChecker
         try
         {
             final IDirectory sample = Utilities.getSubDirectory(metadata, AbstractChecker.SAMPLE);
+            checkFileNotEmptyAndTrimmed(sample, AbstractChecker.GROUP_CODE);
+            checkFileNotEmptyAndTrimmed(sample, AbstractChecker.INSTANCE_CODE);
+            checkFileNotEmptyAndTrimmed(sample, AbstractChecker.INSTANCE_UUID);
             checkFileNotEmptyAndTrimmed(sample, AbstractChecker.TYPE_DESCRIPTION);
             checkFileNotEmptyAndTrimmed(sample, AbstractChecker.TYPE_CODE);
             checkFileNotEmptyAndTrimmed(sample, AbstractChecker.CODE);

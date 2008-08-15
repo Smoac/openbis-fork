@@ -34,13 +34,13 @@ public final class SampleWithOwner extends Sample
 
     static final String INSTANCE_CODE = ExperimentIdentifier.INSTANCE_CODE;
 
-    static final String INSTANCE_GLOBAL_CODE = ExperimentIdentifier.INSTANCE_GLOBAL_CODE;
+    static final String INSTANCE_UUID = ExperimentIdentifier.INSTANCE_UUID;
 
     private final String groupCode;
 
     private final String instanceCode;
 
-    private final String instanceGlobalCode;
+    private final String instanceUUID;
 
     /**
      * Creates an instance for the specified {@link Sample}, group code and database instance code
@@ -49,14 +49,13 @@ public final class SampleWithOwner extends Sample
      * @param groupCode A non-<code>null</code> string of the group code. Could be empty.
      * @param instanceCode A non-<code>null</code> string of the database instance code. Could
      *            not be empty.
-     * @param instanceGlobalCode A non-<code>null</code> string of the database instance global
-     *            code (aka <i>UUID</i>). Could not be empty.
+     * @param instanceUUID the database instance <i>UUID</i>. Could not be empty.
      */
-    public SampleWithOwner(final Sample sample, final String instanceGlobalCode,
+    public SampleWithOwner(final Sample sample, final String instanceUUID,
             final String instanceCode, final String groupCode)
     {
-        this(sample.getCode(), sample.getTypeCode(), sample.getTypeDescription(),
-                instanceGlobalCode, instanceCode, groupCode);
+        this(sample.getCode(), sample.getTypeCode(), sample.getTypeDescription(), instanceUUID,
+                instanceCode, groupCode);
     }
 
     /**
@@ -66,32 +65,32 @@ public final class SampleWithOwner extends Sample
      * @param groupCode A non-<code>null</code> string of the group code. Could be empty.
      * @param instanceCode A non-<code>null</code> string of the database instance code. Could
      *            not be empty.
-     * @param instanceGlobalCode A non-<code>null</code> string of the database instance global
-     *            code (aka <i>UUID</i>). Could not be empty.
+     * @param instanceUUID A non-<code>null</code> string of the database instance <i>UUID</i>.
+     *            Could not be empty.
      */
     public SampleWithOwner(final String code, final String typeCode, final String typeDescription,
-            final String instanceGlobalCode, final String instanceCode, final String groupCode)
+            final String instanceUUID, final String instanceCode, final String groupCode)
     {
         super(code, typeCode, typeDescription);
         assert groupCode != null : "Undefined group code.";
         assert instanceCode != null : "Undefined database instance code.";
-        assert instanceGlobalCode != null : "Undefined database instance global code.";
-        assertNonEmptyInstanceCodes(instanceGlobalCode, instanceCode);
-        this.instanceGlobalCode = instanceGlobalCode;
+        assert instanceUUID != null : "Undefined database instance UUID.";
+        assertNonEmptyInstanceCodes(instanceUUID, instanceCode);
+        this.instanceUUID = instanceUUID;
         this.instanceCode = instanceCode;
         this.groupCode = groupCode;
     }
 
-    private final static void assertNonEmptyInstanceCodes(final String instanceGlobalCode,
+    private final static void assertNonEmptyInstanceCodes(final String instanceUUID,
             final String instanceCode)
     {
         if (instanceCode.length() == 0)
         {
             throw new DataStructureException("Empty database instance code.");
         }
-        if (instanceGlobalCode.length() == 0)
+        if (instanceUUID.length() == 0)
         {
-            throw new DataStructureException("Empty database instance global code.");
+            throw new DataStructureException("Empty database instance UUID.");
         }
     }
 
@@ -105,9 +104,9 @@ public final class SampleWithOwner extends Sample
         return instanceCode;
     }
 
-    public final String getInstanceGlobalCode()
+    public final String getInstanceUUID()
     {
-        return instanceGlobalCode;
+        return instanceUUID;
     }
 
     //
@@ -128,9 +127,9 @@ public final class SampleWithOwner extends Sample
         final String typeCode = Utilities.getTrimmedString(folder, TYPE_CODE);
         final String groupCode = Utilities.getTrimmedString(folder, GROUP_CODE);
         final String instanceCode = Utilities.getTrimmedString(folder, INSTANCE_CODE);
-        final String instanceGlobalCode = Utilities.getTrimmedString(folder, INSTANCE_GLOBAL_CODE);
-        return new SampleWithOwner(code, typeCode, typeDescription, instanceGlobalCode,
-                instanceCode, groupCode);
+        final String instanceUUID = Utilities.getTrimmedString(folder, INSTANCE_UUID);
+        return new SampleWithOwner(code, typeCode, typeDescription, instanceUUID, instanceCode,
+                groupCode);
     }
 
     @Override
@@ -140,14 +139,14 @@ public final class SampleWithOwner extends Sample
         final IDirectory folder = directory.makeDirectory(FOLDER);
         folder.addKeyValuePair(GROUP_CODE, groupCode);
         folder.addKeyValuePair(INSTANCE_CODE, instanceCode);
-        folder.addKeyValuePair(INSTANCE_GLOBAL_CODE, instanceGlobalCode);
+        folder.addKeyValuePair(INSTANCE_UUID, instanceUUID);
     }
 
     @Override
     public final String toString()
     {
         final ToStringBuilder builder = createToStringBuilder();
-        builder.append(INSTANCE_GLOBAL_CODE, instanceGlobalCode);
+        builder.append(INSTANCE_UUID, instanceUUID);
         builder.append(INSTANCE_CODE, instanceCode);
         if (groupCode.length() > 0)
         {
@@ -175,7 +174,7 @@ public final class SampleWithOwner extends Sample
             builder.append(that.groupCode, groupCode);
         } else
         {
-            builder.append(that.instanceGlobalCode, instanceGlobalCode);
+            builder.append(that.instanceUUID, instanceUUID);
         }
         return builder.isEquals();
     }
@@ -190,7 +189,7 @@ public final class SampleWithOwner extends Sample
             builder.append(groupCode);
         } else
         {
-            builder.append(instanceGlobalCode);
+            builder.append(instanceUUID);
         }
         return builder.toHashCode();
     }

@@ -94,12 +94,12 @@ public final class SampleWithOwnerTest extends AbstractFileSystemTestCase
     }
 
     @Test(dataProvider = "getSampleData")
-    public final void testLoadFrom(final String instanceGlobalCode, final String instanceCode,
+    public final void testLoadFrom(final String instanceUUID, final String instanceCode,
             final String groupCode)
     {
         final IDirectory directory = NodeFactory.createDirectoryNode(workingDirectory);
         final Sample sample =
-                new SampleWithOwner(CODE, TYPE_CODE, TYPE_DESCRIPTION, instanceGlobalCode,
+                new SampleWithOwner(CODE, TYPE_CODE, TYPE_DESCRIPTION, instanceUUID,
                         instanceCode, groupCode);
         sample.saveTo(directory);
         final SampleWithOwner newSample = SampleWithOwner.loadFrom(directory);
@@ -107,12 +107,12 @@ public final class SampleWithOwnerTest extends AbstractFileSystemTestCase
         {
             assertEquals(GROUP_CODE, newSample.getGroupCode());
             assertEquals(INSTANCE_CODE, newSample.getInstanceCode());
-            assertEquals(INSTANCE_GLOBAL_CODE, newSample.getInstanceGlobalCode());
+            assertEquals(INSTANCE_GLOBAL_CODE, newSample.getInstanceUUID());
         } else
         {
             assertEquals("", newSample.getGroupCode());
             assertEquals(INSTANCE_CODE, newSample.getInstanceCode());
-            assertEquals(INSTANCE_GLOBAL_CODE, newSample.getInstanceGlobalCode());
+            assertEquals(INSTANCE_GLOBAL_CODE, newSample.getInstanceUUID());
         }
     }
 }

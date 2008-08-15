@@ -87,6 +87,8 @@ public abstract class AbstractChecker
 
     public static final String INSTANCE_CODE = "instance_code";
 
+    public static final String INSTANCE_UUID = "instance_uuid";
+
     public static final String IS_COMPLETE = "is_complete";
 
     public static final String IS_MEASURED = "is_measured";

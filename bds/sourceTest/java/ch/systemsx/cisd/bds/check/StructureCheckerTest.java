@@ -16,10 +16,11 @@
 
 package ch.systemsx.cisd.bds.check;
 
+import static org.testng.AssertJUnit.assertEquals;
+
 import java.io.File;
 import java.io.IOException;
 
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -38,8 +39,8 @@ public class StructureCheckerTest extends AbstractCheckerTest
         final ProblemReport structureConsistencyReport =
                 new StructureChecker(verbose).getStructureConsistencyReport(new File(
                         "testdata/bds_ok"));
-        Assert.assertEquals(structureConsistencyReport.toString(), "");
-        Assert.assertEquals(structureConsistencyReport.noProblemsFound(), true);
+        assertEquals(structureConsistencyReport.toString(), "");
+        assertEquals(structureConsistencyReport.noProblemsFound(), true);
 
     }
 
@@ -53,7 +54,7 @@ public class StructureCheckerTest extends AbstractCheckerTest
     public final void testEmptyContainer()
     {
 
-        Assert.assertEquals(new StructureChecker(verbose).getStructureConsistencyReport(
+        assertEquals(new StructureChecker(verbose).getStructureConsistencyReport(
                 new File("testdata/bds_empty")).numberOfProblems(), 4);
     }
 
@@ -61,7 +62,7 @@ public class StructureCheckerTest extends AbstractCheckerTest
     public final void testEmptyDirectories()
     {
 
-        Assert.assertEquals(new StructureChecker(verbose).getStructureConsistencyReport(
+        assertEquals(new StructureChecker(verbose).getStructureConsistencyReport(
                 new File("testdata/bds_empty_dirs")).numberOfProblems(), 13);
     }
 
@@ -69,16 +70,15 @@ public class StructureCheckerTest extends AbstractCheckerTest
     public final void testMissingFiles()
     {
 
-        Assert.assertEquals(new StructureChecker(verbose).getStructureConsistencyReport(
-                new File("testdata/bds_missing_files")).numberOfProblems(), 19);
+        assertEquals(new StructureChecker(verbose).getStructureConsistencyReport(
+                new File("testdata/bds_missing_files")).numberOfProblems(), 22);
     }
 
     @Test
     public final void testEmptyFiles()
     {
-
-        Assert.assertEquals(new StructureChecker(verbose).getStructureConsistencyReport(
-                new File("testdata/bds_empty_files")).numberOfProblems(), 23);
+        assertEquals(new StructureChecker(verbose).getStructureConsistencyReport(
+                new File("testdata/bds_empty_files")).numberOfProblems(), 26);
     }
 
     @Test
@@ -87,7 +87,7 @@ public class StructureCheckerTest extends AbstractCheckerTest
         final ProblemReport structureConsistencyReport =
                 new StructureChecker(verbose).getStructureConsistencyReport(new File(
                         "testdata/bds_wrong_values"));
-        Assert.assertEquals(structureConsistencyReport.numberOfProblems(), 7);
+        assertEquals(structureConsistencyReport.numberOfProblems(), 10);
     }
 
     @Test
@@ -96,28 +96,38 @@ public class StructureCheckerTest extends AbstractCheckerTest
         final File dir = new File("testdata/bds_new_lines");
         final String path = dir.getAbsolutePath();
 
-        Assert.assertEquals(new StructureChecker(verbose).getStructureConsistencyReport(dir)
-                .toString(), errorFoundNotTrimmed(path, "major", "/version")
-                + errorFoundNotTrimmed(path, "minor", "/version")
-                + errorFoundNotTrimmed(path, "code", "/metadata/data_set")
-                + errorFoundNotTrimmed(path, "production_timestamp", "/metadata/data_set")
-                + errorFoundNotTrimmed(path, "producer_code", "/metadata/data_set")
-                + errorFoundNotTrimmed(path, "observable_type", "/metadata/data_set")
-                + errorFoundNotTrimmed(path, "is_measured", "/metadata/data_set")
-                + errorFoundNotTrimmed(path, "is_complete", "/metadata/data_set")
-                + errorFoundNotTrimmed(path, "major", "/metadata/format/version")
-                + errorFoundNotTrimmed(path, "minor", "/metadata/format/version")
-                + errorFoundNotTrimmed(path, "code", "/metadata/format")
-                + errorFoundNotTrimmed(path, "instance_code", "/metadata/experiment_identifier")
-                + errorFoundNotTrimmed(path, "group_code", "/metadata/experiment_identifier")
-                + errorFoundNotTrimmed(path, "project_code", "/metadata/experiment_identifier")
-                + errorFoundNotTrimmed(path, "experiment_code", "/metadata/experiment_identifier")
-                + errorFoundNotTrimmed(path, "experiment_registration_timestamp", "/metadata")
-                + errorFoundNotTrimmed(path, "first_name", "/metadata/experiment_registrator")
-                + errorFoundNotTrimmed(path, "last_name", "/metadata/experiment_registrator")
-                + errorFoundNotTrimmed(path, "email", "/metadata/experiment_registrator")
-                + errorFoundNotTrimmed(path, "type_description", "/metadata/sample")
-                + errorFoundNotTrimmed(path, "type_code", "/metadata/sample")
-                + errorFoundNotTrimmed(path, "code", "/metadata/sample"));
+        assertEquals(new StructureChecker(verbose).getStructureConsistencyReport(dir).toString(),
+                errorFoundNotTrimmed(path, "major", "/version")
+                        + errorFoundNotTrimmed(path, "minor", "/version")
+                        + errorFoundNotTrimmed(path, "code", "/metadata/data_set")
+                        + errorFoundNotTrimmed(path, "production_timestamp", "/metadata/data_set")
+                        + errorFoundNotTrimmed(path, "producer_code", "/metadata/data_set")
+                        + errorFoundNotTrimmed(path, "observable_type", "/metadata/data_set")
+                        + errorFoundNotTrimmed(path, "is_measured", "/metadata/data_set")
+                        + errorFoundNotTrimmed(path, "is_complete", "/metadata/data_set")
+                        + errorFoundNotTrimmed(path, "major", "/metadata/format/version")
+                        + errorFoundNotTrimmed(path, "minor", "/metadata/format/version")
+                        + errorFoundNotTrimmed(path, "code", "/metadata/format")
+                        + errorFoundNotTrimmed(path, "instance_code",
+                                "/metadata/experiment_identifier")
+                        + errorFoundNotTrimmed(path, "group_code",
+                                "/metadata/experiment_identifier")
+                        + errorFoundNotTrimmed(path, "project_code",
+                                "/metadata/experiment_identifier")
+                        + errorFoundNotTrimmed(path, "experiment_code",
+                                "/metadata/experiment_identifier")
+                        + errorFoundNotTrimmed(path, "experiment_registration_timestamp",
+                                "/metadata")
+                        + errorFoundNotTrimmed(path, "first_name",
+                                "/metadata/experiment_registrator")
+                        + errorFoundNotTrimmed(path, "last_name",
+                                "/metadata/experiment_registrator")
+                        + errorFoundNotTrimmed(path, "email", "/metadata/experiment_registrator")
+                        + errorFoundNotTrimmed(path, "group_code", "/metadata/sample")
+                        + errorFoundNotTrimmed(path, "instance_code", "/metadata/sample")
+                        + errorFoundNotTrimmed(path, "instance_uuid", "/metadata/sample")
+                        + errorFoundNotTrimmed(path, "type_description", "/metadata/sample")
+                        + errorFoundNotTrimmed(path, "type_code", "/metadata/sample")
+                        + errorFoundNotTrimmed(path, "code", "/metadata/sample"));
     }
 }
