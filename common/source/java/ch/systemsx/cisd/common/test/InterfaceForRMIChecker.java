@@ -94,7 +94,7 @@ public class InterfaceForRMIChecker
             if (checkImplementsSerializable)
             {
                 assert Serializable.class.isAssignableFrom(clazz) : clazz
-                        + " does not implements java.io.Serializable";
+                        + " does not implement java.io.Serializable";
             }
             Field[] fields = clazz.getDeclaredFields();
             for (Field field : fields)
