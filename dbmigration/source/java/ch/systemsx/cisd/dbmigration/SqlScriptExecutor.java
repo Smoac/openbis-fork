@@ -62,7 +62,7 @@ public class SqlScriptExecutor extends JdbcDaoSupport implements ISqlScriptExecu
         }
         try
         {
-            final String sqlScriptCode = sqlScript.getCode();
+            final String sqlScriptCode = sqlScript.getContent();
             if (singleStepMode && honorSingleStepMode)
             {
                 String lastSqlStatement = "";

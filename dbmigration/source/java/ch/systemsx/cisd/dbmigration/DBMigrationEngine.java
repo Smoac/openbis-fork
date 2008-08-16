@@ -24,9 +24,9 @@ import ch.systemsx.cisd.common.Script;
 import ch.systemsx.cisd.common.db.ISqlScriptExecutor;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.dbmigration.java.IMigrationStepExecutor;
 
 /**
  * Class for creating and migrating a database.
@@ -72,7 +72,7 @@ public final class DBMigrationEngine
 
     private final ISqlScriptExecutor scriptExecutor;
 
-    private final IJavaMigrationStepExecutor javaMigrationStepExecutor;
+    private final IMigrationStepExecutor migrationStepExecutor;
 
     /**
      * Creates an instance for the specified DAO factory and SQL script provider.
@@ -86,7 +86,7 @@ public final class DBMigrationEngine
         adminDAO = daoFactory.getDatabaseDAO();
         logDAO = daoFactory.getDatabaseVersionLogDAO();
         scriptExecutor = daoFactory.getSqlScriptExecutor();
-        javaMigrationStepExecutor = daoFactory.getJavaMigrationStepExecutor();
+        migrationStepExecutor = daoFactory.getMigrationStepExecutor();
         this.scriptProvider = scriptProvider;
         this.shouldCreateFromScratch = shouldCreateFromScratch;
     }
@@ -255,13 +255,11 @@ public final class DBMigrationEngine
                 throw new EnvironmentFailureException(message);
             }
             final long time = System.currentTimeMillis();
-            final Status preMigrationStatusOrNull =
-                    javaMigrationStepExecutor.tryPerformPreMigration(migrationScript);
-            checkErrors(preMigrationStatusOrNull, "pre");
+            migrationStepExecutor.init(migrationScript);
+            migrationStepExecutor.performPreMigration();
             scriptExecutor.execute(migrationScript, true, logDAO);
-            final Status postMigrationStatusOrNull =
-                    javaMigrationStepExecutor.tryPerformPostMigration(migrationScript);
-            checkErrors(postMigrationStatusOrNull, "post");
+            migrationStepExecutor.performPostMigration();
+            migrationStepExecutor.finish();
             if (operationLog.isInfoEnabled())
             {
                 operationLog.info("Successfully migrated from version " + version + " to "
@@ -269,25 +267,6 @@ public final class DBMigrationEngine
             }
             version = nextVersion;
         } while (version.equals(toVersion) == false);
-    }
-
-    private void checkErrors(final Status migrationStatusOrNull, final String prefix)
-    {
-        if (migrationStatusOrNull != null)
-        {
-            if (migrationStatusOrNull.isError())
-            {
-                final String message =
-                        String.format("Java %s-migration finnished with an error status ('%s')",
-                                prefix, migrationStatusOrNull.tryGetErrorMessage());
-                operationLog.error(message);
-                throw new EnvironmentFailureException(message);
-            } else if (operationLog.isInfoEnabled())
-            {
-                operationLog.info(String.format("Java %s-migration succesfull.", prefix));
-            }
-
-        }
     }
 
     @Private

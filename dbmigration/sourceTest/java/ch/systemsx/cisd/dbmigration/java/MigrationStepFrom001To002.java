@@ -14,32 +14,31 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.dbmigration;
+package ch.systemsx.cisd.dbmigration.java;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-
-import ch.systemsx.cisd.common.exceptions.Status;
 
 /**
  * A <code>IMigrationStep</code> implementation for test.
  * 
  * @author Izabela Adamczyk
  */
-public class MigrationStepFrom001To002 implements IMigrationStep
+public final class MigrationStepFrom001To002 implements IMigrationStep
 {
 
     //
     // IMigrationStep
     //
 
-    public final Status performPostMigration(final SimpleJdbcTemplate simpleJdbcTemplate)
+    public final void performPostMigration(final SimpleJdbcTemplate simpleJdbcTemplate)
+            throws DataAccessException
     {
-        return Status.OK;
     }
 
-    public final Status performPreMigration(final SimpleJdbcTemplate simpleJdbcTemplate)
+    public final void performPreMigration(final SimpleJdbcTemplate simpleJdbcTemplate)
+            throws DataAccessException
     {
-        return Status.OK;
     }
 
 }

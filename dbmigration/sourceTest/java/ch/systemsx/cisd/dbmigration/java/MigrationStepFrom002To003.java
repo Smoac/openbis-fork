@@ -14,32 +14,36 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.dbmigration;
+package ch.systemsx.cisd.dbmigration.java;
 
+import org.apache.commons.lang.StringUtils;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-
-import ch.systemsx.cisd.common.exceptions.Status;
 
 /**
  * A <code>IMigrationStep</code> implementation for test.
  * 
  * @author Izabela Adamczyk
  */
-public class MigrationStepFrom002To003 implements IMigrationStep
+public final class MigrationStepFrom002To003 implements IMigrationStep
 {
 
     //
     // IMigrationStep
     //
 
-    public final Status performPostMigration(final SimpleJdbcTemplate simpleJdbcTemplate)
+    public final void performPostMigration(final SimpleJdbcTemplate simpleJdbcTemplate)
+            throws DataAccessException
     {
-        return Status.createError("bad post");
+        throw new EmptyResultDataAccessException(1);
     }
 
-    public final Status performPreMigration(final SimpleJdbcTemplate simpleJdbcTemplate)
+    public final void performPreMigration(final SimpleJdbcTemplate simpleJdbcTemplate)
+            throws DataAccessException
     {
-        return Status.createError("bad pre");
+        throw new DataIntegrityViolationException(StringUtils.EMPTY);
     }
 
 }

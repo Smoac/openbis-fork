@@ -147,7 +147,7 @@ public class SqlScriptProviderTest
         assertNotNull(script);
         assertEquals(TEMP_SCHEMA_SPECIFIC_SCRIPT_FOLDER.getPath() + "/" + VERSION + "/schema-"
                 + VERSION + ".sql", script.getName());
-        assertEquals("code: schema", script.getCode().trim());
+        assertEquals("code: schema", script.getContent().trim());
     }
 
     // Note: we make it dependent on testGetSchemaScript(), because we delete the specific schema
@@ -167,7 +167,7 @@ public class SqlScriptProviderTest
         assertNotNull(script);
         assertEquals(TEMP_SCHEMA_GENERIC_SCRIPT_FOLDER.getPath() + "/" + VERSION + "/schema-"
                 + VERSION + ".sql", script.getName());
-        assertEquals(genericSchemaScriptContent, script.getCode().trim());
+        assertEquals(genericSchemaScriptContent, script.getContent().trim());
     }
 
     @Test
@@ -183,7 +183,7 @@ public class SqlScriptProviderTest
         assertNotNull(script);
         assertEquals(TEMP_SCHEMA_SPECIFIC_SCRIPT_FOLDER.getPath() + "/" + VERSION + "/function-"
                 + VERSION + ".sql", script.getName());
-        assertEquals("code: function", script.getCode().trim());
+        assertEquals("code: function", script.getContent().trim());
     }
 
     @Test
@@ -198,7 +198,7 @@ public class SqlScriptProviderTest
         Script script = sqlScriptProvider.tryGetDataScript(VERSION);
         assertEquals(TEMP_SCHEMA_SPECIFIC_SCRIPT_FOLDER + "/" + VERSION + "/data-" + VERSION
                 + ".sql", script.getName());
-        assertEquals("code: data", script.getCode().trim());
+        assertEquals("code: data", script.getContent().trim());
     }
 
     @Test
@@ -213,7 +213,7 @@ public class SqlScriptProviderTest
         Script script = sqlScriptProvider.tryGetMigrationScript(VERSION, VERSION2);
         assertEquals(TEMP_SCHEMA_SPECIFIC_SCRIPT_FOLDER.getPath() + "/" + MIGRATION + "/migration-"
                 + VERSION + "-" + VERSION2 + ".sql", script.getName());
-        assertEquals("code: migration", script.getCode().trim());
+        assertEquals("code: migration", script.getContent().trim());
     }
 
     @Test

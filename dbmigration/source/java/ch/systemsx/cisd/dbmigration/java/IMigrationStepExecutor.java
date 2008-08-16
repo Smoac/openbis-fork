@@ -14,26 +14,39 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.dbmigration;
+package ch.systemsx.cisd.dbmigration.java;
 
 import ch.systemsx.cisd.common.Script;
-import ch.systemsx.cisd.common.exceptions.Status;
 
 /**
  * A migration step executor.
  * 
  * @author Christian Ribeaud
  */
-public interface IJavaMigrationStepExecutor
+public interface IMigrationStepExecutor
 {
+
+    /**
+     * Initializes the migration step executor with given <var>migrationScript</var>.
+     * <p>
+     * Is called just before {@link #performPreMigration()} and/or {@link #performPostMigration()}.
+     * </p>
+     */
+    public void init(final Script migrationScript);
 
     /**
      * Performs some step after the migration has happened.
      */
-    public Status tryPerformPostMigration(final Script sqlScript);
+    public void performPostMigration();
 
     /**
      * Performs some step before the migration has happened.
      */
-    public Status tryPerformPreMigration(final Script sqlScript);
+    public void performPreMigration();
+
+    /**
+     * Resets the migration step executor.
+     */
+    public void finish();
+
 }

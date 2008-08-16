@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.dbmigration;
 
 import ch.systemsx.cisd.common.db.ISqlScriptExecutor;
+import ch.systemsx.cisd.dbmigration.java.IMigrationStepExecutor;
 
 /**
  * Factory for DAOs.
@@ -48,5 +49,5 @@ public interface IDAOFactory
     /**
      * Returns the java migration step executor.
      */
-    public IJavaMigrationStepExecutor getJavaMigrationStepExecutor();
+    public IMigrationStepExecutor getMigrationStepExecutor();
 }

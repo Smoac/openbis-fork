@@ -135,7 +135,7 @@ public class DatabaseVersionLogDAO extends SimpleJdbcDaoSupport implements IData
     public void createTable(Script script)
     {
         JdbcTemplate template = getJdbcTemplate();
-        template.execute(script.getCode());
+        template.execute(script.getContent());
     }
 
     public LogEntry getLastEntry()
@@ -167,7 +167,7 @@ public class DatabaseVersionLogDAO extends SimpleJdbcDaoSupport implements IData
                             ps.setString(3, LogEntry.RunStatus.START.toString());
                             ps.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
                             lobCreator
-                                    .setBlobAsBytes(ps, 5, getAsByteArray(moduleScript.getCode()));
+                                    .setBlobAsBytes(ps, 5, getAsByteArray(moduleScript.getContent()));
                         }
                     };
         template.execute("insert into " + DB_VERSION_LOG + " (" + DB_VERSION + "," + MODULE_NAME

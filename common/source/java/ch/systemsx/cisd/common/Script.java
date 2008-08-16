@@ -28,37 +28,37 @@ public class Script
 {
     private final String name;
 
-    private final String code;
+    private final String content;
 
     private final String version;
 
     /**
-     * Creates an instance for the specified script name, code and version.
+     * Creates an instance for the specified script name, content and version.
      */
-    public Script(String name, String code)
+    public Script(final String name, final String content)
     {
-        this(name, code, "-");
+        this(name, content, "-");
     }
 
     /**
      * Creates an instance for the specified script name, code and version.
      */
-    public Script(String name, String code, String version)
+    public Script(final String name, final String content, final String version)
     {
         assert name != null;
-        assert code != null;
+        assert content != null;
         assert version != null;
         this.name = name;
-        this.code = code;
+        this.content = content;
         this.version = version;
     }
 
     /**
      * Returns script code.
      */
-    public String getCode()
+    public String getContent()
     {
-        return code;
+        return content;
     }
 
     /**
@@ -78,7 +78,7 @@ public class Script
     }
 
     @Override
-    public boolean equals(Object obj)
+    public boolean equals(final Object obj)
     {
         return EqualsBuilder.reflectionEquals(this, obj);
     }

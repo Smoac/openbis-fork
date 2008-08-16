@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.dbmigration;
+package ch.systemsx.cisd.dbmigration.java;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-
-import ch.systemsx.cisd.common.exceptions.Status;
 
 /**
  * An interface which must be implemented by all classes providing Java code that performs migration
@@ -44,11 +43,12 @@ public interface IMigrationStep
     /**
      * Called before the SQL migration is performed.
      */
-    public Status performPreMigration(final SimpleJdbcTemplate simpleJdbcTemplate);
+    public void performPreMigration(final SimpleJdbcTemplate simpleJdbcTemplate)
+            throws DataAccessException;
 
     /**
      * Called after the SQL migration has been performed.
      */
-    public Status performPostMigration(final SimpleJdbcTemplate simpleJdbcTemplate);
-
+    public void performPostMigration(final SimpleJdbcTemplate simpleJdbcTemplate)
+            throws DataAccessException;
 }
