@@ -270,7 +270,7 @@ public class InterfaceForRMICheckerTest
 
     private void checkErrorMessage(AssertionError e)
     {
-        assertEquals(NonSerializableClass.class + " does not implements java.io.Serializable", e
+        assertEquals(NonSerializableClass.class + " does not implement java.io.Serializable", e
                 .getMessage());
     }
 
