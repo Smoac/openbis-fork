@@ -68,8 +68,7 @@ public final class ParserUtilitiesTest
         boolean exceptionThrown = false;
         try
         {
-            ParserUtilities.getFirstAcceptedLine(null, null);
-
+            ParserUtilities.tryGetFirstAcceptedLine((File) null, null);
         } catch (AssertionError e)
         {
             exceptionThrown = true;
@@ -80,7 +79,7 @@ public final class ParserUtilitiesTest
         assert file.exists() == false;
         try
         {
-            ParserUtilities.getFirstAcceptedLine(file, null);
+            ParserUtilities.tryGetFirstAcceptedLine(file, null);
 
         } catch (AssertionError e)
         {
@@ -96,7 +95,7 @@ public final class ParserUtilitiesTest
             { StringUtils.EMPTY, "non-empty line", StringUtils.EMPTY, "hello" };
         File file = new File(workingDirectory, "test.txt");
         FileUtils.writeLines(file, Arrays.asList(lines));
-        Line line = ParserUtilities.getFirstAcceptedLine(file, null);
+        Line line = ParserUtilities.tryGetFirstAcceptedLine(file, null);
         assertEquals(StringUtils.EMPTY, line.getText());
         assertEquals(0, line.getNumber());
         assert file.delete();
@@ -110,7 +109,7 @@ public final class ParserUtilitiesTest
         File file = new File(workingDirectory, "test.txt");
         FileUtils.writeLines(file, Arrays.asList(lines));
         Line line =
-                ParserUtilities.getFirstAcceptedLine(file,
+                ParserUtilities.tryGetFirstAcceptedLine(file,
                         ExcludeEmptyAndCommentLineFilter.INSTANCE);
         assertEquals("hello", line.getText());
         assertEquals(3, line.getNumber());

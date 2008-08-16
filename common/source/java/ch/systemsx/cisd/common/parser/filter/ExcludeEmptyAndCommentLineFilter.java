@@ -38,6 +38,7 @@ public final class ExcludeEmptyAndCommentLineFilter implements ILineFilter
 
     public final boolean acceptLine(final String line, final int lineNumber)
     {
+        assert line != null : "Unspecified line";
         final String trimmed = line.trim();
         return trimmed.length() > 0 && trimmed.startsWith("#") == false;
     }

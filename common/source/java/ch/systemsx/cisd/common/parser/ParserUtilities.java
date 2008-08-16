@@ -18,13 +18,13 @@ package ch.systemsx.cisd.common.parser;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Reader;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
-import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.exceptions.WrappedIOException;
 import ch.systemsx.cisd.common.parser.filter.AlwaysAcceptLineFilter;
 import ch.systemsx.cisd.common.parser.filter.ILineFilter;
 
@@ -35,13 +35,56 @@ import ch.systemsx.cisd.common.parser.filter.ILineFilter;
  */
 public final class ParserUtilities
 {
-
-    private static final Logger machineLog =
-            LogFactory.getLogger(LogCategory.MACHINE, ParserUtilities.class);
-
     private ParserUtilities()
     {
         // Can not be instantiated.
+    }
+
+    private final static Line tryFirstAcceptedLine(final ILineFilter filter,
+            final LineIterator lineIterator)
+    {
+        for (int line = 0; lineIterator.hasNext(); line++)
+        {
+            final String nextLine = lineIterator.nextLine();
+            if (filter.acceptLine(nextLine, line))
+            {
+                return new Line(line, nextLine);
+            }
+        }
+        return null;
+    }
+
+    private final static ILineFilter getLineFilter(final ILineFilter lineFilter)
+    {
+        return lineFilter == null ? AlwaysAcceptLineFilter.INSTANCE : lineFilter;
+    }
+
+    /**
+     * Returns the first <code>Line</code> that is not filtered out by given
+     * <code>ILineFilter</code>.
+     * <p>
+     * You should not call this method if given <var>file</var> does not exist.
+     * </p>
+     * 
+     * @param lineFilter could be <code>null</code>. In this case, the
+     *            {@link AlwaysAcceptLineFilter} implementation will be used.
+     * @param reader the reader that is going to be analyzed. Can not be <code>null</code>.
+     * @return <code>null</code> if all lines have been filtered out.
+     */
+    public final static Line tryGetFirstAcceptedLine(final Reader reader,
+            final ILineFilter lineFilter)
+    {
+        assert reader != null : "Unspecified reader.";
+        final ILineFilter filter = getLineFilter(lineFilter);
+        LineIterator lineIterator = null;
+        try
+        {
+            lineIterator = IOUtils.lineIterator(reader);
+            return tryFirstAcceptedLine(filter, lineIterator);
+        } finally
+        {
+            LineIterator.closeQuietly(lineIterator);
+        }
     }
 
     /**
@@ -57,34 +100,21 @@ public final class ParserUtilities
      *            exists.
      * @return <code>null</code> if all lines have been filtered out.
      */
-    public final static Line getFirstAcceptedLine(final File file, final ILineFilter lineFilter)
+    public final static Line tryGetFirstAcceptedLine(final File file, final ILineFilter lineFilter)
     {
         assert file != null && file.exists() : "Given file must not be null and must exist.";
-        final ILineFilter filter =
-                lineFilter == null ? AlwaysAcceptLineFilter.INSTANCE : lineFilter;
-
+        final ILineFilter filter = getLineFilter(lineFilter);
         LineIterator lineIterator = null;
         try
         {
             lineIterator = FileUtils.lineIterator(file);
-            for (int line = 0; lineIterator.hasNext(); line++)
-            {
-                String nextLine = lineIterator.nextLine();
-                if (filter.acceptLine(nextLine, line))
-                {
-                    return new Line(line, nextLine);
-                }
-
-            }
-        } catch (IOException ex)
+            return tryFirstAcceptedLine(filter, lineIterator);
+        } catch (final IOException ex)
         {
-            machineLog
-                    .error("An I/O exception has occurred while reading file '" + file + "'.", ex);
+            throw new WrappedIOException(ex);
         } finally
         {
             LineIterator.closeQuietly(lineIterator);
         }
-        return null;
     }
-
 }

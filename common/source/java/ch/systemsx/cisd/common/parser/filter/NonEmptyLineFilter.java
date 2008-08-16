@@ -13,21 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package ch.systemsx.cisd.common.parser.filter;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
- * A line filter for <code>ReaderParser</code>.
+ * A default <code>LineFilter</code> implementation that excludes empty lines.
  * 
  * @author Christian Ribeaud
  */
-public interface ILineFilter
+public final class NonEmptyLineFilter implements ILineFilter
 {
+    public final static ILineFilter INSTANCE = new NonEmptyLineFilter();
 
-    /**
-     * If given <code>line</code> should be accepted or not.
-     * 
-     * @param line the line read from the <code>Reader</code>. Can not be <code>null</code>.
-     */
-    public boolean acceptLine(final String line, final int lineNumber);
+    private NonEmptyLineFilter()
+    {
+    }
+
+    //
+    // ILineFilter
+    //
+
+    public final boolean acceptLine(final String line, final int lineNumber)
+    {
+        return StringUtils.isNotBlank(line);
+    }
 }
