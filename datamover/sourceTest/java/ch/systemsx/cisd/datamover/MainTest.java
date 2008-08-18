@@ -30,15 +30,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.common.filesystem.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.datamover.testhelper.FileStructEngine;
 import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
@@ -50,7 +48,7 @@ import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
  */
 @Friend(toClasses =
     { Main.class })
-public final class MainTest
+public final class MainTest extends AbstractFileSystemTestCase
 {
     private static final FileStructEngine DEFAULT_STRUCT = new FileStructEngine("test");
 
@@ -71,38 +69,18 @@ public final class MainTest
 
     private static final int WAITING_TIME_OUT = 30;
 
-    private static final File unitTestRootDirectory =
-            new File("targets" + File.separator + "unit-test-wd");
-
-    private static final File workingDirectory =
-            new File(unitTestRootDirectory, MainTest.class.getSimpleName());
-
     private static final File ORIGINAL_SCRIPT_FILE =
             new File(new File("dist"), ShellScriptTest.SCRIPT_FILE_NAME);
 
-    private static final File SCRIPT_FILE =
-            new File(workingDirectory, ShellScriptTest.SCRIPT_FILE_NAME);
+    private File scriptFile;
 
-    @BeforeClass(alwaysRun = true)
-    public void init()
-    {
-        LogInitializer.init();
-        unitTestRootDirectory.mkdirs();
-        assertTrue(unitTestRootDirectory.isDirectory());
-    }
-
+    @Override
     @BeforeMethod(alwaysRun = true)
-    public void setUp()
+    public void setUp() throws IOException
     {
-        FileUtilities.deleteRecursively(workingDirectory);
-        workingDirectory.mkdirs();
-        FileUtilities.copyFileTo(ORIGINAL_SCRIPT_FILE, SCRIPT_FILE, true);
-    }
-
-    @AfterClass
-    public void clean()
-    {
-        // FileUtilities.deleteRecursively(unitTestRootDirectory);
+        super.setUp();
+        scriptFile = new File(workingDirectory, ShellScriptTest.SCRIPT_FILE_NAME);
+        FileUtilities.copyFileTo(ORIGINAL_SCRIPT_FILE, scriptFile, true);
     }
 
     // ----------------- auxiliary data structures
@@ -304,7 +282,7 @@ public final class MainTest
         void prepareState(ExternalDirs dirs, LocalBufferDirs bufferDirs) throws Exception;
     }
 
-    private static void performGenericTest(IFSPreparator preparator, long millisToWaitForPrep)
+    private void performGenericTest(IFSPreparator preparator, long millisToWaitForPrep)
             throws Exception
     {
         ExternalDirs dirs = new ExternalDirs(workingDirectory);
