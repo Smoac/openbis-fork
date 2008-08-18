@@ -40,6 +40,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
 
 import ch.systemsx.cisd.common.db.ISequenceNameMapper;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.dbmigration.IMassUploader;
@@ -60,14 +61,17 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
 
     private final ISequenceNameMapper sequenceNameMapper;
 
+    private final boolean sequenceUpdateNeeded;
+
     /**
      * Creates an instance for the specified data source and sequence mapper.
      */
     public PostgreSQLMassUploader(final DataSource dataSource,
-            final ISequenceNameMapper sequenceNameMapper) throws SQLException
+            final ISequenceNameMapper sequenceNameMapper, boolean sequenceUpdateNeeded) throws SQLException
     {
         this.dataSource = dataSource;
         this.sequenceNameMapper = sequenceNameMapper;
+        this.sequenceUpdateNeeded = sequenceUpdateNeeded;
         setDataSource(dataSource);
     }
 
@@ -88,9 +92,17 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
         {
             performMassUpload(file, tables);
         }
-        for (final String name : tables)
+        if (sequenceUpdateNeeded)
         {
-            fixSequence(name);
+            boolean successful = true;
+            for (final String name : tables)
+            {
+                successful &= fixSequence(name);
+            }
+            if (successful == false)
+            {
+                throw new EnvironmentFailureException("At least one sequence couldn't be updated.");
+            }
         }
     }
 
@@ -123,8 +135,8 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
                 {
                     getCopyManager().copyInQuery(
                             "COPY " + tableName + " FROM STDIN WITH CSV HEADER", is);
-                    tables.add(tableName);
                 }
+                tables.add(tableName);
             } finally
             {
                 IOUtils.closeQuietly(is);
@@ -135,12 +147,12 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
         }
     }
 
-    private final void fixSequence(final String tableName)
+    private final boolean fixSequence(final String tableName)
     {
         final String sequenceName = sequenceNameMapper.getSequencerForTable(tableName);
         if (sequenceName == null)
         {
-            return;
+            return true;
         }
         try
         {
@@ -154,10 +166,12 @@ public class PostgreSQLMassUploader extends SimpleJdbcDaoSupport implements IMas
                 operationLog.info("Updating sequence " + sequenceName + " for table " + tableName
                         + " to value " + newSequenceValue);
             }
+            return true;
         } catch (final DataAccessException ex)
         {
             operationLog.error("Failed to set new value for sequence '" + sequenceName
                     + "' of table '" + tableName + "'.", ex);
+            return false;
         }
     }
 

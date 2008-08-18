@@ -57,6 +57,8 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     private ISequenceNameMapper sequenceNameMapper;
+    
+    private boolean sequenceUpdateNeeded;
 
     private String adminUser;
 
@@ -417,6 +419,16 @@ public class DatabaseConfigurationContext implements DisposableBean
     public final void setSequenceNameMapper(final ISequenceNameMapper sequenceNameMapper)
     {
         this.sequenceNameMapper = sequenceNameMapper;
+    }
+
+    public final boolean isSequenceUpdateNeeded()
+    {
+        return sequenceUpdateNeeded;
+    }
+
+    public final void setSequenceUpdateNeeded(boolean sequenceUpdateNeeded)
+    {
+        this.sequenceUpdateNeeded = sequenceUpdateNeeded;
     }
 
     /**

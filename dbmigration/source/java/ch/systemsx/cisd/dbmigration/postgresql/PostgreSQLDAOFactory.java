@@ -20,6 +20,7 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
+import ch.systemsx.cisd.common.db.ISequenceNameMapper;
 import ch.systemsx.cisd.common.db.ISqlScriptExecutor;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
@@ -60,7 +61,9 @@ public class PostgreSQLDAOFactory implements IDAOFactory
         databaseVersionLogDAO = new DatabaseVersionLogDAO(dataSource, context.getLobHandler());
         try
         {
-            massUploader = new PostgreSQLMassUploader(dataSource, context.getSequenceNameMapper());
+            ISequenceNameMapper mapper = context.getSequenceNameMapper();
+            boolean sequenceUpdateNeeded = context.isSequenceUpdateNeeded();
+            massUploader = new PostgreSQLMassUploader(dataSource, mapper, sequenceUpdateNeeded);
         } catch (final SQLException ex)
         {
             throw new CheckedExceptionTunnel(ex);
