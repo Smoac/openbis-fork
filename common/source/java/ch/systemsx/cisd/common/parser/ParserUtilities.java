@@ -19,6 +19,7 @@ package ch.systemsx.cisd.common.parser;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringReader;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -63,26 +64,29 @@ public final class ParserUtilities
      * Returns the first <code>Line</code> that is not filtered out by given
      * <code>ILineFilter</code>.
      * <p>
-     * You should not call this method if given <var>file</var> does not exist.
+     * You should not call this method if given <var>content</var> is <code>null</code>.
      * </p>
      * 
      * @param lineFilter could be <code>null</code>. In this case, the
      *            {@link AlwaysAcceptLineFilter} implementation will be used.
-     * @param reader the reader that is going to be analyzed. Can not be <code>null</code>.
+     * @param content the content that is going to be analyzed. Can not be <code>null</code>.
      * @return <code>null</code> if all lines have been filtered out.
      */
-    public final static Line tryGetFirstAcceptedLine(final Reader reader,
+    public final static Line tryGetFirstAcceptedLine(final String content,
             final ILineFilter lineFilter)
     {
-        assert reader != null : "Unspecified reader.";
+        assert content != null : "Unspecified reader.";
         final ILineFilter filter = getLineFilter(lineFilter);
         LineIterator lineIterator = null;
+        Reader reader = null;
         try
         {
+            reader = new StringReader(content);
             lineIterator = IOUtils.lineIterator(reader);
             return tryFirstAcceptedLine(filter, lineIterator);
         } finally
         {
+            IOUtils.closeQuietly(reader);
             LineIterator.closeQuietly(lineIterator);
         }
     }

@@ -47,7 +47,7 @@ public class H2DAOFactory implements IDAOFactory
 
     private final IMassUploader massUploader;
 
-    private final IMigrationStepExecutor javaMigrationStepExecutor;
+    private final IMigrationStepExecutor migrationStepExecutor;
 
     /**
      * Creates an instance based on the specified configuration context.
@@ -56,7 +56,7 @@ public class H2DAOFactory implements IDAOFactory
     {
         final DataSource dataSource = context.getDataSource();
         sqlScriptExecutor = new SqlScriptExecutor(dataSource, context.isScriptSingleStepMode());
-        javaMigrationStepExecutor = new MigrationStepExecutor(dataSource);
+        migrationStepExecutor = new MigrationStepExecutor(dataSource);
         databaseVersionLogDAO = new DatabaseVersionLogDAO(dataSource, context.getLobHandler());
         try
         {
@@ -92,7 +92,7 @@ public class H2DAOFactory implements IDAOFactory
 
     public IMigrationStepExecutor getMigrationStepExecutor()
     {
-        return javaMigrationStepExecutor;
+        return migrationStepExecutor;
     }
 
 }

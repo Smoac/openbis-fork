@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.dbmigration.java;
 
-import java.io.StringReader;
-
 import javax.sql.DataSource;
 
 import org.apache.commons.lang.StringUtils;
@@ -70,8 +68,7 @@ public class MigrationStepExecutor extends SimpleJdbcDaoSupport implements IMigr
             return null;
         }
         final Line firstNonEmptyLineOrNull =
-                ParserUtilities.tryGetFirstAcceptedLine(new StringReader(content),
-                        NonEmptyLineFilter.INSTANCE);
+                ParserUtilities.tryGetFirstAcceptedLine(content, NonEmptyLineFilter.INSTANCE);
         if (firstNonEmptyLineOrNull != null)
         {
             return tryExtractMigrationStepFromLine(firstNonEmptyLineOrNull.getText());
@@ -140,5 +137,6 @@ public class MigrationStepExecutor extends SimpleJdbcDaoSupport implements IMigr
     public final void finish()
     {
         inited = false;
+        migrationStep = null;
     }
 }
