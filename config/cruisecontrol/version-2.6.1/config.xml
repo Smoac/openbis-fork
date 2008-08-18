@@ -36,7 +36,6 @@
           <map alias="hadrian" address="adrian.honegger@systemsx.ch"/>
           <map alias="ribeaudc" address="christian.ribeaud@systemsx.ch"/>
           <map alias="tpylak" address="tomasz.pylak@systemsx.ch"/>
-	        <map alias="bneff" address="basil.neff@systemsx.ch" />
 	        <map alias="izabel" address="izabela.adamczyk@systemsx.ch" />
         </htmlemail>
       </onfailure>
@@ -74,8 +73,7 @@
           <map alias="hadrian" address="adrian.honeggar@systemsx.ch"/>
           <map alias="ribeaudc" address="christian.ribeaud@systemsx.ch "/>
           <map alias="tpylak" address="tomasz.pylak@systemsx.ch"/>
-	  <map alias="bneff" address="basil.neff@systemsx.ch" />
-	  <map alias="izabel" address="izabela.adamczyk@systemsx.ch" />
+	        <map alias="izabel" address="izabela.adamczyk@systemsx.ch" />
         </htmlemail>
       </onfailure>
     </publishers>
