@@ -16,7 +16,11 @@
 
 package ch.systemsx.cisd.common.concurrent;
 
-import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +41,7 @@ import ch.systemsx.cisd.common.exceptions.StopException;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.logging.LogLevel;
+import ch.systemsx.cisd.common.test.Retry10;
 
 /**
  * Test cases for {@link ConcurrencyUtilities}.
@@ -54,7 +59,7 @@ public class ConcurrencyUtilitiesTest
 
         final String message;
 
-        LogRecord(LogLevel level, String message)
+        LogRecord(final LogLevel level, final String message)
         {
             this.level = level;
             this.message = message;
@@ -65,17 +70,17 @@ public class ConcurrencyUtilitiesTest
     {
         private final List<LogRecord> records = new ArrayList<LogRecord>();
 
-        public void log(LogLevel level, String message)
+        public void log(final LogLevel level, final String message)
         {
             records.add(new LogRecord(level, message));
         }
 
-        public void assertNumberOfMessage(int expectedNumberOfMessages)
+        public void assertNumberOfMessage(final int expectedNumberOfMessages)
         {
             assertEquals(expectedNumberOfMessages, records.size());
         }
 
-        public void assertEq(int i, LogLevel expectedLevel, String expectedMessage)
+        public void assertEq(final int i, final LogLevel expectedLevel, final String expectedMessage)
         {
             assertEquals(expectedLevel, records.get(i).level);
             assertEquals(expectedMessage, records.get(i).message);
@@ -246,7 +251,7 @@ public class ConcurrencyUtilitiesTest
         logger.assertEq(0, LogLevel.WARN, name + ": timeout of 0.02 s exceeded, cancelled.");
     }
 
-    @Test(groups = "slow")
+    @Test(groups = "slow", retryAnalyzer = Retry10.class)
     public void testGetExecutionResultNoTimeoutDueToSensor()
     {
         final RecordingActivityObserverSensor sensor = new RecordingActivityObserverSensor();
@@ -446,7 +451,7 @@ public class ConcurrencyUtilitiesTest
         {
         }
 
-        public TaggedException(String msg)
+        public TaggedException(final String msg)
         {
             super(msg);
         }
@@ -492,7 +497,7 @@ public class ConcurrencyUtilitiesTest
         {
             ConcurrencyUtilities.tryGetResult(future, 100L, logSettings, true);
             fail("Should have been a TaggedException");
-        } catch (TaggedException ex)
+        } catch (final TaggedException ex)
         {
             // Good
         }
@@ -519,7 +524,7 @@ public class ConcurrencyUtilitiesTest
         {
             ConcurrencyUtilities.tryGetResult(future, 100L);
             fail("Should have been a TaggedException");
-        } catch (TaggedException ex)
+        } catch (final TaggedException ex)
         {
             // Good
         }
