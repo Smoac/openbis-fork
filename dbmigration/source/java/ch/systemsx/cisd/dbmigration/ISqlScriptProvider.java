@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.dbmigration;
 
 import java.io.File;
-import java.io.IOException;
 
 import ch.systemsx.cisd.common.Script;
 
@@ -36,7 +35,7 @@ public interface ISqlScriptProvider
     public boolean isDumpRestore(String version);
 
     /** marks that this script provider is suitable for a dump restore */
-    public void markAsDumpRestorable(String version) throws IOException;
+    public void markAsDumpRestorable(String version);
 
     /**
      * Returns the folder where all dump files for <var>version</var> reside.
