@@ -30,6 +30,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IDescribingActivitySensor;
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IInactivityObserver;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.test.Retry10;
 import ch.systemsx.cisd.common.test.StoringUncaughtExceptionHandler;
 
 /**
@@ -190,7 +191,7 @@ public class InactivityMonitorTest
         context.assertIsSatisfied();
     }
 
-    @Test(groups = "slow")
+    @Test(groups = "slow", retryAnalyzer = Retry10.class)
     public void testInactivityMultipleTimes() throws Throwable
     {
         // Wait for system to become quiet to get more accurate measurement.
