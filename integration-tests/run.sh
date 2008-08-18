@@ -596,7 +596,8 @@ function assert_correct_content_of_processing_dir {
     assert_same_content $TEST_DATA/3VCP1 $data_set
     assert_same_content $TEMPLATE/openBIS-client/testdata/register-experiments/processing-parameters.txt \
                         $DATA/processing-dir/processing-parameters-from-openbis
-    local bds_container=$DATA/main-store/Instance_CISD/Group_CISD/Project_NEMO/Experiment_EXP1/ObservableType_HCS_IMAGE/Sample_3VCP1/
+    local instance_dir=$DATA/main-store/`ls -1 $DATA/main-store/ | grep -i 'Instance_[0-9a-f]\{8\}-[0-9a-f]\{4\}-[0-9a-f]\{4\}-[0-9a-f]\{4\}-[0-9a-f]\{12\}'`
+    local bds_container=$instance_dir/Group_CISD/Project_NEMO/Experiment_EXP1/ObservableType_HCS_IMAGE/Sample_3VCP1/
     bds_container=$bds_container`ls -1 $bds_container | head -1`
     assert_dir_exists $bds_container
     local data_set2=$bds_container/data/original/microX_200801011213_3VCP1
@@ -608,7 +609,8 @@ function assert_correct_content_of_plate_3VCP1_in_store {
     local cell_plate=3VCP1
     echo ==== assert correct content of plate 3VCP1 in store ====
     
-    local main_dir=$DATA/main-store/Instance_CISD/Group_CISD/Project_NEMO/Experiment_EXP1
+    local instance_dir=$DATA/main-store/`ls -1 $DATA/main-store/ | grep -i 'Instance_[0-9a-f]\{8\}-[0-9a-f]\{4\}-[0-9a-f]\{4\}-[0-9a-f]\{4\}-[0-9a-f]\{12\}'`
+    local main_dir=$instance_dir/Group_CISD/Project_NEMO/Experiment_EXP1
     local raw_data_dir=$main_dir/ObservableType_HCS_IMAGE/Sample_3VCP1/
     assert_dir_exists $raw_data_dir
     # Picks up the first directory found
@@ -696,14 +698,16 @@ function assert_correct_content_of_invalid_plate_in_store {
     local data_set=$error_dir/microX_200801011213_$cell_plate
     assert_same_content $TEST_DATA/$cell_plate $data_set
     assert_file_exists $data_set.exception
-    assert_dir_empty $DATA/main-store/Instance_CISD/Group_CISD/Project_NEMO/Experiment_EXP1/ObservableType_HCS_IMAGE/Sample_$cell_plate
+    local instance_dir=$DATA/main-store/`ls -1 $DATA/main-store/ | grep -i 'Instance_[0-9a-f]\{8\}-[0-9a-f]\{4\}-[0-9a-f]\{4\}-[0-9a-f]\{4\}-[0-9a-f]\{12\}'`
+    assert_dir_empty $instance_dir/Group_CISD/Project_NEMO/Experiment_EXP1/ObservableType_HCS_IMAGE/Sample_$cell_plate
 }
     
 function assert_correct_content_of_image_analysis_data {
     local cell_plate=$1
     
     echo ====  check image analysis data for cell plate $cell_plate ====
-    local img_analysis=$DATA/main-store/Instance_CISD/Group_CISD/Project_NEMO/Experiment_EXP1/ObservableType_HCS_IMAGE_ANALYSIS_DATA/Sample_$cell_plate/
+    local instance_dir=$DATA/main-store/`ls -1 $DATA/main-store/ | grep -i 'Instance_[0-9a-f]\{8\}-[0-9a-f]\{4\}-[0-9a-f]\{4\}-[0-9a-f]\{4\}-[0-9a-f]\{12\}'`
+    local img_analysis=$instance_dir/Group_CISD/Project_NEMO/Experiment_EXP1/ObservableType_HCS_IMAGE_ANALYSIS_DATA/Sample_$cell_plate/
     assert_dir_exists $img_analysis
     # Picks up the first directory found
     img_analysis=$img_analysis`ls -1 $img_analysis | head -1`
