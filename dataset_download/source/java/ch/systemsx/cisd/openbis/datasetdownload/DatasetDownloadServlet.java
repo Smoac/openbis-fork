@@ -391,15 +391,20 @@ public class DatasetDownloadServlet extends HttpServlet
         if (sessionIdOrNull != null)
         {
             IDataSetService dataSetService = applicationContext.getDataSetService();
-            ExternalData dataSet = dataSetService.getDataSet(sessionIdOrNull, dataSetCode);
+            ExternalData dataSet = dataSetService.tryGetDataSet(sessionIdOrNull, dataSetCode);
             if (operationLog.isInfoEnabled())
             {
-                operationLog.info("Data set '" + dataSetCode + "' obtained from openBIS server.");
+                String actionDesc = (dataSet != null) ? "obtained from" : "not found in";
+                operationLog.info(String.format("Data set '%s' %s openBIS server.", dataSetCode,
+                        actionDesc));
             }
             HttpSession session = request.getSession(true);
             ConfigParameters configParameters = applicationContext.getConfigParameters();
             session.setMaxInactiveInterval(configParameters.getSessionTimeout());
-            putDataSetToMap(session, dataSetCode, dataSet);
+            if (dataSet != null)
+            {
+                putDataSetToMap(session, dataSetCode, dataSet);
+            }
         }
     }
 

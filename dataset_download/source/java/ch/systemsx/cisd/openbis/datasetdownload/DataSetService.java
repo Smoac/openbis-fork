@@ -41,10 +41,10 @@ final class DataSetService implements IDataSetService
     // IDataSetService
     //
 
-    public final ExternalData getDataSet(final String sessionToken, final String dataSetCode)
+    public final ExternalData tryGetDataSet(final String sessionToken, final String dataSetCode)
             throws UserFailureException
     {
-        return service.getDataSet(sessionToken, dataSetCode);
+        return service.tryGetDataSet(sessionToken, dataSetCode);
     }
 
     public final String authenticate(final String user, final String password)

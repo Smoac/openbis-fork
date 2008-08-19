@@ -495,7 +495,7 @@ public class DatasetDownloadServletTest
         context.checking(new Expectations()
             {
                 {
-                    one(dataSetService).getDataSet(EXAMPLE_SESSION_ID, EXAMPLE_DATA_SET_CODE);
+                    one(dataSetService).tryGetDataSet(EXAMPLE_SESSION_ID, EXAMPLE_DATA_SET_CODE);
                     will(returnValue(externalData));
 
                     one(request).getSession(true);
