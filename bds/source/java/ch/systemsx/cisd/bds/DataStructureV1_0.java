@@ -18,6 +18,7 @@ package ch.systemsx.cisd.bds;
 
 import java.util.Set;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.handler.ChecksumHandler;
 import ch.systemsx.cisd.bds.handler.MappingFileHandler;
@@ -84,7 +85,8 @@ public class DataStructureV1_0 extends AbstractDataStructure implements IDataStr
     /**
      * Returns the directory containing the standardized data.
      */
-    public final IDirectory getStandardData()
+    @Private
+    final IDirectory getStandardData()
     {
         assertOpenOrCreated();
         return Utilities.getOrCreateSubDirectory(getDataDirectory(), DIR_STANDARD);
@@ -162,21 +164,12 @@ public class DataStructureV1_0 extends AbstractDataStructure implements IDataStr
         this.annotations = annotations;
     }
 
-    /**
-     * Returns the experiment identifier.
-     * 
-     * @throws DataStructureException if the experiment identifier hasn't be loaded nor hasn't be
-     *             set by {@link #setExperimentIdentifier(ExperimentIdentifier)}.
-     */
     public ExperimentIdentifier getExperimentIdentifier()
     {
         assertOpenOrCreated();
         return ExperimentIdentifier.loadFrom(getMetaDataDirectory());
     }
 
-    /**
-     * Sets the experiment identifier. Overwrites an already set or loaded value.
-     */
     public void setExperimentIdentifier(final ExperimentIdentifier experimentIdentifier)
     {
         assert experimentIdentifier != null : "Unspecified experiment identifier";
@@ -184,33 +177,18 @@ public class DataStructureV1_0 extends AbstractDataStructure implements IDataStr
         experimentIdentifier.saveTo(getMetaDataDirectory());
     }
 
-    /**
-     * Returns the date of registration of the experiment.
-     * 
-     * @throws DataStructureException if the processing type hasn't be loaded nor hasn't be set by
-     *             {@link #setExperimentRegistrationTimestamp(ExperimentRegistrationTimestamp)}.
-     */
     public final ExperimentRegistrationTimestamp getExperimentRegistratorTimestamp()
     {
         assertOpenOrCreated();
         return ExperimentRegistrationTimestamp.loadFrom(getMetaDataDirectory());
     }
 
-    /**
-     * Sets the date of registration of the experiment.
-     */
     public final void setExperimentRegistrationTimestamp(final ExperimentRegistrationTimestamp date)
     {
         assertOpenOrCreated();
         date.saveTo(getMetaDataDirectory());
     }
 
-    /**
-     * Returns the experiment registrator.
-     * 
-     * @throws DataStructureException if the processing type hasn't be loaded nor hasn't be set by
-     *             {@link #setExperimentRegistrator(ExperimentRegistrator)}.
-     */
     public final ExperimentRegistrator getExperimentRegistrator()
     {
         assertOpenOrCreated();
@@ -224,12 +202,6 @@ public class DataStructureV1_0 extends AbstractDataStructure implements IDataStr
         registrator.saveTo(getMetaDataDirectory());
     }
 
-    /**
-     * Returns the sample.
-     * 
-     * @throws DataStructureException if the sample hasn't be loaded nor hasn't be set by
-     *             {@link #setSample(Sample)}.
-     */
     public Sample getSample()
     {
         assertOpenOrCreated();

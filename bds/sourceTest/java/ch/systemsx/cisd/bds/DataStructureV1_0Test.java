@@ -30,6 +30,7 @@ import java.util.Set;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.exception.StorageException;
 import ch.systemsx.cisd.bds.handler.ChecksumHandler;
@@ -44,6 +45,7 @@ import ch.systemsx.cisd.common.filesystem.AbstractFileSystemTestCase;
  * 
  * @author Franz-Josef Elmer
  */
+@Friend(toClasses = DataStructureV1_0.class)
 public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
 {
     private static void assertPartOfString(final String part, final String string)
