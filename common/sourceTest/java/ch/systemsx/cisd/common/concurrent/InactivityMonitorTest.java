@@ -167,7 +167,7 @@ public class InactivityMonitorTest
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(retryAnalyzer = Retry10.class)
     public void testInactivity() throws Throwable
     {
         final String descriptionOfInactivity = "DESCRIPTION";
