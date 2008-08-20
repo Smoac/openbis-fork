@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.bds;
 
+import static org.testng.AssertJUnit.assertFalse;
+
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.test.EqualsHashCodeTestCase;
@@ -28,6 +30,35 @@ import ch.systemsx.cisd.common.test.EqualsHashCodeTestCase;
 @Test
 public final class ExperimentIdentifierTest extends EqualsHashCodeTestCase<ExperimentIdentifier>
 {
+
+    static final String EXPERMENT_CODE = "EXP1";
+
+    static final String PROJECT_CODE = "PROJ1";
+
+    @Test
+    public final void testConstructor()
+    {
+        boolean fail = true;
+        try
+        {
+            new ExperimentIdentifier(SampleWithOwner.INSTANCE_CODE, SampleWithOwner.GROUP_CODE,
+                    null, null);
+        } catch (final AssertionError ex)
+        {
+            fail = false;
+        }
+        assertFalse(fail);
+        fail = true;
+        try
+        {
+            new ExperimentIdentifier(SampleWithOwner.INSTANCE_CODE, SampleWithOwner.GROUP_CODE,
+                    PROJECT_CODE, "");
+        } catch (final AssertionError ex)
+        {
+            fail = false;
+        }
+        assertFalse(fail);
+    }
 
     //
     // EqualsHashCodeTestCase

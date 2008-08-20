@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.bds;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 
@@ -27,11 +30,9 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
  */
 public class ExperimentIdentifier implements IStorable
 {
-    static final String EXPERIMENT_IDENTIFIER = "experiment_identifier";
+    static final String FOLDER = "experiment_identifier";
 
     static final String INSTANCE_CODE = "instance_code";
-
-    static final String INSTANCE_UUID = "instance_uuid";
 
     static final String GROUP_CODE = "group_code";
 
@@ -44,9 +45,9 @@ public class ExperimentIdentifier implements IStorable
      * 
      * @throws DataStructureException if file missing.
      */
-    final static ExperimentIdentifier loadFrom(final IDirectory directory)
+    static ExperimentIdentifier loadFrom(final IDirectory directory)
     {
-        final IDirectory idFolder = Utilities.getSubDirectory(directory, EXPERIMENT_IDENTIFIER);
+        final IDirectory idFolder = Utilities.getSubDirectory(directory, FOLDER);
         final String instanceCode = Utilities.getTrimmedString(idFolder, INSTANCE_CODE);
         final String groupCode = Utilities.getTrimmedString(idFolder, GROUP_CODE);
         final String projectCode = Utilities.getTrimmedString(idFolder, PROJECT_CODE);
@@ -63,7 +64,8 @@ public class ExperimentIdentifier implements IStorable
     private final String experimentCode;
 
     /**
-     * Creates an instance for the specified codes of group, project, and experiment.
+     * Creates an instance for the specified database instance and codes of group, project and
+     * experiment.
      * 
      * @param instanceCode A non-empty string of the instance code.
      * @param groupCode A non-empty string of the group code.
@@ -83,8 +85,38 @@ public class ExperimentIdentifier implements IStorable
         this.experimentCode = experimentCode;
     }
 
+    final ToStringBuilder createToStringBuilder()
+    {
+        final ToStringBuilder builder = new ToStringBuilder();
+        builder.append(INSTANCE_CODE, instanceCode);
+        builder.append(GROUP_CODE, groupCode);
+        builder.append(PROJECT_CODE, projectCode);
+        builder.append(EXPERIMENT_CODE, experimentCode);
+        return builder;
+    }
+
+    final EqualsBuilder createEqualsBuilder(final ExperimentIdentifier experimentIdentifier)
+    {
+        final EqualsBuilder builder = new EqualsBuilder();
+        builder.append(instanceCode, experimentIdentifier.instanceCode);
+        builder.append(groupCode, experimentIdentifier.groupCode);
+        builder.append(projectCode, experimentIdentifier.projectCode);
+        builder.append(experimentCode, experimentIdentifier.experimentCode);
+        return builder;
+    }
+
+    final HashCodeBuilder createHashCodeBuilder()
+    {
+        final HashCodeBuilder builder = new HashCodeBuilder();
+        builder.append(instanceCode);
+        builder.append(groupCode);
+        builder.append(projectCode);
+        builder.append(experimentCode);
+        return builder;
+    }
+
     /**
-     * Returns the instance code;
+     * Returns the instance code.
      */
     public final String getInstanceCode()
     {
@@ -92,7 +124,7 @@ public class ExperimentIdentifier implements IStorable
     }
 
     /**
-     * Returns the group code;
+     * Returns the group code.
      */
     public final String getGroupCode()
     {
@@ -100,7 +132,7 @@ public class ExperimentIdentifier implements IStorable
     }
 
     /**
-     * Returns the project code;
+     * Returns the project code.
      */
     public final String getProjectCode()
     {
@@ -108,7 +140,7 @@ public class ExperimentIdentifier implements IStorable
     }
 
     /**
-     * Returns the experiment code;
+     * Returns the experiment code.
      */
     public final String getExperimentCode()
     {
@@ -122,9 +154,9 @@ public class ExperimentIdentifier implements IStorable
     /**
      * Saves this instance to the specified directory.
      */
-    public final void saveTo(final IDirectory directory)
+    public void saveTo(final IDirectory directory)
     {
-        final IDirectory folder = directory.makeDirectory(EXPERIMENT_IDENTIFIER);
+        final IDirectory folder = directory.makeDirectory(FOLDER);
         folder.addKeyValuePair(INSTANCE_CODE, instanceCode);
         folder.addKeyValuePair(GROUP_CODE, groupCode);
         folder.addKeyValuePair(PROJECT_CODE, projectCode);
@@ -146,31 +178,19 @@ public class ExperimentIdentifier implements IStorable
         {
             return false;
         }
-        final ExperimentIdentifier id = (ExperimentIdentifier) obj;
-        return id.instanceCode.equals(instanceCode) && id.groupCode.equals(groupCode)
-                && id.projectCode.equals(projectCode) && id.experimentCode.equals(experimentCode);
+        return createEqualsBuilder((ExperimentIdentifier) obj).isEquals();
     }
 
     @Override
     public final int hashCode()
     {
-        int result = 17;
-        result = 37 * result + instanceCode.hashCode();
-        result = 37 * result + groupCode.hashCode();
-        result = 37 * result + projectCode.hashCode();
-        result = 37 * result + experimentCode.hashCode();
-        return result;
+        return createHashCodeBuilder().toHashCode();
     }
 
     @Override
     public final String toString()
     {
-        final ToStringBuilder builder = new ToStringBuilder();
-        builder.append(INSTANCE_CODE, instanceCode);
-        builder.append(GROUP_CODE, groupCode);
-        builder.append(PROJECT_CODE, projectCode);
-        builder.append(EXPERIMENT_CODE, experimentCode);
-        return builder.toString();
+        return createToStringBuilder().toString();
     }
 
 }

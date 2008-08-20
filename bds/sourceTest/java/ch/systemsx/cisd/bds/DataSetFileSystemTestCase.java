@@ -53,7 +53,7 @@ public final class DataSetFileSystemTestCase extends AbstractFileSystemTestCase
         assertEquals(0, Utilities.getStringList(folder, DataSet.PARENT_CODES).size());
         assertEquals(StringUtils.EMPTY_STRING, Utilities.getTrimmedString(folder,
                 DataSet.PRODUCER_CODE));
-        assertNull(Utilities.getDateOrNull(folder, DataSet.PRODUCTION_TIMESTAMP));
+        assertNull(Utilities.tryGetDate(folder, DataSet.PRODUCTION_TIMESTAMP));
         assertEquals(StringUtils.EMPTY_STRING, Utilities.getTrimmedString(folder,
                 DataSet.PRODUCTION_TIMESTAMP));
     }
@@ -82,7 +82,7 @@ public final class DataSetFileSystemTestCase extends AbstractFileSystemTestCase
         checkBasicDataSet(folder, dataSetCode, observableType, Boolean.TRUE);
         assertEquals(0, Utilities.getStringList(folder, DataSet.PARENT_CODES).size());
         assertEquals(producerCode, Utilities.getTrimmedString(folder, DataSet.PRODUCER_CODE));
-        assertEquals(productionTimestamp, Utilities.getDateOrNull(folder,
+        assertEquals(productionTimestamp, Utilities.tryGetDate(folder,
                 DataSet.PRODUCTION_TIMESTAMP));
     }
 
@@ -114,7 +114,7 @@ public final class DataSetFileSystemTestCase extends AbstractFileSystemTestCase
         assertEquals(parentCode, parentList.get(0));
         assertEquals(StringUtils.EMPTY_STRING, Utilities.getTrimmedString(folder,
                 DataSet.PRODUCER_CODE));
-        assertNull(Utilities.getDateOrNull(folder, DataSet.PRODUCTION_TIMESTAMP));
+        assertNull(Utilities.tryGetDate(folder, DataSet.PRODUCTION_TIMESTAMP));
         assertEquals(StringUtils.EMPTY_STRING, Utilities.getTrimmedString(folder,
                 DataSet.PRODUCTION_TIMESTAMP));
     }

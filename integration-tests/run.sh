@@ -663,6 +663,7 @@ function assert_correct_content_of_plate_3VCP1_in_store {
     assert_equals_as_in_file CISD $metadata_dir/experiment_identifier/group_code
     assert_equals_as_in_file NEMO $metadata_dir/experiment_identifier/project_code
     assert_equals_as_in_file EXP1 $metadata_dir/experiment_identifier/experiment_code
+    assert_file_exists $metadata_dir/experiment_identifier/instance_uuid
     # Experiment registration
     assert_file_exists $metadata_dir/experiment_registration_timestamp
     assert_file_exists $metadata_dir/experiment_registrator/email

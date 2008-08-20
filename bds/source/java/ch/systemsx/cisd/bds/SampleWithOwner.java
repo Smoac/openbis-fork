@@ -34,7 +34,7 @@ public final class SampleWithOwner extends Sample
 
     static final String INSTANCE_CODE = ExperimentIdentifier.INSTANCE_CODE;
 
-    static final String INSTANCE_UUID = ExperimentIdentifier.INSTANCE_UUID;
+    static final String INSTANCE_UUID = ExperimentIdentifierWithUUID.INSTANCE_UUID;
 
     private final String groupCode;
 

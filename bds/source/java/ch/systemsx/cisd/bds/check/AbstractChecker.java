@@ -200,6 +200,8 @@ public abstract class AbstractChecker
     private static final String IO_EXCEPTION_WHILE_COMPARING_FILES =
             "I/O Exception while comparing file '%s' with file '%s': %s";
 
+    public static final String MSG_WRONG_UUID = "Value '%s' found in file '%s' is not a UUID";
+
     protected static final String path(final String... args)
     {
         final String separator = "/";

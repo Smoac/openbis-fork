@@ -172,7 +172,7 @@ public final class DataSet implements IStorable
         final String observableTypeCode = Utilities.getTrimmedString(idFolder, OBSERVABLE_TYPE);
         final Boolean isMeasured = Utilities.getBoolean(idFolder, IS_MEASURED);
         final Date productionTimestampOrNull =
-                Utilities.getDateOrNull(idFolder, PRODUCTION_TIMESTAMP);
+                Utilities.tryGetDate(idFolder, PRODUCTION_TIMESTAMP);
         final String producerCode = Utilities.getTrimmedString(idFolder, PRODUCER_CODE);
         final List<String> parentCodes = Utilities.getStringList(idFolder, PARENT_CODES);
         final String strIsComplete = Utilities.getTrimmedString(idFolder, IS_COMPLETE);

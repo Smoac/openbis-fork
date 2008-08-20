@@ -54,6 +54,26 @@ public final class DataStructureV1_1 extends DataStructureV1_0
         return (SampleWithOwner) sample;
     }
 
+    /**
+     * Returns the experiment identifier with the database instance <i>UUID</i>.
+     * <p>
+     * This is only available in version 1.1. Using this method with data structure version 1.0
+     * throws an exception.
+     * </p>
+     * 
+     * @throws DataStructureException if trying to use this method with data structure of version
+     *             1.0.
+     */
+    public final ExperimentIdentifierWithUUID getExperimentIdentifierWithUUID()
+    {
+        final ExperimentIdentifier experimentIdentifier = getExperimentIdentifier();
+        if (experimentIdentifier instanceof ExperimentIdentifierWithUUID == false)
+        {
+            throw new DataStructureException("Can not be used in data structure v1.0.");
+        }
+        return (ExperimentIdentifierWithUUID) experimentIdentifier;
+    }
+
     //
     // DataStructureV1_0
     //
@@ -104,16 +124,61 @@ public final class DataStructureV1_1 extends DataStructureV1_0
         super.setSample(sample);
     }
 
+    /**
+     * Sets the experiment identifier. Overwrites an already set or loaded value.
+     * 
+     * @param experimentIdentifier Must be an instance of {@link ExperimentIdentifierWithUUID}.
+     */
+    @Override
+    public final void setExperimentIdentifier(final ExperimentIdentifier experimentIdentifier)
+    {
+        assert experimentIdentifier != null : "Unspecified experiment identifier.";
+        if (experimentIdentifier instanceof ExperimentIdentifierWithUUID == false)
+        {
+            throw new DataStructureException("Must be an instance of ExperimentIdentifierWithUUID.");
+        }
+        super.setExperimentIdentifier(experimentIdentifier);
+    }
+
+    /**
+     * Returns the experiment identifier.
+     * <p>
+     * For backward compatibility, loads a {@link ExperimentIdentifier} when no
+     * <code>ExperimentIdentifierWithUUID.INSTANCE_UUID</code> node could be found in experiment
+     * identifier directory.
+     * </p>
+     * 
+     * @throws DataStructureException if the experiment identifier hasn't be loaded nor hasn't be
+     *             set by {@link #setExperimentIdentifier(ExperimentIdentifier)}.
+     * @return a {@link Sample} or {@link SampleWithOwner} (if v1.1).
+     */
+    @Override
+    public final ExperimentIdentifier getExperimentIdentifier()
+    {
+        assertOpenOrCreated();
+        final IDirectory metaDataDirectory = getMetaDataDirectory();
+        final IDirectory experimentIdentifierDirectory =
+                metaDataDirectory.tryGetNode(ExperimentIdentifier.FOLDER).tryAsDirectory();
+        if (experimentIdentifierDirectory.tryGetNode(ExperimentIdentifierWithUUID.INSTANCE_UUID) == null)
+        {
+            return ExperimentIdentifier.loadFrom(metaDataDirectory);
+        }
+        return ExperimentIdentifierWithUUID.loadFrom(metaDataDirectory);
+    }
+
     @Override
     public final void performClosing()
     {
-        if (getSample() instanceof SampleWithOwner)
-        {
-            super.performClosing();
-        } else
+        if (getSample() instanceof SampleWithOwner == false)
         {
             throw new DataStructureException(
                     "The owner (group or database instance) has not been set.");
         }
+        if (getExperimentIdentifier() instanceof ExperimentIdentifierWithUUID == false)
+        {
+            throw new DataStructureException(
+                    "Instance UUID not specified for exeperiment identifier.");
+        }
+        super.performClosing();
     }
 }

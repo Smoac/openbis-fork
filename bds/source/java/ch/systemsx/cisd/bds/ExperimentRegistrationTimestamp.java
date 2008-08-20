@@ -39,7 +39,7 @@ public final class ExperimentRegistrationTimestamp implements IStorable
 
     final static ExperimentRegistrationTimestamp loadFrom(final IDirectory directory)
     {
-        return new ExperimentRegistrationTimestamp(Utilities.getDateOrNull(directory,
+        return new ExperimentRegistrationTimestamp(Utilities.tryGetDate(directory,
                 EXPERIMENT_REGISTRATION_TIMESTAMP));
     }
 

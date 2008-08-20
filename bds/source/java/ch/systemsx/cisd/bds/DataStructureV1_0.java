@@ -168,7 +168,7 @@ public class DataStructureV1_0 extends AbstractDataStructure implements IDataStr
      * @throws DataStructureException if the experiment identifier hasn't be loaded nor hasn't be
      *             set by {@link #setExperimentIdentifier(ExperimentIdentifier)}.
      */
-    public final ExperimentIdentifier getExperimentIdentifier()
+    public ExperimentIdentifier getExperimentIdentifier()
     {
         assertOpenOrCreated();
         return ExperimentIdentifier.loadFrom(getMetaDataDirectory());
@@ -177,7 +177,7 @@ public class DataStructureV1_0 extends AbstractDataStructure implements IDataStr
     /**
      * Sets the experiment identifier. Overwrites an already set or loaded value.
      */
-    public final void setExperimentIdentifier(final ExperimentIdentifier experimentIdentifier)
+    public void setExperimentIdentifier(final ExperimentIdentifier experimentIdentifier)
     {
         assert experimentIdentifier != null : "Unspecified experiment identifier";
         assertOpenOrCreated();
@@ -298,7 +298,7 @@ public class DataStructureV1_0 extends AbstractDataStructure implements IDataStr
         {
             throw new DataStructureException("Unspecified format.");
         }
-        if (metaDataDirectory.tryGetNode(ExperimentIdentifier.EXPERIMENT_IDENTIFIER) == null)
+        if (metaDataDirectory.tryGetNode(ExperimentIdentifier.FOLDER) == null)
         {
             throw new DataStructureException("Unspecified experiment identifier.");
         }

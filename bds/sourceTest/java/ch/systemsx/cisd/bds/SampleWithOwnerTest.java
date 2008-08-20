@@ -42,7 +42,7 @@ public final class SampleWithOwnerTest extends AbstractFileSystemTestCase
 
     static final String INSTANCE_CODE = "DB1";
 
-    static final String INSTANCE_GLOBAL_CODE = "111-222";
+    static final String INSTANCE_UUID = "111-222";
 
     static final String GROUP_CODE = "G1";
 
@@ -89,8 +89,8 @@ public final class SampleWithOwnerTest extends AbstractFileSystemTestCase
     {
         return new Object[][]
             {
-                { INSTANCE_GLOBAL_CODE, INSTANCE_CODE, GROUP_CODE },
-                { INSTANCE_GLOBAL_CODE, INSTANCE_CODE, "" }, };
+                { INSTANCE_UUID, INSTANCE_CODE, GROUP_CODE },
+                { INSTANCE_UUID, INSTANCE_CODE, "" }, };
     }
 
     @Test(dataProvider = "getSampleData")
@@ -107,12 +107,12 @@ public final class SampleWithOwnerTest extends AbstractFileSystemTestCase
         {
             assertEquals(GROUP_CODE, newSample.getGroupCode());
             assertEquals(INSTANCE_CODE, newSample.getInstanceCode());
-            assertEquals(INSTANCE_GLOBAL_CODE, newSample.getInstanceUUID());
+            assertEquals(INSTANCE_UUID, newSample.getInstanceUUID());
         } else
         {
             assertEquals("", newSample.getGroupCode());
             assertEquals(INSTANCE_CODE, newSample.getInstanceCode());
-            assertEquals(INSTANCE_GLOBAL_CODE, newSample.getInstanceUUID());
+            assertEquals(INSTANCE_UUID, newSample.getInstanceUUID());
         }
     }
 }

@@ -40,9 +40,20 @@ public final class DataStructureV1_1Test extends AbstractFileSystemTestCase
 {
     private static final Sample SAMPLE = new Sample("a", "CELL_PLATE", "b");
 
+    private static final ExperimentIdentifier EXPERIMENT_IDENTIFIER =
+            new ExperimentIdentifier(SampleWithOwnerTest.INSTANCE_CODE,
+                    SampleWithOwnerTest.GROUP_CODE, ExperimentIdentifierTest.PROJECT_CODE,
+                    ExperimentIdentifierTest.EXPERMENT_CODE);
+
     private FileStorage storage;
 
     private DataStructureV1_1 dataStructure;
+
+    private final static SampleWithOwner createSampleWithOwner()
+    {
+        return new SampleWithOwner(SAMPLE, SampleWithOwnerTest.INSTANCE_UUID,
+                SampleWithOwnerTest.INSTANCE_CODE, "");
+    }
 
     //
     // AbstractFileSystemTestCase
@@ -76,17 +87,14 @@ public final class DataStructureV1_1Test extends AbstractFileSystemTestCase
         {
             // Nothing to do here.
         }
-        dataStructure.setSample(new SampleWithOwner(SAMPLE,
-                SampleWithOwnerTest.INSTANCE_GLOBAL_CODE, SampleWithOwnerTest.INSTANCE_CODE, ""));
+        dataStructure.setSample(createSampleWithOwner());
     }
 
     @Test
     public final void testGetSample()
     {
         dataStructure.create();
-        final SampleWithOwner sampleWithOwner =
-                new SampleWithOwner(SAMPLE, SampleWithOwnerTest.INSTANCE_GLOBAL_CODE,
-                        SampleWithOwnerTest.INSTANCE_CODE, "");
+        final SampleWithOwner sampleWithOwner = createSampleWithOwner();
         dataStructure.setSample(sampleWithOwner);
         final Sample sample = dataStructure.getSample();
         assertTrue(sample instanceof SampleWithOwner);
@@ -96,7 +104,35 @@ public final class DataStructureV1_1Test extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testOpenVersionV1_0()
+    public final void testGetExperimentIdentifier()
+    {
+        dataStructure.create();
+        final ExperimentIdentifierWithUUID experimentIdentifierWithUUID =
+                ExperimentIdentifierWithUUIDTest.createExperimentIdentifierWithUUID();
+        dataStructure.setExperimentIdentifier(experimentIdentifierWithUUID);
+        final ExperimentIdentifier experimentIdentifier = dataStructure.getExperimentIdentifier();
+        assertTrue(experimentIdentifier instanceof ExperimentIdentifierWithUUID);
+        assertEquals(SampleWithOwnerTest.INSTANCE_UUID,
+                ((ExperimentIdentifierWithUUID) experimentIdentifier).getInstanceUUID());
+    }
+
+    @Test
+    public final void testSetExperimentIdentifier()
+    {
+        dataStructure.create();
+        try
+        {
+            dataStructure.setExperimentIdentifier(EXPERIMENT_IDENTIFIER);
+            fail();
+        } catch (final DataStructureException ex)
+        {
+            // Nothing to do here.
+        }
+        dataStructure.setExperimentIdentifier(ExperimentIdentifierWithUUIDTest.createExperimentIdentifierWithUUID());
+    }
+
+    @Test
+    public final void testOpenVersionV1_0()
     {
         DataStructureV1_0Test.createExampleDataStructure(storage, new Version(1, 0));
         storage.mount();
@@ -136,10 +172,8 @@ public final class DataStructureV1_1Test extends AbstractFileSystemTestCase
         {
             // Nothing to do here.
         }
-        final SampleWithOwner sampleWithOwner =
-                new SampleWithOwner(SAMPLE, SampleWithOwnerTest.INSTANCE_GLOBAL_CODE,
-                        SampleWithOwnerTest.INSTANCE_CODE, "");
-        dataStructure.setSample(sampleWithOwner);
+        dataStructure.setSample(createSampleWithOwner());
+        dataStructure.setExperimentIdentifier(ExperimentIdentifierWithUUIDTest.createExperimentIdentifierWithUUID());
         dataStructure.close();
     }
 }

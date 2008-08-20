@@ -196,7 +196,7 @@ public class Utilities
      * 
      * @return the parsed date or <code>null</code> if the value is empty.
      */
-    public final static Date getDateOrNull(final IDirectory directory, final String name)
+    public final static Date tryGetDate(final IDirectory directory, final String name)
             throws DataStructureException
     {
         // No assertion here as 'getString(IDirectory, String)' already does it.

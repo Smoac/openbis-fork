@@ -18,6 +18,7 @@ package ch.systemsx.cisd.bds.check;
 
 import java.io.File;
 
+import ch.systemsx.cisd.bds.Constants;
 import ch.systemsx.cisd.bds.StringUtils;
 import ch.systemsx.cisd.bds.Utilities;
 import ch.systemsx.cisd.bds.exception.DataStructureException;
@@ -151,7 +152,7 @@ public final class StructureChecker extends AbstractChecker
             final IDirectory sample = Utilities.getSubDirectory(metadata, AbstractChecker.SAMPLE);
             checkFileNotEmptyAndTrimmed(sample, AbstractChecker.GROUP_CODE);
             checkFileNotEmptyAndTrimmed(sample, AbstractChecker.INSTANCE_CODE);
-            checkFileNotEmptyAndTrimmed(sample, AbstractChecker.INSTANCE_UUID);
+            checkFileContainsUUID(sample, AbstractChecker.INSTANCE_UUID);
             checkFileNotEmptyAndTrimmed(sample, AbstractChecker.TYPE_DESCRIPTION);
             checkFileNotEmptyAndTrimmed(sample, AbstractChecker.TYPE_CODE);
             checkFileNotEmptyAndTrimmed(sample, AbstractChecker.CODE);
@@ -188,6 +189,7 @@ public final class StructureChecker extends AbstractChecker
             final IDirectory experimentIdentifier =
                     Utilities.getSubDirectory(metadata, AbstractChecker.EXPERIMENT_IDENTIFIER);
             checkFileNotEmptyAndTrimmed(experimentIdentifier, AbstractChecker.INSTANCE_CODE);
+            checkFileContainsUUID(experimentIdentifier, AbstractChecker.INSTANCE_UUID);
             checkFileNotEmptyAndTrimmed(experimentIdentifier, AbstractChecker.GROUP_CODE);
             checkFileNotEmptyAndTrimmed(experimentIdentifier, AbstractChecker.PROJECT_CODE);
             checkFileNotEmptyAndTrimmed(experimentIdentifier, AbstractChecker.EXPERIMENT_CODE);
@@ -266,7 +268,7 @@ public final class StructureChecker extends AbstractChecker
         try
         {
             checkTrimmed(problemReport, dataDir, name);
-            if (Utilities.getDateOrNull(dataDir, name) == null)
+            if (Utilities.tryGetDate(dataDir, name) == null)
             {
                 throw new DataStructureException(String.format(
                         AbstractChecker.MSG_DOES_NOT_CONTAIN_TIMESTAMP, name));
@@ -277,7 +279,24 @@ public final class StructureChecker extends AbstractChecker
         }
     }
 
-    private void checkFileNotEmpty(final IDirectory dataDir, final String name,
+    private final void checkFileContainsUUID(final IDirectory directory, final String name)
+    {
+        try
+        {
+            checkTrimmed(problemReport, directory, name);
+            final String value = Utilities.getTrimmedString(directory, name);
+            if (Constants.UUID_PATTERN.matcher(value).matches() == false)
+            {
+                throw new DataStructureException(String.format(AbstractChecker.MSG_WRONG_UUID,
+                        value, name));
+            }
+        } catch (final Exception e)
+        {
+            problemReport.error(e.getMessage());
+        }
+    }
+
+    private final void checkFileNotEmpty(final IDirectory dataDir, final String name,
             final boolean mustBeTrimmed)
     {
         try
