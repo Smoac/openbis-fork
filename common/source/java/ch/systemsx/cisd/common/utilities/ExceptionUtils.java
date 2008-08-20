@@ -28,9 +28,12 @@ public final class ExceptionUtils
 {
     /**
      * Accepted packages for dependencies.
+     * <p>
+     * So these packages are accepted and are not going to be masquerading.
+     * </p>
      */
     private final static String[] ACCEPTED_PACKAGE_NAME_DEPENDENCIES =
-        { "java.lang", "ch.systemsx.cisd" };
+        { "java.lang", "ch.systemsx.cisd.common", "ch.systemsx.cisd.lims.base" };
 
     ExceptionUtils()
     {
