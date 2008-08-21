@@ -57,7 +57,7 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     private ISequenceNameMapper sequenceNameMapper;
-    
+
     private boolean sequenceUpdateNeeded;
 
     private String adminUser;
@@ -388,6 +388,7 @@ public class DatabaseConfigurationContext implements DisposableBean
      * 
      * @throws ConfigurationFailureException If the database engine is not defined.
      */
+    // TODO 2008-08-20, Tomasz Pylak: remove this method (not necessary for hibernate)
     public final LobHandler getLobHandler() throws ConfigurationFailureException
     {
         checkDatabaseEngine();
