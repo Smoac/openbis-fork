@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.common.filesystem;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -28,8 +32,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.logging.LogInitializer;
-
-import static org.testng.AssertJUnit.*;
+import ch.systemsx.cisd.common.test.Retry10;
 
 /**
  * Test cases for the {@link QueueingPathRemoverService}.
@@ -40,7 +43,7 @@ public class QueueingPathRemoverServiceTest
 {
 
     private static final long WAIT_MILLIS = 120L;
-    
+
     private static final long DELAY_MILLIS = 1L;
 
     private static final File wdRootDirectory =
@@ -91,7 +94,7 @@ public class QueueingPathRemoverServiceTest
         assertEquals(0, workingDirectory.list(SHREDDER_FILTER).length);
     }
 
-   @Test(groups = "slow")
+    @Test(groups = "slow", retryAnalyzer = Retry10.class)
     public void testShredderDirectory() throws IOException
     {
         final File f = new File(workingDirectory, "someDir");

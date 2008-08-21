@@ -17,63 +17,38 @@
 package ch.systemsx.cisd.common.types;
 
 /**
- * A type which represents a boolean which is third state <code>UNKNOWN</code>. It additionally
- * stores the database representation of this field.
+ * A type which represents a boolean which could have a third state: <code>U</code> ("UNKNOWN").
+ * <p>
+ * The character returned by {@link #name()} is saved in the database.
+ * </p>
  * 
  * @author Bernd Rinn
  */
 public enum BooleanOrUnknown
 {
+    F("FALSE"), T("TRUE"), U("UNKNOWN");
 
-    FALSE("F"), TRUE("T"), UNKNOWN("U");
+    private final String niceRepresentation;
 
-    private final String databaseRepresentation;
-
-    BooleanOrUnknown(final String databaseRepresentation)
+    BooleanOrUnknown(final String niceRepresentation)
     {
-        this.databaseRepresentation = databaseRepresentation;
+        this.niceRepresentation = niceRepresentation;
     }
 
     /**
-     * Returns the database representation of the value.
+     * Returns a nice representation of this value.
      */
-    public final String getDatabaseRepresentation()
+    public final String getNiceRepresentation()
     {
-        return databaseRepresentation;
+        return niceRepresentation;
     }
 
     /**
-     * Resolve the specified boolean flag to either {@link #TRUE} or {@link #FALSE}.
+     * Resolve the specified boolean flag to either {@link #T} or {@link #F}.
      */
     public final static BooleanOrUnknown resolve(final boolean flag)
     {
-        return flag ? TRUE : FALSE;
-    }
-
-    /**
-     * Returns the value for the corresponding <var>databaseRepresentation</var>. The
-     * <var>databaseRepresentation</var> is converted to upper case.
-     * 
-     * @throws IllegalArgumentException If the <var>databaseRepresentation</var> provided does not
-     *             correspond to any value of this type.
-     */
-    public static BooleanOrUnknown fromDatabaseRepresentation(final String databaseRepresentation)
-            throws IllegalArgumentException
-    {
-        if (databaseRepresentation.toUpperCase().equals("F"))
-        {
-            return FALSE;
-        } else if (databaseRepresentation.toUpperCase().equals("T"))
-        {
-            return TRUE;
-        } else if (databaseRepresentation.toUpperCase().equals("U"))
-        {
-            return UNKNOWN;
-        } else
-        {
-            throw new IllegalArgumentException("Unknown database representation '"
-                    + databaseRepresentation + "'.");
-        }
+        return flag ? T : F;
     }
 
 }

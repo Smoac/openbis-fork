@@ -76,7 +76,7 @@ public final class DataSet implements IStorable
     /** This data set unique identifier. */
     private String code;
 
-    private BooleanOrUnknown isComplete = BooleanOrUnknown.UNKNOWN;
+    private BooleanOrUnknown isComplete = BooleanOrUnknown.U;
 
     /**
      * Creates an instance of data set.
