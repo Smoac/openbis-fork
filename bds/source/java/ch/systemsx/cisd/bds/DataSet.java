@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.bds;
 
 import java.io.StringWriter;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -171,20 +170,17 @@ public final class DataSet implements IStorable
         final String code = Utilities.getTrimmedString(idFolder, CODE);
         final String observableTypeCode = Utilities.getTrimmedString(idFolder, OBSERVABLE_TYPE);
         final Boolean isMeasured = Utilities.getBoolean(idFolder, IS_MEASURED);
-        final Date productionTimestampOrNull =
-                Utilities.tryGetDate(idFolder, PRODUCTION_TIMESTAMP);
+        final Date productionTimestampOrNull = Utilities.tryGetDate(idFolder, PRODUCTION_TIMESTAMP);
         final String producerCode = Utilities.getTrimmedString(idFolder, PRODUCER_CODE);
         final List<String> parentCodes = Utilities.getStringList(idFolder, PARENT_CODES);
         final String strIsComplete = Utilities.getTrimmedString(idFolder, IS_COMPLETE);
         BooleanOrUnknown completeFlag;
         try
         {
-            completeFlag = BooleanOrUnknown.valueOf(strIsComplete);
+            completeFlag = BooleanOrUnknown.getByNiceRepresentation(strIsComplete);
         } catch (final IllegalArgumentException ex)
         {
-            throw new DataStructureException(String.format(
-                    "'%s' value must be one of '%s' but is '%s'.", IS_COMPLETE, Arrays
-                            .asList(BooleanOrUnknown.values()), strIsComplete));
+            throw new DataStructureException(ex.getMessage());
         }
         assert completeFlag != null : "Complete flag not specified.";
         final DataSet dataSet =
@@ -208,7 +204,7 @@ public final class DataSet implements IStorable
         folder.addKeyValuePair(PRODUCER_CODE, StringUtils.emptyIfNull(producerCode));
         folder.addKeyValuePair(IS_MEASURED, isMeasured.toString());
         folder.addKeyValuePair(OBSERVABLE_TYPE, observableTypeCode);
-        folder.addKeyValuePair(IS_COMPLETE, isComplete.toString());
+        folder.addKeyValuePair(IS_COMPLETE, isComplete.getNiceRepresentation());
         final String value;
         if (parentCodes.size() > 0)
         {

@@ -43,6 +43,23 @@ public enum BooleanOrUnknown
         return niceRepresentation;
     }
 
+    public final static BooleanOrUnknown getByNiceRepresentation(final String niceRepresentation)
+    {
+        if (niceRepresentation.equals("FALSE"))
+        {
+            return F;
+        }
+        if (niceRepresentation.equals("TRUE"))
+        {
+            return T;
+        }
+        if (niceRepresentation.equals("UNKNOWN"))
+        {
+            return U;
+        }
+        throw new IllegalArgumentException(String.format("Given nice representation '%s' unknown."));
+    }
+
     /**
      * Resolve the specified boolean flag to either {@link #T} or {@link #F}.
      */
