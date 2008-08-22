@@ -1,6 +1,8 @@
 package ch.systemsx.cisd.args4j;
 
 import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 /**
@@ -23,12 +25,19 @@ enum Messages
     {
         synchronized (Messages.class)
         {
-            if (resourceBundle == null)
+            try
             {
-                resourceBundle = ResourceBundle.getBundle(Messages.class.getName());
+                if (resourceBundle == null)
+                {
+                    resourceBundle = ResourceBundle.getBundle(Messages.class.getName());
+                }
+                final String value = resourceBundle.getString(name());
+                return MessageFormat.format(value, args);
+            } catch (MissingResourceException ex)
+            {
+                // Fallback
+                return name() + ": " + Arrays.asList(args).toString();
             }
-            final String value = resourceBundle.getString(name());
-            return MessageFormat.format(value, args);
         }
     }
 }
