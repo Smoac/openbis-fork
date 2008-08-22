@@ -35,6 +35,7 @@ import ch.systemsx.cisd.common.exceptions.StopException;
 import ch.systemsx.cisd.common.exceptions.TimeoutException;
 import ch.systemsx.cisd.common.logging.ConsoleLogger;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
+import ch.systemsx.cisd.common.test.Retry10;
 
 /**
  * Test cases for the {@link MonitoringProxy}.
@@ -431,7 +432,7 @@ public class MonitoringProxyTest
         retryingOnceExceptionThrowingProxy.worksOnSecondInvocation();
     }
 
-    @Test(expectedExceptions = RetryItException.class)
+    @Test(expectedExceptions = RetryItException.class, retryAnalyzer = Retry10.class)
     public void testRetryOnceFailTwice()
     {
         retryingOnceExceptionThrowingProxy.worksOnThirdInvocation();

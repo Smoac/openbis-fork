@@ -148,7 +148,7 @@ public class InactivityMonitorTest
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(retryAnalyzer = Retry10.class)
     public void testHappyCase() throws Throwable
     {
         context.checking(new Expectations()
