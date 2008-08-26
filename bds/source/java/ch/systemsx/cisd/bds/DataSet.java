@@ -177,7 +177,7 @@ public final class DataSet implements IStorable
         BooleanOrUnknown completeFlag;
         try
         {
-            completeFlag = BooleanOrUnknown.getByNiceRepresentation(strIsComplete);
+            completeFlag = BooleanOrUnknown.resolve(strIsComplete);
         } catch (final IllegalArgumentException ex)
         {
             throw new DataStructureException(ex.getMessage());

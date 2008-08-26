@@ -43,7 +43,7 @@ public enum BooleanOrUnknown
         return niceRepresentation;
     }
 
-    public final static BooleanOrUnknown getByNiceRepresentation(final String niceRepresentation)
+    public final static BooleanOrUnknown resolve(final String niceRepresentation)
     {
         if (niceRepresentation.equals("FALSE"))
         {
