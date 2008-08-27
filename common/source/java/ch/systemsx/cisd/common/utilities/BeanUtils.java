@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -276,7 +277,7 @@ public final class BeanUtils
     public static <T> T fillBean(final Class<T> beanClass, final T beanInstance,
             final Object sourceBean)
     {
-        return fillBean(beanClass, beanInstance, new HashMap<Object, Object>(), sourceBean,
+        return fillBean(beanClass, beanInstance, new IdentityHashMap<Object, Object>(), sourceBean,
                 EMPTY_ANNOTATION_MAP, NULL_CONVERTER);
     }
 
@@ -287,7 +288,7 @@ public final class BeanUtils
      */
     public static <T> T createBean(final Class<T> beanClass, final Object sourceBean)
     {
-        return fillBean(beanClass, null, new HashMap<Object, Object>(), sourceBean,
+        return fillBean(beanClass, null, new IdentityHashMap<Object, Object>(), sourceBean,
                 EMPTY_ANNOTATION_MAP, NULL_CONVERTER);
     }
 
@@ -313,7 +314,7 @@ public final class BeanUtils
         {
             c = NULL_CONVERTER;
         }
-        return fillBean(beanClass, beanInstance, new HashMap<Object, Object>(), sourceBean,
+        return fillBean(beanClass, beanInstance, new IdentityHashMap<Object, Object>(), sourceBean,
                 EMPTY_ANNOTATION_MAP, c);
     }
 
@@ -332,7 +333,7 @@ public final class BeanUtils
     public static <T> T createBean(final Class<T> beanClass, final Object sourceBean,
             final Converter converter)
     {
-        return createBean(beanClass, new HashMap<Object, Object>(), sourceBean, converter);
+        return createBean(beanClass, new IdentityHashMap<Object, Object>(), sourceBean, converter);
     }
 
     private static <T> T createBean(final Class<T> beanClass, final Map<Object, Object> repository,
@@ -362,9 +363,9 @@ public final class BeanUtils
      * @return The new bean or <code>null</code> if <var>sourceBean</var> is <code>null</code>.
      */
     @SuppressWarnings("unchecked")
-    private static <T> T fillBean(final Class<T> beanClass, final T beanInstance, final Map<Object, Object> repository,
-            final Object sourceBean, final AnnotationMap setterAnnotations,
-            final Converter converter)
+    private static <T> T fillBean(final Class<T> beanClass, final T beanInstance,
+            final Map<Object, Object> repository, final Object sourceBean,
+            final AnnotationMap setterAnnotations, final Converter converter)
     {
         assert beanClass != null : "undefined bean class";
         assert setterAnnotations != null : "undefined setter annotations for " + beanClass;
@@ -373,7 +374,7 @@ public final class BeanUtils
         if (sourceBean == null)
         {
             return null;
-        } 
+        }
         Object convertedBean = repository.get(sourceBean);
         if (convertedBean != null)
         {
@@ -389,12 +390,13 @@ public final class BeanUtils
             {
                 if (isArray(sourceBean))
                 {
-                    destinationBean = copyArrayToArray(destinationBean, repository, sourceBean, converter);
+                    destinationBean =
+                            copyArrayToArray(destinationBean, repository, sourceBean, converter);
                 } else if (isCollection(sourceBean))
                 {
                     destinationBean =
-                            (T) copyCollectionToArray(destinationBean, repository, (Collection<?>) sourceBean,
-                                    converter);
+                            (T) copyCollectionToArray(destinationBean, repository,
+                                    (Collection<?>) sourceBean, converter);
                 }
             } else if (isCollection(destinationBean))
             {
@@ -551,8 +553,9 @@ public final class BeanUtils
     }
 
     @SuppressWarnings("unchecked")
-    private final static <T> T copyArrayToArray(final T destination, final Map<Object, Object> repository,
-            final Object source, final Converter converter) throws IllegalAccessException, InvocationTargetException
+    private final static <T> T copyArrayToArray(final T destination,
+            final Map<Object, Object> repository, final Object source, final Converter converter)
+            throws IllegalAccessException, InvocationTargetException
     {
         if (destination == null)
         {
@@ -595,9 +598,9 @@ public final class BeanUtils
     }
 
     @SuppressWarnings("unchecked")
-    private final static <T> T[] copyCollectionToArray(final Object destination, final Map<Object, Object> repository,
-            final Collection<T> source, final Converter converter) throws IllegalAccessException,
-            InvocationTargetException
+    private final static <T> T[] copyCollectionToArray(final Object destination,
+            final Map<Object, Object> repository, final Collection<T> source,
+            final Converter converter) throws IllegalAccessException, InvocationTargetException
     {
         if (destination == null)
         {
@@ -633,7 +636,8 @@ public final class BeanUtils
         return returned;
     }
 
-    private static void copyArrayToCollection(final Collection<?> destination, final Map<Object, Object> repository, final Object source,
+    private static void copyArrayToCollection(final Collection<?> destination,
+            final Map<Object, Object> repository, final Object source,
             final AnnotationMap setterAnnotations, final Converter converter)
     {
         if (destination == null)
@@ -661,9 +665,9 @@ public final class BeanUtils
         }
     }
 
-    private static void copyCollectionToCollection(final Collection<?> destination, final Map<Object, Object> repository,
-            final Collection<?> source, final AnnotationMap setterAnnotations,
-            final Converter converter)
+    private static void copyCollectionToCollection(final Collection<?> destination,
+            final Map<Object, Object> repository, final Collection<?> source,
+            final AnnotationMap setterAnnotations, final Converter converter)
     {
         if (destination == null)
         {
@@ -709,8 +713,9 @@ public final class BeanUtils
         return mapping;
     }
 
-    private static <T> void copyBean(final T destination, final Map<Object, Object> repository, final Object source,
-            final Converter converter) throws IllegalAccessException, InvocationTargetException
+    private static <T> void copyBean(final T destination, final Map<Object, Object> repository,
+            final Object source, final Converter converter) throws IllegalAccessException,
+            InvocationTargetException
     {
         if (destination == null)
         {
@@ -726,8 +731,8 @@ public final class BeanUtils
         for (final Method setter : destinationSetters)
         {
             final T newBean =
-                    emergeNewBean(setter, source, repository, destination, sourceGetters, destinationGetters,
-                            converter);
+                    emergeNewBean(setter, source, repository, destination, sourceGetters,
+                            destinationGetters, converter);
             if (newBean != null)
             {
                 try
@@ -761,7 +766,7 @@ public final class BeanUtils
      * bean, then use it</li>
      * <li>If the value is of primitive type or one of the immutable types specified, then use it
      * tel quel</li>
-     * <li>If the value is a complexe type, then it should be filled using 
+     * <li>If the value is a complexe type, then it should be filled using
      * {@link #fillBean(Class, Object, Map, Object, ch.systemsx.cisd.common.utilities.BeanUtils.AnnotationMap, ch.systemsx.cisd.common.utilities.BeanUtils.Converter)}
      * before using it</li>
      * </ol>
