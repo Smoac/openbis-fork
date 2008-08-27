@@ -385,7 +385,6 @@ public final class BeanUtils
             T destinationBean =
                     beanInstance != null ? beanInstance : instantiateBean(beanClass, sourceBean,
                             setterAnnotations);
-            repository.put(sourceBean, destinationBean);
             if (isArray(destinationBean))
             {
                 if (isArray(sourceBean))
@@ -410,6 +409,7 @@ public final class BeanUtils
                 }
             } else
             {
+                repository.put(sourceBean, destinationBean);
                 copyBean(destinationBean, repository, sourceBean, converter);
             }
             return destinationBean;
@@ -761,8 +761,8 @@ public final class BeanUtils
      * bean, then use it</li>
      * <li>If the value is of primitive type or one of the immutable types specified, then use it
      * tel quel</li>
-     * <li>If the value is a complexe type, then it should be filled using
-     * {@link #fillBean(Class, Object, Object, ch.systemsx.cisd.common.utilities.BeanUtils.AnnotationMap, ch.systemsx.cisd.common.utilities.BeanUtils.Converter)}
+     * <li>If the value is a complexe type, then it should be filled using 
+     * {@link #fillBean(Class, Object, Map, Object, ch.systemsx.cisd.common.utilities.BeanUtils.AnnotationMap, ch.systemsx.cisd.common.utilities.BeanUtils.Converter)}
      * before using it</li>
      * </ol>
      * </p>
