@@ -276,7 +276,8 @@ public final class BeanUtils
     public static <T> T fillBean(final Class<T> beanClass, final T beanInstance,
             final Object sourceBean)
     {
-        return fillBean(beanClass, beanInstance, sourceBean, EMPTY_ANNOTATION_MAP, NULL_CONVERTER);
+        return fillBean(beanClass, beanInstance, new HashMap<Object, Object>(), sourceBean,
+                EMPTY_ANNOTATION_MAP, NULL_CONVERTER);
     }
 
     /**
@@ -286,7 +287,8 @@ public final class BeanUtils
      */
     public static <T> T createBean(final Class<T> beanClass, final Object sourceBean)
     {
-        return fillBean(beanClass, null, sourceBean, EMPTY_ANNOTATION_MAP, NULL_CONVERTER);
+        return fillBean(beanClass, null, new HashMap<Object, Object>(), sourceBean,
+                EMPTY_ANNOTATION_MAP, NULL_CONVERTER);
     }
 
     /**
@@ -311,7 +313,8 @@ public final class BeanUtils
         {
             c = NULL_CONVERTER;
         }
-        return fillBean(beanClass, beanInstance, sourceBean, EMPTY_ANNOTATION_MAP, c);
+        return fillBean(beanClass, beanInstance, new HashMap<Object, Object>(), sourceBean,
+                EMPTY_ANNOTATION_MAP, c);
     }
 
     /**
@@ -329,12 +332,18 @@ public final class BeanUtils
     public static <T> T createBean(final Class<T> beanClass, final Object sourceBean,
             final Converter converter)
     {
+        return createBean(beanClass, new HashMap<Object, Object>(), sourceBean, converter);
+    }
+
+    private static <T> T createBean(final Class<T> beanClass, final Map<Object, Object> repository,
+            final Object sourceBean, final Converter converter)
+    {
         Converter c = converter;
         if (c == null)
         {
             c = NULL_CONVERTER;
         }
-        return fillBean(beanClass, null, sourceBean, EMPTY_ANNOTATION_MAP, c);
+        return fillBean(beanClass, null, repository, sourceBean, EMPTY_ANNOTATION_MAP, c);
     }
 
     /**
@@ -353,7 +362,7 @@ public final class BeanUtils
      * @return The new bean or <code>null</code> if <var>sourceBean</var> is <code>null</code>.
      */
     @SuppressWarnings("unchecked")
-    private static <T> T fillBean(final Class<T> beanClass, final T beanInstance,
+    private static <T> T fillBean(final Class<T> beanClass, final T beanInstance, final Map<Object, Object> repository,
             final Object sourceBean, final AnnotationMap setterAnnotations,
             final Converter converter)
     {
@@ -364,6 +373,11 @@ public final class BeanUtils
         if (sourceBean == null)
         {
             return null;
+        } 
+        Object convertedBean = repository.get(sourceBean);
+        if (convertedBean != null)
+        {
+            return (T) convertedBean;
         }
 
         try
@@ -371,31 +385,32 @@ public final class BeanUtils
             T destinationBean =
                     beanInstance != null ? beanInstance : instantiateBean(beanClass, sourceBean,
                             setterAnnotations);
+            repository.put(sourceBean, destinationBean);
             if (isArray(destinationBean))
             {
                 if (isArray(sourceBean))
                 {
-                    destinationBean = copyArrayToArray(destinationBean, sourceBean, converter);
+                    destinationBean = copyArrayToArray(destinationBean, repository, sourceBean, converter);
                 } else if (isCollection(sourceBean))
                 {
                     destinationBean =
-                            (T) copyCollectionToArray(destinationBean, (Collection<?>) sourceBean,
+                            (T) copyCollectionToArray(destinationBean, repository, (Collection<?>) sourceBean,
                                     converter);
                 }
             } else if (isCollection(destinationBean))
             {
                 if (isArray(sourceBean))
                 {
-                    copyArrayToCollection((Collection<?>) destinationBean, sourceBean,
+                    copyArrayToCollection((Collection<?>) destinationBean, repository, sourceBean,
                             setterAnnotations, converter);
                 } else if (isCollection(sourceBean))
                 {
-                    copyCollectionToCollection((Collection<?>) destinationBean,
+                    copyCollectionToCollection((Collection<?>) destinationBean, repository,
                             (Collection<?>) sourceBean, setterAnnotations, converter);
                 }
             } else
             {
-                copyBean(destinationBean, sourceBean, converter);
+                copyBean(destinationBean, repository, sourceBean, converter);
             }
             return destinationBean;
         } catch (final InvocationTargetException ex)
@@ -536,8 +551,8 @@ public final class BeanUtils
     }
 
     @SuppressWarnings("unchecked")
-    private final static <T> T copyArrayToArray(final T destination, final Object source,
-            final Converter converter) throws IllegalAccessException, InvocationTargetException
+    private final static <T> T copyArrayToArray(final T destination, final Map<Object, Object> repository,
+            final Object source, final Converter converter) throws IllegalAccessException, InvocationTargetException
     {
         if (destination == null)
         {
@@ -572,7 +587,7 @@ public final class BeanUtils
             {
                 final Object sourceElement = Array.get(source, index);
                 final Object destinationElement =
-                        createBean(componentType, sourceElement, converter);
+                        createBean(componentType, repository, sourceElement, converter);
                 Array.set(returned, index, destinationElement);
             }
         }
@@ -580,7 +595,7 @@ public final class BeanUtils
     }
 
     @SuppressWarnings("unchecked")
-    private final static <T> T[] copyCollectionToArray(final Object destination,
+    private final static <T> T[] copyCollectionToArray(final Object destination, final Map<Object, Object> repository,
             final Collection<T> source, final Converter converter) throws IllegalAccessException,
             InvocationTargetException
     {
@@ -611,14 +626,14 @@ public final class BeanUtils
             for (final Object sourceElement : source)
             {
                 final Object destinationElement =
-                        createBean(componentType, sourceElement, converter);
+                        createBean(componentType, repository, sourceElement, converter);
                 Array.set(returned, index++, destinationElement);
             }
         }
         return returned;
     }
 
-    private static void copyArrayToCollection(final Collection<?> destination, final Object source,
+    private static void copyArrayToCollection(final Collection<?> destination, final Map<Object, Object> repository, final Object source,
             final AnnotationMap setterAnnotations, final Converter converter)
     {
         if (destination == null)
@@ -640,13 +655,13 @@ public final class BeanUtils
             {
                 final Object sourceElement = Array.get(source, index);
                 final Object destinationElement =
-                        createBean(componentType, sourceElement, converter);
+                        createBean(componentType, repository, sourceElement, converter);
                 addToUntypedCollection(destination, destinationElement);
             }
         }
     }
 
-    private static void copyCollectionToCollection(final Collection<?> destination,
+    private static void copyCollectionToCollection(final Collection<?> destination, final Map<Object, Object> repository,
             final Collection<?> source, final AnnotationMap setterAnnotations,
             final Converter converter)
     {
@@ -666,7 +681,7 @@ public final class BeanUtils
             for (final Object sourceElement : source)
             {
                 final Object destinationElement =
-                        createBean(componentType, sourceElement, converter);
+                        createBean(componentType, repository, sourceElement, converter);
                 addToUntypedCollection(destination, destinationElement);
             }
         }
@@ -694,7 +709,7 @@ public final class BeanUtils
         return mapping;
     }
 
-    private static <T> void copyBean(final T destination, final Object source,
+    private static <T> void copyBean(final T destination, final Map<Object, Object> repository, final Object source,
             final Converter converter) throws IllegalAccessException, InvocationTargetException
     {
         if (destination == null)
@@ -711,7 +726,7 @@ public final class BeanUtils
         for (final Method setter : destinationSetters)
         {
             final T newBean =
-                    emergeNewBean(setter, source, destination, sourceGetters, destinationGetters,
+                    emergeNewBean(setter, source, repository, destination, sourceGetters, destinationGetters,
                             converter);
             if (newBean != null)
             {
@@ -754,9 +769,10 @@ public final class BeanUtils
      */
     @SuppressWarnings("unchecked")
     private static <T> T emergeNewBean(final Method setter, final Object source,
-            final T destination, final Map<String, Method> sourceGetters,
-            final Map<String, Method> destinationGetters, final Converter converter)
-            throws IllegalArgumentException, IllegalAccessException, InvocationTargetException
+            final Map<Object, Object> repository, final T destination,
+            final Map<String, Method> sourceGetters, final Map<String, Method> destinationGetters,
+            final Converter converter) throws IllegalArgumentException, IllegalAccessException,
+            InvocationTargetException
     {
         final AnnotationMap annotationMap = new SetterAnnotationMap(setter);
         final Method converterMethod = getConverterMethod(setter, source, converter);
@@ -781,7 +797,8 @@ public final class BeanUtils
             // <code>destinationOldBean</code>,
             // then take it.
             final T destinationOldBean = (T) getOldBean(setter, destinationGetters, destination);
-            return fillBean(parameterType, destinationOldBean, oldBean, annotationMap, converter);
+            return fillBean(parameterType, destinationOldBean, repository, oldBean, annotationMap,
+                    converter);
         }
     }
 

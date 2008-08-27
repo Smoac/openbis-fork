@@ -647,7 +647,7 @@ public final class BeanUtilsTest
             this.bean = bean;
         }
     }
-
+    
     @Test
     public void testFillComplexBeanWithNull()
     {
@@ -1056,5 +1056,189 @@ public final class BeanUtilsTest
         bean1.setState(State.BLOCKED);
         final BeanWithEnum bean2 = BeanUtils.createBean(BeanWithEnum.class, bean1);
         assertEquals(State.BLOCKED, bean2.getState());
+    }
+
+    public static class CyclicBeanA1
+    {
+        private String name;
+        
+        private CyclicBeanB1 cyclicBeanB;
+        
+        private CyclicBeanA1[] cyclicBeans;
+
+        public final String getName()
+        {
+            return name;
+        }
+
+        public final void setName(String name)
+        {
+            this.name = name;
+        }
+
+        public final CyclicBeanB1 getCyclicBeanB()
+        {
+            return cyclicBeanB;
+        }
+
+        public final void setCyclicBeanB(CyclicBeanB1 cyclicBeanB)
+        {
+            this.cyclicBeanB = cyclicBeanB;
+        }
+
+        public final CyclicBeanA1[] getCyclicBeans()
+        {
+            return cyclicBeans;
+        }
+
+        public final void setCyclicBeans(CyclicBeanA1... cyclicBeans)
+        {
+            this.cyclicBeans = cyclicBeans;
+        }
+    }
+
+    public static class CyclicBeanB1
+    {
+        private String name;
+        
+        private CyclicBeanA1 cyclicBeanA;
+        
+        private List<CyclicBeanB1> cyclicBeans;
+
+        public final String getName()
+        {
+            return name;
+        }
+
+        public final void setName(String name)
+        {
+            this.name = name;
+        }
+
+        public final CyclicBeanA1 getCyclicBeanA()
+        {
+            return cyclicBeanA;
+        }
+
+        public final void setCyclicBeanA(CyclicBeanA1 cyclicBeanA)
+        {
+            this.cyclicBeanA = cyclicBeanA;
+        }
+
+        public final List<CyclicBeanB1> getCyclicBeans()
+        {
+            return cyclicBeans;
+        }
+
+        public final void setCyclicBeans(List<CyclicBeanB1> cyclicBeans)
+        {
+            this.cyclicBeans = cyclicBeans;
+        }
+    }
+    
+    public static class CyclicBeanA2
+    {
+        private String name;
+        
+        private CyclicBeanB2 cyclicBeanB;
+        
+        private CyclicBeanA2[] cyclicBeans;
+
+        public final String getName()
+        {
+            return name;
+        }
+        
+        public final void setName(String name)
+        {
+            this.name = name;
+        }
+        
+        public final CyclicBeanB2 getCyclicBeanB()
+        {
+            return cyclicBeanB;
+        }
+        
+        public final void setCyclicBeanB(CyclicBeanB2 cyclicBeanB)
+        {
+            this.cyclicBeanB = cyclicBeanB;
+        }
+
+        public final CyclicBeanA2[] getCyclicBeans()
+        {
+            return cyclicBeans;
+        }
+
+        public final void setCyclicBeans(CyclicBeanA2... cyclicBeans)
+        {
+            this.cyclicBeans = cyclicBeans;
+        }
+    }
+    
+    public static class CyclicBeanB2
+    {
+        private String name;
+        
+        private CyclicBeanA2 cyclicBeanA;
+        
+        private List<CyclicBeanB2> cyclicBeans;
+        
+        public final String getName()
+        {
+            return name;
+        }
+        
+        public final void setName(String name)
+        {
+            this.name = name;
+        }
+        
+        public final CyclicBeanA2 getCyclicBeanA()
+        {
+            return cyclicBeanA;
+        }
+        
+        public final void setCyclicBeanA(CyclicBeanA2 cyclicBeanA)
+        {
+            this.cyclicBeanA = cyclicBeanA;
+        }
+
+        public final List<CyclicBeanB2> getCyclicBeans()
+        {
+            return cyclicBeans;
+        }
+
+        @CollectionMapping(collectionClass = ArrayList.class, elementClass = CyclicBeanB2.class)
+        public final void setCyclicBeans(List<CyclicBeanB2> cyclicBeans)
+        {
+            this.cyclicBeans = cyclicBeans;
+        }
+    }
+    
+    @Test
+    public void testConversionOfCyclicBeans()
+    {
+        CyclicBeanA1 cyclicBeanA1 = new CyclicBeanA1();
+        CyclicBeanB1 cyclicBeanB1 = new CyclicBeanB1();
+        cyclicBeanA1.setName("a");
+        cyclicBeanA1.setCyclicBeanB(cyclicBeanB1);
+        cyclicBeanA1.setCyclicBeans(cyclicBeanA1);
+        cyclicBeanB1.setName("b");
+        cyclicBeanB1.setCyclicBeanA(cyclicBeanA1);
+        List<CyclicBeanB1> beans = new ArrayList<CyclicBeanB1>();
+        beans.add(cyclicBeanB1);
+        cyclicBeanB1.setCyclicBeans(beans);
+        
+        CyclicBeanA2 cyclicBeanA2 = BeanUtils.createBean(CyclicBeanA2.class, cyclicBeanA1);
+        assertEquals("a", cyclicBeanA2.getName());
+        CyclicBeanB2 cyclicBeanB2 = cyclicBeanA2.getCyclicBeanB();
+        assertEquals("b", cyclicBeanB2.getName());
+        assertSame(cyclicBeanA2, cyclicBeanB2.getCyclicBeanA());
+        assertEquals(1, cyclicBeanA2.getCyclicBeans().length);
+        assertEquals("a", cyclicBeanA2.getCyclicBeans()[0].getName());
+        assertSame(cyclicBeanA2, cyclicBeanA2.getCyclicBeans()[0]);
+        assertEquals(1, cyclicBeanB2.getCyclicBeans().size());
+        assertEquals("b", cyclicBeanB2.getCyclicBeans().get(0).getName());
+        assertSame(cyclicBeanB2, cyclicBeanB2.getCyclicBeans().get(0));
     }
 }
