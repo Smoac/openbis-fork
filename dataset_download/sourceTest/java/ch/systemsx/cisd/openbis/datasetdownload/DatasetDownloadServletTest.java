@@ -552,9 +552,9 @@ public class DatasetDownloadServletTest
         properties.setProperty(ConfigParameters.PORT_KEY, "8080");
         properties.setProperty(ConfigParameters.SERVER_URL_KEY, "http://localhost");
         properties.setProperty(ConfigParameters.SESSION_TIMEOUT_KEY, "2");
-        properties.setProperty(ConfigParameters.KEYSTORE_PATH_KEY, "");
-        properties.setProperty(ConfigParameters.KEYSTORE_PASSWORD_KEY, "");
-        properties.setProperty(ConfigParameters.KEYSTORE_KEY_PASSWORD_KEY, "");
+        properties.setProperty(ConfigParameters.KEYSTORE_PATH_KEY, "/");
+        properties.setProperty(ConfigParameters.KEYSTORE_PASSWORD_KEY, "x");
+        properties.setProperty(ConfigParameters.KEYSTORE_KEY_PASSWORD_KEY, "y");
         ConfigParameters configParameters = new ConfigParameters(properties);
         return new DatasetDownloadServlet(new ApplicationContext(dataSetService, configParameters,
                 APPLICATION_NAME));
