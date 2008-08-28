@@ -39,58 +39,60 @@ import ch.systemsx.cisd.lims.base.ServiceRegistry;
 
 /**
  * Main class of the service. Starts up jetty with {@link DatasetDownloadServlet}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class DatasetDownloadService
 {
     static final String APPLICATION_CONTEXT_KEY = "application-context";
+
     private static final String PREFIX = "data-set-download.";
+
     private static final int PREFIX_LENGTH = PREFIX.length();
 
     private static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";
-    
+
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, DatasetDownloadService.class);
 
-    public static void main(String[] args) throws Exception 
+    public static void main(final String[] args) throws Exception
     {
         LogInitializer.init();
         ServiceRegistry.setLIMSServiceFactory(RMIBasedLIMSServiceFactory.INSTANCE);
-        
-        ApplicationContext applicationContext = createApplicationContext();
-        ConfigParameters configParameters = applicationContext.getConfigParameters();
-        int port = configParameters.getPort();
-        Server server = new Server();
-        SslSocketConnector socketConnector = new SslSocketConnector();
+
+        final ApplicationContext applicationContext = createApplicationContext();
+        final ConfigParameters configParameters = applicationContext.getConfigParameters();
+        final int port = configParameters.getPort();
+        final Server server = new Server();
+        final SslSocketConnector socketConnector = new SslSocketConnector();
         socketConnector.setPort(port);
         socketConnector.setMaxIdleTime(30000);
         socketConnector.setKeystore(configParameters.getKeystorePath());
         socketConnector.setPassword(configParameters.getKeystorePassword());
         socketConnector.setKeyPassword(configParameters.getKeystoreKeyPassword());
         server.addConnector(socketConnector);
-        Context context = new Context(server, "/", Context.SESSIONS);
+        final Context context = new Context(server, "/", Context.SESSIONS);
         context.setAttribute(APPLICATION_CONTEXT_KEY, applicationContext);
         context.addServlet(DatasetDownloadServlet.class, "/"
                 + applicationContext.getApplicationName() + "/*");
         server.start();
-        
+
         selfTest(applicationContext);
         if (operationLog.isInfoEnabled())
         {
             operationLog.info("Data set download server ready on port " + port);
         }
     }
-    
-    private static void selfTest(ApplicationContext applicationContext)
+
+    private static void selfTest(final ApplicationContext applicationContext)
     {
-        int version = applicationContext.getDataSetService().getVersion();
+        final int version = applicationContext.getDataSetService().getVersion();
         if (IWebService.VERSION != version)
         {
             throw new ConfigurationFailureException(
                     "This client has the wrong service version for the server (client: "
                             + IWebService.VERSION + ", server: " + version + ").");
-        } 
+        }
         if (operationLog.isInfoEnabled())
         {
             operationLog.info("openBIS service (interface version " + version + ") is reachable");
@@ -99,33 +101,35 @@ public class DatasetDownloadService
 
     private static ApplicationContext createApplicationContext()
     {
-        ConfigParameters configParameters = getConfigParameters();
-        IDataSetService dataSetService = new DataSetService(configParameters);
-        ApplicationContext applicationContext =
+        final ConfigParameters configParameters = getConfigParameters();
+        final IDataSetService dataSetService = new DataSetService(configParameters);
+        final ApplicationContext applicationContext =
                 new ApplicationContext(dataSetService, configParameters, "dataset-download");
         return applicationContext;
     }
-    
+
     private static ConfigParameters getConfigParameters()
     {
-        Properties properties = loadProperties();
-        Properties systemProperties = System.getProperties();
-        Enumeration<?> propertyNames = systemProperties.propertyNames();
+        final Properties properties = loadProperties();
+        final Properties systemProperties = System.getProperties();
+        final Enumeration<?> propertyNames = systemProperties.propertyNames();
         while (propertyNames.hasMoreElements())
         {
-            String name = (String) propertyNames.nextElement();
+            final String name = (String) propertyNames.nextElement();
             if (name.startsWith(PREFIX))
             {
-                String value = systemProperties.getProperty(name);
+                final String value = systemProperties.getProperty(name);
                 properties.setProperty(name.substring(PREFIX_LENGTH), value);
             }
         }
-        return new ConfigParameters(properties);
+        final ConfigParameters configParameters = new ConfigParameters(properties);
+        configParameters.log();
+        return configParameters;
     }
-    
+
     private static Properties loadProperties()
     {
-        
+
         final Properties properties = new Properties();
         try
         {
@@ -139,7 +143,7 @@ public class DatasetDownloadService
             {
                 IOUtils.closeQuietly(is);
             }
-        } catch (Exception ex)
+        } catch (final Exception ex)
         {
             final String msg =
                     "Could not load the service properties from resource '"
