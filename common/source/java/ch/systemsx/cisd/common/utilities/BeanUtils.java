@@ -360,6 +360,8 @@ public final class BeanUtils
      * @param converter The {@link Converter} to use to perform non-standard conversions when
      *            filling the bean. Can be <code>null</code>, in which case only standard
      *            conversions are allowed.
+     * @param repository a {@link Map} composed of source beans as keys and destination beans as
+     *            values. This avoids cycling dependencies during the conversion.
      * @return The new bean or <code>null</code> if <var>sourceBean</var> is <code>null</code>.
      */
     @SuppressWarnings("unchecked")
