@@ -23,6 +23,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.filesystem.NodeFactory;
+import ch.systemsx.cisd.common.test.Retry10;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
 
 /**
@@ -40,7 +41,7 @@ public abstract class AbstractCheckerTest
                 + OSUtilities.LINE_SEPARATOR, file, path, dir);
     }
 
-    @Test
+    @Test(retryAnalyzer = Retry10.class)
     public final void testCheckTrimmedOk()
     {
         final File dir = new File("testdata/trimming");
@@ -86,7 +87,7 @@ public abstract class AbstractCheckerTest
                 fileName, ""));
     }
 
-    @Test
+    @Test(retryAnalyzer = Retry10.class)
     public final void testCheckTrimmedSpaceEnd()
     {
         final File dir = new File("testdata/trimming");
