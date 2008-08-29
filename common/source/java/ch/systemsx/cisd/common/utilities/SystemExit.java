@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.utilities;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.exceptions.SystemExitException;
 
 /**
  * Exit handler based on <code>System.exit()</code>.
@@ -36,11 +37,12 @@ public class SystemExit implements IExitHandler
     {
     }
 
-    public void exit(final int exitCode)
+    public void exit(final int exitCode) throws SystemExitException
     {
         if (throwException)
         {
-            throw new RuntimeException(String.format(EXIT_MESSAGE, exitCode));
+            throw new SystemExitException(String.format(EXIT_MESSAGE, exitCode));
+
         }
         System.exit(exitCode);
     }
