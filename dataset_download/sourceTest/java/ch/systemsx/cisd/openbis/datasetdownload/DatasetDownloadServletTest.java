@@ -539,7 +539,7 @@ public class DatasetDownloadServletTest
         final ExternalData externalData = new ExternalData();
         externalData.setProcedure(procedure);
         externalData.setCode(EXAMPLE_DATA_SET_CODE);
-        externalData.setSampleCode(SAMPLE_CODE);
+        externalData.setAssociatedSampleCode(SAMPLE_CODE);
         externalData.setLocatorType(new LocatorType(LocatorType.DEFAULT_LOCATOR_TYPE_CODE));
         externalData.setLocation(EXAMPLE_DATA_SET_FOLDER_NAME);
         return externalData;

@@ -99,7 +99,7 @@ final class HTMLDirectoryRenderer implements IDirectoryRenderer
     public void printHeader(final ExternalData dataSet)
     {
         final String datasetCode = dataSet.getCode();
-        final String sampleCode = dataSet.getSampleCode();
+        final String sampleCode = dataSet.getAssociatedSampleCode();
         final Procedure procedure = dataSet.getProcedure();
         final Experiment experiment = procedure.getExperiment();
         final String experimentCode = experiment.getCode();
