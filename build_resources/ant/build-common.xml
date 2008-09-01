@@ -32,7 +32,7 @@
     <mkdir dir="${classes}" />
   </target>
 
-  <target name="compile" depends="prepare">
+  <target name="compile" depends="prepare" unless="compile.bypass">
     <build-java-subprojects target="compile" />
     <antcall target="_plain-compile">
       <param name="src" value="${sources}"/> 
