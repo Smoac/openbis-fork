@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 
 /**
@@ -30,7 +30,7 @@ public class Client implements EntryPoint
 
     public void onModuleLoad()
     {
-        RootPanel.get().add(new Label("openBIS comong soon..."));
+        RootPanel.get().add(new Button("openBIS comong soon..."));
 
     }
 

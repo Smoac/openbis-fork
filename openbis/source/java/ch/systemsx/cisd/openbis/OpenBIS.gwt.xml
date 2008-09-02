@@ -6,6 +6,14 @@
     <inherits name="com.google.gwt.user.theme.chrome.Chrome"/>
     <inherits name="com.google.gwt.i18n.I18N" />
     
+    <!--
+        // Inherit the core EXT GWT stuff.
+    -->
+    <inherits name='com.extjs.gxt.ui.GXT'/>
+    
+    <!--
+        // Application entry point 
+     -->    
     <entry-point class='ch.systemsx.cisd.openbis.generic.client.web.client.application.Client' />
     
     <!--
