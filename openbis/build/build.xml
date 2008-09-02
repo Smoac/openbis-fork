@@ -1,0 +1,9 @@
+<project name="openbis" basedir="..">
+  <import file="../../build_resources/ant/build-common.xml" />
+  <project-classpath name="ecp" classes="${classes}" />
+
+  <property name="mainfolder" value="openbis" />
+
+  <target name="ci" depends="build-common.ci, check-dependencies"/>
+
+</project>
