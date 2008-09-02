@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="source/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/authentication"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/bds"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/dataset_download"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/dbmigration"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/etlserver"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/lims"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/lims_base"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/lims_webclient"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/args4j"/>
+	<classpathentry kind="output" path="targets/classes"/>
+</classpath>
