@@ -12,7 +12,7 @@
         // Source path elements to Java classes to be compiled to JavaScript
     -->
     <source path="generic/client/web/client" />
-    <--source path="plugin/hcs/client/web/client" /-->
+    <!--source path="plugin/hcs/client/web/client" /-->
 
     <!-- Do not define servlets here, use web.xml -->
 
