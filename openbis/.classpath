@@ -9,5 +9,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/lims"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/lims_base"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/server-common"/>
+	<classpathentry kind="lib" path="/libraries/gwt1.5/gwt-user.jar"/>
+	<classpathentry kind="lib" path="/libraries/testng/testng-jdk15.jar" sourcepath="/libraries/testng/src.zip"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
