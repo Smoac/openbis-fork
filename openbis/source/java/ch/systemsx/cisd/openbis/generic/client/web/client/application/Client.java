@@ -19,18 +19,27 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 import java.util.Date;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.LayoutRegion;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.VerticalPanel;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.rpc.ServiceDefTarget;
 import com.google.gwt.user.client.ui.RootPanel;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoginWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 
 /**
  * 
@@ -39,9 +48,55 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  */
 public class Client implements EntryPoint
 {
+    private GenericViewContext viewContext;
+    
     public void onModuleLoad()
     {
-        GenericViewContext viewContext = createViewContext();
+        if (viewContext == null)
+        {
+            viewContext = createViewContext();
+        }
+        final IGenericClientServiceAsync service = viewContext.getService();
+        service.getApplicationInfo(new AbstractAsyncCallback<ApplicationInfo>(viewContext)
+                {
+                    public void onSuccess(ApplicationInfo info)
+                    {
+                        viewContext.getModel().setApplicationInfo(info);
+                        service.tryToGetCurrentSessionContext(new AbstractAsyncCallback<SessionContext>(viewContext)
+                            {
+                                public void onSuccess(SessionContext sessionContext)
+                                {
+                                    RootPanel rootPanel = RootPanel.get();
+                                    rootPanel.clear();
+                                    Component widget;
+                                    if (sessionContext == null)
+                                    {
+                                        widget = createLoginPage();
+                                    } else
+                                    {
+                                        viewContext.getModel().setSessionContext(sessionContext);
+                                        widget = new Application(viewContext);
+                                    }
+                                    rootPanel.add(decorateWithFooter(widget));
+                                }
+                            });
+
+                    }
+                });
+    }
+
+    private GenericViewContext createViewContext()
+    {
+        IGenericClientServiceAsync service = GWT.create(IGenericClientService.class);
+        ServiceDefTarget endpoint = (ServiceDefTarget) service;
+        endpoint.setServiceEntryPoint(GenericConstants.SERVER_NAME);
+        IGenericImageBundle imageBundle = GWT.<IGenericImageBundle> create(IGenericImageBundle.class);
+        IMessageProvider messageProvider = new DictonaryBasedMessageProvider("generic");
+        return new GenericViewContext(service, messageProvider, imageBundle);
+    }
+    
+    private LayoutContainer createLoginPage()
+    {
         LayoutContainer container = new LayoutContainer();
         container.setLayout(new CenterLayout());
         VerticalPanel verticalPanel = new VerticalPanel();
@@ -61,16 +116,24 @@ public class Client implements EntryPoint
         verticalPanel.add(horizontalPanel);
         
         LoginWidget loginWidget = new LoginWidget(viewContext);
-        verticalPanel.add(loginWidget);  
-        
-        RootPanel.get().add(container); 
+        verticalPanel.add(loginWidget);
+        return container;
     }
     
-    private GenericViewContext createViewContext()
+    private Component decorateWithFooter(Component widget)
     {
-        IGenericImageBundle imageBundle = GWT.<IGenericImageBundle> create(IGenericImageBundle.class);
-        IMessageProvider messageProvider = new DictonaryBasedMessageProvider("generic");
-        return new GenericViewContext(messageProvider, imageBundle);
+        LayoutContainer container = new LayoutContainer();
+        container.setLayout(new BorderLayout());
+        container.add(widget, new BorderLayoutData(LayoutRegion.CENTER));
+        HorizontalPanel footerPanel = new HorizontalPanel();
+        footerPanel.setHorizontalAlign(HorizontalAlignment.CENTER);
+        footerPanel.setStyleName("footer");
+        String version = viewContext.getModel().getApplicationInfo().getVersion();
+        Text footerText = new Text(viewContext.getMessage("footer", version));
+        footerText.setStyleName("footer-text");
+        footerPanel.add(footerText);
+        container.add(footerPanel, new BorderLayoutData(LayoutRegion.SOUTH));
+        return container;
     }
-
+    
 }

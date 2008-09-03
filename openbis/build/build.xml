@@ -1,8 +1,13 @@
 <project name="openbis" basedir="..">
-  <import file="../../build_resources/ant/build-common.xml" />
+  <import file="../../server-common/build/build-common.xml" />
   <project-classpath name="ecp" classes="${classes}" />
 
   <property name="mainfolder" value="openbis" />
+
+  <property name="gwt.lib" value="${lib}/gwt1.5" />
+  <property name="gwt.dev.lib" value="${gwt.lib}/mac/gwt-dev-mac.jar" />
+  <property name="gwt.user.lib" value="${gwt.lib}/gwt-user.jar" />
+  <property name="gwt.tomcat.web-inf" value="../${ant.project.name}/tomcat/webapps/ROOT/WEB-INF" />
 
   <target name="ci" depends="build-common.ci, check-dependencies"/>
 

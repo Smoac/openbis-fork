@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app [
+    <!ENTITY common SYSTEM "web-common.xml">
+    <!ENTITY gwt SYSTEM "gwt.xml">
+]>
+<web-app>
+
+    <display-name>openBIS</display-name>
+    <description>openBIS server</description>
+    
+    &common;
+
+    <listener>
+        <listener-class>ch.systemsx.cisd.openbis.generic.client.web.server.LogHttpSessionListener</listener-class>
+    </listener>
+
+    <!-- Trying kind of extension (i.e., '*.do') here as 'url-pattern' does not work. -->
+    <servlet-mapping>
+        <servlet-name>spring</servlet-name>
+        <url-pattern>/openbis/*</url-pattern>
+    </servlet-mapping>
+
+    <!--
+        // Additional servlets
+    -->
+
+    &gwt;
+</web-app>

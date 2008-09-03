@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans.xsd
+			http://www.springframework.org/schema/tx
+			http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <import resource="genericCommonContext.xml"/>
+    
+    <!-- 
+        // Server
+    -->
+
+    <bean id="generic-service" class="ch.systemsx.cisd.openbis.generic.client.web.server.GenericClientService">
+        <!-- constructor-arg ref="${authentication-service}" />
+        <constructor-arg ref="request-context-provider" />
+        <constructor-arg ref="console-factory" />
+        <constructor-arg ref="action-log" />
+        <property name="sessionExpirationPeriodInMinutes" value="${session-timeout}" /-->
+    </bean>
+    
+    <bean id="action-log" class="ch.systemsx.cisd.openbis.generic.client.web.server.GenericActionLog">
+    </bean>
+
+</beans>

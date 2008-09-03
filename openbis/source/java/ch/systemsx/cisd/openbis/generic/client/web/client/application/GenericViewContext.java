@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
@@ -25,13 +26,28 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  */
 public class GenericViewContext implements IMessageProvider
 {
+    private final IGenericClientServiceAsync service;
     private final IMessageProvider messageProvider;
     private final IGenericImageBundle imageBundle;
+    private final GenericViewModel viewModel;
 
-    GenericViewContext(IMessageProvider messageProvider, IGenericImageBundle imageBundle)
+    GenericViewContext(IGenericClientServiceAsync service, IMessageProvider messageProvider,
+            IGenericImageBundle imageBundle)
     {
+        this.service = service;
         this.messageProvider = messageProvider;
         this.imageBundle = imageBundle;
+        viewModel = new GenericViewModel();
+    }
+    
+    public final GenericViewModel getModel()
+    {
+        return viewModel;
+    }
+
+    public final IGenericClientServiceAsync getService()
+    {
+        return service;
     }
 
     public String getMessage(String key, Object... parameters)
