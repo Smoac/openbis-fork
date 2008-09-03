@@ -21,6 +21,9 @@
     -->
     <source path="generic/client/web/client" />
     <!--source path="plugin/hcs/client/web/client" /-->
+    
+    <public path="public"/>
+    <public path="generic/client/web/public"/>
 
     <!-- Do not define servlets here, use web.xml -->
 

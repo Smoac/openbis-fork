@@ -20,6 +20,9 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.user.client.ui.RootPanel;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+
 /**
  * 
  *
@@ -30,7 +33,8 @@ public class Client implements EntryPoint
 
     public void onModuleLoad()
     {
-        RootPanel.get().add(new Button("openBIS comong soon..."));
+        IMessageProvider messageProvider = new DictonaryBasedMessageProvider("generic");
+        RootPanel.get().add(new Button(messageProvider.getMessage("message", "openBIS")));
 
     }
 
