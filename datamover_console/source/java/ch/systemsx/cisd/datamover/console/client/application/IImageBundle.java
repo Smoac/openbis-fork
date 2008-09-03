@@ -26,10 +26,6 @@ import com.google.gwt.user.client.ui.ImageBundle;
  */
 public interface IImageBundle extends ImageBundle
 {
-    /**
-     * 
-     * 
-     * @gwt.resource cisd.jpg
-     */
+    @Resource("cisd.jpg")
     public AbstractImagePrototype getLogo();
 }
