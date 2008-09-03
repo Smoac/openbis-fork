@@ -1,2 +1,8 @@
-// override or add key-value pair
-generic["message"] = "generic {0} is coming soon...";
+// Generic dictionary
+var generic = {
+  welcome: "Welcome to " + common["applicationName"],
+  login_invitation: "Please login to start your session:", 
+  login_userLabel: "User",
+  login_passwordLabel: "Password",
+  login_buttonLabel: "login"
+};

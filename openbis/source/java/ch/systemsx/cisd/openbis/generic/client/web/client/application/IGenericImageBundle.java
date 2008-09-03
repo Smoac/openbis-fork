@@ -14,23 +14,22 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
+import com.google.gwt.user.client.ui.ImageBundle;
 
 /**
- * Interface of objects providing messages.
+ * 
  *
  * @author Franz-Josef Elmer
  */
-public interface IMessageProvider
+public interface IGenericImageBundle extends ImageBundle
 {
     /**
-     * Returns the message specified by a key. Optional parameters are used to render the message by
-     * replacing <code>{0}</code> by the first parameter, <code>{1}</code> by the second one
-     * etc.
-     * <p>
-     * If a message couldn't be found an error message is returned which includes the invalid key
-     * and information about the message source of this provider. 
+     * Returns CISD logo.
      */
-    public String getMessage(String key, Object... parameters);
+    @Resource("cisd.jpg")
+    public AbstractImagePrototype getLogo();
+
 }

@@ -16,8 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
 
-import java.util.Set;
-
+import com.extjs.gxt.ui.client.util.Format;
 import com.google.gwt.i18n.client.Dictionary;
 
 /**
@@ -38,12 +37,7 @@ public class DictonaryBasedMessageProvider implements IMessageProvider
         dictionary = Dictionary.getDictionary(dictonaryName);
     }
     
-    public Set<String> keySet()
-    {
-        return dictionary.keySet();
-    }
-
-    public String getMessage(String key, String... parameters)
+    public String getMessage(String key, Object... parameters)
     {
         String message;
         try
@@ -53,11 +47,11 @@ public class DictonaryBasedMessageProvider implements IMessageProvider
         {
             return "Unknown key '" + key + "' in " + dictionary + ".";
         }
-        for (int i = 0; i < parameters.length; i++)
+        if (parameters.length == 0)
         {
-            message = message.replace("{" + i + "}", parameters[i]);
+            return message;
         }
-        return message;
+        return Format.substitute(message, parameters);
     }
 
 }

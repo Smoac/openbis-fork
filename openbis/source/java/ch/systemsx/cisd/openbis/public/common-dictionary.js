@@ -1,4 +1,4 @@
-// Dictionaries
-var generic = {
-  message: "openBIS is coming soon..."
+// Common dictionary
+var common = {
+  applicationName: "openBIS"
 };
