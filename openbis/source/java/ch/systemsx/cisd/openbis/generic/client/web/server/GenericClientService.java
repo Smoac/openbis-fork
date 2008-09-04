@@ -34,7 +34,6 @@ public class GenericClientService implements IGenericClientService
     
     public ApplicationInfo getApplicationInfo()
     {
-        System.out.println("GenericClientService.getApplicationInfo()");
         ApplicationInfo applicationInfo = new ApplicationInfo();
         applicationInfo.setVersion(BuildAndEnvironmentInfo.INSTANCE.getFullVersion());
         return applicationInfo;

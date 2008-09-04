@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import com.google.gwt.core.client.GWT;
+
 /**
  * 
  *
@@ -23,6 +25,15 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
  */
 public class GenericConstants
 {
-    public static final String SERVER_NAME = "/openbis/generic";
+    public static final String SERVER_NAME = createServicePath("generic");
+
+    /**
+     * Creates for the specified service name the service path.
+     */
+    protected final static String createServicePath(String serviceName)
+    {
+        // Kind of hack. Unclear why an additional 'openbis' in productive mode is needed.
+        return "/openbis/" + (GWT.isScript() ? "openbis/" : "") + serviceName;
+    }
 
 }

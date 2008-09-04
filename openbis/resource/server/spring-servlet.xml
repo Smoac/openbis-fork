@@ -9,9 +9,12 @@
 
     <bean id="urlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
         <property name="mappings">
-            <value>
-                generic=generic-servlet
-            </value>
+            <!-- Note that two mappings for the same servlet are necessary for some unknown
+                 reason in order to run successfully in hosted mode, web mode, and productive mode. -->
+            <props>
+                <prop key="generic">generic-servlet</prop>
+                <prop key="openbis/generic">generic-servlet</prop> 
+            </props>
         </property>
     </bean>
 

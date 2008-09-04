@@ -86,11 +86,16 @@ public class GenericClientServiceServlet extends GWTSpringController implements
                             .getBean(PROPERTY_CONFIGURER_BEAN_NAME);
 
             genericService.setConfigParameters(new GenericConfigParameters(configurer.getResolvedProps()));
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info("Configuration parameters successfully set.");
+            }
         }
     }
 
     public ApplicationInfo getApplicationInfo()
     {
+        operationLog.info("getApplicationInfo()");
         return service.getApplicationInfo();
     }
 

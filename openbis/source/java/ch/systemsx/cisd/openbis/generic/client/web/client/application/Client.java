@@ -125,8 +125,7 @@ public class Client implements EntryPoint
         LayoutContainer container = new LayoutContainer();
         container.setLayout(new BorderLayout());
         container.add(widget, new BorderLayoutData(LayoutRegion.CENTER));
-        HorizontalPanel footerPanel = new HorizontalPanel();
-        footerPanel.setHorizontalAlign(HorizontalAlignment.CENTER);
+        LayoutContainer footerPanel = new LayoutContainer();
         footerPanel.setStyleName("footer");
         String version = viewContext.getModel().getApplicationInfo().getVersion();
         Text footerText = new Text(viewContext.getMessage("footer", version));

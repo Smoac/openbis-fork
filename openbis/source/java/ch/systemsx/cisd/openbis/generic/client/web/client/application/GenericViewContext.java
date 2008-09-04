@@ -60,5 +60,4 @@ public class GenericViewContext implements IMessageProvider
         return imageBundle;
     }
     
-    
 }

@@ -46,6 +46,7 @@ public class LoginWidget extends VerticalPanel
         formPanel.setBorders(false);
         formPanel.setHeaderVisible(false);
         formPanel.setFieldWidth(120);
+        formPanel.setWidth(250);
         userField = new TextField<String>();
         userField.setFieldLabel(viewContext.getMessage("login_userLabel"));
         userField.setSelectOnFocus(true);
@@ -56,7 +57,6 @@ public class LoginWidget extends VerticalPanel
         passwordField.setPassword(true);
         passwordField.setAllowBlank(false);
         passwordField.setFieldLabel(viewContext.getMessage("login_passwordLabel"));
-        System.out.println(passwordField.getValidator());
         formPanel.add(passwordField);
         Button button = new Button(viewContext.getMessage("login_buttonLabel"));
         button.addSelectionListener(new SelectionListener<ComponentEvent>()
