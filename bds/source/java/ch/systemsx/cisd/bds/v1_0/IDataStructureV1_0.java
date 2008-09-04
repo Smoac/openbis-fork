@@ -14,25 +14,41 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.bds;
+package ch.systemsx.cisd.bds.v1_0;
 
 import java.util.Set;
 
+import ch.systemsx.cisd.bds.DataSet;
+import ch.systemsx.cisd.bds.ExperimentIdentifier;
+import ch.systemsx.cisd.bds.ExperimentRegistrationTimestamp;
+import ch.systemsx.cisd.bds.ExperimentRegistrator;
+import ch.systemsx.cisd.bds.Format;
+import ch.systemsx.cisd.bds.FormatParameter;
+import ch.systemsx.cisd.bds.IAnnotations;
+import ch.systemsx.cisd.bds.IDataStructure;
+import ch.systemsx.cisd.bds.IFormattedData;
+import ch.systemsx.cisd.bds.Reference;
+import ch.systemsx.cisd.bds.Sample;
 import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 
 /**
- * An <code>IDataStructure</code> extension for version 1.x.
+ * An <code>IDataStructure</code> extension for <i>v1.0</i>.
  * 
  * @author Christian Ribeaud
  */
-public interface IDataStructureV1_X extends IDataStructure
+public interface IDataStructureV1_0 extends IDataStructure
 {
 
     /**
      * Return the original data directory.
      */
     public IDirectory getOriginalData();
+
+    /**
+     * Returns the directory containing the standardized data.
+     */
+    public IDirectory getStandardData();
 
     /**
      * Returns the <code>DataSet</code> of this data structure.
@@ -65,7 +81,7 @@ public interface IDataStructureV1_X extends IDataStructure
     /**
      * Returns the {@link IFormattedData} implementation.
      */
-    public IFormattedData getFormattedData();
+    public IFormattedData getFormattedData() throws DataStructureException;
 
     /**
      * Adds a format parameter to this data structure.

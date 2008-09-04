@@ -29,22 +29,31 @@ import ch.systemsx.cisd.common.exceptions.NotImplementedException;
  */
 public class HDF5Storage implements IStorage
 {
-    public HDF5Storage(File hdf5File)
+    public HDF5Storage(final File hdf5File)
     {
         assert hdf5File != null : "Unspecified HDF5 file.";
     }
 
-    public IDirectory getRoot()
+    //
+    // IStorage
+    //
+
+    public final boolean isMounted()
     {
         throw new NotImplementedException();
     }
 
-    public void mount()
+    public final IDirectory getRoot()
     {
         throw new NotImplementedException();
     }
 
-    public void unmount()
+    public final void mount()
+    {
+        throw new NotImplementedException();
+    }
+
+    public final void unmount()
     {
         throw new NotImplementedException();
     }

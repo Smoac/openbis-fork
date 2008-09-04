@@ -30,20 +30,20 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
  */
 public class Sample implements IStorable
 {
-    static final String FOLDER = "sample";
+    public static final String FOLDER = "sample";
 
-    static final String TYPE_DESCRIPTION = "type_description";
+    public static final String TYPE_DESCRIPTION = "type_description";
 
-    static final String TYPE_CODE = "type_code";
+    public static final String TYPE_CODE = "type_code";
 
-    static final String CODE = "code";
+    public static final String CODE = "code";
 
     /**
      * Loads the entity from the specified directory.
      * 
      * @throws DataStructureException if file missing.
      */
-    static Sample loadFrom(final IDirectory directory)
+    public static Sample loadFrom(final IDirectory directory)
     {
         assert directory != null : "Unspecified directory";
         final IDirectory folder = Utilities.getSubDirectory(directory, FOLDER);
@@ -76,7 +76,7 @@ public class Sample implements IStorable
         this.typeCode = typeCode;
     }
 
-    ToStringBuilder createToStringBuilder()
+    protected ToStringBuilder createToStringBuilder()
     {
         final ToStringBuilder builder = new ToStringBuilder();
         builder.append(CODE, code);

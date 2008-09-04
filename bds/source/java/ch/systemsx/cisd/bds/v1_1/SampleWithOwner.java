@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.bds;
+package ch.systemsx.cisd.bds.v1_1;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
+import ch.systemsx.cisd.bds.ExperimentIdentifier;
+import ch.systemsx.cisd.bds.Sample;
+import ch.systemsx.cisd.bds.ToStringBuilder;
+import ch.systemsx.cisd.bds.Utilities;
 import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 
@@ -30,11 +34,11 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
  */
 public final class SampleWithOwner extends Sample
 {
-    static final String GROUP_CODE = ExperimentIdentifier.GROUP_CODE;
+    public static final String GROUP_CODE = ExperimentIdentifier.GROUP_CODE;
 
-    static final String INSTANCE_CODE = ExperimentIdentifier.INSTANCE_CODE;
+    public static final String INSTANCE_CODE = ExperimentIdentifier.INSTANCE_CODE;
 
-    static final String INSTANCE_UUID = ExperimentIdentifierWithUUID.INSTANCE_UUID;
+    public static final String INSTANCE_UUID = ExperimentIdentifierWithUUID.INSTANCE_UUID;
 
     private final String groupCode;
 
@@ -118,7 +122,7 @@ public final class SampleWithOwner extends Sample
      * 
      * @throws DataStructureException if file missing.
      */
-    final static SampleWithOwner loadFrom(final IDirectory directory)
+    public final static SampleWithOwner loadFrom(final IDirectory directory)
     {
         assert directory != null : "Unspecified directory";
         final IDirectory folder = Utilities.getSubDirectory(directory, FOLDER);

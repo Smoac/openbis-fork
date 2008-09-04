@@ -75,22 +75,21 @@ public final class ClassUtils
      * Creates a new instance of a class specified by its fully-qualified name.
      * 
      * @param superClazz Super class <code>className</code> has to be implemented or extended.
-     * @param className Fully-qualified class name.
+     * @param clazz Fully-qualified class.
      * @param argumentsOrNull Optional constructor arguments. If <code>(Object[]) null</code> then
      *            the empty constructor will be used. Note that <code>(Object) null</code> is not
      *            interpreted as <code>null</code> arguments but rather as
      *            <code>new Object[]{null}</code>.
      * @return an instance of type <code>interface</code>.
      */
-    public static <T> T create(final Class<T> superClazz, final String className,
+    public final static <T, C> T create(final Class<T> superClazz, final Class<C> clazz,
             final Object... argumentsOrNull)
     {
         assert superClazz != null : "Missing super class";
-        assert className != null : "Missing class name";
+        assert clazz != null : "Missing class name";
 
         try
         {
-            final Class<?> clazz = Class.forName(className);
             assert clazz.isInterface() == false : "Interface '" + clazz.getName()
                     + "' can not be instanciated as it is an interface.";
             assert superClazz.isAssignableFrom(clazz) : "Class '" + clazz.getName()
@@ -111,19 +110,16 @@ public final class ClassUtils
                         + " with arguments of the following types: " + Arrays.asList(classes));
             }
             return constructor.newInstance(argumentsOrNull);
-        } catch (final ClassNotFoundException e)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(e);
         } catch (final InstantiationException ex)
         {
         } catch (final IllegalAccessException ex)
         {
         } catch (final InvocationTargetException ex)
         {
-            Throwable cause = ex.getCause();
+            final Throwable cause = ex.getCause();
             if (cause instanceof Error)
             {
-                Error error = (Error) cause;
+                final Error error = (Error) cause;
                 throw error;
             }
             if (cause instanceof Exception)
@@ -134,8 +130,34 @@ public final class ClassUtils
         {
         }
         throw new IllegalArgumentException(String.format(
-                "Cannot instantiate class '%s' with given arguments '%s'.", className, Arrays
+                "Cannot instantiate class '%s' with given arguments '%s'.", clazz.getName(), Arrays
                         .asList(argumentsOrNull)));
+    }
+
+    /**
+     * Creates a new instance of a class specified by its fully-qualified name.
+     * 
+     * @param superClazz Super class <code>className</code> has to be implemented or extended.
+     * @param className Fully-qualified class name.
+     * @param argumentsOrNull Optional constructor arguments. If <code>(Object[]) null</code> then
+     *            the empty constructor will be used. Note that <code>(Object) null</code> is not
+     *            interpreted as <code>null</code> arguments but rather as
+     *            <code>new Object[]{null}</code>.
+     * @return an instance of type <code>interface</code>.
+     */
+    public final static <T> T create(final Class<T> superClazz, final String className,
+            final Object... argumentsOrNull)
+    {
+        assert superClazz != null : "Missing super class";
+        assert className != null : "Missing class name";
+
+        try
+        {
+            return create(superClazz, Class.forName(className), argumentsOrNull);
+        } catch (final ClassNotFoundException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
     }
 
     @SuppressWarnings("unchecked")

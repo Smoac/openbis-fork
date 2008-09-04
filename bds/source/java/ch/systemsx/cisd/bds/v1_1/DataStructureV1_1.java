@@ -14,18 +14,22 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.bds;
+package ch.systemsx.cisd.bds.v1_1;
 
+import ch.systemsx.cisd.bds.ExperimentIdentifier;
+import ch.systemsx.cisd.bds.Sample;
+import ch.systemsx.cisd.bds.Version;
 import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IStorage;
+import ch.systemsx.cisd.bds.v1_0.DataStructureV1_0;
 
 /**
  * Data structure Version 1.1.
  * 
  * @author Christian Ribeaud
  */
-public final class DataStructureV1_1 extends DataStructureV1_0
+public final class DataStructureV1_1 extends DataStructureV1_0 implements IDataStructureV1_1
 {
     private static final Version VERSION = new Version(1, 1);
 
@@ -33,6 +37,10 @@ public final class DataStructureV1_1 extends DataStructureV1_0
     {
         super(storage);
     }
+
+    //
+    // IDataStructureV1_1
+    //
 
     /**
      * Returns the sample with its owner (a group or a database instance).
@@ -98,7 +106,6 @@ public final class DataStructureV1_1 extends DataStructureV1_0
     @Override
     public final Sample getSample()
     {
-        assertOpenOrCreated();
         final IDirectory metaDataDirectory = getMetaDataDirectory();
         final IDirectory sampleDir = metaDataDirectory.tryGetNode(Sample.FOLDER).tryAsDirectory();
         if (sampleDir.tryGetNode(SampleWithOwner.GROUP_CODE) == null)
@@ -155,7 +162,6 @@ public final class DataStructureV1_1 extends DataStructureV1_0
     @Override
     public final ExperimentIdentifier getExperimentIdentifier()
     {
-        assertOpenOrCreated();
         final IDirectory metaDataDirectory = getMetaDataDirectory();
         final IDirectory experimentIdentifierDirectory =
                 metaDataDirectory.tryGetNode(ExperimentIdentifier.FOLDER).tryAsDirectory();

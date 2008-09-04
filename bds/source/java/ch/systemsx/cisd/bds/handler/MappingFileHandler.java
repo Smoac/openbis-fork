@@ -168,6 +168,10 @@ public final class MappingFileHandler implements IDataStructureHandler
         loadStandardOriginalMapping();
     }
 
+    public final void performCreating()
+    {
+    }
+
     //
     // Helper classes
     //

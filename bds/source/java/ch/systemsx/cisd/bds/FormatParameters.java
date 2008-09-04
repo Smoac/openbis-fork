@@ -29,7 +29,7 @@ import ch.systemsx.cisd.bds.storage.INode;
  * 
  * @author Franz-Josef Elmer
  */
-final class FormatParameters implements IFormatParameters, IStorable
+public final class FormatParameters implements IFormatParameters, IStorable
 {
     private final Map<String, FormatParameter> parameters =
             new LinkedHashMap<String, FormatParameter>();
@@ -44,7 +44,7 @@ final class FormatParameters implements IFormatParameters, IStorable
     private IFormatParameterFactory formatParameterFactory =
             IFormatParameterFactory.DEFAULT_FORMAT_PARAMETER_FACTORY;
 
-    final void loadFrom(final IDirectory directory)
+    public final void loadFrom(final IDirectory directory)
     {
         parameters.clear();
         for (INode node : directory)
@@ -79,7 +79,7 @@ final class FormatParameters implements IFormatParameters, IStorable
     }
 
     /** Sets a different <code>IFormatParameterFactory</code> implementation than the default one. */
-    final void setFormatParameterFactory(final IFormatParameterFactory formatParameterFactory)
+    public final void setFormatParameterFactory(final IFormatParameterFactory formatParameterFactory)
     {
         this.formatParameterFactory = formatParameterFactory;
     }
@@ -91,7 +91,7 @@ final class FormatParameters implements IFormatParameters, IStorable
      *             already exists. To check whether given <var>parameter</var> is already present,
      *             use {@link #containsParameter(String)}.
      */
-    final void addParameter(final FormatParameter parameter)
+    public final void addParameter(final FormatParameter parameter)
     {
         final String parameterName = parameter.getName();
         if (containsParameter(parameterName))

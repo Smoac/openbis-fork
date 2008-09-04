@@ -27,13 +27,13 @@ import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.bds.Constants;
-import ch.systemsx.cisd.bds.DataStructureV1_0;
 import ch.systemsx.cisd.bds.IDataStructureHandler;
 import ch.systemsx.cisd.bds.Utilities;
 import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.INode;
+import ch.systemsx.cisd.bds.v1_0.DataStructureV1_0;
 import ch.systemsx.cisd.common.collections.CollectionIO;
 import ch.systemsx.cisd.common.collections.IFromStringConverter;
 import ch.systemsx.cisd.common.collections.IToStringConverter;
@@ -166,6 +166,10 @@ public final class ChecksumHandler implements IDataStructureHandler
     }
 
     public final void performOpening()
+    {
+    }
+
+    public final void performCreating()
     {
     }
 

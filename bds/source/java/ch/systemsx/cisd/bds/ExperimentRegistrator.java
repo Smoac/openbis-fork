@@ -27,20 +27,20 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
  */
 public final class ExperimentRegistrator implements IStorable
 {
-    static final String EXPERIMENT_REGISTRATOR = "experiment_registrator";
+    public static final String EXPERIMENT_REGISTRATOR = "experiment_registrator";
 
-    static final String FIRST_NAME = "first_name";
+    public static final String FIRST_NAME = "first_name";
 
-    static final String LAST_NAME = "last_name";
+    public static final String LAST_NAME = "last_name";
 
-    static final String EMAIL = "email";
+    public static final String EMAIL = "email";
 
     /**
      * Loads the experiment registrator from the specified directory.
      * 
      * @throws DataStructureException if file missing.
      */
-    static final ExperimentRegistrator loadFrom(final IDirectory directory)
+    public static final ExperimentRegistrator loadFrom(final IDirectory directory)
     {
         final IDirectory folder = Utilities.getSubDirectory(directory, EXPERIMENT_REGISTRATOR);
         final String firstName = Utilities.getTrimmedString(folder, FIRST_NAME);

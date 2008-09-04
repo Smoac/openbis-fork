@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.bds;
+package ch.systemsx.cisd.bds.v1_1;
 
+import ch.systemsx.cisd.bds.ExperimentIdentifier;
+import ch.systemsx.cisd.bds.StringUtils;
+import ch.systemsx.cisd.bds.Utilities;
 import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 
@@ -31,7 +34,7 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
  */
 public final class ExperimentIdentifierWithUUID extends ExperimentIdentifier
 {
-    static final String INSTANCE_UUID = "instance_uuid";
+    public static final String INSTANCE_UUID = "instance_uuid";
 
     private final String instanceUUID;
 
@@ -85,7 +88,7 @@ public final class ExperimentIdentifierWithUUID extends ExperimentIdentifier
      * 
      * @throws DataStructureException if file missing.
      */
-    final static ExperimentIdentifierWithUUID loadFrom(final IDirectory directory)
+    public final static ExperimentIdentifierWithUUID loadFrom(final IDirectory directory)
     {
         final IDirectory idFolder = Utilities.getSubDirectory(directory, FOLDER);
         final String instanceCode = Utilities.getTrimmedString(idFolder, INSTANCE_CODE);

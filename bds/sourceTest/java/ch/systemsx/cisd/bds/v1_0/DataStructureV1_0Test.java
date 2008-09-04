@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.bds;
+package ch.systemsx.cisd.bds.v1_0;
 
-import static ch.systemsx.cisd.bds.DataStructureV1_0.DIR_METADATA;
+import static ch.systemsx.cisd.bds.v1_0.DataStructureV1_0.DIR_METADATA;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
@@ -31,6 +31,23 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.bds.DataSet;
+import ch.systemsx.cisd.bds.DataStructureFactory;
+import ch.systemsx.cisd.bds.ExperimentIdentifier;
+import ch.systemsx.cisd.bds.ExperimentRegistrationTimestamp;
+import ch.systemsx.cisd.bds.ExperimentRegistrator;
+import ch.systemsx.cisd.bds.Format;
+import ch.systemsx.cisd.bds.FormatParameter;
+import ch.systemsx.cisd.bds.IFormatParameters;
+import ch.systemsx.cisd.bds.IFormattedData;
+import ch.systemsx.cisd.bds.NoFormattedData;
+import ch.systemsx.cisd.bds.Reference;
+import ch.systemsx.cisd.bds.ReferenceType;
+import ch.systemsx.cisd.bds.Sample;
+import ch.systemsx.cisd.bds.UnknownFormatV1_0;
+import ch.systemsx.cisd.bds.Utilities;
+import ch.systemsx.cisd.bds.Version;
+import ch.systemsx.cisd.bds.IDataStructure.Mode;
 import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.exception.StorageException;
 import ch.systemsx.cisd.bds.handler.ChecksumHandler;
@@ -55,7 +72,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
 
     private FileStorage storage;
 
-    private DataStructureV1_0 dataStructure;
+    private IDataStructureV1_0 dataStructure;
 
     //
     // AbstractFileSystemTestCase
@@ -67,7 +84,9 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
     {
         super.setUp();
         storage = new FileStorage(workingDirectory);
-        dataStructure = new DataStructureV1_0(storage);
+        dataStructure =
+                (IDataStructureV1_0) DataStructureFactory.createDataStructure(storage, new Version(
+                        1, 0));
     }
 
     @Test
@@ -335,8 +354,10 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
             assertEquals("Can not get root of an unmounted storage.", e.getMessage());
         }
 
-        final DataStructureV1_0 reloadedDataStructure = new DataStructureV1_0(storage);
-        reloadedDataStructure.open();
+        final IDataStructureV1_0 reloadedDataStructure =
+                (IDataStructureV1_0) DataStructureFactory.createDataStructure(storage, new Version(
+                        1, 0));
+        reloadedDataStructure.open(Mode.READ_ONLY);
         assertEquals("42\n", Utilities.getString(reloadedDataStructure.getOriginalData(), "answer"));
         assertEquals(experimentIdentifier, reloadedDataStructure.getExperimentIdentifier());
         assertEquals(experimentRegistratorDate, reloadedDataStructure
@@ -386,7 +407,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
         storage.unmount();
         try
         {
-            dataStructure.open();
+            dataStructure.open(Mode.READ_ONLY);
             fail("DataStructureException expected.");
         } catch (final DataStructureException e)
         {
@@ -398,7 +419,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
     public void testOpen()
     {
         createExampleDataStructure();
-        dataStructure.open();
+        dataStructure.open(Mode.READ_ONLY);
     }
 
     @Test
@@ -411,7 +432,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
         storage.unmount();
         try
         {
-            dataStructure.open();
+            dataStructure.open(Mode.READ_ONLY);
             fail("DataStructureException expected.");
         } catch (final DataStructureException e)
         {
@@ -431,7 +452,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
         new Format(UnknownFormatV1_0.UNKNOWN_1_0.getCode(), new Version(1, 1), null)
                 .saveTo(metaData);
         storage.unmount();
-        dataStructure.open();
+        dataStructure.open(Mode.READ_ONLY);
         assertEquals(UnknownFormatV1_0.UNKNOWN_1_0, dataStructure.getFormattedData().getFormat());
     }
 
@@ -445,7 +466,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
         new Format(UnknownFormatV1_0.UNKNOWN_1_0.getCode(), new Version(2, 0), null)
                 .saveTo(metaData);
         storage.unmount();
-        dataStructure.open();
+        dataStructure.open(Mode.READ_ONLY);
         try
         {
             dataStructure.getFormattedData();
@@ -465,7 +486,7 @@ public final class DataStructureV1_0Test extends AbstractFileSystemTestCase
         final IDirectory metaData = Utilities.getSubDirectory(root, DataStructureV1_0.DIR_METADATA);
         new Format("another format", new Version(1, 1), null).saveTo(metaData);
         storage.unmount();
-        dataStructure.open();
+        dataStructure.open(Mode.READ_ONLY);
         assertEquals(UnknownFormatV1_0.UNKNOWN_1_0, dataStructure.getFormattedData().getFormat());
     }
 

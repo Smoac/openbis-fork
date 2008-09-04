@@ -42,4 +42,9 @@ public interface IStorage
      * Unmounts this storage. May perform some finalization (e.g. make cached data persistent).
      */
     public void unmount();
+
+    /**
+     * Whether this hierarchical storage is mounted or not.
+     */
+    public boolean isMounted();
 }

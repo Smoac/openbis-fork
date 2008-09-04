@@ -39,26 +39,35 @@ public class FileStorage implements IStorage
      * @throws StorageException if <code>folder</code> does not exist or is not a directory in the
      *             file system.
      */
-    public FileStorage(File folder)
+    public FileStorage(final File folder)
     {
         root = NodeFactory.createDirectoryNode(folder);
     }
 
-    public IDirectory getRoot()
+    //
+    // IStorage
+    //
+
+    public final boolean isMounted()
     {
-        if (mounted == false)
+        return mounted;
+    }
+
+    public final IDirectory getRoot()
+    {
+        if (isMounted() == false)
         {
             throw new StorageException("Can not get root of an unmounted storage.");
         }
         return root;
     }
 
-    public void mount()
+    public final void mount()
     {
         mounted = true;
     }
 
-    public void unmount()
+    public final void unmount()
     {
         mounted = false;
     }

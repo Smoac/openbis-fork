@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.bds;
+package ch.systemsx.cisd.bds.v1_1;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.fail;
@@ -22,6 +22,7 @@ import static org.testng.AssertJUnit.fail;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.bds.Sample;
 import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.filesystem.NodeFactory;
@@ -99,8 +100,8 @@ public final class SampleWithOwnerTest extends AbstractFileSystemTestCase
     {
         final IDirectory directory = NodeFactory.createDirectoryNode(workingDirectory);
         final Sample sample =
-                new SampleWithOwner(CODE, TYPE_CODE, TYPE_DESCRIPTION, instanceUUID,
-                        instanceCode, groupCode);
+                new SampleWithOwner(CODE, TYPE_CODE, TYPE_DESCRIPTION, instanceUUID, instanceCode,
+                        groupCode);
         sample.saveTo(directory);
         final SampleWithOwner newSample = SampleWithOwner.loadFrom(directory);
         if (groupCode.length() > 0)

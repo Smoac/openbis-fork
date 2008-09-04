@@ -18,6 +18,7 @@ package ch.systemsx.cisd.bds;
 
 import java.io.File;
 
+import ch.systemsx.cisd.bds.IDataStructure.Mode;
 import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IStorage;
 import ch.systemsx.cisd.bds.storage.filesystem.FileStorage;
@@ -25,6 +26,10 @@ import ch.systemsx.cisd.bds.storage.hdf5.HDF5Storage;
 
 /**
  * Loader for {@link IDataStructure}s from the file system.
+ * <p>
+ * Use {@link DataStructureFactory} to get an instance of {@link IDataStructure} appropriate for the
+ * version found.
+ * </p>
  * 
  * @author Franz-Josef Elmer
  */
@@ -45,6 +50,9 @@ public final class DataStructureLoader
 
     /**
      * Loads the data structure with specified name.
+     * 
+     * @return an unmodifiable {@link IDataStructure} (opened in {@link Mode#READ_ONLY READ_ONLY}
+     *         mode).
      */
     public final IDataStructure load(final String name)
     {
@@ -53,7 +61,7 @@ public final class DataStructureLoader
         final Version version = Version.loadFrom(storage.getRoot());
         final IDataStructure dataStructure =
                 DataStructureFactory.createDataStructure(storage, version);
-        dataStructure.open();
+        dataStructure.open(Mode.READ_ONLY);
         return dataStructure;
     }
 
@@ -76,6 +84,5 @@ public final class DataStructureLoader
         }
         throw new DataStructureException("Couldn't found appropriate container named '" + name
                 + "' in " + baseDir.getAbsolutePath());
-
     }
 }

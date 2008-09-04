@@ -38,21 +38,21 @@ public final class DataSet implements IStorable
     static final String NO_PARENT_FOR_MEASURED_DATA =
             "No parent could be specified for measured data.";
 
-    static final String FOLDER = "data_set";
+    public static final String FOLDER = "data_set";
 
-    static final String CODE = "code";
+    public static final String CODE = "code";
 
-    static final String PRODUCTION_TIMESTAMP = "production_timestamp";
+    public static final String PRODUCTION_TIMESTAMP = "production_timestamp";
 
-    static final String PRODUCER_CODE = "producer_code";
+    public static final String PRODUCER_CODE = "producer_code";
 
-    static final String OBSERVABLE_TYPE = "observable_type";
+    public static final String OBSERVABLE_TYPE = "observable_type";
 
-    static final String IS_MEASURED = "is_measured";
+    public static final String IS_MEASURED = "is_measured";
 
-    static final String IS_COMPLETE = "is_complete";
+    public static final String IS_COMPLETE = "is_complete";
 
-    static final String PARENT_CODES = "parent_codes";
+    public static final String PARENT_CODES = "parent_codes";
 
     /** Provides the information when the data set has been created. */
     private final Date productionTimestamp;
@@ -163,7 +163,7 @@ public final class DataSet implements IStorable
      * 
      * @throws DataStructureException if file missing.
      */
-    final static DataSet loadFrom(final IDirectory directory)
+    public final static DataSet loadFrom(final IDirectory directory)
     {
         assert directory != null : "Given directory can not be null.";
         final IDirectory idFolder = Utilities.getSubDirectory(directory, FOLDER);

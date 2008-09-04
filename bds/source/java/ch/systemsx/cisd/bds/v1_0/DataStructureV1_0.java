@@ -14,11 +14,26 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.bds;
+package ch.systemsx.cisd.bds.v1_0;
 
 import java.util.Set;
 
-import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.bds.AbstractDataStructure;
+import ch.systemsx.cisd.bds.DataSet;
+import ch.systemsx.cisd.bds.ExperimentIdentifier;
+import ch.systemsx.cisd.bds.ExperimentRegistrationTimestamp;
+import ch.systemsx.cisd.bds.ExperimentRegistrator;
+import ch.systemsx.cisd.bds.Format;
+import ch.systemsx.cisd.bds.FormatParameter;
+import ch.systemsx.cisd.bds.FormatParameters;
+import ch.systemsx.cisd.bds.FormattedDataFactory;
+import ch.systemsx.cisd.bds.IAnnotations;
+import ch.systemsx.cisd.bds.IFormattedData;
+import ch.systemsx.cisd.bds.Reference;
+import ch.systemsx.cisd.bds.Sample;
+import ch.systemsx.cisd.bds.UnknownFormatV1_0;
+import ch.systemsx.cisd.bds.Utilities;
+import ch.systemsx.cisd.bds.Version;
 import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.handler.ChecksumHandler;
 import ch.systemsx.cisd.bds.handler.MappingFileHandler;
@@ -30,7 +45,7 @@ import ch.systemsx.cisd.bds.storage.IStorage;
  * 
  * @author Franz-Josef Elmer
  */
-public class DataStructureV1_0 extends AbstractDataStructure implements IDataStructureV1_X
+public class DataStructureV1_0 extends AbstractDataStructure implements IDataStructureV1_0
 {
     public static final String DIR_METADATA = "metadata";
 
@@ -73,47 +88,38 @@ public class DataStructureV1_0 extends AbstractDataStructure implements IDataStr
                 ChecksumHandler.CHECKSUM_DIRECTORY), getOriginalData()));
     }
 
-    /**
-     * Returns the directory containing the original data.
-     */
-    public final IDirectory getOriginalData()
-    {
-        assertOpenOrCreated();
-        return Utilities.getOrCreateSubDirectory(getDataDirectory(), DIR_ORIGINAL);
-    }
-
-    /**
-     * Returns the directory containing the standardized data.
-     */
-    @Private
-    final IDirectory getStandardData()
-    {
-        assertOpenOrCreated();
-        return Utilities.getOrCreateSubDirectory(getDataDirectory(), DIR_STANDARD);
-    }
-
     private final IDirectory getDataDirectory()
     {
-        assertOpenOrCreated();
         return Utilities.getOrCreateSubDirectory(root, DIR_DATA);
     }
 
-    final IDirectory getMetaDataDirectory()
+    protected final IDirectory getMetaDataDirectory()
     {
-        assertOpenOrCreated();
         return Utilities.getOrCreateSubDirectory(root, DIR_METADATA);
     }
 
     private final IDirectory getAnnotationsDirectory()
     {
-        assertOpenOrCreated();
         return Utilities.getOrCreateSubDirectory(root, DIR_ANNOTATIONS);
     }
 
     private final IDirectory getParametersDirectory()
     {
-        assertOpenOrCreated();
         return Utilities.getOrCreateSubDirectory(getMetaDataDirectory(), DIR_PARAMETERS);
+    }
+
+    //
+    // IDataStructureV1_X
+    //
+
+    public final IDirectory getStandardData()
+    {
+        return Utilities.getOrCreateSubDirectory(getDataDirectory(), DIR_STANDARD);
+    }
+
+    public final IDirectory getOriginalData()
+    {
+        return Utilities.getOrCreateSubDirectory(getDataDirectory(), DIR_ORIGINAL);
     }
 
     /**
@@ -126,7 +132,6 @@ public class DataStructureV1_0 extends AbstractDataStructure implements IDataStr
      */
     public final IFormattedData getFormattedData() throws DataStructureException
     {
-        assertOpenOrCreated();
         if (format == null)
         {
             throw new DataStructureException(
@@ -142,7 +147,6 @@ public class DataStructureV1_0 extends AbstractDataStructure implements IDataStr
     public final void setFormat(final Format format)
     {
         assert format != null : "Unspecified format.";
-        assertOpenOrCreated();
         this.format = format;
         formatParameters.setFormatParameterFactory(format.getFormatParameterFactory());
     }
@@ -166,45 +170,38 @@ public class DataStructureV1_0 extends AbstractDataStructure implements IDataStr
 
     public ExperimentIdentifier getExperimentIdentifier()
     {
-        assertOpenOrCreated();
         return ExperimentIdentifier.loadFrom(getMetaDataDirectory());
     }
 
     public void setExperimentIdentifier(final ExperimentIdentifier experimentIdentifier)
     {
         assert experimentIdentifier != null : "Unspecified experiment identifier";
-        assertOpenOrCreated();
         experimentIdentifier.saveTo(getMetaDataDirectory());
     }
 
     public final ExperimentRegistrationTimestamp getExperimentRegistratorTimestamp()
     {
-        assertOpenOrCreated();
         return ExperimentRegistrationTimestamp.loadFrom(getMetaDataDirectory());
     }
 
     public final void setExperimentRegistrationTimestamp(final ExperimentRegistrationTimestamp date)
     {
-        assertOpenOrCreated();
         date.saveTo(getMetaDataDirectory());
     }
 
     public final ExperimentRegistrator getExperimentRegistrator()
     {
-        assertOpenOrCreated();
         return ExperimentRegistrator.loadFrom(getMetaDataDirectory());
     }
 
     public final void setExperimentRegistrator(final ExperimentRegistrator registrator)
     {
         assert registrator != null : "Unspecified experiment registrator.";
-        assertOpenOrCreated();
         registrator.saveTo(getMetaDataDirectory());
     }
 
     public Sample getSample()
     {
-        assertOpenOrCreated();
         return Sample.loadFrom(getMetaDataDirectory());
     }
 
@@ -214,13 +211,11 @@ public class DataStructureV1_0 extends AbstractDataStructure implements IDataStr
     public void setSample(final Sample sample)
     {
         assert sample != null : "Unspecified sample.";
-        assertOpenOrCreated();
         sample.saveTo(getMetaDataDirectory());
     }
 
     public final void addReference(final Reference reference)
     {
-        assertOpenOrCreated();
         mappingFileHandler.addReference(reference);
     }
 
@@ -235,7 +230,6 @@ public class DataStructureV1_0 extends AbstractDataStructure implements IDataStr
     public final void setDataSet(final DataSet dataSet)
     {
         assert dataSet != null : "Unspecified data set.";
-        assertOpenOrCreated();
         dataSet.saveTo(getMetaDataDirectory());
     }
 
@@ -247,7 +241,6 @@ public class DataStructureV1_0 extends AbstractDataStructure implements IDataStr
      */
     public final DataSet getDataSet()
     {
-        assertOpenOrCreated();
         return DataSet.loadFrom(getMetaDataDirectory());
     }
 
@@ -256,7 +249,7 @@ public class DataStructureV1_0 extends AbstractDataStructure implements IDataStr
     //
 
     @Override
-    protected void afterCreation()
+    public void performCreating()
     {
         registerHandlers();
     }

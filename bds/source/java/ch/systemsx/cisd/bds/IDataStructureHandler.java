@@ -37,15 +37,28 @@ public interface IDataStructureHandler
     public void assertValid() throws DataStructureException;
 
     /**
-     * Performs opening specific for the concrete data structure. Will be invoked after the common
-     * part of {@link IDataStructure#open()} but before validation with {@link #assertValid()}.
+     * Performs opening specific tasks for the concrete data structure.
+     * <p>
+     * Will be invoked after the common part of
+     * {@link IDataStructure#open(ch.systemsx.cisd.bds.IDataStructure.Mode)} but before validation
+     * with {@link #assertValid()}.
+     * </p>
      */
     public void performOpening();
 
     /**
-     * Performs closing specific for the concrete data structure. Will be invoked before validation
-     * with {@link #assertValid()}.
+     * Performs closing specific tasks for the concrete data structure.
+     * <p>
+     * Will be invoked before validation with {@link #assertValid()}.
+     * </p>
      */
     public void performClosing();
 
+    /**
+     * Performs creating specific tasks for the concrete data structure.
+     * <p>
+     * Will be invoked after the common part of {@link IDataStructure#create()}.
+     * </p>
+     */
+    public void performCreating();
 }

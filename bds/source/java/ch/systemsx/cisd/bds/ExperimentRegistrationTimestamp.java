@@ -27,7 +27,8 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
  */
 public final class ExperimentRegistrationTimestamp implements IStorable
 {
-    static final String EXPERIMENT_REGISTRATION_TIMESTAMP = "experiment_registration_timestamp";
+    public static final String EXPERIMENT_REGISTRATION_TIMESTAMP =
+            "experiment_registration_timestamp";
 
     /**
      * Creates an instance for the specified date.
@@ -37,7 +38,7 @@ public final class ExperimentRegistrationTimestamp implements IStorable
         this.date = date;
     }
 
-    final static ExperimentRegistrationTimestamp loadFrom(final IDirectory directory)
+    public final static ExperimentRegistrationTimestamp loadFrom(final IDirectory directory)
     {
         return new ExperimentRegistrationTimestamp(Utilities.tryGetDate(directory,
                 EXPERIMENT_REGISTRATION_TIMESTAMP));

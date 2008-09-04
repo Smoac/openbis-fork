@@ -26,16 +26,16 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
  */
 public final class Version implements IStorable
 {
-    static final String VERSION = "version";
+    public static final String VERSION = "version";
 
-    static final String MAJOR = "major";
+    public static final String MAJOR = "major";
 
-    static final String MINOR = "minor";
+    public static final String MINOR = "minor";
 
     /**
      * Loads the version from the specified directory.
      */
-    static Version loadFrom(IDirectory directory)
+    public final static Version loadFrom(IDirectory directory)
     {
         IDirectory versionFolder = Utilities.getSubDirectory(directory, VERSION);
         return new Version(Utilities.getNumber(versionFolder, MAJOR), Utilities.getNumber(

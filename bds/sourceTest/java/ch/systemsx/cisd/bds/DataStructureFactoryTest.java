@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.bds;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import org.jmock.Expectations;
@@ -26,6 +27,9 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IStorage;
+import ch.systemsx.cisd.bds.v1_0.DataStructureV1_0;
+import ch.systemsx.cisd.bds.v1_0.IDataStructureV1_0;
+import ch.systemsx.cisd.bds.v1_1.DataStructureV1_1;
 
 /**
  * Test cases for corresponding {@link DataStructureFactory} class.
@@ -82,6 +86,7 @@ public class DataStructureFactoryTest
             });
         final IDataStructure dataStructure =
                 DataStructureFactory.createDataStructure(storage, new Version(1, 0));
-        assertEquals(DataStructureV1_0.class, dataStructure.getClass());
+        assertTrue(dataStructure instanceof IDataStructureV1_0);
+        assertEquals(new Version(1, 0), dataStructure.getVersion());
     }
 }

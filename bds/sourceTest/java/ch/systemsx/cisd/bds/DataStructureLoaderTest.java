@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.bds;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.bds.Utilities.Boolean;
 import ch.systemsx.cisd.bds.storage.filesystem.FileStorage;
+import ch.systemsx.cisd.bds.v1_0.IDataStructureV1_0;
 import ch.systemsx.cisd.common.filesystem.AbstractFileSystemTestCase;
 
 /**
@@ -42,7 +44,9 @@ public final class DataStructureLoaderTest extends AbstractFileSystemTestCase
     {
         final File dir = new File(workingDirectory, "ds");
         assert dir.mkdir();
-        final DataStructureV1_0 dataStructure = new DataStructureV1_0(new FileStorage(dir));
+        final IDataStructureV1_0 dataStructure =
+                (IDataStructureV1_0) DataStructureFactory.createDataStructure(new FileStorage(dir),
+                        new Version(1, 0));
         dataStructure.create();
         dataStructure.getOriginalData().addKeyValuePair("answer", "42");
         dataStructure.setFormat(UnknownFormatV1_0.UNKNOWN_1_0);
@@ -61,8 +65,9 @@ public final class DataStructureLoaderTest extends AbstractFileSystemTestCase
         dataStructure.close();
 
         final IDataStructure ds = new DataStructureLoader(workingDirectory).load("ds");
-        assertEquals(DataStructureV1_0.class, ds.getClass());
-        assertEquals(experimentIdentifier, ((DataStructureV1_0) ds).getExperimentIdentifier());
+        assertTrue(ds instanceof IDataStructureV1_0);
+        assertEquals(new Version(1, 0), ds.getVersion());
+        assertEquals(experimentIdentifier, ((IDataStructureV1_0) ds).getExperimentIdentifier());
     }
 
     private final static List<String> createParentCodes()

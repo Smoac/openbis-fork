@@ -32,7 +32,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.bds.DataStructureV1_0;
 import ch.systemsx.cisd.bds.Format;
 import ch.systemsx.cisd.bds.FormattedDataFactory;
 import ch.systemsx.cisd.bds.IFormatParameters;
@@ -43,6 +42,7 @@ import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.ILink;
 import ch.systemsx.cisd.bds.storage.INode;
 import ch.systemsx.cisd.bds.storage.filesystem.NodeFactory;
+import ch.systemsx.cisd.bds.v1_0.DataStructureV1_0;
 import ch.systemsx.cisd.common.filesystem.AbstractFileSystemTestCase;
 
 /**

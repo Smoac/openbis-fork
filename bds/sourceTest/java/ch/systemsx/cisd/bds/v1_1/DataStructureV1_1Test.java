@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.bds;
+package ch.systemsx.cisd.bds.v1_1;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
@@ -26,9 +26,17 @@ import java.io.IOException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.bds.DataStructureFactory;
+import ch.systemsx.cisd.bds.DataStructureLoader;
+import ch.systemsx.cisd.bds.ExperimentIdentifier;
+import ch.systemsx.cisd.bds.ExperimentIdentifierTest;
+import ch.systemsx.cisd.bds.Sample;
+import ch.systemsx.cisd.bds.Version;
+import ch.systemsx.cisd.bds.IDataStructure.Mode;
 import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.filesystem.FileStorage;
+import ch.systemsx.cisd.bds.v1_0.DataStructureV1_0Test;
 import ch.systemsx.cisd.common.filesystem.AbstractFileSystemTestCase;
 
 /**
@@ -47,7 +55,7 @@ public final class DataStructureV1_1Test extends AbstractFileSystemTestCase
 
     private FileStorage storage;
 
-    private DataStructureV1_1 dataStructure;
+    private IDataStructureV1_1 dataStructure;
 
     private final static SampleWithOwner createSampleWithOwner()
     {
@@ -65,7 +73,9 @@ public final class DataStructureV1_1Test extends AbstractFileSystemTestCase
     {
         super.setUp();
         storage = new FileStorage(workingDirectory);
-        dataStructure = new DataStructureV1_1(storage);
+        dataStructure =
+                (IDataStructureV1_1) DataStructureFactory.createDataStructure(storage, new Version(
+                        1, 1));
     }
 
     @Test
@@ -128,7 +138,8 @@ public final class DataStructureV1_1Test extends AbstractFileSystemTestCase
         {
             // Nothing to do here.
         }
-        dataStructure.setExperimentIdentifier(ExperimentIdentifierWithUUIDTest.createExperimentIdentifierWithUUID());
+        dataStructure.setExperimentIdentifier(ExperimentIdentifierWithUUIDTest
+                .createExperimentIdentifierWithUUID());
     }
 
     @Test
@@ -139,14 +150,14 @@ public final class DataStructureV1_1Test extends AbstractFileSystemTestCase
         final IDirectory root = storage.getRoot();
         new Version(1, 1).saveTo(root);
         storage.unmount();
-        dataStructure.open();
+        dataStructure.open(Mode.READ_ONLY);
     }
 
     @Test
     public final void testBackwardCompatible()
     {
         DataStructureV1_0Test.createExampleDataStructure(storage, new Version(1, 0));
-        dataStructure.open();
+        dataStructure.open(Mode.READ_ONLY);
         final Sample sample = dataStructure.getSample();
         assertFalse(sample instanceof SampleWithOwner);
         try
@@ -163,17 +174,26 @@ public final class DataStructureV1_1Test extends AbstractFileSystemTestCase
     public final void testClose()
     {
         DataStructureV1_0Test.createExampleDataStructure(storage, new Version(1, 0));
-        dataStructure.open();
+        dataStructure.open(Mode.READ_ONLY);
+        // Closes without exception.
+        dataStructure.close();
+        dataStructure.open(Mode.READ_ONLY);
+        assertEquals(new Version(1, 0), new DataStructureLoader(workingDirectory.getParentFile())
+                .load(getClass().getName()).getVersion());
         try
         {
-            dataStructure.close();
-            fail();
-        } catch (final DataStructureException ex)
+            dataStructure.setSample(createSampleWithOwner());
+            fail("read-only mode");
+        } catch (final UnsupportedOperationException ex)
         {
             // Nothing to do here.
         }
+        dataStructure.open(Mode.READ_WRITE);
         dataStructure.setSample(createSampleWithOwner());
-        dataStructure.setExperimentIdentifier(ExperimentIdentifierWithUUIDTest.createExperimentIdentifierWithUUID());
+        dataStructure.setExperimentIdentifier(ExperimentIdentifierWithUUIDTest
+                .createExperimentIdentifierWithUUID());
         dataStructure.close();
+        dataStructure.open(Mode.READ_ONLY);
+        assertEquals(new Version(1, 1), dataStructure.getVersion());
     }
 }

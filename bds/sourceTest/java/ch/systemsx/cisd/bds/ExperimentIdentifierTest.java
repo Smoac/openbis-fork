@@ -20,6 +20,7 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.bds.v1_1.SampleWithOwner;
 import ch.systemsx.cisd.common.test.EqualsHashCodeTestCase;
 
 /**
@@ -31,9 +32,9 @@ import ch.systemsx.cisd.common.test.EqualsHashCodeTestCase;
 public final class ExperimentIdentifierTest extends EqualsHashCodeTestCase<ExperimentIdentifier>
 {
 
-    static final String EXPERMENT_CODE = "EXP1";
+    public static final String EXPERMENT_CODE = "EXP1";
 
-    static final String PROJECT_CODE = "PROJ1";
+    public static final String PROJECT_CODE = "PROJ1";
 
     @Test
     public final void testConstructor()

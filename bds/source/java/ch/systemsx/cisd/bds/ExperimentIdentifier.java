@@ -30,22 +30,22 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
  */
 public class ExperimentIdentifier implements IStorable
 {
-    static final String FOLDER = "experiment_identifier";
+    public static final String FOLDER = "experiment_identifier";
 
-    static final String INSTANCE_CODE = "instance_code";
+    public static final String INSTANCE_CODE = "instance_code";
 
-    static final String GROUP_CODE = "group_code";
+    public static final String GROUP_CODE = "group_code";
 
-    static final String PROJECT_CODE = "project_code";
+    public static final String PROJECT_CODE = "project_code";
 
-    static final String EXPERIMENT_CODE = "experiment_code";
+    public static final String EXPERIMENT_CODE = "experiment_code";
 
     /**
      * Loads the experiment identifier from the specified directory.
      * 
      * @throws DataStructureException if file missing.
      */
-    static ExperimentIdentifier loadFrom(final IDirectory directory)
+    public static ExperimentIdentifier loadFrom(final IDirectory directory)
     {
         final IDirectory idFolder = Utilities.getSubDirectory(directory, FOLDER);
         final String instanceCode = Utilities.getTrimmedString(idFolder, INSTANCE_CODE);

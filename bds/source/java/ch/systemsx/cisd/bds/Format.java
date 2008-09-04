@@ -32,18 +32,18 @@ import ch.systemsx.cisd.bds.storage.INode;
 public class Format implements IStorable
 {
 
-    static final String FORMAT = "format";
+    public static final String FORMAT = "format";
 
-    static final String CODE = "code";
+    public static final String CODE = "code";
 
-    static final String VARIANT = "variant";
+    public static final String VARIANT = "variant";
 
     /**
      * Loads the format from the specified directory.
      * 
      * @throws DataStructureException if the format could be loaded.
      */
-    final static Format loadFrom(final IDirectory directory)
+    public final static Format loadFrom(final IDirectory directory)
     {
         final INode dir = directory.tryGetNode(FORMAT);
         if (dir instanceof IDirectory == false)

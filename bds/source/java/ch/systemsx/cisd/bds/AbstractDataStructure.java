@@ -28,7 +28,7 @@ import ch.systemsx.cisd.bds.storage.IStorage;
  * 
  * @author Franz-Josef Elmer
  */
-abstract class AbstractDataStructure implements IDataStructure, IDataStructureHandler
+public abstract class AbstractDataStructure implements IDataStructure, IDataStructureHandler
 {
     protected final IStorage storage;
 
@@ -36,7 +36,9 @@ abstract class AbstractDataStructure implements IDataStructure, IDataStructureHa
 
     private final List<IDataStructureHandler> handlers;
 
-    AbstractDataStructure(final IStorage storage)
+    private Mode mode;
+
+    protected AbstractDataStructure(final IStorage storage)
     {
         assert storage != null : "Unspecified storage.";
         this.storage = storage;
@@ -55,32 +57,17 @@ abstract class AbstractDataStructure implements IDataStructure, IDataStructureHa
         handlers.add(handler);
     }
 
-    /**
-     * Asserts that this instance is already opened or created otherwise a
-     * {@link IllegalStateException} is thrown.
-     */
-    protected final void assertOpenOrCreated()
-    {
-        if (root == null)
-        {
-            throw new IllegalStateException("Data structure should first be opened or created.");
-        }
-    }
-
-    /**
-     * After-creation jobs that should be done. Kind of initialization for subclasses when they
-     * create a new data structure.
-     * <p>
-     * By default this method does nothing.
-     * </p>
-     */
-    protected void afterCreation()
-    {
-    }
-
     //
     // IDataStructureHandler
     //
+
+    public void performCreating()
+    {
+        for (final IDataStructureHandler handler : handlers)
+        {
+            handler.performCreating();
+        }
+    }
 
     public void assertValid()
     {
@@ -110,17 +97,25 @@ abstract class AbstractDataStructure implements IDataStructure, IDataStructureHa
     // IDataStructure
     //
 
-    public final void create()
+    public final boolean isOpenOrCreated()
     {
-        mountStorage();
-        afterCreation();
+        return root != null;
     }
 
-    public final void open()
+    public final void create()
     {
+        mode = Mode.READ_WRITE;
+        mountStorage();
+        performCreating();
+    }
+
+    public final void open(final Mode thatMode)
+    {
+        assert thatMode != null : "Unspecified mode";
+        mode = thatMode;
         mountStorage();
         performOpening();
-        Version loadedVersion = Version.loadFrom(root);
+        final Version loadedVersion = Version.loadFrom(root);
         if (getVersion().isBackwardsCompatibleWith(loadedVersion) == false)
         {
             throw new DataStructureException("Version of loaded data structure is " + loadedVersion
@@ -131,11 +126,15 @@ abstract class AbstractDataStructure implements IDataStructure, IDataStructureHa
 
     public final void close()
     {
-        assertOpenOrCreated();
-        performClosing();
-        getVersion().saveTo(root);
-        // TODO 2008-07-03, Bernd Rinn: make this optional
-        // assertValid();
+        if (mode == Mode.READ_WRITE)
+        {
+            performClosing();
+            getVersion().saveTo(root);
+            // TODO 2008-07-03, Bernd Rinn: make this optional
+            // assertValid();
+        }
+        mode = null;
         storage.unmount();
+        root = null;
     }
 }

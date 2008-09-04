@@ -24,7 +24,6 @@ import java.util.Set;
 
 import ch.systemsx.cisd.bds.AbstractFormattedData;
 import ch.systemsx.cisd.bds.Constants;
-import ch.systemsx.cisd.bds.DataStructureV1_0;
 import ch.systemsx.cisd.bds.Format;
 import ch.systemsx.cisd.bds.FormattedDataContext;
 import ch.systemsx.cisd.bds.IFormatParameters;
@@ -34,6 +33,7 @@ import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.exception.StorageException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.INode;
+import ch.systemsx.cisd.bds.v1_0.DataStructureV1_0;
 
 /**
  * {@link IFormattedData} implementation for <i>HCS (High-Content Screening) with Images</i>. It is
