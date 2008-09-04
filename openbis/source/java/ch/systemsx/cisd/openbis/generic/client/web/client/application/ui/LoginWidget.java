@@ -18,14 +18,15 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.VerticalPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 
 /**
  * 
@@ -37,7 +38,7 @@ public class LoginWidget extends VerticalPanel
     private final TextField<String> userField;
     private final TextField<String> passwordField;
 
-    public LoginWidget(GenericViewContext viewContext)
+    public LoginWidget(final GenericViewContext viewContext)
     {
         add(new Text(viewContext.getMessage("login_invitation")));
         
@@ -61,18 +62,28 @@ public class LoginWidget extends VerticalPanel
         Button button = new Button(viewContext.getMessage("login_buttonLabel"));
         button.addSelectionListener(new SelectionListener<ComponentEvent>()
             {
-        
                 @Override
                 public void componentSelected(ComponentEvent ce)
                 {
-                    
-                    Info.display("Login", "user: .{0}. password: .{1}.", userField.getValue(), passwordField.getValue());
+                    login(viewContext);
                 }
-        
             });
         formPanel.addButton(button);
         
         add(formPanel);
+    }
+    
+    private void login(final GenericViewContext viewContext)
+    {
+        viewContext.getService().tryToLogin(userField.getValue(), passwordField.getValue(),
+                new AbstractAsyncCallback<SessionContext>(viewContext)
+                    {
+                        public void onSuccess(SessionContext sessionContext)
+                        {
+                            viewContext.getPageController().reload();
+                        }
+                    });
+        
     }
     
 }

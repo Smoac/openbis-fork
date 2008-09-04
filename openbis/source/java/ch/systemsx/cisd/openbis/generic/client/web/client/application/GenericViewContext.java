@@ -30,13 +30,15 @@ public class GenericViewContext implements IMessageProvider
     private final IMessageProvider messageProvider;
     private final IGenericImageBundle imageBundle;
     private final GenericViewModel viewModel;
+    private final IPageController pageController;
 
     GenericViewContext(IGenericClientServiceAsync service, IMessageProvider messageProvider,
-            IGenericImageBundle imageBundle)
+            IGenericImageBundle imageBundle, IPageController pageController)
     {
         this.service = service;
         this.messageProvider = messageProvider;
         this.imageBundle = imageBundle;
+        this.pageController = pageController;
         viewModel = new GenericViewModel();
     }
     
@@ -58,6 +60,11 @@ public class GenericViewContext implements IMessageProvider
     public final IGenericImageBundle getImageBundle()
     {
         return imageBundle;
+    }
+
+    public final IPageController getPageController()
+    {
+        return pageController;
     }
     
 }

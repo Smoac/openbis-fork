@@ -33,4 +33,7 @@ public interface IGenericClientServiceAsync
     
     /** @see IGenericClientService#tryToGetCurrentSessionContext() */
     public void tryToGetCurrentSessionContext(AsyncCallback<SessionContext> callback);
+    
+    /** @see IGenericClientService#tryToLogin(String, String) */
+    public void tryToLogin(String userID, String password, AsyncCallback<SessionContext> callback);
 }

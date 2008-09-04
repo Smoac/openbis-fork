@@ -25,9 +25,11 @@ import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.VerticalPanel;
+import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
@@ -92,7 +94,14 @@ public class Client implements EntryPoint
         endpoint.setServiceEntryPoint(GenericConstants.SERVER_NAME);
         IGenericImageBundle imageBundle = GWT.<IGenericImageBundle> create(IGenericImageBundle.class);
         IMessageProvider messageProvider = new DictonaryBasedMessageProvider("generic");
-        return new GenericViewContext(service, messageProvider, imageBundle);
+        IPageController pageController = new IPageController()
+            {
+                public void reload()
+                {
+                    onModuleLoad();
+                }
+            };
+        return new GenericViewContext(service, messageProvider, imageBundle, pageController);
     }
     
     private LayoutContainer createLoginPage()
@@ -124,15 +133,18 @@ public class Client implements EntryPoint
     {
         LayoutContainer container = new LayoutContainer();
         container.setLayout(new BorderLayout());
+        
         container.add(widget, new BorderLayoutData(LayoutRegion.CENTER));
-        LayoutContainer footerPanel = new LayoutContainer();
-        footerPanel.setStyleName("footer");
+        
         String version = viewContext.getModel().getApplicationInfo().getVersion();
         Text footerText = new Text(viewContext.getMessage("footer", version));
         footerText.setStyleName("footer-text");
-        footerPanel.add(footerText);
-        container.add(footerPanel, new BorderLayoutData(LayoutRegion.SOUTH));
-        return container;
+        container.add(footerText, new BorderLayoutData(LayoutRegion.SOUTH));
+        
+        Viewport viewport = new Viewport();
+        viewport.setLayout(new FitLayout());
+        viewport.add(container);
+        return viewport;
     }
     
 }

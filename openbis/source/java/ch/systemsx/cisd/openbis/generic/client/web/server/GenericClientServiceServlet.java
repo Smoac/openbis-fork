@@ -104,4 +104,9 @@ public class GenericClientServiceServlet extends GWTSpringController implements
         return service.tryToGetCurrentSessionContext();
     }
 
+    public SessionContext tryToLogin(String userID, String password)
+    {
+        return service.tryToLogin(userID, password);
+    }
+
 }

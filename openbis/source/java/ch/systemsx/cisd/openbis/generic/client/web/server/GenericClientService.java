@@ -45,4 +45,10 @@ public class GenericClientService implements IGenericClientService
         return null;
     }
 
+    public SessionContext tryToLogin(String userID, String password)
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

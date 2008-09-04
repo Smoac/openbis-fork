@@ -37,4 +37,9 @@ public interface IGenericClientService extends RemoteService
      * Tries to return the current session context. If failed <code>null</code> is returned.
      */
     public SessionContext tryToGetCurrentSessionContext();
+    
+    /**
+     * Tries to login with specified user ID and password. If failed <code>null</code> is returned.
+     */
+    public SessionContext tryToLogin(String userID, String password);
 }
