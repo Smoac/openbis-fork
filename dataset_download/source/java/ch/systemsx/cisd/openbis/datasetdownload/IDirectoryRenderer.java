@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.datasetdownload;
 
 
-import ch.systemsx.cisd.lims.base.dto.ExternalData;
+import ch.systemsx.cisd.lims.base.dto.ExternalDataPE;
 
 /**
  * Interface of a renderer of a directory.
@@ -26,7 +26,7 @@ import ch.systemsx.cisd.lims.base.dto.ExternalData;
  */
 public interface IDirectoryRenderer extends IWriterInjector
 {
-    public void printHeader(ExternalData dataSet);
+    public void printHeader(ExternalDataPE dataSet);
 
     public void printLinkToParentDirectory(String relativePath);
 

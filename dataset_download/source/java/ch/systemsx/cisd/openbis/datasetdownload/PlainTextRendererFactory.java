@@ -20,7 +20,7 @@ import java.io.PrintWriter;
 
 import org.apache.commons.io.FileUtils;
 
-import ch.systemsx.cisd.lims.base.dto.ExternalData;
+import ch.systemsx.cisd.lims.base.dto.ExternalDataPE;
 
 /**
  * Factory for rendering file system view in plain text.
@@ -82,7 +82,7 @@ public class PlainTextRendererFactory implements IRendererFactory
         {
         }
 
-        public void printHeader(ExternalData dataSet)
+        public void printHeader(ExternalDataPE dataSet)
         {
             writer.println("Directory content:");
         }

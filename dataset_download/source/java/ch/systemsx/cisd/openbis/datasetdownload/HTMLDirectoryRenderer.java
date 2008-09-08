@@ -25,10 +25,10 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.utilities.Template;
-import ch.systemsx.cisd.lims.base.dto.Experiment;
-import ch.systemsx.cisd.lims.base.dto.ExternalData;
+import ch.systemsx.cisd.lims.base.dto.ExperimentPE;
+import ch.systemsx.cisd.lims.base.dto.ExternalDataPE;
 import ch.systemsx.cisd.lims.base.dto.GroupPE;
-import ch.systemsx.cisd.lims.base.dto.Procedure;
+import ch.systemsx.cisd.lims.base.dto.ProcedurePE;
 import ch.systemsx.cisd.lims.base.dto.ProjectPE;
 
 /**
@@ -96,12 +96,12 @@ final class HTMLDirectoryRenderer implements IDirectoryRenderer
         this.writer = writer;
     }
 
-    public void printHeader(final ExternalData dataSet)
+    public void printHeader(final ExternalDataPE dataSet)
     {
         final String datasetCode = dataSet.getCode();
         final String sampleCode = dataSet.getAssociatedSampleCode();
-        final Procedure procedure = dataSet.getProcedure();
-        final Experiment experiment = procedure.getExperiment();
+        final ProcedurePE procedure = dataSet.getProcedure();
+        final ExperimentPE experiment = procedure.getExperiment();
         final String experimentCode = experiment.getCode();
         final ProjectPE project = experiment.getProject();
         final String projectCode = project.getCode();

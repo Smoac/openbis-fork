@@ -20,7 +20,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.lims.base.IDataSetService;
 import ch.systemsx.cisd.lims.base.ILIMSServiceFactory;
 import ch.systemsx.cisd.lims.base.ServiceRegistry;
-import ch.systemsx.cisd.lims.base.dto.ExternalData;
+import ch.systemsx.cisd.lims.base.dto.ExternalDataPE;
 
 /**
  * A <code>IDataSetService</code> implementation.
@@ -41,7 +41,7 @@ final class DataSetService implements IDataSetService
     // IDataSetService
     //
 
-    public final ExternalData tryGetDataSet(final String sessionToken, final String dataSetCode)
+    public final ExternalDataPE tryGetDataSet(final String sessionToken, final String dataSetCode)
             throws UserFailureException
     {
         return service.tryGetDataSet(sessionToken, dataSetCode);
