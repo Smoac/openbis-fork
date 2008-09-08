@@ -28,9 +28,9 @@ import org.apache.commons.lang.ArrayUtils;
 import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IStorage;
 import ch.systemsx.cisd.bds.v1_0.DataStructureV1_0;
-import ch.systemsx.cisd.bds.v1_0.DataStructureV1_0Proxy;
+import ch.systemsx.cisd.bds.v1_0.DataStructureProxyV1_0;
 import ch.systemsx.cisd.bds.v1_1.DataStructureV1_1;
-import ch.systemsx.cisd.bds.v1_1.DataStructureV1_1Proxy;
+import ch.systemsx.cisd.bds.v1_1.DataStructureProxyV1_1;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 
@@ -55,8 +55,8 @@ public final class DataStructureFactory
     {
         factory.register(new Version(1, 0), DataStructureV1_0.class);
         factory.register(new Version(1, 1), DataStructureV1_1.class);
-        proxyClasses.put(DataStructureV1_0.class, DataStructureV1_0Proxy.class);
-        proxyClasses.put(DataStructureV1_1.class, DataStructureV1_1Proxy.class);
+        proxyClasses.put(DataStructureV1_0.class, DataStructureProxyV1_0.class);
+        proxyClasses.put(DataStructureV1_1.class, DataStructureProxyV1_1.class);
     }
 
     private DataStructureFactory()

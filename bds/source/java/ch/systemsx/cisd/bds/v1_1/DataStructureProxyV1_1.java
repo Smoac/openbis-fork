@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.bds.v1_1;
 
-import ch.systemsx.cisd.bds.v1_0.DataStructureV1_0Proxy;
+import ch.systemsx.cisd.bds.v1_0.DataStructureProxyV1_0;
 import ch.systemsx.cisd.bds.v1_0.IDataStructureV1_0;
 
 /**
@@ -25,11 +25,11 @@ import ch.systemsx.cisd.bds.v1_0.IDataStructureV1_0;
  * 
  * @author Christian Ribeaud
  */
-public final class DataStructureV1_1Proxy extends DataStructureV1_0Proxy implements
+public final class DataStructureProxyV1_1 extends DataStructureProxyV1_0 implements
         IDataStructureV1_1
 {
 
-    public DataStructureV1_1Proxy(final IDataStructureV1_1 dataStructure)
+    public DataStructureProxyV1_1(final IDataStructureV1_1 dataStructure)
     {
         super(dataStructure);
     }

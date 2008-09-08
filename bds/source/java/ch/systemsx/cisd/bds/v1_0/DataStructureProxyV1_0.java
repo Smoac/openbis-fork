@@ -39,13 +39,13 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
  * 
  * @author Christian Ribeaud
  */
-public class DataStructureV1_0Proxy implements IDataStructureV1_0
+public class DataStructureProxyV1_0 implements IDataStructureV1_0
 {
     protected final IDataStructureV1_0 dataStructure;
 
     private Mode mode;
 
-    public DataStructureV1_0Proxy(final IDataStructureV1_0 dataStructure)
+    public DataStructureProxyV1_0(final IDataStructureV1_0 dataStructure)
     {
         assert dataStructure != null : "Unspecified proxied data structure.";
         this.dataStructure = dataStructure;
