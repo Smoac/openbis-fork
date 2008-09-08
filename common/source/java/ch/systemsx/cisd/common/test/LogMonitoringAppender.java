@@ -24,7 +24,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
@@ -33,6 +32,7 @@ import org.apache.log4j.spi.ThrowableInformation;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.collections.IToStringConverter;
 import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 
 /**
  * A class that allows to monitor the log for unit tests.
@@ -232,7 +232,8 @@ public final class LogMonitoringAppender extends AppenderSkeleton
         @Override
         public final String toString()
         {
-            return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+            return ToStringBuilder.reflectionToString(this,
+                    ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
         }
     }
 }
