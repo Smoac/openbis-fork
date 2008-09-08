@@ -37,7 +37,7 @@ public interface ISessionManager<T extends BasicSession> extends IRemoteHostProv
      * @return A session token that is used afterwards to get the <code>Session</code> object, or
      *         <code>null</code>, if the user could not be authenticated.
      */
-    public String openSession(String user, String password);
+    public String tryToOpenSession(String user, String password);
 
     /** Closes session by removing given <code>sessionToken</code> from active sessions. */
     public void closeSession(String sessionToken);
