@@ -14,28 +14,26 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
+package ch.systemsx.cisd.openbis.generic.client.web.client.exception;
 
 /**
- * The <code>UserFailureException</code> is the super class of all exceptions that have their
- * cause in an inappropriate usage of the system. This implies that the user himself (without help
- * of an administrator) can fix the problem.
+ * This <code>UserFailureException</code> extension signals that a <code>Session</code> has
+ * expired.
  * 
  * @author Christian Ribeaud
  */
-public class UserFailureException extends RuntimeException implements IsSerializable
+public final class InvalidSessionException extends UserFailureException
 {
     private static final long serialVersionUID = 1L;
 
     // An non-empty constructor is mandatory in GWT for serializable objects
-    public UserFailureException()
+    public InvalidSessionException()
     {
     }
 
-    public UserFailureException(final String message)
+    public InvalidSessionException(final String message)
     {
         super(message);
     }
+
 }

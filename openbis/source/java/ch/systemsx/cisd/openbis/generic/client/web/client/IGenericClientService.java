@@ -23,6 +23,7 @@ import com.google.gwt.user.client.rpc.RemoteService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
 /**
  * Service interface for the generic GWT client.
@@ -54,10 +55,11 @@ public interface IGenericClientService extends RemoteService
     /**
      * Returns a list of all groups which belong to the specified database instance.
      */
-    public List<Group> listGroups(String databaseInstanceCode);
+    public List<Group> listGroups(String databaseInstanceCode) throws UserFailureException;
     
     /**
      * Registers a new group with specified code and optional description and group leader ID.
      */
-    public void registerGroup(String groupCode, String descriptionOrNull, String groupLeaderOrNull);
+    public void registerGroup(String groupCode, String descriptionOrNull, String groupLeaderOrNull)
+            throws UserFailureException;
 }

@@ -29,7 +29,7 @@ import ch.systemsx.cisd.common.servlet.RequestContextProviderAdapter;
 import ch.systemsx.cisd.lims.base.dto.GroupPE;
 import ch.systemsx.cisd.lims.base.dto.PersonPE;
 import ch.systemsx.cisd.lims.base.identifier.DatabaseInstanceIdentifier;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 

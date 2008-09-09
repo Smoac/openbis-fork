@@ -24,6 +24,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
@@ -37,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.User;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.GroupTranslater;
+import ch.systemsx.cisd.openbis.generic.client.web.server.util.UserFailureExceptionTranslater;
 import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
@@ -179,19 +181,32 @@ public class GenericClientService implements IGenericClientService
 
     public List<Group> listGroups(String databaseInstanceCode)
     {
-        DatabaseInstanceIdentifier identifier = new DatabaseInstanceIdentifier(databaseInstanceCode);
-        List<Group> result = new ArrayList<Group>();
-        List<GroupPE> groups = server.listGroups(getSessionToken(), identifier);
-        for (GroupPE group : groups)
+        try
         {
-            result.add(GroupTranslater.translate(group));
+            DatabaseInstanceIdentifier identifier = new DatabaseInstanceIdentifier(databaseInstanceCode);
+            List<Group> result = new ArrayList<Group>();
+            List<GroupPE> groups = server.listGroups(getSessionToken(), identifier);
+            for (GroupPE group : groups)
+            {
+                result.add(GroupTranslater.translate(group));
+            }
+            return result;
+        } catch (UserFailureException e)
+        {
+            throw UserFailureExceptionTranslater.translate(e);
         }
-        return result;
     }
 
     public void registerGroup(String groupCode, String descriptionOrNull, String groupLeaderOrNull)
     {
-        server.registerGroup(getSessionToken(), groupCode, descriptionOrNull, groupLeaderOrNull);
+        try
+        {
+            String sessionToken = getSessionToken();
+            server.registerGroup(sessionToken, groupCode, descriptionOrNull, groupLeaderOrNull);
+        } catch (UserFailureException e)
+        {
+            throw UserFailureExceptionTranslater.translate(e);
+        }
     }
 
 }

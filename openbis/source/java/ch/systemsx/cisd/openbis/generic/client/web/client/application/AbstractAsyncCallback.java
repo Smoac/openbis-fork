@@ -20,8 +20,8 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.InvocationException;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.InvalidSessionException;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.InvalidSessionException;
 
 
 
@@ -46,6 +46,7 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
     
     public void onFailure(Throwable caught)
     {
+        System.out.println(caught);
         final String msg;
         if (caught instanceof InvocationException)
         {
