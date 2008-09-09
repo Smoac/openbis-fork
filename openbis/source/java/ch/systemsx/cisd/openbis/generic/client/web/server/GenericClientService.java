@@ -23,18 +23,14 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 
-import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo;
-import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.lims.base.dto.GroupPE;
 import ch.systemsx.cisd.lims.base.dto.PersonPE;
 import ch.systemsx.cisd.lims.base.identifier.DatabaseInstanceIdentifier;
-import ch.systemsx.cisd.lims.webclient.client.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
@@ -135,24 +131,6 @@ public class GenericClientService implements IGenericClientService
         return requestContextProvider.getHttpServletRequest().getSession(create);
     }
     
-    /**
-     * Converts any {@link ch.systemsx.cisd.common.exceptions.UserFailureException} or subclass of
-     * it to a <i>GWT</i> {@link UserFailureException} (or subclass of it if this one could be
-     * found in the <code>ch.systemsx.cisd.lims.webclient.client</code> package).
-     */
-    private final static ch.systemsx.cisd.openbis.generic.client.web.client.application.util.UserFailureException convertException(
-            final ch.systemsx.cisd.common.exceptions.UserFailureException ex)
-    {
-        final String className = WEB_CLIENT_EXCEPTIONS_PACKAGE + ex.getClass().getSimpleName();
-        try
-        {
-            return ClassUtils.create(UserFailureException.class, className, ex.getMessage());
-        } catch (final CheckedExceptionTunnel e)
-        {
-            return new UserFailureException(ex.getMessage());
-        }
-    }
-
     public ApplicationInfo getApplicationInfo()
     {
         ApplicationInfo applicationInfo = new ApplicationInfo();
