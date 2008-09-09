@@ -33,7 +33,6 @@ import com.extjs.gxt.ui.client.widget.table.TableColumnModel;
 import com.extjs.gxt.ui.client.widget.table.TableItem;
 import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.i18n.client.DateTimeFormat;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
@@ -42,13 +41,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class GroupsView extends VerticalPanel
 {
     private LayoutContainer groupsPanel;
+
     private final GenericViewContext viewContext;
 
     public GroupsView(GenericViewContext viewContext)
@@ -58,18 +56,19 @@ public class GroupsView extends VerticalPanel
         groupsPanel = new LayoutContainer();
         groupsPanel.add(new Text("data loading..."));
         add(groupsPanel);
-        
-        viewContext.getService().listGroups(null, new AbstractAsyncCallback<List<Group>>(viewContext)
-            {
-        
-                public void onSuccess(List<Group> groups)
-                {
-                    fillGroupsPanel(groups);
-                }
-        
-            });
+
+        viewContext.getService().listGroups(null,
+                new AbstractAsyncCallback<List<Group>>(viewContext)
+                    {
+
+                        public void onSuccess(List<Group> groups)
+                        {
+                            fillGroupsPanel(groups);
+                        }
+
+                    });
     }
-    
+
     private void fillGroupsPanel(List<Group> groups)
     {
         List<TableColumn> columns = new ArrayList<TableColumn>();
@@ -81,10 +80,10 @@ public class GroupsView extends VerticalPanel
         dateColumn.setRenderer(new DateTimeCellRenderer<Component>("yyyy-MM-dd HH:mm:ss zzz"));
         columns.add(dateColumn);
         columns.add(new TableColumn("registrator", "Registrator", 100));
-        
+
         Table table = new Table(new TableColumnModel(columns));
         table.setHorizontalScroll(true);
-        
+
         for (Group group : groups)
         {
             Object[] row = new Object[4];
@@ -98,8 +97,7 @@ public class GroupsView extends VerticalPanel
             }
             table.add(new TableItem(row));
         }
-        
-        
+
         ContentPanel contentPanel = new ContentPanel();
         contentPanel.setHeaderVisible(false);
         contentPanel.add(table);
