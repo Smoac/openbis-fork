@@ -95,7 +95,6 @@ public class GenericClientServiceServlet extends GWTSpringController implements
 
     public ApplicationInfo getApplicationInfo()
     {
-        operationLog.info("getApplicationInfo()");
         return service.getApplicationInfo();
     }
 
@@ -107,6 +106,11 @@ public class GenericClientServiceServlet extends GWTSpringController implements
     public SessionContext tryToLogin(String userID, String password)
     {
         return service.tryToLogin(userID, password);
+    }
+
+    public void logout()
+    {
+        service.logout();
     }
 
 }

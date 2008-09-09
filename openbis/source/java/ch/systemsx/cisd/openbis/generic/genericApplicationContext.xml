@@ -12,14 +12,16 @@
     -->
 
     <bean id="generic-service" class="ch.systemsx.cisd.openbis.generic.client.web.server.GenericClientService">
-        <!-- constructor-arg ref="${authentication-service}" />
+        <constructor-arg ref="generic-server" />
         <constructor-arg ref="request-context-provider" />
-        <constructor-arg ref="console-factory" />
-        <constructor-arg ref="action-log" />
-        <property name="sessionExpirationPeriodInMinutes" value="${session-timeout}" /-->
     </bean>
     
-    <bean id="action-log" class="ch.systemsx.cisd.openbis.generic.client.web.server.GenericActionLog">
+    <bean id="generic-server" class="ch.systemsx.cisd.openbis.generic.server.GenericServer">
+        <constructor-arg ref="${authentication-service}" />
+        <constructor-arg ref="request-context-provider" />
+        <!-- The time after which an inactive session is expired by the service (in minutes). -->
+        <constructor-arg value="${session-timeout}" />
     </bean>
+    
 
 </beans>

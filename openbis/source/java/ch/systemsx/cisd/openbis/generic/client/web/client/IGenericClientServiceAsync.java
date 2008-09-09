@@ -36,4 +36,8 @@ public interface IGenericClientServiceAsync
     
     /** @see IGenericClientService#tryToLogin(String, String) */
     public void tryToLogin(String userID, String password, AsyncCallback<SessionContext> callback);
+    
+    /** @see IGenericClientService#logout() */
+    public void logout(AsyncCallback<Void> callback);
+
 }

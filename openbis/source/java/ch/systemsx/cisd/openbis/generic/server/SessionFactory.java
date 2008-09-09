@@ -14,37 +14,25 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
+package ch.systemsx.cisd.openbis.generic.server;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.authentication.ISessionFactory;
+import ch.systemsx.cisd.authentication.Principal;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class SessionContext implements IsSerializable
+class SessionFactory implements ISessionFactory<Session>
 {
-    private User user;
-    private String sessionID;
 
-    public final User getUser()
+    public Session create(String sessionToken, String userName, Principal principal,
+            String remoteHost, long sessionStart, int expirationTime)
     {
-        return user;
+        return new Session(sessionToken, userName, principal, remoteHost, sessionStart,
+                expirationTime);
     }
 
-    public final void setUser(User user)
-    {
-        this.user = user;
-    }
-
-    public final String getSessionID()
-    {
-        return sessionID;
-    }
-
-    public final void setSessionID(String sessionID)
-    {
-        this.sessionID = sessionID;
-    }
 }
