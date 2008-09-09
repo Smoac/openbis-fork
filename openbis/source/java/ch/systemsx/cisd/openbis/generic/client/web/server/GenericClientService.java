@@ -41,7 +41,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
  */
 public class GenericClientService implements IGenericClientService
 {
-    private static final String SESSION_KEY = "openbis-session";
+    static final String SESSION_KEY = "openbis-session";
+    static final String SERVER_KEY = "openbis-generic-server";
 
     private static final Logger operationLog =
         LogFactory.getLogger(LogCategory.OPERATION, GenericClientService.class);
@@ -133,6 +134,7 @@ public class GenericClientService implements IGenericClientService
         // Expiration time of httpSession is 10 seconds less than of session
         httpSession.setMaxInactiveInterval(session.getSessionExpirationTime() / 1000 - 10);
         httpSession.setAttribute(SESSION_KEY, session);
+        httpSession.setAttribute(SERVER_KEY, server);
         return createSessionContext(session);
     }
 
@@ -143,6 +145,7 @@ public class GenericClientService implements IGenericClientService
         {
             Session session = getSession(httpSession);
             httpSession.removeAttribute(SESSION_KEY);
+            httpSession.removeAttribute(SERVER_KEY);
             httpSession.invalidate();
             server.logout(session.getSessionToken());
         }

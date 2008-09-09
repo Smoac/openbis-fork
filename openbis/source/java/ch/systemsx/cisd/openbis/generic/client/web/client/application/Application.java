@@ -16,8 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.Text;
+import com.extjs.gxt.ui.client.widget.button.Button;
 
 /**
  * 
@@ -36,6 +38,21 @@ public class Application extends LayoutContainer
     
     private void createGUI()
     {
-        add(new Text(viewContext.getModel().getApplicationInfo().getVersion()));
+        SelectionListener<ComponentEvent> listener = new SelectionListener<ComponentEvent>()
+            {
+                @Override
+                public void componentSelected(ComponentEvent ce)
+                {
+                    viewContext.getService().logout(new AbstractAsyncCallback<Void>(viewContext)
+                        {
+                            public void onSuccess(Void result)
+                            {
+                                viewContext.getPageController().reload();
+                            }
+                        });
+                }
+        
+            };
+        add(new Button("logout", listener));
     }
 }
