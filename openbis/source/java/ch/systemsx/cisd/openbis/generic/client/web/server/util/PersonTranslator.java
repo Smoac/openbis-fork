@@ -14,36 +14,32 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.server;
+package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 
-import javax.servlet.http.HttpSession;
-
-import ch.systemsx.cisd.common.servlet.IActionLog;
+import ch.systemsx.cisd.lims.base.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class GenericActionLog implements IActionLog
+public class PersonTranslator
 {
-
-    public void logFailedLoginAttempt(String userCode)
+    private PersonTranslator()
     {
-        // TODO Auto-generated method stub
-
     }
 
-    public void logLogout(HttpSession httpSession)
+    public static Person translate(PersonPE person)
     {
-        // TODO Auto-generated method stub
-
+        if (person == null)
+        {
+            return null;
+        }
+        Person result = new Person();
+        result.setFirstName(person.getFirstName());
+        result.setLastName(person.getLastName());
+        result.setEMail(person.getEmail());
+        return result;
     }
-
-    public void logSuccessfulLogin()
-    {
-        // TODO Auto-generated method stub
-
-    }
-
 }

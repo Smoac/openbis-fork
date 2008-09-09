@@ -32,6 +32,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Strin
  */
 public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
 {
+    private static final String PREFIX = "exception_";
+    
     protected final GenericViewContext viewContext;
     
     /**
@@ -49,7 +51,7 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
         {
             if (StringUtils.isBlank(caught.getMessage()))
             {
-                msg = viewContext.getMessage("exception_invocationMessage");
+                msg = viewContext.getMessage(PREFIX + "invocationMessage");
             } else
             {
                 msg = caught.getMessage();
@@ -59,7 +61,7 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
             final String message = caught.getMessage();
             if (StringUtils.isBlank(message))
             {
-                msg = viewContext.getMessage("exception_withoutMessage", caught.getClass().getName());
+                msg = viewContext.getMessage(PREFIX + "withoutMessage", caught.getClass().getName());
             } else
             {
                 msg = message;

@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.server;
 
 import static ch.systemsx.cisd.common.spring.ExposablePropertyPaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME;
 
+import java.util.List;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -32,6 +34,7 @@ import ch.systemsx.cisd.common.servlet.GWTSpringController;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPaceholderConfigurer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 
 /**
@@ -111,6 +114,16 @@ public class GenericClientServiceServlet extends GWTSpringController implements
     public void logout()
     {
         service.logout();
+    }
+
+    public List<Group> listGroups(String databaseInstanceCode)
+    {
+        return service.listGroups(databaseInstanceCode);
+    }
+
+    public void registerGroup(String groupCode, String descriptionOrNull, String groupLeaderOrNull)
+    {
+        service.registerGroup(groupCode, descriptionOrNull, groupLeaderOrNull);
     }
 
 }

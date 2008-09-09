@@ -14,28 +14,33 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application;
+package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupsView;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Header;
+import ch.systemsx.cisd.lims.base.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class Application extends LayoutContainer
+public class GroupTranslater
 {
-    Application(GenericViewContext viewContext)
+    private GroupTranslater()
     {
-        createGUI(viewContext);
     }
     
-    private void createGUI(final GenericViewContext viewContext)
+    public static Group translate(GroupPE group)
     {
-        add(new Header(viewContext));
-        add(new GroupsView(viewContext));
+        if (group == null)
+        {
+            return null;
+        }
+        Group result = new Group();
+        result.setCode(group.getCode());
+        result.setDescription(group.getDescription());
+        result.setRegistrationDate(group.getRegistrationDate());
+        result.setRegistrator(PersonTranslator.translate(group.getRegistrator()));
+        return result;
     }
 }

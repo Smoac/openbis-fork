@@ -16,9 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client;
 
+import java.util.List;
+
 import com.google.gwt.user.client.rpc.RemoteService;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 
 /**
@@ -47,4 +50,14 @@ public interface IGenericClientService extends RemoteService
      * Logs out. 
      */
     public void logout();
+    
+    /**
+     * Returns a list of all groups which belong to the specified database instance.
+     */
+    public List<Group> listGroups(String databaseInstanceCode);
+    
+    /**
+     * Registers a new group with specified code and optional description and group leader ID.
+     */
+    public void registerGroup(String groupCode, String descriptionOrNull, String groupLeaderOrNull);
 }

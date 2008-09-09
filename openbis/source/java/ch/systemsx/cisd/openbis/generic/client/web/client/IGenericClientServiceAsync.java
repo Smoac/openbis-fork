@@ -16,9 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client;
 
+import java.util.List;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 
 /**
@@ -39,5 +42,12 @@ public interface IGenericClientServiceAsync
     
     /** @see IGenericClientService#logout() */
     public void logout(AsyncCallback<Void> callback);
+    
+    /** @see IGenericClientService#listGroups(String) */
+    public void listGroups(String databaseInstanceCode, AsyncCallback<List<Group>> callback);
+
+    /** @see IGenericClientService#registerGroup(String, String, String) */
+    public void registerGroup(String groupCode, String descriptionOrNull, String groupLeaderOrNull,
+            AsyncCallback<Void> callback);
 
 }

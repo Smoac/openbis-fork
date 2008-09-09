@@ -35,12 +35,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
  */
 public class LoginWidget extends VerticalPanel
 {
+    private static final String PREFIX = "login_";
+    
     private final TextField<String> userField;
     private final TextField<String> passwordField;
 
     public LoginWidget(final GenericViewContext viewContext)
     {
-        add(new Text(viewContext.getMessage("login_invitation")));
+        add(new Text(viewContext.getMessage(PREFIX + "invitation")));
         
         FormPanel formPanel = new FormPanel();
         formPanel.setBodyBorder(false);
@@ -49,7 +51,7 @@ public class LoginWidget extends VerticalPanel
         formPanel.setFieldWidth(120);
         formPanel.setWidth(250);
         userField = new TextField<String>();
-        userField.setFieldLabel(viewContext.getMessage("login_userLabel"));
+        userField.setFieldLabel(viewContext.getMessage(PREFIX + "userLabel"));
         userField.setSelectOnFocus(true);
         userField.setAllowBlank(false);
         userField.setValidateOnBlur(true);
@@ -57,9 +59,9 @@ public class LoginWidget extends VerticalPanel
         passwordField = new TextField<String>();
         passwordField.setPassword(true);
         passwordField.setAllowBlank(false);
-        passwordField.setFieldLabel(viewContext.getMessage("login_passwordLabel"));
+        passwordField.setFieldLabel(viewContext.getMessage(PREFIX + "passwordLabel"));
         formPanel.add(passwordField);
-        Button button = new Button(viewContext.getMessage("login_buttonLabel"));
+        Button button = new Button(viewContext.getMessage(PREFIX + "buttonLabel"));
         button.addSelectionListener(new SelectionListener<ComponentEvent>()
             {
                 @Override

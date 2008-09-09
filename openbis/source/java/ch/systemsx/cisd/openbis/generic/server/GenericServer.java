@@ -16,11 +16,20 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
+
 import ch.systemsx.cisd.authentication.DefaultSessionManager;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.servlet.RequestContextProviderAdapter;
+import ch.systemsx.cisd.lims.base.dto.GroupPE;
+import ch.systemsx.cisd.lims.base.dto.PersonPE;
+import ch.systemsx.cisd.lims.base.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
@@ -32,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 public class GenericServer implements IGenericServer
 {
     private final ISessionManager<Session> sessionManager;
+    private List<GroupPE> groups;
 
     public GenericServer(IAuthenticationService authenticationService,
             IRequestContextProvider requestContextProvider, int sessionExpirationPeriodInMinutes)
@@ -40,6 +50,30 @@ public class GenericServer implements IGenericServer
                 new LogMessagePrefixGenerator(), authenticationService,
                 new RequestContextProviderAdapter(requestContextProvider),
                 sessionExpirationPeriodInMinutes));
+        createFakeGroups();
+    }
+
+    private void createFakeGroups()
+    {
+        groups = new ArrayList<GroupPE>();
+        Random random = new Random(137);
+        for (int i = 0; i < 20; i++)
+        {
+            groups.add(createFakeGroup("TEST" + random.nextInt(1000)));
+        }
+    }
+
+    private GroupPE createFakeGroup(String code)
+    {
+        GroupPE group = new GroupPE();
+        group.setCode(code);
+        group.setDescription("The " + code + " group");
+        group.setRegistrationDate(new Date());
+        PersonPE person = new PersonPE();
+        person.setFirstName("John");
+        person.setLastName("Doe");
+        group.setRegistrator(person);
+        return group;
     }
     
     GenericServer(ISessionManager<Session> sessionManager)
@@ -64,7 +98,39 @@ public class GenericServer implements IGenericServer
         {
             return null;
         }
-        return sessionManager.getSession(sessionToken);
+        Session session = sessionManager.getSession(sessionToken);
+        // TODO 2008-09-09, Franz-Josef Elmer: Load person info for user from database
+        PersonPE person = new PersonPE();
+        person.setFirstName(user);
+        person.setLastName(user);
+        person.setEmail(user + "@nowhere");
+        session.setPerson(person);
+        return session;
+    }
+
+    public List<GroupPE> listGroups(String sessionToken, DatabaseInstanceIdentifier identifier)
+    {
+        sessionManager.getSession(sessionToken);
+        return groups;
+    }
+
+    public void registerGroup(String sessionToken, String groupCode, String descriptionOrNull,
+            String groupLeaderOrNull)
+    {
+        Session session = sessionManager.getSession(sessionToken);
+        for (GroupPE existingGroup : groups)
+        {
+            if (existingGroup.getCode().equalsIgnoreCase(groupCode))
+            {
+                throw new UserFailureException("There is already a group with code " + existingGroup.getCode());
+            }
+        }
+        GroupPE group = new GroupPE();
+        group.setCode(groupCode.toUpperCase());
+        group.setDescription(descriptionOrNull);
+        group.setRegistrationDate(new Date());
+        group.setRegistrator(session.tryToGetPerson());
+        groups.add(group);
     }
 
 }
