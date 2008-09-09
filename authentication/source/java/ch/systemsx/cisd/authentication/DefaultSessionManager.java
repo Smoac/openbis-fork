@@ -57,24 +57,19 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
 
     private static final TokenGenerator tokenGenerator = new TokenGenerator();
 
-    private static final class FullSession<S>
+    private static final class FullSession<S extends BasicSession>
     {
         /** Session data. */
         private final S session;
 
-        /** The time period of inactivity (in milliseconds) after which the session will expire. */
-        private final long expirationPeriodMillis;
-
         /** The last time when this session has been used (in milliseconds since 1970-01-01). */
         private long lastActiveTime;
 
-        FullSession(final S session, final long expirationPeriodMillis)
+        FullSession(final S session)
         {
             assert session != null : "Undefined session";
-            assert expirationPeriodMillis >= 0; // == 0 is for unit tests
 
             this.session = session;
-            this.expirationPeriodMillis = expirationPeriodMillis;
             touch();
         }
 
@@ -100,7 +95,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
          */
         boolean hasExpired()
         {
-            return System.currentTimeMillis() - lastActiveTime > expirationPeriodMillis;
+            return System.currentTimeMillis() - lastActiveTime > session.getSessionExpirationTime();
         }
     }
 
@@ -119,7 +114,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     private final IRemoteHostProvider remoteHostProvider;
 
     /** The time after which an inactive session will be expired (in milliseconds). */
-    private final long sessionExpirationPeriodMillis;
+    private final int sessionExpirationPeriodMillis;
 
     public DefaultSessionManager(final ISessionFactory<T> sessionFactory,
             final ILogMessagePrefixGenerator<T> prefixGenerator,
@@ -138,7 +133,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         this.authenticationService = authenticationService;
         this.remoteHostProvider = remoteHostProvider;
         sessionExpirationPeriodMillis =
-                sessionExpirationPeriodMinutes * DateUtils.MILLIS_PER_MINUTE;
+                (int) (sessionExpirationPeriodMinutes * DateUtils.MILLIS_PER_MINUTE);
 
         operationLog.info(String.format("Authentication service: '%s'", authenticationService
                 .getClass().getName()));
@@ -154,9 +149,9 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         synchronized (sessions)
         {
             final T session =
-                    sessionFactory.create(sessionToken, user, principal, getRemoteHost(), now);
+                    sessionFactory.create(sessionToken, user, principal, getRemoteHost(), now, sessionExpirationPeriodMillis);
             final FullSession<T> createdSession =
-                    new FullSession<T>(session, sessionExpirationPeriodMillis);
+                    new FullSession<T>(session);
             sessions.put(user, createdSession);
             return session;
         }

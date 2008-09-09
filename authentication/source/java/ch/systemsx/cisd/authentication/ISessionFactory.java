@@ -24,9 +24,9 @@ package ch.systemsx.cisd.authentication;
 public interface ISessionFactory<T extends BasicSession>
 {
     /**
-     * Creates a session from the specified session token, user name, principal, remoteHost, and
-     * session start (in milliseconds since start of the epoch).
+     * Creates a session from the specified session token, user name, principal, remoteHost, session
+     * start (in milliseconds since start of the epoch), and expiration time (in milliseconds).
      */
     public T create(String sessionToken, String userName, Principal principal,
-            String remoteHost, long sessionStart);
+            String remoteHost, long sessionStart, int sessionExpirationTime);
 }

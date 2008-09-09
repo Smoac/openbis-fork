@@ -35,25 +35,28 @@ public class BasicSession implements Serializable
     private final Principal principal;
     private final String remoteHost;
     private final long sessionStart;
+    private final int sessionExpirationTime;
 
     /**
      * Creates an instance from the specified session token, user name, principal, remoteHost, and
      * session start (in milliseconds since start of the epoch).
      */
     public BasicSession(String sessionToken, String userName, Principal principal,
-            String remoteHost, long sessionStart)
+            String remoteHost, long sessionStart, int sessionExpirationTime)
     {
         assert sessionToken != null : "Given session token can not be null.";
         assert userName != null : "Given user name can not be null.";
         assert principal != null : "Given principal can not be null.";
         assert sessionStart > 0 : "Given session start must be larger than zero.";
         assert remoteHost != null : "Given remote host can not be null";
+        assert sessionExpirationTime >= 0;
         
         this.sessionToken = sessionToken;
         this.userName = userName;
         this.principal = principal;
         this.remoteHost = remoteHost;
         this.sessionStart = sessionStart;
+        this.sessionExpirationTime = sessionExpirationTime;
     }
 
     /**
@@ -96,7 +99,15 @@ public class BasicSession implements Serializable
     {
         return sessionStart;
     }
-    
+
+    /**
+     * Returns the expiration time of this session in milliseconds.
+     */
+    public final int getSessionExpirationTime()
+    {
+        return sessionExpirationTime;
+    }
+
     @Override
     public String toString()
     {
