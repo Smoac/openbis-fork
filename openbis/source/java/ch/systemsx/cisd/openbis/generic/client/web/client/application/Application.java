@@ -17,12 +17,14 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.layout.AccordionLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupsView;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonsView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Header;
 
 /**
- * 
+ * Panel of the application.
  *
  * @author Franz-Josef Elmer
  */
@@ -36,6 +38,11 @@ public class Application extends LayoutContainer
     private void createGUI(final GenericViewContext viewContext)
     {
         add(new Header(viewContext));
-        add(new GroupsView(viewContext));
+        LayoutContainer content = new LayoutContainer();
+        content.setHeight(500);
+        content.setLayout(new AccordionLayout());
+        add(content);
+        content.add(new GroupsView(viewContext));
+        content.add(new PersonsView(viewContext));
     }
 }

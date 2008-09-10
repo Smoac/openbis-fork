@@ -23,7 +23,7 @@ import ch.systemsx.cisd.lims.base.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
- * 
+ * Definition of the client-server interface.
  *
  * @author Franz-Josef Elmer
  */

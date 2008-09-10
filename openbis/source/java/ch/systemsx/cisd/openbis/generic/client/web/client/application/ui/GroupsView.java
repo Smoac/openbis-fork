@@ -25,7 +25,6 @@ import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
-import com.extjs.gxt.ui.client.widget.VerticalPanel;
 import com.extjs.gxt.ui.client.widget.table.DateTimeCellRenderer;
 import com.extjs.gxt.ui.client.widget.table.Table;
 import com.extjs.gxt.ui.client.widget.table.TableColumn;
@@ -43,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 /**
  * @author Franz-Josef Elmer
  */
-public class GroupsView extends VerticalPanel
+public class GroupsView extends ContentPanel
 {
     private LayoutContainer groupsPanel;
 
@@ -52,7 +51,7 @@ public class GroupsView extends VerticalPanel
     public GroupsView(GenericViewContext viewContext)
     {
         this.viewContext = viewContext;
-        add(new Text("Groups:"));
+        setHeading("Groups:");
         groupsPanel = new LayoutContainer();
         groupsPanel.add(new Text("data loading..."));
         add(groupsPanel);
@@ -60,12 +59,10 @@ public class GroupsView extends VerticalPanel
         viewContext.getService().listGroups(null,
                 new AbstractAsyncCallback<List<Group>>(viewContext)
                     {
-
                         public void onSuccess(List<Group> groups)
                         {
                             fillGroupsPanel(groups);
                         }
-
                     });
     }
 

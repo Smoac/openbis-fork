@@ -20,10 +20,11 @@ import org.apache.commons.lang.time.DateFormatUtils;
 
 import ch.systemsx.cisd.authentication.BasicSession;
 import ch.systemsx.cisd.authentication.Principal;
+import ch.systemsx.cisd.lims.base.dto.GroupPE;
 import ch.systemsx.cisd.lims.base.dto.PersonPE;
 
 /**
- * 
+ * Extendion of {@link BasicSession} which may holds a {@link PersonPE} instance.
  *
  * @author Franz-Josef Elmer
  */
@@ -55,7 +56,16 @@ public class Session extends BasicSession
     @Override
     public final String toString()
     {
-        return "Session{user=" + getUserName() + ",group=" + person.getHomeGroup() + ",remoteHost="
+        String homeGroupCode = "<UNKNOWN>";
+        if (person != null)
+        {
+            GroupPE homeGroup = person.getHomeGroup();
+            if (homeGroup != null)
+            {
+                homeGroupCode = homeGroup.getCode();
+            }
+        }
+        return "Session{user=" + getUserName() + ",group=" + homeGroupCode + ",remoteHost="
                 + getRemoteHost() + ",sessionstart="
                 + DateFormatUtils.format(getSessionStart(), DATE_FORMAT_PATTERN) + "}";
     }

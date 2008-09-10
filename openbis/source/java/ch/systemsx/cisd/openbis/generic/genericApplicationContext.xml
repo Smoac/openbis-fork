@@ -16,12 +16,25 @@
         <constructor-arg ref="request-context-provider" />
     </bean>
     
-    <bean id="generic-server" class="ch.systemsx.cisd.openbis.generic.server.GenericServer">
-        <constructor-arg ref="${authentication-service}" />
-        <constructor-arg ref="request-context-provider" />
-        <!-- The time after which an inactive session is expired by the service (in minutes). -->
-        <constructor-arg value="${session-timeout}" />
+    <bean id="generic-server" class="org.springframework.aop.framework.ProxyFactoryBean">
+        <property name="proxyInterfaces"><value>ch.systemsx.cisd.openbis.generic.shared.IGenericServer</value></property>
+        <property name="target">
+            <bean class="ch.systemsx.cisd.openbis.generic.server.GenericServer">
+                <constructor-arg ref="${authentication-service}" />
+                <constructor-arg ref="request-context-provider" />
+                <!-- The time after which an inactive session is expired by the service (in minutes). -->
+                <constructor-arg value="${session-timeout}" />
+            </bean>
+        </property>
+        <property name="interceptorNames">
+            <list>
+                <value>logInterceptor</value>
+            </list>
+        </property>
     </bean>
+    
+    <bean id="logInterceptor" class="ch.systemsx.cisd.openbis.generic.server.GenericServerLogInterceptor"/>
+    
     
 
 </beans>

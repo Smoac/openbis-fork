@@ -14,25 +14,24 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
-import ch.systemsx.cisd.authentication.ISessionFactory;
-import ch.systemsx.cisd.authentication.Principal;
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 
 /**
- * Factory of {@link Session} objects.
+ * 
  *
  * @author Franz-Josef Elmer
  */
-class SessionFactory implements ISessionFactory<Session>
+public class PersonsView extends ContentPanel
 {
+    private static final String PREFIX = "personsView_";
 
-    public Session create(String sessionToken, String userName, Principal principal,
-            String remoteHost, long sessionStart, int expirationTime)
+    public PersonsView(GenericViewContext viewContext)
     {
-        return new Session(sessionToken, userName, principal, remoteHost, sessionStart,
-                expirationTime);
+        setHeading(viewContext.getMessage(PREFIX + "heading"));
     }
 
 }

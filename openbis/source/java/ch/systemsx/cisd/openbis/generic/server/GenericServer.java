@@ -24,17 +24,17 @@ import java.util.Random;
 import ch.systemsx.cisd.authentication.DefaultSessionManager;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ISessionManager;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.servlet.RequestContextProviderAdapter;
 import ch.systemsx.cisd.lims.base.dto.GroupPE;
 import ch.systemsx.cisd.lims.base.dto.PersonPE;
 import ch.systemsx.cisd.lims.base.identifier.DatabaseInstanceIdentifier;
-import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
- * 
+ * Implementation of client-server interface.
  *
  * @author Franz-Josef Elmer
  */
@@ -53,6 +53,19 @@ public class GenericServer implements IGenericServer
         createFakeGroups();
     }
 
+    GenericServer(ISessionManager<Session> sessionManager)
+    {
+        this.sessionManager = sessionManager;
+    }
+    
+    /**
+     * Creates a logger used to log invocations of objects of this class.
+     */
+    GenericServerLogger createLogger(boolean invocationSuccessful)
+    {
+        return new GenericServerLogger(sessionManager, invocationSuccessful);
+    }
+    
     private void createFakeGroups()
     {
         groups = new ArrayList<GroupPE>();
@@ -74,11 +87,6 @@ public class GenericServer implements IGenericServer
         person.setLastName("Doe");
         group.setRegistrator(person);
         return group;
-    }
-    
-    GenericServer(ISessionManager<Session> sessionManager)
-    {
-        this.sessionManager = sessionManager;
     }
     
     public int getVersion()

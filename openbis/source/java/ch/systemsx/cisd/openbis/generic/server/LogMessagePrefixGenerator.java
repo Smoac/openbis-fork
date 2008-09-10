@@ -22,12 +22,13 @@ import ch.systemsx.cisd.lims.base.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
- * 
+ * Log message prefix generator based on user information found in a {@link Session} object.
  *
  * @author Franz-Josef Elmer
  */
 class LogMessagePrefixGenerator implements ILogMessagePrefixGenerator<Session>
 {
+    static final String UNDEFINED = "<UNDEFINED>";
 
     public String createPrefix(Session session)
     {
@@ -59,6 +60,6 @@ class LogMessagePrefixGenerator implements ILogMessagePrefixGenerator<Session>
     
     private String cite(final String text)
     {
-        return text == null ? "<UNDEFINED>" : "'" + text + "'";
+        return text == null ? UNDEFINED : "'" + text + "'";
     }
 }
