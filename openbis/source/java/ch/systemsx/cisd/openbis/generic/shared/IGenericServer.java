@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
  * Definition of the client-server interface.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IGenericServer
@@ -33,28 +33,29 @@ public interface IGenericServer
      * Returns the version of this interface.
      */
     public int getVersion();
-    
+
     /**
      * Tries to authenticate the specified user with given password.
      * 
      * @return <code>null</code> if authentication failed.
      */
     public Session tryToAuthenticate(String user, String password);
-    
+
     /**
      * Logout the session with the specified session token.
      */
     public void logout(String sessionToken);
-    
+
     /**
      * Returns all groups which belong to the specified database instance.
      */
-    // TODO: 2008-09-09, Franz-Josef Elmer: Add authorization annotations
+    // TODO 2008-09-09, Franz-Josef Elmer: Add authorization annotations
     public List<GroupPE> listGroups(String sessionToken, DatabaseInstanceIdentifier identifier);
-    
+
     /**
      * Registers a new group with specified code and optional description and group leader ID.
      */
-    // TODO: 2008-09-09, Franz-Josef Elmer: Add authorization annotations
-    public void registerGroup(String sessionToken, String groupCode, String descriptionOrNull, String groupLeaderOrNull);
+    // TODO 2008-09-09, Franz-Josef Elmer: Add authorization annotations
+    public void registerGroup(String sessionToken, String groupCode, String descriptionOrNull,
+            String groupLeaderOrNull);
 }
