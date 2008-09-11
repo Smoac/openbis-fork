@@ -107,6 +107,7 @@ public class Client implements EntryPoint
     private LayoutContainer createLoginPage()
     {
         LayoutContainer container = new LayoutContainer();
+        container.setStyleName("start-page");
         container.setLayout(new CenterLayout());
         VerticalPanel verticalPanel = new VerticalPanel();
         verticalPanel.setSpacing(30);
@@ -134,12 +135,18 @@ public class Client implements EntryPoint
         LayoutContainer container = new LayoutContainer();
         container.setLayout(new BorderLayout());
         
-        container.add(widget, new BorderLayoutData(LayoutRegion.CENTER));
+        BorderLayoutData centerLayoutData = new BorderLayoutData(LayoutRegion.CENTER);
+        centerLayoutData.setMinSize(100);
+        centerLayoutData.setMaxSize(2000);
+        container.add(widget, centerLayoutData);
         
         String version = viewContext.getModel().getApplicationInfo().getVersion();
         Text footerText = new Text(viewContext.getMessage("footer", version));
-        footerText.setStyleName("footer-text");
-        container.add(footerText, new BorderLayoutData(LayoutRegion.SOUTH));
+        footerText.setStyleName("footer");
+        BorderLayoutData southLayoutData = new BorderLayoutData(LayoutRegion.SOUTH);
+        southLayoutData.setMinSize(30);
+        southLayoutData.setMaxSize(30);
+        container.add(footerText, southLayoutData);
         
         Viewport viewport = new Viewport();
         viewport.setLayout(new FitLayout());

@@ -1,8 +1,3 @@
-body,div,td {
-    font-family: verdana, tahoma, helvetica;
-    font-size: 11px;
-}
-
 .header {
     padding: 10px;
     width: 100%;
@@ -17,15 +12,15 @@ body,div,td {
     vertical-align: middle;
 }
 
-.footer {
-    vertical-align: bottom;
-    height: 100%;
+.start-page {
+    background-color: white;
 }
 
-.footer-text {
+.footer {
     width: 100%;
     text-align: center;
     font-size: 80%;
     color: gray;
+    background-color: white;
 }
 
