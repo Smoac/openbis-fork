@@ -1,7 +1,19 @@
 -- JAVA ch.systemsx.cisd.lims.server.dataaccess.migration.MigrationStepFrom025To026
 -- Remove ID column from SAMPLE_INPUTS table
 DROP SEQUENCE SAMPLE_INPUT_ID_SEQ;
-ALTER TABLE SAMPLE_INPUTS DROP CONSTRAINT SAIN_PK;
+-- There was a bug in migration to db 23 - the constraint was not created. So we drop it only if it exists.
+create function remove_sain_pk_constraint() returns void AS $$
+begin
+   perform *
+     FROM information_schema.table_constraints WHERE constraint_name='sain_pk';
+   if found
+   then
+	ALTER TABLE SAMPLE_INPUTS DROP CONSTRAINT SAIN_PK;
+   end if;
+end;
+$$ language 'plpgsql';
+select remove_sain_pk_constraint();
+drop function remove_sain_pk_constraint();
 ALTER TABLE SAMPLE_INPUTS DROP COLUMN ID;
 ALTER TABLE SAMPLE_INPUTS ADD CONSTRAINT SAIN_PK PRIMARY KEY(SAMP_ID,PROC_ID);
 
