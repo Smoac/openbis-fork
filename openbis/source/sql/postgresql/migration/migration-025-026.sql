@@ -19,7 +19,19 @@ ALTER TABLE SAMPLE_INPUTS ADD CONSTRAINT SAIN_PK PRIMARY KEY(SAMP_ID,PROC_ID);
 
 -- Remove ID column from SAMPLE_MATERIAL_BATCHES table
 DROP SEQUENCE SAMPLE_MATERIAL_BATCH_ID_SEQ;
-ALTER TABLE SAMPLE_MATERIAL_BATCHES DROP CONSTRAINT SAMB_PK;
+-- There was a bug in migration to db 23 - the constraint was not created. So we drop it only if it exists.
+create function remove_samb_pk_constraint() returns void AS $$
+begin
+   perform *
+     FROM information_schema.table_constraints WHERE constraint_name='SAMB_PK';
+   if found
+   then
+
+   end if;
+end;
+$$ language 'plpgsql';
+select remove_samb_pk_constraint();
+drop function remove_samb_pk_constraint();
 ALTER TABLE SAMPLE_MATERIAL_BATCHES DROP COLUMN ID;
 ALTER TABLE SAMPLE_MATERIAL_BATCHES ADD CONSTRAINT SAMB_PK PRIMARY KEY(SAMP_ID,MABA_ID);
 
