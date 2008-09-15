@@ -55,7 +55,6 @@
       <ant target="nightly-build" time="0100" buildfile="${lims.nightly-build.dir}/build/build.xml" anthome="apache-ant-1.6.5"/>
     </schedule>
     <log>
-      <merge dir="${lims.nightly-build.dir}/targets/test-output"/>
       <merge dir="${lims.nightly-build.dir}/targets/playground/openBIS-client" pattern="test-report*.xml"/>
     </log>
     <publishers>
