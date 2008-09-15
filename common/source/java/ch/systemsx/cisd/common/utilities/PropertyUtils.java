@@ -16,10 +16,13 @@
 
 package ch.systemsx.cisd.common.utilities;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Properties;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
@@ -400,10 +403,39 @@ public final class PropertyUtils
     {
         assert properties != null : "Unspecified properties";
         for (final Enumeration<String> enumeration =
-                (Enumeration<String>) properties.propertyNames(); enumeration.hasMoreElements(); )
+                (Enumeration<String>) properties.propertyNames(); enumeration.hasMoreElements(); /**/)
         {
             final String key = enumeration.nextElement();
             properties.setProperty(key, StringUtils.trim(properties.getProperty(key)));
+        }
+    }
+
+    /**
+     * Loads and returns {@link Properties} found in given <var>propertiesFilePath</var>.
+     * 
+     * @throws ConfigurationFailureException If an exception occurs when loading the properties.
+     * @return never <code>null</code> but could return empty properties.
+     */
+    public final static Properties loadProperties(final String propertiesFilePath)
+    {
+        assert propertiesFilePath != null : "Unspecified file";
+        final Properties properties = new Properties();
+        InputStream is = null;
+        try
+        {
+            is = new FileInputStream(propertiesFilePath);
+            properties.load(is);
+            trimProperties(properties);
+            return properties;
+        } catch (final Exception ex)
+        {
+            final String msg =
+                    String.format("Could not load the properties from given resource '%s'.",
+                            propertiesFilePath);
+            throw new ConfigurationFailureException(msg, ex);
+        } finally
+        {
+            IOUtils.closeQuietly(is);
         }
     }
 }

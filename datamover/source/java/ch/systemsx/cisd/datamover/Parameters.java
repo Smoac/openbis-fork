@@ -17,15 +17,12 @@
 package ch.systemsx.cisd.datamover;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
@@ -396,7 +393,8 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
 
     private final void initParametersFromProperties()
     {
-        final Properties serviceProperties = loadServiceProperties();
+        final Properties serviceProperties =
+                PropertyUtils.loadProperties(DatamoverConstants.SERVICE_PROPERTIES_FILE);
         dataCompletedScript =
                 tryCreateFile(serviceProperties, PropertyNames.DATA_COMPLETED_SCRIPT,
                         dataCompletedScript);
@@ -503,36 +501,6 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
         }
     }
 
-    /**
-     * Returns the service property.
-     * 
-     * @throws ConfigurationFailureException If an exception occurs when loading the service
-     *             properties.
-     */
-    private final static Properties loadServiceProperties()
-    {
-        final Properties properties = new Properties();
-        try
-        {
-            final InputStream is = new FileInputStream(DatamoverConstants.SERVICE_PROPERTIES_FILE);
-            try
-            {
-                properties.load(is);
-                return properties;
-            } finally
-            {
-                IOUtils.closeQuietly(is);
-            }
-        } catch (final Exception ex)
-        {
-            final String msg =
-                    "Could not load the service properties from resource '"
-                            + DatamoverConstants.SERVICE_PROPERTIES_FILE + "'.";
-            operationLog.warn(msg, ex);
-            throw new ConfigurationFailureException(msg, ex);
-        }
-    }
-
     public final File getDataCompletedScript()
     {
         return dataCompletedScript;
@@ -570,8 +538,8 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     }
 
     /**
-     * @return <code>true</code>, if rsync is called in such a way to files that already exist are
-     *         overwritten rather than appended to.
+     * @return <code>true</code>, if rsync is called in such a way to files that already exist
+     *         are overwritten rather than appended to.
      */
     public final boolean isRsyncOverwrite()
     {
@@ -701,8 +669,8 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
 
     /**
      * @return The directory where we create an additional copy of incoming data or
-     *         <code>null</code> if it is not specified. Note that this directory needs to be on the
-     *         same file system as {@link #getBufferDirectoryPath}.
+     *         <code>null</code> if it is not specified. Note that this directory needs to be on
+     *         the same file system as {@link #getBufferDirectoryPath}.
      */
     public final File tryGetExtraCopyDir()
     {

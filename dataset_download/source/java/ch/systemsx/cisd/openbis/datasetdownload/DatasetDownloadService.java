@@ -16,12 +16,10 @@
 
 package ch.systemsx.cisd.openbis.datasetdownload;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
+import java.io.File;
 import java.util.Enumeration;
 import java.util.Properties;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.security.SslSocketConnector;
@@ -55,36 +53,71 @@ public class DatasetDownloadService
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, DatasetDownloadService.class);
 
-    public static void main(final String[] args) throws Exception
+    private static Server server;
+
+    public static final void start()
+    {
+        assert server == null : "Server already started";
+        ServiceRegistry.setLIMSServiceFactory(RMIBasedLIMSServiceFactory.INSTANCE);
+        final ApplicationContext applicationContext = createApplicationContext();
+        server = createServer(applicationContext);
+        try
+        {
+            server.start();
+            selfTest(applicationContext);
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info("Data set download server ready on port "
+                        + applicationContext.getConfigParameters().getPort());
+            }
+        } catch (final Exception ex)
+        {
+            operationLog.error("Failed to start server.", ex);
+        }
+    }
+
+    public static final void stop()
+    {
+        assert server != null : "Server has not been started.";
+        if (server.isRunning())
+        {
+            try
+            {
+                server.stop();
+            } catch (final Exception ex)
+            {
+                operationLog.error("Failed to stop server.", ex);
+            }
+        }
+        server = null;
+    }
+
+    public static void main(final String[] args)
     {
         LogInitializer.init();
-        ServiceRegistry.setLIMSServiceFactory(RMIBasedLIMSServiceFactory.INSTANCE);
+        start();
+    }
 
-        final ApplicationContext applicationContext = createApplicationContext();
+    private final static Server createServer(final ApplicationContext applicationContext)
+    {
         final ConfigParameters configParameters = applicationContext.getConfigParameters();
         final int port = configParameters.getPort();
-        final Server server = new Server();
+        final Server thisServer = new Server();
         final SslSocketConnector socketConnector = new SslSocketConnector();
         socketConnector.setPort(port);
         socketConnector.setMaxIdleTime(30000);
         socketConnector.setKeystore(configParameters.getKeystorePath());
         socketConnector.setPassword(configParameters.getKeystorePassword());
         socketConnector.setKeyPassword(configParameters.getKeystoreKeyPassword());
-        server.addConnector(socketConnector);
-        final Context context = new Context(server, "/", Context.SESSIONS);
+        thisServer.addConnector(socketConnector);
+        final Context context = new Context(thisServer, "/", Context.SESSIONS);
         context.setAttribute(APPLICATION_CONTEXT_KEY, applicationContext);
         context.addServlet(DatasetDownloadServlet.class, "/"
                 + applicationContext.getApplicationName() + "/*");
-        server.start();
-
-        selfTest(applicationContext);
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info("Data set download server ready on port " + port);
-        }
+        return thisServer;
     }
 
-    private static void selfTest(final ApplicationContext applicationContext)
+    private final static void selfTest(final ApplicationContext applicationContext)
     {
         final int version = applicationContext.getDataSetService().getVersion();
         if (IWebService.VERSION != version)
@@ -99,7 +132,7 @@ public class DatasetDownloadService
         }
     }
 
-    private static ApplicationContext createApplicationContext()
+    private final static ApplicationContext createApplicationContext()
     {
         final ConfigParameters configParameters = getConfigParameters();
         final IDataSetService dataSetService = new DataSetService(configParameters);
@@ -108,9 +141,16 @@ public class DatasetDownloadService
         return applicationContext;
     }
 
-    private static ConfigParameters getConfigParameters()
+    private final static ConfigParameters getConfigParameters()
     {
-        final Properties properties = loadProperties();
+        final Properties properties;
+        if (new File(SERVICE_PROPERTIES_FILE).exists() == false)
+        {
+            properties = new Properties();
+        } else
+        {
+            properties = PropertyUtils.loadProperties(SERVICE_PROPERTIES_FILE);
+        }
         final Properties systemProperties = System.getProperties();
         final Enumeration<?> propertyNames = systemProperties.propertyNames();
         while (propertyNames.hasMoreElements())
@@ -125,32 +165,5 @@ public class DatasetDownloadService
         final ConfigParameters configParameters = new ConfigParameters(properties);
         configParameters.log();
         return configParameters;
-    }
-
-    private static Properties loadProperties()
-    {
-
-        final Properties properties = new Properties();
-        try
-        {
-            final InputStream is = new FileInputStream(SERVICE_PROPERTIES_FILE);
-            try
-            {
-                properties.load(is);
-                PropertyUtils.trimProperties(properties);
-                return properties;
-            } finally
-            {
-                IOUtils.closeQuietly(is);
-            }
-        } catch (final Exception ex)
-        {
-            final String msg =
-                    "Could not load the service properties from resource '"
-                            + SERVICE_PROPERTIES_FILE + "'.";
-            operationLog.warn(msg, ex);
-            throw new ConfigurationFailureException(msg, ex);
-        }
-
     }
 }
