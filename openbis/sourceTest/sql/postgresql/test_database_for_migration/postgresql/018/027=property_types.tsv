@@ -1,0 +1,6 @@
+3	NUCLEOTIDE_SEQUENCE	A sequence of nucleotides	Nucleotide Sequence	1	2008-08-29 08:10:49.552695+02	1	\N	f	f
+2	GENE_SYMBOL	Gene Symbol, e.g. BMP15	Gene Symbol	1	2008-08-29 08:10:49.552695+02	1	\N	f	f
+1	DESCRIPTION	A Description	Description	1	2008-08-29 08:10:49.552695+02	1	\N	f	f
+5	OFFSET	Offset from the start of the sequence	Offset	2	2008-08-29 08:10:49.552695+02	1	\N	f	f
+4	REFSEQ	NCBI Reference Sequence code, applicable to sequences of type: DNA, RNA, protein	RefSeq	1	2008-08-29 08:10:49.552695+02	1	\N	f	f
+6	PLATE_GEOMETRY	Plate Geometry	Plate Geometry	6	2008-08-29 08:10:55.619165+02	1	1	t	t
