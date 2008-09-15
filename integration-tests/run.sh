@@ -598,7 +598,7 @@ function assert_correct_content_of_processing_dir {
     assert_same_content $TEMPLATE/openBIS-client/testdata/register-experiments/processing-parameters.txt \
                         $DATA/processing-dir/processing-parameters-from-openbis
     local instance_dir=$DATA/main-store/`ls -1 $DATA/main-store/ | grep -i 'Instance_[0-9a-f]\{8\}-[0-9a-f]\{4\}-[0-9a-f]\{4\}-[0-9a-f]\{4\}-[0-9a-f]\{12\}'`
-    local bds_container=$instance_dir/Group_CISD/Project_NEMO/Experiment_EXP1/ObservableType_HCS_IMAGE/Sample_3VCP1/
+    local bds_container=$instance_dir/Group_CISD/Project_NEMO/Experiment_EXP1/DataSetType_HCS_IMAGE/Sample_3VCP1/
     bds_container=$bds_container`ls -1 $bds_container | head -1`
     assert_dir_exists $bds_container
     local data_set2=$bds_container/data/original/microX_200801011213_3VCP1
@@ -612,7 +612,7 @@ function assert_correct_content_of_plate_3VCP1_in_store {
     
     local instance_dir=$DATA/main-store/`ls -1 $DATA/main-store/ | grep -i 'Instance_[0-9a-f]\{8\}-[0-9a-f]\{4\}-[0-9a-f]\{4\}-[0-9a-f]\{4\}-[0-9a-f]\{12\}'`
     local main_dir=$instance_dir/Group_CISD/Project_NEMO/Experiment_EXP1
-    local raw_data_dir=$main_dir/ObservableType_HCS_IMAGE/Sample_3VCP1/
+    local raw_data_dir=$main_dir/DataSetType_HCS_IMAGE/Sample_3VCP1/
     assert_dir_exists $raw_data_dir
     # Picks up the first directory found
     raw_data_dir=$raw_data_dir`ls -1 $raw_data_dir | head -1`
@@ -650,7 +650,7 @@ function assert_correct_content_of_plate_3VCP1_in_store {
     assert_equals_as_in_file microX-3VCP1 $metadata_dir/data_set/code
     assert_equals_as_in_file TRUE $metadata_dir/data_set/is_measured
     assert_equals_as_in_file FALSE $metadata_dir/data_set/is_complete
-    assert_equals_as_in_file HCS_IMAGE $metadata_dir/data_set/observable_type
+    assert_equals_as_in_file HCS_IMAGE $metadata_dir/data_set/data_set_type
     assert_equals_as_in_file microX $metadata_dir/data_set/producer_code
     # Sample
     assert_equals_as_in_file 3VCP1 $metadata_dir/sample/code
@@ -695,13 +695,13 @@ function assert_correct_content_of_invalid_plate_in_store {
     local cell_plate=$1
     echo ==== assert correct content of invalid plate $cell_plate in store ====
     
-    local error_dir=$DATA/main-store/error/ObservableType_HCS_IMAGE
+    local error_dir=$DATA/main-store/error/DataSetType_HCS_IMAGE
     assert_dir_exists $error_dir
     local data_set=$error_dir/microX_200801011213_$cell_plate
     assert_same_content $TEST_DATA/$cell_plate $data_set
     assert_file_exists $data_set.exception
     local instance_dir=$DATA/main-store/`ls -1 $DATA/main-store/ | grep -i 'Instance_[0-9a-f]\{8\}-[0-9a-f]\{4\}-[0-9a-f]\{4\}-[0-9a-f]\{4\}-[0-9a-f]\{12\}'`
-    assert_dir_empty $instance_dir/Group_CISD/Project_NEMO/Experiment_EXP1/ObservableType_HCS_IMAGE/Sample_$cell_plate
+    assert_dir_empty $instance_dir/Group_CISD/Project_NEMO/Experiment_EXP1/DataSetType_HCS_IMAGE/Sample_$cell_plate
 }
     
 function assert_correct_content_of_image_analysis_data {
@@ -709,7 +709,7 @@ function assert_correct_content_of_image_analysis_data {
     
     echo ====  check image analysis data for cell plate $cell_plate ====
     local instance_dir=$DATA/main-store/`ls -1 $DATA/main-store/ | grep -i 'Instance_[0-9a-f]\{8\}-[0-9a-f]\{4\}-[0-9a-f]\{4\}-[0-9a-f]\{4\}-[0-9a-f]\{12\}'`
-    local img_analysis=$instance_dir/Group_CISD/Project_NEMO/Experiment_EXP1/ObservableType_HCS_IMAGE_ANALYSIS_DATA/Sample_$cell_plate/
+    local img_analysis=$instance_dir/Group_CISD/Project_NEMO/Experiment_EXP1/DataSetType_HCS_IMAGE_ANALYSIS_DATA/Sample_$cell_plate/
     assert_dir_exists $img_analysis
     # Picks up the first directory found
     img_analysis=$img_analysis`ls -1 $img_analysis | head -1`
@@ -723,8 +723,8 @@ function assert_correct_content_of_unidentified_plate_in_store {
     
     local unidentified_dir=$DATA/main-store/unidentified
     assert_dir_exists $unidentified_dir
-    assert_same_content $TEST_DATA/$cell_plate $unidentified_dir/ObservableType_HCS_IMAGE/microX_200801011213_$cell_plate
-    assert_same_content $TEST_DATA/$cell_plate $unidentified_dir/ObservableType_HCS_IMAGE_ANALYSIS_DATA/microX_200801011213_$cell_plate
+    assert_same_content $TEST_DATA/$cell_plate $unidentified_dir/DataSetType_HCS_IMAGE/microX_200801011213_$cell_plate
+    assert_same_content $TEST_DATA/$cell_plate $unidentified_dir/DataSetType_HCS_IMAGE_ANALYSIS_DATA/microX_200801011213_$cell_plate
 }
 
 function assert_correct_dataset_content_in_database {

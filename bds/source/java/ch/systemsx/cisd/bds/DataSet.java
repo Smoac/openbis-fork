@@ -46,7 +46,7 @@ public final class DataSet implements IStorable
 
     public static final String PRODUCER_CODE = "producer_code";
 
-    public static final String OBSERVABLE_TYPE = "observable_type";
+    public static final String DATA_SET_TYPE = "data_set_type";
 
     public static final String IS_MEASURED = "is_measured";
 
@@ -61,7 +61,7 @@ public final class DataSet implements IStorable
     private final String producerCode;
 
     /** Is a code that describes the type of data that is stored in this standard. */
-    private final String observableTypeCode;
+    private final String dataSetTypeCode;
 
     /**
      * Specifies whether the data set has been measured from a sample or whether it has been derived
@@ -81,32 +81,32 @@ public final class DataSet implements IStorable
      * Creates an instance of data set.
      * 
      * @param code A non-empty string of the data set code. Can not be empty.
-     * @param observableType type of this data set. Can not be <code>null</code>.
+     * @param dataSetType type of this data set. Can not be <code>null</code>.
      */
-    public DataSet(final String code, final String observableType)
+    public DataSet(final String code, final String dataSetType)
     {
-        this(code, observableType, Boolean.TRUE, null, null, null);
+        this(code, dataSetType, Boolean.TRUE, null, null, null);
     }
 
     /**
      * Creates an instance of data set.
      * 
      * @param code A non-empty string of the data set code. Can not be empty.
-     * @param observableType type of this data set. Can not be <code>null</code>.
+     * @param dataSetType type of this data set. Can not be <code>null</code>.
      * @param isMeasured measured or derived.
      * @param productionTimestampOrNull production timestamp or <code>null</code> if unknown.
      * @param producerCodeOrNull producer code (aka "device id") or <code>null</code> if unknown.
      * @param parentCodesOrNull list of parent data sets. Must be <code>null</code> or empty for
      *            measured data (or not empty for derived data).
      */
-    public DataSet(final String code, final String observableType, final Boolean isMeasured,
+    public DataSet(final String code, final String dataSetType, final Boolean isMeasured,
             final Date productionTimestampOrNull, final String producerCodeOrNull,
             final List<String> parentCodesOrNull)
     {
         this.code = code == null ? "" : code;
         this.isMeasured = isMeasured;
-        assert StringUtils.isEmpty(observableType) == false : "Unspecified observable type.";
-        this.observableTypeCode = observableType;
+        assert StringUtils.isEmpty(dataSetType) == false : "Unspecified data set type.";
+        this.dataSetTypeCode = dataSetType;
         if (isMeasured.toBoolean() == true && parentCodesOrNull != null
                 && parentCodesOrNull.size() > 0)
         {
@@ -138,9 +138,9 @@ public final class DataSet implements IStorable
         return producerCode;
     }
 
-    public final String getObservableTypeCode()
+    public final String getDataSetTypeCode()
     {
-        return observableTypeCode;
+        return dataSetTypeCode;
     }
 
     public final Boolean isMeasured()
@@ -168,7 +168,7 @@ public final class DataSet implements IStorable
         assert directory != null : "Given directory can not be null.";
         final IDirectory idFolder = Utilities.getSubDirectory(directory, FOLDER);
         final String code = Utilities.getTrimmedString(idFolder, CODE);
-        final String observableTypeCode = Utilities.getTrimmedString(idFolder, OBSERVABLE_TYPE);
+        final String dataSetTypeCode = Utilities.getTrimmedString(idFolder, DATA_SET_TYPE);
         final Boolean isMeasured = Utilities.getBoolean(idFolder, IS_MEASURED);
         final Date productionTimestampOrNull = Utilities.tryGetDate(idFolder, PRODUCTION_TIMESTAMP);
         final String producerCode = Utilities.getTrimmedString(idFolder, PRODUCER_CODE);
@@ -184,7 +184,7 @@ public final class DataSet implements IStorable
         }
         assert completeFlag != null : "Complete flag not specified.";
         final DataSet dataSet =
-                new DataSet(code, observableTypeCode, isMeasured, productionTimestampOrNull,
+                new DataSet(code, dataSetTypeCode, isMeasured, productionTimestampOrNull,
                         (producerCode.length() == 0 ? null : producerCode), parentCodes);
         dataSet.isComplete = completeFlag;
         return dataSet;
@@ -203,7 +203,7 @@ public final class DataSet implements IStorable
                         .get().format(productionTimestamp));
         folder.addKeyValuePair(PRODUCER_CODE, StringUtils.emptyIfNull(producerCode));
         folder.addKeyValuePair(IS_MEASURED, isMeasured.toString());
-        folder.addKeyValuePair(OBSERVABLE_TYPE, observableTypeCode);
+        folder.addKeyValuePair(DATA_SET_TYPE, dataSetTypeCode);
         folder.addKeyValuePair(IS_COMPLETE, isComplete.getNiceRepresentation());
         final String value;
         if (parentCodes.size() > 0)
@@ -252,7 +252,7 @@ public final class DataSet implements IStorable
         builder.append(CODE, code);
         builder.append(IS_COMPLETE, isComplete);
         builder.append(IS_MEASURED, isMeasured);
-        builder.append(OBSERVABLE_TYPE, observableTypeCode);
+        builder.append(DATA_SET_TYPE, dataSetTypeCode);
         builder.append(PARENT_CODES, parentCodes);
         builder.append(PRODUCER_CODE, producerCode);
         builder.append(PRODUCTION_TIMESTAMP, productionTimestamp);
