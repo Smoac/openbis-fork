@@ -1,7 +1,7 @@
 <cruisecontrol>
   <property name="trunk" value="projects/cisd/trunk"/>
   <property name="project.trunk" value="${trunk}/${project.name}"/>
-  <property name="lims.nightly-build.dir" value="${trunk}/lims_webclient"/>
+  <property name="lims.nightly-build.dir" value="${trunk}/lims"/>
   <property name="status.file" value="status.txt"/>
   <property name="quiet-period" value="120"/>
   
@@ -212,20 +212,6 @@
     </modificationset>
   </project>
   
-  <project name="lims">
-    <modificationset quietperiod="${quiet-period}">
-      <buildstatus logdir="logs/build_resources"/>
-      <buildstatus logdir="logs/libraries"/>
-      <buildstatus logdir="logs/common"/>
-      <buildstatus logdir="logs/authentication"/>
-      <buildstatus logdir="logs/dbmigration"/>
-      <buildstatus logdir="logs/server-common"/>
-      <buildstatus logdir="logs/dataset_download"/>
-      <buildstatus logdir="logs/lims_base"/>
-      <svn localWorkingCopy="${project.trunk}"/>
-    </modificationset>
-  </project>
-  
   <project name="openbis">
     <modificationset quietperiod="${quiet-period}">
       <buildstatus logdir="logs/build_resources"/>
@@ -240,7 +226,7 @@
     </modificationset>
   </project>
   
-  <project name="lims_webclient">
+  <project name="lims">
     <modificationset quietperiod="${quiet-period}">
       <buildstatus logdir="logs/build_resources"/>
       <buildstatus logdir="logs/libraries"/>
@@ -248,8 +234,9 @@
       <buildstatus logdir="logs/authentication"/>
       <buildstatus logdir="logs/dbmigration"/>
       <buildstatus logdir="logs/server-common"/>
+      <buildstatus logdir="logs/dataset_download"/>
       <buildstatus logdir="logs/lims_base"/>
-      <buildstatus logdir="logs/lims"/>
+      <buildstatus logdir="logs/openbis"/>
       <svn localWorkingCopy="${project.trunk}"/>
     </modificationset>
   </project>
