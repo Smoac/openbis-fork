@@ -39,7 +39,7 @@ ALTER TABLE ONLY experiment_attachments
 ALTER TABLE ONLY experiment_attachments
     ADD CONSTRAINT exat_pk PRIMARY KEY (id);
 ALTER TABLE ONLY external_data
-    ADD CONSTRAINT exda_bk_uk UNIQUE (location, loty_id);
+    ADD CONSTRAINT exda_bk_uk UNIQUE ("location", loty_id);
 ALTER TABLE ONLY external_data
     ADD CONSTRAINT exda_pk PRIMARY KEY (data_id);
 ALTER TABLE ONLY experiments
@@ -116,6 +116,8 @@ ALTER TABLE ONLY sample_inputs
     ADD CONSTRAINT sain_bk_uk UNIQUE (samp_id, proc_id);
 ALTER TABLE ONLY sample_inputs
     ADD CONSTRAINT sain_pk PRIMARY KEY (samp_id, proc_id);
+ALTER TABLE ONLY sample_material_batches
+    ADD CONSTRAINT samb_pk PRIMARY KEY (samp_id, maba_id);
 ALTER TABLE ONLY samples
     ADD CONSTRAINT samp_pk PRIMARY KEY (id);
 ALTER TABLE ONLY sample_properties
