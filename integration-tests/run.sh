@@ -577,8 +577,7 @@ function assert_correct_experiment_info {
     local res=$WORK/client-result.txt
     call_in_dir check-results.sh $LIMS_CLIENT/ > $res
     assert_pattern_present $res 1 "DATA_ACQUISITION.processing-dir.Processing parameters from file .*processing-parameters.txt"
-    # TODO 2008-08-26, Christian Ribeaud: Check this whether it is really OK!
-    # assert_pattern_present $res 2 "DATA_ACQUISITION.*HCS_IMAGE.*NEMO.*EXP1.*HCS_IMAGE\/.*3VCP[[:digit:]].*microX.*3VCP[[:digit:]]" 
+    assert_pattern_present $res 2 "DATA_ACQUISITION.*HCS_IMAGE.*NEMO.*EXP1.*HCS_IMAGE\/.*3VCP[[:digit:]].*microX.*3VCP[[:digit:]]" 
     assert_pattern_present $res 5 "IMAGE_ANALYSIS.*HCS_IMAGE_ANALYSIS_DATA.*NEMO.*EXP1.*HCS_IMAGE_ANALYSIS_DATA.*3VCP[[:digit:]].*microX.*3VCP[[:digit:]]" 
 }
 
@@ -766,8 +765,7 @@ function assert_correct_content {
     assert_correct_dataset_content_in_database 3 "3;IMAGE_ANALYSIS;20[0-9]*-2;f;1;U;;"
     assert_correct_dataset_content_in_database 5 "5;IMAGE_ANALYSIS;20[0-9]*-4;f;1;U;;"
     assert_correct_dataset_content_in_database 7 "7;IMAGE_ANALYSIS;20[0-9]*-6;f;8;U;;"   
-	# TODO 2008-08-26, Christian Ribeaud: Check this whether it is really OK!
-    # assert_correct_dataset_content_in_database 8 "8;DATA_ACQUISITION;MICROX-3VCP3;f;;F;microX;2008-01-01.*"
+    assert_correct_dataset_content_in_database 8 "8;DATA_ACQUISITION;MICROX-3VCP3;f;;F;microX;2008-01-01.*"
     assert_correct_dataset_content_in_database 10 "10;IMAGE_ANALYSIS;20[0-9]*-9;f;11;U;;"
     assert_correct_dataset_content_in_database 11 "11;UNKNOWN;MICROX-3VCP4;t;;;;"
     assert_correct_dataset_content_in_database 14 "14;IMAGE_ANALYSIS;20[0-9]*-13;f;8;U;;"
