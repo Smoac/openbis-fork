@@ -128,7 +128,7 @@ function build_components {
     if [ $build_lims == "true" ]; then
 	rm -f $INSTALL/openBIS-server*.zip
 	rm -f $INSTALL/openBIS-client*.zip
-        $build_cmd lims_webclient
+        $build_cmd lims
     fi
 }
 
