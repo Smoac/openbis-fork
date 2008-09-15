@@ -18,5 +18,6 @@
 	<classpathentry kind="lib" path="/libraries/spring/webmvc/spring-webmvc.jar" sourcepath="/libraries/spring/webmvc/src.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/lims_base"/>
 	<classpathentry kind="lib" path="/libraries/commons-lang/commons-lang.jar" sourcepath="/libraries/commons-lang/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/restrictionchecker/restrictions.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
