@@ -3,3 +3,35 @@
 {project} = ch.systemsx.cisd.openbis
 {generic} = ${project}.generic
 
+##########################################
+#
+# Generic module
+#
+##########################################
+
+[generic.client] = ${generic}.client.*
+[generic.server] = ${generic}.server.*
+[generic.shared] = ${generic}.shared.*
+
+check sets [generic.client] [generic.server] [generic.shared]
+
+layer generic.client-server = [generic.client] [generic.server]
+layer generic.shared = [generic.shared]
+
+check layeringOf generic.shared generic.client-server
+
+#-------- Web client ---------------------
+
+{generic.web} = ${generic}.client.web
+
+[generic.web.client] = ${generic.web}.client.application.*
+[generic.web.shared] = ${generic.web}.client.* excluding [generic.web.client]
+[generic.web.server] = ${generic.web}.server.*
+
+check sets [generic.web.client] [generic.web.server] [generic.web.shared]
+
+layer generic.web.client-server = [generic.web.client] [generic.web.server]
+layer generic.web.shared = [generic.web.shared]
+
+check layeringOf generic.web.shared generic.web.client-server
+
