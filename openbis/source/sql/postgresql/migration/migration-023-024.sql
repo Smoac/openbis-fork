@@ -1,4 +1,4 @@
--- JAVA ch.systemsx.cisd.lims.server.dataaccess.migration.MigrationStepFrom023To024
+-- JAVA ch.systemsx.cisd.openbis.generic.server.dataaccess.migration.MigrationStepFrom023To024
 
 -- Drop constraint DBIN_GLOBAL_CODE_UK of DATABASE_INSTANCES table
 

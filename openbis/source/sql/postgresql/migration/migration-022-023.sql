@@ -1,4 +1,4 @@
--- JAVA ch.systemsx.cisd.lims.server.dataaccess.migration.MigrationStepFrom022To023
+-- JAVA ch.systemsx.cisd.openbis.generic.server.dataaccess.migration.MigrationStepFrom022To023
 
 -- Add column GLOBAL_CODE to the DATABASE_INSTANCES table.
 -- Set it's value from the code, it will be updated later from java.

@@ -1,4 +1,4 @@
--- JAVA ch.systemsx.cisd.lims.server.dataaccess.migration.MigrationStepFrom025To026
+-- JAVA ch.systemsx.cisd.openbis.generic.server.dataaccess.migration.MigrationStepFrom025To026
 -- Remove ID column from SAMPLE_INPUTS table
 DROP SEQUENCE SAMPLE_INPUT_ID_SEQ;
 -- There was a bug in migration to db 23 - the constraint was not created. So we drop it only if it exists.
