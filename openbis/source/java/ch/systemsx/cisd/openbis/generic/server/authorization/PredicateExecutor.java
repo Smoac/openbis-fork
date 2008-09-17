@@ -20,12 +20,12 @@ import java.util.List;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.lims.base.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.server.authorization.IAccessController.Argument;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ArrayPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.CollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.IPredicate;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
  * A static class to execute {@link IPredicate}.

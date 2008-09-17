@@ -17,16 +17,15 @@
 package ch.systemsx.cisd.openbis.generic.server.util;
 
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
-import ch.systemsx.cisd.lims.base.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.lims.base.dto.ExperimentPE;
-import ch.systemsx.cisd.lims.base.dto.IIdAndCodeHolder;
-import ch.systemsx.cisd.lims.base.dto.IIdHolder;
-import ch.systemsx.cisd.lims.base.dto.MaterialPE;
-import ch.systemsx.cisd.lims.base.dto.PersonPE;
-import ch.systemsx.cisd.lims.base.dto.PropertyTypePE;
-import ch.systemsx.cisd.lims.base.dto.SampleComponentDTO;
-import ch.systemsx.cisd.lims.base.dto.SamplePE;
-import ch.systemsx.cisd.lims.base.dto.VocabularyTermPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IIdAndCodeHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 
 /**
  * A <code>IdKeyExtractor</code> factory.
@@ -40,9 +39,6 @@ public final class KeyExtractorFactory
 
     private final static IKeyExtractor<String, DatabaseInstancePE> DATABASE_INSTANCE_BY_UUID_KEY_EXTRACTOR =
             new UUIDKeyExtractor();
-
-    private final static IKeyExtractor<String, SampleComponentDTO> SAMPLE_COMPONENT_BY_CODE_KEY_EXTRACTOR =
-            createCodeKeyExtractor();
 
     private final static IKeyExtractor<Long, ExperimentPE> BASE_EXPERIMENT_BY_ID_KEY_EXTRACTOR =
             createIdKeyExtractor();
@@ -157,15 +153,6 @@ public final class KeyExtractorFactory
     public final static IKeyExtractor<Long, PersonPE> getPersonByIdKeyExtractor()
     {
         return PERSON_BY_ID_KEY_EXTRACTOR;
-    }
-
-    /**
-     * Returns an <code>IKeyExtractor</code> for <i>SampleComponentDTO</i> based on
-     * {@link SampleComponentDTO#getCode()}.
-     */
-    public final static IKeyExtractor<String, SampleComponentDTO> getSampleComponentByCode()
-    {
-        return SAMPLE_COMPONENT_BY_CODE_KEY_EXTRACTOR;
     }
 
     //

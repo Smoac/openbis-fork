@@ -18,9 +18,9 @@ package ch.systemsx.cisd.openbis.generic.shared;
 
 import java.util.List;
 
-import ch.systemsx.cisd.lims.base.dto.GroupPE;
-import ch.systemsx.cisd.lims.base.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 
 /**
  * Definition of the client-server interface.

@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.validator;
 
-import ch.systemsx.cisd.lims.base.dto.BaseExperiment;
-import ch.systemsx.cisd.lims.base.dto.GroupPE;
-import ch.systemsx.cisd.lims.base.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.BaseExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
  * A {@link IValidator} implementation suitable for {@link BaseExperiment}.

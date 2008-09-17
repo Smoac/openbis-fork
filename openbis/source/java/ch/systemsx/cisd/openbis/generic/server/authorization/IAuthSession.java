@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization;
 
-import ch.systemsx.cisd.lims.base.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
  * Session interface used by authorization framework.

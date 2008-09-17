@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
-import ch.systemsx.cisd.lims.base.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 
 /**
  * Factory definition for all Data Access Objects which are needed for managing authorization.

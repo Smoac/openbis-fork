@@ -23,10 +23,10 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.lims.base.dto.GroupPE;
-import ch.systemsx.cisd.lims.base.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 
 /**
  * Logger class for {@link GenericServer} which creates readable logs of method invocations.

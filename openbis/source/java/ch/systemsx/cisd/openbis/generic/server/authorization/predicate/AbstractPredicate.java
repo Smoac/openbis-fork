@@ -20,8 +20,8 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.lims.base.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
  * An <i>abstract</i> <code>IPredicate</code> implementation which mainly checks method

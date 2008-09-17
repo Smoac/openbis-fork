@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 
-import ch.systemsx.cisd.lims.base.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
  * 

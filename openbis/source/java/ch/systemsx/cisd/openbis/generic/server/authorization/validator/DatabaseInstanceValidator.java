@@ -18,9 +18,9 @@ package ch.systemsx.cisd.openbis.generic.server.authorization.validator;
 
 import java.util.List;
 
-import ch.systemsx.cisd.lims.base.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.lims.base.dto.PersonPE;
-import ch.systemsx.cisd.lims.base.dto.RoleAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 
 /**
  * A {@link IValidator} implementation suitable for {@link DatabaseInstancePE}.

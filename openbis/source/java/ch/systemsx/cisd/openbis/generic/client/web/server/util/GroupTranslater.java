@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 
-import ch.systemsx.cisd.lims.base.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 
 /**
  * 

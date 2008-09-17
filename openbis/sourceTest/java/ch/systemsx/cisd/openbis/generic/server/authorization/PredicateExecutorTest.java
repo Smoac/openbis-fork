@@ -31,11 +31,11 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.utilities.StringUtilities;
-import ch.systemsx.cisd.lims.base.dto.PersonPE;
-import ch.systemsx.cisd.lims.base.identifier.GroupIdentifier;
-import ch.systemsx.cisd.lims.base.role.RoleCode;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.IPredicate;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
 /**
  * Test cases for corresponding {@link PredicateExecutor} class.

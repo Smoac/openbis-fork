@@ -46,15 +46,15 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
 import ch.systemsx.cisd.lims.base.IDataSetService;
-import ch.systemsx.cisd.lims.base.dto.ExperimentPE;
-import ch.systemsx.cisd.lims.base.dto.ExternalData;
-import ch.systemsx.cisd.lims.base.dto.ExternalDataPE;
-import ch.systemsx.cisd.lims.base.dto.GroupPE;
-import ch.systemsx.cisd.lims.base.dto.LocatorType;
-import ch.systemsx.cisd.lims.base.dto.LocatorTypePE;
-import ch.systemsx.cisd.lims.base.dto.ProcedurePE;
-import ch.systemsx.cisd.lims.base.dto.ProjectPE;
-import ch.systemsx.cisd.lims.base.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * @author Franz-Josef Elmer

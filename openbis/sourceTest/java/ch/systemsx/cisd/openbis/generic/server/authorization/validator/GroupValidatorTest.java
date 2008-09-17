@@ -24,12 +24,11 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.lims.base.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.lims.base.dto.GroupPE;
-import ch.systemsx.cisd.lims.base.dto.PersonPE;
-import ch.systemsx.cisd.lims.base.dto.RoleAssignmentPE;
-import ch.systemsx.cisd.lims.base.role.RoleCode;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.GroupValidator;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 
 /**
  * Test cases for corresponding {@link GroupValidator} class.

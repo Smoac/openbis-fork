@@ -20,8 +20,6 @@ import org.apache.commons.lang.time.DateFormatUtils;
 
 import ch.systemsx.cisd.authentication.BasicSession;
 import ch.systemsx.cisd.authentication.Principal;
-import ch.systemsx.cisd.lims.base.dto.GroupPE;
-import ch.systemsx.cisd.lims.base.dto.PersonPE;
 
 /**
  * Extendion of {@link BasicSession} which may holds a {@link PersonPE} instance.

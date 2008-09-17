@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.datasetdownload;
 
 
-import ch.systemsx.cisd.lims.base.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 
 /**
  * Interface of a renderer of a directory.

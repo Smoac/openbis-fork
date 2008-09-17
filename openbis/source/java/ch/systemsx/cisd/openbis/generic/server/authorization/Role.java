@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.authorization;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-import ch.systemsx.cisd.lims.base.role.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 
 /**
  * A well defined role, composed of a {@link RoleLevel} and a {@link RoleCode}.

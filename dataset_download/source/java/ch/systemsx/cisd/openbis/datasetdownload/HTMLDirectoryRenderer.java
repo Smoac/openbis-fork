@@ -25,11 +25,11 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.utilities.Template;
-import ch.systemsx.cisd.lims.base.dto.ExperimentPE;
-import ch.systemsx.cisd.lims.base.dto.ExternalDataPE;
-import ch.systemsx.cisd.lims.base.dto.GroupPE;
-import ch.systemsx.cisd.lims.base.dto.ProcedurePE;
-import ch.systemsx.cisd.lims.base.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**
  * An <code>IDirectoryRenderer</code> implementation which renders on HTML pages.

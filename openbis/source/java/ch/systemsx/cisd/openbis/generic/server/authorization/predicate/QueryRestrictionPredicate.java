@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
-import ch.systemsx.cisd.lims.base.dto.QueryRestriction;
-import ch.systemsx.cisd.lims.base.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.QueryRestriction;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
 /**
  * An <code>IPredicate</code> implementation for {@link QueryRestriction}.

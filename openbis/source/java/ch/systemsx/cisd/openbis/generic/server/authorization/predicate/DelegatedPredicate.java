@@ -19,9 +19,9 @@ package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.lims.base.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
  * An <code>AbstractPredicate</code> extension which delegates its method calls to the

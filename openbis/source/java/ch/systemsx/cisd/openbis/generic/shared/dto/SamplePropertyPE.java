@@ -1,0 +1,103 @@
+/*
+ * Copyright 2008 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.openbis.generic.shared.dto;
+
+import java.util.Collections;
+import java.util.List;
+
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
+
+import org.hibernate.validator.NotNull;
+
+import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+
+/**
+ * Persistence entity representing sample property.
+ * 
+ * @author Izabela Adamczyk
+ */
+@Entity
+@Table(name = TableNames.SAMPLE_PROPERTIES_TABLE, uniqueConstraints =
+    { @UniqueConstraint(columnNames =
+        { ColumnNames.ID_COLUMN }) })
+public class SamplePropertyPE extends EntityPropertyPE
+{
+    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+
+    public static final SamplePropertyPE[] EMPTY_ARRAY = new SamplePropertyPE[0];
+
+    public static final List<SamplePropertyPE> EMPTY_LIST =
+            Collections.<SamplePropertyPE> emptyList();
+
+    private SamplePE sample;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = ColumnNames.SAMPLE_COLUMN, updatable = false)
+    public SamplePE getSample()
+    {
+        return sample;
+    }
+
+    public void setSample(final SamplePE sample)
+    {
+        this.sample = sample;
+    }
+
+    //
+    // EntityPropertyPE
+    //
+
+    @NotNull(message = ValidationMessages.SAMPLE_TYPE_NOT_NULL_MESSAGE)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = SampleTypePropertyTypePE.class)
+    @JoinColumn(name = ColumnNames.SAMPLE_TYPE_PROPERTY_TYPE_COLUMN, updatable = false)
+    public EntityTypePropertyTypePE getEntityTypePropertyType()
+    {
+        return entityTypePropertyType;
+    }
+
+    @SequenceGenerator(name = SequenceNames.SAMPLE_PROPERTY_SEQUENCE, sequenceName = SequenceNames.SAMPLE_PROPERTY_SEQUENCE, allocationSize = 1)
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.SAMPLE_PROPERTY_SEQUENCE)
+    public Long getId()
+    {
+        return id;
+    }
+
+    @Transient
+    public Long getEntityId()
+    {
+        return entityId;
+    }
+
+    @Override
+    public void setEntityId(final Long entityId)
+    {
+        sample = new SamplePE();
+        sample.setId(entityId);
+    }
+
+}

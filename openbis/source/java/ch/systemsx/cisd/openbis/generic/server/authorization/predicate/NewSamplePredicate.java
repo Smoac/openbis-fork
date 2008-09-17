@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
-import ch.systemsx.cisd.lims.base.dto.NewSample;
-import ch.systemsx.cisd.lims.base.identifier.SampleOwnerIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
 /**
  * An <code>IPredicate</code> implementation for {@link NewSample}.

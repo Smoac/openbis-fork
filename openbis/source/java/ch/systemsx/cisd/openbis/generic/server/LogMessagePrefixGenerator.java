@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.server;
 
 import ch.systemsx.cisd.authentication.ILogMessagePrefixGenerator;
-import ch.systemsx.cisd.lims.base.dto.GroupPE;
-import ch.systemsx.cisd.lims.base.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**

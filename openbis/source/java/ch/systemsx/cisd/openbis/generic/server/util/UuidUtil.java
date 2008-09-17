@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
-import ch.systemsx.cisd.lims.base.util.CodeConverter;
+import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 
 /**
  * Some utility methods based on {@link UUID}.

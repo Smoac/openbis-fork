@@ -1,0 +1,74 @@
+/*
+ * Copyright 2007 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.openbis.generic.shared.dto;
+
+import java.io.Serializable;
+
+import ch.systemsx.cisd.common.annotation.BeanProperty;
+import ch.systemsx.cisd.common.utilities.AbstractHashable;
+import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+
+/**
+ * Used when assigning mandatory property to an entity, which has some instances or when mandatory
+ * flag is change from optional and properties for some entities are unset.
+ * 
+ * @author Tomasz Pylak
+ */
+public class EntityPropertyFiller extends AbstractHashable implements Serializable
+{
+    public static final EntityPropertyFiller[] EMPTY_ARRAY = new EntityPropertyFiller[0];
+
+    private static final long serialVersionUID = GenericSharedConstants.VERSION;
+
+    private String entityCode;
+
+    private String untypedPropertyValue;
+
+    public EntityPropertyFiller()
+    {
+    }
+
+    public EntityPropertyFiller(final String entityCode, final String untypedPropertyValue)
+    {
+        setEntityCode(entityCode);
+        setPropertyValue(untypedPropertyValue);
+    }
+
+    public final String getEntityCode()
+    {
+        return entityCode;
+    }
+
+    public final String getPropertyValue()
+    {
+        return untypedPropertyValue;
+    }
+
+    @BeanProperty(label = "code")
+    public void setEntityCode(final String entityCode)
+    {
+        assert entityCode != null : "Unspecified entity code.";
+        this.entityCode = entityCode;
+    }
+
+    @BeanProperty(label = "value")
+    public final void setPropertyValue(final String untypedPropertyValue)
+    {
+        assert untypedPropertyValue != null : "Unspecified property value.";
+        this.untypedPropertyValue = untypedPropertyValue;
+    }
+}

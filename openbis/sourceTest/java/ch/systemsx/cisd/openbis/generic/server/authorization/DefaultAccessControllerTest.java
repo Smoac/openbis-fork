@@ -30,13 +30,13 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
-import ch.systemsx.cisd.lims.base.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.lims.base.dto.GroupPE;
-import ch.systemsx.cisd.lims.base.dto.RoleAssignmentPE;
-import ch.systemsx.cisd.lims.base.role.RoleCode;
 import ch.systemsx.cisd.openbis.generic.server.authorization.IAccessController.Argument;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 
 /**
  * Test cases for corresponding {@link DefaultAccessController} class.

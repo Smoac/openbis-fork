@@ -20,8 +20,8 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.lims.base.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.NewExperimentPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewExperiment;
 
 /**
  * Test cases for corresponding {@link NewExperimentPredicate} class.

@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.validator;
 
-import ch.systemsx.cisd.lims.base.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
  * An <i>abstract</i> <code>IValidator</code> implementation which mainly checks method

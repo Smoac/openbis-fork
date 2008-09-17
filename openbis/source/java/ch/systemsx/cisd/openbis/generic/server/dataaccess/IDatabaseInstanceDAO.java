@@ -22,7 +22,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 
-import ch.systemsx.cisd.lims.base.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 
 /**
  * An interface that contains all data access operations on {@link DatabaseInstancePE}s.

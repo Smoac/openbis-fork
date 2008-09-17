@@ -21,15 +21,15 @@ import java.util.List;
 import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.exceptions.InternalErr;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.lims.base.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.lims.base.dto.GroupPE;
-import ch.systemsx.cisd.lims.base.dto.PersonPE;
-import ch.systemsx.cisd.lims.base.exception.UndefinedGroupException;
-import ch.systemsx.cisd.lims.base.identifier.DatabaseInstanceIdentifier;
-import ch.systemsx.cisd.lims.base.identifier.GroupIdentifier;
-import ch.systemsx.cisd.lims.base.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.exception.UndefinedGroupException;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
  * Some useful identifier methods on the <i>server</i> side.

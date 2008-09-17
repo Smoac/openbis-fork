@@ -17,11 +17,11 @@
 package ch.systemsx.cisd.openbis.generic.server.authorization;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.lims.base.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.lims.base.dto.GroupPE;
-import ch.systemsx.cisd.lims.base.dto.RoleAssignmentPE;
-import ch.systemsx.cisd.lims.base.identifier.IdentifierHelper;
-import ch.systemsx.cisd.lims.base.role.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 
 /**
  * Stores the {@link Role} and the "owner" to which this role is connected: database instance or a

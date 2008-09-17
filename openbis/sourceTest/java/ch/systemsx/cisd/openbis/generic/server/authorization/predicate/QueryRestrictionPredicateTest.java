@@ -20,8 +20,8 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.lims.base.dto.QueryRestriction;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.QueryRestrictionPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.dto.QueryRestriction;
 
 /**
  * Test cases for corresponding {@link QueryRestrictionPredicate} class.

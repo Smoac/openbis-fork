@@ -20,7 +20,7 @@ import java.util.List;
 
 import org.springframework.dao.DataAccessException;
 
-import ch.systemsx.cisd.lims.base.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
  * <i>Data Access Object</i> for persons.

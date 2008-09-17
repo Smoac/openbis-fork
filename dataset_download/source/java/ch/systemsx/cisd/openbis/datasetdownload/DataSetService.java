@@ -20,7 +20,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.lims.base.IDataSetService;
 import ch.systemsx.cisd.lims.base.ILIMSServiceFactory;
 import ch.systemsx.cisd.lims.base.ServiceRegistry;
-import ch.systemsx.cisd.lims.base.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 
 /**
  * A <code>IDataSetService</code> implementation.

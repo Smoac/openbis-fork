@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
-import ch.systemsx.cisd.lims.base.dto.NewExperiment;
-import ch.systemsx.cisd.lims.base.identifier.GroupIdentifier;
-import ch.systemsx.cisd.lims.base.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
 /**
  * An <code>IPredicate</code> implementation for {@link NewExperiment}.

@@ -27,15 +27,13 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.lims.base.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.lims.base.dto.GroupPE;
-import ch.systemsx.cisd.lims.base.dto.RoleAssignmentPE;
-import ch.systemsx.cisd.lims.base.identifier.DatabaseInstanceIdentifier;
-import ch.systemsx.cisd.lims.base.identifier.GroupIdentifier;
-import ch.systemsx.cisd.lims.base.role.RoleCode;
-import ch.systemsx.cisd.openbis.generic.server.authorization.Role;
-import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.Role.RoleLevel;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
 /**
  * Test cases for corresponding {@link RoleWithIdentifier} class.

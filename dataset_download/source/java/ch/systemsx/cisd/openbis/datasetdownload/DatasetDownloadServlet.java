@@ -49,9 +49,9 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.lims.base.IDataSetService;
-import ch.systemsx.cisd.lims.base.dto.ExternalDataPE;
-import ch.systemsx.cisd.lims.base.dto.LocatorType;
-import ch.systemsx.cisd.lims.base.dto.LocatorTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 
 /**
  * @author Franz-Josef Elmer

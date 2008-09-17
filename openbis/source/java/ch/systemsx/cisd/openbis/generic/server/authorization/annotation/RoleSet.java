@@ -21,9 +21,9 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import ch.systemsx.cisd.common.collections.CollectionUtils;
-import ch.systemsx.cisd.lims.base.role.RoleCode;
 import ch.systemsx.cisd.openbis.generic.server.authorization.Role;
 import ch.systemsx.cisd.openbis.generic.server.authorization.Role.RoleLevel;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 
 /**
  * An enumeration which defines some role sets.

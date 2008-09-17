@@ -33,7 +33,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.dbmigration.java.MigrationStepAdapter;
-import ch.systemsx.cisd.lims.base.dto.TableNames;
+import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 
 /**
  * A migration step from database version <code>v25</code> to version <code>v26</code>.

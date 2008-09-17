@@ -1,0 +1,147 @@
+/*
+ * Copyright 2008 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.openbis.generic.shared.dto;
+
+/**
+ * This class lists the validation messages.
+ * <p>
+ * Each field definition follows schema:
+ * <code>&lt;field-name&gt;_&lt;validation-annotation&gt;_MESSAGE</code>.
+ * </p>
+ * 
+ * @author Christian Ribeaud
+ */
+public final class ValidationMessages
+{
+
+    private static final String CAN_NOT_BE_NULL = " can not be null.";
+
+    private static final String LENGTH_PREFIX = "Given ";
+
+    private static final String LENGTH_SUFFIX =
+            " '%s' is too long (maximal length: {max} characters).";
+
+    public static final String ATTACHMENT_CONTENT_NOT_NULL_MESSAGE =
+            "The content of the attachment" + CAN_NOT_BE_NULL;
+
+    public static final String CODE_LENGTH_MESSAGE =
+            "Given code '%s' is either too short (minimal length: {min} character) "
+                    + "or too long (maximal length: {max} characters).";
+
+    public static final String CODE_NOT_NULL_MESSAGE = "Code" + CAN_NOT_BE_NULL;
+
+    public static final String CODE_PATTERN_MESSAGE =
+            "Given code '%s' contains illegal characters (allowed: A-Z, a-z, 0-9, _ and -)";
+
+    public static final String DATA_TYPE_NOT_NULL_MESSAGE = "Data type" + CAN_NOT_BE_NULL;
+
+    public static final String DATABASE_INSTANCE_NOT_NULL_MESSAGE =
+            "Database instance" + CAN_NOT_BE_NULL;
+
+    public final static String DESCRIPTION_LENGTH_MESSAGE =
+            LENGTH_PREFIX + "description" + LENGTH_SUFFIX;
+
+    public static final String DESCRIPTION_NOT_NULL_MESSAGE = "Description" + CAN_NOT_BE_NULL;
+
+    public static final String DOWNLOAD_URL_NOT_NULL_MESSAGE = "Download URL" + CAN_NOT_BE_NULL;
+
+    public static final String EMAIL_EMAIL_MESSAGE = "Given email address '%s' is not a valid one.";
+
+    public static final String EMAIL_LENGTH_MESSAGE =
+            LENGTH_PREFIX + "email address" + LENGTH_SUFFIX;
+
+    public static final String EXPERIMENT_NOT_NULL_MESSAGE = "Experiment " + CAN_NOT_BE_NULL;
+
+    public static final String EXPERIMENT_TYPE_NOT_NULL_MESSAGE =
+            "Experiment type" + CAN_NOT_BE_NULL;
+
+    public static final String EXPERIMENT_TYPE_PROPERTY_TYPE_NOT_NULL_MESSAGE =
+            "Experiment type - property type" + CAN_NOT_BE_NULL;
+
+    public static final String FILE_FORMAT_TYPE_NOT_NULL_MESSAGE =
+            "File format type" + CAN_NOT_BE_NULL;
+
+    public static final String FILE_NAME_LENGTH_MESSAGE =
+            LENGTH_PREFIX + "file name" + LENGTH_SUFFIX;
+
+    public static final String FILE_NAME_NOT_NULL_MESSAGE = "File name" + CAN_NOT_BE_NULL;
+
+    public static final String FIRST_NAME_LENGTH_MESSAGE =
+            LENGTH_PREFIX + "first name" + LENGTH_SUFFIX;
+
+    public static final String GROUP_NOT_NULL_MESSAGE = "Group" + CAN_NOT_BE_NULL;
+
+    public static final String IS_COMPLETE_NOT_NULL_MESSAGE = "Complete flag" + CAN_NOT_BE_NULL;
+
+    public static final String LABEL_LENGTH_MESSAGE = LENGTH_PREFIX + "label" + LENGTH_SUFFIX;
+
+    public static final String LABEL_NOT_NULL_MESSAGE = "Label" + CAN_NOT_BE_NULL;
+
+    public static final String LAST_NAME_LENGTH_MESSAGE =
+            LENGTH_PREFIX + "last name" + LENGTH_SUFFIX;
+
+    public static final String LOCATION_LENGTH_MESSAGE = LENGTH_PREFIX + "location" + LENGTH_SUFFIX;
+
+    public static final String LOCATION_NOT_NULL_MESSAGE = "Location" + CAN_NOT_BE_NULL;
+
+    public static final String LOCATION_NOT_RELATIVE = "Location is not relative";
+
+    public static final String LOCATOR_TYPE_NOT_NULL_MESSAGE = "Locator type" + CAN_NOT_BE_NULL;
+
+    public static final String MATERIAL_TYPE_NOT_NULL_MESSAGE = "Material type" + CAN_NOT_BE_NULL;
+
+    public static final String MATERIAL_NOT_NULL_MESSAGE = "Material" + CAN_NOT_BE_NULL;
+
+    public static final String MATERIAL_TYPE_PROPERTY_TYPE_NOT_NULL_MESSAGE =
+            "Material type - property type" + CAN_NOT_BE_NULL;
+
+    public static final String DATA_SET_TYPE_NOT_NULL_MESSAGE = "Data set type" + CAN_NOT_BE_NULL;
+
+    public static final String PERSON_NOT_NULL_MESSAGE = "Person" + CAN_NOT_BE_NULL;
+
+    public static final String PROCEDURE_NOT_NULL_MESSAGE = "Procedure" + CAN_NOT_BE_NULL;
+
+    public static final String PROPERTY_TYPE_NOT_NULL_MESSAGE = "Property type" + CAN_NOT_BE_NULL;
+
+    public static final String ROLE_NOT_NULL_MESSAGE = "Role" + CAN_NOT_BE_NULL;
+
+    public static final String SAMPLE_TYPE_NOT_NULL_MESSAGE = "Sample type" + CAN_NOT_BE_NULL;
+
+    public static final String SAMPLE_TYPE_PROPERTY_TYPE_NOT_NULL_MESSAGE =
+            "Sample type - property type" + CAN_NOT_BE_NULL;
+
+    public static final String STORAGE_FORMAT_NOT_NULL_MESSAGE = "Storage format" + CAN_NOT_BE_NULL;
+
+    public static final String USER_ID_LENGTH_MESSAGE = LENGTH_PREFIX + "user id" + LENGTH_SUFFIX;
+
+    public static final String USER_ID_NOT_NULL_MESSAGE = "User id" + CAN_NOT_BE_NULL;
+
+    public static final String UUID_NOT_NULL_MESSAGE = "UUID" + CAN_NOT_BE_NULL;
+
+    public static final String VALUE_LENGTH_MESSAGE = LENGTH_PREFIX + "value" + LENGTH_SUFFIX;
+
+    public static final String VERSION_NOT_NULL_MESSAGE = "Version" + CAN_NOT_BE_NULL;
+
+    public static final String VOCABULARY_NOT_NULL_MESSAGE = "Vocabulary" + CAN_NOT_BE_NULL;
+
+    public static final String PROJECT_NOT_NULL_MESSAGE = "Project" + CAN_NOT_BE_NULL;
+
+    private ValidationMessages()
+    {
+        // Can not be instantiated.
+    }
+}

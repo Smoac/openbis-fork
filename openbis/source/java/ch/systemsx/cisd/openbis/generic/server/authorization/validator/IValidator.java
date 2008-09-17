@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.validator;
 
-import ch.systemsx.cisd.lims.base.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.server.authorization.ValidatorStore;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
  * Performs some validation which returns <code>true</code> or <code>false</code> based on the

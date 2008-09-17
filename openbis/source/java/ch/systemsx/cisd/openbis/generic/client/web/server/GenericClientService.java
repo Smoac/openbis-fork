@@ -29,9 +29,6 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo;
-import ch.systemsx.cisd.lims.base.dto.GroupPE;
-import ch.systemsx.cisd.lims.base.dto.PersonPE;
-import ch.systemsx.cisd.lims.base.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
@@ -40,7 +37,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.User;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.GroupTranslater;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.UserFailureExceptionTranslater;
 import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 
 /**
  * 
