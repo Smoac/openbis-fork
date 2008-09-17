@@ -27,5 +27,9 @@
 	<classpathentry kind="lib" path="/libraries/hibernate-annotations/hibernate-annotations.jar" sourcepath="/libraries/hibernate-annotations/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/hibernate-validator/hibernate-validator.jar" sourcepath="/libraries/hibernate-validator/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/commons-io/commons-io.jar" sourcepath="/libraries/commons-io/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/hibernate/hibernate3.jar" sourcepath="/libraries/hibernate/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/hibernate/jta/jta.jar"/>
+	<classpathentry kind="lib" path="/libraries/commons-logging/commons-logging.jar" sourcepath="/libraries/commons-logging/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/hibernate-annotations/hibernate-commons-annotations.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
