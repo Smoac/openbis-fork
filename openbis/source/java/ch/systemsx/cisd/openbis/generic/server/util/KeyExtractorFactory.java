@@ -1,0 +1,245 @@
+/*
+ * Copyright 2008 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.openbis.generic.server.util;
+
+import ch.systemsx.cisd.common.collections.IKeyExtractor;
+import ch.systemsx.cisd.lims.base.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.lims.base.dto.ExperimentPE;
+import ch.systemsx.cisd.lims.base.dto.IIdAndCodeHolder;
+import ch.systemsx.cisd.lims.base.dto.IIdHolder;
+import ch.systemsx.cisd.lims.base.dto.MaterialPE;
+import ch.systemsx.cisd.lims.base.dto.PersonPE;
+import ch.systemsx.cisd.lims.base.dto.PropertyTypePE;
+import ch.systemsx.cisd.lims.base.dto.SampleComponentDTO;
+import ch.systemsx.cisd.lims.base.dto.SamplePE;
+import ch.systemsx.cisd.lims.base.dto.VocabularyTermPE;
+
+/**
+ * A <code>IdKeyExtractor</code> factory.
+ * 
+ * @author Christian Ribeaud
+ */
+public final class KeyExtractorFactory
+{
+    private final static IKeyExtractor<String, DatabaseInstancePE> DATABASE_INSTANCE_BY_CODE_KEY_EXTRACTOR =
+            createCodeKeyExtractor();
+
+    private final static IKeyExtractor<String, DatabaseInstancePE> DATABASE_INSTANCE_BY_UUID_KEY_EXTRACTOR =
+            new UUIDKeyExtractor();
+
+    private final static IKeyExtractor<String, SampleComponentDTO> SAMPLE_COMPONENT_BY_CODE_KEY_EXTRACTOR =
+            createCodeKeyExtractor();
+
+    private final static IKeyExtractor<Long, ExperimentPE> BASE_EXPERIMENT_BY_ID_KEY_EXTRACTOR =
+            createIdKeyExtractor();
+
+    private final static IKeyExtractor<String, VocabularyTermPE> VOCABULARY_TERM_BY_CODE_KEY_EXTRACTOR =
+            new VocabularyTermByCode();
+
+    private final static IKeyExtractor<String, PropertyTypePE> PROPERTY_TYPE_BY_CODE_KEY_EXTRACTOR =
+            createCodeKeyExtractor();
+
+    private final static IKeyExtractor<Long, MaterialPE> MATERIAL_BY_ID_KEY_EXTRACTOR =
+            createIdKeyExtractor();
+
+    private final static IKeyExtractor<Long, SamplePE> SAMPLE_BY_ID_KEY_EXTRACTOR =
+            createIdKeyExtractor();
+
+    private static final IKeyExtractor<String, PersonPE> PERSON_BY_USER_ID_KEY_EXTRACTOR =
+            new PersonByUserIdKeyExtractor();
+
+    private final static IKeyExtractor<Long, PersonPE> PERSON_BY_ID_KEY_EXTRACTOR =
+            createIdKeyExtractor();
+
+    private KeyExtractorFactory()
+    {
+        // Can not be instantiated.
+    }
+
+    /** Creates an <code>IKeyExtractor</code> implementation based on {@link IIdHolder}. */
+    public final static <T extends IIdHolder> IKeyExtractor<Long, T> createIdKeyExtractor()
+    {
+        return new IdKeyExtractor<T>();
+    }
+
+    /**
+     * Creates an <code>IKeyExtractor</code> implementation based on {@link IIdAndCodeHolder}
+     * extension.
+     */
+    public final static <T extends IIdAndCodeHolder> IKeyExtractor<String, T> createCodeKeyExtractor()
+    {
+        return new CodeKeyExtractor<T>();
+    }
+
+    /**
+     * Returns an <code>IKeyExtractor</code> for <i>DatabaseInstancePE</i> based on
+     * <code>local code</code>.
+     */
+    public final static IKeyExtractor<String, DatabaseInstancePE> getDatabaseInstanceByCodeKeyExtractor()
+    {
+        return DATABASE_INSTANCE_BY_CODE_KEY_EXTRACTOR;
+    }
+
+    /**
+     * Returns an <code>IKeyExtractor</code> for <i>DatabaseInstancePE</i> based on <i>UUID</i>.
+     */
+    public final static IKeyExtractor<String, DatabaseInstancePE> getDatabaseInstanceByUUIDKeyExtractor()
+    {
+        return DATABASE_INSTANCE_BY_UUID_KEY_EXTRACTOR;
+    }
+
+    /** Returns an <code>IKeyExtractor</code> for <i>MaterialPE</i> based on <code>Id</code>. */
+    public final static IKeyExtractor<Long, MaterialPE> getMaterialByIdKeyExtractor()
+    {
+        return MATERIAL_BY_ID_KEY_EXTRACTOR;
+    }
+
+    /**
+     * Returns an <code>IKeyExtractor</code> for <i>BaseExperimentDTO</i> based on
+     * <code>Id</code>.
+     */
+    public final static IKeyExtractor<Long, ExperimentPE> getBaseExperimentByIdKeyExtractor()
+    {
+        return BASE_EXPERIMENT_BY_ID_KEY_EXTRACTOR;
+    }
+
+    /**
+     * Returns an <code>IKeyExtractor</code> for <i>VocabularyTermDTO</i> based on
+     * <code>code</code>.
+     */
+    public final static IKeyExtractor<String, VocabularyTermPE> getVocabularyTermByCodeKeyExtractor()
+    {
+        return VOCABULARY_TERM_BY_CODE_KEY_EXTRACTOR;
+    }
+
+    /**
+     * Returns an <code>IKeyExtractor</code> for <i>PropertyTypePE</i> based on
+     * {@link PropertyTypePE#getCode()}.
+     */
+    public final static IKeyExtractor<String, PropertyTypePE> getPropertyTypeByCodeKeyExtractor()
+    {
+        return PROPERTY_TYPE_BY_CODE_KEY_EXTRACTOR;
+    }
+
+    /** Returns an <code>IKeyExtractor</code> for <i>SampleDTO</i> based on <code>Id</code>. */
+    public final static IKeyExtractor<Long, SamplePE> getSampleByIdKeyExtractor()
+    {
+        return SAMPLE_BY_ID_KEY_EXTRACTOR;
+    }
+
+    /**
+     * Returns an <code>IKeyExtractor</code> for <i>PersonPE</i> based on
+     * {@link PersonPE#getUserId()}.
+     */
+    public final static IKeyExtractor<String, PersonPE> getPersonByUserIdKeyExtractor()
+    {
+        return PERSON_BY_USER_ID_KEY_EXTRACTOR;
+    }
+
+    /**
+     * Returns an <code>IKeyExtractor</code> for <i>PersonPE</i> based on
+     * {@link PersonPE#getId()}.
+     */
+    public final static IKeyExtractor<Long, PersonPE> getPersonByIdKeyExtractor()
+    {
+        return PERSON_BY_ID_KEY_EXTRACTOR;
+    }
+
+    /**
+     * Returns an <code>IKeyExtractor</code> for <i>SampleComponentDTO</i> based on
+     * {@link SampleComponentDTO#getCode()}.
+     */
+    public final static IKeyExtractor<String, SampleComponentDTO> getSampleComponentByCode()
+    {
+        return SAMPLE_COMPONENT_BY_CODE_KEY_EXTRACTOR;
+    }
+
+    //
+    // Helper classes
+    //
+
+    private final static class IdKeyExtractor<T extends IIdHolder> implements
+            IKeyExtractor<Long, T>
+    {
+
+        //
+        // IKeyExtractor
+        //
+
+        public final Long getKey(final IIdHolder id)
+        {
+            return id.getId();
+        }
+    }
+
+    private final static class CodeKeyExtractor<T extends IIdAndCodeHolder> implements
+            IKeyExtractor<String, T>
+    {
+
+        //
+        // IKeyExtractor
+        //
+
+        public final String getKey(final IIdAndCodeHolder id)
+        {
+            return id.getCode();
+        }
+    }
+
+    private final static class VocabularyTermByCode implements
+            IKeyExtractor<String, VocabularyTermPE>
+    {
+
+        //
+        // IKeyExtractor
+        //
+
+        public final String getKey(final VocabularyTermPE e)
+        {
+            return e.getCode();
+        }
+    }
+
+    private final static class PersonByUserIdKeyExtractor implements
+            IKeyExtractor<String, PersonPE>
+    {
+
+        //
+        // IKeyExtractor
+        //
+
+        public final String getKey(final PersonPE e)
+        {
+            return e.getUserId();
+        }
+    }
+
+    private final static class UUIDKeyExtractor implements
+            IKeyExtractor<String, DatabaseInstancePE>
+    {
+
+        //
+        // IKeyExtractor
+        //
+
+        public final String getKey(final DatabaseInstancePE e)
+        {
+            return e.getUuid();
+        }
+    }
+
+}
