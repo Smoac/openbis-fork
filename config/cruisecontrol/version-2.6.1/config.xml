@@ -160,6 +160,18 @@
     </modificationset>
   </project>
   
+  <project name="openbis">
+    <modificationset quietperiod="${quiet-period}">
+      <buildstatus logdir="logs/build_resources"/>
+      <buildstatus logdir="logs/libraries"/>
+      <buildstatus logdir="logs/common"/>
+      <buildstatus logdir="logs/authentication"/>
+      <buildstatus logdir="logs/dbmigration"/>
+      <buildstatus logdir="logs/server-common"/>
+      <svn localWorkingCopy="${project.trunk}"/>
+    </modificationset>
+  </project>
+  
   <project name="cifex">
     <modificationset quietperiod="${quiet-period}">
       <buildstatus logdir="logs/build_resources"/>
@@ -197,6 +209,7 @@
       <buildstatus logdir="logs/build_resources"/>
       <buildstatus logdir="logs/libraries"/>
       <buildstatus logdir="logs/common"/>
+      <buildstatus logdir="logs/openbis"/>
       <svn localWorkingCopy="${project.trunk}"/>
     </modificationset>
   </project>
@@ -206,21 +219,7 @@
       <buildstatus logdir="logs/build_resources"/>
       <buildstatus logdir="logs/libraries"/>
       <buildstatus logdir="logs/common"/>
-      <buildstatus logdir="logs/lims_base"/>
-      <svn localWorkingCopy="${project.trunk}"/>
-    </modificationset>
-  </project>
-  
-  <project name="openbis">
-    <modificationset quietperiod="${quiet-period}">
-      <buildstatus logdir="logs/build_resources"/>
-      <buildstatus logdir="logs/libraries"/>
-      <buildstatus logdir="logs/common"/>
-      <buildstatus logdir="logs/authentication"/>
-      <buildstatus logdir="logs/dbmigration"/>
-      <buildstatus logdir="logs/server-common"/>
-      <buildstatus logdir="logs/lims_base"/>
-      <buildstatus logdir="logs/lims"/>
+      <buildstatus logdir="logs/openbis"/>
       <svn localWorkingCopy="${project.trunk}"/>
     </modificationset>
   </project>
@@ -246,7 +245,7 @@
       <buildstatus logdir="logs/libraries"/>
       <buildstatus logdir="logs/common"/>
       <buildstatus logdir="logs/bds"/>
-      <buildstatus logdir="logs/lims_base"/>
+      <buildstatus logdir="logs/openbis"/>
       <svn localWorkingCopy="${project.trunk}"/>
     </modificationset>
   </project>
