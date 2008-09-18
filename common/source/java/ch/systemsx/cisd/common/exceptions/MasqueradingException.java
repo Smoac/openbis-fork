@@ -58,7 +58,7 @@ public final class MasqueradingException extends RuntimeException
     @Override
     public final String toString()
     {
-        final String s = rootExceptionClassName;
+        final String s = getClass().getSimpleName() + "(" + rootExceptionClassName + ")";
         final String message = getMessage();
         return (message != null) ? (s + ": " + message) : s;
     }
