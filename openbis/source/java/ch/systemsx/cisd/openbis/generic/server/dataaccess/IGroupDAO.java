@@ -31,15 +31,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
  */
 public interface IGroupDAO
 {
-
-    /**
-     * Returns the group id for given group code.
-     * 
-     * @throws EmptyResultDataAccessException if the group with code <var>groupCode</var> does not
-     *             exist in the database.
-     */
-    public Long getGroupIdByCode(String groupCode) throws DataAccessException;
-
     /**
      * Returns the group for given group id.
      * 

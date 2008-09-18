@@ -58,25 +58,6 @@ final class GroupDAO extends AbstractDAO implements IGroupDAO
     // IGroupDAO
     //
 
-    public final Long getGroupIdByCode(final String groupCode) throws DataAccessException
-    {
-        assert groupCode != null : "Unspecified group code";
-
-        final String code = CodeConverter.tryToDatabase(groupCode);
-        final List<Long> ids =
-                cast(getHibernateTemplate().find(
-                        String.format("select g.id from %s g where g.code = ? "
-                                + "and g.databaseInstance = ?", ENTITY_CLASS.getSimpleName()),
-                        new Object[]
-                            { code, getDatabaseInstance() }));
-        final Long id = getEntity(ids);
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug("getGroupIdByCode(" + code + "): '" + id + "'.");
-        }
-        return id;
-    }
-
     public final GroupPE tryFindGroupByCodeAndDatabaseInstanceId(final String groupCode,
             final long databaseInstanceId) throws DataAccessException
     {
