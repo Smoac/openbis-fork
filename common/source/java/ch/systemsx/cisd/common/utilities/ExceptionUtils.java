@@ -32,8 +32,10 @@ public final class ExceptionUtils
      * So these packages are accepted and are not going to be masquerading.
      * </p>
      */
+    // TODO 2008-09-18, Tomasz Pylak: those packages should not be listed in common package!
     private final static String[] ACCEPTED_PACKAGE_NAME_DEPENDENCIES =
-        { "java.lang", "ch.systemsx.cisd.common", "ch.systemsx.cisd.lims.base" };
+                { "java.lang", "ch.systemsx.cisd.common", "ch.systemsx.cisd.lims.base",
+                        "ch.systemsx.cisd.openbis.generic.shared.dto" };
 
     ExceptionUtils()
     {
