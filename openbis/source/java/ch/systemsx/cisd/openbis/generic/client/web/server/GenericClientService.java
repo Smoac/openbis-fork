@@ -75,7 +75,7 @@ public class GenericClientService implements IGenericClientService
         sessionContext.setSessionID(session.getSessionToken());
         User user = new User();
         user.setUserName(session.getUserName());
-        PersonPE person = session.tryToGetPerson();
+        PersonPE person = session.tryGetPerson();
         if (person != null)
         {
             GroupPE homeGroup = person.getHomeGroup();

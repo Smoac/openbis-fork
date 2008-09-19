@@ -9,7 +9,6 @@
 
     <import resource="genericCommonContext.xml"/>
     
-    <import resource="ch/systemsx/cisd/openbis/generic/genericApplicationContext.xml"/>
+    <import resource="genericApplicationContext.xml"/>
     
-
 </beans>

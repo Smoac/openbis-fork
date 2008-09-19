@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans.xsd
+			http://www.springframework.org/schema/tx
+			http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!-- 
+        // Web Client Service Server
+    -->
+
+    <bean id="generic-service" class="ch.systemsx.cisd.openbis.generic.client.web.server.GenericClientService">
+        <constructor-arg ref="generic-server" />
+        <constructor-arg ref="request-context-provider" />
+    </bean>
+    
+    <bean id="generic-server" class="org.springframework.aop.framework.ProxyFactoryBean">
+        <property name="proxyInterfaces"><value>ch.systemsx.cisd.openbis.generic.shared.IGenericServer</value></property>
+        <property name="target">
+            <bean class="ch.systemsx.cisd.openbis.generic.server.GenericServer">
+                <constructor-arg ref="${authentication-service}" />
+                <constructor-arg ref="request-context-provider" />
+                <constructor-arg ref="generic-dao-factory" />
+                <!-- The time after which an inactive session is expired by the service (in minutes). -->
+                <constructor-arg value="${session-timeout}" />
+                <constructor-arg ref="bean-post-processor" />
+            </bean>
+        </property>
+        <property name="interceptorNames">
+            <list>
+                <value>logInterceptor</value>
+            </list>
+        </property>
+    </bean>
+    
+    <bean id="logInterceptor" class="ch.systemsx.cisd.openbis.generic.server.GenericServerLogInterceptor"/>
+    
+    <import resource="dbConfigurationContext.xml" />
+
+    <bean id="data-source" factory-bean="db-configuration-context" factory-method="getDataSource" />
+
+    <bean id="transaction-manager"
+        class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+        <property name="sessionFactory" ref="hibernate-session-factory" />
+    </bean>
+
+    <bean id="hibernate-session-factory"
+        class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+        <property name="dataSource">
+            <ref bean="data-source" />
+        </property>
+        <property name="annotatedClasses">
+            <list>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="generic-dao-factory" class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AuthorizationDAOFactory">
+        <constructor-arg ref="db-configuration-context" />
+        <constructor-arg ref="hibernate-session-factory" />
+    </bean>
+
+    <!-- 
+        // Transaction
+    -->
+
+    <!-- 
+        // This discovers on-the-fly all <code>org.springframework.aop.Advisor</code> implementations.
+    -->
+    <bean id="bean-post-processor"
+        class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" />
+
+    <bean class="org.springframework.transaction.interceptor.TransactionAttributeSourceAdvisor">
+        <property name="transactionInterceptor" ref="transactionInterceptor" />
+    </bean>
+
+    <bean id="transactionInterceptor"
+        class="org.springframework.transaction.interceptor.TransactionInterceptor">
+        <property name="transactionManager" ref="transaction-manager" />
+        <property name="transactionAttributeSource">
+            <bean
+                class="org.springframework.transaction.annotation.AnnotationTransactionAttributeSource" />
+        </property>
+    </bean>
+
+    <!-- 
+        // Authorization
+    -->
+
+    <bean class="ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationAdvisor">
+        <constructor-arg ref="${authorization-component-factory}" />
+    </bean>
+
+    <bean id="no-authorization" class="ch.systemsx.cisd.openbis.generic.server.authorization.NoAuthorization" />
+
+    <bean id="active-authorization"
+        class="ch.systemsx.cisd.openbis.generic.server.authorization.ActiveAuthorization">
+        <constructor-arg ref="generic-dao-factory" />
+    </bean>
+</beans>

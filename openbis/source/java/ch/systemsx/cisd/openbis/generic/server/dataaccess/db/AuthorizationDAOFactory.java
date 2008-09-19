@@ -26,7 +26,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
-import ch.systemsx.cisd.dbmigration.ISqlScriptProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
@@ -37,14 +36,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 
 /**
  * Super class of all DAO factories which extend {@link IAuthorizationDAOFactory}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-public abstract class AuthorizationDAOFactory implements IAuthorizationDAOFactory
+public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
 {
     private static final Logger operationLog =
-        LogFactory.getLogger(LogCategory.OPERATION, AuthorizationDAOFactory.class);
-    
+            LogFactory.getLogger(LogCategory.OPERATION, AuthorizationDAOFactory.class);
+
     private final IDatabaseInstanceDAO databaseInstancesDAO;
 
     private final IRoleAssignmentDAO roleAssignmentDAO;
@@ -52,11 +51,11 @@ public abstract class AuthorizationDAOFactory implements IAuthorizationDAOFactor
     private final IGroupDAO groupDAO;
 
     private final IPersonDAO personDAO;
-    
+
     private final DatabaseInstancePE homeDatabaseInstance;
-   
-    protected AuthorizationDAOFactory(final DatabaseConfigurationContext context,
-            final SessionFactory sessionFactory, final ISqlScriptProvider sqlScriptProvider)
+
+    public AuthorizationDAOFactory(final DatabaseConfigurationContext context,
+            final SessionFactory sessionFactory)
     {
         databaseInstancesDAO = new DatabaseInstanceDAO(sessionFactory);
         homeDatabaseInstance = getDatabaseInstanceId(context.getDatabaseInstance());
@@ -64,7 +63,7 @@ public abstract class AuthorizationDAOFactory implements IAuthorizationDAOFactor
         groupDAO = new GroupDAO(sessionFactory, homeDatabaseInstance);
         roleAssignmentDAO = new RoleAssignmentDAO(sessionFactory, homeDatabaseInstance);
     }
-    
+
     private final DatabaseInstancePE getDatabaseInstanceId(final String databaseInstanceCode)
     {
         assert databaseInstanceCode != null : "Unspecified database instance";
@@ -125,7 +124,7 @@ public abstract class AuthorizationDAOFactory implements IAuthorizationDAOFactor
     {
         return homeDatabaseInstance;
     }
-    
+
     public IDatabaseInstanceDAO getDatabaseInstancesDAO()
     {
         return databaseInstancesDAO;

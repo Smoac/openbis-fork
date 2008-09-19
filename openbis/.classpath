@@ -31,5 +31,7 @@
 	<classpathentry kind="lib" path="/libraries/hibernate/jta/jta.jar"/>
 	<classpathentry kind="lib" path="/libraries/commons-logging/commons-logging.jar" sourcepath="/libraries/commons-logging/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/hibernate-annotations/hibernate-commons-annotations.jar"/>
+	<classpathentry kind="lib" path="/libraries/dom4j/dom4j.jar"/>
+	<classpathentry kind="lib" path="/libraries/antlr/antlr.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

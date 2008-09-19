@@ -31,7 +31,7 @@ class SessionFactory implements ISessionFactory<Session>
     public Session create(String sessionToken, String userName, Principal principal,
             String remoteHost, long sessionStart, int expirationTime)
     {
-        return new Session(sessionToken, userName, principal, remoteHost, sessionStart,
+        return new Session(userName, sessionToken, principal, remoteHost, sessionStart,
                 expirationTime);
     }
 

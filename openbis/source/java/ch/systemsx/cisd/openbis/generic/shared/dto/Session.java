@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2007 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,53 +20,90 @@ import org.apache.commons.lang.time.DateFormatUtils;
 
 import ch.systemsx.cisd.authentication.BasicSession;
 import ch.systemsx.cisd.authentication.Principal;
+import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthSession;
 
 /**
- * Extendion of {@link BasicSession} which may holds a {@link PersonPE} instance.
- *
- * @author Franz-Josef Elmer
+ * A small object that encapsulates information related to a session.
+ * 
+ * @author Christian Ribeaud
  */
-public class Session extends BasicSession
+public final class Session extends BasicSession implements IAuthSession
 {
     private static final long serialVersionUID = 1L;
-    
-    private PersonPE person;
-    
+
     /**
-     * Creates a new instance.
+     * The {@link PersonPE} represented by this <code>Session</code> or <code>null</code> if it
+     * is not defined.
      */
-    public Session(String sessionToken, String userName, Principal principal, String remoteHost,
+    private PersonPE personOrNull;
+
+    public Session(final String user, final String sessionToken, final Principal principal,
+            final String remoteHost, final long sessionStart)
+    {
+        this(user, sessionToken, principal, remoteHost, sessionStart, 0);
+    }
+
+    public Session(String userName, String sessionToken, Principal principal, String remoteHost,
             long sessionStart, int expirationTime)
     {
         super(sessionToken, userName, principal, remoteHost, sessionStart, expirationTime);
     }
 
-    public final PersonPE tryToGetPerson()
+    /** Returns home group id or <code>null</code>. */
+    public final Long tryGetHomeGroupId()
     {
-        return person;
+        final GroupPE homeGroup = tryGetHomeGroup();
+        if (homeGroup == null)
+        {
+            return null;
+        }
+        return homeGroup.getId();
     }
 
-    public final void setPerson(PersonPE person)
+    public final void setPerson(final PersonPE person)
     {
-        this.person = person;
+        this.personOrNull = person;
     }
-    
+
+    /**
+     * Returns the {@link PersonPE} associated to this session or <code>null</code>.
+     */
+    public final PersonPE tryGetPerson()
+    {
+        return personOrNull;
+    }
+
+    /** Returns the home group or <code>null</code>. */
+    public final GroupPE tryGetHomeGroup()
+    {
+        if (personOrNull == null)
+        {
+            return null;
+        }
+        return personOrNull.getHomeGroup();
+    }
+
+    /** Returns home group code or <code>null</code>. */
+    public final String tryGetHomeGroupCode()
+    {
+        final GroupPE homeGroup = tryGetHomeGroup();
+        if (homeGroup == null)
+        {
+            return null;
+        }
+        return homeGroup.getCode();
+    }
+
+    //
+    // Object
+    //
+
     @Override
     public final String toString()
     {
-        String homeGroupCode = "<UNKNOWN>";
-        if (person != null)
-        {
-            GroupPE homeGroup = person.getHomeGroup();
-            if (homeGroup != null)
-            {
-                homeGroupCode = homeGroup.getCode();
-            }
-        }
-        return "Session{user=" + getUserName() + ",group=" + homeGroupCode + ",remoteHost="
-                + getRemoteHost() + ",sessionstart="
-                + DateFormatUtils.format(getSessionStart(), DATE_FORMAT_PATTERN) + "}";
+        return "Session{user=" + getUserName() + ",group=" + tryGetHomeGroupCode()
+                + ",sessionstart=" + DateFormatUtils.format(getSessionStart(), DATE_FORMAT_PATTERN)
+                + "}";
     }
-
 
 }

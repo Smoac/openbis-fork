@@ -34,7 +34,7 @@ class LogMessagePrefixGenerator implements ILogMessagePrefixGenerator<Session>
     {
         String userName = session.getUserName();
         String groupCode = null;
-        PersonPE person = session.tryToGetPerson();
+        PersonPE person = session.tryGetPerson();
         if (person != null)
         {
             GroupPE homeGroup = person.getHomeGroup();
