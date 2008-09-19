@@ -50,7 +50,7 @@ public enum EntityKind
 
     private final String entityLabel;
 
-    private final Class<?> entityClass;
+    private transient final Class<?> entityClass;
 
     private final boolean cachedProperties;
 
