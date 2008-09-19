@@ -19,12 +19,15 @@ package ch.systemsx.cisd.openbis.generic.shared.dto.properties;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
@@ -36,15 +39,20 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
  */
 public enum EntityKind
 {
-    MATERIAL("material", MaterialTypePE.class, MaterialTypePropertyTypePE.class,
-            MaterialPropertyPE.class),
+    MATERIAL("material", MaterialPE.class, MaterialTypePE.class, MaterialTypePropertyTypePE.class,
+            MaterialPropertyPE.class, true),
 
-    EXPERIMENT("experiment", ExperimentTypePE.class, ExperimentTypePropertyTypePE.class,
-            ExperimentPropertyPE.class),
+    EXPERIMENT("experiment", ExperimentPE.class, ExperimentTypePE.class,
+            ExperimentTypePropertyTypePE.class, ExperimentPropertyPE.class, true),
 
-    SAMPLE("sample", SampleTypePE.class, SampleTypePropertyTypePE.class, SamplePropertyPE.class);
+    SAMPLE("sample", SamplePE.class, SampleTypePE.class, SampleTypePropertyTypePE.class,
+            SamplePropertyPE.class, false);
 
     private final String entityLabel;
+
+    private final Class<?> entityClass;
+
+    private final boolean cachedProperties;
 
     private transient final Class<?> typeClass;
 
@@ -52,13 +60,16 @@ public enum EntityKind
 
     private transient final Class<?> propertyClass;
 
-    private EntityKind(final String entityLabel, final Class<?> typeClass,
-            final Class<?> assignmentClass, Class<?> propertyClass)
+    private EntityKind(final String entityLabel, final Class<?> entityClass,
+            final Class<?> typeClass, final Class<?> assignmentClass, Class<?> propertyClass,
+            final boolean cachedProperties)
     {
         this.entityLabel = entityLabel;
+        this.entityClass = entityClass;
         this.typeClass = typeClass;
         this.assignmentClass = assignmentClass;
         this.propertyClass = propertyClass;
+        this.cachedProperties = cachedProperties;
     }
 
     @SuppressWarnings("unchecked")
@@ -82,9 +93,18 @@ public enum EntityKind
         return cast(assignmentClass);
     }
 
-    public <T extends EntityPropertyPE> Class<T> getEntityPropertyClass()
+    public final <T extends EntityPropertyPE> Class<T> getEntityPropertyClass()
     {
         return cast(propertyClass);
     }
 
+    public final <T> Class<T> getEntityClass()
+    {
+        return cast(entityClass);
+    }
+
+    public final boolean hasCachedProperties()
+    {
+        return cachedProperties;
+    }
 }
