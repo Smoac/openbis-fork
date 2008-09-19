@@ -27,37 +27,37 @@ public final class MDLongArray extends MDArray<Long>
 {
     private final long[] flattenedArray;
 
-    public MDLongArray(long[] dimensions)
+    public MDLongArray(long[] shape)
     {
-        this(new long[getLength(dimensions)], dimensions, true);
+        this(new long[getLength(shape)], shape, true);
     }
 
-    public MDLongArray(long[] flattenedArray, long[] dimensions)
+    public MDLongArray(long[] flattenedArray, long[] shape)
     {
-        this(flattenedArray, dimensions, true);
+        this(flattenedArray, shape, true);
     }
 
-    public MDLongArray(long[] flattenedArray, long[] dimensions, boolean checkDimensions)
+    public MDLongArray(long[] flattenedArray, long[] shape, boolean checkshape)
     {
-        this(flattenedArray, MDArray.toInt(dimensions), checkDimensions);
+        this(flattenedArray, MDArray.toInt(shape), checkshape);
     }
 
-    public MDLongArray(int[] dimensions)
+    public MDLongArray(int[] shape)
     {
-        this(new long[getLength(dimensions)], dimensions, true);
+        this(new long[getLength(shape)], shape, true);
     }
 
-    public MDLongArray(long[] flattenedArray, int[] dimensions)
+    public MDLongArray(long[] flattenedArray, int[] shape)
     {
-        this(flattenedArray, dimensions, true);
+        this(flattenedArray, shape, true);
     }
 
-    public MDLongArray(long[] flattenedArray, int[] shape, boolean checkDimensions)
+    public MDLongArray(long[] flattenedArray, int[] shape, boolean checkshape)
     {
         super(shape);
         assert flattenedArray != null;
 
-        if (checkDimensions)
+        if (checkshape)
         {
             final int expectedLength = getLength(shape);
             if (flattenedArray.length != expectedLength)

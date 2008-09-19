@@ -27,37 +27,37 @@ public final class MDByteArray extends MDArray<Byte>
 {
     private final byte[] flattenedArray;
 
-    public MDByteArray(long[] dimensions)
+    public MDByteArray(long[] shape)
     {
-        this(new byte[getLength(dimensions)], dimensions, true);
+        this(new byte[getLength(shape)], shape, true);
     }
 
-    public MDByteArray(byte[] flattenedArray, long[] dimensions)
+    public MDByteArray(byte[] flattenedArray, long[] shape)
     {
-        this(flattenedArray, dimensions, true);
+        this(flattenedArray, shape, true);
     }
 
-    public MDByteArray(byte[] flattenedArray, long[] dimensions, boolean checkDimensions)
+    public MDByteArray(byte[] flattenedArray, long[] shape, boolean checkshape)
     {
-        this(flattenedArray, MDArray.toInt(dimensions), checkDimensions);
+        this(flattenedArray, MDArray.toInt(shape), checkshape);
     }
 
-    public MDByteArray(int[] dimensions)
+    public MDByteArray(int[] shape)
     {
-        this(new byte[getLength(dimensions)], dimensions, true);
+        this(new byte[getLength(shape)], shape, true);
     }
 
-    public MDByteArray(byte[] flattenedArray, int[] dimensions)
+    public MDByteArray(byte[] flattenedArray, int[] shape)
     {
-        this(flattenedArray, dimensions, true);
+        this(flattenedArray, shape, true);
     }
 
-    public MDByteArray(byte[] flattenedArray, int[] shape, boolean checkDimensions)
+    public MDByteArray(byte[] flattenedArray, int[] shape, boolean checkshape)
     {
         super(shape);
         assert flattenedArray != null;
 
-        if (checkDimensions)
+        if (checkshape)
         {
             final int expectedLength = getLength(shape);
             if (flattenedArray.length != expectedLength)
