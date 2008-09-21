@@ -93,8 +93,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE>
 
     private List<DataPE> parents = EMPTY_LIST;
 
-    @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false, updatable = false)
-    @Generated(GenerationTime.INSERT)
+    @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false)
+    @Generated(GenerationTime.ALWAYS)
     public Date getRegistrationDate()
     {
         return HibernateAbstractRegistratrationHolder.getDate(registrationDate);
@@ -107,7 +107,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE>
 
     @ManyToOne(fetch = FetchType.EAGER)
     @NotNull(message = ValidationMessages.DATA_SET_TYPE_NOT_NULL_MESSAGE)
-    @JoinColumn(name = ColumnNames.DATA_SET_TYPE_COLUMN, updatable = false)
+    @JoinColumn(name = ColumnNames.DATA_SET_TYPE_COLUMN)
     /** Returns <code>dataSetType</code>. */
     public DataSetTypePE getDataSetType()
     {
@@ -138,14 +138,14 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE>
     }
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = ColumnNames.SAMPLE_ACQUIRED_FROM, updatable = false)
+    @JoinColumn(name = ColumnNames.SAMPLE_ACQUIRED_FROM)
     public SamplePE getSampleAcquiredFrom()
     {
         return sampleAcquiredFrom;
     }
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = ColumnNames.SAMPLE_DERIVED_FROM, updatable = false)
+    @JoinColumn(name = ColumnNames.SAMPLE_DERIVED_FROM)
     public SamplePE getSampleDerivedFrom()
     {
         return sampleDerivedFrom;
@@ -174,7 +174,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE>
      * <p>
      * This may not be known in which case this method will return <code>null</code>.
      */
-    @Column(name = ColumnNames.PRODUCTION_TIMESTAMP_COLUMN, updatable = false)
+    @Column(name = ColumnNames.PRODUCTION_TIMESTAMP_COLUMN)
     public Date getProductionDate()
     {
         return HibernateAbstractRegistratrationHolder.getDate(productionDate);
@@ -184,9 +184,9 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE>
      * Sets the date when the measurement / calculation that produced this external data set has
      * been performed.
      */
-    public void setProductionDate(final Date measurementDate)
+    public void setProductionDate(final Date productionDate)
     {
-        this.productionDate = measurementDate;
+        this.productionDate = productionDate;
     }
 
     /**
@@ -197,7 +197,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE>
      * </p>
      */
     @Length(min = 1, max = 40, message = ValidationMessages.CODE_LENGTH_MESSAGE)
-    @Column(name = ColumnNames.DATA_PRODUCER_CODE_COLUMN, updatable = false)
+    @Column(name = ColumnNames.DATA_PRODUCER_CODE_COLUMN)
     public String getDataProducerCode()
     {
         return dataProducerCode;
@@ -261,7 +261,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE>
     /** Returns <code>procedure</code>. */
     @ManyToOne(fetch = FetchType.LAZY)
     @NotNull(message = ValidationMessages.PROCEDURE_NOT_NULL_MESSAGE)
-    @JoinColumn(name = ColumnNames.PROCEDURE_PRODUCED_BY_COLUMN, updatable = false)
+    @JoinColumn(name = ColumnNames.PROCEDURE_PRODUCED_BY_COLUMN)
     public ProcedurePE getProcedure()
     {
         return procedure;
