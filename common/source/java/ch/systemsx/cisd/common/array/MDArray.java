@@ -108,6 +108,27 @@ public abstract class MDArray<T>
     }
 
     /**
+     * Computes the linear index for the two-dimensional (<var>indexX, indexY</var>) provided.
+     */
+    protected int computeIndex(int indexX, int indexY)
+    {
+        assert 2 == shape.length;
+
+        return shape[1] * indexX + indexY;
+    }
+
+    /**
+     * Computes the linear index for the three-dimensional (<var>indexX, indexY, indexZ</var>)
+     * provided.
+     */
+    protected int computeIndex(int indexX, int indexY, int indexZ)
+    {
+        assert 3 == shape.length;
+
+        return shape[2] * (shape[1] * indexX + indexY) + indexZ;
+    }
+
+    /**
      * Converts the <var>shape</var> from <code>long[]</code> to <code>int[]</code>.
      */
     public static int[] toInt(final long[] shape)

@@ -35,7 +35,6 @@ public class MDArraytest
         protected TestMDArray(int[] shape)
         {
             super(shape);
-            // TODO Auto-generated constructor stub
         }
 
         @Override
@@ -88,5 +87,29 @@ public class MDArraytest
         assertEquals(10 * 42 + 17, array.computeIndex(new int[] { 42, 17 }));
         array = new TestMDArray(new int[] { 2, 7, 3 });
         assertEquals(3 * 7 * 1 + 3 * 2 + 3, array.computeIndex(new int[] { 1, 2, 3 }));
+    }
+
+    @Test
+    public void testComputeIndex2D()
+    {
+        TestMDArray array;
+        array = new TestMDArray(new int[] { 100, 10 });
+        assertEquals(array.computeIndex(new int[] { 5, 8, }), array.computeIndex(5, 8));
+        assertEquals(array.computeIndex(new int[] { 9, 1, }), array.computeIndex(9, 1));
+        array = new TestMDArray(new int[] { 101, 11 });
+        assertEquals(array.computeIndex(new int[] { 5, 8, }), array.computeIndex(5, 8));
+        assertEquals(array.computeIndex(new int[] { 9, 1, }), array.computeIndex(9, 1));
+    }
+
+    @Test
+    public void testComputeIndex3()
+    {
+        TestMDArray array;
+        array = new TestMDArray(new int[] { 100, 10, 17 });
+        assertEquals(array.computeIndex(new int[] { 5, 8, 16 }), array.computeIndex(5, 8, 16));
+        assertEquals(array.computeIndex(new int[] { 9, 1, 5 }), array.computeIndex(9, 1, 5));
+        array = new TestMDArray(new int[] { 101, 11, 3 });
+        assertEquals(array.computeIndex(new int[] { 5, 8, 0 }), array.computeIndex(5, 8, 0));
+        assertEquals(array.computeIndex(new int[] { 9, 1, 2 }), array.computeIndex(9, 1, 2));
     }
 }

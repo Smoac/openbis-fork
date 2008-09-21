@@ -78,13 +78,13 @@ public final class MDLongArray extends MDArray<Long>
     @Override
     public Long getAsObject(int[] indices)
     {
-        return getValue(indices);
+        return get(indices);
     }
 
     @Override
     public void setToObject(int[] indices, Long value)
     {
-        setValue(indices, value);
+        set(indices, value);
     }
 
     /**
@@ -99,23 +99,88 @@ public final class MDLongArray extends MDArray<Long>
     /**
      * Returns the value of array at the position defined by <var>indices</var>.
      */
-    public long getValue(int[] indices)
+    public long get(int[] indices)
     {
         return flattenedArray[computeIndex(indices)];
     }
-    
+
+    /**
+     * Returns the value of a one-dimensional array at the position defined by <var>index</var>.
+     * <p>
+     * <b>Do not call for arrays other than one-dimensional!</b>
+     */
+    public long get(int index)
+    {
+        return flattenedArray[index];
+    }
+
+    /**
+     * Returns the value of a two-dimensional array at the position defined by <var>indexX</var> and
+     * <var>indexY</var>.
+     * <p>
+     * <b>Do not call for arrays other than two-dimensional!</b>
+     */
+    public long get(int indexX, int indexY)
+    {
+        return flattenedArray[computeIndex(indexX, indexY)];
+    }
+
+    /**
+     * Returns the value of a three-dimensional array at the position defined by <var>indexX</var>,
+     * <var>indexY</var> and <var>indexZ</var>.
+     * <p>
+     * <b>Do not call for arrays other than three-dimensional!</b>
+     */
+    public long get(int indexX, int indexY, int indexZ)
+    {
+        return flattenedArray[computeIndex(indexX, indexY, indexZ)];
+    }
+
     /**
      * Sets the <var>value</var> of array at the position defined by <var>indices</var>.
      */
-    public void setValue(int[] indices, long value)
+    public void set(int[] indices, long value)
     {
         flattenedArray[computeIndex(indices)] = value;
+    }
+
+    /**
+     * Sets the <var>value</var> of a one-dimension array at the position defined by
+     * <var>index</var>.
+     * <p>
+     * <b>Do not call for arrays other than one-dimensional!</b>
+     */
+    public void set(int index, long value)
+    {
+        flattenedArray[index] = value;
+    }
+
+    /**
+     * Sets the <var>value</var> of a two-dimensional array at the position defined by
+     * <var>indexX</var> and <var>indexY</var>.
+     * <p>
+     * <b>Do not call for arrays other than two-dimensional!</b>
+     */
+    public void set(int indexX, int indexY, long value)
+    {
+        flattenedArray[computeIndex(indexX, indexY)] = value;
+    }
+
+    /**
+     * Sets the <var>value</var> of a three-dimensional array at the position defined by
+     * <var>indexX</var>, <var>indexY</var> and <var>indexZ</var>.
+     * <p>
+     * <b>Do not call for arrays other than three-dimensional!</b>
+     */
+    public void set(int indexX, int indexY, int indexZ, long value)
+    {
+        flattenedArray[computeIndex(indexX, indexY, indexZ)] = value;
     }
 
     //
     // Object
     //
-    
+
     @Override
     public int hashCode()
     {
