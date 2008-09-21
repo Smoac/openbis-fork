@@ -32,13 +32,15 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
+import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
+import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 
 /**
  * Kind of <i>Java Bean</i> or <i>Value Object</i> which contains any information we would like to
@@ -56,7 +58,7 @@ import org.hibernate.validator.Pattern;
 public final class MaterialBatchPE extends HibernateAbstractRegistratrationHolder implements
         IIdAndCodeHolder, Serializable
 {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
     private transient Long id;
 
@@ -67,21 +69,6 @@ public final class MaterialBatchPE extends HibernateAbstractRegistratrationHolde
     private transient List<SamplePE> samples;
 
     private MaterialPE material;
-
-    /**
-     * Creates an instance for specified technical ID of the person who has registered the material
-     * batch.
-     */
-    public MaterialBatchPE(final Long registratorID)
-    {
-        PersonPE registrator = new PersonPE();
-        registrator.setId(registratorID);
-        setRegistrator(registrator);
-    }
-
-    public MaterialBatchPE()
-    {
-    }
 
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
     @Length(min = 1, max = 40, message = ValidationMessages.CODE_LENGTH_MESSAGE)
@@ -116,18 +103,9 @@ public final class MaterialBatchPE extends HibernateAbstractRegistratrationHolde
         return samples;
     }
 
-    public void setSamples(List<SamplePE> samples)
+    public void setSamples(final List<SamplePE> samples)
     {
         this.samples = samples;
-    }
-
-    /**
-     * @return <code>null</code> when undefined.
-     */
-    @Transient
-    public final Long getMaterialID()
-    {
-        return material == null ? null : material.getId();
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -154,5 +132,21 @@ public final class MaterialBatchPE extends HibernateAbstractRegistratrationHolde
     public final void setId(final Long id)
     {
         this.id = id;
+    }
+
+    //
+    // Object
+    //
+
+    @Override
+    public final String toString()
+    {
+        final ToStringBuilder builder =
+                new ToStringBuilder(this,
+                        ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
+        builder.append("code", getCode());
+        builder.append("amount", getAmount());
+        builder.append("material", getMaterial());
+        return builder.toString();
     }
 }
