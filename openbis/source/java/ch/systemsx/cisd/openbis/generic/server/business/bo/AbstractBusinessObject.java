@@ -24,12 +24,9 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
-import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
 /**
  * An <code>abstract</code> <i>Business Object</i>.
@@ -65,22 +62,6 @@ abstract class AbstractBusinessObject implements IAuthorizationDAOFactory
             final String subject) throws UserFailureException
     {
         DataAccessExceptionTranslator.throwException(exception, subject);
-    }
-
-    /**
-     * @return id of the group.
-     * @throws UserFailureException if home group is pointed by it is not set
-     */
-    protected final long figureGroupId(final GroupIdentifier groupIdentifier)
-    {
-        GroupPE group =
-                GroupIdentifierHelper.tryGetGroup(groupIdentifier, findRegistrator(), daoFactory);
-        if (group == null)
-        {
-            throw new UserFailureException(String.format(
-                    "Given group '%s' could not be found in the database.", groupIdentifier));
-        }
-        return group.getId();
     }
 
     public final DatabaseInstancePE getHomeDatabaseInstance()

@@ -21,7 +21,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IIdHolder;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -49,17 +48,11 @@ public final class KeyExtractorFactory
     private final static IKeyExtractor<String, PropertyTypePE> PROPERTY_TYPE_BY_CODE_KEY_EXTRACTOR =
             createCodeKeyExtractor();
 
-    private final static IKeyExtractor<Long, MaterialPE> MATERIAL_BY_ID_KEY_EXTRACTOR =
-            createIdKeyExtractor();
-
     private final static IKeyExtractor<Long, SamplePE> SAMPLE_BY_ID_KEY_EXTRACTOR =
             createIdKeyExtractor();
 
     private static final IKeyExtractor<String, PersonPE> PERSON_BY_USER_ID_KEY_EXTRACTOR =
             new PersonByUserIdKeyExtractor();
-
-    private final static IKeyExtractor<Long, PersonPE> PERSON_BY_ID_KEY_EXTRACTOR =
-            createIdKeyExtractor();
 
     private KeyExtractorFactory()
     {
@@ -96,12 +89,6 @@ public final class KeyExtractorFactory
     public final static IKeyExtractor<String, DatabaseInstancePE> getDatabaseInstanceByUUIDKeyExtractor()
     {
         return DATABASE_INSTANCE_BY_UUID_KEY_EXTRACTOR;
-    }
-
-    /** Returns an <code>IKeyExtractor</code> for <i>MaterialPE</i> based on <code>Id</code>. */
-    public final static IKeyExtractor<Long, MaterialPE> getMaterialByIdKeyExtractor()
-    {
-        return MATERIAL_BY_ID_KEY_EXTRACTOR;
     }
 
     /**
@@ -144,15 +131,6 @@ public final class KeyExtractorFactory
     public final static IKeyExtractor<String, PersonPE> getPersonByUserIdKeyExtractor()
     {
         return PERSON_BY_USER_ID_KEY_EXTRACTOR;
-    }
-
-    /**
-     * Returns an <code>IKeyExtractor</code> for <i>PersonPE</i> based on
-     * {@link PersonPE#getId()}.
-     */
-    public final static IKeyExtractor<Long, PersonPE> getPersonByIdKeyExtractor()
-    {
-        return PERSON_BY_ID_KEY_EXTRACTOR;
     }
 
     //

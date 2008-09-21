@@ -46,17 +46,6 @@ public abstract class AbstractTypePE extends AbstractIdAndCodeHolder<AbstractTyp
         this.id = id;
     }
 
-    public AbstractTypePE(final long id, final String code, final String description)
-    {
-        setId(id);
-        setCode(code);
-        setDescription(description);
-    }
-
-    public AbstractTypePE()
-    {
-    }
-
     @Column(name = ColumnNames.CODE_COLUMN)
     @Length(min = 1, max = 40, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
