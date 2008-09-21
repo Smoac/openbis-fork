@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
  * @author Izabela Adamczyk
  * @author Tomasz Pylak
  */
-public class SampleIdentifier extends SampleOwnerIdentifier implements Comparable<SampleIdentifier>
+public class SampleIdentifier extends SampleOwnerIdentifier
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
@@ -102,12 +102,13 @@ public class SampleIdentifier extends SampleOwnerIdentifier implements Comparabl
     // Comparable
     //
 
-    public int compareTo(final SampleIdentifier o)
+    @Override
+    public final int compareTo(final SampleOwnerIdentifier o)
     {
         final int ownerCmp = super.compareTo(o);
         if (ownerCmp == 0)
         {
-            return sampleCode.compareTo(o.sampleCode);
+            return sampleCode.compareTo(((SampleIdentifier) o).sampleCode);
         } else
         {
             return ownerCmp;

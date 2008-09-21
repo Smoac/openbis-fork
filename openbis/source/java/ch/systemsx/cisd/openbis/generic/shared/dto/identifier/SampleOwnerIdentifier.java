@@ -27,7 +27,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceId
  * 
  * @author Tomasz Pylak
  */
-public class SampleOwnerIdentifier extends AbstractHashable implements Serializable
+public class SampleOwnerIdentifier extends AbstractHashable implements Serializable,
+        Comparable<SampleOwnerIdentifier>
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
@@ -50,7 +51,8 @@ public class SampleOwnerIdentifier extends AbstractHashable implements Serializa
         this(checkNotNull(instanceIdentifier), null);
     }
 
-    private static DatabaseInstanceIdentifier checkNotNull(DatabaseInstanceIdentifier identifier)
+    private static DatabaseInstanceIdentifier checkNotNull(
+            final DatabaseInstanceIdentifier identifier)
     {
         assert identifier != null : "database identifier cannot be null";
         return identifier;
@@ -62,7 +64,7 @@ public class SampleOwnerIdentifier extends AbstractHashable implements Serializa
         this(null, checkNotNull(groupIdentifier));
     }
 
-    private static GroupIdentifier checkNotNull(GroupIdentifier identifier)
+    private static GroupIdentifier checkNotNull(final GroupIdentifier identifier)
     {
         assert identifier != null : "group identifier cannot be null";
         return identifier;
@@ -144,19 +146,24 @@ public class SampleOwnerIdentifier extends AbstractHashable implements Serializa
 
     // for bean conversion only!
     @Deprecated
-    public void setGroupLevel(GroupIdentifier groupIdentOrNull)
+    public void setGroupLevel(final GroupIdentifier groupIdentOrNull)
     {
         this.groupIdentOrNull = groupIdentOrNull;
     }
 
     // for bean conversion only!
     @Deprecated
-    public void setDatabaseInstanceLevel(DatabaseInstanceIdentifier databaseInstanceIdentOrNull)
+    public void setDatabaseInstanceLevel(
+            final DatabaseInstanceIdentifier databaseInstanceIdentOrNull)
     {
         this.databaseInstanceIdentOrNull = databaseInstanceIdentOrNull;
     }
-    
-    public int compareTo(SampleOwnerIdentifier other)
+
+    //
+    // Comparable
+    //
+
+    public int compareTo(final SampleOwnerIdentifier other)
     {
         if (isGroupLevel())
         {

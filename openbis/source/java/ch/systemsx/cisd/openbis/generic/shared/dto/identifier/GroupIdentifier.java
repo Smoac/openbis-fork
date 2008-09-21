@@ -28,7 +28,8 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
  * 
  * @author Izabela Adamczyk
  */
-public class GroupIdentifier extends DatabaseInstanceIdentifier
+public class GroupIdentifier extends DatabaseInstanceIdentifier implements
+        Comparable<GroupIdentifier>
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
@@ -121,14 +122,18 @@ public class GroupIdentifier extends DatabaseInstanceIdentifier
 
     /** this method exists just to make automatic bean conversion possible */
     @Deprecated
-    public void setHomeGroup(boolean isHomeGroup)
+    public void setHomeGroup(final boolean isHomeGroup)
     {
         // empty
     }
 
-    public int compareTo(GroupIdentifier other)
+    //
+    // Comparable
+    //
+
+    public final int compareTo(final GroupIdentifier other)
     {
-        int dbCompare = super.compareTo(other);
+        final int dbCompare = super.compareTo(other);
         if (dbCompare == 0)
         {
             return StringUtilities.compareNullable(getGroupCode(), other.getGroupCode());
