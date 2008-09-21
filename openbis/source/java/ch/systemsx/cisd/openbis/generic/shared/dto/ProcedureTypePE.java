@@ -75,7 +75,7 @@ public final class ProcedureTypePE extends AbstractTypePE
      * Returns <code>true</code> if and only if this procedure type represents a data acquisition
      * (or measurement) rather than a data processing (or derivation) step in a workflow.
      */
-    @Column(name = ColumnNames.IS_DATA_CQUSITION, nullable = false)
+    @Column(name = ColumnNames.IS_DATA_ACQUSITION, nullable = false)
     public final boolean isDataAcquisition()
     {
         return dataAcquisition;

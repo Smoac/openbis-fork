@@ -74,7 +74,7 @@ public final class ColumnNames
 
     public static final String IS_COMPLETE_COLUMN = "is_complete";
 
-    public static final String IS_DATA_CQUSITION = "is_data_acquisition";
+    public static final String IS_DATA_ACQUSITION = "is_data_acquisition";
 
     public static final String IS_INTERNAL_NAMESPACE = "is_internal_namespace";
 
