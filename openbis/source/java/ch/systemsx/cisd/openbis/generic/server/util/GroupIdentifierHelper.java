@@ -23,6 +23,7 @@ import ch.systemsx.cisd.common.exceptions.InternalErr;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
+import ch.systemsx.cisd.openbis.generic.shared.IDatabaseInstanceFinder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -181,10 +182,10 @@ public final class GroupIdentifierHelper
                 }
 
                 public DatabaseInstancePE tryFindDatabaseInstanceByUUID(
-                        final String databaseInstanceGlobalCode)
+                        final String databaseInstanceUUID)
                 {
                     return daoFactory.getDatabaseInstancesDAO().tryFindDatabaseInstanceByUUID(
-                            databaseInstanceGlobalCode);
+                            databaseInstanceUUID);
                 }
             };
     }
@@ -293,15 +294,5 @@ public final class GroupIdentifierHelper
         {
             return instanceFinder.tryFindDatabaseInstanceByCode(code);
         }
-    }
-
-    /** Helps in accessing database instances. */
-    public interface IDatabaseInstanceFinder
-    {
-        DatabaseInstancePE tryFindDatabaseInstanceByCode(final String databaseInstanceCode);
-
-        DatabaseInstancePE tryFindDatabaseInstanceByUUID(final String databaseInstanceGlobalCode);
-
-        DatabaseInstancePE getHomeDatabaseInstance();
     }
 }
