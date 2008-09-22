@@ -24,7 +24,7 @@ import java.util.UUID;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.openbis.generic.server.util.UuidUtil;
+import ch.systemsx.cisd.openbis.generic.shared.util.UuidUtil;
 
 /**
  * Test cases for the {@link UuidUtil}.

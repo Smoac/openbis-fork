@@ -27,11 +27,11 @@ import ch.systemsx.cisd.openbis.generic.shared.IDatabaseInstanceFinder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.exception.UndefinedGroupException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.DatabaseInstanceIdentifierHelper;
+import ch.systemsx.cisd.openbis.generic.shared.util.GroupCodeHelper;
 
 /**
  * Some useful identifier methods on the <i>server</i> side.
@@ -195,36 +195,10 @@ public final class GroupIdentifierHelper
     public static final GroupPE tryGetGroup(final GroupIdentifier groupIdentifier, final PersonPE person,
             final IAuthorizationDAOFactory daoFactory)
     {
-        final String groupCode = getGroupCode(person, groupIdentifier);
+        final String groupCode = GroupCodeHelper.getGroupCode(person, groupIdentifier);
         final Long databaseInstanceId = getDatabaseInstance(groupIdentifier, daoFactory).getId();
         final IGroupDAO groupDAO = daoFactory.getGroupDAO();
         return groupDAO.tryFindGroupByCodeAndDatabaseInstanceId(groupCode, databaseInstanceId);
-    }
-
-    /**
-     * Tries to find out the group.
-     * <p>
-     * If not specified in given {@link GroupIdentifier} must be specified as home group in given
-     * {@link PersonPE}.
-     * </p>
-     * 
-     * @throws UndefinedGroupException if no group could be found.
-     */
-    public final static String getGroupCode(final PersonPE person,
-            final GroupIdentifier groupIdentifier) throws UndefinedGroupException
-    {
-        if (groupIdentifier.isHomeGroup())
-        {
-            final GroupPE homeGroup = person.getHomeGroup();
-            if (homeGroup == null)
-            {
-                throw new UndefinedGroupException();
-            }
-            return homeGroup.getCode();
-        } else
-        {
-            return groupIdentifier.getGroupCode();
-        }
     }
 
     public final static DatabaseInstancePE getDatabaseInstance(

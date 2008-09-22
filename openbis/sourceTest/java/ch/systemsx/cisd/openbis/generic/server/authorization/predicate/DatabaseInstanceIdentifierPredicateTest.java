@@ -173,7 +173,7 @@ public final class DatabaseInstanceIdentifierPredicateTest
         final DatabaseInstanceIdentifierPredicate predicate = createInstancePredicate();
         final DatabaseInstancePE databaseInstance = createAnotherDatabaseInstance();
         preparePredicateInit(databaseInstance, false);
-        predicate.init(daoFactory);
+        predicate.init(null);
         final Status evaluation =
                 predicate.doEvaluation(createPerson(), createAllowedRoles(true),
                         new DatabaseInstanceIdentifier(ANOTHER_INSTANCE_CODE));
@@ -187,7 +187,7 @@ public final class DatabaseInstanceIdentifierPredicateTest
         final DatabaseInstanceIdentifierPredicate predicate = createInstancePredicate();
         final DatabaseInstancePE databaseInstance = createAnotherDatabaseInstance();
         preparePredicateInit(databaseInstance, false);
-        predicate.init(daoFactory);
+        predicate.init(null);
         final PersonPE person = createPerson();
         final Status evaluation =
                 predicate.doEvaluation(person, createAllowedRoles(false),
@@ -205,7 +205,7 @@ public final class DatabaseInstanceIdentifierPredicateTest
         final DatabaseInstanceIdentifierPredicate predicate = createInstancePredicate();
         final DatabaseInstancePE databaseInstance = createAnotherDatabaseInstance();
         preparePredicateInit(databaseInstance, true);
-        predicate.init(daoFactory);
+        predicate.init(null);
         final PersonPE person = createPerson();
         final Status evaluation =
                 predicate.doEvaluation(person, createAllowedRoles(true), DatabaseInstanceIdentifier
@@ -219,7 +219,7 @@ public final class DatabaseInstanceIdentifierPredicateTest
     {
         final DatabaseInstanceIdentifierPredicate predicate = createInstancePredicate();
         preparePredicateInit(null, false);
-        predicate.init(daoFactory);
+        predicate.init(null);
         predicate.doEvaluation(DatabaseInstanceIdentifierPredicateTest.createPerson(),
                 DatabaseInstanceIdentifierPredicateTest.createAllowedRoles(false),
                 new DatabaseInstanceIdentifier(
@@ -233,7 +233,7 @@ public final class DatabaseInstanceIdentifierPredicateTest
         final DatabaseInstanceIdentifierPredicate predicate = createInstancePredicate();
         final DatabaseInstancePE databaseInstance = createDatabaseInstance();
         preparePredicateInit(databaseInstance, false);
-        predicate.init(daoFactory);
+        predicate.init(null);
         final PersonPE person = createPerson();
         final Status evaluation =
                 predicate.doEvaluation(person, createAllowedRoles(false), new GroupIdentifier(

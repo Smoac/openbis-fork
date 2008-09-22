@@ -149,7 +149,7 @@ public final class GroupIdentifierPredicateTest
                     will(returnValue(Collections.EMPTY_LIST));
                 }
             });
-        predicate.init(daoFactory);
+        predicate.init(null);
         predicate.doEvaluation(DatabaseInstanceIdentifierPredicateTest.createPerson(),
                 DatabaseInstanceIdentifierPredicateTest.createAllowedRoles(false),
                 new GroupIdentifier(DatabaseInstanceIdentifierPredicateTest.INSTANCE_CODE,
@@ -178,7 +178,7 @@ public final class GroupIdentifierPredicateTest
                     will(returnValue(Collections.EMPTY_LIST));
                 }
             });
-        predicate.init(daoFactory);
+        predicate.init(null);
         predicate.doEvaluation(DatabaseInstanceIdentifierPredicateTest.createPerson(),
                 DatabaseInstanceIdentifierPredicateTest.createAllowedRoles(false),
                 new GroupIdentifier(DatabaseInstanceIdentifierPredicateTest.INSTANCE_CODE,
@@ -207,7 +207,7 @@ public final class GroupIdentifierPredicateTest
                     will(returnValue(createGroups()));
                 }
             });
-        predicate.init(daoFactory);
+        predicate.init(null);
         final Status evaluation =
                 predicate.doEvaluation(DatabaseInstanceIdentifierPredicateTest.createPerson(),
                         DatabaseInstanceIdentifierPredicateTest.createAllowedRoles(false),
@@ -239,7 +239,7 @@ public final class GroupIdentifierPredicateTest
                     will(returnValue(createGroups()));
                 }
             });
-        predicate.init(daoFactory);
+        predicate.init(null);
         final PersonPE person = DatabaseInstanceIdentifierPredicateTest.createPerson();
         final GroupPE homeGroup = createGroup();
         person.setHomeGroup(homeGroup);
@@ -274,7 +274,7 @@ public final class GroupIdentifierPredicateTest
                     will(returnValue(createGroups()));
                 }
             });
-        predicate.init(daoFactory);
+        predicate.init(null);
         final Status evaluation =
                 predicate.doEvaluation(DatabaseInstanceIdentifierPredicateTest.createPerson(),
                         DatabaseInstanceIdentifierPredicateTest.createAllowedRoles(false),
@@ -315,7 +315,7 @@ public final class GroupIdentifierPredicateTest
                     will(returnValue(groups));
                 }
             });
-        predicate.init(daoFactory);
+        predicate.init(null);
         final Status evaluation =
                 predicate.doEvaluation(DatabaseInstanceIdentifierPredicateTest.createPerson(),
                         DatabaseInstanceIdentifierPredicateTest.createAllowedRoles(false),

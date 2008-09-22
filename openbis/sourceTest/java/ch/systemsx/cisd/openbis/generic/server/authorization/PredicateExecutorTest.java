@@ -103,7 +103,7 @@ public final class PredicateExecutorTest
                     one(predicateFactory).createPredicateForClass(stringPredicate.getClass());
                     will(returnValue(stringPredicate));
 
-                    one(stringPredicate).init(daoFactory);
+                    one(stringPredicate).init(null);
 
                     one(stringPredicate).evaluate(person, allowedRoles, value);
                     will(returnValue(Status.OK));
@@ -126,7 +126,7 @@ public final class PredicateExecutorTest
                     one(predicateFactory).createPredicateForClass(stringPredicate.getClass());
                     will(returnValue(stringPredicate));
 
-                    one(stringPredicate).init(daoFactory);
+                    one(stringPredicate).init(null);
 
                     one(stringPredicate).evaluate(person, allowedRoles, array[0]);
                     will(returnValue(Status.OK));
@@ -152,7 +152,7 @@ public final class PredicateExecutorTest
                     one(predicateFactory).createPredicateForClass(stringPredicate.getClass());
                     will(returnValue(stringPredicate));
 
-                    one(stringPredicate).init(daoFactory);
+                    one(stringPredicate).init(null);
 
                     one(stringPredicate).evaluate(person, allowedRoles, list.get(0));
                     will(returnValue(Status.OK));
