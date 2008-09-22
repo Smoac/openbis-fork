@@ -27,39 +27,39 @@ public final class MDIntArray extends MDArray<Integer>
 {
     private final int[] flattenedArray;
 
-    public MDIntArray(long[] shape)
+    public MDIntArray(long[] dimensions)
     {
-        this(new int[getLength(shape)], shape, true);
+        this(new int[getLength(dimensions)], dimensions, true);
     }
 
-    public MDIntArray(int[] flattenedArray, long[] shape)
+    public MDIntArray(int[] flattenedArray, long[] dimensions)
     {
-        this(flattenedArray, shape, true);
+        this(flattenedArray, dimensions, true);
     }
 
-    public MDIntArray(int[] flattenedArray, long[] shape, boolean checkshape)
+    public MDIntArray(int[] flattenedArray, long[] dimensions, boolean checkdimensions)
     {
-        this(flattenedArray, MDArray.toInt(shape), checkshape);
+        this(flattenedArray, MDArray.toInt(dimensions), checkdimensions);
     }
 
-    public MDIntArray(int[] shape)
+    public MDIntArray(int[] dimensions)
     {
-        this(new int[getLength(shape)], shape, true);
+        this(new int[getLength(dimensions)], dimensions, true);
     }
 
-    public MDIntArray(int[] flattenedArray, int[] shape)
+    public MDIntArray(int[] flattenedArray, int[] dimensions)
     {
-        this(flattenedArray, shape, true);
+        this(flattenedArray, dimensions, true);
     }
 
-    public MDIntArray(int[] flattenedArray, int[] shape, boolean checkshape)
+    public MDIntArray(int[] flattenedArray, int[] dimensions, boolean checkdimensions)
     {
-        super(shape);
+        super(dimensions);
         assert flattenedArray != null;
 
-        if (checkshape)
+        if (checkdimensions)
         {
-            final int expectedLength = getLength(shape);
+            final int expectedLength = getLength(dimensions);
             if (flattenedArray.length != expectedLength)
             {
                 throw new IllegalArgumentException("Actual array length " + flattenedArray.length
@@ -187,7 +187,7 @@ public final class MDIntArray extends MDArray<Integer>
         final int prime = 31;
         int result = 1;
         result = prime * result + Arrays.hashCode(flattenedArray);
-        result = prime * result + Arrays.hashCode(shape);
+        result = prime * result + Arrays.hashCode(dimensions);
         return result;
     }
 
@@ -211,7 +211,7 @@ public final class MDIntArray extends MDArray<Integer>
         {
             return false;
         }
-        if (Arrays.equals(shape, other.shape) == false)
+        if (Arrays.equals(dimensions, other.dimensions) == false)
         {
             return false;
         }

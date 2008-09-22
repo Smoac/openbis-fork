@@ -27,39 +27,39 @@ public final class MDByteArray extends MDArray<Byte>
 {
     private final byte[] flattenedArray;
 
-    public MDByteArray(long[] shape)
+    public MDByteArray(long[] dimensions)
     {
-        this(new byte[getLength(shape)], shape, true);
+        this(new byte[getLength(dimensions)], dimensions, true);
     }
 
-    public MDByteArray(byte[] flattenedArray, long[] shape)
+    public MDByteArray(byte[] flattenedArray, long[] dimensions)
     {
-        this(flattenedArray, shape, true);
+        this(flattenedArray, dimensions, true);
     }
 
-    public MDByteArray(byte[] flattenedArray, long[] shape, boolean checkshape)
+    public MDByteArray(byte[] flattenedArray, long[] dimensions, boolean checkdimensions)
     {
-        this(flattenedArray, MDArray.toInt(shape), checkshape);
+        this(flattenedArray, MDArray.toInt(dimensions), checkdimensions);
     }
 
-    public MDByteArray(int[] shape)
+    public MDByteArray(int[] dimensions)
     {
-        this(new byte[getLength(shape)], shape, true);
+        this(new byte[getLength(dimensions)], dimensions, true);
     }
 
-    public MDByteArray(byte[] flattenedArray, int[] shape)
+    public MDByteArray(byte[] flattenedArray, int[] dimensions)
     {
-        this(flattenedArray, shape, true);
+        this(flattenedArray, dimensions, true);
     }
 
-    public MDByteArray(byte[] flattenedArray, int[] shape, boolean checkshape)
+    public MDByteArray(byte[] flattenedArray, int[] dimensions, boolean checkdimensions)
     {
-        super(shape);
+        super(dimensions);
         assert flattenedArray != null;
 
-        if (checkshape)
+        if (checkdimensions)
         {
-            final int expectedLength = getLength(shape);
+            final int expectedLength = getLength(dimensions);
             if (flattenedArray.length != expectedLength)
             {
                 throw new IllegalArgumentException("Actual array length " + flattenedArray.length
@@ -187,7 +187,7 @@ public final class MDByteArray extends MDArray<Byte>
         final int prime = 31;
         int result = 1;
         result = prime * result + Arrays.hashCode(flattenedArray);
-        result = prime * result + Arrays.hashCode(shape);
+        result = prime * result + Arrays.hashCode(dimensions);
         return result;
     }
 
@@ -211,7 +211,7 @@ public final class MDByteArray extends MDArray<Byte>
         {
             return false;
         }
-        if (Arrays.equals(shape, other.shape) == false)
+        if (Arrays.equals(dimensions, other.dimensions) == false)
         {
             return false;
         }

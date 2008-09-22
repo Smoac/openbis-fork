@@ -27,39 +27,39 @@ public final class MDLongArray extends MDArray<Long>
 {
     private final long[] flattenedArray;
 
-    public MDLongArray(long[] shape)
+    public MDLongArray(long[] dimensions)
     {
-        this(new long[getLength(shape)], shape, true);
+        this(new long[getLength(dimensions)], dimensions, true);
     }
 
-    public MDLongArray(long[] flattenedArray, long[] shape)
+    public MDLongArray(long[] flattenedArray, long[] dimensions)
     {
-        this(flattenedArray, shape, true);
+        this(flattenedArray, dimensions, true);
     }
 
-    public MDLongArray(long[] flattenedArray, long[] shape, boolean checkshape)
+    public MDLongArray(long[] flattenedArray, long[] dimensions, boolean checkdimensions)
     {
-        this(flattenedArray, MDArray.toInt(shape), checkshape);
+        this(flattenedArray, MDArray.toInt(dimensions), checkdimensions);
     }
 
-    public MDLongArray(int[] shape)
+    public MDLongArray(int[] dimensions)
     {
-        this(new long[getLength(shape)], shape, true);
+        this(new long[getLength(dimensions)], dimensions, true);
     }
 
-    public MDLongArray(long[] flattenedArray, int[] shape)
+    public MDLongArray(long[] flattenedArray, int[] dimensions)
     {
-        this(flattenedArray, shape, true);
+        this(flattenedArray, dimensions, true);
     }
 
-    public MDLongArray(long[] flattenedArray, int[] shape, boolean checkshape)
+    public MDLongArray(long[] flattenedArray, int[] dimensions, boolean checkdimensions)
     {
-        super(shape);
+        super(dimensions);
         assert flattenedArray != null;
 
-        if (checkshape)
+        if (checkdimensions)
         {
-            final int expectedLength = getLength(shape);
+            final int expectedLength = getLength(dimensions);
             if (flattenedArray.length != expectedLength)
             {
                 throw new IllegalArgumentException("Actual array length " + flattenedArray.length
@@ -187,7 +187,7 @@ public final class MDLongArray extends MDArray<Long>
         final int prime = 31;
         int result = 1;
         result = prime * result + Arrays.hashCode(flattenedArray);
-        result = prime * result + Arrays.hashCode(shape);
+        result = prime * result + Arrays.hashCode(dimensions);
         return result;
     }
 
@@ -211,7 +211,7 @@ public final class MDLongArray extends MDArray<Long>
         {
             return false;
         }
-        if (Arrays.equals(shape, other.shape) == false)
+        if (Arrays.equals(dimensions, other.dimensions) == false)
         {
             return false;
         }

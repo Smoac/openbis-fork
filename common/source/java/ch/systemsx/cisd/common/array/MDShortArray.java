@@ -27,39 +27,39 @@ public final class MDShortArray extends MDArray<Short>
 {
     private final short[] flattenedArray;
 
-    public MDShortArray(long[] shape)
+    public MDShortArray(long[] dimensions)
     {
-        this(new short[getLength(shape)], shape, true);
+        this(new short[getLength(dimensions)], dimensions, true);
     }
 
-    public MDShortArray(short[] flattenedArray, long[] shape)
+    public MDShortArray(short[] flattenedArray, long[] dimensions)
     {
-        this(flattenedArray, shape, true);
+        this(flattenedArray, dimensions, true);
     }
 
-    public MDShortArray(short[] flattenedArray, long[] shape, boolean checkshape)
+    public MDShortArray(short[] flattenedArray, long[] dimensions, boolean checkdimensions)
     {
-        this(flattenedArray, MDArray.toInt(shape), checkshape);
+        this(flattenedArray, MDArray.toInt(dimensions), checkdimensions);
     }
 
-    public MDShortArray(int[] shape)
+    public MDShortArray(int[] dimensions)
     {
-        this(new short[getLength(shape)], shape, true);
+        this(new short[getLength(dimensions)], dimensions, true);
     }
 
-    public MDShortArray(short[] flattenedArray, int[] shape)
+    public MDShortArray(short[] flattenedArray, int[] dimensions)
     {
-        this(flattenedArray, shape, true);
+        this(flattenedArray, dimensions, true);
     }
 
-    public MDShortArray(short[] flattenedArray, int[] shape, boolean checkshape)
+    public MDShortArray(short[] flattenedArray, int[] dimensions, boolean checkdimensions)
     {
-        super(shape);
+        super(dimensions);
         assert flattenedArray != null;
 
-        if (checkshape)
+        if (checkdimensions)
         {
-            final int expectedLength = getLength(shape);
+            final int expectedLength = getLength(dimensions);
             if (flattenedArray.length != expectedLength)
             {
                 throw new IllegalArgumentException("Actual array length " + flattenedArray.length
@@ -187,7 +187,7 @@ public final class MDShortArray extends MDArray<Short>
         final int prime = 31;
         int result = 1;
         result = prime * result + Arrays.hashCode(flattenedArray);
-        result = prime * result + Arrays.hashCode(shape);
+        result = prime * result + Arrays.hashCode(dimensions);
         return result;
     }
 
@@ -211,7 +211,7 @@ public final class MDShortArray extends MDArray<Short>
         {
             return false;
         }
-        if (Arrays.equals(shape, other.shape) == false)
+        if (Arrays.equals(dimensions, other.dimensions) == false)
         {
             return false;
         }

@@ -25,13 +25,13 @@ package ch.systemsx.cisd.common.array;
 public abstract class MDArray<T>
 {
 
-    protected final int[] shape;
+    protected final int[] dimensions;
 
-    protected MDArray(int[] shape)
+    protected MDArray(int[] dimensions)
     {
-        assert shape != null;
+        assert dimensions != null;
 
-        this.shape = shape;
+        this.dimensions = dimensions;
     }
 
     /**
@@ -39,7 +39,7 @@ public abstract class MDArray<T>
      */
     public int rank()
     {
-        return shape.length;
+        return dimensions.length;
     }
 
     /**
@@ -47,29 +47,29 @@ public abstract class MDArray<T>
      */
     public int size(int dim)
     {
-        assert dim < shape.length;
+        assert dim < dimensions.length;
 
-        return shape[dim];
+        return dimensions[dim];
     }
 
     /**
      * Returns a copy of the shape (dimensions) of the multi-dimensional array.
      */
-    public int[] shape()
+    public int[] dimensions()
     {
-        return shape.clone();
+        return dimensions.clone();
     }
 
     /**
      * Returns a copy of the shape (dimensions) of the multi-dimensional array as
      * <code>long[]</code>.
      */
-    public long[] longShape()
+    public long[] longDimensions()
     {
-        final long[] shapeCopy = new long[shape.length];
+        final long[] shapeCopy = new long[dimensions.length];
         for (int i = 0; i < shapeCopy.length; ++i)
         {
-            shapeCopy[i] = shape[i];
+            shapeCopy[i] = dimensions[i];
         }
         return shapeCopy;
     }
@@ -97,12 +97,12 @@ public abstract class MDArray<T>
     protected int computeIndex(int[] indices)
     {
         assert indices != null;
-        assert indices.length == shape.length;
+        assert indices.length == dimensions.length;
 
         int index = indices[0];
         for (int i = 1; i < indices.length; ++i)
         {
-            index = index * shape[i] + indices[i];
+            index = index * dimensions[i] + indices[i];
         }
         return index;
     }
@@ -112,9 +112,9 @@ public abstract class MDArray<T>
      */
     protected int computeIndex(int indexX, int indexY)
     {
-        assert 2 == shape.length;
+        assert 2 == dimensions.length;
 
-        return shape[1] * indexX + indexY;
+        return dimensions[1] * indexX + indexY;
     }
 
     /**
@@ -123,9 +123,9 @@ public abstract class MDArray<T>
      */
     protected int computeIndex(int indexX, int indexY, int indexZ)
     {
-        assert 3 == shape.length;
+        assert 3 == dimensions.length;
 
-        return shape[2] * (shape[1] * indexX + indexY) + indexZ;
+        return dimensions[2] * (dimensions[1] * indexX + indexY) + indexZ;
     }
 
     /**
