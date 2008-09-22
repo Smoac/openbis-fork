@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.authorization;
+package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
  * Session interface used by authorization framework.

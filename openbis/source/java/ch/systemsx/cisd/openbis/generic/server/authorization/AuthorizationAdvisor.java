@@ -42,6 +42,7 @@ import ch.systemsx.cisd.common.utilities.AnnotationUtils.Parameter;
 import ch.systemsx.cisd.openbis.generic.server.authorization.IAccessController.Argument;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 
 /**
  * The <i>openBIS</i> authorization {@link Advisor}.

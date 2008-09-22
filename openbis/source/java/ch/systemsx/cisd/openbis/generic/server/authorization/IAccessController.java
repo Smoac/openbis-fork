@@ -25,6 +25,7 @@ import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 
 /**
  * {@link IAuthSession} based <i>Access Controller</i> for manager methods.

@@ -20,7 +20,6 @@ import org.apache.commons.lang.time.DateFormatUtils;
 
 import ch.systemsx.cisd.authentication.BasicSession;
 import ch.systemsx.cisd.authentication.Principal;
-import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthSession;
 
 /**
  * A small object that encapsulates information related to a session.

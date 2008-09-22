@@ -20,6 +20,7 @@ import java.lang.reflect.Method;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 
 /**
  * A {@link IAccessController} which always returns {@link Status#OK}.

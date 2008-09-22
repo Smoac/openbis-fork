@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.server.authorization;
 
 import java.lang.reflect.Method;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
+
 /**
  * A return value filter.
  * <p>
