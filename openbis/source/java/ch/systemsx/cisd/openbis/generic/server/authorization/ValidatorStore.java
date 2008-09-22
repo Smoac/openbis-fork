@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ch.systemsx.cisd.common.utilities.ClassUtils;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.IValidator;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.IValidator;
 
 /**
  * A <code>static</code> store of {@link IValidator}.

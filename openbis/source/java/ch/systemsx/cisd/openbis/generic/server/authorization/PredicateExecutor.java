@@ -20,12 +20,13 @@ import java.util.List;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ArrayPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.CollectionPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.IPredicate;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ArrayPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.CollectionPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.IPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;

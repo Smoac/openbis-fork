@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization;
 
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.IPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.IPredicate;
 
 /**
  * A factory for {@link IPredicate} implementation.

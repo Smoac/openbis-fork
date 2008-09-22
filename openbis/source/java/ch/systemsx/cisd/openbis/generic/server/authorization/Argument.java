@@ -3,7 +3,7 @@ package ch.systemsx.cisd.openbis.generic.server.authorization;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
-import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 
 /**
  * Small class encapsulating a method argument which could have been annotated with

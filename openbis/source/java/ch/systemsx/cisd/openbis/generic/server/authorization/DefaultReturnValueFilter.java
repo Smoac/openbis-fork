@@ -29,8 +29,8 @@ import ch.systemsx.cisd.common.collections.FilteredList;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
-import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ReturnValueFilter;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.IValidator;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.IValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
