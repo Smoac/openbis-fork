@@ -52,6 +52,7 @@ public class GroupsView extends ContentPanel
     {
         this.viewContext = viewContext;
         setHeading("Groups:");
+        setHeight(300);
         groupsPanel = new LayoutContainer();
         groupsPanel.add(new Text("data loading..."));
         add(groupsPanel);

@@ -39,7 +39,6 @@ public class Application extends LayoutContainer
     {
         add(new Header(viewContext));
         LayoutContainer content = new LayoutContainer();
-        content.setHeight(500);
         content.setLayout(new AccordionLayout());
         add(content);
         content.add(new GroupsView(viewContext));

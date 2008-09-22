@@ -135,17 +135,13 @@ public class Client implements EntryPoint
         LayoutContainer container = new LayoutContainer();
         container.setLayout(new BorderLayout());
         
-        BorderLayoutData centerLayoutData = new BorderLayoutData(LayoutRegion.CENTER);
-        centerLayoutData.setMinSize(100);
-        centerLayoutData.setMaxSize(2000);
+        BorderLayoutData centerLayoutData = new BorderLayoutData(LayoutRegion.CENTER, 1);
         container.add(widget, centerLayoutData);
         
         String version = viewContext.getModel().getApplicationInfo().getVersion();
         Text footerText = new Text(viewContext.getMessage("footer", version));
         footerText.setStyleName("footer");
-        BorderLayoutData southLayoutData = new BorderLayoutData(LayoutRegion.SOUTH);
-        southLayoutData.setMinSize(30);
-        southLayoutData.setMaxSize(30);
+        BorderLayoutData southLayoutData = new BorderLayoutData(LayoutRegion.SOUTH, 30);
         container.add(footerText, southLayoutData);
         
         Viewport viewport = new Viewport();
