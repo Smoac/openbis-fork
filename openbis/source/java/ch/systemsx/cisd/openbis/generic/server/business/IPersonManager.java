@@ -18,8 +18,8 @@ package ch.systemsx.cisd.openbis.generic.server.business;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RoleSet;
-import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;

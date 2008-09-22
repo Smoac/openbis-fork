@@ -18,10 +18,10 @@ package ch.systemsx.cisd.openbis.generic.shared;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ReturnValueFilter;
-import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RoleSet;
-import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.GroupValidator;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.GroupValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
