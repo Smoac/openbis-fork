@@ -20,7 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
@@ -50,10 +50,10 @@ public final class SampleOwnerIdentifierPredicate extends AbstractPredicate<Samp
     // AbstractPredicate
     //
 
-    public final void init(final IAuthorizationDAOFactory daoFactory)
+    public final void init(IAuthorizationDataProvider provider)
     {
-        groupIdentifierPredicate.init(daoFactory);
-        databaseInstanceIdentifierPredicate.init(daoFactory);
+        groupIdentifierPredicate.init(null);
+        databaseInstanceIdentifierPredicate.init(null);
     }
 
     @Override

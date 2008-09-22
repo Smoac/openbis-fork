@@ -63,7 +63,7 @@ final class GroupTable extends AbstractBusinessObject implements IGroupTable
     public final void load(final DatabaseInstanceIdentifier databaseInstanceIdentifier)
     {
         long databaseInstanceId =
-                GroupIdentifierHelper.getDatabaseInstanceId(databaseInstanceIdentifier, this);
+                GroupIdentifierHelper.getDatabaseInstance(databaseInstanceIdentifier, this).getId();
         groups = getGroupDAO().listGroups(databaseInstanceId);
         setHomeGroupFlags();
     }

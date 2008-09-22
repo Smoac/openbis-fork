@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.exception.UndefinedGroupExcep
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.util.DatabaseInstanceIdentifierHelper;
 
 /**
  * Some useful identifier methods on the <i>server</i> side.
@@ -124,7 +125,7 @@ public final class GroupIdentifierHelper
     private static DatabaseInstanceIdentifier normalize(final DatabaseInstanceIdentifier identifier,
             final IDatabaseInstanceFinder instanceFinder)
     {
-        final String code = getDatabaseInstance(identifier, instanceFinder).getCode();
+        final String code = DatabaseInstanceIdentifierHelper.getDatabaseInstance(identifier, instanceFinder).getCode();
         return new DatabaseInstanceIdentifier(code.toUpperCase());
     }
 
@@ -195,7 +196,7 @@ public final class GroupIdentifierHelper
             final IAuthorizationDAOFactory daoFactory)
     {
         final String groupCode = getGroupCode(person, groupIdentifier);
-        final Long databaseInstanceId = getDatabaseInstanceId(groupIdentifier, daoFactory);
+        final Long databaseInstanceId = getDatabaseInstance(groupIdentifier, daoFactory).getId();
         final IGroupDAO groupDAO = daoFactory.getGroupDAO();
         return groupDAO.tryFindGroupByCodeAndDatabaseInstanceId(groupCode, databaseInstanceId);
     }
@@ -226,73 +227,20 @@ public final class GroupIdentifierHelper
         }
     }
 
-    /**
-     * Returns the database instance id.
-     * 
-     * @throws UserFailureException whether code found in given {@link DatabaseInstanceIdentifier}
-     *             does not exist.
-     */
-    public final static long getDatabaseInstanceId(
-            final DatabaseInstanceIdentifier databaseInstanceIdentifier,
-            final IAuthorizationDAOFactory daoFactory) throws UserFailureException
-    {
-        return getDatabaseInstance(databaseInstanceIdentifier, createInstanceFinder(daoFactory))
-                .getId();
-    }
-
     public final static DatabaseInstancePE getDatabaseInstance(
             final DatabaseInstanceIdentifier databaseInstanceIdentifier,
             final IAuthorizationDAOFactory daoFactory) throws UserFailureException
     {
-        return getDatabaseInstance(databaseInstanceIdentifier, createInstanceFinder(daoFactory));
-    }
-
-    public final static DatabaseInstancePE getDatabaseInstance(
-            final DatabaseInstanceIdentifier databaseInstanceIdentifier,
-            final IDatabaseInstanceFinder instanceFinder) throws UserFailureException
-    {
-        final DatabaseInstancePE instancePE =
-                tryGetDatabaseInstance(databaseInstanceIdentifier, instanceFinder);
-        if (instancePE == null)
-        {
-            throw UserFailureException.fromTemplate("Database instance '%s' does not exist.",
-                    databaseInstanceIdentifier);
-        }
-        return instancePE;
+        IDatabaseInstanceFinder finder = createInstanceFinder(daoFactory);
+        return DatabaseInstanceIdentifierHelper.getDatabaseInstance(databaseInstanceIdentifier, finder);
     }
 
     public final static DatabaseInstancePE tryGetDatabaseInstance(
             final DatabaseInstanceIdentifier databaseInstanceIdentifier,
             final IAuthorizationDAOFactory daoFactory) throws UserFailureException
     {
-        return tryGetDatabaseInstance(databaseInstanceIdentifier, createInstanceFinder(daoFactory));
+        IDatabaseInstanceFinder finder = createInstanceFinder(daoFactory);
+        return DatabaseInstanceIdentifierHelper.tryGetDatabaseInstance(databaseInstanceIdentifier, finder);
     }
 
-    private final static DatabaseInstancePE tryGetDatabaseInstance(
-            final DatabaseInstanceIdentifier databaseInstanceIdentifier,
-            final IDatabaseInstanceFinder instanceFinder) throws UserFailureException
-    {
-        if (databaseInstanceIdentifier.isHomeDatabase())
-        {
-            return instanceFinder.getHomeDatabaseInstance();
-        } else
-        {
-            final String databaseInstanceCode =
-                    databaseInstanceIdentifier.getDatabaseInstanceCode();
-            return tryGetDatabaseInstanceByCode(instanceFinder, databaseInstanceCode);
-        }
-    }
-
-    private static DatabaseInstancePE tryGetDatabaseInstanceByCode(
-            final IDatabaseInstanceFinder instanceFinder, final String code)
-    {
-        final boolean isUUID = UuidUtil.isValidUUID(code);
-        if (isUUID)
-        {
-            return instanceFinder.tryFindDatabaseInstanceByUUID(code);
-        } else
-        {
-            return instanceFinder.tryFindDatabaseInstanceByCode(code);
-        }
-    }
 }

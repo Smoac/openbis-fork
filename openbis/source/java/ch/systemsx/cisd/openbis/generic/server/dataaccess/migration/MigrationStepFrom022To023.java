@@ -21,8 +21,8 @@ import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 import ch.systemsx.cisd.dbmigration.java.IMigrationStep;
-import ch.systemsx.cisd.openbis.generic.server.util.UuidUtil;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
+import ch.systemsx.cisd.openbis.generic.shared.util.UuidUtil;
 
 /**
  * Finishes migration of the database version 22 to version 23 by setting the <i>UUID</i> code of

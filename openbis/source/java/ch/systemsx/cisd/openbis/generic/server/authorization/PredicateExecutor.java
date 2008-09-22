@@ -25,6 +25,10 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ArrayPred
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.CollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.IPredicate;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
@@ -36,7 +40,7 @@ public final class PredicateExecutor
 {
     private static IPredicateFactory predicateFactory;
 
-    private static IAuthorizationDAOFactory daoFactory;
+    private static IAuthorizationDataProvider authorizationDataProvider;
 
     private PredicateExecutor()
     {
@@ -56,7 +60,7 @@ public final class PredicateExecutor
      */
     static final void setDAOFactory(final IAuthorizationDAOFactory daoFactory)
     {
-        PredicateExecutor.daoFactory = daoFactory;
+        PredicateExecutor.authorizationDataProvider = new AuthorizationDataProvider(daoFactory);
     }
 
     /**
@@ -105,13 +109,13 @@ public final class PredicateExecutor
             final List<RoleWithIdentifier> allowedRoles, final T argumentValue,
             final Class<? extends IPredicate<?>> predicateClass, final Class<T> argumentType)
     {
-        assert daoFactory != null : "DAOFactory not set";
+        assert authorizationDataProvider != null : "Authorization data provider not set";
         final IPredicate<T> predicate = createPredicate(predicateClass);
         if (List.class.isAssignableFrom(argumentType))
         {
             final CollectionPredicate<T> collectionPredicate =
                     new CollectionPredicate<T>(predicate);
-            collectionPredicate.init(daoFactory);
+            collectionPredicate.init(authorizationDataProvider);
             final List<T> list = castToList(argumentValue);
             try
             {
@@ -126,7 +130,7 @@ public final class PredicateExecutor
         if (argumentType.isArray())
         {
             final ArrayPredicate<T> arrayPredicate = new ArrayPredicate<T>(predicate);
-            arrayPredicate.init(daoFactory);
+            arrayPredicate.init(authorizationDataProvider);
             try
             {
                 return arrayPredicate.evaluate(person, allowedRoles, castToArray(argumentValue));
@@ -137,7 +141,7 @@ public final class PredicateExecutor
                         argumentType.getComponentType().getName()));
             }
         }
-        predicate.init(daoFactory);
+        predicate.init(authorizationDataProvider);
         try
         {
             return predicate.evaluate(person, allowedRoles, argumentValue);
@@ -146,6 +150,38 @@ public final class PredicateExecutor
             throw new IllegalArgumentException(String.format("Given predicate class '%s' "
                     + "and argument type '%s' are not compatible.", predicateClass.getName(),
                     argumentType.getName()));
+        }
+    }
+    
+    private static final class AuthorizationDataProvider implements IAuthorizationDataProvider
+    {
+        private final IAuthorizationDAOFactory daoFactory;
+
+        AuthorizationDataProvider(IAuthorizationDAOFactory daoFactory)
+        {
+            this.daoFactory = daoFactory;
+        }
+
+        public List<GroupPE> listGroups()
+        {
+            return daoFactory.getGroupDAO().listGroups();
+        }
+
+        public DatabaseInstancePE getHomeDatabaseInstance()
+        {
+            return daoFactory.getHomeDatabaseInstance();
+        }
+
+        public DatabaseInstancePE tryFindDatabaseInstanceByCode(String databaseInstanceCode)
+        {
+            IDatabaseInstanceDAO databaseInstancesDAO = daoFactory.getDatabaseInstancesDAO();
+            return databaseInstancesDAO.tryFindDatabaseInstanceByCode(databaseInstanceCode);
+        }
+
+        public DatabaseInstancePE tryFindDatabaseInstanceByUUID(String databaseInstanceUUID)
+        {
+            IDatabaseInstanceDAO databaseInstancesDAO = daoFactory.getDatabaseInstancesDAO();
+            return databaseInstancesDAO.tryFindDatabaseInstanceByUUID(databaseInstanceUUID);
         }
     }
 }

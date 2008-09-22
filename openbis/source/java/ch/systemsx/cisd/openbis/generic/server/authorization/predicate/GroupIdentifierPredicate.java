@@ -22,8 +22,8 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.Role.RoleLevel;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -98,10 +98,10 @@ public final class GroupIdentifierPredicate extends
     //
 
     @Override
-    public final void init(final IAuthorizationDAOFactory daoFactory)
+    public final void init(IAuthorizationDataProvider provider)
     {
-        super.init(daoFactory);
-        groups = daoFactory.getGroupDAO().listGroups();
+        super.init(provider);
+        groups = provider.listGroups();
     }
 
     @Override

@@ -31,8 +31,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
-import ch.systemsx.cisd.openbis.generic.server.util.UuidUtil;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.util.UuidUtil;
 
 /**
  * Super class of all DAO factories which extend {@link IAuthorizationDAOFactory}.

@@ -22,7 +22,7 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
@@ -49,9 +49,9 @@ public final class CollectionPredicate<T> extends AbstractPredicate<Collection<T
     // AbstractPredicate
     //
 
-    public final void init(final IAuthorizationDAOFactory daoFactory)
+    public final void init(IAuthorizationDataProvider provider)
     {
-        predicate.init(daoFactory);
+        predicate.init(null);
     }
 
     @Override

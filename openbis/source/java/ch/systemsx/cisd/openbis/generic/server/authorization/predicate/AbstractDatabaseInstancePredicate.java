@@ -16,11 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.IDatabaseInstanceFinder;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.util.DatabaseInstanceIdentifierHelper;
 
 /**
  * An {@link AbstractPredicate} extension which works with database instances.
@@ -38,17 +38,18 @@ abstract class AbstractDatabaseInstancePredicate<T> extends AbstractPredicate<T>
 
     protected DatabaseInstancePE getDatabaseInstance(final DatabaseInstanceIdentifier identifier)
     {
-        return GroupIdentifierHelper.getDatabaseInstance(identifier, databaseInstanceFinder);
+        return DatabaseInstanceIdentifierHelper.getDatabaseInstance(identifier,
+                databaseInstanceFinder);
     }
 
     //
     // AbstractPredicate
     //
 
-    public void init(IAuthorizationDAOFactory daoFactory)
+    public void init(IAuthorizationDataProvider provider)
     {
         assert inited == false : "Already initialized";
-        this.databaseInstanceFinder = GroupIdentifierHelper.createCachedInstanceFinder(daoFactory);
+        this.databaseInstanceFinder = provider;
         inited = true;
     }
 

@@ -21,14 +21,14 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.IPredicateFactory;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
  * Performs some predicate which returns a {@link Status} based on the input objects.
  * <p>
  * Each implementation is expected to have an empty <code>public</code> constructor and might be
- * stateful. So do not try to reuse it. Use a {@link IPredicateFactory} to get an implementation.
+ * statefull. So do not try to reuse it. Use a {@link IPredicateFactory} to get an implementation.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -48,10 +48,10 @@ public interface IPredicate<T>
             final T valueOrNull);
 
     /**
-     * Initializes this predicate with given {@link IAuthorizationDAOFactory}.
+     * Initialises this predicate with data provided by the specified provider.
      * <p>
      * This method prepares the {@link IPredicate} and is ensured to be called only once.
      * </p>
      */
-    public void init(final IAuthorizationDAOFactory daoFactory);
+    public void init(IAuthorizationDataProvider provider);
 }
