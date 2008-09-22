@@ -36,6 +36,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -58,11 +59,7 @@ public final class GroupIdentifierPredicateTest
 
     private Mockery context;
 
-    private IAuthorizationDAOFactory daoFactory;
-
-    private IDatabaseInstanceDAO databaseInstanceDAO;
-
-    private IGroupDAO groupDAO;
+    private IAuthorizationDataProvider provider;
 
     static final List<GroupPE> createGroups()
     {
@@ -98,9 +95,7 @@ public final class GroupIdentifierPredicateTest
     public void setUp()
     {
         context = new Mockery();
-        daoFactory = context.mock(IAuthorizationDAOFactory.class);
-        databaseInstanceDAO = context.mock(IDatabaseInstanceDAO.class);
-        groupDAO = context.mock(IGroupDAO.class);
+        provider = context.mock(IAuthorizationDataProvider.class);
     }
 
     @AfterMethod
@@ -136,20 +131,15 @@ public final class GroupIdentifierPredicateTest
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getDatabaseInstancesDAO();
-                    will(returnValue(databaseInstanceDAO));
+                    one(provider).tryFindDatabaseInstanceByCode(
+                            DatabaseInstanceIdentifierPredicateTest.INSTANCE_CODE);
+                    will(returnValue(null));
 
-                    one(daoFactory).getGroupDAO();
-                    will(returnValue(groupDAO));
-
-                    one(databaseInstanceDAO).listDatabaseInstances();
-                    will(returnValue(Collections.EMPTY_LIST));
-
-                    one(groupDAO).listGroups();
+                    one(provider).listGroups();
                     will(returnValue(Collections.EMPTY_LIST));
                 }
             });
-        predicate.init(null);
+        predicate.init(provider);
         predicate.doEvaluation(DatabaseInstanceIdentifierPredicateTest.createPerson(),
                 DatabaseInstanceIdentifierPredicateTest.createAllowedRoles(false),
                 new GroupIdentifier(DatabaseInstanceIdentifierPredicateTest.INSTANCE_CODE,
@@ -164,21 +154,16 @@ public final class GroupIdentifierPredicateTest
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getDatabaseInstancesDAO();
-                    will(returnValue(databaseInstanceDAO));
+                    one(provider).tryFindDatabaseInstanceByCode(
+                            DatabaseInstanceIdentifierPredicateTest.INSTANCE_CODE);
+                    will(returnValue(DatabaseInstanceIdentifierPredicateTest
+                            .createDatabaseInstance()));
 
-                    one(daoFactory).getGroupDAO();
-                    will(returnValue(groupDAO));
-
-                    one(databaseInstanceDAO).listDatabaseInstances();
-                    will(returnValue(Arrays.asList(DatabaseInstanceIdentifierPredicateTest
-                            .createDatabaseInstance())));
-
-                    one(groupDAO).listGroups();
+                    one(provider).listGroups();
                     will(returnValue(Collections.EMPTY_LIST));
                 }
             });
-        predicate.init(null);
+        predicate.init(provider);
         predicate.doEvaluation(DatabaseInstanceIdentifierPredicateTest.createPerson(),
                 DatabaseInstanceIdentifierPredicateTest.createAllowedRoles(false),
                 new GroupIdentifier(DatabaseInstanceIdentifierPredicateTest.INSTANCE_CODE,
@@ -193,21 +178,16 @@ public final class GroupIdentifierPredicateTest
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getDatabaseInstancesDAO();
-                    will(returnValue(databaseInstanceDAO));
+                    one(provider).tryFindDatabaseInstanceByCode(
+                            DatabaseInstanceIdentifierPredicateTest.INSTANCE_CODE);
+                    will(returnValue(DatabaseInstanceIdentifierPredicateTest
+                            .createDatabaseInstance()));
 
-                    one(daoFactory).getGroupDAO();
-                    will(returnValue(groupDAO));
-
-                    one(databaseInstanceDAO).listDatabaseInstances();
-                    will(returnValue(Arrays.asList(DatabaseInstanceIdentifierPredicateTest
-                            .createDatabaseInstance())));
-
-                    one(groupDAO).listGroups();
+                    one(provider).listGroups();
                     will(returnValue(createGroups()));
                 }
             });
-        predicate.init(null);
+        predicate.init(provider);
         final Status evaluation =
                 predicate.doEvaluation(DatabaseInstanceIdentifierPredicateTest.createPerson(),
                         DatabaseInstanceIdentifierPredicateTest.createAllowedRoles(false),
@@ -224,22 +204,16 @@ public final class GroupIdentifierPredicateTest
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getDatabaseInstancesDAO();
-                    will(returnValue(databaseInstanceDAO));
+                    one(provider).tryFindDatabaseInstanceByCode(
+                            DatabaseInstanceIdentifierPredicateTest.INSTANCE_CODE);
+                    will(returnValue(DatabaseInstanceIdentifierPredicateTest
+                            .createDatabaseInstance()));
 
-                    one(daoFactory).getGroupDAO();
-                    will(returnValue(groupDAO));
-
-                    one(databaseInstanceDAO).listDatabaseInstances();
-                    will(returnValue(Arrays.asList(DatabaseInstanceIdentifierPredicateTest
-                            .createAnotherDatabaseInstance(),
-                            DatabaseInstanceIdentifierPredicateTest.createDatabaseInstance())));
-
-                    one(groupDAO).listGroups();
+                    one(provider).listGroups();
                     will(returnValue(createGroups()));
                 }
             });
-        predicate.init(null);
+        predicate.init(provider);
         final PersonPE person = DatabaseInstanceIdentifierPredicateTest.createPerson();
         final GroupPE homeGroup = createGroup();
         person.setHomeGroup(homeGroup);
@@ -259,22 +233,16 @@ public final class GroupIdentifierPredicateTest
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getDatabaseInstancesDAO();
-                    will(returnValue(databaseInstanceDAO));
+                    one(provider).tryFindDatabaseInstanceByCode(
+                            DatabaseInstanceIdentifierPredicateTest.ANOTHER_INSTANCE_CODE);
+                    will(returnValue(DatabaseInstanceIdentifierPredicateTest
+                            .createAnotherDatabaseInstance()));
 
-                    one(daoFactory).getGroupDAO();
-                    will(returnValue(groupDAO));
-
-                    one(databaseInstanceDAO).listDatabaseInstances();
-                    will(returnValue(Arrays.asList(DatabaseInstanceIdentifierPredicateTest
-                            .createDatabaseInstance(), DatabaseInstanceIdentifierPredicateTest
-                            .createAnotherDatabaseInstance())));
-
-                    one(groupDAO).listGroups();
+                    one(provider).listGroups();
                     will(returnValue(createGroups()));
                 }
             });
-        predicate.init(null);
+        predicate.init(provider);
         final Status evaluation =
                 predicate.doEvaluation(DatabaseInstanceIdentifierPredicateTest.createPerson(),
                         DatabaseInstanceIdentifierPredicateTest.createAllowedRoles(false),
@@ -294,28 +262,21 @@ public final class GroupIdentifierPredicateTest
         final DatabaseInstancePE homeDatabaseInstance =
                 DatabaseInstanceIdentifierPredicateTest.createDatabaseInstance();
         final GroupIdentifierPredicate predicate = new GroupIdentifierPredicate();
-        final List<DatabaseInstancePE> databaseInstances =
-                Arrays.asList(homeDatabaseInstance, DatabaseInstanceIdentifierPredicateTest
-                        .createAnotherDatabaseInstance());
         final List<GroupPE> groups = createGroups();
         groups.add(createGroup(ANOTHER_GROUP_CODE, 34L, homeDatabaseInstance));
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getDatabaseInstancesDAO();
-                    will(returnValue(databaseInstanceDAO));
+                    one(provider).tryFindDatabaseInstanceByCode(
+                            DatabaseInstanceIdentifierPredicateTest.INSTANCE_CODE);
+                    will(returnValue(DatabaseInstanceIdentifierPredicateTest
+                            .createDatabaseInstance()));
 
-                    one(daoFactory).getGroupDAO();
-                    will(returnValue(groupDAO));
-
-                    one(databaseInstanceDAO).listDatabaseInstances();
-                    will(returnValue(databaseInstances));
-
-                    one(groupDAO).listGroups();
+                    one(provider).listGroups();
                     will(returnValue(groups));
                 }
             });
-        predicate.init(null);
+        predicate.init(provider);
         final Status evaluation =
                 predicate.doEvaluation(DatabaseInstanceIdentifierPredicateTest.createPerson(),
                         DatabaseInstanceIdentifierPredicateTest.createAllowedRoles(false),

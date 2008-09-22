@@ -33,6 +33,7 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.utilities.StringUtilities;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.IPredicate;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
@@ -103,7 +104,7 @@ public final class PredicateExecutorTest
                     one(predicateFactory).createPredicateForClass(stringPredicate.getClass());
                     will(returnValue(stringPredicate));
 
-                    one(stringPredicate).init(null);
+                    one(stringPredicate).init(with(any(IAuthorizationDataProvider.class)));
 
                     one(stringPredicate).evaluate(person, allowedRoles, value);
                     will(returnValue(Status.OK));
@@ -126,7 +127,7 @@ public final class PredicateExecutorTest
                     one(predicateFactory).createPredicateForClass(stringPredicate.getClass());
                     will(returnValue(stringPredicate));
 
-                    one(stringPredicate).init(null);
+                    one(stringPredicate).init(with(any(IAuthorizationDataProvider.class)));
 
                     one(stringPredicate).evaluate(person, allowedRoles, array[0]);
                     will(returnValue(Status.OK));
@@ -152,7 +153,7 @@ public final class PredicateExecutorTest
                     one(predicateFactory).createPredicateForClass(stringPredicate.getClass());
                     will(returnValue(stringPredicate));
 
-                    one(stringPredicate).init(null);
+                    one(stringPredicate).init(with(any(IAuthorizationDataProvider.class)));
 
                     one(stringPredicate).evaluate(person, allowedRoles, list.get(0));
                     will(returnValue(Status.OK));

@@ -20,8 +20,6 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.jmock.Expectations;
@@ -35,8 +33,7 @@ import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifierTest;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
@@ -60,9 +57,7 @@ public final class DatabaseInstanceIdentifierPredicateTest
 
     private Mockery context;
 
-    private IAuthorizationDAOFactory daoFactory;
-
-    private IDatabaseInstanceDAO databaseInstanceDAO;
+    private IAuthorizationDataProvider provider;
 
     final static DatabaseInstancePE createDatabaseInstance()
     {
@@ -109,27 +104,13 @@ public final class DatabaseInstanceIdentifierPredicateTest
     }
 
     private final void preparePredicateInit(final DatabaseInstancePE databaseInstance,
-            final boolean accessHomeGroup)
+            final String code)
     {
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getDatabaseInstancesDAO();
-                    will(returnValue(databaseInstanceDAO));
-
-                    one(databaseInstanceDAO).listDatabaseInstances();
-                    if (databaseInstance == null)
-                    {
-                        will(returnValue(Collections.EMPTY_LIST));
-                    } else
-                    {
-                        will(returnValue(Arrays.asList(databaseInstance)));
-                    }
-                    if (accessHomeGroup)
-                    {
-                        one(daoFactory).getHomeDatabaseInstance();
-                        will(returnValue(createAnotherDatabaseInstance()));
-                    }
+                    one(provider).tryFindDatabaseInstanceByCode(code);
+                    will(returnValue(databaseInstance));
                 }
             });
     }
@@ -138,8 +119,7 @@ public final class DatabaseInstanceIdentifierPredicateTest
     public void setUp()
     {
         context = new Mockery();
-        daoFactory = context.mock(IAuthorizationDAOFactory.class);
-        databaseInstanceDAO = context.mock(IDatabaseInstanceDAO.class);
+        provider = context.mock(IAuthorizationDataProvider.class);
     }
 
     @AfterMethod
@@ -172,8 +152,8 @@ public final class DatabaseInstanceIdentifierPredicateTest
     {
         final DatabaseInstanceIdentifierPredicate predicate = createInstancePredicate();
         final DatabaseInstancePE databaseInstance = createAnotherDatabaseInstance();
-        preparePredicateInit(databaseInstance, false);
-        predicate.init(null);
+        preparePredicateInit(databaseInstance, ANOTHER_INSTANCE_CODE);
+        predicate.init(provider);
         final Status evaluation =
                 predicate.doEvaluation(createPerson(), createAllowedRoles(true),
                         new DatabaseInstanceIdentifier(ANOTHER_INSTANCE_CODE));
@@ -186,8 +166,8 @@ public final class DatabaseInstanceIdentifierPredicateTest
     {
         final DatabaseInstanceIdentifierPredicate predicate = createInstancePredicate();
         final DatabaseInstancePE databaseInstance = createAnotherDatabaseInstance();
-        preparePredicateInit(databaseInstance, false);
-        predicate.init(null);
+        preparePredicateInit(databaseInstance, ANOTHER_INSTANCE_CODE);
+        predicate.init(provider);
         final PersonPE person = createPerson();
         final Status evaluation =
                 predicate.doEvaluation(person, createAllowedRoles(false),
@@ -204,8 +184,14 @@ public final class DatabaseInstanceIdentifierPredicateTest
     {
         final DatabaseInstanceIdentifierPredicate predicate = createInstancePredicate();
         final DatabaseInstancePE databaseInstance = createAnotherDatabaseInstance();
-        preparePredicateInit(databaseInstance, true);
-        predicate.init(null);
+        context.checking(new Expectations()
+            {
+                {
+                    one(provider).getHomeDatabaseInstance();
+                    will(returnValue(databaseInstance));
+                }
+            });
+        predicate.init(provider);
         final PersonPE person = createPerson();
         final Status evaluation =
                 predicate.doEvaluation(person, createAllowedRoles(true), DatabaseInstanceIdentifier
@@ -218,8 +204,8 @@ public final class DatabaseInstanceIdentifierPredicateTest
     public final void testExceptionBecauseInstanceDoesNotExist()
     {
         final DatabaseInstanceIdentifierPredicate predicate = createInstancePredicate();
-        preparePredicateInit(null, false);
-        predicate.init(null);
+        preparePredicateInit(null, INSTANCE_CODE);
+        predicate.init(provider);
         predicate.doEvaluation(DatabaseInstanceIdentifierPredicateTest.createPerson(),
                 DatabaseInstanceIdentifierPredicateTest.createAllowedRoles(false),
                 new DatabaseInstanceIdentifier(
@@ -232,8 +218,8 @@ public final class DatabaseInstanceIdentifierPredicateTest
     {
         final DatabaseInstanceIdentifierPredicate predicate = createInstancePredicate();
         final DatabaseInstancePE databaseInstance = createDatabaseInstance();
-        preparePredicateInit(databaseInstance, false);
-        predicate.init(null);
+        preparePredicateInit(databaseInstance, databaseInstance.getCode());
+        predicate.init(provider);
         final PersonPE person = createPerson();
         final Status evaluation =
                 predicate.doEvaluation(person, createAllowedRoles(false), new GroupIdentifier(
