@@ -18,6 +18,10 @@ package ch.systemsx.cisd.openbis.generic.shared;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ReturnValueFilter;
+import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RoleSet;
+import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.GroupValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
@@ -49,13 +53,14 @@ public interface IGenericServer
     /**
      * Returns all groups which belong to the specified database instance.
      */
-    // TODO 2008-09-09, Franz-Josef Elmer: Add authorization annotations
+    @RolesAllowed(RoleSet.OBSERVER)
+    @ReturnValueFilter(validatorClass = GroupValidator.class)
     public List<GroupPE> listGroups(String sessionToken, DatabaseInstanceIdentifier identifier);
 
     /**
      * Registers a new group with specified code and optional description and group leader ID.
      */
-    // TODO 2008-09-09, Franz-Josef Elmer: Add authorization annotations
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     public void registerGroup(String sessionToken, String groupCode, String descriptionOrNull,
             String groupLeaderOrNull);
 }

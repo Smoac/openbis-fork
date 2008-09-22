@@ -30,7 +30,6 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
-import ch.systemsx.cisd.openbis.generic.server.authorization.IAccessController.Argument;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;

@@ -41,7 +41,6 @@ public interface IGroupManager
      * 
      * @param groupIdentifier never <code>null</code>.
      */
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     public void registerGroup(final Session session, final GroupIdentifier groupIdentifier,
             String descriptionOrNull, final String groupLeaderOrNull) throws UserFailureException;
 
@@ -52,8 +51,6 @@ public interface IGroupManager
      * @param databaseInstanceIdentifier never <code>null</code> but could contain a
      *            <code>null</code> code.
      */
-    @RolesAllowed(RoleSet.OBSERVER)
-    @ReturnValueFilter(validatorClass = GroupValidator.class)
     public List<GroupPE> listGroups(final Session session,
             final DatabaseInstanceIdentifier databaseInstanceIdentifier)
             throws UserFailureException;

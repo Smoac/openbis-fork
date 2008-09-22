@@ -18,13 +18,10 @@ package ch.systemsx.cisd.openbis.generic.server.authorization;
 
 import java.lang.reflect.Method;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
-import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 
 /**
@@ -47,61 +44,5 @@ public interface IAccessController
      */
     public Status isAuthorized(final IAuthSession session, final Method method,
             final Argument<?>[] arguments) throws UserFailureException;
-
-    //
-    // Helper class
-    //
-
-    /**
-     * Small class encapsulating a method argument which could have been annotated with
-     * {@link AuthorizationGuard}.
-     * 
-     * @author Christian Ribeaud
-     */
-    public final static class Argument<T>
-    {
-        public final static Argument<?>[] EMPTY_ARRAY = new Argument<?>[0];
-
-        private Class<T> type;
-
-        private final T argumentOrNull;
-
-        private final AuthorizationGuard predicateCandidate;
-
-        public Argument(final Class<T> type, final T argumentOrNull,
-                final AuthorizationGuard predicateCandidate)
-        {
-            assert type != null : "Unspecified type";
-            assert predicateCandidate != null : "Unspecified annotation";
-            this.type = type;
-            this.argumentOrNull = argumentOrNull;
-            this.predicateCandidate = predicateCandidate;
-        }
-
-        public final Class<T> getType()
-        {
-            return type;
-        }
-
-        public final T tryGetArgument()
-        {
-            return argumentOrNull;
-        }
-
-        public final AuthorizationGuard getPredicateCandidate()
-        {
-            return predicateCandidate;
-        }
-
-        //
-        // Object
-        //
-
-        @Override
-        public final String toString()
-        {
-            return ToStringBuilder.reflectionToString(this,
-                    ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
-        }
-    }
+    
 }

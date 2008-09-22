@@ -24,7 +24,9 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.ISessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 
@@ -33,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceId
  *
  * @author Franz-Josef Elmer
  */
-class GenericServerLogger implements IGenericServer
+class GenericServerLogger implements IGenericServer, ISessionProvider
 {
     private final static String RESULT_SUCCESS = "";
     private final static String RESULT_FAILURE = " ...FAILED";
@@ -104,9 +106,18 @@ class GenericServerLogger implements IGenericServer
     }
     
     //
-    // IGenericServer
+    // ISessionProvider
     //
 
+    public IAuthSession getSession(String sessionToken)
+    {
+        return null;
+    }
+    
+    //
+    // IGenericServer
+    //
+    
     public int getVersion()
     {
         return 0;

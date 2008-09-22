@@ -25,10 +25,13 @@ import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.servlet.RequestContextProviderAdapter;
+import ch.systemsx.cisd.common.spring.IInvocationLoggerFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.GenericManagers;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.ISessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
@@ -38,7 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
  * 
  * @author Franz-Josef Elmer
  */
-public class GenericServer implements IGenericServer
+public class GenericServer implements IGenericServer, ISessionProvider, IInvocationLoggerFactory<IGenericServer>
 {
     private final ISessionManager<Session> sessionManager;
 
@@ -59,9 +62,14 @@ public class GenericServer implements IGenericServer
     /**
      * Creates a logger used to log invocations of objects of this class.
      */
-    GenericServerLogger createLogger(boolean invocationSuccessful)
+    public GenericServerLogger createLogger(boolean invocationSuccessful)
     {
         return new GenericServerLogger(sessionManager, invocationSuccessful);
+    }
+
+    public IAuthSession getSession(String sessionToken)
+    {
+        return sessionManager.getSession(sessionToken);
     }
 
     public int getVersion()

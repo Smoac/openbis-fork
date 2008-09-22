@@ -39,9 +39,9 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.AnnotationUtils;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.AnnotationUtils.Parameter;
-import ch.systemsx.cisd.openbis.generic.server.authorization.IAccessController.Argument;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.ISessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 
 /**
@@ -147,12 +147,7 @@ public final class AuthorizationAdvisor extends DefaultPointcutAdvisor
 
         public final Object invoke(final MethodInvocation methodInvocation) throws Throwable
         {
-            final Object[] args = methodInvocation.getArguments();
-            final int len = args.length;
-            assert len > 0 : "At least one argument is expected";
-            final Object object = args[0];
-            assert object instanceof IAuthSession : "First argument is expected to be a IAuthSession object";
-            final IAuthSession session = (IAuthSession) object;
+            final IAuthSession session = obtainSession(methodInvocation);
             final Method method = methodInvocation.getMethod();
             final Status status =
                     accessController.isAuthorized(session, method,
@@ -169,6 +164,34 @@ public final class AuthorizationAdvisor extends DefaultPointcutAdvisor
                 throw new AuthorizationFailureException(errorMessage);
             }
             return returnValueFilter.applyFilter(session, method, methodInvocation.proceed());
+        }
+
+        private IAuthSession obtainSession(final MethodInvocation methodInvocation)
+        {
+            final Object[] args = methodInvocation.getArguments();
+            final int len = args.length;
+            assert len > 0 : "At least one argument is expected";
+            final Object firstObject = args[0];
+            if (firstObject instanceof IAuthSession)
+            {
+                IAuthSession session = (IAuthSession) firstObject;
+                return session;
+            }
+            if (firstObject instanceof String)
+            {
+                String sessionToken = (String) firstObject;
+                
+                Object wrappedObject = methodInvocation.getThis();
+                if (wrappedObject instanceof ISessionProvider)
+                {
+                    ISessionProvider sessionProvider = (ISessionProvider) wrappedObject;
+                    return sessionProvider.getSession(sessionToken);
+                }
+                throw new AssertionError("Wrapped object doesn't implement "
+                        + ISessionProvider.class.getSimpleName() + ": " + wrappedObject);   
+            }
+            throw new AssertionError("First argument is neither an "
+                    + IAuthSession.class.getSimpleName() + " object nor a String.");
         }
     }
 }
