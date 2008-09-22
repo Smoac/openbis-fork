@@ -62,15 +62,37 @@ public final class AuthorizationTestUtil
      * </p>
      */
     public final static <T> T createAndPrepareAuthorizationProxy(final Class<T> proxyInterface,
-            final Mockery context, final List<GroupPE> groups, final String homeDbCode,
-            final String... otherDatabasesCodes)
+            final Mockery context, final List<GroupPE> groups, final String homeDbCode, final String dbCode)
     {
         final IAuthorizationDAOFactory daoFactory =
-                context.mock(IAuthorizationDAOFactory.class, "authorizarion IDAOFactory mock");
+                context.mock(IAuthorizationDAOFactory.class, "authorization IDAOFactory mock");
         final T proxyInstance =
                 createAuthorizationProxy(createUncheckedMock(proxyInterface), daoFactory);
-        prepareAuthorizationExpectations(context, daoFactory, groups, homeDbCode,
-                otherDatabasesCodes);
+        final DatabaseInstancePE homeDb = createDatabaseInstance(homeDbCode);
+        final DatabaseInstancePE db = createDatabaseInstance(dbCode);
+        final IDatabaseInstanceDAO databaseInstanceDAO =
+            context.mock(IDatabaseInstanceDAO.class, "authorization IDatabaseInstanceDAO mock");
+        final IGroupDAO groupDAO = context.mock(IGroupDAO.class, "authorization IGroupDAO mock");
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getDatabaseInstancesDAO();
+                    will(returnValue(databaseInstanceDAO));
+
+                    allowing(daoFactory).getHomeDatabaseInstance();
+                    will(returnValue(homeDb));
+
+                    allowing(databaseInstanceDAO).tryFindDatabaseInstanceByCode(
+                            dbCode.toUpperCase());
+                    will(returnValue(db));
+
+                    allowing(daoFactory).getGroupDAO();
+                    will(returnValue(groupDAO));
+
+                    allowing(groupDAO).listGroups();
+                    will(returnValue(groups));
+                }
+            });
         return proxyInstance;
     }
 
