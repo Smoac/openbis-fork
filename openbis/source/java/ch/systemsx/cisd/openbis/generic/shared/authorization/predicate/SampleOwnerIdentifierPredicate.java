@@ -52,8 +52,8 @@ public final class SampleOwnerIdentifierPredicate extends AbstractPredicate<Samp
 
     public final void init(IAuthorizationDataProvider provider)
     {
-        groupIdentifierPredicate.init(null);
-        databaseInstanceIdentifierPredicate.init(null);
+        groupIdentifierPredicate.init(provider);
+        databaseInstanceIdentifierPredicate.init(provider);
     }
 
     @Override

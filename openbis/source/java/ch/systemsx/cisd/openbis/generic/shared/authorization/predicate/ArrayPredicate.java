@@ -50,7 +50,7 @@ public final class ArrayPredicate<T> extends AbstractPredicate<T[]>
 
     public final void init(IAuthorizationDataProvider provider)
     {
-        predicate.init(null);
+        predicate.init(provider);
     }
 
     @Override

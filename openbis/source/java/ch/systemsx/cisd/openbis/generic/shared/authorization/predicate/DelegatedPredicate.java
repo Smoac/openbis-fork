@@ -55,7 +55,7 @@ abstract class DelegatedPredicate<P, T> extends AbstractPredicate<T>
 
     public final void init(IAuthorizationDataProvider provider)
     {
-        delegate.init(null);
+        delegate.init(provider);
     }
 
     @Override

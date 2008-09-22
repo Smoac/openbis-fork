@@ -60,7 +60,7 @@ public final class SampleFilterPredicate extends AbstractPredicate<SampleFilter>
 
     public final void init(IAuthorizationDataProvider provider)
     {
-        arrayPredicate.init(null);
+        arrayPredicate.init(provider);
     }
 
     @Override
