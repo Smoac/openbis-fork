@@ -16,14 +16,20 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.authorization;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 
 /**
- * 
+ * Provider of {@link IAuthSession}.
  *
  * @author Franz-Josef Elmer
  */
 public interface ISessionProvider
 {
-    public IAuthSession getSession(String sessionToken);
+    /**
+     * Returns the session for the specified session token.
+     * 
+     * @throws UserFailureException if no session exists.
+     */
+    public IAuthSession getSession(String sessionToken) throws UserFailureException;
 }

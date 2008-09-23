@@ -16,22 +16,26 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import java.util.Collections;
 import java.util.List;
 
-import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.hibernate.Hibernate;
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.DefaultSessionManager;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ISessionManager;
+import ch.systemsx.cisd.authentication.Principal;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.servlet.RequestContextProviderAdapter;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerFactory;
-import ch.systemsx.cisd.openbis.generic.server.business.GenericManagers;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.GenericBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGenericBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.ISessionProvider;
@@ -39,6 +43,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 
@@ -52,24 +58,45 @@ public class GenericServer implements IGenericServer, ISessionProvider,
 {
     private final ISessionManager<Session> sessionManager;
 
-    private final GenericManagers managers;
-
-    private final IAuthorizationDAOFactory daoFactory;
+    private final IDAOFactory daoFactory;
 
     private final IGenericBusinessObjectFactory boFactory;
 
+    private final IAuthenticationService authenticationService;
+
     public GenericServer(IAuthenticationService authenticationService,
-            IRequestContextProvider requestContextProvider, IAuthorizationDAOFactory daoFactory,
-            int sessionExpirationPeriodInMinutes, BeanPostProcessor processor)
+            IRequestContextProvider requestContextProvider, IDAOFactory daoFactory,
+            int sessionExpirationPeriodInMinutes)
     {
+        this(authenticationService, new DefaultSessionManager<Session>(new SessionFactory(),
+                new LogMessagePrefixGenerator(), authenticationService,
+                new RequestContextProviderAdapter(requestContextProvider),
+                sessionExpirationPeriodInMinutes), daoFactory, new GenericBusinessObjectFactory(
+                daoFactory));
+    }
+
+    @Private
+    GenericServer(IAuthenticationService authenticationService,
+            ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
+            IGenericBusinessObjectFactory boFactory)
+    {
+        this.authenticationService = authenticationService;
         this.daoFactory = daoFactory;
-        this.sessionManager =
-                new DefaultSessionManager<Session>(new SessionFactory(),
-                        new LogMessagePrefixGenerator(), authenticationService,
-                        new RequestContextProviderAdapter(requestContextProvider),
-                        sessionExpirationPeriodInMinutes);
-        boFactory = new GenericBusinessObjectFactory(daoFactory);
-        this.managers = new GenericManagers(daoFactory, processor);
+        this.sessionManager = sessionManager;
+        this.boFactory = boFactory;
+    }
+
+    private PersonPE createPerson(Principal principal, PersonPE registrator)
+    {
+        PersonPE person;
+        person = new PersonPE();
+        person.setUserId(principal.getUserId());
+        person.setFirstName(principal.getFirstName());
+        person.setLastName(principal.getLastName());
+        person.setEmail(principal.getEmail());
+        person.setRegistrator(registrator);
+        daoFactory.getPersonDAO().createPerson(person);
+        return person;
     }
 
     /**
@@ -95,6 +122,7 @@ public class GenericServer implements IGenericServer, ISessionProvider,
         sessionManager.closeSession(sessionToken);
     }
 
+    @Transactional
     public Session tryToAuthenticate(String user, String password)
     {
         String sessionToken = sessionManager.tryToOpenSession(user, password);
@@ -103,7 +131,32 @@ public class GenericServer implements IGenericServer, ISessionProvider,
             return null;
         }
         Session session = sessionManager.getSession(sessionToken);
-        managers.getPersonManager().registerPersonIfNecessary(session);
+        final List<PersonPE> persons = daoFactory.getPersonDAO().listPersons();
+        final boolean isFirstLoggedUser = persons.size() == 1;
+        PersonPE registrator = persons.get(0);
+        PersonPE personPE = daoFactory.getPersonDAO().tryFindPersonByUserId(user);
+        if (personPE == null)
+        {
+            personPE = createPerson(session.getPrincipal(), registrator);
+        } else
+        {
+            Hibernate.initialize(personPE.getRoleAssignments());
+        }
+        if (session.tryGetPerson() == null)
+        {
+            session.setPerson(personPE);
+        }
+        if (isFirstLoggedUser)
+        {
+            final RoleAssignmentPE roleAssignmentPE = new RoleAssignmentPE();
+            final PersonPE person = session.tryGetPerson();
+            roleAssignmentPE.setPerson(person);
+            roleAssignmentPE.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
+            roleAssignmentPE.setRegistrator(registrator);
+            roleAssignmentPE.setRole(RoleCode.ADMIN);
+            daoFactory.getRoleAssignmentDAO().createRoleAssignment(roleAssignmentPE);
+            person.setRoleAssignments(Collections.singletonList(roleAssignmentPE));
+        }
         return session;
     }
 
@@ -111,7 +164,8 @@ public class GenericServer implements IGenericServer, ISessionProvider,
     public List<GroupPE> listGroups(String sessionToken, DatabaseInstanceIdentifier identifier)
     {
         Session session = sessionManager.getSession(sessionToken);
-        DatabaseInstancePE databaseInstance = GroupIdentifierHelper.getDatabaseInstance(identifier, daoFactory);
+        DatabaseInstancePE databaseInstance =
+                GroupIdentifierHelper.getDatabaseInstance(identifier, daoFactory);
         List<GroupPE> groups = daoFactory.getGroupDAO().listGroups(databaseInstance);
         Long homeGroupID = session.tryGetHomeGroupId();
         for (final GroupPE group : groups)
@@ -134,15 +188,34 @@ public class GenericServer implements IGenericServer, ISessionProvider,
     @Transactional
     public List<PersonPE> listPersons(String sessionToken)
     {
-        Session session = sessionManager.getSession(sessionToken);
-        return managers.getPersonManager().listPersons(session);
+        sessionManager.getSession(sessionToken);
+        List<PersonPE> persons = daoFactory.getPersonDAO().listPersons();
+        return persons;
     }
 
     @Transactional
-    public void registerPerson(String sessionToken, String code)
+    public void registerPerson(String sessionToken, String userID)
     {
         Session session = sessionManager.getSession(sessionToken);
-        managers.getPersonManager().registerPerson(session, code);
+        PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(userID);
+        if (person != null)
+        {
+            throw UserFailureException.fromTemplate("Person '%s' already exists.", userID);
+        }
+        String applicationToken = authenticationService.authenticateApplication();
+        if (applicationToken == null)
+        {
+            throw new EnvironmentFailureException("Authentication service cannot be accessed.");
+        }
+        try
+        {
+            Principal principal = authenticationService.getPrincipal(applicationToken, userID);
+            createPerson(principal, session.tryGetPerson());
+        } catch (IllegalArgumentException e)
+        {
+            throw new UserFailureException("Person '" + userID
+                    + "' unknown by the authentication service.");
+        }
     }
 
 }

@@ -75,6 +75,6 @@ public interface IGenericServer
      * Registers a new person.
      */
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
-    public void registerPerson(String sessionToken, String code);
+    public void registerPerson(String sessionToken, String userID);
 
 }

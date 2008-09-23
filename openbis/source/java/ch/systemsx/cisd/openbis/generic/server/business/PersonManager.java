@@ -19,10 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.business;
 import static ch.systemsx.cisd.common.utilities.ParameterChecker.checkIfNotBlank;
 import static ch.systemsx.cisd.common.utilities.ParameterChecker.checkIfNotNull;
 
-import java.util.Collections;
-import java.util.List;
-
-import org.hibernate.Hibernate;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGenericBusinessObjectFactory;
@@ -31,9 +27,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IPersonBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
@@ -54,44 +47,6 @@ final class PersonManager extends AbstractManager implements IPersonManager
     //
     // IPersonManager
     //
-
-    @Transactional
-    public final List<PersonPE> listPersons(final Session session)
-    {
-        assert session != null : "Unspecified session";
-
-        List<PersonPE> persons = daoFactory.getPersonDAO().listPersons();
-        if (persons == null)
-        {
-            return null;
-        }
-        for (PersonPE p : persons)
-        {
-            Hibernate.initialize(p.getRegistrator());
-        }
-        return persons;
-    }
-
-    @Transactional
-    public final void registerPersonIfNecessary(final Session session)
-    {
-        assert session != null : "Unspecified session";
-
-        final List<PersonPE> persons = daoFactory.getPersonDAO().listPersons();
-        final boolean isFirstLoggedUser = persons.size() == 1;
-        boFactory.createPersonBO(session).enrichSessionWithPerson();
-        if (isFirstLoggedUser)
-        {
-            final RoleAssignmentPE roleAssignmentPE = new RoleAssignmentPE();
-            final PersonPE person = session.tryGetPerson();
-            roleAssignmentPE.setPerson(person);
-            roleAssignmentPE.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
-            roleAssignmentPE.setRegistrator(persons.get(0));
-            roleAssignmentPE.setRole(RoleCode.ADMIN);
-            daoFactory.getRoleAssignmentDAO().createRoleAssignment(roleAssignmentPE);
-            person.setRoleAssignments(Collections.singletonList(roleAssignmentPE));
-        }
-    }
 
     @Transactional
     public final void assignHomeGroup(final Session session, final String userId,
@@ -123,11 +78,4 @@ final class PersonManager extends AbstractManager implements IPersonManager
         table.save();
     }
 
-    @Transactional
-    public void registerPerson(Session session, String code)
-    {
-        assert session != null : "Unspecified session";
-        IPersonBO personBO = boFactory.createPersonBO(session);
-        personBO.registerPerson(code);
-    }
 }

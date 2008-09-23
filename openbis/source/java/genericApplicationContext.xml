@@ -31,7 +31,6 @@
                 <constructor-arg ref="generic-dao-factory" />
                 <!-- The time after which an inactive session is expired by the service (in minutes). -->
                 <constructor-arg value="${session-timeout}" />
-                <constructor-arg ref="bean-post-processor" />
             </bean>
         </property>
         <property name="interceptorNames">

@@ -162,9 +162,9 @@ class GenericServerLogger implements IGenericServer, ISessionProvider
         return null;
     }
 
-    public void registerPerson(String sessionToken, String code)
+    public void registerPerson(String sessionToken, String userID)
     {
-        logTracking(sessionToken, "register_person", "CODE(%s)", code);
+        logTracking(sessionToken, "register_person", "CODE(%s)", userID);
 
     }
 
