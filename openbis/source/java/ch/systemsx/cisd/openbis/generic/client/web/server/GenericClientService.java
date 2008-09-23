@@ -32,9 +32,11 @@ import ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.User;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.GroupTranslater;
+import ch.systemsx.cisd.openbis.generic.client.web.server.util.PersonTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.UserFailureExceptionTranslater;
 import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
@@ -43,19 +45,19 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class GenericClientService implements IGenericClientService
 {
     static final String SESSION_KEY = "openbis-session";
+
     static final String SERVER_KEY = "openbis-generic-server";
 
     private static final Logger operationLog =
-        LogFactory.getLogger(LogCategory.OPERATION, GenericClientService.class);
+            LogFactory.getLogger(LogCategory.OPERATION, GenericClientService.class);
 
     private final IGenericServer server;
+
     private final IRequestContextProvider requestContextProvider;
 
     public GenericClientService(final IGenericServer server,
@@ -64,11 +66,11 @@ public class GenericClientService implements IGenericClientService
         this.server = server;
         this.requestContextProvider = requestContextProvider;
     }
-    
+
     void setConfigParameters(GenericConfigParameters configParameters)
     {
     }
-    
+
     private SessionContext createSessionContext(final Session session)
     {
         SessionContext sessionContext = new SessionContext();
@@ -87,7 +89,7 @@ public class GenericClientService implements IGenericClientService
         sessionContext.setUser(user);
         return sessionContext;
     }
-    
+
     private String getSessionToken()
     {
         HttpSession httpSession = getHttpSession();
@@ -97,7 +99,7 @@ public class GenericClientService implements IGenericClientService
         }
         return getSession(httpSession).getSessionToken();
     }
-    
+
     private Session getSession(final HttpSession httpSession)
     {
         Session session = (Session) httpSession.getAttribute(SESSION_KEY);
@@ -117,22 +119,22 @@ public class GenericClientService implements IGenericClientService
         }
         return session;
     }
-    
+
     private HttpSession getHttpSession()
     {
         return getOrCreateHttpSession(false);
     }
-    
+
     private HttpSession creatHttpSession()
     {
         return getOrCreateHttpSession(true);
     }
-    
+
     private HttpSession getOrCreateHttpSession(boolean create)
     {
         return requestContextProvider.getHttpServletRequest().getSession(create);
     }
-    
+
     public ApplicationInfo getApplicationInfo()
     {
         ApplicationInfo applicationInfo = new ApplicationInfo();
@@ -183,7 +185,8 @@ public class GenericClientService implements IGenericClientService
     {
         try
         {
-            DatabaseInstanceIdentifier identifier = new DatabaseInstanceIdentifier(databaseInstanceCode);
+            DatabaseInstanceIdentifier identifier =
+                    new DatabaseInstanceIdentifier(databaseInstanceCode);
             List<Group> result = new ArrayList<Group>();
             List<GroupPE> groups = server.listGroups(getSessionToken(), identifier);
             for (GroupPE group : groups)
@@ -203,6 +206,37 @@ public class GenericClientService implements IGenericClientService
         {
             String sessionToken = getSessionToken();
             server.registerGroup(sessionToken, groupCode, descriptionOrNull, groupLeaderOrNull);
+        } catch (UserFailureException e)
+        {
+            throw UserFailureExceptionTranslater.translate(e);
+        }
+    }
+
+    public List<Person> listPersons()
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+
+        try
+        {
+            List<Person> result = new ArrayList<Person>();
+            List<PersonPE> persons = server.listPersons(getSessionToken());
+            for (PersonPE person : persons)
+            {
+                result.add(PersonTranslator.translate(person));
+            }
+            return result;
+        } catch (UserFailureException e)
+        {
+            throw UserFailureExceptionTranslater.translate(e);
+        }
+    }
+
+    public void registerPerson(String code)
+    {
+        try
+        {
+            String sessionToken = getSessionToken();
+            server.registerPerson(sessionToken, code);
         } catch (UserFailureException e)
         {
             throw UserFailureExceptionTranslater.translate(e);

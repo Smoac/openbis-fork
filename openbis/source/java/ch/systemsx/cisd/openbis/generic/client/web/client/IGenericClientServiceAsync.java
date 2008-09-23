@@ -22,32 +22,39 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 
 /**
  * Asynchronous version of {@link IGenericClientService}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IGenericClientServiceAsync
 {
     /** @see IGenericClientService#getApplicationInfo() */
     public void getApplicationInfo(AsyncCallback<ApplicationInfo> callback);
-    
+
     /** @see IGenericClientService#tryToGetCurrentSessionContext() */
     public void tryToGetCurrentSessionContext(AsyncCallback<SessionContext> callback);
-    
+
     /** @see IGenericClientService#tryToLogin(String, String) */
     public void tryToLogin(String userID, String password, AsyncCallback<SessionContext> callback);
-    
+
     /** @see IGenericClientService#logout() */
     public void logout(AsyncCallback<Void> callback);
-    
+
     /** @see IGenericClientService#listGroups(String) */
     public void listGroups(String databaseInstanceCode, AsyncCallback<List<Group>> callback);
 
     /** @see IGenericClientService#registerGroup(String, String, String) */
     public void registerGroup(String groupCode, String descriptionOrNull, String groupLeaderOrNull,
             AsyncCallback<Void> callback);
+
+    /** @see IGenericClientService#listPersons() */
+    public void listPersons(AsyncCallback<List<Person>> asyncCallback);
+
+    /** @see IGenericClientService#registerPerson(String) */
+    public void registerPerson(String code, AsyncCallback<Void> asyncCallback);
 
 }

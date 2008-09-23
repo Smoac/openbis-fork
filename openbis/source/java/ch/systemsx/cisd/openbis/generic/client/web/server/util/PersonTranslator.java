@@ -20,8 +20,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class PersonTranslator
@@ -32,6 +30,11 @@ public class PersonTranslator
 
     public static Person translate(PersonPE person)
     {
+        return translate(person, true);
+    }
+
+    private static Person translate(PersonPE person, boolean recursively)
+    {
         if (person == null)
         {
             return null;
@@ -40,6 +43,13 @@ public class PersonTranslator
         result.setFirstName(person.getFirstName());
         result.setLastName(person.getLastName());
         result.setEMail(person.getEmail());
+        result.setUserId(person.getUserId());
+        result.setRegistrationDate(person.getRegistrationDate());
+        if (recursively)
+        {
+            result.setRegistrator(PersonTranslator.translate(person, false));
+        }
         return result;
     }
+
 }

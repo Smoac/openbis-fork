@@ -57,6 +57,7 @@ final class GroupTable extends AbstractBusinessObject implements IGroupTable
     public final List<GroupPE> getGroups()
     {
         assert groups != null : "Groups not loaded";
+        Collections.sort(groups);
         return Collections.unmodifiableList(groups);
     }
 

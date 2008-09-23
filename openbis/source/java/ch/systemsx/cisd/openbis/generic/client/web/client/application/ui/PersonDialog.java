@@ -27,17 +27,17 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 
 /**
- * @author Franz-Josef Elmer
+ * @author Izabela Adamczyk
  */
-public class GroupDialog extends Window
+public class PersonDialog extends Window
 {
 
-    private final GroupsView groupList;
+    private final PersonsView personList;
 
-    public GroupDialog(final GenericViewContext viewContext, final GroupsView g)
+    public PersonDialog(final GenericViewContext viewContext, final PersonsView p)
     {
-        this.groupList = g;
-        setHeading("Add a new group");
+        this.personList = p;
+        setHeading("Add a new person");
         setModal(true);
         setWidth(400);
         FormPanel form = new FormPanel();
@@ -51,24 +51,18 @@ public class GroupDialog extends Window
         codeField.setAllowBlank(false);
         form.add(codeField);
 
-        final TextField<String> descriptionField = new TextField<String>();
-        descriptionField.setFieldLabel("Description");
-        form.add(descriptionField);
-
         addButton(new Button("Save", new SelectionListener<ComponentEvent>()
             {
                 @Override
                 public void componentSelected(ComponentEvent ce)
                 {
-                    viewContext.getService().registerGroup(codeField.getValue(),
-                            descriptionField.getValue(), null,
+                    viewContext.getService().registerPerson(codeField.getValue(),
                             new AbstractAsyncCallback<Void>(viewContext)
                                 {
                                     public void onSuccess(Void result)
                                     {
                                         hide();
-                                        groupList.refresh();
-
+                                        personList.refresh();
                                     }
                                 });
                 }

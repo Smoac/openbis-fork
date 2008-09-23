@@ -20,16 +20,18 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceA
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class GenericViewContext implements IMessageProvider
 {
     private final IGenericClientServiceAsync service;
+
     private final IMessageProvider messageProvider;
+
     private final IGenericImageBundle imageBundle;
+
     private final GenericViewModel viewModel;
+
     private final IPageController pageController;
 
     GenericViewContext(IGenericClientServiceAsync service, IMessageProvider messageProvider,
@@ -41,7 +43,7 @@ public class GenericViewContext implements IMessageProvider
         this.pageController = pageController;
         viewModel = new GenericViewModel();
     }
-    
+
     public final GenericViewModel getModel()
     {
         return viewModel;
@@ -66,5 +68,5 @@ public class GenericViewContext implements IMessageProvider
     {
         return pageController;
     }
-    
+
 }

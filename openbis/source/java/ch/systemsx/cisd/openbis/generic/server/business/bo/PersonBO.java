@@ -79,6 +79,20 @@ final class PersonBO extends AbstractBusinessObject implements IPersonBO
         }
     }
 
+    public final void registerPerson(String code)
+    {
+        personPE = getPersonDAO().tryFindPersonByUserId(code);
+        if (personPE == null)
+        {
+            personPE = new PersonPE();
+            personPE.setUserId(code);
+            save();
+        } else
+        {
+            throw UserFailureException.fromTemplate("Person '%s' already exists.", code);
+        }
+    }
+
     public final void load(final String userId) throws UserFailureException
     {
         assert userId != null : "Unspecified user id.";

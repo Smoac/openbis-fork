@@ -112,4 +112,12 @@ final class PersonManager extends AbstractManager implements IPersonManager
         }
         table.save();
     }
+
+    @Transactional
+    public void registerPerson(Session session, String code)
+    {
+        assert session != null : "Unspecified session";
+        IPersonBO personBO = boFactory.createPersonBO(session);
+        personBO.registerPerson(code);
+    }
 }

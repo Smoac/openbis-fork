@@ -16,20 +16,26 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import java.util.Date;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class Person implements IsSerializable
 {
     private String firstName;
-    
+
     private String lastName;
-    
+
     private String eMail;
+
+    private String userId;
+
+    private Person registrator;
+
+    private Date registrationDate;
 
     public final String getFirstName()
     {
@@ -59,5 +65,35 @@ public class Person implements IsSerializable
     public final void setEMail(String mail)
     {
         eMail = mail;
+    }
+
+    public String getUserId()
+    {
+        return userId;
+    }
+
+    public void setUserId(String code)
+    {
+        this.userId = code;
+    }
+
+    public Person getRegistrator()
+    {
+        return registrator;
+    }
+
+    public void setRegistrator(Person p)
+    {
+        registrator = p;
+    }
+
+    public Date getRegistrationDate()
+    {
+        return registrationDate;
+    }
+
+    public void setRegistrationDate(Date d)
+    {
+        registrationDate = d;
     }
 }

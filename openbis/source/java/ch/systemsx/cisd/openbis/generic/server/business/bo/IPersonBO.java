@@ -53,4 +53,9 @@ public interface IPersonBO extends IBusinessObject
      * Sets home group on loaded {@link PersonPE}.
      */
     public void setHomeGroup(GroupPE group);
+
+    /**
+     * Registers person with given code.
+     */
+    public void registerPerson(String code);
 }

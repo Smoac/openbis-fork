@@ -31,7 +31,7 @@ public interface IGroupTable extends IBusinessObject
 {
 
     /**
-     * Returns a copy of the group list loaded.
+     * Returns a sorted copy of the group list loaded.
      */
     public List<GroupPE> getGroups();
 

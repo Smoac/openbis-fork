@@ -35,11 +35,11 @@ import ch.systemsx.cisd.common.spring.ExposablePropertyPaceholderConfigurer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class GenericClientServiceServlet extends GWTSpringController implements
@@ -54,7 +54,7 @@ public class GenericClientServiceServlet extends GWTSpringController implements
             LogFactory.getLogger(LogCategory.OPERATION, GenericClientServiceServlet.class);
 
     private IGenericClientService service;
-    
+
     @Override
     public final void init(final ServletConfig config) throws ServletException
     {
@@ -88,7 +88,8 @@ public class GenericClientServiceServlet extends GWTSpringController implements
                     (ExposablePropertyPaceholderConfigurer) context
                             .getBean(PROPERTY_CONFIGURER_BEAN_NAME);
 
-            genericService.setConfigParameters(new GenericConfigParameters(configurer.getResolvedProps()));
+            genericService.setConfigParameters(new GenericConfigParameters(configurer
+                    .getResolvedProps()));
             if (operationLog.isInfoEnabled())
             {
                 operationLog.info("Configuration parameters successfully set.");
@@ -124,6 +125,17 @@ public class GenericClientServiceServlet extends GWTSpringController implements
     public void registerGroup(String groupCode, String descriptionOrNull, String groupLeaderOrNull)
     {
         service.registerGroup(groupCode, descriptionOrNull, groupLeaderOrNull);
+    }
+
+    public List<Person> listPersons() throws UserFailureException
+    {
+        return service.listPersons();
+    }
+
+    public void registerPerson(String code)
+    {
+        service.registerPerson(code);
+
     }
 
 }

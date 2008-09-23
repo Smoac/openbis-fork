@@ -21,19 +21,25 @@ import java.util.Date;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class Group implements IsSerializable
 {
-    private String code; 
-    
+    private String code;
+
     private String description;
-    
+
     private Date registrationDate;
-    
+
     private Person registrator;
+
+    private Person leader;
+
+    private Group parent;
+
+    private DatabaseInstance instance;
+
+    private DataStore dataStore;
 
     public final String getCode()
     {
@@ -73,5 +79,45 @@ public class Group implements IsSerializable
     public final void setRegistrator(Person registrator)
     {
         this.registrator = registrator;
+    }
+
+    public Person getLeader()
+    {
+        return leader;
+    }
+
+    public void setLeader(Person leader)
+    {
+        this.leader = leader;
+    }
+
+    public Group getParent()
+    {
+        return parent;
+    }
+
+    public void setParent(Group parent)
+    {
+        this.parent = parent;
+    }
+
+    public DatabaseInstance getInstance()
+    {
+        return instance;
+    }
+
+    public void setInstance(DatabaseInstance instance)
+    {
+        this.instance = instance;
+    }
+
+    public DataStore getDataStore()
+    {
+        return dataStore;
+    }
+
+    public void setDataStore(DataStore dataStore)
+    {
+        this.dataStore = dataStore;
     }
 }

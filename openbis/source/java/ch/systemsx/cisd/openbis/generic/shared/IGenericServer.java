@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.GroupValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 
@@ -63,4 +64,17 @@ public interface IGenericServer
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     public void registerGroup(String sessionToken, String groupCode, String descriptionOrNull,
             String groupLeaderOrNull);
+
+    /**
+     * Returns all persons from current instance.
+     */
+    @RolesAllowed(RoleSet.OBSERVER)
+    public List<PersonPE> listPersons(String sessionToken);
+
+    /**
+     * Registers a new person.
+     */
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    public void registerPerson(String sessionToken, String code);
+
 }

@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.ISessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
@@ -41,7 +42,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
  * 
  * @author Franz-Josef Elmer
  */
-public class GenericServer implements IGenericServer, ISessionProvider, IInvocationLoggerFactory<IGenericServer>
+public class GenericServer implements IGenericServer, ISessionProvider,
+        IInvocationLoggerFactory<IGenericServer>
 {
     private final ISessionManager<Session> sessionManager;
 
@@ -109,4 +111,20 @@ public class GenericServer implements IGenericServer, ISessionProvider, IInvocat
         managers.getGroupManager().registerGroup(session, groupIdentifier, descriptionOrNull,
                 groupLeaderOrNull);
     }
+
+    public List<PersonPE> listPersons(String sessionToken)
+    {
+        Session session = sessionManager.getSession(sessionToken);
+        return managers.getPersonManager().listPersons(session);
+    }
+
+    public void registerPerson(String sessionToken, String code)
+    {
+
+        Session session = sessionManager.getSession(sessionToken);
+
+        managers.getPersonManager().registerPerson(session, code);
+
+    }
+
 }

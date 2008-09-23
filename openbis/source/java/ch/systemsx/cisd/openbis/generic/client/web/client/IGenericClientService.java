@@ -22,12 +22,13 @@ import com.google.gwt.user.client.rpc.RemoteService;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
 /**
  * Service interface for the generic GWT client.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IGenericClientService extends RemoteService
@@ -36,30 +37,41 @@ public interface IGenericClientService extends RemoteService
      * Returns static information of the application needed by the client.
      */
     public ApplicationInfo getApplicationInfo();
-    
+
     /**
      * Tries to return the current session context. If failed <code>null</code> is returned.
      */
     public SessionContext tryToGetCurrentSessionContext();
-    
+
     /**
-     * Tries to login with specified user ID and password. If failed <code>null</code> is returned.
+     * Tries to login with specified user ID and password. If failed <code>null</code> is
+     * returned.
      */
     public SessionContext tryToLogin(String userID, String password);
-    
+
     /**
-     * Logs out. 
+     * Logs out.
      */
     public void logout();
-    
+
     /**
      * Returns a list of all groups which belong to the specified database instance.
      */
     public List<Group> listGroups(String databaseInstanceCode) throws UserFailureException;
-    
+
     /**
      * Registers a new group with specified code and optional description and group leader ID.
      */
     public void registerGroup(String groupCode, String descriptionOrNull, String groupLeaderOrNull)
             throws UserFailureException;
+
+    /**
+     * Returns a list of all persons which belong to the current database instance.
+     */
+    public List<Person> listPersons() throws UserFailureException;
+
+    /**
+     * Registers a new person with specified code.
+     */
+    public void registerPerson(String code) throws UserFailureException;
 }

@@ -25,5 +25,9 @@ var generic = {
   header_userWithHomegroup: "{0} (home group: {1})",
   header_logoutButtonLabel: "logout",
   
+  personsView_heading: "Persons",
+  groupsView_heading: "Groups",
+  instanceView_heading: "Instance",
+  
   lastline: "" // we need a line without a comma
 };

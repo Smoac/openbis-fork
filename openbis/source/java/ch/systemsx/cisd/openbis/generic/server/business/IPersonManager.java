@@ -58,4 +58,11 @@ public interface IPersonManager
      */
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     public void registerRoleAssignments(Session session, NewRoleAssignment[] roleAssignments);
+
+    // TODO 2008-09-23, Izabela Adamczyk: Add authorization annotations
+    // TODO 2008-09-23, Izabela Adamczyk: Get user data from external auth. service
+    /**
+     * Registers given role user.
+     */
+    public void registerPerson(Session session, String code);
 }
