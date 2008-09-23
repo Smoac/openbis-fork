@@ -35,5 +35,7 @@
 	<classpathentry kind="lib" path="/libraries/antlr/antlr.jar"/>
 	<classpathentry kind="lib" path="/libraries/slf4j/slf4j.jar" sourcepath="/libraries/slf4j/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/slf4j/log4j12/slf4j-log4j12.jar" sourcepath="/libraries/slf4j/log4j12/src.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/test/spring-test.jar" sourcepath="/libraries/spring/test/src.jar"/>
+	<classpathentry kind="lib" path="/libraries/commons-collections/commons-collections.jar" sourcepath="/libraries/commons-collections/src.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
