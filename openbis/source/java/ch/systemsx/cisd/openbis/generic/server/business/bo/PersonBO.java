@@ -86,6 +86,7 @@ final class PersonBO extends AbstractBusinessObject implements IPersonBO
         {
             personPE = new PersonPE();
             personPE.setUserId(code);
+            personPE.setRegistrator(session.tryGetPerson());
             save();
         } else
         {

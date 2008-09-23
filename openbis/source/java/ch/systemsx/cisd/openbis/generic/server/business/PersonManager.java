@@ -22,6 +22,7 @@ import static ch.systemsx.cisd.common.utilities.ParameterChecker.checkIfNotNull;
 import java.util.Collections;
 import java.util.List;
 
+import org.hibernate.Hibernate;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGenericBusinessObjectFactory;
@@ -59,7 +60,16 @@ final class PersonManager extends AbstractManager implements IPersonManager
     {
         assert session != null : "Unspecified session";
 
-        return daoFactory.getPersonDAO().listPersons();
+        List<PersonPE> persons = daoFactory.getPersonDAO().listPersons();
+        if (persons == null)
+        {
+            return null;
+        }
+        for (PersonPE p : persons)
+        {
+            Hibernate.initialize(p.getRegistrator());
+        }
+        return persons;
     }
 
     @Transactional

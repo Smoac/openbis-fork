@@ -120,11 +120,8 @@ public class GenericServer implements IGenericServer, ISessionProvider,
 
     public void registerPerson(String sessionToken, String code)
     {
-
         Session session = sessionManager.getSession(sessionToken);
-
         managers.getPersonManager().registerPerson(session, code);
-
     }
 
 }

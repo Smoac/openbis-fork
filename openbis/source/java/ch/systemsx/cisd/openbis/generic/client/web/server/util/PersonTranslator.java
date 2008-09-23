@@ -47,7 +47,7 @@ public class PersonTranslator
         result.setRegistrationDate(person.getRegistrationDate());
         if (recursively)
         {
-            result.setRegistrator(PersonTranslator.translate(person, false));
+            result.setRegistrator(PersonTranslator.translate(person.getRegistrator(), false));
         }
         return result;
     }
