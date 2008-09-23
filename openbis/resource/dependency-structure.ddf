@@ -35,3 +35,22 @@ layer generic.web.shared = [generic.web.shared]
 
 check layeringOf generic.web.shared generic.web.client-server
 
+#-------- Server -------------------------
+{generic.server} = ${generic}.server
+
+[generic.server.authorization] = ${generic.server}.authorization.*
+[generic.server.business] = ${generic.server}.business.*
+[generic.server.dataaccess] = ${generic.server}.dataaccess.*
+[generic.server.util] = ${generic.server}.util.*
+[generic.server-subpackages] = ${generic.server}.* excluding ${generic.server}.*.*
+
+check sets [generic.server.authorization] [generic.server.business] [generic.server.dataaccess] \
+           [generic.server.util] [generic.server-subpackages]
+
+layer generic.server.1 = [generic.server.dataaccess]
+layer generic.server.2 = [generic.server.util]
+layer generic.server.3 = [generic.server.authorization]
+layer generic.server.4 = [generic.server.business]
+layer generic.server.5 = [generic.server-subpackages]
+
+check layeringOf generic.server.1 generic.server.2 generic.server.3 generic.server.4 generic.server.5 
