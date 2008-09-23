@@ -29,13 +29,13 @@ public interface IGroupBO extends IBusinessObject
 {
 
     /**
-     * Defines a new group of specified identifier. After invocation of this method
-     * {@link IBusinessObject#save()} should be invoked to store the new group in the <i>Data Access
-     * Layer</i>.
+     * Defines a new group of specified code for the home database instance. After invocation of
+     * this method {@link IBusinessObject#save()} should be invoked to store the new group in the
+     * <i>Data Access Layer</i>.
      * 
      * @throws UserFailureException if <code>group</code> does already exist.
      */
-    public void define(GroupIdentifier groupIdentifier, String descriptionOrNull,
+    public void define(String groupCode, String descriptionOrNull,
             String groupLeaderOrNull) throws UserFailureException;
 
     /**

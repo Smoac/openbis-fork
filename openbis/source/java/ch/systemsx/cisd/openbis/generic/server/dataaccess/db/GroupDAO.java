@@ -20,6 +20,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.support.JdbcAccessor;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -98,6 +100,19 @@ final class GroupDAO extends AbstractDAO implements IGroupDAO
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug("listGroups(" + databaseInstanceId + "): " + list.size()
+                    + " group(s) have been found.");
+        }
+        return list;
+    }
+
+    public List<GroupPE> listGroups(DatabaseInstancePE databaseInstance) throws DataAccessException
+    {
+        DetachedCriteria criteria = DetachedCriteria.forClass(GroupPE.class);
+        criteria = criteria.add(Restrictions.eq("databaseInstance", databaseInstance));
+        List<GroupPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug("listGroups(" + databaseInstance.getCode() + "): " + list.size()
                     + " group(s) have been found.");
         }
         return list;

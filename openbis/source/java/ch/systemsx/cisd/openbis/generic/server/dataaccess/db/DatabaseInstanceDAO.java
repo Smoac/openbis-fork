@@ -29,6 +29,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.util.UuidUtil;
 
 /**
  * Implementation of {@link IDatabaseInstanceDAO} for data bases.
@@ -153,5 +154,16 @@ final class DatabaseInstanceDAO extends AbstractDAO implements IDatabaseInstance
                     + "'.");
         }
         return databaseInstance;
+    }
+
+    public void createDatabaseInstance(DatabaseInstancePE databaseInstance)
+            throws DataAccessException
+    {
+        databaseInstance.setCode(CodeConverter.tryToDatabase(databaseInstance.getCode()));
+        databaseInstance.setUuid(UuidUtil.generateUUID());
+        final HibernateTemplate template = getHibernateTemplate();
+        template.save(databaseInstance);
+        template.flush();
+        
     }
 }

@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 
@@ -60,11 +61,13 @@ final class GroupBO extends AbstractBusinessObject implements IGroupBO
         }
     }
 
-    public final void define(final GroupIdentifier groupIdentifier, final String descriptionOrNull,
+    public final void define(String groupCode, final String descriptionOrNull,
             final String groupLeaderOrNull) throws UserFailureException
     {
-        assert groupIdentifier != null : "Unspecified group code.";
+        assert groupCode != null : "Unspecified group code.";
         group = new GroupPE();
+        final GroupIdentifier groupIdentifier =
+            new GroupIdentifier(DatabaseInstanceIdentifier.HOME, groupCode);
         final DatabaseInstancePE databaseInstance =
                 GroupIdentifierHelper.getDatabaseInstance(groupIdentifier, this);
         group.setDatabaseInstance(databaseInstance);

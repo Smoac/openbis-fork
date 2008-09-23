@@ -34,8 +34,6 @@ public class GenericManagers
 {
     private IPersonManager personManager;
 
-    private IGroupManager groupManager;
-
     public GenericManagers(final IAuthorizationDAOFactory daoFactory,
             final BeanPostProcessor processor)
     {
@@ -44,7 +42,6 @@ public class GenericManagers
         final IGenericBusinessObjectFactory boFactory =
                 new GenericBusinessObjectFactory(daoFactory);
         personManager = createProxy(processor, new PersonManager(daoFactory, boFactory));
-        groupManager = createProxy(processor, new GroupManager(daoFactory, boFactory));
     }
 
     protected final <T> T createProxy(final BeanPostProcessor processor, final T manager)
@@ -74,11 +71,4 @@ public class GenericManagers
         return personManager;
     }
 
-    /**
-     * Returns the group manager.
-     */
-    public final IGroupManager getGroupManager()
-    {
-        return groupManager;
-    }
 }

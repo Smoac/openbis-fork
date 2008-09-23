@@ -48,6 +48,9 @@ public interface IGroupDAO
 
     /** List all groups which are in the given database instance. */
     public List<GroupPE> listGroups(long databaseInstanceId) throws DataAccessException;
+    
+    /** Lists all groups which belong to the specified database instance. */
+    public List<GroupPE> listGroups(DatabaseInstancePE databaseInstance) throws DataAccessException;
 
     /** Creates a new group in the database. */
     public void createGroup(GroupPE groupDTO) throws DataAccessException;

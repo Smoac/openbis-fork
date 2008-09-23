@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server;
 import java.util.List;
 
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.authentication.DefaultSessionManager;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
@@ -27,15 +28,19 @@ import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.servlet.RequestContextProviderAdapter;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.GenericManagers;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.GenericBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IGenericBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.ISessionProvider;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
 /**
  * Implementation of client-server interface.
@@ -49,15 +54,21 @@ public class GenericServer implements IGenericServer, ISessionProvider,
 
     private final GenericManagers managers;
 
+    private final IAuthorizationDAOFactory daoFactory;
+
+    private final IGenericBusinessObjectFactory boFactory;
+
     public GenericServer(IAuthenticationService authenticationService,
             IRequestContextProvider requestContextProvider, IAuthorizationDAOFactory daoFactory,
             int sessionExpirationPeriodInMinutes, BeanPostProcessor processor)
     {
+        this.daoFactory = daoFactory;
         this.sessionManager =
                 new DefaultSessionManager<Session>(new SessionFactory(),
                         new LogMessagePrefixGenerator(), authenticationService,
                         new RequestContextProviderAdapter(requestContextProvider),
                         sessionExpirationPeriodInMinutes);
+        boFactory = new GenericBusinessObjectFactory(daoFactory);
         this.managers = new GenericManagers(daoFactory, processor);
     }
 
@@ -96,28 +107,38 @@ public class GenericServer implements IGenericServer, ISessionProvider,
         return session;
     }
 
+    @Transactional
     public List<GroupPE> listGroups(String sessionToken, DatabaseInstanceIdentifier identifier)
     {
         Session session = sessionManager.getSession(sessionToken);
-        return managers.getGroupManager().listGroups(session, identifier);
+        DatabaseInstancePE databaseInstance = GroupIdentifierHelper.getDatabaseInstance(identifier, daoFactory);
+        List<GroupPE> groups = daoFactory.getGroupDAO().listGroups(databaseInstance);
+        Long homeGroupID = session.tryGetHomeGroupId();
+        for (final GroupPE group : groups)
+        {
+            group.setHome(homeGroupID != null && homeGroupID.equals(group.getId()));
+        }
+        return groups;
     }
 
+    @Transactional
     public void registerGroup(String sessionToken, String groupCode, String descriptionOrNull,
             String groupLeaderOrNull)
     {
         Session session = sessionManager.getSession(sessionToken);
-        GroupIdentifier groupIdentifier =
-                new GroupIdentifier(DatabaseInstanceIdentifier.HOME, groupCode);
-        managers.getGroupManager().registerGroup(session, groupIdentifier, descriptionOrNull,
-                groupLeaderOrNull);
+        IGroupBO groupBO = boFactory.createGroupBO(session);
+        groupBO.define(groupCode, descriptionOrNull, groupLeaderOrNull);
+        groupBO.save();
     }
 
+    @Transactional
     public List<PersonPE> listPersons(String sessionToken)
     {
         Session session = sessionManager.getSession(sessionToken);
         return managers.getPersonManager().listPersons(session);
     }
 
+    @Transactional
     public void registerPerson(String sessionToken, String code)
     {
         Session session = sessionManager.getSession(sessionToken);

@@ -77,4 +77,10 @@ public interface IDatabaseInstanceDAO
      * Returns the database instance found for given <var>id</var>.
      */
     public DatabaseInstancePE getDatabaseInstanceById(final long id) throws DataAccessException;
+    
+    /**
+     * Creates a new database instance. Only {@link DatabaseInstancePE#setCode(String)} has to be
+     * set. UUID will be set by the implementation.
+     */
+    public void createDatabaseInstance(DatabaseInstancePE databaseInstance) throws DataAccessException;
 }

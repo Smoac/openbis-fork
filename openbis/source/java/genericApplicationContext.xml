@@ -52,8 +52,19 @@
         <property name="sessionFactory" ref="hibernate-session-factory" />
     </bean>
 
+    <bean id="sql-script-provider" class="ch.systemsx.cisd.dbmigration.DBMigrationEngine"
+        factory-method="createOrMigrateDatabaseAndGetScriptProvider">
+        <constructor-arg ref="db-configuration-context" />
+        <constructor-arg>
+            <bean class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DatabaseVersionHolder"
+                factory-method="getDatabaseVersion" />
+        </constructor-arg>
+    </bean>
+
+
     <bean id="hibernate-session-factory"
-        class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+          class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean"
+          depends-on="sql-script-provider">
         <property name="dataSource">
             <ref bean="data-source" />
         </property>
@@ -66,9 +77,22 @@
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE</value>
             </list>
         </property>
+        <property name="hibernateProperties">
+            <props>
+              <!--   
+                <prop key="hibernate.show_sql">true</prop>
+                <prop key="hibernate.format_sql">true</prop>
+                <prop key="hibernate.cache.use_query_cache">true</prop>
+                <prop key="hibernate.cache.provider_class">
+                    org.hibernate.cache.EhCacheProvider
+                </prop>
+                <prop key="hibernate.use_sql_comments">true</prop>
+              -->
+            </props>
+        </property>
     </bean>
 
-    <bean id="generic-dao-factory" class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AuthorizationDAOFactory">
+    <bean id="generic-dao-factory" class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory">
         <constructor-arg ref="db-configuration-context" />
         <constructor-arg ref="hibernate-session-factory" />
     </bean>

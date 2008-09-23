@@ -31,8 +31,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFacto
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
 /**
  * Test cases for corresponding {@link GroupBO} class.
@@ -107,11 +105,9 @@ public final class GroupBOTest
     public final void testDefineAndSave()
     {
         final GroupBO projectBO = createGroupBO();
-        final GroupIdentifier groupIdentifier =
-                new GroupIdentifier(DatabaseInstanceIdentifier.HOME, "MY_CODE");
         final DatabaseInstancePE instance = new DatabaseInstancePE();
         final GroupPE groupDTO = new GroupPE();
-        groupDTO.setCode(groupIdentifier.getGroupCode());
+        groupDTO.setCode("MY_CODE");
         groupDTO.setDatabaseInstance(instance);
         context.checking(new Expectations()
             {
@@ -125,7 +121,7 @@ public final class GroupBOTest
                     one(groupDAO).createGroup(groupDTO);
                 }
             });
-        projectBO.define(groupIdentifier, null, null);
+        projectBO.define(groupDTO.getCode(), null, null);
         projectBO.save();
         context.assertIsSatisfied();
     }
