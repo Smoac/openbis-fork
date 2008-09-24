@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
+import static ch.systemsx.cisd.openbis.generic.client.web.client.application.util.ClientConstants.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +37,6 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.grid.RowExpander;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
@@ -48,6 +49,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 
 /**
+ * {@link LayoutContainer} with groups functionality.
+ * 
  * @author Izabela Adamczyk
  */
 public class GroupsView extends LayoutContainer
@@ -58,7 +61,7 @@ public class GroupsView extends LayoutContainer
     public GroupsView(GenericViewContext viewContext)
     {
         this.viewContext = viewContext;
-        setLayout(new FlowLayout(5));
+        setLayout(new FitLayout());
     }
 
     private void display(final List<Group> groups)
@@ -75,7 +78,7 @@ public class GroupsView extends LayoutContainer
         ColumnConfig codeColumnConfig = new ColumnConfig();
         codeColumnConfig.setId("code");
         codeColumnConfig.setHeader("Code");
-        codeColumnConfig.setWidth(200);
+        codeColumnConfig.setWidth(COL_GROUP);
         configs.add(codeColumnConfig);
 
         GridCellRenderer<GroupModel> personRenderer = new GridCellRenderer<GroupModel>()
@@ -91,21 +94,21 @@ public class GroupsView extends LayoutContainer
         ColumnConfig leaderColumnConfig = new ColumnConfig();
         leaderColumnConfig.setId("leader");
         leaderColumnConfig.setHeader("Leader");
-        leaderColumnConfig.setWidth(100);
+        leaderColumnConfig.setWidth(COL_PERSON);
         leaderColumnConfig.setRenderer(personRenderer);
         configs.add(leaderColumnConfig);
 
         ColumnConfig registratorColumnConfig = new ColumnConfig();
         registratorColumnConfig.setId("registrator");
         registratorColumnConfig.setHeader("Registrator");
-        registratorColumnConfig.setWidth(100);
+        registratorColumnConfig.setWidth(COL_PERSON);
         registratorColumnConfig.setRenderer(personRenderer);
         configs.add(registratorColumnConfig);
 
         ColumnConfig registrationDateColumnConfig = new ColumnConfig();
         registrationDateColumnConfig.setId("registrationDate");
         registrationDateColumnConfig.setHeader("Registration Date");
-        registrationDateColumnConfig.setWidth(100);
+        registrationDateColumnConfig.setWidth(COL_DATE);
         registrationDateColumnConfig.setDateTimeFormat(DateTimeFormat.getShortDateFormat());
         configs.add(registrationDateColumnConfig);
 
@@ -123,7 +126,7 @@ public class GroupsView extends LayoutContainer
         cp.setIconStyle("icon-table");
 
         cp.setLayout(new FitLayout());
-        cp.setSize(600, 300);
+        cp.setSize(FIT_SIZE, FIT_SIZE);
 
         Grid<GroupModel> grid = new Grid<GroupModel>(store, cm);
         grid.addPlugin(expander);
@@ -135,7 +138,7 @@ public class GroupsView extends LayoutContainer
                 @Override
                 public void componentSelected(ComponentEvent ce)
                 {
-                    new GroupDialog(viewContext, groupList).show();
+                    new AddGroupDialog(viewContext, groupList).show();
                 }
             });
 

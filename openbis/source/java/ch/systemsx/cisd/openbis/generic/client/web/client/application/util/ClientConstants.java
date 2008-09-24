@@ -14,24 +14,33 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
-
-import com.extjs.gxt.ui.client.widget.Text;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
 
 /**
- * Creates the footer text widget.
+ * Constants used by the web client.
  * 
  * @author Izabela Adamczyk
  */
-public class Footer extends Text
+public class ClientConstants
 {
-    public Footer(GenericViewContext viewContext)
-    {
-        super(viewContext.getMessage("footer", viewContext.getModel().getApplicationInfo()
-                .getVersion()));
-        setStyleName("footer");
-        setBorders(true);
-    }
+    public static final int COL_ROLE = 120;
+
+    public static final int COL_DB_INSTANCE = 100;
+
+    public static final int COL_GROUP = 100;
+
+    public static final int COL_PERSON = 150;
+
+    public static final String FIT_SIZE = "90%";
+
+    public static final int COL_DATE = 100;
+
+    public static final int COL_EMAIL = 200;
+
+    public static final int COL_LAST_NAME = 80;
+
+    public static final int COL_FIRST_NAME = 80;
+
+    public static final int COL_PERSON_ID = 80;
+
 }

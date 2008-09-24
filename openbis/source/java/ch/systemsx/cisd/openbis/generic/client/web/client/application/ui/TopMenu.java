@@ -31,7 +31,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.User;
 
 /**
+ * Implements functionality of the top menu.
+ * 
  * @author Franz-Josef Elmer
+ * @author Izabela Adamczyk
  */
 public class TopMenu extends LayoutContainer
 {

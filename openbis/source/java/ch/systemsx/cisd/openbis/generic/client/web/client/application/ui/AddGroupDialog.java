@@ -20,7 +20,6 @@ import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 
@@ -28,15 +27,20 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 
 /**
+ * {@link Window} containing group registration form.
+ * 
+ * @author Franz-Josef Elmer
  * @author Izabela Adamczyk
  */
-public class RolesDialog extends Window
+public class AddGroupDialog extends Window
 {
 
-    public RolesDialog(final GenericViewContext viewContext, final RolesView roleList)
-    {
+    private final GroupsView groupList;
 
-        setHeading("Add a new role");
+    public AddGroupDialog(final GenericViewContext viewContext, final GroupsView g)
+    {
+        this.groupList = g;
+        setHeading("Add a new group");
         setModal(true);
         setWidth(400);
         FormPanel form = new FormPanel();
@@ -44,37 +48,30 @@ public class RolesDialog extends Window
         form.setBorders(false);
         form.setBodyBorder(false);
         add(form);
+        final TextField<String> codeField = new TextField<String>();
+        codeField.setWidth(100);
+        codeField.setFieldLabel("Code");
+        codeField.setAllowBlank(false);
+        form.add(codeField);
 
-        final TextField<String> group = new TextField<String>();
-        group.setWidth(100);
-        group.setFieldLabel("Group");
-        group.setAllowBlank(false);
-
-        final AdapterField roleBox = new AdapterField(new RoleBox(group));
-        roleBox.setFieldLabel("Role");
-        roleBox.setWidth(100);
-        form.add(roleBox);
-        form.add(group);
-
-        final TextField<String> user = new TextField<String>();
-        user.setWidth(100);
-        user.setFieldLabel("Person");
-        user.setAllowBlank(false);
-        form.add(user);
+        final TextField<String> descriptionField = new TextField<String>();
+        descriptionField.setFieldLabel("Description");
+        form.add(descriptionField);
 
         addButton(new Button("Save", new SelectionListener<ComponentEvent>()
             {
                 @Override
                 public void componentSelected(ComponentEvent ce)
                 {
-                    viewContext.getService().registerRole(
-                            ((RoleBox) roleBox.getWidget()).getValue(), group.getValue(),
-                            user.getValue(), new AbstractAsyncCallback<Void>(viewContext)
+                    viewContext.getService().registerGroup(codeField.getValue(),
+                            descriptionField.getValue(), null,
+                            new AbstractAsyncCallback<Void>(viewContext)
                                 {
                                     public void onSuccess(Void result)
                                     {
                                         hide();
-                                        roleList.refresh();
+                                        groupList.refresh();
+
                                     }
                                 });
                 }
@@ -88,4 +85,5 @@ public class RolesDialog extends Window
                 }
             }));
     }
+
 }

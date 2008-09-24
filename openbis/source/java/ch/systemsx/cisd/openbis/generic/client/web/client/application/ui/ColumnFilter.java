@@ -21,6 +21,8 @@ import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.widget.StoreFilterField;
 
 /**
+ * {@link StoreFilterField} extension for filtering columns.
+ * 
  * @author Izabela Adamczyk
  */
 class ColumnFilter<T extends ModelData> extends StoreFilterField<T>

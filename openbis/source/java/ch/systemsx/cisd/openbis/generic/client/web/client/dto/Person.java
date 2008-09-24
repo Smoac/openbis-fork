@@ -96,4 +96,5 @@ public class Person implements IsSerializable
     {
         registrationDate = d;
     }
+
 }

@@ -27,14 +27,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 
 /**
+ * {@link Window} containing person registration form.
+ * 
  * @author Izabela Adamczyk
  */
-public class PersonDialog extends Window
+public class AddPersonDialog extends Window
 {
 
     private final PersonsView personList;
 
-    public PersonDialog(final GenericViewContext viewContext, final PersonsView p)
+    public AddPersonDialog(final GenericViewContext viewContext, final PersonsView p)
     {
         this.personList = p;
         setHeading("Add a new person");

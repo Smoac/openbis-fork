@@ -19,11 +19,14 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 import java.util.ArrayList;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.data.ModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 
 /**
+ * {@link ModelData} for {@link Person}.
+ * 
  * @author Izabela Adamczyk
  */
 public class PersonModel extends BaseModelData

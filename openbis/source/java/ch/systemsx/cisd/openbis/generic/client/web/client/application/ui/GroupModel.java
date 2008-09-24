@@ -17,10 +17,13 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.data.ModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 
 /**
+ * {@link ModelData} for {@link Group}.
+ * 
  * @author Izabela Adamczyk
  */
 public class GroupModel extends BaseModelData

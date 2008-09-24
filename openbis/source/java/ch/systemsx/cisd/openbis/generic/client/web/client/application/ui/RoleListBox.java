@@ -22,12 +22,14 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
+ * {@link ListBox} with RoleSets.
+ * 
  * @author Izabela Adamczyk
  */
-public class RoleBox extends ListBox
+public class RoleListBox extends ListBox
 {
 
-    public RoleBox(final TextField<String> group)
+    public RoleListBox(final TextField<String> group)
     {
         addItem("OBSERVER");
         addItem("USER");

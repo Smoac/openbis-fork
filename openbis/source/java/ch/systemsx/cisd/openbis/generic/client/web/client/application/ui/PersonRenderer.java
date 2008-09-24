@@ -18,6 +18,11 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 
+/**
+ * Helper creating brief {@link Person} description.
+ * 
+ * @author Izabela Adamczyk
+ */
 class PersonRenderer
 {
     Person person;

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
+import static ch.systemsx.cisd.openbis.generic.client.web.client.application.util.ClientConstants.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +34,6 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
@@ -45,6 +45,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericVie
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 
 /**
+ * {@link LayoutContainer} with persons functionality.
+ * 
  * @author Izabela Adamczyk
  */
 public class PersonsView extends LayoutContainer
@@ -55,7 +57,7 @@ public class PersonsView extends LayoutContainer
     public PersonsView(GenericViewContext viewContext)
     {
         this.viewContext = viewContext;
-        setLayout(new FlowLayout(5));
+        setLayout(new FitLayout());
 
     }
 
@@ -68,25 +70,25 @@ public class PersonsView extends LayoutContainer
         ColumnConfig codeColumnConfig = new ColumnConfig();
         codeColumnConfig.setId("userId");
         codeColumnConfig.setHeader("User ID");
-        codeColumnConfig.setWidth(80);
+        codeColumnConfig.setWidth(COL_PERSON_ID);
         configs.add(codeColumnConfig);
 
         ColumnConfig firstNameColumnConfig = new ColumnConfig();
         firstNameColumnConfig.setId("firstName");
         firstNameColumnConfig.setHeader("First Name");
-        firstNameColumnConfig.setWidth(80);
+        firstNameColumnConfig.setWidth(COL_FIRST_NAME);
         configs.add(firstNameColumnConfig);
 
         ColumnConfig lastNameColumnConfig = new ColumnConfig();
         lastNameColumnConfig.setId("lastName");
         lastNameColumnConfig.setHeader("Last Name");
-        lastNameColumnConfig.setWidth(80);
+        lastNameColumnConfig.setWidth(COL_LAST_NAME);
         configs.add(lastNameColumnConfig);
 
         ColumnConfig emailNameColumnConfig = new ColumnConfig();
         emailNameColumnConfig.setId("email");
         emailNameColumnConfig.setHeader("Email");
-        emailNameColumnConfig.setWidth(150);
+        emailNameColumnConfig.setWidth(COL_EMAIL);
         configs.add(emailNameColumnConfig);
 
         GridCellRenderer<PersonModel> personRenderer = new GridCellRenderer<PersonModel>()
@@ -102,14 +104,14 @@ public class PersonsView extends LayoutContainer
         ColumnConfig registratorColumnConfig = new ColumnConfig();
         registratorColumnConfig.setId("registrator");
         registratorColumnConfig.setHeader("Registrator");
-        registratorColumnConfig.setWidth(100);
+        registratorColumnConfig.setWidth(COL_PERSON);
         registratorColumnConfig.setRenderer(personRenderer);
         configs.add(registratorColumnConfig);
 
         ColumnConfig registrationDateColumnConfig = new ColumnConfig();
         registrationDateColumnConfig.setId("registrationDate");
         registrationDateColumnConfig.setHeader("Registration Date");
-        registrationDateColumnConfig.setWidth(80);
+        registrationDateColumnConfig.setWidth(COL_DATE);
         registrationDateColumnConfig.setDateTimeFormat(DateTimeFormat.getShortDateFormat());
         configs.add(registrationDateColumnConfig);
 
@@ -126,7 +128,7 @@ public class PersonsView extends LayoutContainer
         final PersonsView personList = this;
 
         cp.setLayout(new FitLayout());
-        cp.setSize(700, 300);
+        cp.setSize(FIT_SIZE, FIT_SIZE);
 
         final Grid<PersonModel> grid = new Grid<PersonModel>(store, cm);
         grid.setBorders(true);
@@ -138,7 +140,7 @@ public class PersonsView extends LayoutContainer
                 @Override
                 public void componentSelected(ComponentEvent ce)
                 {
-                    new PersonDialog(viewContext, personList).show();
+                    new AddPersonDialog(viewContext, personList).show();
                 }
             });
 
