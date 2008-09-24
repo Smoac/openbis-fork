@@ -192,6 +192,52 @@
       <lib dir="${gwt.lib}">
         <include name="gwt-servlet.jar" />
       </lib>
+      <!-- Hibernate -->
+      <lib dir="${lib}/antlr">
+        <include name="antlr.jar" />
+      </lib>
+      <lib dir="${lib}/commons-collections">
+        <include name="commons-collections.jar" />
+      </lib>
+      <lib dir="${lib}/dom4j">
+        <include name="dom4j.jar" />
+      </lib>
+      <lib dir="${lib}/hibernate">
+        <include name="hibernate3.jar" />
+      </lib>
+      <lib dir="${lib}/hibernate/jta">
+        <include name="jta.jar" />
+      </lib>
+      <lib dir="${lib}/ehcache">
+        <include name="ehcache.jar" />
+      </lib>
+      <lib dir="${lib}/cglib">
+        <include name="asm.jar" />
+        <include name="asm-attrs.jar" />
+        <include name="cglib.jar" />
+      </lib>
+      <lib dir="${lib}/hibernate-annotations">
+        <include name="*.jar" />
+      </lib>
+      <lib dir="${lib}/hibernate-validator">
+        <include name="*.jar" />
+      </lib>
+      <lib dir="${lib}/javassist">
+        <include name="*.jar" />
+      </lib>
+      <lib dir="${lib}/slf4j">
+        <include name="*.jar" />
+      </lib>
+      <lib dir="${lib}/slf4j/log4j12">
+        <include name="*.jar" />
+      </lib>
+      <!-- Beanlib -->
+      <lib dir="${lib}/beanlib">
+        <include name="beanlib.jar" />
+      </lib>
+      <lib dir="${lib}/beanlib-hibernate">
+        <include name="beanlib-hibernate.jar" />
+      </lib>
     </war>
     <!-- Does some cleaning. -->
     <delete file="${jar.file}" failonerror="true" />
