@@ -20,6 +20,7 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
@@ -74,4 +75,14 @@ public interface IGenericClientService extends RemoteService
      * Registers a new person with specified code.
      */
     public void registerPerson(String code) throws UserFailureException;
+
+    // FIXME
+    public List<RoleAssignment> listRoles() throws UserFailureException;
+
+    // FIXME
+    public void registerRole(String roleSetCode, String group, String person)
+            throws UserFailureException;
+
+    public void deleteRole(String roleSetCode, String group, String person)
+            throws UserFailureException;
 }

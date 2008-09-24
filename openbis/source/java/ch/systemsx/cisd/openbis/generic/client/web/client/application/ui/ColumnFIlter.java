@@ -16,32 +16,35 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
-import java.util.ArrayList;
-
-import com.extjs.gxt.ui.client.data.BaseModelData;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
+import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.store.Store;
+import com.extjs.gxt.ui.client.widget.StoreFilterField;
 
 /**
  * @author Izabela Adamczyk
  */
-public class PersonModel extends BaseModelData
+class ColumnFilter<T extends ModelData> extends StoreFilterField<T>
 {
 
-    private static final long serialVersionUID = 1L;
+    private final String column;
 
-    public PersonModel()
+    public ColumnFilter(Store<T> store, String col, String label)
     {
+        this.column = col;
+        setWidth(100);
+        setEmptyText(label + "...");
+        bind(store);
     }
 
-    public PersonModel(Person p)
+    @Override
+    protected boolean doSelect(Store<T> store, T parent, T record, String property, String filter)
     {
-        set("userId", p.getUserId());
-        set("registrator", p.getRegistrator());
-        set("registrationDate", p.getRegistrationDate());
-        set("firstName", p.getFirstName());
-        set("lastName", p.getLastName());
-        set("email", p.getEMail());
-        set("roles", new ArrayList<RoleAssignment>());
+        String name = record.get(column);
+        name = name.toLowerCase();
+        if (name.startsWith(filter.toLowerCase()))
+        {
+            return true;
+        }
+        return false;
     }
 }

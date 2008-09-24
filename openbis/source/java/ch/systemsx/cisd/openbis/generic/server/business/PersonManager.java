@@ -21,12 +21,15 @@ import static ch.systemsx.cisd.common.utilities.ParameterChecker.checkIfNotNull;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGenericBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPersonBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
@@ -76,6 +79,38 @@ final class PersonManager extends AbstractManager implements IPersonManager
             table.add(roleAssignment);
         }
         table.save();
+    }
+
+    @Transactional
+    public final void registerRoleAssignment(final Session session,
+            final NewRoleAssignment roleAssignment)
+    {
+        assert session != null : "Unspecified session";
+        checkIfNotNull(roleAssignment, "role assignment");
+
+        final IRoleAssignmentTable table = boFactory.createRoleAssignmentTable(session);
+        table.add(roleAssignment);
+        table.save();
+    }
+
+    @Transactional
+    public void registerPerson(Session session, String code)
+    {
+        assert session != null : "Unspecified session";
+        IPersonBO personBO = boFactory.createPersonBO(session);
+        personBO.registerPerson(code);
+    }
+
+    @Transactional
+    public void deleteRoleAssignments(Session session, RoleCode role, String group, String person)
+    {
+        RoleAssignmentPE roleAssignment =
+                daoFactory.getRoleAssignmentDAO().getRoleAssignment(role, group, person);
+        if (roleAssignment == null)
+        {
+            throw new UserFailureException("Given role does not exist.");
+        }
+        daoFactory.getRoleAssignmentDAO().deleteRoleAssignment(roleAssignment);
     }
 
 }

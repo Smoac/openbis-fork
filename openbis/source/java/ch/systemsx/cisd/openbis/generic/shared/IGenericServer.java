@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAll
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.GroupValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 
@@ -76,5 +77,14 @@ public interface IGenericServer
      */
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     public void registerPerson(String sessionToken, String userID);
+
+    // FIXME
+    public List<RoleAssignmentPE> listRoles(String sessionToken);
+
+    // FIXME
+    public void registerRole(String sessionToken, String roleSetCode, String group, String person);
+
+    // FIXME
+    public void deleteRole(String sessionToken, String roleSetCode, String group, String person);
 
 }

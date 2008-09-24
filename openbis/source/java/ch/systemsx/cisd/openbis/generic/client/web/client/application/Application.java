@@ -28,6 +28,7 @@ import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Footer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupsView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonsView;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.RolesView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TopMenu;
 
 /**
@@ -85,24 +86,17 @@ public class Application extends Viewport
             personList.refresh();
             personsTab.add(personList);
 
-            TabItem instanceTab = new TabItem(viewContext.getMessage("instanceView_heading"));
-            instanceTab.addStyleName("pad-text");
-            instanceTab.add(new InstanceView(viewContext));
+            TabItem rolesTab = new TabItem(viewContext.getMessage("rolesView_heading"));
+            rolesTab.addStyleName("pad-text");
+            RolesView roleList = new RolesView(viewContext);
+            roleList.refresh();
+            rolesTab.add(roleList);
 
             add(personsTab);
             add(groupsTab);
-            // add(instance);
-        }
-    }
-
-    class InstanceView extends LayoutContainer
-    {
-
-        public InstanceView(GenericViewContext viewContext)
-        {
+            add(rolesTab);
 
         }
-
     }
 
 }

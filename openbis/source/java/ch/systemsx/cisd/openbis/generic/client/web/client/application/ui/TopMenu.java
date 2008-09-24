@@ -19,9 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
-import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
@@ -41,7 +40,8 @@ public class TopMenu extends LayoutContainer
         setLayout(new FlowLayout());
         setBorders(true);
         ToolBar toolBar = new ToolBar();
-        toolBar.add(new AdapterToolItem(new Text(createUserInfo(viewContext))));
+        LabelToolItem userInfoText = new LabelToolItem(createUserInfo(viewContext));
+        toolBar.add(userInfoText);
         toolBar.add(new SeparatorToolItem());
         toolBar.add(new LogoutButton(viewContext));
 

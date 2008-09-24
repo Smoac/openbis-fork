@@ -30,6 +30,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
@@ -37,10 +38,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.User;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.GroupTranslater;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.PersonTranslator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.util.RoleAssignmentTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.UserFailureExceptionTranslater;
 import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 
@@ -241,6 +244,52 @@ public class GenericClientService implements IGenericClientService
         {
             throw UserFailureExceptionTranslater.translate(e);
         }
+    }
+
+    public List<RoleAssignment> listRoles()
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            List<RoleAssignment> result = new ArrayList<RoleAssignment>();
+            List<RoleAssignmentPE> roles = server.listRoles(getSessionToken());
+            for (RoleAssignmentPE role : roles)
+            {
+                result.add(RoleAssignmentTranslator.translate(role));
+            }
+            return result;
+        } catch (UserFailureException e)
+        {
+            throw UserFailureExceptionTranslater.translate(e);
+        }
+    }
+
+    public void registerRole(String roleSetCode, String group, String person)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            String sessionToken = getSessionToken();
+            server.registerRole(sessionToken, roleSetCode, group, person);
+        } catch (UserFailureException e)
+        {
+            throw UserFailureExceptionTranslater.translate(e);
+        }
+
+    }
+
+    public void deleteRole(String roleSetCode, String group, String person)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            String sessionToken = getSessionToken();
+            server.deleteRole(sessionToken, roleSetCode, group, person);
+        } catch (UserFailureException e)
+        {
+            throw UserFailureExceptionTranslater.translate(e);
+        }
+
     }
 
 }

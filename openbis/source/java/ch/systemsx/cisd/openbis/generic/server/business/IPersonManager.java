@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
@@ -41,4 +42,11 @@ public interface IPersonManager
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     public void registerRoleAssignments(Session session, NewRoleAssignment[] roleAssignments);
 
+
+    // FXME
+    public void deleteRoleAssignments(Session session, RoleCode translateRoleSetCode, String group,
+            String person);
+
+    // FIXME
+    public void registerRoleAssignment(Session session, NewRoleAssignment newRoleAssignment);
 }

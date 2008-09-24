@@ -20,6 +20,7 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
@@ -56,5 +57,16 @@ public interface IGenericClientServiceAsync
 
     /** @see IGenericClientService#registerPerson(String) */
     public void registerPerson(String code, AsyncCallback<Void> asyncCallback);
+
+    // FIXME
+    public void listRoles(AsyncCallback<List<RoleAssignment>> asyncCallback);
+
+    // FIXME
+    public void registerRole(String roleSetCode, String group, String person,
+            AsyncCallback<Void> asyncCallback);
+
+    // FIXME
+    public void deleteRole(String roleSetCode, String group, String person,
+            AsyncCallback<Void> asyncCallback);
 
 }

@@ -34,6 +34,10 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
+import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.i18n.client.DateTimeFormat;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -124,18 +128,27 @@ public class PersonsView extends LayoutContainer
         cp.setLayout(new FitLayout());
         cp.setSize(700, 300);
 
-        Grid<PersonModel> grid = new Grid<PersonModel>(store, cm);
+        final Grid<PersonModel> grid = new Grid<PersonModel>(store, cm);
         grid.setBorders(true);
 
         cp.add(grid);
-        cp.addButton(new Button("Add person", new SelectionListener<ComponentEvent>()
+
+        Button addPersonButton = new Button("Add person", new SelectionListener<ComponentEvent>()
             {
                 @Override
                 public void componentSelected(ComponentEvent ce)
                 {
                     new PersonDialog(viewContext, personList).show();
                 }
-            }));
+            });
+
+        ToolBar toolBar = new ToolBar();
+        toolBar.add(new LabelToolItem("Filter:"));
+        toolBar.add(new AdapterToolItem(new ColumnFilter<PersonModel>(store, "userId", "user id")));
+        toolBar.add(new SeparatorToolItem());
+        toolBar.add(new AdapterToolItem(addPersonButton));
+
+        cp.setBottomComponent(toolBar);
 
         add(cp);
         layout();

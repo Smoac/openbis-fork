@@ -36,6 +36,10 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.grid.RowExpander;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
+import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.i18n.client.DateTimeFormat;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -105,6 +109,8 @@ public class GroupsView extends LayoutContainer
         registrationDateColumnConfig.setDateTimeFormat(DateTimeFormat.getShortDateFormat());
         configs.add(registrationDateColumnConfig);
 
+        final GroupsView groupList = this;
+
         ColumnModel cm = new ColumnModel(configs);
 
         ListStore<GroupModel> store = new ListStore<GroupModel>();
@@ -115,26 +121,30 @@ public class GroupsView extends LayoutContainer
         cp.setHeading("Group list");
         cp.setButtonAlign(HorizontalAlignment.CENTER);
         cp.setIconStyle("icon-table");
-        final GroupsView groupList = this;
 
         cp.setLayout(new FitLayout());
         cp.setSize(600, 300);
 
         Grid<GroupModel> grid = new Grid<GroupModel>(store, cm);
         grid.addPlugin(expander);
-        // grid.setStyleAttribute("borderTop", "none");
-        // grid.setAutoExpandColumn("code");
         grid.setBorders(true);
 
         cp.add(grid);
-        cp.addButton(new Button("Add group", new SelectionListener<ComponentEvent>()
+        Button addGroupBtton = new Button("Add group", new SelectionListener<ComponentEvent>()
             {
                 @Override
                 public void componentSelected(ComponentEvent ce)
                 {
                     new GroupDialog(viewContext, groupList).show();
                 }
-            }));
+            });
+
+        ToolBar toolBar = new ToolBar();
+        toolBar.add(new LabelToolItem("Filter:"));
+        toolBar.add(new AdapterToolItem(new ColumnFilter<GroupModel>(store, "code", "code")));
+        toolBar.add(new SeparatorToolItem());
+        toolBar.add(new AdapterToolItem(addGroupBtton));
+        cp.setBottomComponent(toolBar);
 
         add(cp);
         layout();

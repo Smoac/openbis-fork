@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.Hibernate;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +36,7 @@ import ch.systemsx.cisd.common.spring.IInvocationLoggerFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.GenericBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGenericBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
@@ -42,11 +44,13 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.ISessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
 /**
  * Implementation of client-server interface.
@@ -186,14 +190,6 @@ public class GenericServer implements IGenericServer, ISessionProvider,
     }
 
     @Transactional
-    public List<PersonPE> listPersons(String sessionToken)
-    {
-        sessionManager.getSession(sessionToken);
-        List<PersonPE> persons = daoFactory.getPersonDAO().listPersons();
-        return persons;
-    }
-
-    @Transactional
     public void registerPerson(String sessionToken, String userID)
     {
         Session session = sessionManager.getSession(sessionToken);
@@ -216,6 +212,76 @@ public class GenericServer implements IGenericServer, ISessionProvider,
             throw new UserFailureException("Person '" + userID
                     + "' unknown by the authentication service.");
         }
+    }
+
+    public List<RoleAssignmentPE> listRoles(String sessionToken)
+    {
+        sessionManager.getSession(sessionToken);
+        return daoFactory.getRoleAssignmentDAO().listRoleAssignments();
+    }
+
+    public void registerRole(String sessionToken, String roleSetCode, String group, String person)
+    {
+        Session session = sessionManager.getSession(sessionToken);
+
+        NewRoleAssignment newRoleAssignment = new NewRoleAssignment();
+        newRoleAssignment.setUserId(person);
+        if (StringUtils.isBlank(group) == false)
+        {
+            newRoleAssignment.setGroupIdentifier(new GroupIdentifier(
+                    DatabaseInstanceIdentifier.HOME, group));
+        }
+        newRoleAssignment.setRole(translateRoleSetCode(roleSetCode));
+
+        final IRoleAssignmentTable table = boFactory.createRoleAssignmentTable(session);
+        table.add(newRoleAssignment);
+        table.save();
+
+    }
+
+    private RoleCode translateRoleSetCode(String code)
+    {
+
+        if ("INSTANCE_ADMIN".compareTo(code) == 0)
+        {
+            return RoleCode.ADMIN;
+        } else if ("GROUP_ADMIN".compareTo(code) == 0)
+        {
+            return RoleCode.ADMIN;
+        } else if ("USER".compareTo(code) == 0)
+        {
+            return RoleCode.USER;
+        } else if ("OBSERVER".compareTo(code) == 0)
+        {
+            return RoleCode.OBSERVER;
+        } else
+        {
+            throw new IllegalArgumentException("Unknown role set");
+        }
+
+    }
+
+    public void deleteRole(String sessionToken, String roleSetCode, String group, String person)
+    {
+
+        sessionManager.getSession(sessionToken);
+
+        RoleAssignmentPE roleAssignment =
+                daoFactory.getRoleAssignmentDAO().getRoleAssignment(
+                        translateRoleSetCode(roleSetCode), group, person);
+        if (roleAssignment == null)
+        {
+            throw new UserFailureException("Given role does not exist.");
+        }
+        daoFactory.getRoleAssignmentDAO().deleteRoleAssignment(roleAssignment);
+    }
+
+    @Transactional
+    public List<PersonPE> listPersons(String sessionToken)
+    {
+        sessionManager.getSession(sessionToken);
+        List<PersonPE> persons = daoFactory.getPersonDAO().listPersons();
+        return persons;
     }
 
 }

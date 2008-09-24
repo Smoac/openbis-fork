@@ -27,7 +27,7 @@ var generic = {
   
   personsView_heading: "Persons",
   groupsView_heading: "Groups",
-  instanceView_heading: "Instance",
+  rolesView_heading: "Roles",
   
   lastline: "" // we need a line without a comma
 };

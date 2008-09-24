@@ -16,32 +16,18 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
-import java.util.ArrayList;
-
 import com.extjs.gxt.ui.client.data.BaseModelData;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
-
-/**
- * @author Izabela Adamczyk
- */
-public class PersonModel extends BaseModelData
+public class RoleModel extends BaseModelData
 {
-
     private static final long serialVersionUID = 1L;
 
-    public PersonModel()
+    public RoleModel(RoleAssignment role)
     {
+        set("group", role.getGroup() != null ? role.getGroup().getCode() : "");
+        set("person", role.getPerson().getUserId());
+        set("role", role.getCode());
+        set("instance", role.getInstance() != null ? role.getInstance().getCode() : "");
     }
 
-    public PersonModel(Person p)
-    {
-        set("userId", p.getUserId());
-        set("registrator", p.getRegistrator());
-        set("registrationDate", p.getRegistrationDate());
-        set("firstName", p.getFirstName());
-        set("lastName", p.getLastName());
-        set("email", p.getEMail());
-        set("roles", new ArrayList<RoleAssignment>());
-    }
 }

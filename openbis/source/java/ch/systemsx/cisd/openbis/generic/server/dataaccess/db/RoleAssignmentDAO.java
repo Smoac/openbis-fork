@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Criterion;
@@ -32,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 
 /**
  * <i>Data Access Object</i> implementation for {@link RoleAssignmentPE}.
@@ -106,4 +108,33 @@ public final class RoleAssignmentDAO extends AbstractDAO implements IRoleAssignm
         }
     }
 
+    public RoleAssignmentPE getRoleAssignment(RoleCode role, String group, String person)
+    {
+        List<RoleAssignmentPE> roles;
+        if (StringUtils.isBlank(group) == false)
+        {
+            roles =
+                    cast(getHibernateTemplate().find(
+                            String.format("from %s r where r.person.userId = ? and group.code = ? "
+                                    + "and r.role = ?", ENTITY_CLASS.getSimpleName()), new Object[]
+                                { person, group, role }));
+        } else
+        {
+            roles =
+                    cast(getHibernateTemplate().find(
+                            String.format(
+                                    "from %s r where r.person.userId = ? and group.code IS NULL "
+                                            + "and r.role = ? and r.databaseInstance = ?",
+                                    ENTITY_CLASS.getSimpleName()), new Object[]
+                                { person, role, getDatabaseInstance() }));
+        }
+        final RoleAssignmentPE roleAssignment =
+                tryFindEntity(roles, "role_assignments", role, group, person);
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("FIND: role assignment '%s'.", roleAssignment));
+        }
+        return roleAssignment;
+
+    }
 }

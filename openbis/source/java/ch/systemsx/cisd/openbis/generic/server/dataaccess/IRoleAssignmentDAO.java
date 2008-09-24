@@ -22,6 +22,7 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 
 /**
  * <i>Data Access Object</i> for {@link RoleAssignmentPE}.
@@ -53,4 +54,7 @@ public interface IRoleAssignmentDAO
      * Lists all role assignments found in the database for given <var>personId</var>.
      */
     public List<RoleAssignmentPE> listRoleAssignmentsByPerson(final PersonPE person);
+
+    // FIXME
+    public RoleAssignmentPE getRoleAssignment(RoleCode role, String group, String person);
 }

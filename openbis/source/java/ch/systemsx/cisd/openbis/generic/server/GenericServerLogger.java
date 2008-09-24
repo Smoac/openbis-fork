@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.ISessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 
@@ -165,6 +166,26 @@ class GenericServerLogger implements IGenericServer, ISessionProvider
     public void registerPerson(String sessionToken, String userID)
     {
         logTracking(sessionToken, "register_person", "CODE(%s)", userID);
+
+    }
+
+    public List<RoleAssignmentPE> listRoles(String sessionToken)
+    {
+        logAccess(sessionToken, "list_roles", "");
+        return null;
+    }
+
+    public void registerRole(String sessionToken, String roleSetCode, String group, String person)
+    {
+        logTracking(sessionToken, "register_role", "ROLE(%s) GROUP(%s) PERSON(%s)", roleSetCode,
+                group, person);
+
+    }
+
+    public void deleteRole(String sessionToken, String roleSetCode, String group, String person)
+    {
+        logTracking(sessionToken, "delete_role", "ROLE(%s) GROUP(%s) PERSON(%s)", roleSetCode,
+                group, person);
 
     }
 

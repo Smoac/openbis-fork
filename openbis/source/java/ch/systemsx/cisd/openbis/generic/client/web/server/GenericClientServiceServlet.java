@@ -33,6 +33,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.servlet.GWTSpringController;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPaceholderConfigurer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
@@ -135,6 +136,24 @@ public class GenericClientServiceServlet extends GWTSpringController implements
     public void registerPerson(String code)
     {
         service.registerPerson(code);
+
+    }
+
+    public List<RoleAssignment> listRoles() throws UserFailureException
+    {
+        return service.listRoles();
+    }
+
+    public void registerRole(String roleSetCode, String group, String person)
+            throws UserFailureException
+    {
+        service.registerRole(roleSetCode, group, person);
+    }
+
+    public void deleteRole(String roleSetCode, String group, String person)
+            throws UserFailureException
+    {
+        service.deleteRole(roleSetCode, group, person);
 
     }
 
