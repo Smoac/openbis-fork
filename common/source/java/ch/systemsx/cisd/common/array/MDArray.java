@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.common.array;
 
 /**
- * Base class of a multi-dimensional array. The <var>shape</var> of an array is provided separately
- * to the data as a <code>int[]</code>.
+ * Base class of a multi-dimensional array. The <var>dimensions</var> of an array are provided
+ * separately from the data as a <code>int[]</code>.
  * 
  * @author Bernd Rinn
  */
@@ -53,7 +53,7 @@ public abstract class MDArray<T>
     }
 
     /**
-     * Returns a copy of the shape (dimensions) of the multi-dimensional array.
+     * Returns a copy of the dimensions of the multi-dimensional array.
      */
     public int[] dimensions()
     {
@@ -61,17 +61,16 @@ public abstract class MDArray<T>
     }
 
     /**
-     * Returns a copy of the shape (dimensions) of the multi-dimensional array as
-     * <code>long[]</code>.
+     * Returns a copy of the dimensions of the multi-dimensional array as <code>long[]</code>.
      */
     public long[] longDimensions()
     {
-        final long[] shapeCopy = new long[dimensions.length];
-        for (int i = 0; i < shapeCopy.length; ++i)
+        final long[] dimensionsCopy = new long[dimensions.length];
+        for (int i = 0; i < dimensionsCopy.length; ++i)
         {
-            shapeCopy[i] = dimensions[i];
+            dimensionsCopy[i] = dimensions[i];
         }
-        return shapeCopy;
+        return dimensionsCopy;
     }
 
     /**
@@ -129,58 +128,58 @@ public abstract class MDArray<T>
     }
 
     /**
-     * Converts the <var>shape</var> from <code>long[]</code> to <code>int[]</code>.
+     * Converts the <var>dimensions</var> from <code>long[]</code> to <code>int[]</code>.
      */
-    public static int[] toInt(final long[] shape)
+    public static int[] toInt(final long[] dimensions)
     {
-        assert shape != null;
+        assert dimensions != null;
 
-        final int[] result = new int[shape.length];
+        final int[] result = new int[dimensions.length];
         for (int i = 0; i < result.length; ++i)
         {
-            result[i] = (int) shape[i];
-            if (result[i] != shape[i])
+            result[i] = (int) dimensions[i];
+            if (result[i] != dimensions[i])
             {
-                throw new IllegalArgumentException("Dimension " + i + "  is too large (" + shape[i]
-                        + ")");
+                throw new IllegalArgumentException("Dimension " + i + "  is too large ("
+                        + dimensions[i] + ")");
             }
         }
         return result;
     }
 
     /**
-     * Converts the <var>shape</var> from <code>int[]</code> to <code>long[]</code>.
+     * Converts the <var>dimensions</var> from <code>int[]</code> to <code>long[]</code>.
      */
-    public static long[] toLong(final int[] shape)
+    public static long[] toLong(final int[] dimensions)
     {
-        assert shape != null;
+        assert dimensions != null;
 
-        final long[] result = new long[shape.length];
+        final long[] result = new long[dimensions.length];
         for (int i = 0; i < result.length; ++i)
         {
-            result[i] = shape[i];
+            result[i] = dimensions[i];
         }
         return result;
     }
 
     /**
      * Returns the one-dimensional length of the multi-dimensional array defined by
-     * <var>shape</var>.
+     * <var>dimensions</var>.
      * 
-     * @throws IllegalArgumentException If <var>shape</var> overflow the <code>int</code> type.
+     * @throws IllegalArgumentException If <var>dimensions</var> overflow the <code>int</code> type.
      */
-    public static int getLength(final int[] shape)
+    public static int getLength(final int[] dimensions)
     {
-        assert shape != null;
+        assert dimensions != null;
 
-        if (shape.length == 0)
+        if (dimensions.length == 0)
         {
             return 0;
         }
-        long length = shape[0];
-        for (int i = 1; i < shape.length; ++i)
+        long length = dimensions[0];
+        for (int i = 1; i < dimensions.length; ++i)
         {
-            length *= shape[i];
+            length *= dimensions[i];
         }
         int intLength = (int) length;
         if (length != intLength)
@@ -192,22 +191,22 @@ public abstract class MDArray<T>
 
     /**
      * Returns the one-dimensional length of the multi-dimensional array defined by
-     * <var>shape</var>.
+     * <var>dimensions</var>.
      * 
-     * @throws IllegalArgumentException If <var>shape</var> overflow the <code>int</code> type.
+     * @throws IllegalArgumentException If <var>dimensions</var> overflow the <code>int</code> type.
      */
-    public static int getLength(final long[] shape)
+    public static int getLength(final long[] dimensions)
     {
-        assert shape != null;
+        assert dimensions != null;
 
-        if (shape.length == 0) // NULL data space needs to be treated differently
+        if (dimensions.length == 0) // NULL data space needs to be treated differently
         {
             return 0;
         }
-        long length = shape[0];
-        for (int i = 1; i < shape.length; ++i)
+        long length = dimensions[0];
+        for (int i = 1; i < dimensions.length; ++i)
         {
-            length *= shape[i];
+            length *= dimensions[i];
         }
         int intLength = (int) length;
         if (length != intLength)
