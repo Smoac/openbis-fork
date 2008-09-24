@@ -33,10 +33,10 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.servlet.GWTSpringController;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPaceholderConfigurer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientService;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 

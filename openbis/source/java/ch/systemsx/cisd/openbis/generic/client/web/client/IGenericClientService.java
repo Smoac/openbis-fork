@@ -20,10 +20,10 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 

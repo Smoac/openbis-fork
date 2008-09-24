@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 
 /**
  * @author Izabela Adamczyk

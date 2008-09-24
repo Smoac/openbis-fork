@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
+package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DatabaseInstance;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 
 /**
  * @author Izabela Adamczyk

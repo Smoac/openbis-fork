@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
+
 public class RoleModel extends BaseModelData
 {
     private static final long serialVersionUID = 1L;

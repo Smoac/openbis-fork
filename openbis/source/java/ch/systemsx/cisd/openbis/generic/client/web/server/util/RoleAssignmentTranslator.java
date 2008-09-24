@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.RoleAssignment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 
 public class RoleAssignmentTranslator
