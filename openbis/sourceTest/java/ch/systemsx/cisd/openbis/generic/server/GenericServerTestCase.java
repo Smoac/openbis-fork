@@ -22,6 +22,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
@@ -43,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
  *
  * @author Franz-Josef Elmer
  */
+@Friend(toClasses = GenericServer.class)
 public abstract class GenericServerTestCase extends AssertJUnit
 {
     protected static final String HOME_DATABASE_INSTANCE_CODE = "HOME_DATABASE";

@@ -274,6 +274,8 @@ public class GenericServerAuthenticationAuthorizationTest extends GenericServerT
             });
         
         createServer().registerPerson(SESSION_TOKEN, USER_ID);
+        
+        context.assertIsSatisfied();
     }
     
     @Test
@@ -281,12 +283,12 @@ public class GenericServerAuthenticationAuthorizationTest extends GenericServerT
     {
         prepareGetSession();
         context.checking(new Expectations()
-        {
             {
-                one(personDAO).tryFindPersonByUserId(USER_ID);
-                will(returnValue(createPersonFromPrincipal(PRINCIPAL)));
-            }
-        });
+                {
+                    one(personDAO).tryFindPersonByUserId(USER_ID);
+                    will(returnValue(createPersonFromPrincipal(PRINCIPAL)));
+                }
+            });
         
         try
         {
@@ -296,6 +298,8 @@ public class GenericServerAuthenticationAuthorizationTest extends GenericServerT
         {
             assertEquals("Person '" + USER_ID + "' already exists.", e.getMessage());
         }
+        
+        context.assertIsSatisfied();
     }
     
     @Test
@@ -325,5 +329,28 @@ public class GenericServerAuthenticationAuthorizationTest extends GenericServerT
         {
             assertEquals("Person '" + USER_ID + "' unknown by the authentication service.", e.getMessage());
         }
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testListRoles()
+    {
+        prepareGetSession();
+        final RoleAssignmentPE role = new RoleAssignmentPE();
+        context.checking(new Expectations()
+            {
+                {
+                    one(roleAssignmentDAO).listRoleAssignments();
+                    will(returnValue(Arrays.asList(role)));
+                }
+            });
+        
+        List<RoleAssignmentPE> roles = createServer().listRoles(SESSION_TOKEN);
+        
+        assertSame(role, roles.get(0));
+        assertEquals(1, roles.size());
+        
+        context.assertIsSatisfied();
     }
 }

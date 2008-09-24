@@ -214,12 +214,14 @@ public class GenericServer implements IGenericServer, ISessionProvider,
         }
     }
 
+    @Transactional
     public List<RoleAssignmentPE> listRoles(String sessionToken)
     {
         sessionManager.getSession(sessionToken);
         return daoFactory.getRoleAssignmentDAO().listRoleAssignments();
     }
 
+    @Transactional
     public void registerRole(String sessionToken, String roleSetCode, String group, String person)
     {
         Session session = sessionManager.getSession(sessionToken);
@@ -261,6 +263,7 @@ public class GenericServer implements IGenericServer, ISessionProvider,
 
     }
 
+    @Transactional
     public void deleteRole(String sessionToken, String roleSetCode, String group, String person)
     {
 
