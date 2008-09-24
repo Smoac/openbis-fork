@@ -27,28 +27,29 @@ import org.apache.commons.lang.StringUtils;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyTypeDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 
 /**
- * Stores a set ({@link Map}) of {@link EntityPropertyTypeDTO}s and provides useful methods.
+ * Stores a set ({@link Map}) of {@link EntityTypePropertyTypePE}s and provides useful methods.
  * 
  * @author Tomasz Pylak
  */
-public class EntityPropertyTypeDTOContainer extends AbstractHashable
+public class EntityTypePropertyTypeContainer extends AbstractHashable
 {
     /**
-     * Factory method for creating {@link EntityPropertyTypeDTOContainer}s from
-     * {@link EntityPropertyTypeDTO} lists.
+     * Factory method for creating {@link EntityTypePropertyTypeContainer}s from
+     * {@link EntityTypePropertyTypePE} lists.
      * 
      * @param propertyTypes
      */
-    public static EntityPropertyTypeDTOContainer create(
-            final List<EntityPropertyTypeDTO> propertyTypes)
+    public static EntityTypePropertyTypeContainer create(
+            final List<EntityTypePropertyTypePE> propertyTypes)
     {
-        final EntityPropertyTypeDTOContainer container = new EntityPropertyTypeDTOContainer();
-        for (final EntityPropertyTypeDTO entityPropertyType : propertyTypes)
+        final EntityTypePropertyTypeContainer container = new EntityTypePropertyTypeContainer();
+        for (final EntityTypePropertyTypePE entityPropertyType : propertyTypes)
         {
             container.addEntityPropertyType(entityPropertyType);
         }
@@ -56,20 +57,20 @@ public class EntityPropertyTypeDTOContainer extends AbstractHashable
     }
 
     /**
-     * Factory method for creating {@link EntityPropertyTypeDTOContainer}s from
-     * {@link EntityPropertyTypeDTO} array.
+     * Factory method for creating {@link EntityTypePropertyTypeContainer}s from
+     * {@link EntityTypePropertyTypePE} array.
      * 
-     * @param entityPropertyTypeTable
+     * @param schemas2
      */
-    public static EntityPropertyTypeDTOContainer createFromTable(
-            final EntityPropertyTypeDTO[] entityPropertyTypeTable)
+    public static EntityTypePropertyTypeContainer createFromTable(
+            final EntityTypePropertyTypePE[] schemas2)
     {
-        if (entityPropertyTypeTable == null)
+        if (schemas2 == null)
         {
             return null;
         }
-        final EntityPropertyTypeDTOContainer schema = new EntityPropertyTypeDTOContainer();
-        for (final EntityPropertyTypeDTO entityPropertyType : entityPropertyTypeTable)
+        final EntityTypePropertyTypeContainer schema = new EntityTypePropertyTypeContainer();
+        for (final EntityTypePropertyTypePE entityPropertyType : schemas2)
         {
             schema.addEntityPropertyType(entityPropertyType);
         }
@@ -82,24 +83,25 @@ public class EntityPropertyTypeDTOContainer extends AbstractHashable
                 "Property '%s' is mandatory and cannot be set to the empty value.", name);
     }
 
-    private final Map<String, EntityPropertyTypeDTO> container;
+    private final Map<String, EntityTypePropertyTypePE> container;
 
-    private EntityPropertyTypeDTOContainer()
+    private EntityTypePropertyTypeContainer()
     {
-        this.container = new LinkedHashMap<String, EntityPropertyTypeDTO>();
+        this.container = new LinkedHashMap<String, EntityTypePropertyTypePE>();
     }
 
     /**
-     * Returns an array of {@link EntityPropertyTypeDTO} which typeCodes were stored in container.
+     * Returns an array of {@link EntityTypePropertyTypePE} which typeCodes were stored in
+     * container.
      */
-    public EntityPropertyTypeDTO[] createTable()
+    public EntityTypePropertyTypePE[] createTable()
     {
         final Set<String> allCodes = container.keySet();
-        final EntityPropertyTypeDTO[] result = new EntityPropertyTypeDTO[allCodes.size()];
+        final EntityTypePropertyTypePE[] result = new EntityTypePropertyTypePE[allCodes.size()];
         int i = 0;
         for (final String code : allCodes)
         {
-            final EntityPropertyTypeDTO orig = getPropertyType(code);
+            final EntityTypePropertyTypePE orig = getPropertyType(code);
             result[i] = orig;
             i++;
         }
@@ -115,15 +117,15 @@ public class EntityPropertyTypeDTOContainer extends AbstractHashable
     }
 
     /**
-     * Returns {@link EntityPropertyTypeDTO} for given <var>propertyTypeCode</var>.
+     * Returns {@link EntityTypePropertyTypePE} for given <var>propertyTypeCode</var>.
      * 
      * @param propertyTypeCode
-     * @throws UserFailureException if there is no {@link EntityPropertyTypeDTO} with specified
+     * @throws UserFailureException if there is no {@link EntityTypePropertyTypePE} with specified
      *             <var>propertyTypeCode</var>.
      */
-    public EntityPropertyTypeDTO getPropertyType(final String propertyTypeCode)
+    public EntityTypePropertyTypePE getPropertyType(final String propertyTypeCode)
     {
-        final EntityPropertyTypeDTO type = tryGetPropertyType(propertyTypeCode);
+        final EntityTypePropertyTypePE type = tryGetPropertyType(propertyTypeCode);
         if (type == null)
         {
             throw UserFailureException.fromTemplate("Unknown property '%s'", propertyTypeCode);
@@ -142,11 +144,11 @@ public class EntityPropertyTypeDTOContainer extends AbstractHashable
     }
 
     /**
-     * Returns {@link EntityPropertyTypeDTO} or null for given propertyTypeCode.
+     * Returns {@link EntityTypePropertyTypePE} or null for given propertyTypeCode.
      * 
      * @param propertyTypeCode
      */
-    public EntityPropertyTypeDTO tryGetPropertyType(final String propertyTypeCode)
+    public EntityTypePropertyTypePE tryGetPropertyType(final String propertyTypeCode)
     {
         return container.get(StringUtils.upperCase(propertyTypeCode));
     }
@@ -161,23 +163,23 @@ public class EntityPropertyTypeDTOContainer extends AbstractHashable
             final String untypedValueOrNull)
     {
         final String upperCaseCode = StringUtils.upperCase(propertyTypeCode);
-        final EntityPropertyTypeDTO propertyType = getPropertyType(upperCaseCode);
+        final EntityTypePropertyTypePE propertyType = getPropertyType(upperCaseCode);
         assert propertyType != null;
         if (propertyType.isMandatory() && untypedValueOrNull == null)
         {
             throw createMandatoryException(upperCaseCode);
         }
         return EntityPropertyValue.createFromUntyped(untypedValueOrNull, propertyType
-                .getDataTypeCode());
+                .getPropertyType().getType().getCode());
     }
 
     /**
-     * Adds {@link EntityPropertyTypeDTO} to container.
+     * Adds {@link EntityTypePropertyTypePE} to container.
      * 
      * @param entityPropertyType
      * @throws IllegalArgumentException if property was already present
      */
-    private void addEntityPropertyType(final EntityPropertyTypeDTO entityPropertyType)
+    private void addEntityPropertyType(final EntityTypePropertyTypePE entityPropertyType)
     {
         final String propertyTypeCode = entityPropertyType.getPropertyType().getCode();
         if (container.get(propertyTypeCode) != null)
@@ -194,9 +196,9 @@ public class EntityPropertyTypeDTOContainer extends AbstractHashable
     /**
      * <i>Only to be used in unit tests.</i>
      */
-    public static EntityPropertyTypeDTOContainer only4TestingCreateEmpty()
+    public static EntityTypePropertyTypeContainer only4TestingCreateEmpty()
     {
-        return new EntityPropertyTypeDTOContainer();
+        return new EntityTypePropertyTypeContainer();
     }
 
     /**
@@ -205,13 +207,16 @@ public class EntityPropertyTypeDTOContainer extends AbstractHashable
      * Fails if property was already present.
      */
     @Private
-    public EntityPropertyTypeDTO only4TestingAddEntityPropertyType(final long id,
+    public EntityTypePropertyTypePE only4TestingAddEntityPropertyType(final long id,
             final boolean isMandatory, final Date registrationDate, final PersonPE registrator,
             final PropertyTypePE propertyType)
     {
-        final EntityPropertyTypeDTO entityPropertyType =
-                new EntityPropertyTypeDTO(id, isMandatory, registrationDate, registrator,
-                        propertyType);
+        final EntityTypePropertyTypePE entityPropertyType = new MaterialTypePropertyTypePE();
+        entityPropertyType.setId(id);
+        entityPropertyType.setMandatory(isMandatory);
+        entityPropertyType.setRegistrationDate(registrationDate);
+        entityPropertyType.setRegistrator(registrator);
+        entityPropertyType.setPropertyType(propertyType);
         addEntityPropertyType(entityPropertyType);
         return entityPropertyType;
     }

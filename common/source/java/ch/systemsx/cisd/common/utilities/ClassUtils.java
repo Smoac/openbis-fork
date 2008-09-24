@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.common.utilities;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -329,5 +330,13 @@ public final class ClassUtils
     {
         assert method != null : "Unspecified method";
         return method.getDeclaringClass().getSimpleName() + "." + method.getName();
+    }
+
+    @SuppressWarnings("unchecked")
+    public final static <T> T[] createArray(final Class<T> clazz, int len)
+    {
+        assert clazz != null : "Unspecified class.";
+        assert len > -1 : "Negative array length.";
+        return (T[]) Array.newInstance(clazz, len);
     }
 }

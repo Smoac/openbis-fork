@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyTypeDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleEntityProperty;
 
 /**
@@ -37,11 +37,11 @@ public class EntityProperties extends AbstractHashable
     // as parameter.
     // It will make instance of this class smaller, so we could delete SimpleEntityProperty class
     // and replace it with this class when axis web-service interface will not be used anymore.
-    private final EntityPropertyTypeDTOContainer propertyTypeContainer;
+    private final EntityTypePropertyTypeContainer propertyTypeContainer;
 
     private final Map<String, EntityPropertyValue> properties;
 
-    public EntityProperties(final EntityPropertyTypeDTOContainer propertiesSchema)
+    public EntityProperties(final EntityTypePropertyTypeContainer propertiesSchema)
     {
         this.properties = new LinkedHashMap<String, EntityPropertyValue>();
         this.propertyTypeContainer = propertiesSchema;
@@ -52,9 +52,10 @@ public class EntityProperties extends AbstractHashable
     {
         for (final String name : propertyTypeContainer.getAllPropertyCodes())
         {
-            final EntityPropertyTypeDTO spec = propertyTypeContainer.getPropertyType(name);
+            final EntityTypePropertyTypePE spec = propertyTypeContainer.getPropertyType(name);
             final EntityPropertyValue value =
-                    EntityPropertyValue.createFromUntyped(null, spec.getDataTypeCode());
+                    EntityPropertyValue.createFromUntyped(null, spec.getPropertyType().getType()
+                            .getCode());
             properties.put(name, value);
         }
     }
@@ -83,7 +84,7 @@ public class EntityProperties extends AbstractHashable
     }
 
     public static EntityProperties createFromSimple(final SimpleEntityProperty[] simpleProperties,
-            final EntityPropertyTypeDTOContainer propertySchema)
+            final EntityTypePropertyTypeContainer propertySchema)
     {
         if (simpleProperties == null)
         {

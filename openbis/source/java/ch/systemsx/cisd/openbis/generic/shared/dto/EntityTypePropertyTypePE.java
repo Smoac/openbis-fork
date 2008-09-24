@@ -22,6 +22,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.validator.NotNull;
 
@@ -124,5 +126,17 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
         builder.append("propertyType", getPropertyType());
         builder.append("entityType", getEntityType());
         return builder.toString();
+    }
+
+    @Override
+    public final boolean equals(final Object obj)
+    {
+        return EqualsBuilder.reflectionEquals(this, obj);
+    }
+
+    @Override
+    public final int hashCode()
+    {
+        return HashCodeBuilder.reflectionHashCode(this);
     }
 }
