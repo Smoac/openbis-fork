@@ -175,6 +175,7 @@ public class GenericServer implements IGenericServer, ISessionProvider,
         {
             group.setHome(homeGroupID != null && homeGroupID.equals(group.getId()));
         }
+        Collections.sort(groups);
         return groups;
     }
 
@@ -271,6 +272,7 @@ public class GenericServer implements IGenericServer, ISessionProvider,
     {
         sessionManager.getSession(sessionToken);
         List<PersonPE> persons = daoFactory.getPersonDAO().listPersons();
+        Collections.sort(persons);
         return persons;
     }
 
