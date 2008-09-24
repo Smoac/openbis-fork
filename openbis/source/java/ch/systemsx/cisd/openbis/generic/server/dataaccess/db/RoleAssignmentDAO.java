@@ -122,10 +122,9 @@ public final class RoleAssignmentDAO extends AbstractDAO implements IRoleAssignm
         {
             roles =
                     cast(getHibernateTemplate().find(
-                            String.format(
-                                    "from %s r where r.person.userId = ? and group.code IS NULL "
-                                            + "and r.role = ? and r.databaseInstance = ?",
-                                    ENTITY_CLASS.getSimpleName()), new Object[]
+                            String.format("from %s r where r.person.userId = ? "
+                                    + "and r.role = ? and r.databaseInstance = ?", ENTITY_CLASS
+                                    .getSimpleName()), new Object[]
                                 { person, role, getDatabaseInstance() }));
         }
         final RoleAssignmentPE roleAssignment =

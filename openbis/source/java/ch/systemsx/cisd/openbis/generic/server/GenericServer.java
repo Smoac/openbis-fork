@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.hibernate.Hibernate;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -222,18 +221,22 @@ public class GenericServer implements IGenericServer, ISessionProvider,
     }
 
     @Transactional
-    public void registerRole(String sessionToken, String roleSetCode, String group, String person)
+    public void registerRole(String sessionToken, RoleCode roleCode, String group, String person)
     {
         Session session = sessionManager.getSession(sessionToken);
 
         NewRoleAssignment newRoleAssignment = new NewRoleAssignment();
         newRoleAssignment.setUserId(person);
-        if (StringUtils.isBlank(group) == false)
+        if (group == null)
+        {
+            newRoleAssignment.setDatabaseInstanceIdentifier(new DatabaseInstanceIdentifier(
+                    daoFactory.getHomeDatabaseInstance().getCode()));
+        } else
         {
             newRoleAssignment.setGroupIdentifier(new GroupIdentifier(
                     DatabaseInstanceIdentifier.HOME, group));
         }
-        newRoleAssignment.setRole(translateRoleSetCode(roleSetCode));
+        newRoleAssignment.setRole(roleCode);
 
         final IRoleAssignmentTable table = boFactory.createRoleAssignmentTable(session);
         table.add(newRoleAssignment);
@@ -241,40 +244,24 @@ public class GenericServer implements IGenericServer, ISessionProvider,
 
     }
 
-    private RoleCode translateRoleSetCode(String code)
-    {
-
-        if ("INSTANCE_ADMIN".compareTo(code) == 0)
-        {
-            return RoleCode.ADMIN;
-        } else if ("GROUP_ADMIN".compareTo(code) == 0)
-        {
-            return RoleCode.ADMIN;
-        } else if ("USER".compareTo(code) == 0)
-        {
-            return RoleCode.USER;
-        } else if ("OBSERVER".compareTo(code) == 0)
-        {
-            return RoleCode.OBSERVER;
-        } else
-        {
-            throw new IllegalArgumentException("Unknown role set");
-        }
-
-    }
-
     @Transactional
-    public void deleteRole(String sessionToken, String roleSetCode, String group, String person)
+    public void deleteRole(String sessionToken, RoleCode roleCode, String group, String person)
     {
 
-        sessionManager.getSession(sessionToken);
+        Session session = sessionManager.getSession(sessionToken);
 
         RoleAssignmentPE roleAssignment =
-                daoFactory.getRoleAssignmentDAO().tryFindRoleAssignment(
-                        translateRoleSetCode(roleSetCode), group, person);
+                daoFactory.getRoleAssignmentDAO().tryFindRoleAssignment(roleCode, group, person);
         if (roleAssignment == null)
         {
             throw new UserFailureException("Given role does not exist.");
+        }
+        if (roleAssignment.getPerson().compareTo(session.tryGetPerson()) == 0
+                && roleAssignment.getRole().compareTo(RoleCode.ADMIN) == 0
+                && roleAssignment.getDatabaseInstance() != null)
+        {
+            throw new UserFailureException(
+                    "For safety reason you cannot give away your own omnipotence.");
         }
         daoFactory.getRoleAssignmentDAO().deleteRoleAssignment(roleAssignment);
     }

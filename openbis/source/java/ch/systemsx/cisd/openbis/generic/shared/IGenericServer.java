@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.GroupVali
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 
@@ -88,12 +89,12 @@ public interface IGenericServer
      * Registers a new role.
      */
     @RolesAllowed(RoleSet.GROUP_ADMIN)
-    public void registerRole(String sessionToken, String roleSetCode, String group, String person);
+    public void registerRole(String sessionToken, RoleCode roleCode, String group, String person);
 
     /**
-     * Deletes role described by given role set code, group code and user id.
+     * Deletes role described by given role code, group code and user id.
      */
     @RolesAllowed(RoleSet.GROUP_ADMIN)
-    public void deleteRole(String sessionToken, String roleSetCode, String group, String person);
+    public void deleteRole(String sessionToken, RoleCode roleCode, String group, String person);
 
 }

@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 
@@ -270,10 +271,31 @@ public class GenericClientService implements IGenericClientService
         try
         {
             String sessionToken = getSessionToken();
-            server.registerRole(sessionToken, roleSetCode, group, person);
+            server.registerRole(sessionToken, translateRoleSetCode(roleSetCode), group, person);
         } catch (UserFailureException e)
         {
             throw UserFailureExceptionTranslater.translate(e);
+        }
+    }
+
+    private RoleCode translateRoleSetCode(String code)
+    {
+
+        if ("INSTANCE_ADMIN".compareTo(code) == 0)
+        {
+            return RoleCode.ADMIN;
+        } else if ("GROUP_ADMIN".compareTo(code) == 0)
+        {
+            return RoleCode.ADMIN;
+        } else if ("USER".compareTo(code) == 0)
+        {
+            return RoleCode.USER;
+        } else if ("OBSERVER".compareTo(code) == 0)
+        {
+            return RoleCode.OBSERVER;
+        } else
+        {
+            throw new IllegalArgumentException("Unknown role set");
         }
 
     }
@@ -284,7 +306,7 @@ public class GenericClientService implements IGenericClientService
         try
         {
             String sessionToken = getSessionToken();
-            server.deleteRole(sessionToken, roleSetCode, group, person);
+            server.deleteRole(sessionToken, translateRoleSetCode(roleSetCode), group, person);
         } catch (UserFailureException e)
         {
             throw UserFailureExceptionTranslater.translate(e);
