@@ -267,7 +267,7 @@ public class GenericServer implements IGenericServer, ISessionProvider,
         sessionManager.getSession(sessionToken);
 
         RoleAssignmentPE roleAssignment =
-                daoFactory.getRoleAssignmentDAO().getRoleAssignment(
+                daoFactory.getRoleAssignmentDAO().tryFindRoleAssignment(
                         translateRoleSetCode(roleSetCode), group, person);
         if (roleAssignment == null)
         {

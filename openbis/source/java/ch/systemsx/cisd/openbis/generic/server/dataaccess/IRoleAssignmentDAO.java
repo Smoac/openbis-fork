@@ -55,6 +55,8 @@ public interface IRoleAssignmentDAO
      */
     public List<RoleAssignmentPE> listRoleAssignmentsByPerson(final PersonPE person);
 
-    // FIXME
-    public RoleAssignmentPE getRoleAssignment(RoleCode role, String group, String person);
+    /**
+     * Returns a {@link RoleAssignmentPE} described by given role, group code and person id.
+     */
+    public RoleAssignmentPE tryFindRoleAssignment(RoleCode role, String group, String person);
 }

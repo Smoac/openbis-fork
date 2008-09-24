@@ -42,11 +42,16 @@ public interface IPersonManager
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     public void registerRoleAssignments(Session session, NewRoleAssignment[] roleAssignments);
 
-
-    // FXME
-    public void deleteRoleAssignments(Session session, RoleCode translateRoleSetCode, String group,
+    /**
+     * Deletes role assignment.
+     */
+    @RolesAllowed(RoleSet.GROUP_ADMIN)
+    public void deleteRoleAssignments(Session session, RoleCode roleSetCode, String group,
             String person);
 
-    // FIXME
+    /**
+     * Registers a new role assignment.
+     */
+    @RolesAllowed(RoleSet.GROUP_ADMIN)
     public void registerRoleAssignment(Session session, NewRoleAssignment newRoleAssignment);
 }

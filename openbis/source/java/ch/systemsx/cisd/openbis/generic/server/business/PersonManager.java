@@ -105,7 +105,7 @@ final class PersonManager extends AbstractManager implements IPersonManager
     public void deleteRoleAssignments(Session session, RoleCode role, String group, String person)
     {
         RoleAssignmentPE roleAssignment =
-                daoFactory.getRoleAssignmentDAO().getRoleAssignment(role, group, person);
+                daoFactory.getRoleAssignmentDAO().tryFindRoleAssignment(role, group, person);
         if (roleAssignment == null)
         {
             throw new UserFailureException("Given role does not exist.");

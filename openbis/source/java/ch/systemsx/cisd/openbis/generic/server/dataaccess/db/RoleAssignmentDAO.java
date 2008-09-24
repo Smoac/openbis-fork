@@ -108,7 +108,7 @@ public final class RoleAssignmentDAO extends AbstractDAO implements IRoleAssignm
         }
     }
 
-    public RoleAssignmentPE getRoleAssignment(RoleCode role, String group, String person)
+    public RoleAssignmentPE tryFindRoleAssignment(RoleCode role, String group, String person)
     {
         List<RoleAssignmentPE> roles;
         if (StringUtils.isBlank(group) == false)

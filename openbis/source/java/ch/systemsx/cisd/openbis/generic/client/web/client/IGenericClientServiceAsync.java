@@ -58,14 +58,14 @@ public interface IGenericClientServiceAsync
     /** @see IGenericClientService#registerPerson(String) */
     public void registerPerson(String code, AsyncCallback<Void> asyncCallback);
 
-    // FIXME
+    /** @see IGenericClientService#listRoles() */
     public void listRoles(AsyncCallback<List<RoleAssignment>> asyncCallback);
 
-    // FIXME
+    /** @see IGenericClientService#registerRole(String, String, String) */
     public void registerRole(String roleSetCode, String group, String person,
             AsyncCallback<Void> asyncCallback);
 
-    // FIXME
+    /** @see IGenericClientService#deleteRole(String, String, String) */
     public void deleteRole(String roleSetCode, String group, String person,
             AsyncCallback<Void> asyncCallback);
 

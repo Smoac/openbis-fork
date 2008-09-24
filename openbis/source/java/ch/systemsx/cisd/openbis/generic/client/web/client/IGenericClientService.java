@@ -76,13 +76,20 @@ public interface IGenericClientService extends RemoteService
      */
     public void registerPerson(String code) throws UserFailureException;
 
-    // FIXME
+    /**
+     * Returns a list of all roles.
+     */
     public List<RoleAssignment> listRoles() throws UserFailureException;
 
-    // FIXME
+    /**
+     * Registers a new role from given role set code, group code and person code
+     */
     public void registerRole(String roleSetCode, String group, String person)
             throws UserFailureException;
 
+    /**
+     * Deletes the role described by given role set code, group code and person code
+     */
     public void deleteRole(String roleSetCode, String group, String person)
             throws UserFailureException;
 }

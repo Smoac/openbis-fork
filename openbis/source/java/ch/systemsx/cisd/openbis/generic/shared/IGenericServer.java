@@ -78,13 +78,22 @@ public interface IGenericServer
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     public void registerPerson(String sessionToken, String userID);
 
-    // FIXME
+    /**
+     * Returns a list of all roles.
+     */
+    @RolesAllowed(RoleSet.GROUP_ADMIN)
     public List<RoleAssignmentPE> listRoles(String sessionToken);
 
-    // FIXME
+    /**
+     * Registers a new role.
+     */
+    @RolesAllowed(RoleSet.GROUP_ADMIN)
     public void registerRole(String sessionToken, String roleSetCode, String group, String person);
 
-    // FIXME
+    /**
+     * Deletes role described by given role set code, group code and user id.
+     */
+    @RolesAllowed(RoleSet.GROUP_ADMIN)
     public void deleteRole(String sessionToken, String roleSetCode, String group, String person);
 
 }
