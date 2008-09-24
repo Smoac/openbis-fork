@@ -1,5 +1,5 @@
 #! /bin/bash
-APPLICATION_NAME=openbis
+APPLICATION_NAME=genericopenbis
 
 usage() {
 	echo "Usage: $0 [--port <port number>] <server folder> [<service properties file> <log configuration file>]"

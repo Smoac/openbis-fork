@@ -17,7 +17,7 @@
     <!-- Trying kind of extension (i.e., '*.do') here as 'url-pattern' does not work. -->
     <servlet-mapping>
         <servlet-name>spring</servlet-name>
-        <url-pattern>/openbis/*</url-pattern>
+        <url-pattern>/genericopenbis/*</url-pattern>
     </servlet-mapping>
 
     <!--

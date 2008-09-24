@@ -38,12 +38,12 @@
 
     <Set name="handler">
         <New class="org.mortbay.jetty.webapp.WebAppContext">
-            <Set name="contextPath">/openbis</Set>
+            <Set name="contextPath">/genericopenbis</Set>
             <Set name="war">
-                <SystemProperty name="jetty.home" default="." />/webapps/openbis.war
+                <SystemProperty name="jetty.home" default="." />/webapps/genericopenbis.war
             </Set>
             <Set name="tempDirectory">
-                <SystemProperty name="jetty.home" default="." />/work/openbis
+                <SystemProperty name="jetty.home" default="." />/work/genericopenbis
             </Set>
         </New>
     </Set>

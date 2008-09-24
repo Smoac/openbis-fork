@@ -25,6 +25,8 @@ import com.google.gwt.core.client.GWT;
  */
 public class GenericConstants
 {
+    private static final String APPLICATION_NAME = "genericopenbis";
+    
     public static final String SERVER_NAME = createServicePath("generic");
 
     /**
@@ -32,8 +34,8 @@ public class GenericConstants
      */
     protected final static String createServicePath(String serviceName)
     {
-        // Kind of hack. Unclear why an additional 'openbis' in productive mode is needed.
-        return "/openbis/" + (GWT.isScript() ? "openbis/" : "") + serviceName;
+        // Kind of hack. Unclear why an additional APPLICATION_NAME in productive mode is needed.
+        return "/" + APPLICATION_NAME + "/" + (GWT.isScript() ? APPLICATION_NAME + "/" : "") + serviceName;
     }
 
 }
