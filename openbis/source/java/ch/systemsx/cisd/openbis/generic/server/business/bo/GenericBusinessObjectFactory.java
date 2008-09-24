@@ -31,19 +31,9 @@ public class GenericBusinessObjectFactory implements IGenericBusinessObjectFacto
         this.daoFactory = daoFactory;
     }
 
-    public final IPersonBO createPersonBO(final Session session)
-    {
-        return new PersonBO(daoFactory, session);
-    }
-
     public final IGroupBO createGroupBO(final Session session)
     {
         return new GroupBO(daoFactory, session);
-    }
-
-    public final IGroupTable createGroupTable(final Session session)
-    {
-        return new GroupTable(daoFactory, session);
     }
 
     public final IRoleAssignmentTable createRoleAssignmentTable(final Session session)

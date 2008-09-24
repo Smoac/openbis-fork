@@ -29,17 +29,8 @@ public interface IGenericBusinessObjectFactory
     public IGroupBO createGroupBO(final Session session);
 
     /**
-     * Creates a <i>Business Table</i> to handle groups.
-     */
-    public IGroupTable createGroupTable(final Session session);
-
-    /**
      * Creates a <i>Business Table</i> to handle role assignments.
      */
     public IRoleAssignmentTable createRoleAssignmentTable(final Session session);
 
-    /**
-     * Creates a person Business Object for the specified session.
-     */
-    public IPersonBO createPersonBO(final Session session);
 }

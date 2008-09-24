@@ -55,7 +55,9 @@ abstract class AbstractBusinessObject implements IAuthorizationDAOFactory
 
     protected final PersonPE findRegistrator()
     {
-        return session.tryGetPerson();
+        PersonPE registrator = session.tryGetPerson();
+        assert registrator != null : "Missing person instance in session object.";
+        return registrator;
     }
 
     protected final static void throwException(final DataAccessException exception,
