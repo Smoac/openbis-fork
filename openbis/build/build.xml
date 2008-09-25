@@ -246,9 +246,11 @@
       </lib>
       <lib dir="${lib}/slf4j">
         <include name="*.jar" />
+        <exclude name="src.jar" />
       </lib>
       <lib dir="${lib}/slf4j/log4j12">
         <include name="*.jar" />
+        <exclude name="src.jar" />
       </lib>
       <!-- Beanlib -->
       <lib dir="${lib}/beanlib">
