@@ -16,12 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-
 /**
  * An entity property is composed of:
  * <ol>
  * <li>{@link IIdHolder#getId()}</li>
- * <li>{@link #getEntityId()}</li>
+ * <li>{@link #getEntity}</li>
  * <li>{@link #getEntityTypePropertyType()}</li>
  * </ol>
  * 
@@ -35,12 +34,12 @@ public interface IEntityProperty extends IIdHolder
     public EntityTypePropertyTypePE getEntityTypePropertyType();
 
     /**
-     * Returns the entity id for this entity property.
+     * Returns the entity for this entity property.
      */
-    public Long getEntityId();
+    public IIdAndCodeHolder getEntity();
 
     /**
-     * Return untyped value or <code>null</code>. 
+     * Return untyped value or <code>null</code>.
      */
     public String tryGetUntypedValue();
 }

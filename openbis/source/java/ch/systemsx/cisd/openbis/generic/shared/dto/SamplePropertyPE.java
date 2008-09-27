@@ -88,16 +88,15 @@ public class SamplePropertyPE extends EntityPropertyPE
     }
 
     @Transient
-    public Long getEntityId()
+    public final IIdAndCodeHolder getEntity()
     {
-        return entityId;
+        return getSample();
     }
 
     @Override
-    public void setEntityId(final Long entityId)
+    public void setEntity(final IIdAndCodeHolder entity)
     {
-        sample = new SamplePE();
-        sample.setId(entityId);
+        assert entity instanceof SamplePE;
+        setSample((SamplePE) entity);
     }
-
 }

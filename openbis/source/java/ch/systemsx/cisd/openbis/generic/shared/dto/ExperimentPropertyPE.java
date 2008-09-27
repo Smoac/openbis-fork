@@ -75,16 +75,16 @@ public class ExperimentPropertyPE extends EntityPropertyPE
     }
 
     @Transient
-    public Long getEntityId()
+    public final IIdAndCodeHolder getEntity()
     {
-        return experiment.getId();
+        return getExperiment();
     }
 
     @Override
-    public void setEntityId(final Long entityId)
+    public void setEntity(final IIdAndCodeHolder entity)
     {
-        experiment = new ExperimentPE();
-        experiment.setId(entityId);
+        assert entity instanceof ExperimentPE;
+        setExperiment((ExperimentPE) entity);
     }
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -75,21 +75,17 @@ public class MaterialPropertyPE extends EntityPropertyPE
         return id;
     }
 
-    // TODO 2008-09-02, Franz-Josef Elmer: Remove this method when
-    // EntityPropertyTypeDAO.createPropertyValue() is no longer used.
     @Transient
-    public Long getEntityId()
+    public final IIdAndCodeHolder getEntity()
     {
-        return material.getId();
+        return getMaterial();
     }
 
-    // TODO 2008-09-02, Franz-Josef Elmer: Remove this method when
-    // EntityPropertyTypeDAO.createPropertyValue() is no longer used.
     @Override
-    public void setEntityId(final Long entityId)
+    public void setEntity(final IIdAndCodeHolder entity)
     {
-        material = new MaterialPE();
-        material.setId(entityId);
+        assert entity instanceof MaterialPE;
+        setMaterial((MaterialPE) entity);
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -99,9 +95,9 @@ public class MaterialPropertyPE extends EntityPropertyPE
         return material;
     }
 
-    void setMaterial(final MaterialPE materialID)
+    void setMaterial(final MaterialPE material)
     {
-        this.material = materialID;
+        this.material = material;
     }
 
 }

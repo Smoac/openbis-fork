@@ -80,18 +80,13 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistratrationH
         this.value = value;
     }
 
+    public abstract void setEntity(final IIdAndCodeHolder entity);
+
     @Column(name = ColumnNames.VALUE)
     @Length(max = 1024, message = ValidationMessages.VALUE_LENGTH_MESSAGE)
     public String getValue()
     {
         return value;
-    }
-
-    // TODO 2008-09-02, Franz-Josef Elmer: Remove this method when
-    // EntityPropertyTypeDAO.createPropertyValue() is no longer used.
-    public void setEntityId(final Long entityId)
-    {
-        this.entityId = entityId;
     }
 
     public void setVocabularyTerm(final VocabularyTermPE vt)
@@ -146,6 +141,10 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistratrationH
         builder.append("vocabularyTerm", getVocabularyTerm());
         return builder.toString();
     }
+
+    //
+    // IEntityProperty
+    //
 
     public final String tryGetUntypedValue()
     {
