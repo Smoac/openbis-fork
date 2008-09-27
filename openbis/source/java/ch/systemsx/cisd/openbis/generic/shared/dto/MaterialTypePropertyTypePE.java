@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 @Entity
 @Table(name = TableNames.MATERIAL_TYPE_PROPERTY_TYPE_TABLE, uniqueConstraints =
     { @UniqueConstraint(columnNames =
-        { ColumnNames.ID_COLUMN }) })
+        { ColumnNames.MATERIAL_TYPE_COLUMN, ColumnNames.PROPERTY_TYPE_COLUMN }) })
 public class MaterialTypePropertyTypePE extends EntityTypePropertyTypePE
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;

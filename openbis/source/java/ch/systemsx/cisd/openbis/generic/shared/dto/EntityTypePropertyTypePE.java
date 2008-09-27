@@ -78,7 +78,7 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
     }
 
     @NotNull
-    @Column(name = ColumnNames.IS_MANDATORY)
+    @Column(name = ColumnNames.IS_MANDATORY, updatable = true)
     public boolean isMandatory()
     {
         return mandatory;
