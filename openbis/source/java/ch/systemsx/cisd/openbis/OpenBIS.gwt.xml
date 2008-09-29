@@ -11,6 +11,14 @@
     <inherits name='com.extjs.gxt.ui.GXT'/>
     
     <!--
+        // The following scripts loads dictionaries which are used for all text messages.
+    -->
+    <script src="common-dictionary.js"/>
+    <script src="generic-dictionary.js"/>
+    
+    <stylesheet src="css/openbis.css" />
+    
+    <!--
         // Application entry point 
      -->    
     <entry-point class='ch.systemsx.cisd.openbis.generic.client.web.client.application.Client' />
