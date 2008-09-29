@@ -36,42 +36,24 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
  */
 public class Client implements EntryPoint
 {
-    private GenericViewContext viewContext;
-
+    GenericViewContext viewContext;
+    AbstractAsyncCallback<SessionContext> loginCallback;
+    
     public void onModuleLoad()
     {
         if (viewContext == null)
         {
             viewContext = createViewContext();
         }
+        loginCallback = loginCallback();
         final IGenericClientServiceAsync service = viewContext.getService();
         service.getApplicationInfo(new AbstractAsyncCallback<ApplicationInfo>(viewContext)
             {
-                public void onSuccess(ApplicationInfo info)
+                @Override
+                public void process(ApplicationInfo info)
                 {
                     viewContext.getModel().setApplicationInfo(info);
-                    service
-                            .tryToGetCurrentSessionContext(new AbstractAsyncCallback<SessionContext>(
-                                    viewContext)
-                                {
-                                    public void onSuccess(SessionContext sessionContext)
-                                    {
-                                        RootPanel rootPanel = RootPanel.get();
-                                        rootPanel.clear();
-                                        Component widget;
-                                        if (sessionContext == null)
-                                        {
-                                            widget = new LoginPage(viewContext);
-                                        } else
-                                        {
-                                            viewContext.getModel()
-                                                    .setSessionContext(sessionContext);
-                                            widget = new Application(viewContext);
-                                        }
-                                        rootPanel.add(widget);
-                                    }
-                                });
-
+                    service.tryToGetCurrentSessionContext(loginCallback);
                 }
             });
     }
@@ -92,6 +74,29 @@ public class Client implements EntryPoint
                 }
             };
         return new GenericViewContext(service, messageProvider, imageBundle, pageController);
+    }
+
+    private AbstractAsyncCallback<SessionContext> loginCallback()
+    {
+        return new AbstractAsyncCallback<SessionContext>(viewContext)
+            {
+                @Override
+                public void process(SessionContext sessionContext)
+                {
+                    RootPanel rootPanel = RootPanel.get();
+                    rootPanel.clear();
+                    Component widget;
+                    if (sessionContext == null)
+                    {
+                        widget = new LoginPage(viewContext);
+                    } else
+                    {
+                        viewContext.getModel().setSessionContext(sessionContext);
+                        widget = new Application(viewContext);
+                    }
+                    rootPanel.add(widget);
+                }
+            };
     }
 
 }

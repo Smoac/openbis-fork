@@ -67,7 +67,8 @@ public class AddGroupDialog extends Window
                             descriptionField.getValue(), null,
                             new AbstractAsyncCallback<Void>(viewContext)
                                 {
-                                    public void onSuccess(Void result)
+                                    @Override
+                                    public void process(Void result)
                                     {
                                         hide();
                                         groupList.refresh();

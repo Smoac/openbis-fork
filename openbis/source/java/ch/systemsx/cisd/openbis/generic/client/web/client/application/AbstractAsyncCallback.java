@@ -33,6 +33,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.InvalidSessi
 public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
 {
     private static final String PREFIX = "exception_";
+    private static ICallbackListener callbackListener = DummyCallbackListener.DUMMY_LISTENER;
+    
+    /**
+     * Sets the global callback listener. Note: THIS METHOD SHOULD ONLY BE USED IN TEST CODE.
+     */
+    public static void setCallbackListener(ICallbackListener listenerOrNull)
+    {
+        callbackListener = listenerOrNull == null ? DummyCallbackListener.DUMMY_LISTENER : listenerOrNull;
+    }
     
     protected final GenericViewContext viewContext;
     
@@ -46,6 +55,7 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
     
     public void onFailure(Throwable caught)
     {
+        callbackListener.onFailureOf(this, caught);
         System.out.println(caught);
         final String msg;
         if (caught instanceof InvocationException)
@@ -76,4 +86,15 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
         }
     }
 
+    public final void onSuccess(T result)
+    {
+        callbackListener.startOnSuccessOf(this, result);
+        process(result);
+        callbackListener.finishOnSuccessOf(this, result);
+    }
+
+    /**
+     * Processes the specified result of an asynchronous method invocation.
+     */
+    protected abstract void process(T result);
 }

@@ -73,7 +73,8 @@ public class AddRoleDialog extends Window
                     final AbstractAsyncCallback<Void> roleLoadingCallback =
                             new AbstractAsyncCallback<Void>(viewContext)
                                 {
-                                    public void onSuccess(Void result)
+                                    @Override
+                                    public void process(Void result)
                                     {
                                         hide();
                                         roleList.refresh();

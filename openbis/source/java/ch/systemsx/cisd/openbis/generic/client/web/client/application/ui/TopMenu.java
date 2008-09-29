@@ -65,7 +65,8 @@ public class TopMenu extends LayoutContainer
                         viewContext.getService().logout(
                                 new AbstractAsyncCallback<Void>(viewContext)
                                     {
-                                        public void onSuccess(Void result)
+                                        @Override
+                                        public void process(Void result)
                                         {
                                             viewContext.getPageController().reload();
                                         }

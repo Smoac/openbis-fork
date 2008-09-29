@@ -171,7 +171,8 @@ public class GroupsView extends LayoutContainer
         viewContext.getService().listGroups(null,
                 new AbstractAsyncCallback<List<Group>>(viewContext)
                     {
-                        public void onSuccess(List<Group> groups)
+                        @Override
+                        public void process(List<Group> groups)
                         {
                             display(groups);
                         }

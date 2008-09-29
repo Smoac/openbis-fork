@@ -61,7 +61,8 @@ public class AddPersonDialog extends Window
                     viewContext.getService().registerPerson(codeField.getValue(),
                             new AbstractAsyncCallback<Void>(viewContext)
                                 {
-                                    public void onSuccess(Void result)
+                                    @Override
+                                    public void process(Void result)
                                     {
                                         hide();
                                         personList.refresh();

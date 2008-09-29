@@ -173,7 +173,8 @@ public class PersonsView extends LayoutContainer
         add(new Text("data loading..."));
         viewContext.getService().listPersons(new AbstractAsyncCallback<List<Person>>(viewContext)
             {
-                public void onSuccess(List<Person> persons)
+                @Override
+                public void process(List<Person> persons)
                 {
                     display(persons);
                 }

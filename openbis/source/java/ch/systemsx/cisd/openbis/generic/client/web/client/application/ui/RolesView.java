@@ -132,7 +132,8 @@ public class RolesView extends LayoutContainer
                     final AbstractAsyncCallback<Void> roleListRefreshCallback =
                             new AbstractAsyncCallback<Void>(viewContext)
                                 {
-                                    public void onSuccess(Void result)
+                                    @Override
+                                    public void process(Void result)
                                     {
                                         roleList.refresh();
                                     }
@@ -183,7 +184,8 @@ public class RolesView extends LayoutContainer
         viewContext.getService().listRoles(
                 new AbstractAsyncCallback<List<RoleAssignment>>(viewContext)
                     {
-                        public void onSuccess(List<RoleAssignment> roles)
+                        @Override
+                        public void process(List<RoleAssignment> roles)
                         {
                             display(roles);
                         }
