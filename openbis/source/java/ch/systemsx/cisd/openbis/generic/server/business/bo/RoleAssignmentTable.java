@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.dao.DataAccessException;
+
 import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
@@ -113,7 +115,13 @@ final class RoleAssignmentTable extends AbstractBusinessObject implements IRoleA
         assert roleAssignments != null : "Role assignments unspecified";
         for (final RoleAssignmentPE roleAssignment : roleAssignments)
         {
-            getRoleAssignmentDAO().createRoleAssignment(roleAssignment);
+            try
+            {
+                getRoleAssignmentDAO().createRoleAssignment(roleAssignment);
+            } catch (DataAccessException ex)
+            {
+                throwException(ex, "Role assignment");
+            }
         }
     }
 
