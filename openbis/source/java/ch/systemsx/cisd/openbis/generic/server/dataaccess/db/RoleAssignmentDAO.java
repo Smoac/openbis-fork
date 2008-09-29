@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Criterion;
@@ -108,32 +107,42 @@ public final class RoleAssignmentDAO extends AbstractDAO implements IRoleAssignm
         }
     }
 
-    public RoleAssignmentPE tryFindRoleAssignment(RoleCode role, String group, String person)
+    public RoleAssignmentPE tryFindGroupRoleAssignment(RoleCode role, String group, String person)
     {
         List<RoleAssignmentPE> roles;
-        if (StringUtils.isBlank(group) == false)
-        {
-            roles =
-                    cast(getHibernateTemplate().find(
-                            String.format("from %s r where r.person.userId = ? and group.code = ? "
-                                    + "and r.role = ?", ENTITY_CLASS.getSimpleName()), new Object[]
-                                { person, group, role }));
-        } else
-        {
-            roles =
-                    cast(getHibernateTemplate().find(
-                            String.format("from %s r where r.person.userId = ? "
-                                    + "and r.role = ? and r.databaseInstance = ?", ENTITY_CLASS
-                                    .getSimpleName()), new Object[]
-                                { person, role, getDatabaseInstance() }));
-        }
+        roles =
+                cast(getHibernateTemplate().find(
+                        String.format("from %s r where r.person.userId = ? and group.code = ? "
+                                + "and r.role = ?", ENTITY_CLASS.getSimpleName()), new Object[]
+                            { person, group, role }));
         final RoleAssignmentPE roleAssignment =
                 tryFindEntity(roles, "role_assignments", role, group, person);
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("FIND: role assignment '%s'.", roleAssignment));
+            operationLog.info(String.format("FIND: group role assignment '%s'.", roleAssignment));
         }
         return roleAssignment;
 
     }
+
+    public RoleAssignmentPE tryFindInstanceRoleAssignment(RoleCode role, String person)
+    {
+        List<RoleAssignmentPE> roles;
+        roles =
+                cast(getHibernateTemplate().find(
+                        String.format("from %s r where r.person.userId = ? "
+                                + "and r.role = ? and r.databaseInstance = ?", ENTITY_CLASS
+                                .getSimpleName()), new Object[]
+                            { person, role, getDatabaseInstance() }));
+        final RoleAssignmentPE roleAssignment =
+                tryFindEntity(roles, "role_assignments", role, person);
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog
+                    .info(String.format("FIND: instance role assignment '%s'.", roleAssignment));
+        }
+        return roleAssignment;
+
+    }
+
 }

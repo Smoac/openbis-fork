@@ -84,12 +84,22 @@ public interface IGenericClientService extends RemoteService
     /**
      * Registers a new role from given role set code, group code and person code
      */
-    public void registerRole(String roleSetCode, String group, String person)
+    public void registerGroupRole(String roleSetCode, String group, String person)
             throws UserFailureException;
 
     /**
      * Deletes the role described by given role set code, group code and person code
      */
-    public void deleteRole(String roleSetCode, String group, String person)
+    public void deleteGroupRole(String roleSetCode, String group, String person)
             throws UserFailureException;
+
+    /**
+     * Registers a new role from given role set code and person code
+     */
+    public void registerInstanceRole(String roleSetCode, String person) throws UserFailureException;
+
+    /**
+     * Deletes the role described by given role set code and person code
+     */
+    public void deleteInstanceRole(String roleSetCode, String person) throws UserFailureException;
 }

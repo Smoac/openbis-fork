@@ -18,9 +18,11 @@ package ch.systemsx.cisd.openbis.generic.shared;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.GroupValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -28,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
 /**
  * Definition of the client-server interface.
@@ -86,15 +89,31 @@ public interface IGenericServer
     public List<RoleAssignmentPE> listRoles(String sessionToken);
 
     /**
-     * Registers a new role.
+     * Registers a new group role.
      */
     @RolesAllowed(RoleSet.GROUP_ADMIN)
-    public void registerRole(String sessionToken, RoleCode roleCode, String group, String person);
+    public void registerGroupRole(String sessionToken, RoleCode roleCode,
+            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class)
+            GroupIdentifier identifier, String person);
 
     /**
-     * Deletes role described by given role code, group code and user id.
+     * Registers a new instance role.
+     */
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    public void registerInstanceRole(String sessionToken, RoleCode roleCode, String person);
+
+    /**
+     * Deletes role described by given role code, group identifier and user id.
      */
     @RolesAllowed(RoleSet.GROUP_ADMIN)
-    public void deleteRole(String sessionToken, RoleCode roleCode, String group, String person);
+    public void deleteGroupRole(String sessionToken, RoleCode roleCode,
+            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class)
+            GroupIdentifier groupIdentifier, String person);
+
+    /**
+     * Deletes role described by given role code and user id.
+     */
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    public void deleteInstanceRole(String sessionToken, RoleCode roleCode, String person);
 
 }

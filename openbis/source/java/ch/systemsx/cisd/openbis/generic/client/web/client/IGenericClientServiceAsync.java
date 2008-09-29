@@ -61,12 +61,20 @@ public interface IGenericClientServiceAsync
     /** @see IGenericClientService#listRoles() */
     public void listRoles(AsyncCallback<List<RoleAssignment>> asyncCallback);
 
-    /** @see IGenericClientService#registerRole(String, String, String) */
-    public void registerRole(String roleSetCode, String group, String person,
+    /** @see IGenericClientService#registerGroupRole(String, String, String) */
+    public void registerGroupRole(String roleSetCode, String group, String person,
             AsyncCallback<Void> asyncCallback);
 
-    /** @see IGenericClientService#deleteRole(String, String, String) */
-    public void deleteRole(String roleSetCode, String group, String person,
+    /** @see IGenericClientService#deleteGroupRole(String, String, String) */
+    public void deleteGroupRole(String roleSetCode, String group, String person,
+            AsyncCallback<Void> asyncCallback);
+
+    /** @see IGenericClientService#registerInstanceRole(String, String) */
+    public void registerInstanceRole(String roleSetCode, String person,
+            AsyncCallback<Void> asyncCallback);
+
+    /** @see IGenericClientService#deleteInstanceRole(String, String) */
+    public void deleteInstanceRole(String roleSetCode, String person,
             AsyncCallback<Void> asyncCallback);
 
 }

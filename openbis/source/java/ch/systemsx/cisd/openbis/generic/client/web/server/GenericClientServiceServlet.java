@@ -144,16 +144,27 @@ public class GenericClientServiceServlet extends GWTSpringController implements
         return service.listRoles();
     }
 
-    public void registerRole(String roleSetCode, String group, String person)
+    public void registerGroupRole(String roleSetCode, String group, String person)
             throws UserFailureException
     {
-        service.registerRole(roleSetCode, group, person);
+        service.registerGroupRole(roleSetCode, group, person);
     }
 
-    public void deleteRole(String roleSetCode, String group, String person)
+    public void deleteGroupRole(String roleSetCode, String group, String person)
             throws UserFailureException
     {
-        service.deleteRole(roleSetCode, group, person);
+        service.deleteGroupRole(roleSetCode, group, person);
+
+    }
+
+    public void registerInstanceRole(String roleSetCode, String person) throws UserFailureException
+    {
+        service.registerInstanceRole(roleSetCode, person);
+    }
+
+    public void deleteInstanceRole(String roleSetCode, String person) throws UserFailureException
+    {
+        service.deleteInstanceRole(roleSetCode, person);
 
     }
 

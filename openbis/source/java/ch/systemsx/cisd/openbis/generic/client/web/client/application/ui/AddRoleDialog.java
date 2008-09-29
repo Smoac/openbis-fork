@@ -26,6 +26,7 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 
 /**
  * {@link Window} containing role registration form.
@@ -69,16 +70,27 @@ public class AddRoleDialog extends Window
                 @Override
                 public void componentSelected(ComponentEvent ce)
                 {
-                    viewContext.getService().registerRole(
-                            ((RoleListBox) roleBox.getWidget()).getValue(), group.getValue(),
-                            user.getValue(), new AbstractAsyncCallback<Void>(viewContext)
+                    final AbstractAsyncCallback<Void> roleLoadingCallback =
+                            new AbstractAsyncCallback<Void>(viewContext)
                                 {
                                     public void onSuccess(Void result)
                                     {
                                         hide();
                                         roleList.refresh();
                                     }
-                                });
+                                };
+                    if (StringUtils.isBlank(group.getValue()))
+                    {
+                        viewContext.getService().registerInstanceRole(
+                                ((RoleListBox) roleBox.getWidget()).getValue(), user.getValue(),
+                                roleLoadingCallback);
+                    } else
+                    {
+
+                        viewContext.getService().registerGroupRole(
+                                ((RoleListBox) roleBox.getWidget()).getValue(), group.getValue(),
+                                user.getValue(), roleLoadingCallback);
+                    }
                 }
             }));
         addButton(new Button("Cancel", new SelectionListener<ComponentEvent>()

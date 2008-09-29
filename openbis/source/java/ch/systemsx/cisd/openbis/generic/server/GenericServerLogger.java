@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
 /**
  * Logger class for {@link GenericServer} which creates readable logs of method invocations.
@@ -176,17 +177,31 @@ class GenericServerLogger implements IGenericServer, ISessionProvider
         return null;
     }
 
-    public void registerRole(String sessionToken, RoleCode roleCode, String group, String person)
+    public void registerGroupRole(String sessionToken, RoleCode roleCode,
+            GroupIdentifier groupIdentifier, String person)
     {
         logTracking(sessionToken, "register_role", "ROLE(%s) GROUP(%s) PERSON(%s)", roleCode,
-                group, person);
+                groupIdentifier, person);
 
     }
 
-    public void deleteRole(String sessionToken, RoleCode roleCode, String group, String person)
+    public void registerInstanceRole(String sessionToken, RoleCode roleCode, String person)
     {
-        logTracking(sessionToken, "delete_role", "ROLE(%s) GROUP(%s) PERSON(%s)", roleCode, group,
-                person);
+        logTracking(sessionToken, "register_role", "ROLE(%s)  PERSON(%s)", roleCode, person);
+
+    }
+
+    public void deleteGroupRole(String sessionToken, RoleCode roleCode,
+            GroupIdentifier groupIdentifier, String person)
+    {
+        logTracking(sessionToken, "delete_role", "ROLE(%s) GROUP(%s) PERSON(%s)", roleCode,
+                groupIdentifier, person);
+
+    }
+
+    public void deleteInstanceRole(String sessionToken, RoleCode roleCode, String person)
+    {
+        logTracking(sessionToken, "delete_role", "ROLE(%s) PERSON(%s)", roleCode, person);
 
     }
 

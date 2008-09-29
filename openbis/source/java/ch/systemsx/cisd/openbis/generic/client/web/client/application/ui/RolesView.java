@@ -44,6 +44,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 
 /**
@@ -128,15 +129,24 @@ public class RolesView extends LayoutContainer
                 public void componentSelected(ComponentEvent ce)
                 {
                     final RoleModel rm = grid.getSelectionModel().getSelectedItem();
-                    viewContext.getService().deleteRole((String) rm.get("role"),
-                            (String) rm.get("group"), (String) rm.get("person"),
+                    final AbstractAsyncCallback<Void> roleListRefreshCallback =
                             new AbstractAsyncCallback<Void>(viewContext)
                                 {
                                     public void onSuccess(Void result)
                                     {
                                         roleList.refresh();
                                     }
-                                });
+                                };
+                    if (StringUtils.isBlank((String) rm.get("group")))
+                    {
+                        viewContext.getService().deleteInstanceRole((String) rm.get("role"),
+                                (String) rm.get("person"), roleListRefreshCallback);
+                    } else
+                    {
+                        viewContext.getService().deleteGroupRole((String) rm.get("role"),
+                                (String) rm.get("group"), (String) rm.get("person"),
+                                roleListRefreshCallback);
+                    }
                 }
             });
 

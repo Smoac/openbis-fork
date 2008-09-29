@@ -222,21 +222,14 @@ public class GenericServer implements IGenericServer, ISessionProvider,
     }
 
     @Transactional
-    public void registerRole(String sessionToken, RoleCode roleCode, String group, String person)
+    public void registerGroupRole(String sessionToken, RoleCode roleCode,
+            GroupIdentifier groupIdentifier, String person)
     {
         Session session = sessionManager.getSession(sessionToken);
 
         NewRoleAssignment newRoleAssignment = new NewRoleAssignment();
         newRoleAssignment.setUserId(person);
-        if (group == null)
-        {
-            newRoleAssignment.setDatabaseInstanceIdentifier(new DatabaseInstanceIdentifier(
-                    daoFactory.getHomeDatabaseInstance().getCode()));
-        } else
-        {
-            newRoleAssignment.setGroupIdentifier(new GroupIdentifier(
-                    DatabaseInstanceIdentifier.HOME, group));
-        }
+        newRoleAssignment.setGroupIdentifier(groupIdentifier);
         newRoleAssignment.setRole(roleCode);
 
         final IRoleAssignmentTable table = boFactory.createRoleAssignmentTable(session);
@@ -246,13 +239,68 @@ public class GenericServer implements IGenericServer, ISessionProvider,
     }
 
     @Transactional
-    public void deleteRole(String sessionToken, RoleCode roleCode, String group, String person)
+    public void registerInstanceRole(String sessionToken, RoleCode roleCode, String person)
+    {
+        Session session = sessionManager.getSession(sessionToken);
+
+        NewRoleAssignment newRoleAssignment = new NewRoleAssignment();
+        newRoleAssignment.setUserId(person);
+        newRoleAssignment.setDatabaseInstanceIdentifier(new DatabaseInstanceIdentifier(
+                DatabaseInstanceIdentifier.HOME));
+        newRoleAssignment.setRole(roleCode);
+
+        final IRoleAssignmentTable table = boFactory.createRoleAssignmentTable(session);
+        table.add(newRoleAssignment);
+        table.save();
+
+    }
+
+    @Transactional
+    public void deleteGroupRole(String sessionToken, RoleCode roleCode,
+            GroupIdentifier groupIdentifier, String person)
     {
 
         Session session = sessionManager.getSession(sessionToken);
 
         RoleAssignmentPE roleAssignment =
-                daoFactory.getRoleAssignmentDAO().tryFindRoleAssignment(roleCode, group, person);
+                daoFactory.getRoleAssignmentDAO().tryFindGroupRoleAssignment(roleCode,
+                        groupIdentifier.getGroupCode(), person);
+        if (roleAssignment == null)
+        {
+            throw new UserFailureException("Given role does not exist.");
+        }
+        if (roleAssignment.getPerson().compareTo(session.tryGetPerson()) == 0
+                && roleAssignment.getRole().compareTo(RoleCode.ADMIN) == 0)
+        {
+            boolean isInstanceAdmin = false;
+            if (session != null && session.tryGetPerson() != null
+                    && session.tryGetPerson().getRoleAssignments() != null)
+            {
+                for (RoleAssignmentPE ra : session.tryGetPerson().getRoleAssignments())
+                {
+                    if (ra.getDatabaseInstance() != null && ra.getRole().equals(RoleCode.ADMIN))
+                    {
+                        isInstanceAdmin = true;
+                    }
+                }
+            }
+            if (isInstanceAdmin == false)
+            {
+                throw new UserFailureException(
+                        "For safety reason you cannot give away your own group admin power. Ask instance admin to do that for you.");
+            }
+        }
+        daoFactory.getRoleAssignmentDAO().deleteRoleAssignment(roleAssignment);
+    }
+
+    @Transactional
+    public void deleteInstanceRole(String sessionToken, RoleCode roleCode, String person)
+    {
+
+        Session session = sessionManager.getSession(sessionToken);
+
+        RoleAssignmentPE roleAssignment =
+                daoFactory.getRoleAssignmentDAO().tryFindInstanceRoleAssignment(roleCode, person);
         if (roleAssignment == null)
         {
             throw new UserFailureException("Given role does not exist.");
@@ -262,7 +310,7 @@ public class GenericServer implements IGenericServer, ISessionProvider,
                 && roleAssignment.getDatabaseInstance() != null)
         {
             throw new UserFailureException(
-                    "For safety reason you cannot give away your own omnipotence.");
+                    "For safety reason you cannot give away your own omnipotence. Ask another instance admin to do that for you.");
         }
         daoFactory.getRoleAssignmentDAO().deleteRoleAssignment(roleAssignment);
     }

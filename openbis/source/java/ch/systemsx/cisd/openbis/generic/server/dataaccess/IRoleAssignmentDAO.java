@@ -58,5 +58,10 @@ public interface IRoleAssignmentDAO
     /**
      * Returns a {@link RoleAssignmentPE} described by given role, group code and person id.
      */
-    public RoleAssignmentPE tryFindRoleAssignment(RoleCode role, String group, String person);
+    public RoleAssignmentPE tryFindGroupRoleAssignment(RoleCode role, String group, String person);
+
+    /**
+     * Returns a {@link RoleAssignmentPE} described by given role and person id.
+     */
+    public RoleAssignmentPE tryFindInstanceRoleAssignment(RoleCode role, String person);
 }

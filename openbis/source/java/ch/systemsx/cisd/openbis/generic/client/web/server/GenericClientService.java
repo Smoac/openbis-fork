@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
 /**
  * @author Franz-Josef Elmer
@@ -265,13 +266,29 @@ public class GenericClientService implements IGenericClientService
         }
     }
 
-    public void registerRole(String roleSetCode, String group, String person)
+    public void registerGroupRole(String roleSetCode, String group, String person)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            GroupIdentifier groupIdentifier =
+                    new GroupIdentifier(DatabaseInstanceIdentifier.HOME, group);
+            String sessionToken = getSessionToken();
+            server.registerGroupRole(sessionToken, translateRoleSetCode(roleSetCode),
+                    groupIdentifier, person);
+        } catch (UserFailureException e)
+        {
+            throw UserFailureExceptionTranslater.translate(e);
+        }
+    }
+
+    public void registerInstanceRole(String roleSetCode, String person)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             String sessionToken = getSessionToken();
-            server.registerRole(sessionToken, translateRoleSetCode(roleSetCode), group, person);
+            server.registerInstanceRole(sessionToken, translateRoleSetCode(roleSetCode), person);
         } catch (UserFailureException e)
         {
             throw UserFailureExceptionTranslater.translate(e);
@@ -300,13 +317,30 @@ public class GenericClientService implements IGenericClientService
 
     }
 
-    public void deleteRole(String roleSetCode, String group, String person)
+    public void deleteGroupRole(String roleSetCode, String group, String person)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            GroupIdentifier groupIdentifier =
+                    new GroupIdentifier(DatabaseInstanceIdentifier.HOME, group);
+            String sessionToken = getSessionToken();
+            server.deleteGroupRole(sessionToken, translateRoleSetCode(roleSetCode),
+                    groupIdentifier, person);
+        } catch (UserFailureException e)
+        {
+            throw UserFailureExceptionTranslater.translate(e);
+        }
+
+    }
+
+    public void deleteInstanceRole(String roleSetCode, String person)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             String sessionToken = getSessionToken();
-            server.deleteRole(sessionToken, translateRoleSetCode(roleSetCode), group, person);
+            server.deleteInstanceRole(sessionToken, translateRoleSetCode(roleSetCode), person);
         } catch (UserFailureException e)
         {
             throw UserFailureExceptionTranslater.translate(e);
