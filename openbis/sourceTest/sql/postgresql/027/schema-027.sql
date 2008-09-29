@@ -624,13 +624,17 @@ CREATE TABLE sample_type_property_types (
     is_mandatory boolean_char DEFAULT false NOT NULL,
     is_managed_internally boolean_char DEFAULT false NOT NULL,
     pers_id_registerer tech_id NOT NULL,
-    registration_timestamp time_stamp_dfl
+    registration_timestamp time_stamp_dfl,
+    is_displayed boolean_char DEFAULT true NOT NULL
 );
 CREATE TABLE sample_types (
     id tech_id NOT NULL,
     code code NOT NULL,
     description description_80,
-    dbin_id tech_id NOT NULL
+    dbin_id tech_id NOT NULL,
+    is_listable boolean_char DEFAULT true NOT NULL,
+    generated_from_depth integer DEFAULT 0 NOT NULL,
+    part_of_depth integer DEFAULT 0 NOT NULL
 );
 CREATE TABLE samples (
     id tech_id NOT NULL,

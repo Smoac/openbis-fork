@@ -465,36 +465,42 @@ insert into sample_types
 (id
 ,code
 ,description
-,dbin_id)
+,dbin_id
+,generated_from_depth)
 values 
 (nextval('SAMPLE_TYPE_ID_SEQ')
 ,'DILUTION_PLATE'
 ,'Dilution Plate'
 ,(select id from database_instances where code = 'SYSTEM_DEFAULT')
+,1
 );
 
 insert into sample_types
 (id
 ,code
 ,description
-,dbin_id)
+,dbin_id
+,generated_from_depth)
 values 
 (nextval('SAMPLE_TYPE_ID_SEQ')
 ,'CELL_PLATE'
 ,'Cell Plate'
 ,(select id from database_instances where code = 'SYSTEM_DEFAULT')
+,2
 );
 
 insert into sample_types
 (id
 ,code
 ,description
-,dbin_id)
+,dbin_id
+,generated_from_depth)
 values 
 (nextval('SAMPLE_TYPE_ID_SEQ')
 ,'REINFECT_PLATE'
 ,'Re-infection Plate'
 ,(select id from database_instances where code = 'SYSTEM_DEFAULT')
+,3
 );
 
 insert into sample_types
@@ -513,12 +519,18 @@ insert into sample_types
 (id
 ,code
 ,description
-,dbin_id)
+,dbin_id
+,is_listable
+,generated_from_depth
+,part_of_depth)
 values 
 (nextval('SAMPLE_TYPE_ID_SEQ')
 ,'WELL'
 ,'Plate Well'
 ,(select id from database_instances where code = 'SYSTEM_DEFAULT')
+,'F'
+,0
+,1
 );
 
 
