@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-
 /**
  * Processing instruction needed to process raw data.
  * 
@@ -28,7 +27,7 @@ public class ProcessingInstructionDTO extends AbstractRegistratrationHolder
 
     public static final ProcessingInstructionDTO[] EMPTY_ARRAY = new ProcessingInstructionDTO[0];
 
-    transient private Long experimentID;
+    private ExperimentPE experiment;
 
     private String procedureTypeCode;
 
@@ -43,14 +42,14 @@ public class ProcessingInstructionDTO extends AbstractRegistratrationHolder
         super(null);
     }
 
-    public final Long getExperimentID()
+    public final ExperimentPE getExperiment()
     {
-        return experimentID;
+        return experiment;
     }
 
-    public final void setExperimentID(final Long experimentID)
+    public final void setExperiment(final ExperimentPE experiment)
     {
-        this.experimentID = experimentID;
+        this.experiment = experiment;
     }
 
     public final String getProcedureTypeCode()

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -43,6 +44,7 @@ import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 
@@ -61,6 +63,14 @@ public class ExperimentPE extends HibernateAbstractRegistratrationHolder impleme
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
     public static final Object EMPTY_ARRAY = new ExperimentPE[0];
+
+    public static final char HIDDEN_EXPERIMENT_PROPERTY_PREFIX_CHARACTER = '$';
+
+    public static final String HIDDEN_EXPERIMENT_PROPERTY_PREFIX =
+            Character.toString(HIDDEN_EXPERIMENT_PROPERTY_PREFIX_CHARACTER);
+
+    public static final String HIDDEN_EXPERIMENT_PROPERTY_PREFIX2 =
+            HIDDEN_EXPERIMENT_PROPERTY_PREFIX + HIDDEN_EXPERIMENT_PROPERTY_PREFIX;
 
     private transient Long id;
 
@@ -86,11 +96,6 @@ public class ExperimentPE extends HibernateAbstractRegistratrationHolder impleme
             ProcessingInstructionDTO.EMPTY_ARRAY;
 
     private Date lastDataSetDate;
-
-    public ExperimentPE()
-    {
-        super();
-    }
 
     @Id
     @SequenceGenerator(name = SequenceNames.EXPERIMENT_SEQUENCE, sequenceName = SequenceNames.EXPERIMENT_SEQUENCE, allocationSize = 1)
@@ -203,16 +208,44 @@ public class ExperimentPE extends HibernateAbstractRegistratrationHolder impleme
         setExperimentProperties(properties);
     }
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN, updatable = false)
-    public List<AttachmentPE> getAttachments()
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "parent")
+    @Private
+    public List<AttachmentPE> getExperimentAttachments()
     {
         return attachments;
     }
 
-    public void setAttachments(final List<AttachmentPE> attachments)
+    @Private
+    public void setExperimentAttachments(final List<AttachmentPE> attachments)
     {
         this.attachments = attachments;
+    }
+
+    @Transient
+    public final List<AttachmentPE> getAttachments()
+    {
+        final List<AttachmentPE> list = getExperimentAttachments();
+        for (final Iterator<AttachmentPE> iter = list.iterator(); iter.hasNext(); /**/)
+        {
+            final AttachmentPE property = iter.next();
+            final boolean isHiddenFile = isHiddenFile(property.getFileName());
+            if (isHiddenFile)
+            {
+                iter.remove();
+            }
+            unescapeFileName(property);
+        }
+        return list;
+    }
+
+    // Package visibility to avoid bean conversion which will call an uninitialized field.
+    final void setAttachments(final List<AttachmentPE> attachments)
+    {
+        for (AttachmentPE experimentAttachment : attachments)
+        {
+            experimentAttachment.setParent(this);
+        }
+        setExperimentAttachments(attachments);
     }
 
     @OneToMany(fetch = FetchType.LAZY)
@@ -312,5 +345,32 @@ public class ExperimentPE extends HibernateAbstractRegistratrationHolder impleme
         builder.append("experimentType", getExperimentType());
         builder.append("invalidation", getInvalidation());
         return builder.toString();
+    }
+
+    public final static void unescapeFileName(final AbstractAttachmentPE attachment)
+    {
+        if (attachment != null)
+        {
+            final String fileName = attachment.getFileName();
+            if (fileName != null && fileName.startsWith(HIDDEN_EXPERIMENT_PROPERTY_PREFIX2))
+            {
+                attachment.setFileName(fileName.substring(1));
+            }
+        }
+    }
+
+    public final static boolean isHiddenFile(final String fileName)
+    {
+        return fileName.startsWith(HIDDEN_EXPERIMENT_PROPERTY_PREFIX)
+                && (fileName.length() == 1 || fileName.charAt(1) != HIDDEN_EXPERIMENT_PROPERTY_PREFIX_CHARACTER);
+    }
+
+    public final static String escapeFileName(final String fileName)
+    {
+        if (fileName != null && fileName.startsWith(HIDDEN_EXPERIMENT_PROPERTY_PREFIX))
+        {
+            return HIDDEN_EXPERIMENT_PROPERTY_PREFIX + fileName;
+        }
+        return fileName;
     }
 }

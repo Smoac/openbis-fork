@@ -19,9 +19,12 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 import java.io.Serializable;
 
 import javax.persistence.Column;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.SequenceGenerator;
 
@@ -52,12 +55,10 @@ public class AbstractAttachmentPE extends HibernateAbstractRegistratrationHolder
 
     transient private Long id;
 
-    // TODO 2008-08-21, Christian Ribeaud: Put the experiment here instead of the id once it has
-    // been hibernated.
     /**
-     * Id of the parent (e.g. an experiment) to which this attachment belongs.
+     * Parent (e.g. an experiment) to which this attachment belongs.
      */
-    transient private Long parentId;
+    private ExperimentPE parent;
 
     /**
      * Returns the file name of the property or <code>null</code>.
@@ -100,16 +101,17 @@ public class AbstractAttachmentPE extends HibernateAbstractRegistratrationHolder
         this.id = id;
     }
 
-    @Column(name = ColumnNames.EXPERIMENT_COLUMN)
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotNull(message = ValidationMessages.EXPERIMENT_NOT_NULL_MESSAGE)
-    public Long getParentId()
+    @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN, updatable = false)
+    public ExperimentPE getParent()
     {
-        return parentId;
+        return parent;
     }
 
-    public void setParentId(final Long parentId)
+    public void setParent(final ExperimentPE parent)
     {
-        this.parentId = parentId;
+        this.parent = parent;
     }
 
     //
@@ -131,7 +133,7 @@ public class AbstractAttachmentPE extends HibernateAbstractRegistratrationHolder
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(fileName, that.fileName);
         builder.append(version, that.version);
-        builder.append(parentId, that.parentId);
+        builder.append(parent, that.parent);
         return builder.isEquals();
     }
 
@@ -141,7 +143,7 @@ public class AbstractAttachmentPE extends HibernateAbstractRegistratrationHolder
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(fileName);
         builder.append(version);
-        builder.append(parentId);
+        builder.append(parent);
         return builder.toHashCode();
     }
 

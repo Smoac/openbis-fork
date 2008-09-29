@@ -48,7 +48,7 @@ public class FileAttachmentPE extends AbstractAttachmentPE
         return value;
     }
 
-    public void setValue(byte[] value)
+    public void setValue(final byte[] value)
     {
         this.value = value;
     }
