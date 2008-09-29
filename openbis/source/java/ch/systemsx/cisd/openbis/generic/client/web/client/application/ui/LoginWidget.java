@@ -55,16 +55,16 @@ public class LoginWidget extends VerticalPanel
         userField.setSelectOnFocus(true);
         userField.setAllowBlank(false);
         userField.setValidateOnBlur(true);
-        userField.setId("login-user");
+        userField.setId(PREFIX + "user");
         formPanel.add(userField);
         passwordField = new TextField<String>();
         passwordField.setPassword(true);
         passwordField.setAllowBlank(false);
         passwordField.setFieldLabel(viewContext.getMessage(PREFIX + "passwordLabel"));
-        passwordField.setId("login-password");
+        passwordField.setId(PREFIX + "password");
         formPanel.add(passwordField);
         Button button = new Button(viewContext.getMessage(PREFIX + "buttonLabel"));
-        button.setId("login-button");
+        button.setId(PREFIX + "button");
         button.addSelectionListener(new SelectionListener<ComponentEvent>()
             {
                 @Override
@@ -80,7 +80,6 @@ public class LoginWidget extends VerticalPanel
     
     private void login(final GenericViewContext viewContext)
     {
-        System.out.println("LoginWidget.login()");
         viewContext.getService().tryToLogin(userField.getValue(), passwordField.getValue(),
                 new AbstractAsyncCallback<SessionContext>(viewContext)
                     {
