@@ -1,4 +1,5 @@
 <project name="openbis" basedir="..">
+  <import file="../../build_resources/ant/build-common.xml" />
   <import file="../../server-common/build/build-common.xml" />
   <project-classpath name="ecp" classes="${classes}" />
 
