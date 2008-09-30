@@ -1,5 +1,4 @@
 <project name="openbis" basedir="..">
-  <import file="../../build_resources/ant/build-common.xml" />
   <import file="../../server-common/build/build-common.xml" />
   <project-classpath name="ecp" classes="${classes}" />
 
@@ -9,7 +8,7 @@
   <property name="gwt.dev.lib" value="${gwt.lib}/mac/gwt-dev-mac.jar" />
   <property name="gwt.user.lib" value="${gwt.lib}/gwt-user.jar" />
   <property name="gwt.tomcat.web-inf" value="../${ant.project.name}/tomcat/webapps/ROOT/WEB-INF" />
-
+	
   <property name="application.server.resource" value="../${ant.project.name}/${server-resource}" />
 
   <property name="webapp.dist" value="${dist}/webapp" />
@@ -41,7 +40,7 @@
   <!-- 
   // Runs system tests (only on Linux)
   -->
-  <target name="run-system-tests" depends="build-common.compile, build-common.compile-tests">
+  <target name="run-system-tests" >
     <delete dir="${output.test}"/> 
     <mkdir dir="${output.test}"/>
     <junit fork="true" forkmode="once" maxmemory="512m" showoutput="true" haltonfailure="true">
