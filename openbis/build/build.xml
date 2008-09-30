@@ -119,6 +119,12 @@
            description="Task for continuous integration server." />
                 
    <!--
+   // Nightly build task for continuous integration server.
+   -->
+   <target name="nightly-build" depends="build-common.ci, run-system-tests, dist"
+           description="Nightly build task for continuous integration server." />
+                
+   <!--
    // Compiles the javascript using GWT compiler.
    -->
    <target name="compile-javascript" description="Compiles the javascript using GWT compiler.">
