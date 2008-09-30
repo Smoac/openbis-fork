@@ -176,7 +176,7 @@ public class ExperimentPE extends HibernateAbstractRegistratrationHolder impleme
         this.invalidation = invalidation;
     }
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "experiment")
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entity")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private List<ExperimentPropertyPE> getExperimentProperties()
     {
@@ -203,7 +203,7 @@ public class ExperimentPE extends HibernateAbstractRegistratrationHolder impleme
             {
                 parent.getProperties().remove(experimentProperty);
             }
-            experimentProperty.setExperiment(this);
+            experimentProperty.setEntity(this);
         }
         setExperimentProperties(properties);
     }

@@ -53,7 +53,11 @@ public class MaterialPropertyPE extends EntityPropertyPE
     public static final List<MaterialPropertyPE> EMPTY_LIST =
             Collections.<MaterialPropertyPE> emptyList();
 
-    private MaterialPE material;
+    @Transient
+    public final MaterialPE getMaterial()
+    {
+        return (MaterialPE) getEntity();
+    }
 
     //
     // EntityPropertyPE
@@ -75,29 +79,10 @@ public class MaterialPropertyPE extends EntityPropertyPE
         return id;
     }
 
-    @Transient
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = MaterialPE.class)
+    @JoinColumn(name = ColumnNames.MATERIAL_COLUMN, updatable = false)
     public final IIdAndCodeHolder getEntity()
     {
-        return getMaterial();
+        return entity;
     }
-
-    @Override
-    public void setEntity(final IIdAndCodeHolder entity)
-    {
-        assert entity instanceof MaterialPE;
-        setMaterial((MaterialPE) entity);
-    }
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = ColumnNames.MATERIAL_COLUMN, updatable = false)
-    public MaterialPE getMaterial()
-    {
-        return material;
-    }
-
-    void setMaterial(final MaterialPE material)
-    {
-        this.material = material;
-    }
-
 }

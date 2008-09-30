@@ -60,9 +60,9 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistratrationH
 
     protected transient Long id;
 
-    protected transient Long entityId;
-
     protected EntityTypePropertyTypePE entityTypePropertyType;
+
+    protected IIdAndCodeHolder entity;
 
     public <T extends EntityTypePropertyTypePE> void setEntityTypePropertyType(
             final T entityTypePropertyType)
@@ -80,7 +80,10 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistratrationH
         this.value = value;
     }
 
-    public abstract void setEntity(final IIdAndCodeHolder entity);
+    public final void setEntity(final IIdAndCodeHolder entity)
+    {
+        this.entity = entity;
+    }
 
     @Column(name = ColumnNames.VALUE)
     @Length(max = 1024, message = ValidationMessages.VALUE_LENGTH_MESSAGE)

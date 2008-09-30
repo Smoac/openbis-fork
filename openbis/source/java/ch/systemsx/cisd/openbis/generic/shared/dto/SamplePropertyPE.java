@@ -53,18 +53,10 @@ public class SamplePropertyPE extends EntityPropertyPE
     public static final List<SamplePropertyPE> EMPTY_LIST =
             Collections.<SamplePropertyPE> emptyList();
 
-    private SamplePE sample;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = ColumnNames.SAMPLE_COLUMN, updatable = false)
-    public SamplePE getSample()
+    @Transient
+    public final SamplePE getSample()
     {
-        return sample;
-    }
-
-    public void setSample(final SamplePE sample)
-    {
-        this.sample = sample;
+        return (SamplePE) getEntity();
     }
 
     //
@@ -87,16 +79,10 @@ public class SamplePropertyPE extends EntityPropertyPE
         return id;
     }
 
-    @Transient
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = SamplePE.class)
+    @JoinColumn(name = ColumnNames.SAMPLE_COLUMN, updatable = false)
     public final IIdAndCodeHolder getEntity()
     {
-        return getSample();
-    }
-
-    @Override
-    public void setEntity(final IIdAndCodeHolder entity)
-    {
-        assert entity instanceof SamplePE;
-        setSample((SamplePE) entity);
+        return entity;
     }
 }

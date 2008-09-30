@@ -52,7 +52,11 @@ public class ExperimentPropertyPE extends EntityPropertyPE
 
     public static final List<ExperimentPropertyPE> EMPTY_LIST = Collections.emptyList();
 
-    private ExperimentPE experiment;
+    @Transient
+    public final ExperimentPE getExperiment()
+    {
+        return (ExperimentPE) getEntity();
+    }
 
     //
     // EntityPropertyPE
@@ -74,28 +78,10 @@ public class ExperimentPropertyPE extends EntityPropertyPE
         return id;
     }
 
-    @Transient
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ExperimentPE.class)
+    @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN, updatable = false)
     public final IIdAndCodeHolder getEntity()
     {
-        return getExperiment();
-    }
-
-    @Override
-    public void setEntity(final IIdAndCodeHolder entity)
-    {
-        assert entity instanceof ExperimentPE;
-        setExperiment((ExperimentPE) entity);
-    }
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN, updatable = false)
-    public ExperimentPE getExperiment()
-    {
-        return experiment;
-    }
-
-    void setExperiment(final ExperimentPE experiment)
-    {
-        this.experiment = experiment;
+        return entity;
     }
 }

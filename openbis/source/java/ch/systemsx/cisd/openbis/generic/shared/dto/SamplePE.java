@@ -173,7 +173,7 @@ public class SamplePE extends HibernateAbstractRegistratrationHolder implements 
         this.sampleType = sampleType;
     }
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "sample")
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entity")
     private List<SamplePropertyPE> getSampleProperties()
     {
         return properties;
@@ -367,7 +367,7 @@ public class SamplePE extends HibernateAbstractRegistratrationHolder implements 
             {
                 parent.getProperties().remove(sampleProperty);
             }
-            sampleProperty.setSample(this);
+            sampleProperty.setEntity(this);
         }
         setSampleProperties(properties);
     }

@@ -142,7 +142,7 @@ public class MaterialPE extends HibernateAbstractRegistratrationHolder implement
         this.inhibitorOf = inhibitorOf;
     }
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "material")
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entity")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private List<MaterialPropertyPE> getMaterialProperties()
     {
@@ -173,7 +173,7 @@ public class MaterialPE extends HibernateAbstractRegistratrationHolder implement
             {
                 parent.getProperties().remove(materialProperty);
             }
-            materialProperty.setMaterial(this);
+            materialProperty.setEntity(this);
         }
         setMaterialProperties(properties);
     }

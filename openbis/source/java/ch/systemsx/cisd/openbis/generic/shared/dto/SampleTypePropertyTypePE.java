@@ -47,11 +47,6 @@ public class SampleTypePropertyTypePE extends EntityTypePropertyTypePE
 
     public static final SampleTypePropertyTypePE[] EMPTY_ARRAY = new SampleTypePropertyTypePE[0];
 
-    public SampleTypePropertyTypePE()
-    {
-
-    }
-
     //
     // EntityTypePropertyTypePE
     //
