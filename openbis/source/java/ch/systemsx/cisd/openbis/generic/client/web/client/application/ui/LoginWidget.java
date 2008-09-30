@@ -36,6 +36,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 public class LoginWidget extends VerticalPanel
 {
     private static final String PREFIX = "login_";
+
+    static final String USER_FIELD_ID = PREFIX + "user";
+    static final String PASSWORD_FIELD_ID = PREFIX + "password";
+    static final String BUTTON_ID = PREFIX + "button";
     
     private final TextField<String> userField;
     private final TextField<String> passwordField;
@@ -55,16 +59,16 @@ public class LoginWidget extends VerticalPanel
         userField.setSelectOnFocus(true);
         userField.setAllowBlank(false);
         userField.setValidateOnBlur(true);
-        userField.setId(PREFIX + "user");
+        userField.setId(USER_FIELD_ID);
         formPanel.add(userField);
         passwordField = new TextField<String>();
         passwordField.setPassword(true);
         passwordField.setAllowBlank(false);
         passwordField.setFieldLabel(viewContext.getMessage(PREFIX + "passwordLabel"));
-        passwordField.setId(PREFIX + "password");
+        passwordField.setId(PASSWORD_FIELD_ID);
         formPanel.add(passwordField);
         Button button = new Button(viewContext.getMessage(PREFIX + "buttonLabel"));
-        button.setId(PREFIX + "button");
+        button.setId(BUTTON_ID);
         button.addSelectionListener(new SelectionListener<ComponentEvent>()
             {
                 @Override

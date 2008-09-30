@@ -16,15 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import com.extjs.gxt.ui.client.widget.Component;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
-import com.google.gwt.user.client.ui.RootPanel;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoginPage;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
@@ -36,8 +33,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
  */
 public class Client implements EntryPoint
 {
-    GenericViewContext viewContext;
-    AbstractAsyncCallback<SessionContext> loginCallback;
+    private GenericViewContext viewContext;
+    private AbstractAsyncCallback<SessionContext> loginCallback;
     
     public void onModuleLoad()
     {
@@ -45,7 +42,7 @@ public class Client implements EntryPoint
         {
             viewContext = createViewContext();
         }
-        loginCallback = loginCallback();
+        loginCallback = new SessionContextCallback(viewContext);
         final IGenericClientServiceAsync service = viewContext.getService();
         service.getApplicationInfo(new AbstractAsyncCallback<ApplicationInfo>(viewContext)
             {
@@ -74,29 +71,6 @@ public class Client implements EntryPoint
                 }
             };
         return new GenericViewContext(service, messageProvider, imageBundle, pageController);
-    }
-
-    private AbstractAsyncCallback<SessionContext> loginCallback()
-    {
-        return new AbstractAsyncCallback<SessionContext>(viewContext)
-            {
-                @Override
-                public void process(SessionContext sessionContext)
-                {
-                    RootPanel rootPanel = RootPanel.get();
-                    rootPanel.clear();
-                    Component widget;
-                    if (sessionContext == null)
-                    {
-                        widget = new LoginPage(viewContext);
-                    } else
-                    {
-                        viewContext.getModel().setSessionContext(sessionContext);
-                        widget = new Application(viewContext);
-                    }
-                    rootPanel.add(widget);
-                }
-            };
     }
 
 }

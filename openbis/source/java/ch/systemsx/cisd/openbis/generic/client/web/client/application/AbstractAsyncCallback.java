@@ -32,15 +32,31 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.InvalidSessi
  */
 public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
 {
+    private static final ICallbackListener DUMMY_LISTENER = new ICallbackListener()
+        {
+            public void onFailureOf(AsyncCallback<Object> callback, Throwable throwable)
+            {
+            }
+
+            public void startOnSuccessOf(AsyncCallback<Object> callback, Object result)
+            {
+            }
+
+            public void finishOnSuccessOf(AsyncCallback<Object> callback, Object result)
+            {
+            }
+        };
+    
     private static final String PREFIX = "exception_";
-    private static ICallbackListener callbackListener = DummyCallbackListener.DUMMY_LISTENER;
+
+    private static ICallbackListener callbackListener = DUMMY_LISTENER;
     
     /**
      * Sets the global callback listener. Note: THIS METHOD SHOULD ONLY BE USED IN TEST CODE.
      */
-    public static void setCallbackListener(ICallbackListener listenerOrNull)
+    static void setCallbackListener(ICallbackListener listenerOrNull)
     {
-        callbackListener = listenerOrNull == null ? DummyCallbackListener.DUMMY_LISTENER : listenerOrNull;
+        callbackListener = listenerOrNull == null ? DUMMY_LISTENER : listenerOrNull;
     }
     
     protected final GenericViewContext viewContext;
@@ -53,9 +69,15 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
         this.viewContext = viewContext;
     }
     
+    @SuppressWarnings("unchecked")
+    private AsyncCallback<Object> getThis()
+    {
+        return (AsyncCallback<Object>) this;
+    }
+    
     public void onFailure(Throwable caught)
     {
-        callbackListener.onFailureOf(this, caught);
+        callbackListener.onFailureOf(getThis(), caught);
         System.out.println(caught);
         final String msg;
         if (caught instanceof InvocationException)
@@ -88,9 +110,9 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
 
     public final void onSuccess(T result)
     {
-        callbackListener.startOnSuccessOf(this, result);
+        callbackListener.startOnSuccessOf(getThis(), result);
         process(result);
-        callbackListener.finishOnSuccessOf(this, result);
+        callbackListener.finishOnSuccessOf(getThis(), result);
     }
 
     /**
