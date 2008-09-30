@@ -37,6 +37,34 @@
     </antcall>
   </target>
                 
+  <!-- 
+  // Runs system tests (only on Linux)
+  -->
+  <target name="run-system-tests" depends="build-common.compile, build-common.compile-tests">
+    <delete dir="${output.test}"/> 
+    <mkdir dir="${output.test}"/>
+    <junit fork="true" forkmode="once" maxmemory="512m" showoutput="true" haltonfailure="true">
+      <classpath>
+      	<pathelement location="${sources}"/>
+      	<pathelement location="${sources.test}"/>
+      	<pathelement path="${ecp}"/>
+      	<pathelement location="${gwt.lib}/linux/gwt-dev-linux.jar"/>
+      </classpath>
+      <jvmarg value="-ea"/>
+      <sysproperty key="log4j.configuration" value="etc/log.xml"/>
+      <sysproperty key="database.create-from-scratch" value="true"/>
+      <sysproperty key="database.kind" value="system_test"/>
+      <sysproperty key="script-folder" value="sourceTest"/>
+      <sysproperty key="mass-upload-folder" value="sourceTest/sql/postgresql"/>
+      <formatter type="xml"/>
+      <batchtest todir="${output.test}" haltonfailure="true">
+    	<fileset dir="${sources.test}">
+          <include name="**/web/client/**/*Test.java"/>
+        </fileset>   
+      </batchtest>
+    </junit>
+  </target>
+                
     <!-- 
     // Makes a distribution file.
     -->
