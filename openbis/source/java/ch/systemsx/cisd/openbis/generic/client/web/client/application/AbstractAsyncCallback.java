@@ -78,7 +78,6 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
     public void onFailure(Throwable caught)
     {
         callbackListener.onFailureOf(getThis(), caught);
-        System.out.println(caught);
         final String msg;
         if (caught instanceof InvocationException)
         {
