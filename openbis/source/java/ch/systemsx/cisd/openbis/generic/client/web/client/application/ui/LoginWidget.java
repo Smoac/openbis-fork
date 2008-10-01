@@ -36,13 +36,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
  */
 public class LoginWidget extends VerticalPanel
 {
-    static final class LoginCallback extends AbstractAsyncCallback<SessionContext>
+    private static final class LoginCallback extends AbstractAsyncCallback<SessionContext>
     {
-        /**
-         *
-         *
-         * @param viewContext
-         */
         private LoginCallback(GenericViewContext viewContext)
         {
             super(viewContext);
@@ -55,17 +50,19 @@ public class LoginWidget extends VerticalPanel
         }
     }
 
-    private static final String PREFIX = GenericConstants.ID_PREFIX + "login_";
+    private static final String PREFIX = "login_";
+    private static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
-    static final String USER_FIELD_ID = PREFIX + "user";
-    static final String PASSWORD_FIELD_ID = PREFIX + "password";
-    static final String BUTTON_ID = PREFIX + "button";
+    static final String USER_FIELD_ID = ID_PREFIX + "user";
+    static final String PASSWORD_FIELD_ID = ID_PREFIX + "password";
+    static final String BUTTON_ID = ID_PREFIX + "button";
     
     private final TextField<String> userField;
     private final TextField<String> passwordField;
 
     public LoginWidget(final GenericViewContext viewContext)
     {
+        final LoginCallback loginCallback = new LoginCallback(viewContext);
         add(new Text(viewContext.getMessage(PREFIX + "invitation")));
         
         FormPanel formPanel = new FormPanel();
@@ -94,19 +91,14 @@ public class LoginWidget extends VerticalPanel
                 @Override
                 public void componentSelected(ComponentEvent ce)
                 {
-                    login(viewContext);
+                    String user = userField.getValue();
+                    String password = passwordField.getValue();
+                    viewContext.getService().tryToLogin(user, password, loginCallback);
                 }
             });
         formPanel.addButton(button);
         
         add(formPanel);
-    }
-    
-    private void login(final GenericViewContext viewContext)
-    {
-        viewContext.getService().tryToLogin(userField.getValue(), passwordField.getValue(),
-                new LoginCallback(viewContext));
-        
     }
     
 }

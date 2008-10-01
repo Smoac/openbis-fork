@@ -20,15 +20,15 @@ import junit.framework.Assert;
 
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
-import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.SessionContextCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CallbackClassCondition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.ITestCommandWithCondition;
 
 /**
- * 
+ * Command for logout after {@link SessionContextCallback} has finished.
  *
  * @author Franz-Josef Elmer
  */
@@ -36,12 +36,11 @@ public class LogoutCommand extends CallbackClassCondition implements ITestComman
 {
     public LogoutCommand()
     {
-        super(LoginWidget.LoginCallback.class);
+        super(SessionContextCallback.class);
     }
 
     public void execute()
     {
-        System.out.println(RootPanel.get());
         Widget w = GWTTestUtil.getWidgetWithID(TopMenu.LOGOUT_BUTTON_ID);
         Assert.assertTrue("Widget '" + TopMenu.LOGOUT_BUTTON_ID + "' is not a TextToolItem",
                 w instanceof TextToolItem);

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.Assert;
@@ -28,6 +29,8 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.ui.ComplexPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 
 /**
  * Useful static methods for testing.
@@ -43,12 +46,12 @@ public class GWTTestUtil
     /**
      * Gets the {@link Button} with specified id.
      * 
-     * @throws AssertionError if not found or isn't a text field.
+     * @throws AssertionError if not found or isn't a button.
      */
     public static Button getButtonWithID(String id)
     {
         Widget widget = tryToFindByID(id);
-        Assert.assertNotNull("Button '" + id + "' not found.", widget);
+        assertWidgetFound("Button", id, widget);
         Assert.assertTrue("Widget '" + id + "' isn't a Button: " + widget.getClass(),
                 widget instanceof Button);
         return (Button) widget;
@@ -63,7 +66,7 @@ public class GWTTestUtil
     public static <T> TextField<T> getTextFieldWithID(String id)
     {
         Widget widget = tryToFindByID(id);
-        Assert.assertNotNull("Text field '" + id + "' not found.", widget);
+        assertWidgetFound("Text field", id, widget);
         Assert.assertTrue("Widget '" + id + "' isn't a TextField: " + widget.getClass(),
                 widget instanceof TextField);
         return (TextField<T>) widget;
@@ -77,6 +80,22 @@ public class GWTTestUtil
     {
         return (T) tryToFindByID(id);
     }
+
+    /**
+     * Returns the ID of the specified widget.
+     */
+    public static String getWidgetID(Widget widget)
+    {
+        String widgetID;
+        if (widget instanceof Component)
+        {
+            widgetID = ((Component) widget).getId();
+        } else
+        {
+            widgetID = widget.getElement().getId();
+        }
+        return widgetID;
+    }
     
     public static Widget getWidgetWithID(String id)
     {
@@ -85,62 +104,136 @@ public class GWTTestUtil
         return widget;
     }
 
-    private static void assertWidgetFound(String widgetType, String id, Widget widgetOrNull)
-    {
-        if (widgetOrNull == null)
-        {
-            Assert.fail(widgetType + " '" + id + "' not found.");
-        }
-    }
-    
-    
     /**
      * Tries to find the widget with specified id.
      * 
      * @return <code>null</code> if not found.
      */
-    public static Widget tryToFindByID(String id)
+    public static Widget tryToFindByID(final String id)
     {
-        return tryToFindByID(RootPanel.get(), id);
+        WidgetPicker widgetPicker = new WidgetPicker(id);
+        traverseRootPanel(widgetPicker);
+        return widgetPicker.tryToGetPickedWidget();
     }
 
-    @SuppressWarnings("unchecked")
-    private static Widget tryToFindByID(Widget widget, String id)
+    /**
+     * Traverses root panel tree with the specified widget handler. Traversal is stopped
+     * when {@link IWidgetHandler#handle(Widget)} returns <code>true</code>.
+     */
+    public static void traverseRootPanel(IWidgetHandler<Widget> handler)
     {
-        Widget result = null;
-        if (id.equals(widget.getElement().getId()))
+        new WidgetTreeTraverser(handler).handle(RootPanel.get());
+    }
+
+    private static void assertWidgetFound(String widgetType, String id, Widget widgetOrNull)
+    {
+        if (widgetOrNull == null)
         {
-            result = widget;
-        } else if ((widget instanceof Component) && id.equals(((Component) widget).getId()))
-        {
-            result = widget;
-        } else if (widget instanceof ComplexPanel)
-        {
-            ComplexPanel panel = (ComplexPanel) widget;
-            for (int i = 0, n = panel.getWidgetCount(); i < n && result == null; i++)
+            List<String> ids = findWidgetWithIDsStartingWith(GenericConstants.ID_PREFIX);
+            Assert.fail(widgetType + " '" + id + "' not found on page with following IDs: " + ids);
+        }
+    }
+    
+    private static List<String> findWidgetWithIDsStartingWith(final String idPrefix)
+    {
+        final List<String> ids = new ArrayList<String>();
+        traverseRootPanel(new IWidgetHandler<Widget>()
             {
-                result = tryToFindByID(panel.getWidget(i), id);
-            }
-        } else if (widget instanceof Container)
-        {
-            Container<Component> container = (Container<Component>) widget;
-            List<Component> items = container.getItems();
-            for (int i = 0, n = items.size(); i < n && result == null; i++)
-            {
-                result = tryToFindByID(items.get(i), id);
-            }
-            if (result == null && widget instanceof ContentPanel)
-            {
-                ContentPanel contentPanel = (ContentPanel) widget;
-                List<Button> buttons = contentPanel.getButtonBar().getItems();
-                for (int i = 0, n = buttons.size(); i < n && result == null; i++)
+                public boolean handle(Widget widget)
                 {
-                    result = tryToFindByID(buttons.get(i), id);
+                    String widgetID = getWidgetID(widget);
+                    if (widgetID.startsWith(idPrefix))
+                    {
+                        ids.add(widgetID);
+                    }
+                    return false;
                 }
+            });
+        return ids;
+    }
+    
+    private static final class WidgetTreeTraverser implements IWidgetHandler<Widget>
+    {
+        private final IWidgetHandler<Widget> handler;
+
+        WidgetTreeTraverser(IWidgetHandler<Widget> handler)
+        {
+            this.handler = handler;
+        }
+        
+        @SuppressWarnings("unchecked")
+        public boolean handle(Widget widget)
+        {
+            if (widget instanceof ComplexPanel)
+            {
+                return new ComplexPanelHandler(this).handle((ComplexPanel) widget);
+            } else if (widget instanceof Container)
+            {
+                return new ContainerHandler(this).handle((Container<Component>) widget);
+            } else 
+            {
+                return handler.handle(widget);
             }
         }
-        return result;
+        
     }
+    
+    private static final class ComplexPanelHandler implements IWidgetHandler<ComplexPanel>
+    {
+        private final IWidgetHandler<Widget> handler;
 
+        ComplexPanelHandler(IWidgetHandler<Widget> handler)
+        {
+            this.handler = handler;
+        }
 
+        public boolean handle(ComplexPanel panel)
+        {
+            for (int i = 0, n = panel.getWidgetCount(); i < n; i++)
+            {
+                if (handler.handle(panel.getWidget(i)))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+    
+    private static final class ContainerHandler implements IWidgetHandler<Container<Component>>
+    {
+        private final IWidgetHandler<Widget> handler;
+
+        ContainerHandler(IWidgetHandler<Widget> handler)
+        {
+            this.handler = handler;
+        }
+
+        public boolean handle(Container<Component> container)
+        {
+            List<Component> items = container.getItems();
+            for (int i = 0, n = items.size(); i < n; i++)
+            {
+                if (handler.handle(items.get(i)))
+                {
+                    return true;
+                }
+            }
+            if (container instanceof ContentPanel)
+            {
+                ContentPanel contentPanel = (ContentPanel) container;
+                List<Button> buttons = contentPanel.getButtonBar().getItems();
+                for (int i = 0, n = buttons.size(); i < n; i++)
+                {
+                    if (handler.handle(buttons.get(i)))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        
+    }
+    
 }

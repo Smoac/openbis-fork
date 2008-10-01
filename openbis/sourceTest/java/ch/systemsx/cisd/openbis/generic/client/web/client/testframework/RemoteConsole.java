@@ -91,7 +91,6 @@ public class RemoteConsole
 
                 public void finishOnSuccessOf(AsyncCallback<Object> callback, Object result)
                 {
-                    System.out.println(entryIndex + "/" + entries.size() + ": " + callback);
                     if (entryIndex < entries.size()
                             && entries.get(entryIndex).condition.valid(callback, result))
                     {

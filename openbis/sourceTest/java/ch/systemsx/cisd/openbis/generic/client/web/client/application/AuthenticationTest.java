@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.RemoteCo
  *
  * @author Franz-Josef Elmer
  */
-public class ClientTest extends AbstractGWTTestCase
+public class AuthenticationTest extends AbstractGWTTestCase
 {
 
     private RemoteConsole remoteConsole;
@@ -38,13 +38,14 @@ public class ClientTest extends AbstractGWTTestCase
     protected void gwtSetUp() throws Exception
     {
         remoteConsole = new RemoteConsole(this);
+        System.out.println("TEST: " + getName());
     }
 
     public void testLogin() throws Exception
     {
         final Client client = new Client();
         client.onModuleLoad();
-        remoteConsole.prepare(new LoginCommand("test", "blabla")).prepare(new LogoutCommand()).finish(10000);
+        remoteConsole.prepare(new LoginCommand("test", "")).prepare(new LogoutCommand()).finish(10000);
     }
     
     public void testFailedLogin() throws Exception

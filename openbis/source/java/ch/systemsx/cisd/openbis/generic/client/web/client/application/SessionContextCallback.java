@@ -39,6 +39,7 @@ public final class SessionContextCallback extends AbstractAsyncCallback<SessionC
     @Override
     public void process(SessionContext sessionContext)
     {
+        System.out.println("SessionContextCallback.process() "+sessionContext);
         RootPanel rootPanel = RootPanel.get();
         rootPanel.clear();
         Component widget;

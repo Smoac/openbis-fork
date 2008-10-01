@@ -41,8 +41,8 @@ public class Client implements EntryPoint
         if (viewContext == null)
         {
             viewContext = createViewContext();
+            loginCallback = new SessionContextCallback(viewContext);
         }
-        loginCallback = new SessionContextCallback(viewContext);
         final IGenericClientServiceAsync service = viewContext.getService();
         service.getApplicationInfo(new AbstractAsyncCallback<ApplicationInfo>(viewContext)
             {
