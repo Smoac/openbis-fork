@@ -78,7 +78,10 @@
         </property>
         <property name="hibernateProperties">
             <props>
-              <!--   
+            <!-- 
+                <prop key="hibernate.search.default.indexBase">./targets/indexes</prop> 
+                <prop key="hibernate.search.default.directory_provider">org.hibernate.search.store.FSDirectoryProvider</prop>
+             
                 <prop key="hibernate.show_sql">true</prop>
                 <prop key="hibernate.format_sql">true</prop>
                 <prop key="hibernate.cache.use_query_cache">true</prop>

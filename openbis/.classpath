@@ -38,5 +38,8 @@
 	<classpathentry kind="lib" path="/libraries/spring/test/spring-test.jar" sourcepath="/libraries/spring/test/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/commons-collections/commons-collections.jar" sourcepath="/libraries/commons-collections/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/junit/junit.jar"/>
+	<classpathentry kind="lib" path="/libraries/hibernate-search/hibernate-search.jar"/>
+	<classpathentry kind="lib" path="/libraries/hibernate-search/jms.jar"/>
+	<classpathentry kind="lib" path="/libraries/hibernate-search/lucene-core-2.3.0.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
