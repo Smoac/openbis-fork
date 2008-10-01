@@ -16,34 +16,45 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.SessionContextCallback;
+import junit.framework.Assert;
+
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.google.gwt.user.client.ui.Widget;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CallbackClassCondition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.ITestCommandWithCondition;
 
 /**
- * Command for login after {@link SessionContextCallback} has finished.
+ * 
  *
  * @author Franz-Josef Elmer
  */
-public class LoginCommand extends CallbackClassCondition implements ITestCommandWithCondition<Object>
+public class CheckGroupCommand extends CallbackClassCondition implements ITestCommandWithCondition<Object>
 {
-    private final String user;
-    private final String password;
 
-    public LoginCommand(String user, String password)
+    private final String groupCode;
+
+    public CheckGroupCommand(String groupCode)
     {
-        super(SessionContextCallback.class);
-        this.user = user;
-        this.password = password;
+        super(AddGroupDialog.RegisterGroupCallback.class);
+        this.groupCode = groupCode;
     }
 
     @SuppressWarnings("unchecked")
     public void execute()
     {
-        GWTTestUtil.<String>getTextFieldWithID(LoginWidget.USER_FIELD_ID).setValue(user);
-        GWTTestUtil.<String>getTextFieldWithID(LoginWidget.PASSWORD_FIELD_ID).setValue(password);
-        GWTTestUtil.clickButtonWithID(LoginWidget.BUTTON_ID);
+        Widget widget = GWTTestUtil.getWidgetWithID(GroupsView.TABLE_ID);
+        Assert.assertTrue(widget instanceof Grid);
+        Grid<GroupModel> table = (Grid<GroupModel>) widget;
+        ListStore<GroupModel> store = table.getStore();
+        for (int i = 0, n = store.getCount(); i < n; i++)
+        {
+            GroupModel groupModel = store.getAt(i);
+            Object value = groupModel.get(GroupModel.CODE);
+            System.out.println(i+":"+value+" "+groupCode);
+        }
     }
 
 }

@@ -44,6 +44,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.i18n.client.DateTimeFormat;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
@@ -55,6 +56,24 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
  */
 public class GroupsView extends LayoutContainer
 {
+    private static final String PREFIX = "groups-view_";
+    
+    static final String TABLE_ID = GenericConstants.ID_PREFIX + PREFIX + "table";
+    static final String ADD_BUTTON_ID = GenericConstants.ID_PREFIX + PREFIX + "add-button";
+    
+    final class ListGroupsCallback extends AbstractAsyncCallback<List<Group>>
+    {
+        private ListGroupsCallback(GenericViewContext viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        public void process(List<Group> groups)
+        {
+            display(groups);
+        }
+    }
 
     private final GenericViewContext viewContext;
 
@@ -131,9 +150,10 @@ public class GroupsView extends LayoutContainer
         Grid<GroupModel> grid = new Grid<GroupModel>(store, cm);
         grid.addPlugin(expander);
         grid.setBorders(true);
+        grid.setId(TABLE_ID);
 
         cp.add(grid);
-        Button addGroupBtton = new Button("Add group", new SelectionListener<ComponentEvent>()
+        Button addGroupButton = new Button("Add group", new SelectionListener<ComponentEvent>()
             {
                 @Override
                 public void componentSelected(ComponentEvent ce)
@@ -141,12 +161,13 @@ public class GroupsView extends LayoutContainer
                     new AddGroupDialog(viewContext, groupList).show();
                 }
             });
+        addGroupButton.setId(ADD_BUTTON_ID);
 
         ToolBar toolBar = new ToolBar();
         toolBar.add(new LabelToolItem("Filter:"));
         toolBar.add(new AdapterToolItem(new ColumnFilter<GroupModel>(store, "code", "code")));
         toolBar.add(new SeparatorToolItem());
-        toolBar.add(new AdapterToolItem(addGroupBtton));
+        toolBar.add(new AdapterToolItem(addGroupButton));
         cp.setBottomComponent(toolBar);
 
         add(cp);
@@ -168,14 +189,6 @@ public class GroupsView extends LayoutContainer
     {
         removeAll();
         add(new Text("data loading..."));
-        viewContext.getService().listGroups(null,
-                new AbstractAsyncCallback<List<Group>>(viewContext)
-                    {
-                        @Override
-                        public void process(List<Group> groups)
-                        {
-                            display(groups);
-                        }
-                    });
+        viewContext.getService().listGroups(null, new ListGroupsCallback(viewContext));
     }
 }

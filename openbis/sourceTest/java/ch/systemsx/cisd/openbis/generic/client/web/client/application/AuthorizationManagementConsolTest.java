@@ -16,19 +16,18 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.CheckGroupCommand;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.CreateGroupCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoginCommand;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LogoutCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.RemoteConsole;
-
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class AuthenticationTest extends AbstractGWTTestCase
+public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
 {
     private RemoteConsole remoteConsole;
     
@@ -38,22 +37,15 @@ public class AuthenticationTest extends AbstractGWTTestCase
         remoteConsole = new RemoteConsole(this);
         System.out.println("TEST: " + getName());
     }
-
-    public void testLogin() throws Exception
+    
+    public void testCreateGroup()
     {
         final Client client = new Client();
         client.onModuleLoad();
         remoteConsole.prepare(new LoginCommand("a", "a"));
-        remoteConsole.prepare(new LogoutCommand()).finish(10000);
+        remoteConsole.prepare(new CreateGroupCommand("test-group"));
+        remoteConsole.prepare(new CheckGroupCommand("test-group")).finish(10000);
+        
     }
-    
-    public void testFailedLogin() throws Exception
-    {
-        final Client client = new Client();
-        client.onModuleLoad();
-        remoteConsole.prepare(new LoginCommand("u", ""));
-        remoteConsole.prepare(new LogoutCommand()).finish(10000);
-    }
-    
-    
+
 }

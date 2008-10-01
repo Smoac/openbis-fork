@@ -30,5 +30,5 @@ public interface IWidgetHandler<W extends Widget>
      * 
      * @return <code>true</code> if traversing should be stopped.
      */
-    public boolean handle(W widget);
+    public boolean handle(W widgetOrNull);
 }

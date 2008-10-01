@@ -16,34 +16,33 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.SessionContextCallback;
+import com.extjs.gxt.ui.client.Events;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CallbackClassCondition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.ITestCommandWithCondition;
 
 /**
- * Command for login after {@link SessionContextCallback} has finished.
+ * 
  *
  * @author Franz-Josef Elmer
  */
-public class LoginCommand extends CallbackClassCondition implements ITestCommandWithCondition<Object>
+public class CreateGroupCommand extends CallbackClassCondition implements ITestCommandWithCondition<Object>
 {
-    private final String user;
-    private final String password;
 
-    public LoginCommand(String user, String password)
+    private final String groupCode;
+
+    public CreateGroupCommand(String groupCode)
     {
-        super(SessionContextCallback.class);
-        this.user = user;
-        this.password = password;
+        super(GroupsView.ListGroupsCallback.class);
+        this.groupCode = groupCode;
     }
 
-    @SuppressWarnings("unchecked")
     public void execute()
     {
-        GWTTestUtil.<String>getTextFieldWithID(LoginWidget.USER_FIELD_ID).setValue(user);
-        GWTTestUtil.<String>getTextFieldWithID(LoginWidget.PASSWORD_FIELD_ID).setValue(password);
-        GWTTestUtil.clickButtonWithID(LoginWidget.BUTTON_ID);
+        GWTTestUtil.clickButtonWithID(GroupsView.ADD_BUTTON_ID);
+        GWTTestUtil.getTextFieldWithID(AddGroupDialog.CODE_FIELD_ID).setValue(groupCode);
+        GWTTestUtil.clickButtonWithID(AddGroupDialog.SAVE_BUTTON_ID);
     }
 
 }

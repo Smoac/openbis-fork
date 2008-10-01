@@ -24,6 +24,7 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 
 /**
@@ -34,6 +35,26 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericVie
  */
 public class AddGroupDialog extends Window
 {
+    final class RegisterGroupCallback extends AbstractAsyncCallback<Void>
+    {
+        private RegisterGroupCallback(GenericViewContext viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        public void process(Void result)
+        {
+            hide();
+            groupList.refresh();
+
+        }
+    }
+
+    private static final String PREFIX = "add-group_";
+    
+    static final String CODE_FIELD_ID = GenericConstants.ID_PREFIX + PREFIX + "code-field";
+    static final String SAVE_BUTTON_ID = GenericConstants.ID_PREFIX + PREFIX + "save-button";
 
     private final GroupsView groupList;
 
@@ -52,31 +73,25 @@ public class AddGroupDialog extends Window
         codeField.setWidth(100);
         codeField.setFieldLabel("Code");
         codeField.setAllowBlank(false);
+        codeField.setId(CODE_FIELD_ID);
         form.add(codeField);
 
         final TextField<String> descriptionField = new TextField<String>();
         descriptionField.setFieldLabel("Description");
         form.add(descriptionField);
 
-        addButton(new Button("Save", new SelectionListener<ComponentEvent>()
+        Button saveButton = new Button("Save", new SelectionListener<ComponentEvent>()
             {
                 @Override
                 public void componentSelected(ComponentEvent ce)
                 {
                     viewContext.getService().registerGroup(codeField.getValue(),
                             descriptionField.getValue(), null,
-                            new AbstractAsyncCallback<Void>(viewContext)
-                                {
-                                    @Override
-                                    public void process(Void result)
-                                    {
-                                        hide();
-                                        groupList.refresh();
-
-                                    }
-                                });
+                            new RegisterGroupCallback(viewContext));
                 }
-            }));
+            });
+        saveButton.setId(SAVE_BUTTON_ID);
+        addButton(saveButton);
         addButton(new Button("Cancel", new SelectionListener<ComponentEvent>()
             {
                 @Override

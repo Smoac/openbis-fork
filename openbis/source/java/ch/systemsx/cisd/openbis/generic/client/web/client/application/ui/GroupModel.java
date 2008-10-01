@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
  */
 public class GroupModel extends BaseModelData
 {
+    static final String CODE = "code";
 
     private static final long serialVersionUID = 1L;
 
@@ -37,7 +38,7 @@ public class GroupModel extends BaseModelData
 
     public GroupModel(Group g)
     {
-        set("code", g.getCode());
+        set(CODE, g.getCode());
         set("description", g.getDescription());
         set("leader", g.getLeader());
         set("registrator", g.getRegistrator());

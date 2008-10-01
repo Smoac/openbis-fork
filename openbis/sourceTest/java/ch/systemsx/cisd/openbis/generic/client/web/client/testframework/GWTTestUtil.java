@@ -21,11 +21,14 @@ import java.util.List;
 
 import junit.framework.Assert;
 
+import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Container;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.ComplexPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -44,17 +47,17 @@ public class GWTTestUtil
     }
     
     /**
-     * Gets the {@link Button} with specified id.
+     * Clicks on the {@link Button} with specified id.
      * 
      * @throws AssertionError if not found or isn't a button.
      */
-    public static Button getButtonWithID(String id)
+    public static void clickButtonWithID(String id)
     {
         Widget widget = tryToFindByID(id);
         assertWidgetFound("Button", id, widget);
         Assert.assertTrue("Widget '" + id + "' isn't a Button: " + widget.getClass(),
                 widget instanceof Button);
-        return (Button) widget;
+        ((Button) widget).fireEvent(Events.Select);
     }
     
     /**
@@ -83,18 +86,25 @@ public class GWTTestUtil
 
     /**
      * Returns the ID of the specified widget.
+     * 
+     * @return <code>null</code> if there is no ID.
      */
-    public static String getWidgetID(Widget widget)
+    public static String tryToGetWidgetID(Widget widgetOrNull)
     {
-        String widgetID;
-        if (widget instanceof Component)
+        if (widgetOrNull == null)
         {
-            widgetID = ((Component) widget).getId();
-        } else
-        {
-            widgetID = widget.getElement().getId();
+            return null;
         }
-        return widgetID;
+        if (widgetOrNull instanceof Component)
+        {
+            return ((Component) widgetOrNull).getId();
+        }
+        Element element = widgetOrNull.getElement();
+        if (element == null)
+        {
+            return null;
+        }
+        return element.getId();
     }
     
     public static Widget getWidgetWithID(String id)
@@ -139,10 +149,10 @@ public class GWTTestUtil
         final List<String> ids = new ArrayList<String>();
         traverseRootPanel(new IWidgetHandler<Widget>()
             {
-                public boolean handle(Widget widget)
+                public boolean handle(Widget widgetOrNull)
                 {
-                    String widgetID = getWidgetID(widget);
-                    if (widgetID.startsWith(idPrefix))
+                    String widgetID = tryToGetWidgetID(widgetOrNull);
+                    if (widgetID != null && widgetID.startsWith(idPrefix))
                     {
                         ids.add(widgetID);
                     }
@@ -162,17 +172,20 @@ public class GWTTestUtil
         }
         
         @SuppressWarnings("unchecked")
-        public boolean handle(Widget widget)
+        public boolean handle(Widget widgetOrNull)
         {
-            if (widget instanceof ComplexPanel)
+            if (widgetOrNull instanceof ComplexPanel)
             {
-                return new ComplexPanelHandler(this).handle((ComplexPanel) widget);
-            } else if (widget instanceof Container)
+                return new ComplexPanelHandler(this).handle((ComplexPanel) widgetOrNull);
+            } else if (widgetOrNull instanceof Container)
             {
-                return new ContainerHandler(this).handle((Container<Component>) widget);
+                return new ContainerHandler(this).handle((Container<Component>) widgetOrNull);
+            } else if (widgetOrNull instanceof AdapterToolItem) 
+            {
+                return handler.handle(((AdapterToolItem) widgetOrNull).getWidget());
             } else 
             {
-                return handler.handle(widget);
+                return handler.handle(widgetOrNull);
             }
         }
         
@@ -229,6 +242,10 @@ public class GWTTestUtil
                     {
                         return true;
                     }
+                }
+                if (handler.handle(contentPanel.getBottomComponent()))
+                {
+                    return true;
                 }
             }
             return false;

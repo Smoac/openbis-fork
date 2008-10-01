@@ -45,11 +45,11 @@ public class WidgetPicker implements IWidgetHandler<Widget>
         return pickedWidget;
     }
 
-    public boolean handle(Widget widget)
+    public boolean handle(Widget widgetOrNull)
     {
-        if (id.equals(GWTTestUtil.getWidgetID(widget)))
+        if (id.equals(GWTTestUtil.tryToGetWidgetID(widgetOrNull)))
         {
-            pickedWidget = widget;
+            pickedWidget = widgetOrNull;
             return true;
         }
         return false;

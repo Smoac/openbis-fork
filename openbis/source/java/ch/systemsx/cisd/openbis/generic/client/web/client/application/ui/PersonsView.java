@@ -41,6 +41,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.i18n.client.DateTimeFormat;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 
@@ -51,6 +52,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
  */
 public class PersonsView extends LayoutContainer
 {
+    private static final String PREFIX = "persons-view_";
+    
+    static final String ADD_BUTTON_ID = GenericConstants.ID_PREFIX + PREFIX + "add-button";
 
     private final GenericViewContext viewContext;
 
@@ -143,6 +147,7 @@ public class PersonsView extends LayoutContainer
                     new AddPersonDialog(viewContext, personList).show();
                 }
             });
+        addPersonButton.setId(ADD_BUTTON_ID);
 
         ToolBar toolBar = new ToolBar();
         toolBar.add(new LabelToolItem("Filter:"));
