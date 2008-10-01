@@ -43,8 +43,9 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
         final Client client = new Client();
         client.onModuleLoad();
         remoteConsole.prepare(new LoginCommand("a", "a"));
-        remoteConsole.prepare(new CreateGroupCommand("test-group"));
-        remoteConsole.prepare(new CheckGroupCommand("test-group")).finish(10000);
+        String groupCode = "test-group";
+        remoteConsole.prepare(new CreateGroupCommand(groupCode));
+        remoteConsole.prepare(new CheckGroupCommand(groupCode.toUpperCase())).finish(10000);
         
     }
 

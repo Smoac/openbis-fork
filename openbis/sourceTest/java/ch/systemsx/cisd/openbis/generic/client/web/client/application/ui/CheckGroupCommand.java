@@ -38,7 +38,7 @@ public class CheckGroupCommand extends CallbackClassCondition implements ITestCo
 
     public CheckGroupCommand(String groupCode)
     {
-        super(AddGroupDialog.RegisterGroupCallback.class);
+        super(GroupsView.ListGroupsCallback.class);
         this.groupCode = groupCode;
     }
 
@@ -53,8 +53,12 @@ public class CheckGroupCommand extends CallbackClassCondition implements ITestCo
         {
             GroupModel groupModel = store.getAt(i);
             Object value = groupModel.get(GroupModel.CODE);
-            System.out.println(i+":"+value+" "+groupCode);
+            if (groupCode.equals(value))
+            {
+                return;
+            }
         }
+        Assert.fail("No group with code '" + groupCode + "' found.");
     }
 
 }
