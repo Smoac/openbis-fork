@@ -23,7 +23,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  *
  * @author Franz-Josef Elmer
  */
-interface ICallbackListener
+public interface ICallbackListener
 {
     /**
      * Handles invocations of {@link AsyncCallback#onFailure(Throwable)} of the specified

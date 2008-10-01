@@ -16,36 +16,37 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
-import com.extjs.gxt.ui.client.Events;
+import junit.framework.Assert;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.SessionContextCallback;
+import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
+import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.Widget;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CallbackClassCondition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.ITestCommandWithCondition;
 
 /**
- * Command for login after {@link SessionContextCallback} has finished.
+ * 
  *
  * @author Franz-Josef Elmer
  */
-public class LoginCommand extends CallbackClassCondition implements ITestCommandWithCondition<Object>
+public class LogoutCommand extends CallbackClassCondition implements ITestCommandWithCondition<Object>
 {
-    private final String user;
-    private final String password;
-
-    public LoginCommand(String user, String password)
+    public LogoutCommand()
     {
-        super(SessionContextCallback.class);
-        this.user = user;
-        this.password = password;
+        super(LoginWidget.LoginCallback.class);
     }
 
-    @SuppressWarnings("unchecked")
     public void execute()
     {
-        GWTTestUtil.<String>getTextFieldWithID(LoginWidget.USER_FIELD_ID).setValue(user);
-        GWTTestUtil.<String>getTextFieldWithID(LoginWidget.PASSWORD_FIELD_ID).setValue(password);
-        GWTTestUtil.getButtonWithID(LoginWidget.BUTTON_ID).fireEvent(Events.Select);
+        System.out.println(RootPanel.get());
+        Widget w = GWTTestUtil.getWidgetWithID(TopMenu.LOGOUT_BUTTON_ID);
+        Assert.assertTrue("Widget '" + TopMenu.LOGOUT_BUTTON_ID + "' is not a TextToolItem",
+                w instanceof TextToolItem);
+        TextToolItem textToolItem = (TextToolItem) w;
+        textToolItem.fireEvent(Events.Select);
     }
 
 }

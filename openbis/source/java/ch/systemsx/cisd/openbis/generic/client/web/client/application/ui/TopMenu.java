@@ -26,6 +26,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.User;
@@ -38,6 +39,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.User;
  */
 public class TopMenu extends LayoutContainer
 {
+    static final String LOGOUT_BUTTON_ID = GenericConstants.ID_PREFIX + "logout-button";
+    
     public TopMenu(final GenericViewContext viewContext)
     {
         setLayout(new FlowLayout());
@@ -53,6 +56,7 @@ public class TopMenu extends LayoutContainer
 
     class LogoutButton extends TextToolItem
     {
+
         public LogoutButton(final GenericViewContext viewContext)
         {
             super(viewContext.getMessage("header_logoutButtonLabel"));
@@ -74,6 +78,7 @@ public class TopMenu extends LayoutContainer
                     }
                 };
             addSelectionListener(listener);
+            setId(LOGOUT_BUTTON_ID);
         }
     }
 

@@ -14,14 +14,22 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application;
+package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
+
+import org.aopalliance.intercept.Invocation;
+
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
- * Interface of all test commands which knows also their condition for execution.
- *
+ * A commad which will be executed after a successful {@link Invocation} of
+ * {@link AsyncCallback#onSuccess(Object)}.
+ * 
  * @author Franz-Josef Elmer
  */
-public interface ITestCommandWithCondition<T> extends ITestCommand, ICallbackCondition<T>
+public interface ITestCommand
 {
-
+    /**
+     * Executes this command.
+     */
+    public void execute();
 }

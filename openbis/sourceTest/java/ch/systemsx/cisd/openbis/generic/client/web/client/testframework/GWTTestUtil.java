@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application;
+package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 
 import java.util.List;
 
@@ -77,6 +77,22 @@ public class GWTTestUtil
     {
         return (T) tryToFindByID(id);
     }
+    
+    public static Widget getWidgetWithID(String id)
+    {
+        Widget widget = tryToFindByID(id);
+        assertWidgetFound("Widget", id, widget);
+        return widget;
+    }
+
+    private static void assertWidgetFound(String widgetType, String id, Widget widgetOrNull)
+    {
+        if (widgetOrNull == null)
+        {
+            Assert.fail(widgetType + " '" + id + "' not found.");
+        }
+    }
+    
     
     /**
      * Tries to find the widget with specified id.

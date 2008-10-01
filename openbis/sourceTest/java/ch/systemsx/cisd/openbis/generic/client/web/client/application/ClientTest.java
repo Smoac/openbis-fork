@@ -18,6 +18,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoginCommand;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LogoutCommand;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.RemoteConsole;
 
 
 /**
@@ -41,7 +44,7 @@ public class ClientTest extends AbstractGWTTestCase
     {
         final Client client = new Client();
         client.onModuleLoad();
-        remoteConsole.prepare(new LoginCommand("test", "blabla")).finish(10000);
+        remoteConsole.prepare(new LoginCommand("test", "blabla")).prepare(new LogoutCommand()).finish(10000);
     }
     
     public void testFailedLogin() throws Exception

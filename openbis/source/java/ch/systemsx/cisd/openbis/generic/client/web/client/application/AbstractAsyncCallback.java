@@ -54,7 +54,7 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
     /**
      * Sets the global callback listener. Note: THIS METHOD SHOULD ONLY BE USED IN TEST CODE.
      */
-    static void setCallbackListener(ICallbackListener listenerOrNull)
+    public static void setCallbackListener(ICallbackListener listenerOrNull)
     {
         callbackListener = listenerOrNull == null ? DUMMY_LISTENER : listenerOrNull;
     }

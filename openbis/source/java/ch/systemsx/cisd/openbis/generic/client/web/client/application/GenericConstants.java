@@ -25,6 +25,11 @@ import com.google.gwt.core.client.GWT;
  */
 public class GenericConstants
 {
+    /**
+     * Prefix all widget IDs have to start with.
+     */
+    public static final String ID_PREFIX = "openbis_";
+    
     private static final String APPLICATION_NAME = "genericopenbis";
     
     public static final String SERVER_NAME = createServicePath("generic");

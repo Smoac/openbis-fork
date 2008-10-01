@@ -25,6 +25,7 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 
@@ -35,7 +36,26 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
  */
 public class LoginWidget extends VerticalPanel
 {
-    private static final String PREFIX = "login_";
+    static final class LoginCallback extends AbstractAsyncCallback<SessionContext>
+    {
+        /**
+         *
+         *
+         * @param viewContext
+         */
+        private LoginCallback(GenericViewContext viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        public void process(SessionContext sessionContext)
+        {
+            viewContext.getPageController().reload();
+        }
+    }
+
+    private static final String PREFIX = GenericConstants.ID_PREFIX + "login_";
 
     static final String USER_FIELD_ID = PREFIX + "user";
     static final String PASSWORD_FIELD_ID = PREFIX + "password";
@@ -85,14 +105,7 @@ public class LoginWidget extends VerticalPanel
     private void login(final GenericViewContext viewContext)
     {
         viewContext.getService().tryToLogin(userField.getValue(), passwordField.getValue(),
-                new AbstractAsyncCallback<SessionContext>(viewContext)
-                    {
-                        @Override
-                        public void process(SessionContext sessionContext)
-                        {
-                            viewContext.getPageController().reload();
-                        }
-                    });
+                new LoginCallback(viewContext));
         
     }
     

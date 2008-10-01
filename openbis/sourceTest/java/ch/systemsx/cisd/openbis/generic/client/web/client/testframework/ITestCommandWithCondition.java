@@ -14,20 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application;
-
-import com.google.gwt.user.client.rpc.AsyncCallback;
+package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 
 /**
- * Condition a callback object and/or the result delivered by the callback object have
- * to fulfilled in order to execute a {@link ITestCommand} in {@link RemoteConsole}.
+ * Interface of all test commands which knows also their condition for execution.
  *
  * @author Franz-Josef Elmer
  */
-public interface ICallbackCondition<T>
+public interface ITestCommandWithCondition<T> extends ITestCommand, ICallbackCondition<T>
 {
-    /**
-     * Returns <code>true</code> if the condition is fulfilled.
-     */
-    public boolean valid(AsyncCallback<T> callback, T result);
+
 }

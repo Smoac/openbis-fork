@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application;
+package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,12 +24,15 @@ import junit.framework.Assert;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ICallbackListener;
+
 /**
  * A class which allows to execute a sequence of {@link ITestCommand} instances. The commands are
  * executed in the order they have been added by the various prepare methods. A
  * {@link ICallbackCondition} has to be fulfilled before the next command is executed. This
  * condition is checked after each successful invocation of
- * {@link AbstractAsyncCallback#process(Object)}. With the method {@link #finish(int)} a timeout
+ * {@link AsyncCallback#onSuccess(Object)}. With the method {@link #finish(int)} a timeout
  * will be specified after which the test will be terminated independent whether all commands have
  * been executed or not. In the later case the test fails.
  * 
