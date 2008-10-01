@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -41,6 +42,45 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
 public final class SampleTypePE extends EntityTypePE
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
+
+    private boolean isListable;
+
+    private int generatedFromHierarchyDepth;
+
+    private int partOfHierarchyDepth;
+
+    @Column(name = ColumnNames.IS_LISTABLE)
+    public boolean isListable()
+    {
+        return isListable;
+    }
+
+    public void setListable(boolean isListable)
+    {
+        this.isListable = isListable;
+    }
+
+    @Column(name = ColumnNames.GENERATED_FROM_DEPTH)
+    public int getGeneratedFromHierarchyDepth()
+    {
+        return generatedFromHierarchyDepth;
+    }
+
+    public void setGeneratedFromHierarchyDepth(int generatedFromHierarchyDepth)
+    {
+        this.generatedFromHierarchyDepth = generatedFromHierarchyDepth;
+    }
+
+    @Column(name = ColumnNames.PART_OF_DEPTH)
+    public int getPartOfHierarchyDepth()
+    {
+        return partOfHierarchyDepth;
+    }
+
+    public void setPartOfHierarchyDepth(int partOfHierarchyDepth)
+    {
+        this.partOfHierarchyDepth = partOfHierarchyDepth;
+    }
 
     @Transient
     public final boolean isPlate()

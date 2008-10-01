@@ -47,6 +47,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationsDepthDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
@@ -322,6 +325,19 @@ public class GenericServer implements IGenericServer, ISessionProvider,
         List<PersonPE> persons = daoFactory.getPersonDAO().listPersons();
         Collections.sort(persons);
         return persons;
+    }
+
+    public List<SampleTypePE> listSampleTypes(String sessionToken)
+    {
+        sessionManager.getSession(sessionToken);
+        return daoFactory.getSampleTypeDAO().listSampleTypes(true);
+    }
+
+    public List<SamplePE> listSamples(String sessionToken, SampleTypePE sampleType,
+            SampleRelationsDepthDTO displayProperties)
+    {
+        sessionManager.getSession(sessionToken);
+        return daoFactory.getSampleDAO().listSamples(sampleType, displayProperties);
     }
 
 }

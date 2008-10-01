@@ -20,18 +20,36 @@ import org.hibernate.SessionFactory;
 
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DAOFactory extends AuthorizationDAOFactory implements IDAOFactory
 {
+    private final ISampleDAO sampleDAO;
+
+    private final ISampleTypeDAO sampleTypeDAO;
 
     public DAOFactory(DatabaseConfigurationContext context, SessionFactory sessionFactory)
     {
         super(context, sessionFactory);
+        DatabaseInstancePE databaseInstance = getHomeDatabaseInstance();
+
+        sampleDAO = new SampleDAO(sessionFactory, databaseInstance);
+        sampleTypeDAO = new SampleTypeDAO(sessionFactory, databaseInstance);
+    }
+
+    public ISampleDAO getSampleDAO()
+    {
+        return sampleDAO;
+    }
+
+    public ISampleTypeDAO getSampleTypeDAO()
+    {
+        return sampleTypeDAO;
     }
 
 }

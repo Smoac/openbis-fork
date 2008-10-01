@@ -70,26 +70,67 @@
         <property name="annotatedClasses">
             <list>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE</value>
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE</value>
+
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE</value>
+
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.ProcedureTypePE</value>
+
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE</value>
+
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE</value>
+
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE</value>
+
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePropertyTypePE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePropertyTypePE</value>
+
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE</value>
+
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.FileAttachmentPE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE</value>
+
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.DataPE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE</value>
+
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE</value>
+
+
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.MaterialBatchPE</value>
             </list>
         </property>
         <property name="hibernateProperties">
             <props>
-            <!-- 
-                <prop key="hibernate.search.default.indexBase">./targets/indexes</prop> 
-                <prop key="hibernate.search.default.directory_provider">org.hibernate.search.store.FSDirectoryProvider</prop>
-             
-                <prop key="hibernate.show_sql">true</prop>
-                <prop key="hibernate.format_sql">true</prop>
                 <prop key="hibernate.cache.use_query_cache">true</prop>
                 <prop key="hibernate.cache.provider_class">
                     org.hibernate.cache.EhCacheProvider
                 </prop>
-                <prop key="hibernate.use_sql_comments">true</prop>
-              -->
+                <!--   
+                    <prop key="hibernate.search.default.indexBase">./targets/indexes</prop> 
+                    <prop key="hibernate.search.default.directory_provider">org.hibernate.search.store.FSDirectoryProvider</prop>
+               
+                    <prop key="hibernate.show_sql">true</prop>
+                    <prop key="hibernate.format_sql">true</prop>
+                    <prop key="hibernate.use_sql_comments">true</prop>
+                -->
             </props>
         </property>
     </bean>

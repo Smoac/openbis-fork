@@ -16,14 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
+import java.util.List;
+
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationsDepthDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+
 /**
- * @author Franz-Josef Elmer
+ * @author Tomasz Pylak
  */
-public interface IDAOFactory extends IAuthorizationDAOFactory
+public interface ISampleDAO
 {
-
-    ISampleDAO getSampleDAO();
-
-    ISampleTypeDAO getSampleTypeDAO();
-
+    List<SamplePE> listSamples(SampleTypePE sampleType, SampleRelationsDepthDTO displayProperties);
 }

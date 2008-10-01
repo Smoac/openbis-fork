@@ -30,6 +30,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationsDepthDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
@@ -66,6 +69,11 @@ class GenericServerLogger implements IGenericServer, ISessionProvider
         this.sessionManager = sessionManager;
         this.invocationSuccessful = invocationSuccessful;
         logMessagePrefixGenerator = new LogMessagePrefixGenerator();
+    }
+
+    private void logAccess(final String sessionToken, final String commandName)
+    {
+        logAccess(sessionToken, commandName, "");
     }
 
     private void logAccess(final String sessionToken, final String commandName,
@@ -143,7 +151,7 @@ class GenericServerLogger implements IGenericServer, ISessionProvider
         String command = "list_groups";
         if (identifier == null || identifier.getDatabaseInstanceCode() == null)
         {
-            logAccess(sessionToken, command, "");
+            logAccess(sessionToken, command);
         } else
         {
             logAccess(sessionToken, command, "DATABASE-INSTANCE(%s)", identifier);
@@ -159,9 +167,7 @@ class GenericServerLogger implements IGenericServer, ISessionProvider
 
     public List<PersonPE> listPersons(String sessionToken)
     {
-        String command = "list_persons";
-        logAccess(sessionToken, command, "");
-
+        logAccess(sessionToken, "list_persons");
         return null;
     }
 
@@ -173,7 +179,7 @@ class GenericServerLogger implements IGenericServer, ISessionProvider
 
     public List<RoleAssignmentPE> listRoles(String sessionToken)
     {
-        logAccess(sessionToken, "list_roles", "");
+        logAccess(sessionToken, "list_roles");
         return null;
     }
 
@@ -203,6 +209,20 @@ class GenericServerLogger implements IGenericServer, ISessionProvider
     {
         logTracking(sessionToken, "delete_role", "ROLE(%s) PERSON(%s)", roleCode, person);
 
+    }
+
+    public List<SampleTypePE> listSampleTypes(String sessionToken)
+    {
+        logAccess(sessionToken, "list_sample_types");
+        return null;
+    }
+
+    public List<SamplePE> listSamples(String sessionToken, SampleTypePE sampleType,
+            SampleRelationsDepthDTO displayProperties)
+    {
+        logAccess(sessionToken, "list_samples", "TYPE(%s) RELATIONS_DEPTH(%s)", sampleType
+                .getCode(), displayProperties);
+        return null;
     }
 
 }

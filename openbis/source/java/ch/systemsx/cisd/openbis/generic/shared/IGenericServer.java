@@ -28,6 +28,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationsDepthDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
@@ -116,4 +119,17 @@ public interface IGenericServer
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     public void deleteInstanceRole(String sessionToken, RoleCode roleCode, String person);
 
+    /**
+     * Lists sample types which are appropriate for listing.
+     */
+    @RolesAllowed(RoleSet.OBSERVER)
+    public List<SampleTypePE> listSampleTypes(String sessionToken);
+
+    /**
+     * Lists samples using given configuration. Only sample properties which are chosen to be
+     * displayed are included in the result.
+     */
+    @RolesAllowed(RoleSet.OBSERVER)
+    public List<SamplePE> listSamples(String sessionToken, SampleTypePE sampleType,
+            SampleRelationsDepthDTO displayProperties);
 }
