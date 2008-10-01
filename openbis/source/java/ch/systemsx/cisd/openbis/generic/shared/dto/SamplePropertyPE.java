@@ -81,7 +81,7 @@ public class SamplePropertyPE extends EntityPropertyPE
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = SamplePE.class)
     @JoinColumn(name = ColumnNames.SAMPLE_COLUMN, updatable = false)
-    public final IIdAndCodeHolder getEntity()
+    public IIdAndCodeHolder getEntity()
     {
         return entity;
     }

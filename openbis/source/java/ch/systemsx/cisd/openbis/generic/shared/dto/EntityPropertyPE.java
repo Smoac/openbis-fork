@@ -80,7 +80,7 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistratrationH
         this.value = value;
     }
 
-    public final void setEntity(final IIdAndCodeHolder entity)
+    public void setEntity(final IIdAndCodeHolder entity)
     {
         this.entity = entity;
     }

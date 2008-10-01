@@ -81,7 +81,7 @@ public class MaterialPropertyPE extends EntityPropertyPE
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = MaterialPE.class)
     @JoinColumn(name = ColumnNames.MATERIAL_COLUMN, updatable = false)
-    public final IIdAndCodeHolder getEntity()
+    public IIdAndCodeHolder getEntity()
     {
         return entity;
     }

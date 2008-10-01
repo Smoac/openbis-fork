@@ -80,7 +80,7 @@ public class ExperimentPropertyPE extends EntityPropertyPE
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = ExperimentPE.class)
     @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN, updatable = false)
-    public final IIdAndCodeHolder getEntity()
+    public IIdAndCodeHolder getEntity()
     {
         return entity;
     }
