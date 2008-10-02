@@ -160,9 +160,11 @@ public final class ColumnNames
 
     public static final String IS_LISTABLE = "IS_LISTABLE";
 
-    public static final String GENERATED_FROM_DEPTH = "GENERATED_FROM_DEPTH";
+    public static final String GENERATED_FROM_DEPTH = "generated_from_depth";
 
-    public static final String PART_OF_DEPTH = "PART_OF_DEPTH";
+    public static final String PART_OF_DEPTH = "part_of_depth";
+
+    public static final String IS_DISPLAYED = "is_displayed";
 
     private ColumnNames()
     {

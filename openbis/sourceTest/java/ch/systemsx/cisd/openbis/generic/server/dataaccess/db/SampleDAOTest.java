@@ -44,7 +44,7 @@ public final class SampleDAOTest extends AbstractDAOTest
         SampleTypePE secType = getSampleType(SampleTypeCode.DILUTION_PLATE);
         SampleTypePE thrType = getSampleType(SampleTypeCode.CELL_PLATE);
 
-        thrType.setPartOfHierarchyDepth(1);
+        thrType.setContainerHierarchyDepth(1);
         thrType.setGeneratedFromHierarchyDepth(1);
 
         SamplePE sampleA = createSample(fstType, "grandParent", null);

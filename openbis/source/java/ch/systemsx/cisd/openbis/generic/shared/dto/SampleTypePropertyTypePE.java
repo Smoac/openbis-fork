@@ -47,6 +47,19 @@ public class SampleTypePropertyTypePE extends EntityTypePropertyTypePE
 
     public static final SampleTypePropertyTypePE[] EMPTY_ARRAY = new SampleTypePropertyTypePE[0];
 
+    private boolean isDisplayed;
+
+    @Column(name = ColumnNames.IS_DISPLAYED)
+    public boolean isDisplayed()
+    {
+        return isDisplayed;
+    }
+
+    public void setDisplayed(boolean isDisplayed)
+    {
+        this.isDisplayed = isDisplayed;
+    }
+
     //
     // EntityTypePropertyTypePE
     //

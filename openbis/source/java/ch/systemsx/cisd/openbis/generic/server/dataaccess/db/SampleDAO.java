@@ -60,7 +60,7 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
         Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
         criteria.add(Restrictions.eq("sampleType", sampleType));
 
-        fetchRelations(criteria, "container", sampleType.getPartOfHierarchyDepth());
+        fetchRelations(criteria, "container", sampleType.getContainerHierarchyDepth());
         fetchRelations(criteria, "generatedFrom", sampleType.getGeneratedFromHierarchyDepth());
 
         final List<SamplePE> list = cast(criteria.list());

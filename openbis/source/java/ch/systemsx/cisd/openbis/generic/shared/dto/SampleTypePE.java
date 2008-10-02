@@ -47,7 +47,7 @@ public final class SampleTypePE extends EntityTypePE
 
     private int generatedFromHierarchyDepth;
 
-    private int partOfHierarchyDepth;
+    private int containerHierarchyDepth;
 
     @Column(name = ColumnNames.IS_LISTABLE)
     public boolean isListable()
@@ -72,14 +72,14 @@ public final class SampleTypePE extends EntityTypePE
     }
 
     @Column(name = ColumnNames.PART_OF_DEPTH)
-    public int getPartOfHierarchyDepth()
+    public int getContainerHierarchyDepth()
     {
-        return partOfHierarchyDepth;
+        return containerHierarchyDepth;
     }
 
-    public void setPartOfHierarchyDepth(int partOfHierarchyDepth)
+    public void setContainerHierarchyDepth(int partOfHierarchyDepth)
     {
-        this.partOfHierarchyDepth = partOfHierarchyDepth;
+        this.containerHierarchyDepth = partOfHierarchyDepth;
     }
 
     @Transient
