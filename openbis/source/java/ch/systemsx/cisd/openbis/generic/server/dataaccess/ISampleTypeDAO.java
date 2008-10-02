@@ -41,4 +41,6 @@ public interface ISampleTypeDAO
      * @return <code>null</code> if no type found.
      */
     public SampleTypePE tryFindSampleTypeByCode(String code) throws DataAccessException;
+
+    public SampleTypePE tryFindByExample(SampleTypePE sampleType);
 }

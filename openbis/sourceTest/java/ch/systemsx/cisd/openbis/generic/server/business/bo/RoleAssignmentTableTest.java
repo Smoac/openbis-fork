@@ -25,7 +25,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
@@ -45,7 +45,7 @@ public final class RoleAssignmentTableTest
 {
     private Mockery context;
 
-    private IAuthorizationDAOFactory daoFactory;
+    private IDAOFactory daoFactory;
 
     private IGroupDAO groupDAO;
 
@@ -62,7 +62,7 @@ public final class RoleAssignmentTableTest
     public final void beforeMethod()
     {
         context = new Mockery();
-        daoFactory = context.mock(IAuthorizationDAOFactory.class);
+        daoFactory = context.mock(IDAOFactory.class);
         groupDAO = context.mock(IGroupDAO.class);
         personDAO = context.mock(IPersonDAO.class);
         instanceDAO = context.mock(IDatabaseInstanceDAO.class);

@@ -70,6 +70,12 @@ final class SampleTypeDAO extends AbstractTypeDAO<SampleTypePE> implements ISamp
         return list;
     }
 
+    public SampleTypePE tryFindByExample(SampleTypePE sampleType)
+    {
+        List<SampleTypePE> result = cast(getHibernateTemplate().findByExample(sampleType));
+        return tryFindEntity(result, "sample type");
+    }
+
     public final SampleTypePE tryFindSampleTypeByCode(final String code) throws DataAccessException
     {
         return tryFindTypeByCode(code);

@@ -16,16 +16,19 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import java.util.List;
+
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 
 /**
  * @author Tomasz Pylak
  */
-public interface IGenericBusinessObjectFactory
+public interface ISampleBO
 {
-    public IGroupBO createGroupBO(final Session session);
-
-    public IRoleAssignmentTable createRoleAssignmentTable(final Session session);
-
-    public ISampleBO createSampleBO(final Session session);
+    /**
+     * Lists sample of a particular type. Container and generator fields will be initialized up to
+     * the specified nesting level.
+     */
+    List<SamplePE> listSamples(SampleTypePE sampleType);
 }

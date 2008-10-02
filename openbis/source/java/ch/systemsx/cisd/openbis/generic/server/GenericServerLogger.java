@@ -31,7 +31,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationsDepthDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
@@ -217,11 +216,9 @@ class GenericServerLogger implements IGenericServer, ISessionProvider
         return null;
     }
 
-    public List<SamplePE> listSamples(String sessionToken, SampleTypePE sampleType,
-            SampleRelationsDepthDTO displayProperties)
+    public List<SamplePE> listSamples(String sessionToken, SampleTypePE sampleType)
     {
-        logAccess(sessionToken, "list_samples", "TYPE(%s) RELATIONS_DEPTH(%s)", sampleType
-                .getCode(), displayProperties);
+        logAccess(sessionToken, "list_samples", "TYPE(%s)", sampleType);
         return null;
     }
 

@@ -29,7 +29,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationsDepthDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
@@ -126,10 +125,9 @@ public interface IGenericServer
     public List<SampleTypePE> listSampleTypes(String sessionToken);
 
     /**
-     * Lists samples using given configuration. Only sample properties which are chosen to be
+     * Lists samples using given configuration. Only sample properties which are configured to be
      * displayed are included in the result.
      */
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<SamplePE> listSamples(String sessionToken, SampleTypePE sampleType,
-            SampleRelationsDepthDTO displayProperties);
+    public List<SamplePE> listSamples(String sessionToken, SampleTypePE sampleType);
 }

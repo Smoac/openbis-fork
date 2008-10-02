@@ -23,7 +23,7 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.server.util.KeyExtractorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -47,7 +47,7 @@ final class RoleAssignmentTable extends AbstractBusinessObject implements IRoleA
 
     private TableMap<String, PersonPE> personsByUserId;
 
-    RoleAssignmentTable(final IAuthorizationDAOFactory daoFactory, final Session session)
+    RoleAssignmentTable(final IDAOFactory daoFactory, final Session session)
     {
         super(daoFactory, session);
     }

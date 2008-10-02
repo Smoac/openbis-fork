@@ -16,33 +16,33 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.List;
+
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
  * @author Tomasz Pylak
  */
-public class GenericBusinessObjectFactory implements IGenericBusinessObjectFactory
+public class SampleBO extends AbstractBusinessObject implements ISampleBO
 {
-    private final IDAOFactory daoFactory;
 
-    public GenericBusinessObjectFactory(IDAOFactory daoFactory)
+    SampleBO(IDAOFactory daoFactory, Session session)
     {
-        this.daoFactory = daoFactory;
+        super(daoFactory, session);
     }
 
-    public final IGroupBO createGroupBO(final Session session)
+    public List<SamplePE> listSamples(SampleTypePE sampleTypeExample)
     {
-        return new GroupBO(daoFactory, session);
+        SampleTypePE sampleType = getSampleTypeDAO().tryFindByExample(sampleTypeExample);
+        if (sampleType == null)
+        {
+            throw new UserFailureException("Cannot find a type matching to " + sampleTypeExample);
+        }
+        return getSampleDAO().listSamples(sampleType);
     }
 
-    public final IRoleAssignmentTable createRoleAssignmentTable(final Session session)
-    {
-        return new RoleAssignmentTable(daoFactory, session);
-    }
-
-    public final ISampleBO createSampleBO(final Session session)
-    {
-        return new SampleBO(daoFactory, session);
-    }
 }

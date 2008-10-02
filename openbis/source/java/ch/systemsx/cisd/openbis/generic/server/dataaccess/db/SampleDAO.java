@@ -19,16 +19,20 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Restrictions;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.support.JdbcAccessor;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationsDepthDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 
 /**
@@ -37,8 +41,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 public class SampleDAO extends AbstractDAO implements ISampleDAO
 {
     private final static Class<SamplePE> ENTITY_CLASS = SamplePE.class;
-
-    private static final String TABLE_NAME = ENTITY_CLASS.getSimpleName();
 
     /**
      * This logger does not output any SQL statement. If you want to do so, you had better set an
@@ -53,13 +55,15 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
         super(sessionFactory, databaseInstance);
     }
 
-    public List<SamplePE> listSamples(SampleTypePE sampleType,
-            SampleRelationsDepthDTO displayProperties)
+    public List<SamplePE> listSamples(SampleTypePE sampleType)
     {
-        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
-        final List<SamplePE> list =
-                cast(hibernateTemplate.find(String.format("from %s s where s.sampleType = ?",
-                        TABLE_NAME), toArray(sampleType)));
+        Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
+        criteria.add(Restrictions.eq("sampleType", sampleType));
+
+        fetchRelations(criteria, "container", sampleType.getPartOfHierarchyDepth());
+        fetchRelations(criteria, "generatedFrom", sampleType.getGeneratedFromHierarchyDepth());
+
+        final List<SamplePE> list = cast(criteria.list());
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%d samples have been " + "found for sample type %s.",
@@ -68,4 +72,29 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
         return list;
     }
 
+    private void fetchRelations(Criteria criteria, String relationName, int relationDepth)
+    {
+        String relationPath = relationName;
+        for (int i = 0; i < relationDepth; i++)
+        {
+            criteria.setFetchMode(relationPath, FetchMode.JOIN);
+            relationPath += "." + relationName;
+        }
+    }
+
+    public final void createSample(final SamplePE sample) throws DataAccessException
+    {
+        assert sample != null : "Unspecified sample";
+        validatePE(sample);
+        sample.setCode(CodeConverter.tryToDatabase(sample.getCode()));
+
+        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+        hibernateTemplate.save(sample);
+        hibernateTemplate.flush();
+
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("ADD: sample " + sample);
+        }
+    }
 }

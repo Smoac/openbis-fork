@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
@@ -44,7 +44,7 @@ public final class GroupBOTest
 
     private Mockery context;
 
-    private IAuthorizationDAOFactory daoFactory;
+    private IDAOFactory daoFactory;
 
     private IGroupDAO groupDAO;
 
@@ -57,7 +57,7 @@ public final class GroupBOTest
     public final void beforeMethod()
     {
         context = new Mockery();
-        daoFactory = context.mock(IAuthorizationDAOFactory.class);
+        daoFactory = context.mock(IDAOFactory.class);
         groupDAO = context.mock(IGroupDAO.class);
         logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG);
     }

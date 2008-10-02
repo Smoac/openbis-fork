@@ -19,11 +19,13 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -33,13 +35,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
  * 
  * @author Franz-Josef Elmer
  */
-abstract class AbstractBusinessObject implements IAuthorizationDAOFactory
+abstract class AbstractBusinessObject implements IDAOFactory
 {
-    private final IAuthorizationDAOFactory daoFactory;
+    private final IDAOFactory daoFactory;
 
     protected final Session session;
 
-    AbstractBusinessObject(final IAuthorizationDAOFactory daoFactory, final Session session)
+    AbstractBusinessObject(final IDAOFactory daoFactory, final Session session)
     {
         assert daoFactory != null : "Given DAO factory can not be null.";
         assert session != null : "Given session can not be null.";
@@ -89,5 +91,15 @@ abstract class AbstractBusinessObject implements IAuthorizationDAOFactory
     public final IRoleAssignmentDAO getRoleAssignmentDAO()
     {
         return daoFactory.getRoleAssignmentDAO();
+    }
+
+    public final ISampleDAO getSampleDAO()
+    {
+        return daoFactory.getSampleDAO();
+    }
+
+    public final ISampleTypeDAO getSampleTypeDAO()
+    {
+        return daoFactory.getSampleTypeDAO();
     }
 }

@@ -18,8 +18,9 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
 import java.util.List;
 
+import org.springframework.dao.DataAccessException;
+
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationsDepthDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 
 /**
@@ -27,5 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
  */
 public interface ISampleDAO
 {
-    List<SamplePE> listSamples(SampleTypePE sampleType, SampleRelationsDepthDTO displayProperties);
+    List<SamplePE> listSamples(SampleTypePE sampleType);
+
+    void createSample(final SamplePE sample) throws DataAccessException;
 }
