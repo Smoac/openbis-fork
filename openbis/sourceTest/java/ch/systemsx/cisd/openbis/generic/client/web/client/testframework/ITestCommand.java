@@ -16,20 +16,27 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 
-import org.aopalliance.intercept.Invocation;
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
- * A command which will be executed after a successful {@link Invocation} of
+ * A command which will be executed after a successful invocation of
  * {@link AsyncCallback#onSuccess(Object)}.
  * 
  * @author Franz-Josef Elmer
  */
 public interface ITestCommand
 {
+    /**
+     * Returns <code>true</code> if the specified callback object, failureMessage, and
+     * throwable should trigger this command in case if an invocation of
+     * {@link AsyncCallback#onFailure(Throwable)}. 
+     */
     public boolean validOnFailure(AsyncCallback<Object> callback, String failureMessage, Throwable throwable);
     
+    /**
+     * Returns <code>true</code> if the specified callback object and resul should trigger this
+     * command in case if an invocation of {@link AsyncCallback#onSuccess(Object)}.
+     */
     public boolean validOnSucess(AsyncCallback<Object> callback, Object result);
 
     /**
