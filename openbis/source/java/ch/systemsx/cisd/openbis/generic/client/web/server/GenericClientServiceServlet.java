@@ -70,7 +70,7 @@ public class GenericClientServiceServlet extends GWTSpringController implements
             }
         } catch (final Exception ex)
         {
-            notificationLog.fatal("Failure during servlet initialization.", ex);
+            notificationLog.fatal("FailureExpectation during servlet initialization.", ex);
             throw new ServletException(ex);
         }
     }

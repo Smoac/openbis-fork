@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
  */
 public class LoginWidget extends VerticalPanel
 {
-    private static final class LoginCallback extends AbstractAsyncCallback<SessionContext>
+    public static final class LoginCallback extends AbstractAsyncCallback<SessionContext>
     {
         private LoginCallback(GenericViewContext viewContext)
         {

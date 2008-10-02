@@ -34,11 +34,7 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
 {
     private static final ICallbackListener DUMMY_LISTENER = new ICallbackListener()
         {
-            public void onFailureOf(AsyncCallback<Object> callback, Throwable throwable)
-            {
-            }
-
-            public void startOnSuccessOf(AsyncCallback<Object> callback, Object result)
+            public void onFailureOf(AsyncCallback<Object> callback, String failureMessage, Throwable throwable)
             {
             }
 
@@ -77,7 +73,6 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
     
     public void onFailure(Throwable caught)
     {
-        callbackListener.onFailureOf(getThis(), caught);
         final String msg;
         if (caught instanceof InvocationException)
         {
@@ -99,8 +94,9 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
                 msg = message;
             }
         }
-        IPageController pageController = viewContext.getPageController();
+        callbackListener.onFailureOf(getThis(), msg, caught);
         MessageBox.alert("Error", msg, null);
+        IPageController pageController = viewContext.getPageController();
         if (caught instanceof InvalidSessionException)
         {
             pageController.reload();
@@ -109,7 +105,6 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
 
     public final void onSuccess(T result)
     {
-        callbackListener.startOnSuccessOf(getThis(), result);
         process(result);
         callbackListener.finishOnSuccessOf(getThis(), result);
     }

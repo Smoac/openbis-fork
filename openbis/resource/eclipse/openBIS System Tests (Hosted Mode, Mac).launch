@@ -25,5 +25,5 @@
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value=""/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-out targets/www-test"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="openbis"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-XstartOnFirstThread&#13;&#10;-Ddatabase.create-from-scratch=true&#13;&#10;-Ddatabase.kind=system_test&#13;&#10;-Dscript-folder=sourceTest&#13;&#10;-Dmass-upload-folder=sourceTest/sql/postgresql&#13;&#10;-Dlog4j.configuration=etc/log.xml&#13;&#10;-Xmx512M&#13;&#10;-ea"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-XstartOnFirstThread&#13;&#10;-Dauthentication-service=file-authentication-service&#13;&#10;-Ddatabase.create-from-scratch=true&#13;&#10;-Ddatabase.kind=system_test&#13;&#10;-Dscript-folder=sourceTest&#13;&#10;-Dmass-upload-folder=sourceTest/sql/postgresql&#13;&#10;-Dlog4j.configuration=etc/log.xml&#13;&#10;-Xmx512M&#13;&#10;-ea"/>
 </launchConfiguration>

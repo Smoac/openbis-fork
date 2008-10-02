@@ -17,11 +17,11 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 
 /**
- * Interface of all test commands which knows also their condition for execution.
+ * 
  *
  * @author Franz-Josef Elmer
  */
-public interface ITestCommandWithCondition<T> extends ITestCommand, ICallbackCondition<T>
+public interface IMessageValidator
 {
-
+    public boolean valid(String message);
 }

@@ -48,7 +48,7 @@ public interface IGenericClientService extends RemoteService
      * Tries to login with specified user ID and password. If failed <code>null</code> is
      * returned.
      */
-    public SessionContext tryToLogin(String userID, String password);
+    public SessionContext tryToLogin(String userID, String password) throws UserFailureException;
 
     /**
      * Logs out.

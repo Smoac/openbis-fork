@@ -22,21 +22,20 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.Widget;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CallbackClassCondition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
-import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.ITestCommandWithCondition;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class CheckGroupCommand extends CallbackClassCondition implements ITestCommandWithCondition<Object>
+public class CheckGroup extends AbstractDefaultTestCommand
 {
 
     private final String groupCode;
 
-    public CheckGroupCommand(String groupCode)
+    public CheckGroup(String groupCode)
     {
         super(GroupsView.ListGroupsCallback.class);
         this.groupCode = groupCode;

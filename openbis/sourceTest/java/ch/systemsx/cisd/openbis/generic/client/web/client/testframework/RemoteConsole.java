@@ -29,45 +29,17 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ICallbackL
 
 /**
  * A class which allows to execute a sequence of {@link ITestCommand} instances. The commands are
- * executed in the order they have been added by the various prepare methods. A
- * {@link ICallbackCondition} has to be fulfilled before the next command is executed. This
- * condition is checked after each successful invocation of
- * {@link AsyncCallback#onSuccess(Object)}. With the method {@link #finish(int)} a timeout
- * will be specified after which the test will be terminated independent whether all commands have
- * been executed or not. In the later case the test fails.
+ * executed in the order they have been added by {@link #prepare(ITestCommand)}. In order to be
+ * executed a command has to be valid for the kind of {@link AsyncCallback} invocation. With the
+ * method {@link #finish(int)} a timeout will be specified after which the test will be terminated
+ * independent whether all commands have been executed or not. In the later case the test fails.
  * 
  * @author Franz-Josef Elmer
  */
 public class RemoteConsole
 {
-    private static final class CommandEntry 
-    {
-        private final ICallbackCondition<Object> condition;
-        private final ITestCommand command;
-        CommandEntry(ICallbackCondition<Object> condition, ITestCommand command)
-        {
-            this.condition = condition;
-            this.command = command;
-        }
-    }
-    
-    private class EqualsCallback implements ICallbackCondition<Object>
-    {
-        private final AsyncCallback<?> callbackToCheck;
-        
-        public EqualsCallback(AsyncCallback<?> callback)
-        {
-            this.callbackToCheck = callback;
-        }
-        
-        public boolean valid(AsyncCallback<Object> callback, Object result)
-        {
-            return callbackToCheck.equals(callback);
-        }
-    }
-    
     private final AbstractGWTTestCase testCase;
-    private final List<CommandEntry> entries;
+    private final List<ITestCommand> commands;
     
     private int entryIndex;
     
@@ -77,29 +49,40 @@ public class RemoteConsole
     public RemoteConsole(final AbstractGWTTestCase testCase)
     {
         this.testCase = testCase;
-        entries = new ArrayList<CommandEntry>();
+        commands = new ArrayList<ITestCommand>();
         AbstractAsyncCallback.setCallbackListener(new ICallbackListener()
             {
-                public void onFailureOf(AsyncCallback<Object> callback, Throwable throwable)
+                public void onFailureOf(AsyncCallback<Object> callback, String failureMessage,
+                        Throwable throwable)
                 {
-                    Assert.fail("Failed condition " + callback + ": " + throwable);
-                }
-
-                public void startOnSuccessOf(AsyncCallback<Object> callback, Object result)
-                {
+                    if (entryIndex < commands.size()
+                            && commands.get(entryIndex).validOnFailure(callback, failureMessage, throwable))
+                    {
+                        executeCommand();
+                    } else
+                    {
+                        Assert.fail("Failed callback " + callback + ": " + failureMessage + "["
+                                + throwable.getClass() + "]");
+                    }
                 }
 
                 public void finishOnSuccessOf(AsyncCallback<Object> callback, Object result)
                 {
-                    if (entryIndex < entries.size()
-                            && entries.get(entryIndex).condition.valid(callback, result))
+                    if (entryIndex < commands.size()
+                            && commands.get(entryIndex).validOnSucess(callback, result))
                     {
-                        CommandEntry commandEntry = entries.get(entryIndex++);
-                        commandEntry.command.execute();
-                        if (entryIndex == entries.size())
-                        {
-                            testCase.terminateTest();
-                        }
+                        executeCommand();
+                    }
+                }
+                
+                private void executeCommand()
+                {
+                    ITestCommand testCommand = commands.get(entryIndex++);
+                    System.out.println("EXECUTE: " + testCommand);
+                    testCommand.execute();
+                    if (entryIndex == commands.size())
+                    {
+                        testCase.terminateTest();
                     }
                 }
 
@@ -107,38 +90,12 @@ public class RemoteConsole
     }
 
     /**
-     * Prepares the console with the specified command.
-     */
-    public RemoteConsole prepare(ITestCommandWithCondition<Object> command)
-    {
-        return prepare(command, command);
-    }
-    
-    /**
-     * Prepares the console with the specified command which will be executed if the
-     * class of the callback object is as specified. 
-     */
-    public RemoteConsole prepare(Class<? extends AsyncCallback<?>> clazz, ITestCommand command)
-    {
-        return prepare(new CallbackClassCondition(clazz), command);
-    }
-    
-    /**
-     * Prepares the console with the specified command which will be executed if the
-     * callback object equals the specified one. 
-     */
-    public RemoteConsole prepare(AsyncCallback<?> callback, ITestCommand command)
-    {
-        return prepare(new EqualsCallback(callback), command);
-    }
-
-    /**
      * Prepares the console with the specified command which will be executed if the
      * specified condition is fulfilled. 
      */
-    public RemoteConsole prepare(ICallbackCondition<Object> condition, ITestCommand command)
+    public RemoteConsole prepare(ITestCommand command)
     {
-        entries.add(new CommandEntry(condition, command));
+        commands.add(command);
         return this;
     }
     
@@ -155,7 +112,7 @@ public class RemoteConsole
                 public void run()
                 {
                     AbstractAsyncCallback.setCallbackListener(null);
-                    int numberOfUnexcutedCommands = entries.size() - entryIndex;
+                    int numberOfUnexcutedCommands = commands.size() - entryIndex;
                     if (numberOfUnexcutedCommands > 0)
                     {
                         Assert.fail("Console not finished. Last "

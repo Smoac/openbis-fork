@@ -16,11 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.CheckGroupCommand;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.CreateGroupCommand;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoginCommand;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.CheckGroup;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.CreateGroup;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
-import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.RemoteConsole;
 
 /**
  * 
@@ -29,24 +28,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.RemoteCo
  */
 public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
 {
-    private RemoteConsole remoteConsole;
-    
-    @Override
-    protected void gwtSetUp() throws Exception
-    {
-        remoteConsole = new RemoteConsole(this);
-        System.out.println("TEST: " + getName());
-    }
-    
     public void testCreateGroup()
     {
-        final Client client = new Client();
-        client.onModuleLoad();
-        remoteConsole.prepare(new LoginCommand("a", "a"));
+        remoteConsole.prepare(new Login("test", "a"));
         String groupCode = "test-group";
-        remoteConsole.prepare(new CreateGroupCommand(groupCode));
-        remoteConsole.prepare(new CheckGroupCommand(groupCode.toUpperCase())).finish(10000);
+        remoteConsole.prepare(new CreateGroup(groupCode));
+        remoteConsole.prepare(new CheckGroup(groupCode.toUpperCase())).finish(10000);
         
+        client.onModuleLoad();
     }
 
 }

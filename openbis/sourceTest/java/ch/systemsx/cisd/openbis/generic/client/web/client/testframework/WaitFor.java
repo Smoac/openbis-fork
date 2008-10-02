@@ -19,25 +19,29 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
- * Contition which checks whether the class of the callback object is as specified.
+ * 
  *
  * @author Franz-Josef Elmer
  */
-public class CallbackClassCondition implements ICallbackCondition<Object>
+public class WaitFor extends AbstractDefaultTestCommand
 {
-    private final Class<?> callbackClass;
+    private final String callbackClassName;
 
-    /**
-     * Creates an instance for the specified callback class.
-     */
-    public CallbackClassCondition(Class<? extends AsyncCallback<?>> callbackClass)
+    public WaitFor(Class<? extends AsyncCallback<?>> callbackClass)
     {
-        this.callbackClass = callbackClass;
+        super(callbackClass);
+        callbackClassName = callbackClass.getName();
     }
+
+    public void execute()
+    {
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Wait for " + callbackClassName;
+    }
+
     
-    public boolean valid(AsyncCallback<Object> callback, Object result)
-    {
-        return callbackClass.equals(callback.getClass());
-    }
-
 }

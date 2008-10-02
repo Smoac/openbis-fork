@@ -23,18 +23,17 @@ import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SessionContextCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CallbackClassCondition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
-import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.ITestCommandWithCondition;
 
 /**
  * Command for logout after {@link SessionContextCallback} has finished.
  *
  * @author Franz-Josef Elmer
  */
-public class LogoutCommand extends CallbackClassCondition implements ITestCommandWithCondition<Object>
+public class Logout extends AbstractDefaultTestCommand
 {
-    public LogoutCommand()
+    public Logout()
     {
         super(SessionContextCallback.class);
     }

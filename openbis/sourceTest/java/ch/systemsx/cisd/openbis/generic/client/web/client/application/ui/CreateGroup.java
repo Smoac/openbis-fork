@@ -16,21 +16,20 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CallbackClassCondition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
-import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.ITestCommandWithCondition;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class CreateGroupCommand extends CallbackClassCondition implements ITestCommandWithCondition<Object>
+public class CreateGroup extends AbstractDefaultTestCommand
 {
 
     private final String groupCode;
 
-    public CreateGroupCommand(String groupCode)
+    public CreateGroup(String groupCode)
     {
         super(GroupsView.ListGroupsCallback.class);
         this.groupCode = groupCode;

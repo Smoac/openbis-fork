@@ -160,17 +160,23 @@ public class GenericClientService implements IGenericClientService
 
     public SessionContext tryToLogin(String userID, String password)
     {
-        Session session = server.tryToAuthenticate(userID, password);
-        if (session == null)
+        try
         {
-            return null;
+            Session session = server.tryToAuthenticate(userID, password);
+            if (session == null)
+            {
+                return null;
+            }
+            HttpSession httpSession = creatHttpSession();
+            // Expiration time of httpSession is 10 seconds less than of session
+            httpSession.setMaxInactiveInterval(session.getSessionExpirationTime() / 1000 - 10);
+            httpSession.setAttribute(SESSION_KEY, session);
+            httpSession.setAttribute(SERVER_KEY, server);
+            return createSessionContext(session);
+        } catch (UserFailureException e)
+        {
+            throw UserFailureExceptionTranslater.translate(e);
         }
-        HttpSession httpSession = creatHttpSession();
-        // Expiration time of httpSession is 10 seconds less than of session
-        httpSession.setMaxInactiveInterval(session.getSessionExpirationTime() / 1000 - 10);
-        httpSession.setAttribute(SESSION_KEY, session);
-        httpSession.setAttribute(SERVER_KEY, server);
-        return createSessionContext(session);
     }
 
     public void logout()

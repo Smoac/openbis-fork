@@ -17,6 +17,10 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 
 import com.google.gwt.junit.client.GWTTestCase;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Client;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 
 /**
  * Abstract super class of all GWT System Tests.
@@ -25,6 +29,8 @@ import com.google.gwt.junit.client.GWTTestCase;
  */
 public abstract class AbstractGWTTestCase extends GWTTestCase
 {
+    protected RemoteConsole remoteConsole;
+    protected Client client;
     
     @Override
     public String getModuleName()
@@ -48,5 +54,44 @@ public abstract class AbstractGWTTestCase extends GWTTestCase
     {
         delayTestFinish(timeoutMillis);
     }
+
+    @Override
+    protected final void gwtSetUp() throws Exception
+    {
+        System.out.println("TEST: " + getName());
+        remoteConsole = new RemoteConsole(this);
+        client = new Client();
+        setUpTest();
+    }
+    
+    protected void setUpTest() throws Exception
+    {
+    }
+
+    @Override
+    protected final void gwtTearDown() throws Exception
+    {
+        GenericViewContext viewContext = client.tryToGetViewContext();
+        if (viewContext != null)
+        {
+            viewContext.getService().logout(new AsyncCallback<Void>()
+                {
+                    public void onSuccess(Void result)
+                    {
+                    }
+            
+                    public void onFailure(Throwable caught)
+                    {
+                        System.out.println("LOGOUT FAILED: " + caught);
+                    }
+                });
+        }
+        tearDownTest();
+    }
+    
+    protected void tearDownTest() throws Exception
+    {
+    }
+    
     
 }

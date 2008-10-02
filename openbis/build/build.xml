@@ -51,6 +51,7 @@
       	<pathelement location="${gwt.lib}/linux/gwt-dev-linux.jar"/>
       </classpath>
       <jvmarg value="-ea"/>
+      <sysproperty key="authentication-service" value="file-authentication-service"/>
       <sysproperty key="log4j.configuration" value="etc/log.xml"/>
       <sysproperty key="database.create-from-scratch" value="true"/>
       <sysproperty key="database.kind" value="system_test"/>

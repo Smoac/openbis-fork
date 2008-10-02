@@ -36,6 +36,11 @@ public class Client implements EntryPoint
     private GenericViewContext viewContext;
     private AbstractAsyncCallback<SessionContext> loginCallback;
     
+    public final GenericViewContext tryToGetViewContext()
+    {
+        return viewContext;
+    }
+
     public void onModuleLoad()
     {
         if (viewContext == null)

@@ -17,28 +17,26 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SessionContextCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CallbackClassCondition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
-import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.ITestCommandWithCondition;
 
 /**
  * Command for login after {@link SessionContextCallback} has finished.
  *
  * @author Franz-Josef Elmer
  */
-public class LoginCommand extends CallbackClassCondition implements ITestCommandWithCondition<Object>
+public class Login extends AbstractDefaultTestCommand
 {
     private final String user;
     private final String password;
 
-    public LoginCommand(String user, String password)
+    public Login(String user, String password)
     {
         super(SessionContextCallback.class);
         this.user = user;
         this.password = password;
     }
 
-    @SuppressWarnings("unchecked")
     public void execute()
     {
         GWTTestUtil.<String>getTextFieldWithID(LoginWidget.USER_FIELD_ID).setValue(user);

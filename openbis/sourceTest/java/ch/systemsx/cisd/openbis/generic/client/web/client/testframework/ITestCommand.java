@@ -21,13 +21,17 @@ import org.aopalliance.intercept.Invocation;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
- * A commad which will be executed after a successful {@link Invocation} of
+ * A command which will be executed after a successful {@link Invocation} of
  * {@link AsyncCallback#onSuccess(Object)}.
  * 
  * @author Franz-Josef Elmer
  */
 public interface ITestCommand
 {
+    public boolean validOnFailure(AsyncCallback<Object> callback, String failureMessage, Throwable throwable);
+    
+    public boolean validOnSucess(AsyncCallback<Object> callback, Object result);
+
     /**
      * Executes this command.
      */

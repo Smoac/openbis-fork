@@ -17,10 +17,12 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoginCommand;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LogoutCommand;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoginWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Logout;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
-import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.RemoteConsole;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.FailureExpectation;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.WaitFor;
 
 
 /**
@@ -30,29 +32,29 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.RemoteCo
  */
 public class AuthenticationTest extends AbstractGWTTestCase
 {
-    private RemoteConsole remoteConsole;
-    
-    @Override
-    protected void gwtSetUp() throws Exception
-    {
-        remoteConsole = new RemoteConsole(this);
-        System.out.println("TEST: " + getName());
-    }
-
     public void testLogin() throws Exception
     {
-        final Client client = new Client();
+        remoteConsole.prepare(new Login("test", "a"));
+        remoteConsole.prepare(new WaitFor(LoginWidget.LoginCallback.class));
+        remoteConsole.finish(10000);
+        
         client.onModuleLoad();
-        remoteConsole.prepare(new LoginCommand("a", "a"));
-        remoteConsole.prepare(new LogoutCommand()).finish(10000);
     }
     
-    public void testFailedLogin() throws Exception
+    public void testLogout() throws Exception
     {
-        final Client client = new Client();
+        remoteConsole.prepare(new Login("test", "a"));
+        remoteConsole.prepare(new Logout()).finish(10000);
+        
         client.onModuleLoad();
-        remoteConsole.prepare(new LoginCommand("u", ""));
-        remoteConsole.prepare(new LogoutCommand()).finish(10000);
+    }
+    
+    public void testFailedLoginBecauseOfEmptyPassword() throws Exception
+    {
+        remoteConsole.prepare(new Login("u", ""));
+        remoteConsole.prepare(new FailureExpectation(LoginWidget.LoginCallback.class)).finish(10000);
+        
+        client.onModuleLoad();
     }
     
     
