@@ -16,13 +16,17 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import static org.testng.AssertJUnit.assertEquals;
+
 import java.util.List;
 
 import org.hibernate.Hibernate;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleOwnerFinder.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
@@ -36,33 +40,47 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
     { "db", "sample" })
 public final class SampleDAOTest extends AbstractDAOTest
 {
+    @Test
+    public final void testListGroupSamples()
+    {
+        SampleTypePE sampleType = getSampleType(SampleTypeCode.MASTER_PLATE);
+        GroupPE group = createGroup("xxx");
+        daoFactory.getGroupDAO().createGroup(group);
+
+        SamplePE sample = createSample(sampleType, "code", null, SampleOwner.createGroup(group));
+        save(sample);
+
+        List<SamplePE> samples =
+                daoFactory.getSampleDAO().listSamplesByTypeAndGroup(sampleType, group);
+        assertEquals(1, samples.size());
+        assertEquals(sample, samples.get(0));
+    }
 
     @Test
-    public final void testListSamples()
+    public final void testListSamplesFetchRelations()
     {
-        SampleTypePE fstType = getSampleType(SampleTypeCode.MASTER_PLATE);
-        SampleTypePE secType = getSampleType(SampleTypeCode.DILUTION_PLATE);
-        SampleTypePE thrType = getSampleType(SampleTypeCode.CELL_PLATE);
+        SampleTypePE type1 = getSampleType(SampleTypeCode.MASTER_PLATE);
+        SampleTypePE type2 = getSampleType(SampleTypeCode.DILUTION_PLATE);
+        SampleTypePE type3 = getSampleType(SampleTypeCode.CELL_PLATE);
 
-        thrType.setContainerHierarchyDepth(1);
-        thrType.setGeneratedFromHierarchyDepth(1);
+        type3.setContainerHierarchyDepth(1);
+        type3.setGeneratedFromHierarchyDepth(1);
 
-        SamplePE sampleA = createSample(fstType, "grandParent", null);
-        SamplePE sampleB = createSample(secType, "parent", sampleA);
-        SamplePE sampleC = createSample(thrType, "child", sampleB);
+        SamplePE sampleA = createSample(type1, "grandParent", null);
+        SamplePE sampleB = createSample(type2, "parent", sampleA);
+        SamplePE sampleC = createSample(type3, "child", sampleB);
         save(sampleA, sampleB, sampleC);
 
-        SamplePE well = createSample(thrType, "well", null);
-        SamplePE container = createSample(secType, "container", null);
-        SamplePE superContainer = createSample(secType, "superContainer", null);
+        SamplePE well = createSample(type3, "well", null);
+        SamplePE container = createSample(type2, "container", null);
+        SamplePE superContainer = createSample(type2, "superContainer", null);
         well.setContainer(container);
         container.setContainer(superContainer);
         save(superContainer, container, well);
 
-        final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
         // clear session to avoid using samples from first level cache
         sessionFactory.getCurrentSession().clear();
-        List<SamplePE> samples = sampleDAO.listSamples(thrType);
+        List<SamplePE> samples = listSamplesFromHomeDatabase(type3);
 
         SamplePE foundWell = findSample(well, samples);
         AssertJUnit.assertTrue(Hibernate.isInitialized(foundWell.getContainer()));
@@ -73,6 +91,13 @@ public final class SampleDAOTest extends AbstractDAOTest
         AssertJUnit.assertTrue(Hibernate.isInitialized(sampleC.getGeneratedFrom()));
         SamplePE parent = sampleC.getGeneratedFrom();
         AssertJUnit.assertFalse(Hibernate.isInitialized(parent.getGeneratedFrom()));
+    }
+
+    private List<SamplePE> listSamplesFromHomeDatabase(SampleTypePE sampleType)
+    {
+        final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
+        return sampleDAO.listSamplesByTypeAndDatabaseInstance(sampleType, daoFactory
+                .getHomeDatabaseInstance());
     }
 
     private SamplePE findSample(SamplePE sample, List<SamplePE> samples)
@@ -101,11 +126,20 @@ public final class SampleDAOTest extends AbstractDAOTest
 
     final SamplePE createSample(final SampleTypePE type, final String code, SamplePE generatorOrNull)
     {
+        SampleOwner owner =
+                SampleOwner.createDatabaseInstance(daoFactory.getHomeDatabaseInstance());
+        return createSample(type, code, generatorOrNull, owner);
+    }
+
+    final SamplePE createSample(final SampleTypePE type, final String code,
+            SamplePE generatorOrNull, SampleOwner sampleOwner)
+    {
         final SamplePE sample = new SamplePE();
         sample.setRegistrator(getSystemPerson());
         sample.setCode(code);
         sample.setSampleType(type);
-        sample.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
+        sample.setDatabaseInstance(sampleOwner.tryGetDatabaseInstance());
+        sample.setGroup(sampleOwner.tryGetGroup());
         sample.setGeneratedFrom(generatorOrNull);
         return sample;
     }

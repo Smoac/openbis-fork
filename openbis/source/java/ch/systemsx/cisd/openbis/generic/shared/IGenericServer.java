@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
 /**
  * Definition of the client-server interface.
@@ -129,5 +130,7 @@ public interface IGenericServer
      * displayed are included in the result.
      */
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<SamplePE> listSamples(String sessionToken, SampleTypePE sampleType);
+    public List<SamplePE> listSamples(String sessionToken,
+            List<SampleOwnerIdentifier> ownerIdentifiers, SampleTypePE sampleType);
+
 }

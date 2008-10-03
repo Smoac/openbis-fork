@@ -20,6 +20,8 @@ import java.util.List;
 
 import org.springframework.dao.DataAccessException;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 
@@ -28,7 +30,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
  */
 public interface ISampleDAO
 {
-    List<SamplePE> listSamples(SampleTypePE sampleType);
+    List<SamplePE> listSamplesByTypeAndGroup(final SampleTypePE sampleType, final GroupPE group)
+            throws DataAccessException;
+
+    List<SamplePE> listSamplesByTypeAndDatabaseInstance(final SampleTypePE sampleType,
+            final DatabaseInstancePE databaseInstance);
 
     void createSample(final SamplePE sample) throws DataAccessException;
 }

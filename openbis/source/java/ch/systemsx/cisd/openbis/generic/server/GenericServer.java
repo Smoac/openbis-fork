@@ -52,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
 /**
  * Implementation of client-server interface.
@@ -277,8 +278,7 @@ public class GenericServer implements IGenericServer, ISessionProvider,
                 && roleAssignment.getRole().compareTo(RoleCode.ADMIN) == 0)
         {
             boolean isInstanceAdmin = false;
-            if (personPE != null
-                    && personPE.getRoleAssignments() != null)
+            if (personPE != null && personPE.getRoleAssignments() != null)
             {
                 for (RoleAssignmentPE ra : personPE.getRoleAssignments())
                 {
@@ -334,10 +334,12 @@ public class GenericServer implements IGenericServer, ISessionProvider,
         return daoFactory.getSampleTypeDAO().listSampleTypes(true);
     }
 
-    public List<SamplePE> listSamples(String sessionToken, SampleTypePE sampleType)
+    public List<SamplePE> listSamples(String sessionToken,
+            List<SampleOwnerIdentifier> ownerIdentifiers, SampleTypePE sampleType)
     {
         Session session = sessionManager.getSession(sessionToken);
-        final List<SamplePE> samples = boFactory.createSampleBO(session).listSamples(sampleType);
+        final List<SamplePE> samples =
+                boFactory.createSampleBO(session).listSamples(sampleType, ownerIdentifiers);
         return samples;
     }
 

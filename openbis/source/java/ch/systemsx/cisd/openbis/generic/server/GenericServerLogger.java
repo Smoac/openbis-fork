@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
 /**
  * Logger class for {@link GenericServer} which creates readable logs of method invocations.
@@ -216,9 +217,10 @@ class GenericServerLogger implements IGenericServer, ISessionProvider
         return null;
     }
 
-    public List<SamplePE> listSamples(String sessionToken, SampleTypePE sampleType)
+    public List<SamplePE> listSamples(String sessionToken,
+            List<SampleOwnerIdentifier> ownerIdentifiers, SampleTypePE sampleType)
     {
-        logAccess(sessionToken, "list_samples", "TYPE(%s)", sampleType);
+        logAccess(sessionToken, "list_samples", "TYPE(%s) OWNERS(%s)", sampleType, ownerIdentifiers);
         return null;
     }
 

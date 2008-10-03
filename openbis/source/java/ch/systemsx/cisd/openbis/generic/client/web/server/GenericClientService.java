@@ -54,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
 /**
  * @author Franz-Josef Elmer
@@ -381,8 +382,11 @@ public class GenericClientService implements IGenericClientService
     {
         try
         {
+            // TODO 2008-10-03, Tomasz Pylak: pass SampleOwnerIdentifier list from the top
+            List<SampleOwnerIdentifier> ownerIdentifiers = new ArrayList<SampleOwnerIdentifier>();
+            ownerIdentifiers.add(new SampleOwnerIdentifier(GroupIdentifier.createHome()));
             List<SamplePE> samples =
-                    server.listSamples(getSessionToken(), SampleTypeTranslator
+                    server.listSamples(getSessionToken(), ownerIdentifiers, SampleTypeTranslator
                             .translate(sampleType));
             List<Sample> result = new ArrayList<Sample>();
             for (SamplePE sample : samples)

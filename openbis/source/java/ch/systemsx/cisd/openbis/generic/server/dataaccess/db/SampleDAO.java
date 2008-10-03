@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 
@@ -55,21 +56,14 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
         super(sessionFactory, databaseInstance);
     }
 
-    public List<SamplePE> listSamples(SampleTypePE sampleType)
+    private Criteria createListCriteriaForType(SampleTypePE sampleType)
     {
         Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
         criteria.add(Restrictions.eq("sampleType", sampleType));
 
         fetchRelations(criteria, "container", sampleType.getContainerHierarchyDepth());
         fetchRelations(criteria, "generatedFrom", sampleType.getGeneratedFromHierarchyDepth());
-
-        final List<SamplePE> list = cast(criteria.list());
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug(String.format("%d samples have been " + "found for sample type %s.",
-                    list.size(), sampleType));
-        }
-        return list;
+        return criteria;
     }
 
     private void fetchRelations(Criteria criteria, String relationName, int relationDepth)
@@ -96,5 +90,37 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
         {
             operationLog.info("ADD: sample " + sample);
         }
+    }
+
+    public final List<SamplePE> listSamplesByTypeAndGroup(final SampleTypePE sampleType,
+            final GroupPE group) throws DataAccessException
+    {
+        Criteria criteria = createListCriteriaForType(sampleType);
+        criteria.add(Restrictions.eq("group", group));
+
+        final List<SamplePE> list = cast(criteria.list());
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format(
+                    "%d samples have been found for sample type %s and group %s.", list.size(),
+                    sampleType, group));
+        }
+        return list;
+    }
+
+    public final List<SamplePE> listSamplesByTypeAndDatabaseInstance(final SampleTypePE sampleType,
+            final DatabaseInstancePE databaseInstance)
+    {
+        Criteria criteria = createListCriteriaForType(sampleType);
+        criteria.add(Restrictions.eq("databaseInstance", databaseInstance));
+
+        final List<SamplePE> list = cast(criteria.list());
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format(
+                    "%d samples have been found for sample type %s and database instance %s.", list
+                            .size(), sampleType, databaseInstance));
+        }
+        return list;
     }
 }
