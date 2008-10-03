@@ -23,23 +23,23 @@ import java.util.Arrays;
  * 
  * @author Bernd Rinn
  */
-public final class MDShortArray extends MDArray<Short>
+public final class MDShortArray extends MDAbstractArray<Short>
 {
     private final short[] flattenedArray;
 
     public MDShortArray(long[] dimensions)
     {
-        this(new short[getLength(dimensions)], dimensions, true);
+        this(new short[getLength(dimensions)], toInt(dimensions), true);
     }
 
     public MDShortArray(short[] flattenedArray, long[] dimensions)
     {
-        this(flattenedArray, dimensions, true);
+        this(flattenedArray, toInt(dimensions), true);
     }
 
     public MDShortArray(short[] flattenedArray, long[] dimensions, boolean checkdimensions)
     {
-        this(flattenedArray, MDArray.toInt(dimensions), checkdimensions);
+        this(flattenedArray, toInt(dimensions), checkdimensions);
     }
 
     public MDShortArray(int[] dimensions)

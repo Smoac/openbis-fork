@@ -16,204 +16,229 @@
 
 package ch.systemsx.cisd.common.array;
 
+import java.util.Arrays;
+
 /**
- * Base class of a multi-dimensional array. The <var>dimensions</var> of an array are provided
- * separately from the data as a <code>int[]</code>.
+ * A multi-dimensional array of type <code>T</code>.
  * 
  * @author Bernd Rinn
  */
-public abstract class MDArray<T>
+public class MDArray<T> extends MDAbstractArray<T>
 {
 
-    protected final int[] dimensions;
-
-    protected MDArray(int[] dimensions)
+    private final T[] flattenedArray;
+    
+    @SuppressWarnings("unchecked")
+    private static <V> V[] createArray(Class<V> componentClass, final int vectorLength)
     {
-        assert dimensions != null;
-
-        this.dimensions = dimensions;
+        final V[] value =
+                (V[]) java.lang.reflect.Array.newInstance(componentClass, vectorLength);
+        return value;
+    }
+    public MDArray(Class<T> componentClass, long[] dimensions)
+    {
+        this(createArray(componentClass, getLength(dimensions)), toInt(dimensions), true);
     }
 
-    /**
-     * Returns the rank of the array.
-     */
-    public int rank()
+    public MDArray(T[] flattenedArray, long[] dimensions)
     {
-        return dimensions.length;
+        this(flattenedArray, toInt(dimensions), true);
     }
 
-    /**
-     * Returns the extent of the array along its <var>dim</var>-th axis.
-     */
-    public int size(int dim)
+    public MDArray(T[] flattenedArray, long[] dimensions, boolean checkdimensions)
     {
-        assert dim < dimensions.length;
-
-        return dimensions[dim];
+        this(flattenedArray, toInt(dimensions), checkdimensions);
     }
 
-    /**
-     * Returns a copy of the dimensions of the multi-dimensional array.
-     */
-    public int[] dimensions()
+    public MDArray(Class<T> componentClass, int[] dimensions)
     {
-        return dimensions.clone();
+        this(createArray(componentClass, getLength(dimensions)), dimensions, true);
     }
 
-    /**
-     * Returns a copy of the dimensions of the multi-dimensional array as <code>long[]</code>.
-     */
-    public long[] longDimensions()
+    public MDArray(T[] flattenedArray, int[] dimensions)
     {
-        final long[] dimensionsCopy = new long[dimensions.length];
-        for (int i = 0; i < dimensionsCopy.length; ++i)
+        this(flattenedArray, dimensions, true);
+    }
+
+    public MDArray(T[] flattenedArray, int[] dimensions, boolean checkdimensions)
+    {
+        super(dimensions);
+        assert flattenedArray != null;
+
+        if (checkdimensions)
         {
-            dimensionsCopy[i] = dimensions[i];
-        }
-        return dimensionsCopy;
-    }
-
-    /**
-     * Returns the number of elements in the array.
-     */
-    public abstract int size();
-
-    /**
-     * Return an object which has the same value as the element of the array specified by
-     * <var>indices</var>.
-     */
-    public abstract T getAsObject(int[] indices);
-
-    /**
-     * Sets the element of the array specified by <var>indices</var> to the particular
-     * <var>value</var>.
-     */
-    public abstract void setToObject(int[] indices, T value);
-
-    /**
-     * Computes the linear index for the multi-dimensional <var>indices</var> provided.
-     */
-    protected int computeIndex(int[] indices)
-    {
-        assert indices != null;
-        assert indices.length == dimensions.length;
-
-        int index = indices[0];
-        for (int i = 1; i < indices.length; ++i)
-        {
-            index = index * dimensions[i] + indices[i];
-        }
-        return index;
-    }
-
-    /**
-     * Computes the linear index for the two-dimensional (<var>indexX, indexY</var>) provided.
-     */
-    protected int computeIndex(int indexX, int indexY)
-    {
-        assert 2 == dimensions.length;
-
-        return dimensions[1] * indexX + indexY;
-    }
-
-    /**
-     * Computes the linear index for the three-dimensional (<var>indexX, indexY, indexZ</var>)
-     * provided.
-     */
-    protected int computeIndex(int indexX, int indexY, int indexZ)
-    {
-        assert 3 == dimensions.length;
-
-        return dimensions[2] * (dimensions[1] * indexX + indexY) + indexZ;
-    }
-
-    /**
-     * Converts the <var>dimensions</var> from <code>long[]</code> to <code>int[]</code>.
-     */
-    public static int[] toInt(final long[] dimensions)
-    {
-        assert dimensions != null;
-
-        final int[] result = new int[dimensions.length];
-        for (int i = 0; i < result.length; ++i)
-        {
-            result[i] = (int) dimensions[i];
-            if (result[i] != dimensions[i])
+            final int expectedLength = getLength(dimensions);
+            if (flattenedArray.length != expectedLength)
             {
-                throw new IllegalArgumentException("Dimension " + i + "  is too large ("
-                        + dimensions[i] + ")");
+                throw new IllegalArgumentException("Actual array length " + flattenedArray.length
+                        + " does not match expected length " + expectedLength + ".");
             }
         }
+        this.flattenedArray = flattenedArray;
+    }
+
+    @Override
+    public T getAsObject(int[] indices)
+    {
+        return get(indices);
+    }
+
+    @Override
+    public void setToObject(int[] indices, T value)
+    {
+        set(indices, value);
+    }
+
+    @Override
+    public int size()
+    {
+        return flattenedArray.length;
+    }
+
+    /**
+     * Returns the array in flattened form. Changes to the returned object will change the
+     * multi-dimensional array directly.
+     */
+    public T[] getAsFlatArray()
+    {
+        return flattenedArray;
+    }
+
+    /**
+     * Returns the value of array at the position defined by <var>indices</var>.
+     */
+    public T get(int[] indices)
+    {
+        return flattenedArray[computeIndex(indices)];
+    }
+
+    /**
+     * Returns the value of a one-dimensional array at the position defined by <var>index</var>.
+     * <p>
+     * <b>Do not call for arrays other than one-dimensional!</b>
+     */
+    public T get(int index)
+    {
+        return flattenedArray[index];
+    }
+
+    /**
+     * Returns the value of a two-dimensional array at the position defined by <var>indexX</var> and
+     * <var>indexY</var>.
+     * <p>
+     * <b>Do not call for arrays other than two-dimensional!</b>
+     */
+    public T get(int indexX, int indexY)
+    {
+        return flattenedArray[computeIndex(indexX, indexY)];
+    }
+
+    /**
+     * Returns the value of a three-dimensional array at the position defined by <var>indexX</var>,
+     * <var>indexY</var> and <var>indexZ</var>.
+     * <p>
+     * <b>Do not call for arrays other than three-dimensional!</b>
+     */
+    public T get(int indexX, int indexY, int indexZ)
+    {
+        return flattenedArray[computeIndex(indexX, indexY, indexZ)];
+    }
+
+    /**
+     * Sets the <var>value</var> of array at the position defined by <var>indices</var>.
+     */
+    public void set(int[] indices, T value)
+    {
+        flattenedArray[computeIndex(indices)] = value;
+    }
+
+    /**
+     * Sets the <var>value</var> of a one-dimension array at the position defined by
+     * <var>index</var>.
+     * <p>
+     * <b>Do not call for arrays other than one-dimensional!</b>
+     */
+    public void set(int index, T value)
+    {
+        flattenedArray[index] = value;
+    }
+
+    /**
+     * Sets the <var>value</var> of a two-dimensional array at the position defined by
+     * <var>indexX</var> and <var>indexY</var>.
+     * <p>
+     * <b>Do not call for arrays other than two-dimensional!</b>
+     */
+    public void set(int indexX, int indexY, T value)
+    {
+        flattenedArray[computeIndex(indexX, indexY)] = value;
+    }
+
+    /**
+     * Sets the <var>value</var> of a three-dimensional array at the position defined by
+     * <var>indexX</var>, <var>indexY</var> and <var>indexZ</var>.
+     * <p>
+     * <b>Do not call for arrays other than three-dimensional!</b>
+     */
+    public void set(int indexX, int indexY, int indexZ, T value)
+    {
+        flattenedArray[computeIndex(indexX, indexY, indexZ)] = value;
+    }
+
+    /**
+     * Returns the component type of this array.
+     */
+    @SuppressWarnings("unchecked")
+    public Class<T> getComponentClass()
+    {
+        return (Class<T>) flattenedArray.getClass().getComponentType();
+    }
+    
+    //
+    // Object
+    //
+    
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + Arrays.hashCode(flattenedArray);
+        result = prime * result + Arrays.hashCode(dimensions);
         return result;
     }
 
-    /**
-     * Converts the <var>dimensions</var> from <code>int[]</code> to <code>long[]</code>.
-     */
-    public static long[] toLong(final int[] dimensions)
+    @Override
+    public boolean equals(Object obj)
     {
-        assert dimensions != null;
-
-        final long[] result = new long[dimensions.length];
-        for (int i = 0; i < result.length; ++i)
+        if (this == obj)
         {
-            result[i] = dimensions[i];
+            return true;
         }
-        return result;
+        if (obj == null)
+        {
+            return false;
+        }
+        if (getClass() != obj.getClass())
+        {
+            return false;
+        }
+        final MDArray<T> other = toMDArray(obj);
+        if (Arrays.equals(flattenedArray, other.flattenedArray) == false)
+        {
+            return false;
+        }
+        if (Arrays.equals(dimensions, other.dimensions) == false)
+        {
+            return false;
+        }
+        return true;
     }
-
-    /**
-     * Returns the one-dimensional length of the multi-dimensional array defined by
-     * <var>dimensions</var>.
-     * 
-     * @throws IllegalArgumentException If <var>dimensions</var> overflow the <code>int</code> type.
-     */
-    public static int getLength(final int[] dimensions)
+    
+    @SuppressWarnings("unchecked")
+    private MDArray<T> toMDArray(Object obj)
     {
-        assert dimensions != null;
-
-        if (dimensions.length == 0)
-        {
-            return 0;
-        }
-        long length = dimensions[0];
-        for (int i = 1; i < dimensions.length; ++i)
-        {
-            length *= dimensions[i];
-        }
-        int intLength = (int) length;
-        if (length != intLength)
-        {
-            throw new IllegalArgumentException("Length is too large (" + length + ")");
-        }
-        return intLength;
-    }
-
-    /**
-     * Returns the one-dimensional length of the multi-dimensional array defined by
-     * <var>dimensions</var>.
-     * 
-     * @throws IllegalArgumentException If <var>dimensions</var> overflow the <code>int</code> type.
-     */
-    public static int getLength(final long[] dimensions)
-    {
-        assert dimensions != null;
-
-        if (dimensions.length == 0) // NULL data space needs to be treated differently
-        {
-            return 0;
-        }
-        long length = dimensions[0];
-        for (int i = 1; i < dimensions.length; ++i)
-        {
-            length *= dimensions[i];
-        }
-        int intLength = (int) length;
-        if (length != intLength)
-        {
-            throw new IllegalArgumentException("Length is too large (" + length + ")");
-        }
-        return intLength;
+        return (MDArray<T>) obj;
     }
 
 }

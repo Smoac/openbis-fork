@@ -23,14 +23,14 @@ import org.testng.annotations.Test;
 import static org.testng.AssertJUnit.*;
 
 /**
- * Test cases for {@link MDArray}.
+ * Test cases for {@link MDAbstractArray}.
  *
  * @author Bernd Rinn
  */
 public class MDArraytest
 {
     
-    static class TestMDArray extends MDArray<Void>
+    static class TestMDArray extends MDAbstractArray<Void>
     {
         protected TestMDArray(int[] shape)
         {
@@ -58,23 +58,23 @@ public class MDArraytest
     @Test
     public void testGetLength()
     {
-        assertEquals(0, MDArray.getLength(new int[] { 0 }));
-        assertEquals(1, MDArray.getLength(new int[] { 1 }));
-        assertEquals(15, MDArray.getLength(new int[] { 5, 3 }));
-        assertEquals(1, MDArray.getLength(new int[] { 1, 1, 1 }));
-        assertEquals(8, MDArray.getLength(new int[] { 2, 2, 2 }));
-        assertEquals(2, MDArray.getLength(new int[] { 1, 1, 2 }));
-        assertEquals(2, MDArray.getLength(new int[] { 1, 2, 1 }));
-        assertEquals(2, MDArray.getLength(new int[] { 2, 1, 1 }));
-        assertEquals(50, MDArray.getLength(new int[] { 10, 1, 5 }));
-        assertEquals(50, MDArray.getLength(new long[] { 10, 1, 5 }));
+        assertEquals(0, MDAbstractArray.getLength(new int[] { 0 }));
+        assertEquals(1, MDAbstractArray.getLength(new int[] { 1 }));
+        assertEquals(15, MDAbstractArray.getLength(new int[] { 5, 3 }));
+        assertEquals(1, MDAbstractArray.getLength(new int[] { 1, 1, 1 }));
+        assertEquals(8, MDAbstractArray.getLength(new int[] { 2, 2, 2 }));
+        assertEquals(2, MDAbstractArray.getLength(new int[] { 1, 1, 2 }));
+        assertEquals(2, MDAbstractArray.getLength(new int[] { 1, 2, 1 }));
+        assertEquals(2, MDAbstractArray.getLength(new int[] { 2, 1, 1 }));
+        assertEquals(50, MDAbstractArray.getLength(new int[] { 10, 1, 5 }));
+        assertEquals(50, MDAbstractArray.getLength(new long[] { 10, 1, 5 }));
     }
     
     @Test
     public void testToInt()
     {
-        assertTrue(Arrays.equals(new int[] { 1, 2, 3 }, MDArray.toInt(new long[] { 1, 2, 3 })));
-        assertTrue(Arrays.equals(new int[] { }, MDArray.toInt(new long[] { })));
+        assertTrue(Arrays.equals(new int[] { 1, 2, 3 }, MDAbstractArray.toInt(new long[] { 1, 2, 3 })));
+        assertTrue(Arrays.equals(new int[] { }, MDAbstractArray.toInt(new long[] { })));
     }
     
     @Test

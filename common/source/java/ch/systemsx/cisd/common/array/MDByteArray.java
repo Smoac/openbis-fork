@@ -23,23 +23,23 @@ import java.util.Arrays;
  * 
  * @author Bernd Rinn
  */
-public final class MDByteArray extends MDArray<Byte>
+public final class MDByteArray extends MDAbstractArray<Byte>
 {
     private final byte[] flattenedArray;
 
     public MDByteArray(long[] dimensions)
     {
-        this(new byte[getLength(dimensions)], dimensions, true);
+        this(new byte[getLength(dimensions)], toInt(dimensions), true);
     }
 
     public MDByteArray(byte[] flattenedArray, long[] dimensions)
     {
-        this(flattenedArray, dimensions, true);
+        this(flattenedArray, toInt(dimensions), true);
     }
 
     public MDByteArray(byte[] flattenedArray, long[] dimensions, boolean checkdimensions)
     {
-        this(flattenedArray, MDArray.toInt(dimensions), checkdimensions);
+        this(flattenedArray, toInt(dimensions), checkdimensions);
     }
 
     public MDByteArray(int[] dimensions)

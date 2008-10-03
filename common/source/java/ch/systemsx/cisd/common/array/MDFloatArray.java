@@ -23,23 +23,23 @@ import java.util.Arrays;
  * 
  * @author Bernd Rinn
  */
-public final class MDFloatArray extends MDArray<Float>
+public final class MDFloatArray extends MDAbstractArray<Float>
 {
     private final float[] flattenedArray;
 
     public MDFloatArray(long[] dimensions)
     {
-        this(new float[getLength(dimensions)], dimensions, true);
+        this(new float[getLength(dimensions)], toInt(dimensions), true);
     }
 
     public MDFloatArray(float[] flattenedArray, long[] dimensions)
     {
-        this(flattenedArray, dimensions, true);
+        this(flattenedArray, toInt(dimensions), true);
     }
 
     public MDFloatArray(float[] flattenedArray, long[] dimensions, boolean checkdimensions)
     {
-        this(flattenedArray, MDArray.toInt(dimensions), checkdimensions);
+        this(flattenedArray, toInt(dimensions), checkdimensions);
     }
 
     public MDFloatArray(int[] dimensions)
