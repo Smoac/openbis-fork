@@ -24,7 +24,7 @@ import org.hibernate.Hibernate;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleOwnerFinder.SampleOwner;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwnerFinder.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;

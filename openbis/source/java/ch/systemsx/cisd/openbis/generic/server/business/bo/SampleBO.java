@@ -20,7 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleOwnerFinder.SampleOwner;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwnerFinder;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwnerFinder.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;

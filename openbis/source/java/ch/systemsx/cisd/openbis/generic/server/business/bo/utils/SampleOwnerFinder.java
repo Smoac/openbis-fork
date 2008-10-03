@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.business.bo;
+package ch.systemsx.cisd.openbis.generic.server.business.bo.util;
 
 import ch.systemsx.cisd.common.exceptions.InternalErr;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -28,6 +28,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceId
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
+/**
+ * Finds a group or database instance for a given owner identifier.
+ * 
+ * @author Tomasz Pylak
+ */
 public class SampleOwnerFinder
 {
     private final IAuthorizationDAOFactory daoFactory;
