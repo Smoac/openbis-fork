@@ -41,10 +41,8 @@ public class PersonRenderer implements GridCellRenderer<ModelData>
             String lastName = person.getLastName();
             if (firstName != null && lastName != null)
             {
-                if (firstName != null)
-                {
-                    result.append(firstName + " ");
-                }
+                result.append(firstName);
+                result.append(" ");
                 result.append(lastName);
             } else
             {
