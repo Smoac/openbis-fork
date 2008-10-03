@@ -272,14 +272,15 @@ public class GenericServer implements IGenericServer, ISessionProvider,
         {
             throw new UserFailureException("Given role does not exist.");
         }
-        if (roleAssignment.getPerson().compareTo(session.tryGetPerson()) == 0
+        PersonPE personPE = session.tryGetPerson();
+        if (roleAssignment.getPerson().compareTo(personPE) == 0
                 && roleAssignment.getRole().compareTo(RoleCode.ADMIN) == 0)
         {
             boolean isInstanceAdmin = false;
-            if (session != null && session.tryGetPerson() != null
-                    && session.tryGetPerson().getRoleAssignments() != null)
+            if (personPE != null
+                    && personPE.getRoleAssignments() != null)
             {
-                for (RoleAssignmentPE ra : session.tryGetPerson().getRoleAssignments())
+                for (RoleAssignmentPE ra : personPE.getRoleAssignments())
                 {
                     if (ra.getDatabaseInstance() != null && ra.getRole().equals(RoleCode.ADMIN))
                     {

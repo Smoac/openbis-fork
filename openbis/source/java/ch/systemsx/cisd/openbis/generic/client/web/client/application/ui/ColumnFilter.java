@@ -39,11 +39,12 @@ public class ColumnFilter<T extends ModelData> extends StoreFilterField<T>
     }
 
     @Override
-    protected boolean doSelect(Store<T> store, T parent, T record, String property, String filter)
+    protected boolean doSelect(Store<T> store, T parent, T record, String property,
+            String filterText)
     {
         String name = record.get(column);
         name = name.toLowerCase();
-        if (name.startsWith(filter.toLowerCase()))
+        if (name.startsWith(filterText.toLowerCase()))
         {
             return true;
         }
