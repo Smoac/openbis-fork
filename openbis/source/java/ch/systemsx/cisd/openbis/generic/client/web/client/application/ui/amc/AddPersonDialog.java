@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
 
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -24,44 +24,22 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 
 /**
- * {@link Window} containing group registration form.
+ * {@link Window} containing person registration form.
  * 
- * @author Franz-Josef Elmer
  * @author Izabela Adamczyk
  */
-public class AddGroupDialog extends Window
+public class AddPersonDialog extends Window
 {
-    final class RegisterGroupCallback extends AbstractAsyncCallback<Void>
+
+    private final PersonsView personList;
+
+    public AddPersonDialog(final GenericViewContext viewContext, final PersonsView p)
     {
-        private RegisterGroupCallback(GenericViewContext viewContext)
-        {
-            super(viewContext);
-        }
-
-        @Override
-        public void process(Void result)
-        {
-            hide();
-            groupList.refresh();
-
-        }
-    }
-
-    private static final String PREFIX = "add-group_";
-    
-    static final String CODE_FIELD_ID = GenericConstants.ID_PREFIX + PREFIX + "code-field";
-    static final String SAVE_BUTTON_ID = GenericConstants.ID_PREFIX + PREFIX + "save-button";
-
-    private final GroupsView groupList;
-
-    public AddGroupDialog(final GenericViewContext viewContext, final GroupsView g)
-    {
-        this.groupList = g;
-        setHeading("Add a new group");
+        this.personList = p;
+        setHeading("Add a new person");
         setModal(true);
         setWidth(400);
         FormPanel form = new FormPanel();
@@ -73,25 +51,25 @@ public class AddGroupDialog extends Window
         codeField.setWidth(100);
         codeField.setFieldLabel("Code");
         codeField.setAllowBlank(false);
-        codeField.setId(CODE_FIELD_ID);
         form.add(codeField);
 
-        final TextField<String> descriptionField = new TextField<String>();
-        descriptionField.setFieldLabel("Description");
-        form.add(descriptionField);
-
-        Button saveButton = new Button("Save", new SelectionListener<ComponentEvent>()
+        addButton(new Button("Save", new SelectionListener<ComponentEvent>()
             {
                 @Override
                 public void componentSelected(ComponentEvent ce)
                 {
-                    viewContext.getService().registerGroup(codeField.getValue(),
-                            descriptionField.getValue(), null,
-                            new RegisterGroupCallback(viewContext));
+                    viewContext.getService().registerPerson(codeField.getValue(),
+                            new AbstractAsyncCallback<Void>(viewContext)
+                                {
+                                    @Override
+                                    public void process(Void result)
+                                    {
+                                        hide();
+                                        personList.refresh();
+                                    }
+                                });
                 }
-            });
-        saveButton.setId(SAVE_BUTTON_ID);
-        addButton(saveButton);
+            }));
         addButton(new Button("Cancel", new SelectionListener<ComponentEvent>()
             {
                 @Override

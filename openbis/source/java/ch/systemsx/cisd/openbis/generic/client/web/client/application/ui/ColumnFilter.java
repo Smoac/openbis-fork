@@ -25,7 +25,7 @@ import com.extjs.gxt.ui.client.widget.StoreFilterField;
  * 
  * @author Izabela Adamczyk
  */
-class ColumnFilter<T extends ModelData> extends StoreFilterField<T>
+public class ColumnFilter<T extends ModelData> extends StoreFilterField<T>
 {
 
     private final String column;

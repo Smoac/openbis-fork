@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 ETH Zuerich, CISD
+ * Copyright 2008 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,60 +14,64 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.dto;
+package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * Kind of <i>Java Bean</i> or <i>Value Object</i> which transports through Web Service any
- * information we would like to know about a sample type.
- * 
- * @author Christian Ribeaud
+ * @author Izabela Adamczyk
  */
-public final class SampleType extends EntityType
+public class SampleType implements IsSerializable
 {
-    private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
-    public static final SampleType[] EMPTY_ARRAY = new SampleType[0];
+    String code;
 
-    private boolean plate;
+    String description;
 
-    private boolean controlLayout;
+    DatabaseInstance databaseInstance;
 
     private int generatedFromHierarchyDepth;
 
     private int partOfHierarchyDepth;
 
-    public final boolean isPlate()
+    public String getCode()
     {
-        return plate;
+        return code;
     }
 
-    public final void setPlate(boolean plate)
+    public void setCode(String codel)
     {
-        this.plate = plate;
+        this.code = codel;
     }
 
-    public final boolean isControlLayout()
+    public String getDescription()
     {
-        return controlLayout;
+        return description;
     }
 
-    public final void setControlLayout(final boolean controlLayout)
+    public void setDescription(String description)
     {
-        this.controlLayout = controlLayout;
+        this.description = description;
+    }
+
+    public DatabaseInstance getDatabaseInstance()
+    {
+        return databaseInstance;
+    }
+
+    public void setDatabaseInstance(DatabaseInstance databaseInstance)
+    {
+        this.databaseInstance = databaseInstance;
     }
 
     public void setGeneratedFromHierarchyDepth(int generatedFromHierarchyDepth)
     {
         this.generatedFromHierarchyDepth = generatedFromHierarchyDepth;
-
     }
 
     public void setPartOfHierarchyDepth(int partOfHierarchyDepth)
     {
         this.partOfHierarchyDepth = partOfHierarchyDepth;
-
     }
 
     public int getGeneratedFromHierarchyDepth()
@@ -79,4 +83,5 @@ public final class SampleType extends EntityType
     {
         return partOfHierarchyDepth;
     }
+
 }

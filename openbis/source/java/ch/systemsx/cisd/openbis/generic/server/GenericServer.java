@@ -130,6 +130,7 @@ public class GenericServer implements IGenericServer, ISessionProvider,
     @Transactional
     public Session tryToAuthenticate(String user, String password)
     {
+        System.err.println(user + " " + password);
         String sessionToken = sessionManager.tryToOpenSession(user, password);
         if (sessionToken == null)
         {
@@ -335,7 +336,8 @@ public class GenericServer implements IGenericServer, ISessionProvider,
     public List<SamplePE> listSamples(String sessionToken, SampleTypePE sampleType)
     {
         Session session = sessionManager.getSession(sessionToken);
-        return boFactory.createSampleBO(session).listSamples(sampleType);
+        final List<SamplePE> samples = boFactory.createSampleBO(session).listSamples(sampleType);
+        return samples;
     }
 
 }

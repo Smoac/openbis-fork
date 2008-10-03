@@ -34,17 +34,23 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.User;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.GroupTranslater;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.PersonTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.RoleAssignmentTranslator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.util.SampleTranslator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.util.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.UserFailureExceptionTranslater;
 import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
@@ -354,4 +360,39 @@ public class GenericClientService implements IGenericClientService
 
     }
 
+    public List<SampleType> listSampleTypes()
+    {
+        try
+        {
+            List<SampleTypePE> sampleTypes = server.listSampleTypes(getSessionToken());
+            List<SampleType> result = new ArrayList<SampleType>();
+            for (SampleTypePE sampleTypePE : sampleTypes)
+            {
+                result.add(SampleTypeTranslator.translate(sampleTypePE));
+            }
+            return result;
+        } catch (UserFailureException e)
+        {
+            throw UserFailureExceptionTranslater.translate(e);
+        }
+    }
+
+    public List<Sample> listSamples(SampleType sampleType)
+    {
+        try
+        {
+            List<SamplePE> samples =
+                    server.listSamples(getSessionToken(), SampleTypeTranslator
+                            .translate(sampleType));
+            List<Sample> result = new ArrayList<Sample>();
+            for (SamplePE sample : samples)
+            {
+                result.add(SampleTranslator.translate(sample));
+            }
+            return result;
+        } catch (UserFailureException e)
+        {
+            throw UserFailureExceptionTranslater.translate(e);
+        }
+    }
 }

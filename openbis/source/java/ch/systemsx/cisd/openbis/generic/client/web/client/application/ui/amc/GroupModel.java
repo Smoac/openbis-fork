@@ -14,38 +14,36 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
-
-import java.util.ArrayList;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 
 /**
- * {@link ModelData} for {@link Person}.
+ * {@link ModelData} for {@link Group}.
  * 
  * @author Izabela Adamczyk
  */
-public class PersonModel extends BaseModelData
+public class GroupModel extends BaseModelData
 {
+
+    static final String CODE = "code";
 
     private static final long serialVersionUID = 1L;
 
-    public PersonModel()
+    public GroupModel()
     {
     }
 
-    public PersonModel(Person p)
+    public GroupModel(Group g)
     {
-        set("userId", p.getUserId());
-        set("registrator", p.getRegistrator());
-        set("registrationDate", p.getRegistrationDate());
-        set("firstName", p.getFirstName());
-        set("lastName", p.getLastName());
-        set("email", p.getEMail());
-        set("roles", new ArrayList<RoleAssignment>());
+        set(CODE, g.getCode());
+        set("description", g.getDescription());
+        set("leader", g.getLeader());
+        set("registrator", g.getRegistrator());
+        set("registrationDate", g.getRegistrationDate());
     }
+
 }

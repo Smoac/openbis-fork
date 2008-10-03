@@ -43,14 +43,14 @@ public final class SampleTypePE extends EntityTypePE
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
-    private boolean isListable;
+    private Boolean isListable;
 
-    private int generatedFromHierarchyDepth;
+    private Integer generatedFromHierarchyDepth;
 
-    private int containerHierarchyDepth;
+    private Integer containerHierarchyDepth;
 
     @Column(name = ColumnNames.IS_LISTABLE)
-    public boolean isListable()
+    public Boolean isListable()
     {
         return isListable;
     }
@@ -61,7 +61,7 @@ public final class SampleTypePE extends EntityTypePE
     }
 
     @Column(name = ColumnNames.GENERATED_FROM_DEPTH)
-    public int getGeneratedFromHierarchyDepth()
+    public Integer getGeneratedFromHierarchyDepth()
     {
         return generatedFromHierarchyDepth;
     }
@@ -72,7 +72,7 @@ public final class SampleTypePE extends EntityTypePE
     }
 
     @Column(name = ColumnNames.PART_OF_DEPTH)
-    public int getContainerHierarchyDepth()
+    public Integer getContainerHierarchyDepth()
     {
         return containerHierarchyDepth;
     }

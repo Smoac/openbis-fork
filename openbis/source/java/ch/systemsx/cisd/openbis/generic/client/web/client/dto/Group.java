@@ -41,6 +41,8 @@ public class Group implements IsSerializable
 
     private DataStore dataStore;
 
+    private String identifier;
+
     public final String getCode()
     {
         return code;
@@ -119,5 +121,15 @@ public class Group implements IsSerializable
     public void setDataStore(DataStore dataStore)
     {
         this.dataStore = dataStore;
+    }
+
+    public String getIdentifier()
+    {
+        return identifier;
+    }
+
+    public void setIdentifier(String identifier)
+    {
+        this.identifier = identifier;
     }
 }

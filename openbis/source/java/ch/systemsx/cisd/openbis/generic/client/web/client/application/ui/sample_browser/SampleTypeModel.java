@@ -14,35 +14,24 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
-import com.extjs.gxt.ui.client.data.ModelData;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
 /**
- * {@link ModelData} for {@link Group}.
- * 
  * @author Izabela Adamczyk
  */
-public class GroupModel extends BaseModelData
+public class SampleTypeModel extends BaseModelData
 {
-    static final String CODE = "code";
 
     private static final long serialVersionUID = 1L;
 
-    public GroupModel()
+    public SampleTypeModel(SampleType sampleType)
     {
-    }
-
-    public GroupModel(Group g)
-    {
-        set(CODE, g.getCode());
-        set("description", g.getDescription());
-        set("leader", g.getLeader());
-        set("registrator", g.getRegistrator());
-        set("registrationDate", g.getRegistrationDate());
+        set("code", sampleType.getCode());
+        set("object", sampleType);
     }
 
 }

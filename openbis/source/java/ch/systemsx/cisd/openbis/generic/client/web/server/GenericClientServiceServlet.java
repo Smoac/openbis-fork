@@ -37,6 +37,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
@@ -166,6 +168,16 @@ public class GenericClientServiceServlet extends GWTSpringController implements
     {
         service.deleteInstanceRole(roleSetCode, person);
 
+    }
+
+    public List<SampleType> listSampleTypes() throws UserFailureException
+    {
+        return service.listSampleTypes();
+    }
+
+    public List<Sample> listSamples(SampleType sampleType) throws UserFailureException
+    {
+        return service.listSamples(sampleType);
     }
 
 }

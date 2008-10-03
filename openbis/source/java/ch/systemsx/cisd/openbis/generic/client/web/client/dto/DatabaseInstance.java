@@ -19,15 +19,15 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DatabaseInstance implements IsSerializable
 {
     private String code;
-    
+
     private String uuid;
+
+    private String identifier;
 
     public final String getCode()
     {
@@ -47,5 +47,15 @@ public class DatabaseInstance implements IsSerializable
     public final void setUuid(String uuid)
     {
         this.uuid = uuid;
+    }
+
+    public String getIdentifier()
+    {
+        return identifier;
+    }
+
+    public void setIdentifier(String identifier)
+    {
+        this.identifier = identifier;
     }
 }

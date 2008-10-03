@@ -16,27 +16,24 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
+import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 
 /**
- * Helper creating brief {@link Person} description.
- * 
  * @author Izabela Adamczyk
  */
-class PersonRenderer
+public class PersonRenderer implements GridCellRenderer<ModelData>
 {
-    Person person;
 
-    public PersonRenderer(Person p)
+    public String render(ModelData model, String property, ColumnData config, int rowIndex,
+            int colIndex, ListStore<ModelData> store)
     {
-        person = p;
-
-    }
-
-    @Override
-    public String toString()
-    {
-        StringBuilder sb = new StringBuilder();
+        Person person = (Person) model.get(property);
+        StringBuilder result = new StringBuilder();
         if (person != null)
         {
             String userId = person.getUserId();
@@ -46,14 +43,14 @@ class PersonRenderer
             {
                 if (firstName != null)
                 {
-                    sb.append(firstName + " ");
+                    result.append(firstName + " ");
                 }
-                sb.append(lastName);
+                result.append(lastName);
             } else
             {
-                sb.append(userId);
+                result.append(userId);
             }
         }
-        return sb.toString();
+        return result.toString();
     }
 }

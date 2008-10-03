@@ -24,6 +24,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
@@ -102,4 +104,14 @@ public interface IGenericClientService extends RemoteService
      * Deletes the role described by given role set code and person code
      */
     public void deleteInstanceRole(String roleSetCode, String person) throws UserFailureException;
+
+    /**
+     * Returns a list of sample types.
+     */
+    public List<SampleType> listSampleTypes() throws UserFailureException;
+
+    /**
+     * Returns a list of samples for given sample type.
+     */
+    public List<Sample> listSamples(SampleType sampleType);
 }

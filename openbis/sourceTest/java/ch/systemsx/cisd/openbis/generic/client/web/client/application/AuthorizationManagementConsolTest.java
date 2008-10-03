@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.CheckGroup;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.CreateGroup;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CheckGroup;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CreateGroup;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 
 /**

@@ -14,28 +14,38 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
+
+import java.util.ArrayList;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 
 /**
- * {@link ModelData} for {@link RoleAssignment}.
+ * {@link ModelData} for {@link Person}.
  * 
  * @author Izabela Adamczyk
  */
-public class RoleModel extends BaseModelData
+public class PersonModel extends BaseModelData
 {
+
     private static final long serialVersionUID = 1L;
 
-    public RoleModel(RoleAssignment role)
+    public PersonModel()
     {
-        set("group", role.getGroup() != null ? role.getGroup().getCode() : "");
-        set("person", role.getPerson().getUserId());
-        set("role", role.getCode());
-        set("instance", role.getInstance() != null ? role.getInstance().getCode() : "");
     }
 
+    public PersonModel(Person p)
+    {
+        set("userId", p.getUserId());
+        set("registrator", p.getRegistrator());
+        set("registrationDate", p.getRegistrationDate());
+        set("firstName", p.getFirstName());
+        set("lastName", p.getLastName());
+        set("email", p.getEMail());
+        set("roles", new ArrayList<RoleAssignment>());
+    }
 }

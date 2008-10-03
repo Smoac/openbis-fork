@@ -43,4 +43,6 @@ public class ClientConstants
 
     public static final int COL_PERSON_ID = 80;
 
+    public static final int COL_SAMPLE = 200;
+
 }

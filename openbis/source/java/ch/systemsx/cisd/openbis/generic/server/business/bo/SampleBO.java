@@ -40,7 +40,8 @@ public class SampleBO extends AbstractBusinessObject implements ISampleBO
         SampleTypePE sampleType = getSampleTypeDAO().tryFindByExample(sampleTypeExample);
         if (sampleType == null)
         {
-            throw new UserFailureException("Cannot find a type matching to " + sampleTypeExample);
+            throw new UserFailureException("Cannot find a sample type matching to "
+                    + sampleTypeExample);
         }
         return getSampleDAO().listSamples(sampleType);
     }

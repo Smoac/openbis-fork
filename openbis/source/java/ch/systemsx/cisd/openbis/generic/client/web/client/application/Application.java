@@ -18,18 +18,17 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.TabItem;
-import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Footer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupsView;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonsView;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.RolesView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TopMenu;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AMC;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.SampleBrowser;
 
 /**
  * Panel of the application.
@@ -54,7 +53,7 @@ public class Application extends Viewport
         panels.setLayout(new RowLayout());
 
         TopMenu north = new TopMenu(viewContext);
-        MainPanel center = new MainPanel(viewContext);
+        Widget center = chosenMainPanel(viewContext);
         Footer south = new Footer(viewContext);
 
         RowData northData = new RowData(1, -1, new Margins(MARGIN_SIZE));
@@ -68,34 +67,14 @@ public class Application extends Viewport
         add(panels);
     }
 
-    class MainPanel extends TabPanel
+    private Widget chosenMainPanel(final GenericViewContext viewContext)
     {
-
-        public MainPanel(GenericViewContext viewContext)
+        if ("amc".equals(Window.Location.getParameter("view")))
         {
-
-            TabItem groupsTab = new TabItem(viewContext.getMessage("groupsView_heading"));
-            groupsTab.addStyleName("pad-text");
-            GroupsView groupList = new GroupsView(viewContext);
-            groupList.refresh();
-            groupsTab.add(groupList);
-
-            TabItem personsTab = new TabItem(viewContext.getMessage("personsView_heading"));
-            personsTab.addStyleName("pad-text");
-            PersonsView personList = new PersonsView(viewContext);
-            personList.refresh();
-            personsTab.add(personList);
-
-            TabItem rolesTab = new TabItem(viewContext.getMessage("rolesView_heading"));
-            rolesTab.addStyleName("pad-text");
-            RolesView roleList = new RolesView(viewContext);
-            roleList.refresh();
-            rolesTab.add(roleList);
-
-            add(personsTab);
-            add(groupsTab);
-            add(rolesTab);
-
+            return new AMC(viewContext);
+        } else
+        {
+            return new SampleBrowser(viewContext);
         }
     }
 

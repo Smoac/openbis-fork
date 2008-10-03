@@ -18,11 +18,12 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 
 /**
  * @author Izabela Adamczyk
  */
-public class InstanceTranslater
+public class DatabaseInstanceTranslater
 {
 
     public static DatabaseInstance translate(DatabaseInstancePE databaseInstance)
@@ -32,6 +33,19 @@ public class InstanceTranslater
             return null;
         }
         DatabaseInstance result = new DatabaseInstance();
+        result.setCode(databaseInstance.getCode());
+        result.setUuid(databaseInstance.getUuid());
+        result.setIdentifier(IdentifierHelper.createIdentifier(databaseInstance).toString());
+        return result;
+    }
+
+    public static DatabaseInstancePE translate(DatabaseInstance databaseInstance)
+    {
+        if (databaseInstance == null)
+        {
+            return null;
+        }
+        DatabaseInstancePE result = new DatabaseInstancePE();
         result.setCode(databaseInstance.getCode());
         result.setUuid(databaseInstance.getUuid());
         return result;

@@ -18,10 +18,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class GroupTranslater
@@ -29,7 +28,7 @@ public class GroupTranslater
     private GroupTranslater()
     {
     }
-    
+
     public static Group translate(GroupPE group)
     {
         if (group == null)
@@ -41,6 +40,7 @@ public class GroupTranslater
         result.setDescription(group.getDescription());
         result.setRegistrationDate(group.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(group.getRegistrator()));
+        result.setIdentifier(IdentifierHelper.createIdentifier(group).toString());
         return result;
     }
 }

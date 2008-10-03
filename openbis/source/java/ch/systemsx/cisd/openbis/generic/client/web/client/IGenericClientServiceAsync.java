@@ -24,6 +24,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 
 /**
@@ -76,5 +78,11 @@ public interface IGenericClientServiceAsync
     /** @see IGenericClientService#deleteInstanceRole(String, String) */
     public void deleteInstanceRole(String roleSetCode, String person,
             AsyncCallback<Void> asyncCallback);
+
+    /** @see IGenericClientService#listSampleTypes() */
+    public void listSampleTypes(AsyncCallback<List<SampleType>> asyncCallback);
+
+    /** @see IGenericClientService#listSamples(SampleType) */
+    public void listSamples(SampleType sampleType, AsyncCallback<List<Sample>> asyncCallback);
 
 }
