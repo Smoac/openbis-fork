@@ -187,6 +187,24 @@ public class VocabularyPE extends HibernateAbstractRegistratrationHolder impleme
         return CodeConverter.tryToBusinessLayer(getSimpleCode(), isInternalNamespace() == false);
     }
 
+    /**
+     * Returns the {@link VocabularyTermPE} of this vocabulary having given code.
+     * 
+     * @return <code>null</code> if no term with given code could be found.
+     */
+    public final VocabularyTermPE tryGetVocabularyTerm(final String code)
+    {
+        assert code != null : "Unspecified code";
+        for (final VocabularyTermPE vocabularyTermPE : getTerms())
+        {
+            if (vocabularyTermPE.getCode().equals(code))
+            {
+                return vocabularyTermPE;
+            }
+        }
+        return null;
+    }
+
     //
     // Object
     //
