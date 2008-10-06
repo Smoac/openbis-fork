@@ -82,7 +82,8 @@ public interface IGenericClientServiceAsync
     /** @see IGenericClientService#listSampleTypes() */
     public void listSampleTypes(AsyncCallback<List<SampleType>> asyncCallback);
 
-    /** @see IGenericClientService#listSamples(SampleType) */
-    public void listSamples(SampleType sampleType, AsyncCallback<List<Sample>> asyncCallback);
+    /** @see IGenericClientService#listSamples(SampleType, String, boolean, boolean) */
+    public void listSamples(SampleType sampleType, String groupCode, boolean includeGroup,
+            boolean includeInstance, AsyncCallback<List<Sample>> asyncCallback);
 
 }

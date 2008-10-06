@@ -35,19 +35,18 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonR
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
-class RightPanel extends LayoutContainer
+class SampleBrowserGrid extends LayoutContainer
 {
 
     private final GenericViewContext viewContext;
 
-    public RightPanel(GenericViewContext viewContext)
+    public SampleBrowserGrid(GenericViewContext viewContext)
     {
         this.viewContext = viewContext;
         setLayout(new FitLayout());
-        setBorders(true);
     }
 
-    private void display(List<Sample> samples, SampleType sampleType)
+    private void display(List<Sample> samples, ColumnModel columnModel, String header)
     {
         ListStore<SampleModel> sampleStore = new ListStore<SampleModel>();
         for (Sample s : samples)
@@ -55,10 +54,10 @@ class RightPanel extends LayoutContainer
             sampleStore.add(new SampleModel(s));
         }
         final ContentPanel cp = new ContentPanel();
-        cp.setHeading(sampleType.getCode() + " samples");
+        cp.setHeading(header);
         cp.setLayout(new FitLayout());
 
-        Grid<SampleModel> grid = new Grid<SampleModel>(sampleStore, createColumnModel(sampleType));
+        Grid<SampleModel> grid = new Grid<SampleModel>(sampleStore, columnModel);
         cp.add(grid);
 
         removeAll();
@@ -67,17 +66,47 @@ class RightPanel extends LayoutContainer
 
     }
 
-    public void refresh(final SampleType sampleType)
+    private String createHeader(SampleType sampleType, String selectedGroupCode, boolean showGroup,
+            boolean showInstance)
+    {
+        StringBuilder sb = new StringBuilder("Samples");
+        sb.append(" ");
+        sb.append("of type");
+        sb.append(" ");
+        sb.append(sampleType.getCode());
+        if (showGroup)
+        {
+            sb.append(" ");
+            sb.append("from group");
+            sb.append(" ");
+            sb.append(selectedGroupCode);
+        }
+        if (showInstance)
+        {
+            if (showGroup)
+            {
+                sb.append(" ");
+                sb.append("and");
+            }
+            sb.append(" ");
+            sb.append("from instance level");
+        }
+        return sb.toString();
+    }
+
+    public void refresh(final SampleType sampleType, final String selectedGroupCode,
+            final boolean showGroup, final boolean showInstance)
     {
         removeAll();
         add(new Text("data loading..."));
-        viewContext.getService().listSamples(sampleType,
-                new AbstractAsyncCallback<List<Sample>>(viewContext)
+        viewContext.getService().listSamples(sampleType, selectedGroupCode, showGroup,
+                showInstance, new AbstractAsyncCallback<List<Sample>>(viewContext)
                     {
                         @Override
                         public void process(List<Sample> samples)
                         {
-                            display(samples, sampleType);
+                            display(samples, createColumnModel(sampleType), createHeader(
+                                    sampleType, selectedGroupCode, showGroup, showInstance));
                         }
 
                     });

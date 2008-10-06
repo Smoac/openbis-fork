@@ -44,6 +44,7 @@ public class GroupModel extends BaseModelData
         set("leader", g.getLeader());
         set("registrator", g.getRegistrator());
         set("registrationDate", g.getRegistrationDate());
+        set("object", g);
     }
 
 }

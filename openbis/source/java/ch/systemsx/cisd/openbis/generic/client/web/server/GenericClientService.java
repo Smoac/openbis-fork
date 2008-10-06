@@ -378,13 +378,22 @@ public class GenericClientService implements IGenericClientService
         }
     }
 
-    public List<Sample> listSamples(SampleType sampleType)
+    public List<Sample> listSamples(SampleType sampleType, String groupCode, boolean includeGroup,
+            boolean includeInstance)
     {
         try
         {
-            // TODO 2008-10-03, Tomasz Pylak: pass SampleOwnerIdentifier list from the top
             List<SampleOwnerIdentifier> ownerIdentifiers = new ArrayList<SampleOwnerIdentifier>();
-            ownerIdentifiers.add(new SampleOwnerIdentifier(GroupIdentifier.createHome()));
+            if (includeGroup)
+            {
+                ownerIdentifiers.add(new SampleOwnerIdentifier(new GroupIdentifier(
+                        DatabaseInstanceIdentifier.HOME, groupCode)));
+            }
+            if (includeInstance)
+            {
+                ownerIdentifiers.add(new SampleOwnerIdentifier(DatabaseInstanceIdentifier
+                        .createHome()));
+            }
             List<SamplePE> samples =
                     server.listSamples(getSessionToken(), ownerIdentifiers, SampleTypeTranslator
                             .translate(sampleType));

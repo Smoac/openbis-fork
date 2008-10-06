@@ -175,9 +175,10 @@ public class GenericClientServiceServlet extends GWTSpringController implements
         return service.listSampleTypes();
     }
 
-    public List<Sample> listSamples(SampleType sampleType) throws UserFailureException
+    public List<Sample> listSamples(SampleType sampleType, String groupCode, boolean includeGroup,
+            boolean includeInstance) throws UserFailureException
     {
-        return service.listSamples(sampleType);
+        return service.listSamples(sampleType, groupCode, includeGroup, includeInstance);
     }
 
 }

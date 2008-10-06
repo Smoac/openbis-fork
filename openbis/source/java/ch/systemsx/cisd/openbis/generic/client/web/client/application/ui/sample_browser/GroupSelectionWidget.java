@@ -24,31 +24,32 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.GroupModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 
-class SampleTypeSelectionWidget extends ComboBox<SampleTypeModel>
+class GroupSelectionWidget extends ComboBox<GroupModel>
 {
 
     private final GenericViewContext viewContext;
 
-    private ListStore<SampleTypeModel> sampleTypeStore;
+    private ListStore<GroupModel> groupStore;
 
-    public SampleTypeSelectionWidget(GenericViewContext viewContext)
+    public GroupSelectionWidget(GenericViewContext viewContext)
     {
 
         this.viewContext = viewContext;
-        setEmptyText("Select a sample type...");
+        setEmptyText("Select a group...");
         setDisplayField("code");
         setAllowBlank(false);
         setEditable(false);
-        sampleTypeStore = new ListStore<SampleTypeModel>();
-        setStore(sampleTypeStore);
+        groupStore = new ListStore<GroupModel>();
+        setStore(groupStore);
     }
 
-    public SampleType tryGetSelected()
+    public Group tryGetSelected()
     {
 
-        final List<SampleTypeModel> selection = getSelection();
+        final List<GroupModel> selection = getSelection();
         if (selection.size() > 0)
         {
             return selection.get(0).get("object");
@@ -60,25 +61,23 @@ class SampleTypeSelectionWidget extends ComboBox<SampleTypeModel>
 
     void refresh()
     {
-        viewContext.getService().listSampleTypes(
-                new AbstractAsyncCallback<List<SampleType>>(viewContext)
+        viewContext.getService().listGroups(null,
+                new AbstractAsyncCallback<List<Group>>(viewContext)
                     {
                         @Override
-                        protected void process(List<SampleType> result)
+                        protected void process(List<Group> result)
                         {
-                            sampleTypeStore.add(convert(result));
+                            groupStore.add(convert(result));
                         }
-
                     });
-
     }
 
-    List<SampleTypeModel> convert(List<SampleType> sampleTypes)
+    List<GroupModel> convert(List<Group> groups)
     {
-        List<SampleTypeModel> result = new ArrayList<SampleTypeModel>();
-        for (SampleType st : sampleTypes)
+        List<GroupModel> result = new ArrayList<GroupModel>();
+        for (Group g : groups)
         {
-            result.add(new SampleTypeModel(st));
+            result.add(new GroupModel(g));
         }
         return result;
     }

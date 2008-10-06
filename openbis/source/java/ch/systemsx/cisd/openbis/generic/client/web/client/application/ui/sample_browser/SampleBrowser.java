@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser;
 
-import com.extjs.gxt.ui.client.Style.Orientation;
-import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
@@ -29,13 +27,12 @@ public class SampleBrowser extends LayoutContainer
 
     public SampleBrowser(GenericViewContext viewContext)
     {
-        setLayout(new RowLayout(Orientation.HORIZONTAL));
+        setLayout(new RowLayout());
 
-        final RightPanel rightPanel = new RightPanel(viewContext);
-        final LeftPanel leftPanel = new LeftPanel(viewContext, rightPanel);
+        final SampleBrowserGrid grid = new SampleBrowserGrid(viewContext);
+        final SampleBrowserToolbar toolbar = new SampleBrowserToolbar(viewContext, grid);
 
-        add(leftPanel, new RowData(200, 1, new Margins(1)));
-
-        add(rightPanel, new RowData(1, 1, new Margins(1)));
+        add(toolbar);
+        add(grid, new RowData(1, 1));
     }
 }
