@@ -131,7 +131,6 @@ public class GenericServer implements IGenericServer, ISessionProvider,
     @Transactional
     public Session tryToAuthenticate(String user, String password)
     {
-        System.err.println(user + " " + password);
         String sessionToken = sessionManager.tryToOpenSession(user, password);
         if (sessionToken == null)
         {

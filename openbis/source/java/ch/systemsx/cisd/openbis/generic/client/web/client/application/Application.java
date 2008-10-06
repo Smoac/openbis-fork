@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import static ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants.AUTHORIZATION_MANAGEMENT_CONSOLE_VIEW;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants.VIEW_KEY;
+
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Viewport;
@@ -69,7 +72,7 @@ public class Application extends Viewport
 
     private Widget chosenMainPanel(final GenericViewContext viewContext)
     {
-        if ("amc".equals(Window.Location.getParameter("view")))
+        if (AUTHORIZATION_MANAGEMENT_CONSOLE_VIEW.equals(Window.Location.getParameter(VIEW_KEY)))
         {
             return new AMC(viewContext);
         } else
