@@ -17,11 +17,12 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.List;
 
 import org.hibernate.Hibernate;
-import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwnerFinder.SampleOwner;
@@ -41,15 +42,26 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
 public final class SampleDAOTest extends AbstractDAOTest
 {
     @Test
+    public void testListSamplesPropertiesPresent()
+    {
+        SampleTypePE type = getSampleType(SampleTypeCode.MASTER_PLATE);
+        GroupPE group = new GroupPE();
+        group.setId(1L);
+        List<SamplePE> samples = daoFactory.getSampleDAO().listSamplesByTypeAndGroup(type, group);
+        for (SamplePE sample : samples)
+        {
+            assertTrue(Hibernate.isInitialized(sample.getProperties()));
+        }
+    }
+
+    @Test
     public final void testListGroupSamples()
     {
         SampleTypePE sampleType = getSampleType(SampleTypeCode.MASTER_PLATE);
         GroupPE group = createGroup("xxx");
         daoFactory.getGroupDAO().createGroup(group);
-
         SamplePE sample = createSample(sampleType, "code", null, SampleOwner.createGroup(group));
         save(sample);
-
         List<SamplePE> samples =
                 daoFactory.getSampleDAO().listSamplesByTypeAndGroup(sampleType, group);
         assertEquals(1, samples.size());
@@ -62,35 +74,29 @@ public final class SampleDAOTest extends AbstractDAOTest
         SampleTypePE type1 = getSampleType(SampleTypeCode.MASTER_PLATE);
         SampleTypePE type2 = getSampleType(SampleTypeCode.DILUTION_PLATE);
         SampleTypePE type3 = getSampleType(SampleTypeCode.CELL_PLATE);
-
         type3.setContainerHierarchyDepth(1);
         type3.setGeneratedFromHierarchyDepth(1);
-
         SamplePE sampleA = createSample(type1, "grandParent", null);
         SamplePE sampleB = createSample(type2, "parent", sampleA);
         SamplePE sampleC = createSample(type3, "child", sampleB);
         save(sampleA, sampleB, sampleC);
-
         SamplePE well = createSample(type3, "well", null);
         SamplePE container = createSample(type2, "container", null);
         SamplePE superContainer = createSample(type2, "superContainer", null);
         well.setContainer(container);
         container.setContainer(superContainer);
-        save(superContainer, container, well);
-
-        // clear session to avoid using samples from first level cache
+        save(superContainer, container, well); // clear session to avoid using samples from first
+        // level cache
         sessionFactory.getCurrentSession().clear();
         List<SamplePE> samples = listSamplesFromHomeDatabase(type3);
-
         SamplePE foundWell = findSample(well, samples);
-        AssertJUnit.assertTrue(Hibernate.isInitialized(foundWell.getContainer()));
+        assertTrue(Hibernate.isInitialized(foundWell.getContainer()));
         SamplePE foundContainer = foundWell.getContainer();
-        AssertJUnit.assertFalse(Hibernate.isInitialized(foundContainer.getContainer()));
-
+        assertFalse(Hibernate.isInitialized(foundContainer.getContainer()));
         sampleC = findSample(sampleC, samples);
-        AssertJUnit.assertTrue(Hibernate.isInitialized(sampleC.getGeneratedFrom()));
+        assertTrue(Hibernate.isInitialized(sampleC.getGeneratedFrom()));
         SamplePE parent = sampleC.getGeneratedFrom();
-        AssertJUnit.assertFalse(Hibernate.isInitialized(parent.getGeneratedFrom()));
+        assertFalse(Hibernate.isInitialized(parent.getGeneratedFrom()));
     }
 
     private List<SamplePE> listSamplesFromHomeDatabase(SampleTypePE sampleType)

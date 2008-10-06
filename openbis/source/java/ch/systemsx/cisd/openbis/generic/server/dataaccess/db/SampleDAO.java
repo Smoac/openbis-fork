@@ -21,6 +21,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
+import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
@@ -56,7 +57,7 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
         super(sessionFactory, databaseInstance);
     }
 
-    private Criteria createListCriteriaForType(SampleTypePE sampleType)
+    private Criteria createListSampleForTypeCriteria(SampleTypePE sampleType)
     {
         Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
         criteria.add(Restrictions.eq("sampleType", sampleType));
@@ -95,10 +96,12 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
     public final List<SamplePE> listSamplesByTypeAndGroup(final SampleTypePE sampleType,
             final GroupPE group) throws DataAccessException
     {
-        Criteria criteria = createListCriteriaForType(sampleType);
+        Criteria criteria = createListSampleForTypeCriteria(sampleType);
         criteria.add(Restrictions.eq("group", group));
 
         final List<SamplePE> list = cast(criteria.list());
+        fetchSampleProperties(list);
+
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format(
@@ -111,10 +114,12 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
     public final List<SamplePE> listSamplesByTypeAndDatabaseInstance(final SampleTypePE sampleType,
             final DatabaseInstancePE databaseInstance)
     {
-        Criteria criteria = createListCriteriaForType(sampleType);
+        Criteria criteria = createListSampleForTypeCriteria(sampleType);
         criteria.add(Restrictions.eq("databaseInstance", databaseInstance));
 
         final List<SamplePE> list = cast(criteria.list());
+        fetchSampleProperties(list);
+
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format(
@@ -122,5 +127,13 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
                             .size(), sampleType, databaseInstance));
         }
         return list;
+    }
+
+    private void fetchSampleProperties(List<SamplePE> samples)
+    {
+        for (SamplePE sample : samples)
+        {
+            Hibernate.initialize(sample.getProperties());
+        }
     }
 }
