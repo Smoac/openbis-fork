@@ -29,6 +29,7 @@
     <param name="From" value="dataset.download.server@localhost" />
     <param name="To" value="root@localhost" />
     <param name="Subject" value="ATTENTION: etl server" />
+    <param name="EvaluatorClass" value="ch.systemsx.cisd.common.logging.AlwaysTrueTriggeringEventEvaluator" />
 
     <layout class="org.apache.log4j.PatternLayout">
       <param name="ConversionPattern" value="%d %-5p [%t] %c - %m%n"/>
