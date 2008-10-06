@@ -26,12 +26,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 public class SampleTypeModel extends BaseModelData
 {
 
-    private static final long serialVersionUID = 1L;
+    static final String OBJECT = "object";
+
+    static final String CODE = "code";
+
+    static final long serialVersionUID = 1L;
 
     public SampleTypeModel(SampleType sampleType)
     {
-        set("code", sampleType.getCode());
-        set("object", sampleType);
+        set(CODE, sampleType.getCode());
+        set(OBJECT, sampleType);
     }
 
 }

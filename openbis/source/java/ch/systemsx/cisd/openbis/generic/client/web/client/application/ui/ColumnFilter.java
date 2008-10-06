@@ -30,9 +30,9 @@ public class ColumnFilter<T extends ModelData> extends StoreFilterField<T>
 
     private final String column;
 
-    public ColumnFilter(Store<T> store, String col, String label)
+    public ColumnFilter(Store<T> store, String columnName, String label)
     {
-        this.column = col;
+        this.column = columnName;
         setWidth(100);
         setEmptyText(label + "...");
         bind(store);

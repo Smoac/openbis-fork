@@ -28,14 +28,22 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
  */
 public class RoleModel extends BaseModelData
 {
-    private static final long serialVersionUID = 1L;
+    static final String GROUP = "group";
+
+    static final String PERSON = "person";
+
+    static final String ROLE = "role";
+
+    static final String INSTANCE = "instance";
+
+    static final long serialVersionUID = 1L;
 
     public RoleModel(RoleAssignment role)
     {
-        set("group", role.getGroup() != null ? role.getGroup().getCode() : "");
-        set("person", role.getPerson().getUserId());
-        set("role", role.getCode());
-        set("instance", role.getInstance() != null ? role.getInstance().getCode() : "");
+        set(GROUP, role.getGroup() != null ? role.getGroup().getCode() : "");
+        set(PERSON, role.getPerson().getUserId());
+        set(ROLE, role.getCode());
+        set(INSTANCE, role.getInstance() != null ? role.getInstance().getCode() : "");
     }
 
 }

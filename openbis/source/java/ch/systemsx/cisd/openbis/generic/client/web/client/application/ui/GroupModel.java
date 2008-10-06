@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -28,8 +28,17 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
  */
 public class GroupModel extends BaseModelData
 {
+    public static final String OBJECT = "object";
 
-    static final String CODE = "code";
+    public static final String REGISTRATION_DATE = "registrationDate";
+
+    public static final String REGISTRATOR = "registrator";
+
+    public static final String LEADER = "leader";
+
+    public static final String DESCRIPTION = "description";
+
+    public static final String CODE = "code";
 
     private static final long serialVersionUID = 1L;
 
@@ -40,11 +49,11 @@ public class GroupModel extends BaseModelData
     public GroupModel(Group g)
     {
         set(CODE, g.getCode());
-        set("description", g.getDescription());
-        set("leader", g.getLeader());
-        set("registrator", g.getRegistrator());
-        set("registrationDate", g.getRegistrationDate());
-        set("object", g);
+        set(DESCRIPTION, g.getDescription());
+        set(LEADER, g.getLeader());
+        set(REGISTRATOR, g.getRegistrator());
+        set(REGISTRATION_DATE, g.getRegistrationDate());
+        set(OBJECT, g);
     }
 
 }

@@ -24,7 +24,7 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.GroupModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 
 class GroupSelectionWidget extends ComboBox<GroupModel>
@@ -39,7 +39,7 @@ class GroupSelectionWidget extends ComboBox<GroupModel>
 
         this.viewContext = viewContext;
         setEmptyText("Select a group...");
-        setDisplayField("code");
+        setDisplayField(GroupModel.CODE);
         setAllowBlank(false);
         setEditable(false);
         groupStore = new ListStore<GroupModel>();
@@ -52,7 +52,7 @@ class GroupSelectionWidget extends ComboBox<GroupModel>
         final List<GroupModel> selection = getSelection();
         if (selection.size() > 0)
         {
-            return selection.get(0).get("object");
+            return selection.get(0).get(GroupModel.OBJECT);
         } else
         {
             return null;

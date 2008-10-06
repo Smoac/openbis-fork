@@ -79,38 +79,38 @@ public class PersonsView extends LayoutContainer
         List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
 
         ColumnConfig codeColumnConfig = new ColumnConfig();
-        codeColumnConfig.setId("userId");
+        codeColumnConfig.setId(PersonModel.USER_ID);
         codeColumnConfig.setHeader("User ID");
         codeColumnConfig.setWidth(COL_PERSON_ID);
         configs.add(codeColumnConfig);
 
         ColumnConfig firstNameColumnConfig = new ColumnConfig();
-        firstNameColumnConfig.setId("firstName");
+        firstNameColumnConfig.setId(PersonModel.FIRST_NAME);
         firstNameColumnConfig.setHeader("First Name");
         firstNameColumnConfig.setWidth(COL_FIRST_NAME);
         configs.add(firstNameColumnConfig);
 
         ColumnConfig lastNameColumnConfig = new ColumnConfig();
-        lastNameColumnConfig.setId("lastName");
+        lastNameColumnConfig.setId(PersonModel.LAST_NAME);
         lastNameColumnConfig.setHeader("Last Name");
         lastNameColumnConfig.setWidth(COL_LAST_NAME);
         configs.add(lastNameColumnConfig);
 
         ColumnConfig emailNameColumnConfig = new ColumnConfig();
-        emailNameColumnConfig.setId("email");
+        emailNameColumnConfig.setId(PersonModel.EMAIL);
         emailNameColumnConfig.setHeader("Email");
         emailNameColumnConfig.setWidth(COL_EMAIL);
         configs.add(emailNameColumnConfig);
 
         ColumnConfig registratorColumnConfig = new ColumnConfig();
-        registratorColumnConfig.setId("registrator");
+        registratorColumnConfig.setId(PersonModel.REGISTRATOR);
         registratorColumnConfig.setHeader("Registrator");
         registratorColumnConfig.setWidth(COL_PERSON);
         registratorColumnConfig.setRenderer(new PersonRenderer());
         configs.add(registratorColumnConfig);
 
         ColumnConfig registrationDateColumnConfig = new ColumnConfig();
-        registrationDateColumnConfig.setId("registrationDate");
+        registrationDateColumnConfig.setId(PersonModel.REGISTRATION_DATE);
         registrationDateColumnConfig.setHeader("Registration Date");
         registrationDateColumnConfig.setWidth(COL_DATE);
         registrationDateColumnConfig.setDateTimeFormat(DateTimeFormat.getShortDateFormat());
@@ -148,7 +148,8 @@ public class PersonsView extends LayoutContainer
 
         ToolBar toolBar = new ToolBar();
         toolBar.add(new LabelToolItem("Filter:"));
-        toolBar.add(new AdapterToolItem(new ColumnFilter<PersonModel>(store, "userId", "user id")));
+        toolBar.add(new AdapterToolItem(new ColumnFilter<PersonModel>(store, PersonModel.USER_ID,
+                "user id")));
         toolBar.add(new SeparatorToolItem());
         toolBar.add(new AdapterToolItem(addPersonButton));
 

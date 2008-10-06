@@ -38,7 +38,7 @@ class SampleTypeSelectionWidget extends ComboBox<SampleTypeModel>
 
         this.viewContext = viewContext;
         setEmptyText("Select a sample type...");
-        setDisplayField("code");
+        setDisplayField(SampleTypeModel.CODE);
         setAllowBlank(false);
         setEditable(false);
         sampleTypeStore = new ListStore<SampleTypeModel>();
@@ -51,7 +51,7 @@ class SampleTypeSelectionWidget extends ComboBox<SampleTypeModel>
         final List<SampleTypeModel> selection = getSelection();
         if (selection.size() > 0)
         {
-            return selection.get(0).get("object");
+            return selection.get(0).get(SampleTypeModel.OBJECT);
         } else
         {
             return null;

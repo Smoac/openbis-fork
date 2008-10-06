@@ -72,25 +72,25 @@ public class RolesView extends LayoutContainer
         List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
 
         ColumnConfig userIdColumnConfig = new ColumnConfig();
-        userIdColumnConfig.setId("person");
+        userIdColumnConfig.setId(RoleModel.PERSON);
         userIdColumnConfig.setHeader("Person");
         userIdColumnConfig.setWidth(COL_PERSON);
         configs.add(userIdColumnConfig);
 
         ColumnConfig groupColumnConfig = new ColumnConfig();
-        groupColumnConfig.setId("group");
+        groupColumnConfig.setId(RoleModel.GROUP);
         groupColumnConfig.setHeader("Group");
         groupColumnConfig.setWidth(COL_GROUP);
         configs.add(groupColumnConfig);
 
         ColumnConfig instanceColumnConfig = new ColumnConfig();
-        instanceColumnConfig.setId("instance");
+        instanceColumnConfig.setId(RoleModel.INSTANCE);
         instanceColumnConfig.setHeader("Database Instance");
         instanceColumnConfig.setWidth(COL_DB_INSTANCE);
         configs.add(instanceColumnConfig);
 
         ColumnConfig roleColumnConfig = new ColumnConfig();
-        roleColumnConfig.setId("role");
+        roleColumnConfig.setId(RoleModel.ROLE);
         roleColumnConfig.setHeader("Role");
         roleColumnConfig.setWidth(COL_ROLE);
         configs.add(roleColumnConfig);
@@ -139,26 +139,30 @@ public class RolesView extends LayoutContainer
                                         roleList.refresh();
                                     }
                                 };
-                    if (StringUtils.isBlank((String) rm.get("group")))
+                    if (StringUtils.isBlank((String) rm.get(RoleModel.GROUP)))
                     {
-                        viewContext.getService().deleteInstanceRole((String) rm.get("role"),
-                                (String) rm.get("person"), roleListRefreshCallback);
+                        viewContext.getService().deleteInstanceRole(
+                                (String) rm.get(RoleModel.ROLE), (String) rm.get(RoleModel.PERSON),
+                                roleListRefreshCallback);
                     } else
                     {
-                        viewContext.getService().deleteGroupRole((String) rm.get("role"),
-                                (String) rm.get("group"), (String) rm.get("person"),
-                                roleListRefreshCallback);
+                        viewContext.getService().deleteGroupRole((String) rm.get(RoleModel.ROLE),
+                                (String) rm.get(RoleModel.GROUP),
+                                (String) rm.get(RoleModel.PERSON), roleListRefreshCallback);
                     }
                 }
             });
 
         ToolBar toolBar = new ToolBar();
         toolBar.add(new LabelToolItem("Filter:"));
-        toolBar.add(new AdapterToolItem(new ColumnFilter<RoleModel>(store, "person", "person")));
-        toolBar.add(new AdapterToolItem(new ColumnFilter<RoleModel>(store, "group", "group")));
+        toolBar.add(new AdapterToolItem(new ColumnFilter<RoleModel>(store, RoleModel.PERSON,
+                "person")));
+        toolBar.add(new AdapterToolItem(
+                new ColumnFilter<RoleModel>(store, RoleModel.GROUP, "group")));
+        toolBar.add(new AdapterToolItem(new ColumnFilter<RoleModel>(store, RoleModel.INSTANCE,
+                "instance")));
         toolBar
-                .add(new AdapterToolItem(new ColumnFilter<RoleModel>(store, "instance", "instance")));
-        toolBar.add(new AdapterToolItem(new ColumnFilter<RoleModel>(store, "role", "role")));
+                .add(new AdapterToolItem(new ColumnFilter<RoleModel>(store, RoleModel.ROLE, "role")));
         toolBar.add(new SeparatorToolItem());
         toolBar.add(new AdapterToolItem(addRoleButton));
         toolBar.add(new SeparatorToolItem());
