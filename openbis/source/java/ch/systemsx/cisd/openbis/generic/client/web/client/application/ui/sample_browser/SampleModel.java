@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 import com.extjs.gxt.ui.client.data.BaseModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 
 /**
  * @author Izabela Adamczyk
@@ -60,6 +61,17 @@ public class SampleModel extends BaseModelData
         set(REGISTRATION_DATE, s.getRegistrationDate());
         setGeneratedFromParents(s, 1, s.getSampleType().getGeneratedFromHierarchyDepth());
         setContainerParents(s, 1, s.getSampleType().getPartOfHierarchyDepth());
+        setProperties(s);
+
+    }
+
+    private void setProperties(Sample s)
+    {
+        for (SampleProperty p : s.getProperties())
+        {
+            set(PROPERTY_PREFIX + p.getSampleTypePropertyType().getPropertyType().getCode(), p
+                    .getValue());
+        }
 
     }
 

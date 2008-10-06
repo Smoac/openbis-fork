@@ -400,7 +400,7 @@ public class GenericClientService implements IGenericClientService
             List<Sample> result = new ArrayList<Sample>();
             for (SamplePE sample : samples)
             {
-                result.add(SampleTranslator.translate(sample));
+                result.add(SampleTranslator.translate(sample, sampleType));
             }
             return result;
         } catch (UserFailureException e)

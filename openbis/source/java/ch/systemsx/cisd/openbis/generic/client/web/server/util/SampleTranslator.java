@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
@@ -28,7 +29,7 @@ public class SampleTranslator
     {
     }
 
-    public static Sample translate(SamplePE samplePE)
+    public static Sample translate(SamplePE samplePE, SampleType st)
     {
         if (samplePE == null)
         {
@@ -36,30 +37,35 @@ public class SampleTranslator
         }
         int containerDep = samplePE.getSampleType().getContainerHierarchyDepth();
         int generatedFromDep = samplePE.getSampleType().getGeneratedFromHierarchyDepth();
-        return translate(samplePE, containerDep, generatedFromDep);
+        return translate(samplePE, containerDep, generatedFromDep, st, true);
 
     }
 
-    private static Sample translate(SamplePE samplePE, int containerDep, int generatedFromDep)
+    private static Sample translate(SamplePE samplePE, int containerDep, int generatedFromDep,
+            SampleType st, boolean withDetails)
     {
         final Sample result = new Sample();
         result.setCode(samplePE.getCode());
-        result.setSampleType(SampleTypeTranslator.translate(samplePE.getSampleType()));
-        result.setGroup(GroupTranslater.translate(samplePE.getGroup()));
-        result.setDatabaseInstance(DatabaseInstanceTranslater.translate(samplePE
-                .getDatabaseInstance()));
-        result.setIdentifier(samplePE.getSampleIdentifier().toString());
-        result.setRegistrator(PersonTranslator.translate(samplePE.getRegistrator()));
-        result.setRegistrationDate(samplePE.getRegistrationDate());
+        if (withDetails)
+        {
+            result.setSampleType(st);
+            result.setGroup(GroupTranslater.translate(samplePE.getGroup()));
+            result.setDatabaseInstance(DatabaseInstanceTranslater.translate(samplePE
+                    .getDatabaseInstance()));
+            result.setIdentifier(samplePE.getSampleIdentifier().toString());
+            result.setRegistrator(PersonTranslator.translate(samplePE.getRegistrator()));
+            result.setRegistrationDate(samplePE.getRegistrationDate());
+            result.setProperties(SamplePropertyTranslator.translate(samplePE.getProperties(), st));
+        }
         if (containerDep > 0 && samplePE.getContainer() != null)
         {
             result.setContainer(SampleTranslator.translate(samplePE.getContainer(),
-                    containerDep - 1, 0));
+                    containerDep - 1, 0, null, false));
         }
         if (generatedFromDep > 0 && samplePE.getGeneratedFrom() != null)
         {
             result.setGeneratedFrom(SampleTranslator.translate(samplePE.getGeneratedFrom(), 0,
-                    generatedFromDep - 1));
+                    generatedFromDep - 1, null, false));
         }
         return result;
     }

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import java.util.Date;
+import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -43,6 +44,8 @@ public class Sample implements IsSerializable
     private Sample container;
 
     private Sample generatedFrom;
+
+    private List<SampleProperty> properties;
 
     public String getCode()
     {
@@ -133,6 +136,16 @@ public class Sample implements IsSerializable
     public void setGeneratedFrom(Sample generatedFrom)
     {
         this.generatedFrom = generatedFrom;
+    }
+
+    public List<SampleProperty> getProperties()
+    {
+        return properties;
+    }
+
+    public void setProperties(List<SampleProperty> properties)
+    {
+        this.properties = properties;
     }
 
 }

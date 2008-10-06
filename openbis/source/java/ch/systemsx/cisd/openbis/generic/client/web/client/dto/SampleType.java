@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import java.util.List;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
@@ -33,6 +35,8 @@ public class SampleType implements IsSerializable
     private int generatedFromHierarchyDepth;
 
     private int partOfHierarchyDepth;
+
+    private List<SampleTypePropertyType> sampleTypePropertyTypes;
 
     public String getCode()
     {
@@ -82,6 +86,16 @@ public class SampleType implements IsSerializable
     public int getPartOfHierarchyDepth()
     {
         return partOfHierarchyDepth;
+    }
+
+    public List<SampleTypePropertyType> getSampleTypePropertyTypes()
+    {
+        return sampleTypePropertyTypes;
+    }
+
+    public void setSampleTypePropertyTypes(List<SampleTypePropertyType> sampleTypePropertyTypes)
+    {
+        this.sampleTypePropertyTypes = sampleTypePropertyTypes;
     }
 
 }

@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericVie
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypePropertyType;
 
 class SampleBrowserGrid extends LayoutContainer
 {
@@ -105,14 +106,15 @@ class SampleBrowserGrid extends LayoutContainer
                         @Override
                         public void process(List<Sample> samples)
                         {
-                            display(samples, createColumnModel(sampleType), createHeader(
-                                    sampleType, selectedGroupCode, showGroup, showInstance));
+                            display(samples, createColumnModel(sampleType, sampleType),
+                                    createHeader(sampleType, selectedGroupCode, showGroup,
+                                            showInstance));
                         }
 
                     });
     }
 
-    ColumnModel createColumnModel(SampleType type)
+    ColumnModel createColumnModel(SampleType type, SampleType sampleType)
     {
         List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
         configs.add(createCodeColumn());
@@ -122,6 +124,7 @@ class SampleBrowserGrid extends LayoutContainer
         configs.add(createRegistionDateColumn());
         addGeneratedFromParentColumns(configs, 1, type.getGeneratedFromHierarchyDepth());
         addContainerParentColumns(configs, 1, type.getPartOfHierarchyDepth());
+        addPropertyColumns(configs, sampleType);
         return new ColumnModel(configs);
     }
 
@@ -208,6 +211,25 @@ class SampleBrowserGrid extends LayoutContainer
         columnConfig.setId(SampleModel.CONTAINER_PARENT_PREFIX + i);
         columnConfig.setHeader("Parent (cont.) " + i);
         columnConfig.setWidth(150);
+        return columnConfig;
+    }
+
+    private void addPropertyColumns(List<ColumnConfig> configs, SampleType sampleType)
+    {
+        for (SampleTypePropertyType stpt : sampleType.getSampleTypePropertyTypes())
+        {
+            configs.add(createPropertyColumn(stpt.getPropertyType().getCode(),
+                    stpt.isDisplayed() == true));
+        }
+    }
+
+    private ColumnConfig createPropertyColumn(String code, boolean isHidden)
+    {
+        ColumnConfig columnConfig = new ColumnConfig();
+        columnConfig.setId(SampleModel.PROPERTY_PREFIX + code);
+        columnConfig.setHeader(code);
+        columnConfig.setWidth(80);
+        columnConfig.setHidden(isHidden);
         return columnConfig;
     }
 

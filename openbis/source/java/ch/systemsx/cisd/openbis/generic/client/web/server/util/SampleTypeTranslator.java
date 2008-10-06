@@ -35,6 +35,8 @@ public class SampleTypeTranslator
         result.setDescription(sampleTypePE.getDescription());
         result.setGeneratedFromHierarchyDepth(sampleTypePE.getGeneratedFromHierarchyDepth());
         result.setPartOfHierarchyDepth(sampleTypePE.getContainerHierarchyDepth());
+        result.setSampleTypePropertyTypes(SampleTypePropertyTypeTranslator.translate(sampleTypePE
+                .getSampleTypePropertyTypes(), result));
         return result;
 
     }

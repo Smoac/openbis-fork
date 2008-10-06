@@ -76,7 +76,7 @@ final class SampleTypeDAO extends AbstractTypeDAO<SampleTypePE> implements ISamp
     {
         for (SampleTypePE sampleTypePE : list)
         {
-            Hibernate.initialize(sampleTypePE);
+            Hibernate.initialize(sampleTypePE.getSampleTypePropertyTypes());
         }
     }
 
