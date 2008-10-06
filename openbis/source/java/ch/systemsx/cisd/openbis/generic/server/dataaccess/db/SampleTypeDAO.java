@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
 import org.springframework.dao.DataAccessException;
 
@@ -61,6 +62,7 @@ final class SampleTypeDAO extends AbstractTypeDAO<SampleTypePE> implements ISamp
         }
         list = cast(getHibernateTemplate().find(query, new Object[]
             { getDatabaseInstance() }));
+        fetchPropertyTypes(list);
 
         if (operationLog.isDebugEnabled())
         {
@@ -68,6 +70,14 @@ final class SampleTypeDAO extends AbstractTypeDAO<SampleTypePE> implements ISamp
                     + " type(s) have been found.");
         }
         return list;
+    }
+
+    private void fetchPropertyTypes(List<SampleTypePE> list)
+    {
+        for (SampleTypePE sampleTypePE : list)
+        {
+            Hibernate.initialize(sampleTypePE);
+        }
     }
 
     public SampleTypePE tryFindByExample(SampleTypePE sampleType)

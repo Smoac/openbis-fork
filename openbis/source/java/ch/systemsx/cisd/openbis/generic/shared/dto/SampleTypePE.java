@@ -16,15 +16,23 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
+
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
@@ -43,11 +51,26 @@ public final class SampleTypePE extends EntityTypePE
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
+    private List<SampleTypePropertyTypePE> sampleTypePropertyTypes;
+
     private Boolean isListable;
 
     private Integer generatedFromHierarchyDepth;
 
     private Integer containerHierarchyDepth;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = ColumnNames.SAMPLE_TYPE_COLUMN, updatable = false)
+    @Fetch(FetchMode.SUBSELECT)
+    public List<SampleTypePropertyTypePE> getSampleTypePropertyTypes()
+    {
+        return sampleTypePropertyTypes;
+    }
+
+    public void setSampleTypePropertyTypes(List<SampleTypePropertyTypePE> sampleTypePropertyTypes)
+    {
+        this.sampleTypePropertyTypes = sampleTypePropertyTypes;
+    }
 
     @Column(name = ColumnNames.IS_LISTABLE)
     public Boolean isListable()
