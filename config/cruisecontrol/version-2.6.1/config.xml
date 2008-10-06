@@ -90,7 +90,7 @@
       <ant target="nightly-build" time="0300" buildfile="${openbis.nightly-build.dir}/build/build.xml" anthome="apache-ant-1.6.5"/>
     </schedule>
     <log>
-      <merge dir="${openbis.nightly-build.dir}/targets/test-output" pattern="test-report*.xml"/>
+      <merge dir="${openbis.nightly-build.dir}/targets/test-output"/>
     </log>
     <publishers>
       <onsuccess>
