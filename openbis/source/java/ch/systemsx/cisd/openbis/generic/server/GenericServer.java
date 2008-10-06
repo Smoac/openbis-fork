@@ -327,12 +327,14 @@ public class GenericServer implements IGenericServer, ISessionProvider,
         return persons;
     }
 
+    @Transactional
     public List<SampleTypePE> listSampleTypes(String sessionToken)
     {
         sessionManager.getSession(sessionToken);
         return daoFactory.getSampleTypeDAO().listSampleTypes(true);
     }
 
+    @Transactional
     public List<SamplePE> listSamples(String sessionToken,
             List<SampleOwnerIdentifier> ownerIdentifiers, SampleTypePE sampleType)
     {
