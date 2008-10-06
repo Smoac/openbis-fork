@@ -166,13 +166,8 @@ public class MaterialPE extends HibernateAbstractRegistratrationHolder implement
 
     public void setProperties(final List<MaterialPropertyPE> properties)
     {
-        for (MaterialPropertyPE materialProperty : properties)
+        for (final MaterialPropertyPE materialProperty : properties)
         {
-            MaterialPE parent = materialProperty.getMaterial();
-            if (parent != null)
-            {
-                parent.getProperties().remove(materialProperty);
-            }
             materialProperty.setEntity(this);
         }
         setMaterialProperties(properties);

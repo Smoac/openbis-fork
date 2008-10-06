@@ -109,23 +109,16 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistratrationH
     // IUntypedValueSetter
     //
 
-    // TODO 2008-08-29, Christian Ribeaud: How to validate this? A custom validator? It must be a
-    // 'VocabularyTermPE' and not just an id.
-    public final void setUntypedValue(final String value, final Long vocabularyTerm)
+    public final void setUntypedValue(final String valueOrNull,
+            final VocabularyTermPE vocabularyTermOrNull)
     {
-        assert value != null || vocabularyTerm == null : "Value from controlled vocabulary set cannot be null!";
-        if (vocabularyTerm != null)
+        assert valueOrNull != null || vocabularyTermOrNull != null : "Either value or vocabulary term should not be null.";
+        if (vocabularyTermOrNull != null)
         {
-            if (getVocabularyTerm() == null)
-            {
-                final VocabularyTermPE vt = new VocabularyTermPE();
-                setVocabularyTerm(vt);
-            }
-            getVocabularyTerm().setId(vocabularyTerm);
-            getVocabularyTerm().setCode(value);
+            setVocabularyTerm(vocabularyTermOrNull);
         } else
         {
-            setValue(value);
+            setValue(valueOrNull);
         }
     }
 

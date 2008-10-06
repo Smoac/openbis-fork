@@ -18,9 +18,11 @@ package ch.systemsx.cisd.openbis.generic.server.util;
 
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -43,7 +45,7 @@ public final class KeyExtractorFactory
             createIdKeyExtractor();
 
     private final static IKeyExtractor<String, VocabularyTermPE> VOCABULARY_TERM_BY_CODE_KEY_EXTRACTOR =
-            new VocabularyTermByCode();
+            createCodeKeyExtractor();
 
     private final static IKeyExtractor<String, PropertyTypePE> PROPERTY_TYPE_BY_CODE_KEY_EXTRACTOR =
             createCodeKeyExtractor();
@@ -53,6 +55,12 @@ public final class KeyExtractorFactory
 
     private static final IKeyExtractor<String, PersonPE> PERSON_BY_USER_ID_KEY_EXTRACTOR =
             new PersonByUserIdKeyExtractor();
+
+    private static final IKeyExtractor<String, MaterialPE> MATERIAL_BY_CODE_KEY_EXTRACTOR =
+            createCodeKeyExtractor();
+
+    private static final IKeyExtractor<String, EntityTypePE> ENTITY_TYPE_BY_CODE_KEY_EXTRACTOR =
+            createCodeKeyExtractor();
 
     private KeyExtractorFactory()
     {
@@ -133,6 +141,22 @@ public final class KeyExtractorFactory
         return PERSON_BY_USER_ID_KEY_EXTRACTOR;
     }
 
+    /**
+     * Returns an <code>IKeyExtractor</code> for <i>EntityTypePE</i> based on <code>code</code>.
+     */
+    public final static IKeyExtractor<String, EntityTypePE> getEntityTypeByCodeKeyExtractor()
+    {
+        return ENTITY_TYPE_BY_CODE_KEY_EXTRACTOR;
+    }
+
+    /**
+     * Returns an <code>IKeyExtractor</code> for <i>MaterialPE</i> based on <code>code</code>.
+     */
+    public final static IKeyExtractor<String, MaterialPE> getMaterialByCodeKeyExtractor()
+    {
+        return MATERIAL_BY_CODE_KEY_EXTRACTOR;
+    }
+
     //
     // Helper classes
     //
@@ -162,20 +186,6 @@ public final class KeyExtractorFactory
         public final String getKey(final IIdAndCodeHolder id)
         {
             return id.getCode();
-        }
-    }
-
-    private final static class VocabularyTermByCode implements
-            IKeyExtractor<String, VocabularyTermPE>
-    {
-
-        //
-        // IKeyExtractor
-        //
-
-        public final String getKey(final VocabularyTermPE e)
-        {
-            return e.getCode();
         }
     }
 
