@@ -114,5 +114,5 @@ public interface IGenericClientService extends RemoteService
      * Returns a list of samples for given sample type.
      */
     public List<Sample> listSamples(SampleType sampleType, String groupCode, boolean includeGroup,
-            boolean includeInstance);
+            boolean includeInstance) throws UserFailureException;
 }
