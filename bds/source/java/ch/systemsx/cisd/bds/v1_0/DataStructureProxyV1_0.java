@@ -55,7 +55,7 @@ public class DataStructureProxyV1_0 implements IDataStructureV1_0
     {
         if (mode == Mode.READ_ONLY)
         {
-            throw new UnsupportedOperationException("Unsupported operation in read-only mode.");
+            ReadOnlyNode.denyAccess();
         }
     }
 
@@ -173,12 +173,16 @@ public class DataStructureProxyV1_0 implements IDataStructureV1_0
 
     public final IDirectory getOriginalData()
     {
-        return dataStructure.getOriginalData();
+        final IDirectory originalData = dataStructure.getOriginalData();
+        return mode == Mode.READ_ONLY ? ReadOnlyDirectory.tryCreateReadOnlyDirectory(originalData)
+                : originalData;
     }
 
     public final IDirectory getStandardData()
     {
-        return dataStructure.getStandardData();
+        final IDirectory standardData = dataStructure.getStandardData();
+        return mode == Mode.READ_ONLY ? ReadOnlyDirectory.tryCreateReadOnlyDirectory(standardData)
+                : standardData;
     }
 
     public final Sample getSample()
