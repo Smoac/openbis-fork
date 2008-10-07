@@ -43,7 +43,7 @@
   <target name="run-system-tests" depends="prepare-gwt">
     <delete dir="${output.test}"/> 
     <mkdir dir="${output.test}"/>
-    <junit dir="." fork="true" forkmode="once" maxmemory="512m" showoutput="true" haltonfailure="true">
+    <junit dir="." fork="true" forkmode="once" maxmemory="512m" showoutput="true">
       <classpath>
       	<pathelement location="${sources}"/>
       	<pathelement location="${sources.test}"/>
