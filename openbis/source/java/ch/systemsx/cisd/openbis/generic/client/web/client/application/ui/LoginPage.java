@@ -27,24 +27,28 @@ import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 
+/**
+ * The login page.
+ * 
+ * @author Christian Ribeaud
+ */
 public class LoginPage extends LayoutContainer
 {
 
-    public LoginPage(GenericViewContext viewContext)
+    public LoginPage(final GenericViewContext viewContext)
     {
-        super();
         setStyleName("start-page");
         setLayout(new CenterLayout());
-        VerticalPanel verticalPanel = new VerticalPanel();
+        final VerticalPanel verticalPanel = new VerticalPanel();
         verticalPanel.setSpacing(30);
         verticalPanel.setWidth(600);
         verticalPanel.setHorizontalAlign(HorizontalAlignment.CENTER);
 
-        HorizontalPanel headerPanel = new HorizontalPanel();
+        final HorizontalPanel headerPanel = new HorizontalPanel();
         headerPanel.setSpacing(10);
         headerPanel.add(viewContext.getImageBundle().getLogo().createImage());
 
-        Text welcomeLabel = new Text(viewContext.getMessage("welcome", new Date()));
+        final Text welcomeLabel = new Text(viewContext.getMessage("welcome", new Date()));
         welcomeLabel.setStyleName("header-title");
 
         headerPanel.add(welcomeLabel);

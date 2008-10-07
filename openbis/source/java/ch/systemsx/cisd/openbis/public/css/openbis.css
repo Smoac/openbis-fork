@@ -1,15 +1,17 @@
-.header {
-    padding: 10px;
-    width: 100%;
-    height: 10px;
-    vertical-align: middle;
+body,div,td {
+    font-family: verdana, tahoma, helvetica;
+    font-size: 12px;
 }
 
 .header-title {
-    font-size: 200%;
+    font-size: 24px;
     font-weight: bold;
     margin-top: 30px;
     vertical-align: middle;
+}
+
+.login-widget {
+    border: 1px solid #B5B8C8;
 }
 
 .start-page {
@@ -19,19 +21,7 @@
 .footer {
     width: 100%;
     text-align: center;
-    font-size: 80%;
+    font-size: 11px;
     color: gray;
     background-color: white;
 }
-
-.user-info {
-    font-size: 80%;
-    color: black;
-    font-weight: bold;
-}
-
-.groups-table {
-	font-size: 80%;
-}
-
-
