@@ -40,58 +40,72 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.User;
 public class TopMenu extends LayoutContainer
 {
     static final String LOGOUT_BUTTON_ID = GenericConstants.ID_PREFIX + "logout-button";
-    
+
     public TopMenu(final GenericViewContext viewContext)
     {
         setLayout(new FlowLayout());
         setBorders(true);
-        ToolBar toolBar = new ToolBar();
-        LabelToolItem userInfoText = new LabelToolItem(createUserInfo(viewContext));
+        final ToolBar toolBar = new ToolBar();
+        final LabelToolItem userInfoText = new LabelToolItem(createUserInfo(viewContext));
         toolBar.add(userInfoText);
         toolBar.add(new SeparatorToolItem());
         toolBar.add(new LogoutButton(viewContext));
-
         add(toolBar);
     }
 
-    class LogoutButton extends TextToolItem
+    private String createUserInfo(final GenericViewContext viewContext)
     {
-
-        public LogoutButton(final GenericViewContext viewContext)
-        {
-            super(viewContext.getMessage("header_logoutButtonLabel"));
-            setIconStyle("icon-menu-show");
-            SelectionListener<ComponentEvent> listener = new SelectionListener<ComponentEvent>()
-                {
-                    @Override
-                    public void componentSelected(ComponentEvent ce)
-                    {
-                        viewContext.getService().logout(
-                                new AbstractAsyncCallback<Void>(viewContext)
-                                    {
-                                        @Override
-                                        public void process(Void result)
-                                        {
-                                            viewContext.getPageController().reload();
-                                        }
-                                    });
-                    }
-                };
-            addSelectionListener(listener);
-            setId(LOGOUT_BUTTON_ID);
-        }
-    }
-
-    private String createUserInfo(GenericViewContext viewContext)
-    {
-        SessionContext sessionContext = viewContext.getModel().getSessionContext();
-        User user = sessionContext.getUser();
-        String userName = user.getUserName();
-        String homeGroup = user.getHomeGroupCode();
+        final SessionContext sessionContext = viewContext.getModel().getSessionContext();
+        final User user = sessionContext.getUser();
+        final String userName = user.getUserName();
+        final String homeGroup = user.getHomeGroupCode();
         if (homeGroup == null)
         {
             return viewContext.getMessage("header_userWithoutHomegroup", userName);
         }
         return viewContext.getMessage("header_userWithHomegroup", userName, homeGroup);
     }
+
+    //
+    // Helper classes
+    //
+
+    private final class LogoutButton extends TextToolItem
+    {
+
+        LogoutButton(final GenericViewContext viewContext)
+        {
+            super(viewContext.getMessage("header_logoutButtonLabel"));
+            final SelectionListener<ComponentEvent> listener =
+                    new SelectionListener<ComponentEvent>()
+                        {
+
+                            //
+                            // SelectionListener
+                            //
+
+                            @Override
+                            public final void componentSelected(final ComponentEvent ce)
+                            {
+                                viewContext.getService().logout(
+                                        new AbstractAsyncCallback<Void>(viewContext)
+                                            {
+
+                                                //
+                                                // AbstractAsyncCallback
+                                                //
+
+                                                @Override
+                                                public final void process(final Void result)
+                                                {
+                                                    viewContext.getPageController().reload();
+                                                }
+                                            });
+                            }
+                        };
+            addSelectionListener(listener);
+            setId(LOGOUT_BUTTON_ID);
+        }
+    }
+
 }

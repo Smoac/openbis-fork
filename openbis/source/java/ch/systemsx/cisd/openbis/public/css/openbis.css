@@ -12,6 +12,8 @@ body,div,td {
 
 .login-widget {
     border: 1px solid #B5B8C8;
+    padding-bottom: 7px;
+    padding-right: 7px;
 }
 
 .start-page {

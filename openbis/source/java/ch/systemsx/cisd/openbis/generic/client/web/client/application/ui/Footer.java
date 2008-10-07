@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericVie
  */
 public class Footer extends Text
 {
-    public Footer(GenericViewContext viewContext)
+    public Footer(final GenericViewContext viewContext)
     {
         super(viewContext.getMessage("footer", viewContext.getModel().getApplicationInfo()
                 .getVersion()));

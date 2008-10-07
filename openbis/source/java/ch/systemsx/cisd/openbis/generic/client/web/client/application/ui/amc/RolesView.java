@@ -104,7 +104,6 @@ public class RolesView extends LayoutContainer
         cp.setBodyBorder(false);
         cp.setHeading("Role list");
         cp.setButtonAlign(HorizontalAlignment.CENTER);
-        cp.setIconStyle("icon-table");
         final RolesView roleList = this;
 
         cp.setLayout(new FillLayout());

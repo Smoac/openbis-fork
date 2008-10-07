@@ -65,7 +65,7 @@ public class PersonsView extends LayoutContainer
 
     private final GenericViewContext viewContext;
 
-    public PersonsView(GenericViewContext viewContext)
+    public PersonsView(final GenericViewContext viewContext)
     {
         this.viewContext = viewContext;
         setLayout(new FitLayout());
@@ -76,56 +76,56 @@ public class PersonsView extends LayoutContainer
     {
         removeAll();
 
-        List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
+        final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
 
-        ColumnConfig codeColumnConfig = new ColumnConfig();
+        final ColumnConfig codeColumnConfig = new ColumnConfig();
         codeColumnConfig.setId(PersonModel.USER_ID);
         codeColumnConfig.setHeader("User ID");
         codeColumnConfig.setWidth(COL_PERSON_ID);
         configs.add(codeColumnConfig);
 
-        ColumnConfig firstNameColumnConfig = new ColumnConfig();
+        final ColumnConfig firstNameColumnConfig = new ColumnConfig();
         firstNameColumnConfig.setId(PersonModel.FIRST_NAME);
         firstNameColumnConfig.setHeader("First Name");
         firstNameColumnConfig.setWidth(COL_FIRST_NAME);
         configs.add(firstNameColumnConfig);
 
-        ColumnConfig lastNameColumnConfig = new ColumnConfig();
+        final ColumnConfig lastNameColumnConfig = new ColumnConfig();
         lastNameColumnConfig.setId(PersonModel.LAST_NAME);
         lastNameColumnConfig.setHeader("Last Name");
         lastNameColumnConfig.setWidth(COL_LAST_NAME);
         configs.add(lastNameColumnConfig);
 
-        ColumnConfig emailNameColumnConfig = new ColumnConfig();
+        final ColumnConfig emailNameColumnConfig = new ColumnConfig();
         emailNameColumnConfig.setId(PersonModel.EMAIL);
         emailNameColumnConfig.setHeader("Email");
         emailNameColumnConfig.setWidth(COL_EMAIL);
         configs.add(emailNameColumnConfig);
 
-        ColumnConfig registratorColumnConfig = new ColumnConfig();
+        final ColumnConfig registratorColumnConfig = new ColumnConfig();
         registratorColumnConfig.setId(PersonModel.REGISTRATOR);
         registratorColumnConfig.setHeader("Registrator");
         registratorColumnConfig.setWidth(COL_PERSON);
         registratorColumnConfig.setRenderer(new PersonRenderer());
         configs.add(registratorColumnConfig);
 
-        ColumnConfig registrationDateColumnConfig = new ColumnConfig();
+        final ColumnConfig registrationDateColumnConfig = new ColumnConfig();
         registrationDateColumnConfig.setId(PersonModel.REGISTRATION_DATE);
         registrationDateColumnConfig.setHeader("Registration Date");
         registrationDateColumnConfig.setWidth(COL_DATE);
+        registrationDateColumnConfig.setAlignment(HorizontalAlignment.RIGHT);
         registrationDateColumnConfig.setDateTimeFormat(DateTimeFormat.getShortDateFormat());
         configs.add(registrationDateColumnConfig);
 
-        ColumnModel cm = new ColumnModel(configs);
+        final ColumnModel cm = new ColumnModel(configs);
 
-        ListStore<PersonModel> store = new ListStore<PersonModel>();
+        final ListStore<PersonModel> store = new ListStore<PersonModel>();
         store.add(getPersonModels(persons));
 
-        ContentPanel cp = new ContentPanel();
+        final ContentPanel cp = new ContentPanel();
         cp.setBodyBorder(false);
         cp.setHeading("Person list");
         cp.setButtonAlign(HorizontalAlignment.CENTER);
-        cp.setIconStyle("icon-table");
         final PersonsView personList = this;
 
         cp.setLayout(new FitLayout());
@@ -133,20 +133,20 @@ public class PersonsView extends LayoutContainer
 
         final Grid<PersonModel> grid = new Grid<PersonModel>(store, cm);
         grid.setBorders(true);
-
         cp.add(grid);
 
-        Button addPersonButton = new Button("Add person", new SelectionListener<ComponentEvent>()
-            {
-                @Override
-                public void componentSelected(ComponentEvent ce)
-                {
-                    new AddPersonDialog(viewContext, personList).show();
-                }
-            });
+        final Button addPersonButton =
+                new Button("Add person", new SelectionListener<ComponentEvent>()
+                    {
+                        @Override
+                        public void componentSelected(ComponentEvent ce)
+                        {
+                            new AddPersonDialog(viewContext, personList).show();
+                        }
+                    });
         addPersonButton.setId(ADD_BUTTON_ID);
 
-        ToolBar toolBar = new ToolBar();
+        final ToolBar toolBar = new ToolBar();
         toolBar.add(new LabelToolItem("Filter:"));
         toolBar.add(new AdapterToolItem(new ColumnFilter<PersonModel>(store, PersonModel.USER_ID,
                 "user id")));
@@ -160,10 +160,10 @@ public class PersonsView extends LayoutContainer
 
     }
 
-    List<PersonModel> getPersonModels(List<Person> persons)
+    List<PersonModel> getPersonModels(final List<Person> persons)
     {
-        List<PersonModel> pms = new ArrayList<PersonModel>();
-        for (Person p : persons)
+        final List<PersonModel> pms = new ArrayList<PersonModel>();
+        for (final Person p : persons)
         {
             pms.add(new PersonModel(p));
         }
@@ -177,7 +177,7 @@ public class PersonsView extends LayoutContainer
         viewContext.getService().listPersons(new AbstractAsyncCallback<List<Person>>(viewContext)
             {
                 @Override
-                public void process(List<Person> persons)
+                public void process(final List<Person> persons)
                 {
                     display(persons);
                 }

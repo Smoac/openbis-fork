@@ -122,6 +122,7 @@ public class GroupsView extends LayoutContainer
         registrationDateColumnConfig.setId(GroupModel.REGISTRATION_DATE);
         registrationDateColumnConfig.setHeader("Registration Date");
         registrationDateColumnConfig.setWidth(COL_DATE);
+        registrationDateColumnConfig.setAlignment(HorizontalAlignment.RIGHT);
         registrationDateColumnConfig.setDateTimeFormat(DateTimeFormat.getShortDateFormat());
         configs.add(registrationDateColumnConfig);
 
@@ -136,7 +137,6 @@ public class GroupsView extends LayoutContainer
         cp.setBodyBorder(false);
         cp.setHeading("Group list");
         cp.setButtonAlign(HorizontalAlignment.CENTER);
-        cp.setIconStyle("icon-table");
 
         cp.setLayout(new FitLayout());
         cp.setSize(FIT_SIZE, FIT_SIZE);
