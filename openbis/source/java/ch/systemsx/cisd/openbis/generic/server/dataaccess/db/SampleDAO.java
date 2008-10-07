@@ -57,17 +57,16 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
         super(sessionFactory, databaseInstance);
     }
 
-    private Criteria createListSampleForTypeCriteria(SampleTypePE sampleType)
+    private Criteria createListSampleForTypeCriteria(final SampleTypePE sampleType)
     {
-        Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
+        final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
         criteria.add(Restrictions.eq("sampleType", sampleType));
-
         fetchRelations(criteria, "container", sampleType.getContainerHierarchyDepth());
         fetchRelations(criteria, "generatedFrom", sampleType.getGeneratedFromHierarchyDepth());
         return criteria;
     }
 
-    private void fetchRelations(Criteria criteria, String relationName, int relationDepth)
+    private void fetchRelations(final Criteria criteria, final String relationName, final int relationDepth)
     {
         String relationPath = relationName;
         for (int i = 0; i < relationDepth; i++)
@@ -96,7 +95,7 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
     public final List<SamplePE> listSamplesByTypeAndGroup(final SampleTypePE sampleType,
             final GroupPE group) throws DataAccessException
     {
-        Criteria criteria = createListSampleForTypeCriteria(sampleType);
+        final Criteria criteria = createListSampleForTypeCriteria(sampleType);
         criteria.add(Restrictions.eq("group", group));
 
         final List<SamplePE> list = cast(criteria.list());
@@ -114,7 +113,7 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
     public final List<SamplePE> listSamplesByTypeAndDatabaseInstance(final SampleTypePE sampleType,
             final DatabaseInstancePE databaseInstance)
     {
-        Criteria criteria = createListSampleForTypeCriteria(sampleType);
+        final Criteria criteria = createListSampleForTypeCriteria(sampleType);
         criteria.add(Restrictions.eq("databaseInstance", databaseInstance));
 
         final List<SamplePE> list = cast(criteria.list());
@@ -129,9 +128,9 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
         return list;
     }
 
-    private void fetchSampleProperties(List<SamplePE> samples)
+    private void fetchSampleProperties(final List<SamplePE> samples)
     {
-        for (SamplePE sample : samples)
+        for (final SamplePE sample : samples)
         {
             Hibernate.initialize(sample.getProperties());
         }

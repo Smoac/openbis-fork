@@ -24,6 +24,8 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 public final class ColumnNames
 {
 
+    public static final String AMOUNT_COLUMN = "amount";
+
     public static final String CODE_COLUMN = "code";
 
     public static final String CONTROL_LAYOUT_SAMPLE_COLUMN = "samp_id_control_layout";
@@ -37,6 +39,8 @@ public final class ColumnNames
     public static final String DATA_PARENT_COLUMN = "data_id_parent";
 
     public static final String DATA_PRODUCER_CODE_COLUMN = "data_producer_code";
+
+    public static final String DATA_SET_TYPE_COLUMN = "dsty_id";
 
     public static final String DATA_STORE_COLUMN = "dast_id";
 
@@ -60,6 +64,8 @@ public final class ColumnNames
 
     public final static String FIRST_NAME_COLUMN = "first_name";
 
+    public static final String GENERATED_FROM_DEPTH = "generated_from_depth";
+
     public static final String GENERATED_FROM_SAMPLE_COLUMN = "samp_id_generated_from";
 
     public static final String GROUP_COLUMN = "grou_id";
@@ -76,7 +82,11 @@ public final class ColumnNames
 
     public static final String IS_DATA_ACQUSITION = "is_data_acquisition";
 
+    public static final String IS_DISPLAYED = "is_displayed";
+
     public static final String IS_INTERNAL_NAMESPACE = "is_internal_namespace";
+
+    public static final String IS_LISTABLE = "IS_LISTABLE";
 
     public static final String IS_MANAGED_INTERNALLY = "is_managed_internally";
 
@@ -94,17 +104,17 @@ public final class ColumnNames
 
     public static final String LOCATOR_TYPE_COLUMN = "loty_id";
 
-    public static final String MATERIAL_COLUMN = "mate_id";
-
     public static final String MATERIAL_BATCH_COLUMN = "maba_id";
+
+    public static final String MATERIAL_COLUMN = "mate_id";
 
     public static final String MATERIAL_TYPE_COLUMN = "maty_id";
 
     public static final String MATERIAL_TYPE_PROPERTY_TYPE_COLUMN = "mtpt_id";
 
-    public static final String DATA_SET_TYPE_COLUMN = "dsty_id";
-
     public static final String PARENT_DATA_SET_CODE_COLUMN = "data_producer_code";
+
+    public static final String PART_OF_DEPTH = "part_of_depth";
 
     public static final String PART_OF_SAMPLE_COLUMN = "samp_id_part_of";
 
@@ -155,16 +165,6 @@ public final class ColumnNames
     public static final String VERSION_COLUMN = "version";
 
     public static final String VOCABULARY_TERM_COLUMN = "cvte_id";
-
-    public static final String AMOUNT_COLUMN = "amount";
-
-    public static final String IS_LISTABLE = "IS_LISTABLE";
-
-    public static final String GENERATED_FROM_DEPTH = "generated_from_depth";
-
-    public static final String PART_OF_DEPTH = "part_of_depth";
-
-    public static final String IS_DISPLAYED = "is_displayed";
 
     private ColumnNames()
     {

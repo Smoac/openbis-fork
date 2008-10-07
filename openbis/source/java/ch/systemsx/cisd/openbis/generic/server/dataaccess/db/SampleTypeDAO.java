@@ -48,7 +48,7 @@ final class SampleTypeDAO extends AbstractTypeDAO<SampleTypePE> implements ISamp
     // ISampleTypeDAO
     //
 
-    public final List<SampleTypePE> listSampleTypes(boolean onlyListable)
+    public final List<SampleTypePE> listSampleTypes(final boolean onlyListable)
             throws DataAccessException
     {
         final List<SampleTypePE> list;
@@ -60,8 +60,7 @@ final class SampleTypeDAO extends AbstractTypeDAO<SampleTypePE> implements ISamp
         {
             query += " and st.listable = true";
         }
-        list = cast(getHibernateTemplate().find(query, new Object[]
-            { getDatabaseInstance() }));
+        list = cast(getHibernateTemplate().find(query, toArray(getDatabaseInstance())));
         fetchPropertyTypes(list);
 
         if (operationLog.isDebugEnabled())
@@ -72,17 +71,17 @@ final class SampleTypeDAO extends AbstractTypeDAO<SampleTypePE> implements ISamp
         return list;
     }
 
-    private void fetchPropertyTypes(List<SampleTypePE> list)
+    private void fetchPropertyTypes(final List<SampleTypePE> list)
     {
-        for (SampleTypePE sampleTypePE : list)
+        for (final SampleTypePE sampleTypePE : list)
         {
             Hibernate.initialize(sampleTypePE.getSampleTypePropertyTypes());
         }
     }
 
-    public SampleTypePE tryFindByExample(SampleTypePE sampleType)
+    public SampleTypePE tryFindByExample(final SampleTypePE sampleType)
     {
-        List<SampleTypePE> result = cast(getHibernateTemplate().findByExample(sampleType));
+        final List<SampleTypePE> result = cast(getHibernateTemplate().findByExample(sampleType));
         return tryFindEntity(result, "sample type");
     }
 
