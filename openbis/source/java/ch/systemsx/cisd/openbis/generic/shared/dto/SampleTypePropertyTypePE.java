@@ -55,7 +55,7 @@ public class SampleTypePropertyTypePE extends EntityTypePropertyTypePE
         return isDisplayed;
     }
 
-    public void setDisplayed(boolean isDisplayed)
+    public void setDisplayed(final boolean isDisplayed)
     {
         this.isDisplayed = isDisplayed;
     }

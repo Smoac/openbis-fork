@@ -21,6 +21,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.validator.NotNull;
 
 import ch.systemsx.cisd.common.utilities.ClassUtils;
@@ -64,4 +65,17 @@ public abstract class EntityTypePE extends AbstractTypePE
         assert entityKind != null : "Unspecified entity kind.";
         return ClassUtils.createInstance(entityKind.<T> getTypeClass());
     }
+
+    //
+    // AbstractTypePE
+    //
+
+    @Override
+    ToStringBuilder createStringBuilder()
+    {
+        final ToStringBuilder builder = super.createStringBuilder();
+        builder.append("databaseInstance", getDatabaseInstance());
+        return builder;
+    }
+
 }

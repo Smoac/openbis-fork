@@ -31,6 +31,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -53,11 +54,11 @@ public final class SampleTypePE extends EntityTypePE
 
     private List<SampleTypePropertyTypePE> sampleTypePropertyTypes;
 
-    private Boolean isListable;
+    private boolean listable;
 
-    private Integer generatedFromHierarchyDepth;
+    private int generatedFromHierarchyDepth;
 
-    private Integer containerHierarchyDepth;
+    private int containerHierarchyDepth;
 
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = ColumnNames.SAMPLE_TYPE_COLUMN, updatable = false)
@@ -67,40 +68,41 @@ public final class SampleTypePE extends EntityTypePE
         return sampleTypePropertyTypes;
     }
 
-    public void setSampleTypePropertyTypes(List<SampleTypePropertyTypePE> sampleTypePropertyTypes)
+    public void setSampleTypePropertyTypes(
+            final List<SampleTypePropertyTypePE> sampleTypePropertyTypes)
     {
         this.sampleTypePropertyTypes = sampleTypePropertyTypes;
     }
 
     @Column(name = ColumnNames.IS_LISTABLE)
-    public Boolean isListable()
+    public boolean isListable()
     {
-        return isListable;
+        return listable;
     }
 
-    public void setListable(boolean isListable)
+    public void setListable(final boolean listable)
     {
-        this.isListable = isListable;
+        this.listable = listable;
     }
 
     @Column(name = ColumnNames.GENERATED_FROM_DEPTH)
-    public Integer getGeneratedFromHierarchyDepth()
+    public int getGeneratedFromHierarchyDepth()
     {
         return generatedFromHierarchyDepth;
     }
 
-    public void setGeneratedFromHierarchyDepth(int generatedFromHierarchyDepth)
+    public void setGeneratedFromHierarchyDepth(final int generatedFromHierarchyDepth)
     {
         this.generatedFromHierarchyDepth = generatedFromHierarchyDepth;
     }
 
     @Column(name = ColumnNames.PART_OF_DEPTH)
-    public Integer getContainerHierarchyDepth()
+    public int getContainerHierarchyDepth()
     {
         return containerHierarchyDepth;
     }
 
-    public void setContainerHierarchyDepth(int partOfHierarchyDepth)
+    public void setContainerHierarchyDepth(final int partOfHierarchyDepth)
     {
         this.containerHierarchyDepth = partOfHierarchyDepth;
     }
@@ -127,5 +129,15 @@ public final class SampleTypePE extends EntityTypePE
     public final Long getId()
     {
         return id;
+    }
+
+    @Override
+    final ToStringBuilder createStringBuilder()
+    {
+        final ToStringBuilder builder = super.createStringBuilder();
+        builder.append("listable", isListable());
+        builder.append("containerHierarchyDepth", getContainerHierarchyDepth());
+        builder.append("generatedFromHierarchyDepth", getGeneratedFromHierarchyDepth());
+        return builder;
     }
 }

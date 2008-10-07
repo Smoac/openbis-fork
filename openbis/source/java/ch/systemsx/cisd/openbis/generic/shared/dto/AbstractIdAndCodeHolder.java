@@ -46,6 +46,15 @@ public abstract class AbstractIdAndCodeHolder<T extends IIdAndCodeHolder> implem
         return IdAndCodeHolderComparator.INSTANCE.compare(o1, o2);
     }
 
+    ToStringBuilder createStringBuilder()
+    {
+        final ToStringBuilder builder =
+                new ToStringBuilder(this,
+                        ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
+        builder.append("code", getCode());
+        return builder;
+    }
+
     //
     // Object
     //
@@ -78,8 +87,7 @@ public abstract class AbstractIdAndCodeHolder<T extends IIdAndCodeHolder> implem
     @Override
     public final String toString()
     {
-        return ToStringBuilder.reflectionToString(this,
-                ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
+        return createStringBuilder().toString();
     }
 
     //
