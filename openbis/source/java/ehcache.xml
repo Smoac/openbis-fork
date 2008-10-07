@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <diskStore path="java.io.tmpdir" />
+
+    <!--
+        // The default cache configuration for (see warnings in the server startup log):
+        // * ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE
+        // * ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE
+        // * ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE.materialProperties
+        // * ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE.experimentProperties
+        // and:
+        // * org.hibernate.cache.UpdateTimestampsCache
+        // * org.hibernate.cache.StandardQueryCache
+    -->
+    <defaultCache maxElementsInMemory="1000000" eternal="true" overflowToDisk="false"
+        diskPersistent="false" memoryStoreEvictionPolicy="LFU" />
+
+</ehcache>
