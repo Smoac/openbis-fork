@@ -75,6 +75,7 @@ public abstract class AbstractGWTTestCase extends GWTTestCase
     @Override
     protected final void gwtTearDown() throws Exception
     {
+        remoteConsole.cancelTimer();
         AbstractAsyncCallback.setAllCallbackObjectsSilent();
         GenericViewContext viewContext = client.tryToGetViewContext();
         if (viewContext != null)

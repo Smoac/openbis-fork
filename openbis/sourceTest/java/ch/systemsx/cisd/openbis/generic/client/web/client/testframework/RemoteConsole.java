@@ -44,6 +44,8 @@ public class RemoteConsole
 
     private int entryIndex;
 
+    private Timer timer;
+
     /**
      * Creates an instance for the specified test.
      */
@@ -108,7 +110,7 @@ public class RemoteConsole
      */
     public void finish(int delayInMilliseconds)
     {
-        new Timer()
+        timer = new Timer()
             {
                 @Override
                 public void run()
@@ -123,7 +125,19 @@ public class RemoteConsole
                                 + " not been executed.");
                     }
                 }
-            }.schedule(delayInMilliseconds);
+            };
+        timer.schedule(delayInMilliseconds);
         testCase.delayTestTermination(delayInMilliseconds + 1000);
+    }
+    
+    void cancelTimer()
+    {
+        if (timer != null)
+        {
+            timer.cancel();
+        } else
+        {
+            Assert.fail("Missing preparation of the remote console with method finish().");
+        }
     }
 }
