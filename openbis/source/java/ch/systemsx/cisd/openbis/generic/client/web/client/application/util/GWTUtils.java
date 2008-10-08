@@ -17,37 +17,33 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
 
 /**
- * Constants used by the web client.
+ * Some utility methods around <i>GWT</i>.
  * 
- * @author Izabela Adamczyk
+ * @author Christian Ribeaud
  */
-public final class ClientConstants
+public final class GWTUtils
 {
-    private ClientConstants()
+
+    private GWTUtils()
     {
         // Can not be instantiated.
     }
 
-    public static final int COL_ROLE = 120;
+    private static boolean testing = false;
 
-    public static final int COL_DB_INSTANCE = 100;
+    /**
+     * Whether we are in testing mode.
+     */
+    public static boolean isTesting()
+    {
+        return testing;
+    }
 
-    public static final int COL_GROUP = 100;
-
-    public static final int COL_PERSON = 150;
-
-    public static final String FIT_SIZE = "90%";
-
-    public static final int COL_DATE = 100;
-
-    public static final int COL_EMAIL = 200;
-
-    public static final int COL_LAST_NAME = 80;
-
-    public static final int COL_FIRST_NAME = 80;
-
-    public static final int COL_PERSON_ID = 80;
-
-    public static final int COL_SAMPLE = 200;
-
+    /**
+     * Sets <code>testing</code> flag to <code>true</code>.
+     */
+    public static void testing()
+    {
+        testing = true;
+    }
 }

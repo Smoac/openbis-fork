@@ -20,23 +20,23 @@ import com.google.gwt.user.client.ui.Widget;
 
 /**
  * Widget handler which picks the first widget having a specified ID.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class WidgetPicker implements IWidgetHandler<Widget>
 {
     private final String id;
-    
+
     private Widget pickedWidget;
 
     /**
      * Creates an instance for the specified widget ID.
      */
-    public WidgetPicker(String id)
+    public WidgetPicker(final String id)
     {
         this.id = id;
     }
-    
+
     /**
      * Returns the picked widget or <code>null</code>.
      */
@@ -45,7 +45,11 @@ public class WidgetPicker implements IWidgetHandler<Widget>
         return pickedWidget;
     }
 
-    public boolean handle(Widget widgetOrNull)
+    //
+    // IWidgetHandler
+    //
+
+    public final boolean handle(final Widget widgetOrNull)
     {
         if (id.equals(GWTTestUtil.tryToGetWidgetID(widgetOrNull)))
         {

@@ -28,14 +28,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestU
  * 
  * @author Franz-Josef Elmer
  */
-public final class CreateGroup extends AbstractDefaultTestCommand
+public final class CreatePerson extends AbstractDefaultTestCommand
 {
-    private final String groupCode;
+    private final String personCode;
 
-    public CreateGroup(final String groupCode)
+    public CreatePerson(final String personCode)
     {
-        super(GroupsView.ListGroupsCallback.class);
-        this.groupCode = groupCode;
+        super(PersonsView.ListPersonsCallback.class);
+        this.personCode = personCode;
     }
 
     //
@@ -45,13 +45,13 @@ public final class CreateGroup extends AbstractDefaultTestCommand
     public final void execute()
     {
         final AMC amc = (AMC) GWTTestUtil.getWidgetWithID(AMC.ID);
-        final TabItem tabItem = amc.findItem(AMC.GROUPS_TAB, false);
+        final TabItem tabItem = amc.findItem(AMC.PERSONS_TAB, false);
         Assert.assertTrue(tabItem != null);
         amc.setSelection(tabItem);
 
-        GWTTestUtil.clickButtonWithID(GroupsView.ADD_BUTTON_ID);
-        GWTTestUtil.getTextFieldWithID(AddGroupDialog.CODE_FIELD_ID).setValue(groupCode);
-        GWTTestUtil.clickButtonWithID(AddGroupDialog.SAVE_BUTTON_ID);
+        GWTTestUtil.clickButtonWithID(PersonsView.ADD_BUTTON_ID);
+        GWTTestUtil.getTextFieldWithID(AddPersonDialog.CODE_FIELD_ID).setValue(personCode);
+        GWTTestUtil.clickButtonWithID(AddPersonDialog.SAVE_BUTTON_ID);
     }
 
 }

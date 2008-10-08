@@ -33,6 +33,7 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 
 /**
@@ -154,7 +155,7 @@ public class LoginWidget extends VerticalPanel
 
     private final void doLogin(final GenericViewContext viewContext)
     {
-        if (formPanel.isValid())
+        if (GWTUtils.isTesting() || formPanel.isValid())
         {
             button.disable();
             final String user = userField.getValue();

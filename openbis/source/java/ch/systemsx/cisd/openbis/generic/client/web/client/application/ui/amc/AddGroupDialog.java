@@ -37,17 +37,16 @@ public class AddGroupDialog extends Window
 {
     final class RegisterGroupCallback extends AbstractAsyncCallback<Void>
     {
-        private RegisterGroupCallback(GenericViewContext viewContext)
+        private RegisterGroupCallback(final GenericViewContext viewContext)
         {
             super(viewContext);
         }
 
         @Override
-        public void process(Void result)
+        public void process(final Void result)
         {
             hide();
             groupList.refresh();
-
         }
     }
 
@@ -65,7 +64,7 @@ public class AddGroupDialog extends Window
         setHeading("Add a new group");
         setModal(true);
         setWidth(400);
-        FormPanel form = new FormPanel();
+        final FormPanel form = new FormPanel();
         form.setHeaderVisible(false);
         form.setBorders(false);
         form.setBodyBorder(false);
@@ -74,6 +73,7 @@ public class AddGroupDialog extends Window
         codeField.setWidth(100);
         codeField.setFieldLabel("Code");
         codeField.setAllowBlank(false);
+        codeField.setValidateOnBlur(true);
         codeField.setId(CODE_FIELD_ID);
         form.add(codeField);
 
@@ -81,7 +81,7 @@ public class AddGroupDialog extends Window
         descriptionField.setFieldLabel("Description");
         form.add(descriptionField);
 
-        Button saveButton = new Button("Save", new SelectionListener<ComponentEvent>()
+        final Button saveButton = new Button("Save", new SelectionListener<ComponentEvent>()
             {
                 @Override
                 public void componentSelected(ComponentEvent ce)
@@ -96,7 +96,7 @@ public class AddGroupDialog extends Window
         addButton(new Button("Cancel", new SelectionListener<ComponentEvent>()
             {
                 @Override
-                public void componentSelected(ComponentEvent ce)
+                public void componentSelected(final ComponentEvent ce)
                 {
                     hide();
                 }

@@ -39,10 +39,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ICallbackL
 public class RemoteConsole
 {
     private final AbstractGWTTestCase testCase;
+
     private final List<ITestCommand> commands;
-    
+
     private int entryIndex;
-    
+
     /**
      * Creates an instance for the specified test.
      */
@@ -56,7 +57,8 @@ public class RemoteConsole
                         Throwable throwable)
                 {
                     if (entryIndex < commands.size()
-                            && commands.get(entryIndex).validOnFailure(callback, failureMessage, throwable))
+                            && commands.get(entryIndex).validOnFailure(callback, failureMessage,
+                                    throwable))
                     {
                         executeCommand();
                     } else
@@ -74,7 +76,7 @@ public class RemoteConsole
                         executeCommand();
                     }
                 }
-                
+
                 private void executeCommand()
                 {
                     ITestCommand testCommand = commands.get(entryIndex++);
@@ -90,15 +92,15 @@ public class RemoteConsole
     }
 
     /**
-     * Prepares the console with the specified command which will be executed if the
-     * specified condition is fulfilled. 
+     * Prepares the console with the specified command which will be executed if the specified
+     * condition is fulfilled.
      */
     public RemoteConsole prepare(ITestCommand command)
     {
         commands.add(command);
         return this;
     }
-    
+
     /**
      * Sets the timeout after which the test is terminated.
      * 
@@ -122,6 +124,6 @@ public class RemoteConsole
                     }
                 }
             }.schedule(delayInMilliseconds);
-       testCase.delayTestTermination(delayInMilliseconds + 1000);
+        testCase.delayTestTermination(delayInMilliseconds + 1000);
     }
 }

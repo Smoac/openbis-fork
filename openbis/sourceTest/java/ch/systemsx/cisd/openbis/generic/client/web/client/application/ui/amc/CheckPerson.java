@@ -22,7 +22,6 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.Widget;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
@@ -31,15 +30,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestU
  * 
  * @author Franz-Josef Elmer
  */
-public final class CheckGroup extends AbstractDefaultTestCommand
+public final class CheckPerson extends AbstractDefaultTestCommand
 {
+    private final String personCode;
 
-    private final String groupCode;
-
-    public CheckGroup(final String groupCode)
+    public CheckPerson(final String personCode)
     {
-        super(GroupsView.ListGroupsCallback.class);
-        this.groupCode = groupCode;
+        super(PersonsView.ListPersonsCallback.class);
+        this.personCode = personCode;
     }
 
     //
@@ -49,20 +47,20 @@ public final class CheckGroup extends AbstractDefaultTestCommand
     @SuppressWarnings("unchecked")
     public final void execute()
     {
-        final Widget widget = GWTTestUtil.getWidgetWithID(GroupsView.TABLE_ID);
+        final Widget widget = GWTTestUtil.getWidgetWithID(PersonsView.TABLE_ID);
         Assert.assertTrue(widget instanceof Grid);
-        final Grid<GroupModel> table = (Grid<GroupModel>) widget;
-        final ListStore<GroupModel> store = table.getStore();
+        final Grid<PersonModel> table = (Grid<PersonModel>) widget;
+        final ListStore<PersonModel> store = table.getStore();
         for (int i = 0, n = store.getCount(); i < n; i++)
         {
-            final GroupModel groupModel = store.getAt(i);
-            final Object value = groupModel.get(GroupModel.CODE);
-            if (groupCode.equals(value))
+            final PersonModel personModel = store.getAt(i);
+            final Object value = personModel.get(PersonModel.USER_ID);
+            if (personCode.equals(value))
             {
                 return;
             }
         }
-        Assert.fail("No group with code '" + groupCode + "' found.");
+        Assert.fail("No person with code '" + personCode + "' found.");
     }
 
 }

@@ -67,13 +67,13 @@ public class GroupsView extends LayoutContainer
 
     final class ListGroupsCallback extends AbstractAsyncCallback<List<Group>>
     {
-        private ListGroupsCallback(GenericViewContext viewContext)
+        private ListGroupsCallback(final GenericViewContext viewContext)
         {
             super(viewContext);
         }
 
         @Override
-        public void process(List<Group> groups)
+        public void process(final List<Group> groups)
         {
             display(groups);
         }
@@ -81,7 +81,7 @@ public class GroupsView extends LayoutContainer
 
     private final GenericViewContext viewContext;
 
-    public GroupsView(GenericViewContext viewContext)
+    public GroupsView(final GenericViewContext viewContext)
     {
         this.viewContext = viewContext;
         setLayout(new FitLayout());
@@ -91,34 +91,34 @@ public class GroupsView extends LayoutContainer
     {
         removeAll();
 
-        List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
+        final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
 
-        XTemplate tpl = XTemplate.create("<p>" + "<b>Description:</b> {description}</p>");
-        RowExpander expander = new RowExpander();
+        final XTemplate tpl = XTemplate.create("<p>" + "<b>Description:</b> {description}</p>");
+        final RowExpander expander = new RowExpander();
         expander.setTemplate(tpl);
         configs.add(expander);
 
-        ColumnConfig codeColumnConfig = new ColumnConfig();
+        final ColumnConfig codeColumnConfig = new ColumnConfig();
         codeColumnConfig.setId(GroupModel.CODE);
         codeColumnConfig.setHeader("Code");
         codeColumnConfig.setWidth(COL_GROUP);
         configs.add(codeColumnConfig);
 
-        ColumnConfig leaderColumnConfig = new ColumnConfig();
+        final ColumnConfig leaderColumnConfig = new ColumnConfig();
         leaderColumnConfig.setId(GroupModel.LEADER);
         leaderColumnConfig.setHeader("Leader");
         leaderColumnConfig.setWidth(COL_PERSON);
         leaderColumnConfig.setRenderer(new PersonRenderer());
         configs.add(leaderColumnConfig);
 
-        ColumnConfig registratorColumnConfig = new ColumnConfig();
+        final ColumnConfig registratorColumnConfig = new ColumnConfig();
         registratorColumnConfig.setId(GroupModel.REGISTRATOR);
         registratorColumnConfig.setHeader("Registrator");
         registratorColumnConfig.setWidth(COL_PERSON);
         registratorColumnConfig.setRenderer(new PersonRenderer());
         configs.add(registratorColumnConfig);
 
-        ColumnConfig registrationDateColumnConfig = new ColumnConfig();
+        final ColumnConfig registrationDateColumnConfig = new ColumnConfig();
         registrationDateColumnConfig.setId(GroupModel.REGISTRATION_DATE);
         registrationDateColumnConfig.setHeader("Registration Date");
         registrationDateColumnConfig.setWidth(COL_DATE);
@@ -128,12 +128,12 @@ public class GroupsView extends LayoutContainer
 
         final GroupsView groupList = this;
 
-        ColumnModel cm = new ColumnModel(configs);
+        final ColumnModel cm = new ColumnModel(configs);
 
-        ListStore<GroupModel> store = new ListStore<GroupModel>();
+        final ListStore<GroupModel> store = new ListStore<GroupModel>();
         store.add(getGroupModels(groups));
 
-        ContentPanel cp = new ContentPanel();
+        final ContentPanel cp = new ContentPanel();
         cp.setBodyBorder(false);
         cp.setHeading("Group list");
         cp.setButtonAlign(HorizontalAlignment.CENTER);
@@ -141,13 +141,13 @@ public class GroupsView extends LayoutContainer
         cp.setLayout(new FitLayout());
         cp.setSize(FIT_SIZE, FIT_SIZE);
 
-        Grid<GroupModel> grid = new Grid<GroupModel>(store, cm);
+        final Grid<GroupModel> grid = new Grid<GroupModel>(store, cm);
         grid.addPlugin(expander);
         grid.setBorders(true);
         grid.setId(TABLE_ID);
 
         cp.add(grid);
-        Button addGroupButton = new Button("Add group", new SelectionListener<ComponentEvent>()
+        final Button addGroupButton = new Button("Add group", new SelectionListener<ComponentEvent>()
             {
                 @Override
                 public void componentSelected(ComponentEvent ce)
@@ -157,7 +157,7 @@ public class GroupsView extends LayoutContainer
             });
         addGroupButton.setId(ADD_BUTTON_ID);
 
-        ToolBar toolBar = new ToolBar();
+        final ToolBar toolBar = new ToolBar();
         toolBar.add(new LabelToolItem("Filter:"));
         toolBar.add(new AdapterToolItem(
                 new ColumnFilter<GroupModel>(store, GroupModel.CODE, "code")));
@@ -170,10 +170,10 @@ public class GroupsView extends LayoutContainer
 
     }
 
-    List<GroupModel> getGroupModels(List<Group> groups)
+    List<GroupModel> getGroupModels(final List<Group> groups)
     {
-        List<GroupModel> gms = new ArrayList<GroupModel>();
-        for (Group g : groups)
+        final List<GroupModel> gms = new ArrayList<GroupModel>();
+        for (final Group g : groups)
         {
             gms.add(new GroupModel(g));
         }

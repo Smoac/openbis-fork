@@ -19,29 +19,43 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 
 public class AMC extends TabPanel
 {
+    private static final String PREFIX = "tabbed-pane";
 
-    public AMC(GenericViewContext viewContext)
+    static final String ID = GenericConstants.ID_PREFIX + PREFIX;
+
+    static final String GROUPS_TAB = ID + "_groups";
+
+    static final String PERSONS_TAB = ID + "_persons";
+
+    static final String ROLES_TAB = ID + "_roles";
+
+    public AMC(final GenericViewContext viewContext)
     {
+        setId(ID);
 
-        TabItem groupsTab = new TabItem(viewContext.getMessage("groupsView_heading"));
+        final TabItem groupsTab = new TabItem(viewContext.getMessage("groupsView_heading"));
+        groupsTab.setId(GROUPS_TAB);
         groupsTab.addStyleName("pad-text");
-        GroupsView groupList = new GroupsView(viewContext);
+        final GroupsView groupList = new GroupsView(viewContext);
         groupList.refresh();
         groupsTab.add(groupList);
 
-        TabItem personsTab = new TabItem(viewContext.getMessage("personsView_heading"));
+        final TabItem personsTab = new TabItem(viewContext.getMessage("personsView_heading"));
+        personsTab.setId(PERSONS_TAB);
         personsTab.addStyleName("pad-text");
-        PersonsView personList = new PersonsView(viewContext);
+        final PersonsView personList = new PersonsView(viewContext);
         personList.refresh();
         personsTab.add(personList);
 
-        TabItem rolesTab = new TabItem(viewContext.getMessage("rolesView_heading"));
+        final TabItem rolesTab = new TabItem(viewContext.getMessage("rolesView_heading"));
+        rolesTab.setId(ROLES_TAB);
         rolesTab.addStyleName("pad-text");
-        RolesView roleList = new RolesView(viewContext);
+        final RolesView roleList = new RolesView(viewContext);
         roleList.refresh();
         rolesTab.add(roleList);
 

@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 
 /**
  * Useful static methods for testing.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class GWTTestUtil
@@ -45,41 +45,41 @@ public class GWTTestUtil
     private GWTTestUtil()
     {
     }
-    
+
     /**
      * Clicks on the {@link Button} with specified id.
      * 
      * @throws AssertionError if not found or isn't a button.
      */
-    public static void clickButtonWithID(String id)
+    public static void clickButtonWithID(final String id)
     {
-        Widget widget = tryToFindByID(id);
+        final Widget widget = tryToFindByID(id);
         assertWidgetFound("Button", id, widget);
         Assert.assertTrue("Widget '" + id + "' isn't a Button: " + widget.getClass(),
                 widget instanceof Button);
         ((Button) widget).fireEvent(Events.Select);
     }
-    
+
     /**
      * Gets the {@link TextField} with specified id.
      * 
      * @throws AssertionError if not found or isn't a text field.
      */
     @SuppressWarnings("unchecked")
-    public static <T> TextField<T> getTextFieldWithID(String id)
+    public static <T> TextField<T> getTextFieldWithID(final String id)
     {
-        Widget widget = tryToFindByID(id);
+        final Widget widget = tryToFindByID(id);
         assertWidgetFound("Text field", id, widget);
         Assert.assertTrue("Widget '" + id + "' isn't a TextField: " + widget.getClass(),
                 widget instanceof TextField);
         return (TextField<T>) widget;
     }
-    
+
     /**
      * Tries to find the Widget of specified type with specified id.
      */
     @SuppressWarnings("unchecked")
-    public static <T extends Widget> T tryToFindByID(Class<T> widgetClass, String id)
+    public static <T extends Widget> T tryToFindByID(final Class<T> widgetClass, final String id)
     {
         return (T) tryToFindByID(id);
     }
@@ -89,7 +89,7 @@ public class GWTTestUtil
      * 
      * @return <code>null</code> if there is no ID.
      */
-    public static String tryToGetWidgetID(Widget widgetOrNull)
+    public static String tryToGetWidgetID(final Widget widgetOrNull)
     {
         if (widgetOrNull == null)
         {
@@ -99,17 +99,17 @@ public class GWTTestUtil
         {
             return ((Component) widgetOrNull).getId();
         }
-        Element element = widgetOrNull.getElement();
+        final Element element = widgetOrNull.getElement();
         if (element == null)
         {
             return null;
         }
         return element.getId();
     }
-    
-    public static Widget getWidgetWithID(String id)
+
+    public static Widget getWidgetWithID(final String id)
     {
-        Widget widget = tryToFindByID(id);
+        final Widget widget = tryToFindByID(id);
         assertWidgetFound("Widget", id, widget);
         return widget;
     }
@@ -121,37 +121,38 @@ public class GWTTestUtil
      */
     public static Widget tryToFindByID(final String id)
     {
-        WidgetPicker widgetPicker = new WidgetPicker(id);
+        final WidgetPicker widgetPicker = new WidgetPicker(id);
         traverseRootPanel(widgetPicker);
         return widgetPicker.tryToGetPickedWidget();
     }
 
     /**
-     * Traverses root panel tree with the specified widget handler. Traversal is stopped
-     * when {@link IWidgetHandler#handle(Widget)} returns <code>true</code>.
+     * Traverses root panel tree with the specified widget handler. Traversal is stopped when
+     * {@link IWidgetHandler#handle(Widget)} returns <code>true</code>.
      */
-    public static void traverseRootPanel(IWidgetHandler<Widget> handler)
+    public static void traverseRootPanel(final IWidgetHandler<Widget> handler)
     {
         new WidgetTreeTraverser(handler).handle(RootPanel.get());
     }
 
-    private static void assertWidgetFound(String widgetType, String id, Widget widgetOrNull)
+    private static void assertWidgetFound(final String widgetType, final String id,
+            final Widget widgetOrNull)
     {
         if (widgetOrNull == null)
         {
-            List<String> ids = findWidgetWithIDsStartingWith(GenericConstants.ID_PREFIX);
+            final List<String> ids = findWidgetWithIDsStartingWith(GenericConstants.ID_PREFIX);
             Assert.fail(widgetType + " '" + id + "' not found on page with following IDs: " + ids);
         }
     }
-    
+
     private static List<String> findWidgetWithIDsStartingWith(final String idPrefix)
     {
         final List<String> ids = new ArrayList<String>();
         traverseRootPanel(new IWidgetHandler<Widget>()
             {
-                public boolean handle(Widget widgetOrNull)
+                public boolean handle(final Widget widgetOrNull)
                 {
-                    String widgetID = tryToGetWidgetID(widgetOrNull);
+                    final String widgetID = tryToGetWidgetID(widgetOrNull);
                     if (widgetID != null && widgetID.startsWith(idPrefix))
                     {
                         ids.add(widgetID);
@@ -161,46 +162,55 @@ public class GWTTestUtil
             });
         return ids;
     }
-    
+
     private static final class WidgetTreeTraverser implements IWidgetHandler<Widget>
     {
         private final IWidgetHandler<Widget> handler;
 
-        WidgetTreeTraverser(IWidgetHandler<Widget> handler)
+        WidgetTreeTraverser(final IWidgetHandler<Widget> handler)
         {
             this.handler = handler;
         }
-        
+
         @SuppressWarnings("unchecked")
-        public boolean handle(Widget widgetOrNull)
+        public final boolean handle(final Widget widgetOrNull)
         {
-            if (widgetOrNull instanceof ComplexPanel)
+            Widget widget = widgetOrNull;
+            if (widgetOrNull instanceof AdapterToolItem)
             {
-                return new ComplexPanelHandler(this).handle((ComplexPanel) widgetOrNull);
-            } else if (widgetOrNull instanceof Container)
+                widget = ((AdapterToolItem) widgetOrNull).getWidget();
+            }
+            if (handler.handle(widget))
             {
-                return new ContainerHandler(this).handle((Container<Component>) widgetOrNull);
-            } else if (widgetOrNull instanceof AdapterToolItem) 
+                return true;
+            }
+            if (widget instanceof ComplexPanel)
             {
-                return handler.handle(((AdapterToolItem) widgetOrNull).getWidget());
-            } else 
+                return new ComplexPanelHandler(this).handle((ComplexPanel) widget);
+            } else if (widget instanceof Container)
             {
-                return handler.handle(widgetOrNull);
+                return new ContainerHandler(this).handle((Container<Component>) widget);
+            } else
+            {
+                return false;
             }
         }
-        
     }
-    
+
     private static final class ComplexPanelHandler implements IWidgetHandler<ComplexPanel>
     {
         private final IWidgetHandler<Widget> handler;
 
-        ComplexPanelHandler(IWidgetHandler<Widget> handler)
+        ComplexPanelHandler(final IWidgetHandler<Widget> handler)
         {
             this.handler = handler;
         }
 
-        public boolean handle(ComplexPanel panel)
+        //
+        // IWidgetHandler
+        //
+
+        public final boolean handle(final ComplexPanel panel)
         {
             for (int i = 0, n = panel.getWidgetCount(); i < n; i++)
             {
@@ -212,19 +222,23 @@ public class GWTTestUtil
             return false;
         }
     }
-    
+
     private static final class ContainerHandler implements IWidgetHandler<Container<Component>>
     {
         private final IWidgetHandler<Widget> handler;
 
-        ContainerHandler(IWidgetHandler<Widget> handler)
+        ContainerHandler(final IWidgetHandler<Widget> handler)
         {
             this.handler = handler;
         }
 
-        public boolean handle(Container<Component> container)
+        //
+        // IWidgetHandler
+        //
+
+        public final boolean handle(final Container<Component> container)
         {
-            List<Component> items = container.getItems();
+            final List<Component> items = container.getItems();
             for (int i = 0, n = items.size(); i < n; i++)
             {
                 if (handler.handle(items.get(i)))
@@ -234,8 +248,8 @@ public class GWTTestUtil
             }
             if (container instanceof ContentPanel)
             {
-                ContentPanel contentPanel = (ContentPanel) container;
-                List<Button> buttons = contentPanel.getButtonBar().getItems();
+                final ContentPanel contentPanel = (ContentPanel) container;
+                final List<Button> buttons = contentPanel.getButtonBar().getItems();
                 for (int i = 0, n = buttons.size(); i < n; i++)
                 {
                     if (handler.handle(buttons.get(i)))
@@ -250,7 +264,7 @@ public class GWTTestUtil
             }
             return false;
         }
-        
+
     }
-    
+
 }

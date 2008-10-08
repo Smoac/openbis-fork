@@ -63,6 +63,8 @@ public class PersonsView extends LayoutContainer
 
     static final String ADD_BUTTON_ID = GenericConstants.ID_PREFIX + PREFIX + "add-button";
 
+    static final String TABLE_ID = GenericConstants.ID_PREFIX + PREFIX + "table";
+
     private final GenericViewContext viewContext;
 
     public PersonsView(final GenericViewContext viewContext)
@@ -132,6 +134,7 @@ public class PersonsView extends LayoutContainer
         cp.setSize(FIT_SIZE, FIT_SIZE);
 
         final Grid<PersonModel> grid = new Grid<PersonModel>(store, cm);
+        grid.setId(TABLE_ID);
         grid.setBorders(true);
         cp.add(grid);
 
@@ -152,7 +155,6 @@ public class PersonsView extends LayoutContainer
                 "user id")));
         toolBar.add(new SeparatorToolItem());
         toolBar.add(new AdapterToolItem(addPersonButton));
-
         cp.setBottomComponent(toolBar);
 
         add(cp);
@@ -174,14 +176,28 @@ public class PersonsView extends LayoutContainer
     {
         removeAll();
         add(new Text("data loading..."));
-        viewContext.getService().listPersons(new AbstractAsyncCallback<List<Person>>(viewContext)
-            {
-                @Override
-                public void process(final List<Person> persons)
-                {
-                    display(persons);
-                }
-            });
+        viewContext.getService().listPersons(new ListPersonsCallback(viewContext));
     }
 
+    //
+    // Helper classes
+    //
+
+    final class ListPersonsCallback extends AbstractAsyncCallback<List<Person>>
+    {
+        private ListPersonsCallback(final GenericViewContext viewContext)
+        {
+            super(viewContext);
+        }
+
+        //
+        // AbstractAsyncCallback
+        //
+
+        @Override
+        public final void process(final List<Person> persons)
+        {
+            display(persons);
+        }
+    }
 }

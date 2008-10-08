@@ -21,23 +21,25 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Client;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 
 /**
  * Abstract super class of all GWT System Tests.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public abstract class AbstractGWTTestCase extends GWTTestCase
 {
     protected RemoteConsole remoteConsole;
+
     protected Client client;
-    
+
     @Override
     public String getModuleName()
     {
         return "ch.systemsx.cisd.openbis.OpenBIS";
     }
-    
+
     /**
      * Terminates test. Wrapper of {@link #finishTest()}. Will be used in {@link RemoteConsole}.
      */
@@ -45,7 +47,7 @@ public abstract class AbstractGWTTestCase extends GWTTestCase
     {
         finishTest();
     }
-    
+
     /**
      * Delays test termination until the specified timeout (in milliseconds). Wrapper of
      * {@link #delayTestFinish(int)}. Will be used in {@link RemoteConsole}.
@@ -61,9 +63,10 @@ public abstract class AbstractGWTTestCase extends GWTTestCase
         System.out.println("TEST: " + getName());
         remoteConsole = new RemoteConsole(this);
         client = new Client();
+        GWTUtils.testing();
         setUpTest();
     }
-    
+
     protected void setUpTest() throws Exception
     {
     }
@@ -79,7 +82,7 @@ public abstract class AbstractGWTTestCase extends GWTTestCase
                     public void onSuccess(Void result)
                     {
                     }
-            
+
                     public void onFailure(Throwable caught)
                     {
                         System.out.println("LOGOUT FAILED: " + caught);
@@ -88,10 +91,9 @@ public abstract class AbstractGWTTestCase extends GWTTestCase
         }
         tearDownTest();
     }
-    
+
     protected void tearDownTest() throws Exception
     {
     }
-    
-    
+
 }

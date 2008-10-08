@@ -16,32 +16,45 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
+import junit.framework.Assert;
+
+import com.extjs.gxt.ui.client.widget.form.TextField;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SessionContextCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
 /**
  * Command for login after {@link SessionContextCallback} has finished.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class Login extends AbstractDefaultTestCommand
 {
     private final String user;
+
     private final String password;
 
-    public Login(String user, String password)
+    public Login(final String user, final String password)
     {
         super(SessionContextCallback.class);
         this.user = user;
         this.password = password;
     }
 
-    public void execute()
+    //
+    // AbstractDefaultTestCommand
+    //
+
+    public final void execute()
     {
-        GWTTestUtil.<String>getTextFieldWithID(LoginWidget.USER_FIELD_ID).setValue(user);
-        GWTTestUtil.<String>getTextFieldWithID(LoginWidget.PASSWORD_FIELD_ID).setValue(password);
+        TextField<String> textField =
+                GWTTestUtil.<String> getTextFieldWithID(LoginWidget.USER_FIELD_ID);
+        textField.setValue(user);
+        Assert.assertEquals(user, textField.getValue());
+        textField = GWTTestUtil.<String> getTextFieldWithID(LoginWidget.PASSWORD_FIELD_ID);
+        textField.setValue(password);
+        Assert.assertEquals(password, textField.getValue());
         GWTTestUtil.clickButtonWithID(LoginWidget.BUTTON_ID);
     }
-
 }

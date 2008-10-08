@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoginWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Logout;
@@ -24,10 +23,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Abstract
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.FailureExpectation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.WaitFor;
 
-
 /**
+ * A {@link AbstractGWTTestCase} extension to test login.
  * 
- *
  * @author Franz-Josef Elmer
  */
 public class AuthenticationTest extends AbstractGWTTestCase
@@ -37,25 +35,25 @@ public class AuthenticationTest extends AbstractGWTTestCase
         remoteConsole.prepare(new Login("test", "a"));
         remoteConsole.prepare(new WaitFor(LoginWidget.LoginCallback.class));
         remoteConsole.finish(10000);
-        
+
         client.onModuleLoad();
     }
-    
+
     public void testLogout() throws Exception
     {
         remoteConsole.prepare(new Login("test", "a"));
         remoteConsole.prepare(new Logout()).finish(10000);
-        
+
         client.onModuleLoad();
     }
-    
+
     public void testFailedLoginBecauseOfEmptyPassword() throws Exception
     {
         remoteConsole.prepare(new Login("u", ""));
-        remoteConsole.prepare(new FailureExpectation(LoginWidget.LoginCallback.class)).finish(10000);
-        
+        remoteConsole.prepare(new FailureExpectation(LoginWidget.LoginCallback.class))
+                .finish(10000);
+
         client.onModuleLoad();
     }
-    
-    
+
 }
