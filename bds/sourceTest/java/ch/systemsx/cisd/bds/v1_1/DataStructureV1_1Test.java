@@ -22,6 +22,7 @@ import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -35,6 +36,7 @@ import ch.systemsx.cisd.bds.Version;
 import ch.systemsx.cisd.bds.IDataStructure.Mode;
 import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
+import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.filesystem.FileStorage;
 import ch.systemsx.cisd.bds.v1_0.DataStructureV1_0Test;
 import ch.systemsx.cisd.common.filesystem.AbstractFileSystemTestCase;
@@ -195,5 +197,36 @@ public final class DataStructureV1_1Test extends AbstractFileSystemTestCase
         dataStructure.close();
         dataStructure.open(Mode.READ_ONLY);
         assertEquals(new Version(1, 1), dataStructure.getVersion());
+    }
+
+    @Test
+    public final void testReadOnly()
+    {
+        DataStructureV1_0Test.createExampleDataStructure(storage, new Version(1, 0));
+        // IDirectory.addKeyValuePair
+        dataStructure.open(Mode.READ_ONLY);
+        try
+        {
+            dataStructure.getStandardData().addKeyValuePair("key", "value");
+            fail("Should not be allowed as we are in read-only mode.");
+        } catch (final UnsupportedOperationException ex)
+        {
+        }
+        dataStructure.open(Mode.READ_WRITE);
+        dataStructure.getStandardData().addKeyValuePair("key", "value");
+        // IDirectory.listFiles
+        dataStructure.open(Mode.READ_ONLY);
+        List<IFile> files = dataStructure.getOriginalData().listFiles(null, true);
+        assertTrue(files.size() > 0);
+        try
+        {
+            files.get(0).moveTo(workingDirectory);
+            fail("Should not be allowed as we are in read-only mode.");
+        } catch (final UnsupportedOperationException ex)
+        {
+        }
+        dataStructure.open(Mode.READ_WRITE);
+        files = dataStructure.getOriginalData().listFiles(null, true);
+        files.get(0).moveTo(workingDirectory);
     }
 }
