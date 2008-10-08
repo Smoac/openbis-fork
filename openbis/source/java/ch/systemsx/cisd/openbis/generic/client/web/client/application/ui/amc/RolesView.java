@@ -43,6 +43,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnFilter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
@@ -56,9 +57,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 public class RolesView extends LayoutContainer
 {
 
+    private static final String PREFIX = "roles-view_";
+
+    static final String ADD_BUTTON_ID = GenericConstants.ID_PREFIX + PREFIX + "add-button";
+
+    static final String TABLE_ID = GenericConstants.ID_PREFIX + PREFIX + "table";
+
     private final GenericViewContext viewContext;
 
-    public RolesView(GenericViewContext viewContext)
+    public RolesView(final GenericViewContext viewContext)
     {
         this.viewContext = viewContext;
         setLayout(new FitLayout());
@@ -69,38 +76,38 @@ public class RolesView extends LayoutContainer
     {
         removeAll();
 
-        List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
+        final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
 
-        ColumnConfig userIdColumnConfig = new ColumnConfig();
+        final ColumnConfig userIdColumnConfig = new ColumnConfig();
         userIdColumnConfig.setId(RoleModel.PERSON);
         userIdColumnConfig.setHeader("Person");
         userIdColumnConfig.setWidth(COL_PERSON);
         configs.add(userIdColumnConfig);
 
-        ColumnConfig groupColumnConfig = new ColumnConfig();
+        final ColumnConfig groupColumnConfig = new ColumnConfig();
         groupColumnConfig.setId(RoleModel.GROUP);
         groupColumnConfig.setHeader("Group");
         groupColumnConfig.setWidth(COL_GROUP);
         configs.add(groupColumnConfig);
 
-        ColumnConfig instanceColumnConfig = new ColumnConfig();
+        final ColumnConfig instanceColumnConfig = new ColumnConfig();
         instanceColumnConfig.setId(RoleModel.INSTANCE);
         instanceColumnConfig.setHeader("Database Instance");
         instanceColumnConfig.setWidth(COL_DB_INSTANCE);
         configs.add(instanceColumnConfig);
 
-        ColumnConfig roleColumnConfig = new ColumnConfig();
+        final ColumnConfig roleColumnConfig = new ColumnConfig();
         roleColumnConfig.setId(RoleModel.ROLE);
         roleColumnConfig.setHeader("Role");
         roleColumnConfig.setWidth(COL_ROLE);
         configs.add(roleColumnConfig);
 
-        ColumnModel cm = new ColumnModel(configs);
+        final ColumnModel cm = new ColumnModel(configs);
 
         final ListStore<RoleModel> store = new ListStore<RoleModel>();
         store.add(getRoleModels(roles));
 
-        ContentPanel cp = new ContentPanel();
+        final ContentPanel cp = new ContentPanel();
         cp.setBodyBorder(false);
         cp.setHeading("Role list");
         cp.setButtonAlign(HorizontalAlignment.CENTER);
@@ -111,48 +118,64 @@ public class RolesView extends LayoutContainer
 
         final Grid<RoleModel> grid = new Grid<RoleModel>(store, cm);
         grid.setBorders(true);
+        grid.setId(TABLE_ID);
 
         cp.add(grid);
 
-        Button addRoleButton = new Button("Add role", new SelectionListener<ComponentEvent>()
+        final Button addRoleButton = new Button("Add role", new SelectionListener<ComponentEvent>()
             {
+                //
+                // SelectionListener
+                //
+
                 @Override
-                public void componentSelected(ComponentEvent ce)
+                public final void componentSelected(final ComponentEvent ce)
                 {
                     new AddRoleDialog(viewContext, roleList).show();
                 }
             });
+        addRoleButton.setId(ADD_BUTTON_ID);
 
-        Button removeRoleButton = new Button("Remove role", new SelectionListener<ComponentEvent>()
-            {
-                @Override
-                public void componentSelected(ComponentEvent ce)
-                {
-                    final RoleModel rm = grid.getSelectionModel().getSelectedItem();
-                    final AbstractAsyncCallback<Void> roleListRefreshCallback =
-                            new AbstractAsyncCallback<Void>(viewContext)
-                                {
-                                    @Override
-                                    public void process(Void result)
-                                    {
-                                        roleList.refresh();
-                                    }
-                                };
-                    if (StringUtils.isBlank((String) rm.get(RoleModel.GROUP)))
+        final Button removeRoleButton =
+                new Button("Remove role", new SelectionListener<ComponentEvent>()
                     {
-                        viewContext.getService().deleteInstanceRole(
-                                (String) rm.get(RoleModel.ROLE), (String) rm.get(RoleModel.PERSON),
-                                roleListRefreshCallback);
-                    } else
-                    {
-                        viewContext.getService().deleteGroupRole((String) rm.get(RoleModel.ROLE),
-                                (String) rm.get(RoleModel.GROUP),
-                                (String) rm.get(RoleModel.PERSON), roleListRefreshCallback);
-                    }
-                }
-            });
+                        //
+                        // ComponentEvent
+                        //
 
-        ToolBar toolBar = new ToolBar();
+                        @Override
+                        public final void componentSelected(final ComponentEvent ce)
+                        {
+                            final RoleModel rm = grid.getSelectionModel().getSelectedItem();
+                            if (rm == null)
+                            {
+                                return;
+                            }
+                            final AbstractAsyncCallback<Void> roleListRefreshCallback =
+                                    new AbstractAsyncCallback<Void>(viewContext)
+                                        {
+                                            @Override
+                                            public void process(Void result)
+                                            {
+                                                roleList.refresh();
+                                            }
+                                        };
+                            if (StringUtils.isBlank((String) rm.get(RoleModel.GROUP)))
+                            {
+                                viewContext.getService().deleteInstanceRole(
+                                        (String) rm.get(RoleModel.ROLE),
+                                        (String) rm.get(RoleModel.PERSON), roleListRefreshCallback);
+                            } else
+                            {
+                                viewContext.getService().deleteGroupRole(
+                                        (String) rm.get(RoleModel.ROLE),
+                                        (String) rm.get(RoleModel.GROUP),
+                                        (String) rm.get(RoleModel.PERSON), roleListRefreshCallback);
+                            }
+                        }
+                    });
+
+        final ToolBar toolBar = new ToolBar();
         toolBar.add(new LabelToolItem("Filter:"));
         toolBar.add(new AdapterToolItem(new ColumnFilter<RoleModel>(store, RoleModel.PERSON,
                 "person")));
@@ -171,10 +194,10 @@ public class RolesView extends LayoutContainer
         layout();
     }
 
-    List<RoleModel> getRoleModels(List<RoleAssignment> roles)
+    List<RoleModel> getRoleModels(final List<RoleAssignment> roles)
     {
-        List<RoleModel> roleModel = new ArrayList<RoleModel>();
-        for (RoleAssignment role : roles)
+        final List<RoleModel> roleModel = new ArrayList<RoleModel>();
+        for (final RoleAssignment role : roles)
         {
             roleModel.add(new RoleModel(role));
         }
@@ -185,15 +208,29 @@ public class RolesView extends LayoutContainer
     {
         removeAll();
         add(new Text("data loading..."));
-        viewContext.getService().listRoles(
-                new AbstractAsyncCallback<List<RoleAssignment>>(viewContext)
-                    {
-                        @Override
-                        public void process(List<RoleAssignment> roles)
-                        {
-                            display(roles);
-                        }
-                    });
+        viewContext.getService().listRoles(new ListRolesCallback(viewContext));
     }
 
+    //
+    // Helper classes
+    //
+
+    final class ListRolesCallback extends AbstractAsyncCallback<List<RoleAssignment>>
+    {
+
+        private ListRolesCallback(final GenericViewContext viewContext)
+        {
+            super(viewContext);
+        }
+
+        //
+        // AbstractAsyncCallback
+        //
+
+        @Override
+        public final void process(final List<RoleAssignment> roles)
+        {
+            display(roles);
+        }
+    }
 }

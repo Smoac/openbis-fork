@@ -16,17 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
 
-import junit.framework.Assert;
-
-import com.extjs.gxt.ui.client.widget.TabItem;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
 /**
  * A {@link AbstractDefaultTestCommand} extension for creating a group.
  * 
- * @author Franz-Josef Elmer
+ * @author Christian Ribeaud
  */
 public final class CreatePerson extends AbstractDefaultTestCommand
 {
@@ -44,11 +40,7 @@ public final class CreatePerson extends AbstractDefaultTestCommand
 
     public final void execute()
     {
-        final AMC amc = (AMC) GWTTestUtil.getWidgetWithID(AMC.ID);
-        final TabItem tabItem = amc.findItem(AMC.PERSONS_TAB, false);
-        Assert.assertTrue(tabItem != null);
-        amc.setSelection(tabItem);
-
+        GWTTestUtil.selectTabItemWithId(AMC.ID, AMC.PERSONS_TAB);
         GWTTestUtil.clickButtonWithID(PersonsView.ADD_BUTTON_ID);
         GWTTestUtil.getTextFieldWithID(AddPersonDialog.CODE_FIELD_ID).setValue(personCode);
         GWTTestUtil.clickButtonWithID(AddPersonDialog.SAVE_BUTTON_ID);

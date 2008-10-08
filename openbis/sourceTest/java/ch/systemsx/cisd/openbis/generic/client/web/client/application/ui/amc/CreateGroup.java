@@ -16,10 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
 
-import junit.framework.Assert;
-
-import com.extjs.gxt.ui.client.widget.TabItem;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
@@ -44,14 +40,9 @@ public final class CreateGroup extends AbstractDefaultTestCommand
 
     public final void execute()
     {
-        final AMC amc = (AMC) GWTTestUtil.getWidgetWithID(AMC.ID);
-        final TabItem tabItem = amc.findItem(AMC.GROUPS_TAB, false);
-        Assert.assertTrue(tabItem != null);
-        amc.setSelection(tabItem);
-
+        GWTTestUtil.selectTabItemWithId(AMC.ID, AMC.GROUPS_TAB);
         GWTTestUtil.clickButtonWithID(GroupsView.ADD_BUTTON_ID);
         GWTTestUtil.getTextFieldWithID(AddGroupDialog.CODE_FIELD_ID).setValue(groupCode);
         GWTTestUtil.clickButtonWithID(AddGroupDialog.SAVE_BUTTON_ID);
     }
-
 }

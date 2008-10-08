@@ -28,18 +28,27 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public class RoleListBox extends ListBox
 {
+    public static final String OBSERVER = "OBSERVER";
+
+    public static final String INSTANCE_ADMIN = "INSTANCE_ADMIN";
 
     public RoleListBox(final TextField<String> group)
     {
-        addItem("OBSERVER");
+        // TODO 2008-10-08, Christian Ribeaud: Get this from the database or, at least, make an
+        // enumeration.
+        addItem(OBSERVER);
         addItem("USER");
         addItem("GROUP_ADMIN");
-        addItem("INSTANCE_ADMIN");
+        addItem(INSTANCE_ADMIN);
         setVisibleItemCount(1);
 
         addChangeListener(new ChangeListener()
             {
-                public void onChange(Widget sender)
+                //
+                // ChangeListener
+                //
+
+                public final void onChange(final Widget sender)
                 {
                     if (getSelectedIndex() != 3)
                     {
@@ -55,7 +64,7 @@ public class RoleListBox extends ListBox
 
     }
 
-    public String getValue()
+    public final String getValue()
     {
         return getValue(getSelectedIndex());
     }

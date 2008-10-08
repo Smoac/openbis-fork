@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
 
+import com.google.gwt.user.client.ui.ListBox;
+
 /**
  * Some utility methods around <i>GWT</i>.
  * 
@@ -45,5 +47,24 @@ public final class GWTUtils
     public static void testing()
     {
         testing = true;
+    }
+
+    /**
+     * Selects given <var>value</var> of given <var>listBox</var>.
+     */
+    public final static void setSelectedItem(final ListBox listBox, final String value)
+    {
+        assert listBox != null : "Unspecified list box.";
+        assert value != null : "Unspecified value.";
+        for (int index = 0; index < listBox.getItemCount(); index++)
+        {
+            if (listBox.getItemText(index).equals(value))
+            {
+                listBox.setSelectedIndex(index);
+                return;
+            }
+        }
+        throw new IllegalArgumentException("Given value '" + value
+                + "' not found in given list box.");
     }
 }

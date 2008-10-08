@@ -26,18 +26,24 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Abstract
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
 /**
- * A {@link AbstractDefaultTestCommand} extension to check whether a given group is present.
+ * A {@link AbstractDefaultTestCommand} extension to check whether a given role is present.
  * 
  * @author Christian Ribeaud
  */
-public final class CheckPerson extends AbstractDefaultTestCommand
+public final class CheckRole extends AbstractDefaultTestCommand
 {
-    private final String personCode;
+    private final String groupCode;
 
-    public CheckPerson(final String personCode)
+    private final String userId;
+
+    private final String roleCode;
+
+    public CheckRole(final String groupCode, final String userId, final String roleCode)
     {
-        super(PersonsView.ListPersonsCallback.class);
-        this.personCode = personCode;
+        super(RolesView.ListRolesCallback.class);
+        this.groupCode = groupCode;
+        this.userId = userId;
+        this.roleCode = roleCode;
     }
 
     //
@@ -47,20 +53,22 @@ public final class CheckPerson extends AbstractDefaultTestCommand
     @SuppressWarnings("unchecked")
     public final void execute()
     {
-        final Widget widget = GWTTestUtil.getWidgetWithID(PersonsView.TABLE_ID);
+        final Widget widget = GWTTestUtil.getWidgetWithID(RolesView.TABLE_ID);
         Assert.assertTrue(widget instanceof Grid);
-        final Grid<PersonModel> table = (Grid<PersonModel>) widget;
-        final ListStore<PersonModel> store = table.getStore();
+        final Grid<RoleModel> table = (Grid<RoleModel>) widget;
+        final ListStore<RoleModel> store = table.getStore();
         for (int i = 0, n = store.getCount(); i < n; i++)
         {
-            final PersonModel personModel = store.getAt(i);
-            final Object value = personModel.get(PersonModel.USER_ID);
-            if (personCode.equals(value))
+            final RoleModel roleModel = store.getAt(i);
+            final Object person = roleModel.get(RoleModel.PERSON);
+            final Object group = roleModel.get(RoleModel.GROUP);
+            final Object role = roleModel.get(RoleModel.ROLE);
+            if (userId.equals(person) && groupCode.equals(group) && roleCode.equals(role))
             {
                 return;
             }
         }
-        Assert.fail("No person with code '" + personCode + "' found.");
+        Assert.fail("No role assignment with person '" + userId + "', group '" + groupCode
+                + "' and role '" + roleCode + "' found.");
     }
-
 }

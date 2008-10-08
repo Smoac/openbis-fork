@@ -24,8 +24,11 @@ import com.google.gwt.user.client.Window;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CheckGroup;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CheckPerson;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CheckRole;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CreateGroup;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CreatePerson;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CreateRole;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.RoleListBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 
 /**
@@ -35,6 +38,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Abstract
  */
 public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
 {
+
+    private static final String USER_ID = "o";
+
+    private static final String TEST_GROUP = "test-group";
 
     @Override
     protected void setUpTest() throws Exception
@@ -50,7 +57,7 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
     public final void testCreateGroup()
     {
         remoteConsole.prepare(new Login("test", "a"));
-        final String groupCode = "test-group";
+        final String groupCode = TEST_GROUP;
         remoteConsole.prepare(new CreateGroup(groupCode));
         remoteConsole.prepare(new CheckGroup(groupCode.toUpperCase())).finish(10000);
 
@@ -61,7 +68,7 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
     {
         remoteConsole.prepare(new Login("test", "a"));
         // This userId must be one of the ones located on 'etc/passwd' (file based authentication).
-        final String userId = "o";
+        final String userId = USER_ID;
         remoteConsole.prepare(new CreatePerson(userId));
         remoteConsole.prepare(new CheckPerson(userId)).finish(10000);
 
@@ -70,5 +77,13 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
 
     public final void testCreateRole()
     {
+        remoteConsole.prepare(new Login("test", "a"));
+        remoteConsole.prepare(new CreateRole(TEST_GROUP.toUpperCase(), USER_ID,
+                RoleListBox.OBSERVER));
+        remoteConsole.prepare(
+                new CheckRole(TEST_GROUP.toUpperCase(), USER_ID, RoleListBox.OBSERVER)).finish(
+                10000);
+
+        client.onModuleLoad();
     }
 }

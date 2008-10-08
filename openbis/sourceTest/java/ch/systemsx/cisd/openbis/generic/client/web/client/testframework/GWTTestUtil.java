@@ -25,11 +25,15 @@ import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Container;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.TabItem;
+import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.ComplexPanel;
+import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -73,6 +77,46 @@ public class GWTTestUtil
         Assert.assertTrue("Widget '" + id + "' isn't a TextField: " + widget.getClass(),
                 widget instanceof TextField);
         return (TextField<T>) widget;
+    }
+
+    /**
+     * Gets the {@link ListBox} with specified id.
+     * 
+     * @throws AssertionError if not found or isn't a list box.
+     */
+    public final static ListBox getListBoxWithID(final String id)
+    {
+        final Widget widget = tryToFindByID(id);
+        assertWidgetFound("List box", id, widget);
+        Assert.assertTrue("Widget '" + id + "' isn't a ListBox: " + widget.getClass(),
+                widget instanceof ListBox);
+        return (ListBox) widget;
+    }
+
+    /**
+     * Gets the {@link TabPanel} with specified id.
+     * 
+     * @throws AssertionError if not found or isn't a tab panel.
+     */
+    public final static TabPanel getTabPanelWithID(final String id)
+    {
+        final Widget widget = tryToFindByID(id);
+        assertWidgetFound("Tab panel", id, widget);
+        Assert.assertTrue("Widget '" + id + "' isn't a TabPanel: " + widget.getClass(),
+                widget instanceof TabPanel);
+        return (TabPanel) widget;
+    }
+
+    /**
+     * Selects {@link TabItem} with <var>tabItemId</var>.
+     */
+    public final static void selectTabItemWithId(final String tabPanelId, final String tabItemId)
+    {
+        final TabPanel tabPanel = GWTTestUtil.getTabPanelWithID(tabPanelId);
+        final TabItem tabItem = tabPanel.findItem(tabItemId, false);
+        Assert.assertTrue("No tab item with id '" + tabItemId + "' could be found.",
+                tabItem != null);
+        tabPanel.setSelection(tabItem);
     }
 
     /**
@@ -179,6 +223,10 @@ public class GWTTestUtil
             if (widgetOrNull instanceof AdapterToolItem)
             {
                 widget = ((AdapterToolItem) widgetOrNull).getWidget();
+            }
+            if (widgetOrNull instanceof AdapterField)
+            {
+                widget = ((AdapterField) widgetOrNull).getWidget();
             }
             if (handler.handle(widget))
             {

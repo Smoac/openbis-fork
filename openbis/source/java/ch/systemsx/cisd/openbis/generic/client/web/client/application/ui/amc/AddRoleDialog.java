@@ -25,6 +25,7 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 
@@ -35,6 +36,21 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Strin
  */
 public class AddRoleDialog extends Window
 {
+    private static final String PREFIX = "add-role_";
+
+    static final String GROUP_FIELD_ID = GenericConstants.ID_PREFIX + PREFIX + "group-field";
+
+    static final String PERSON_FIELD_ID = GenericConstants.ID_PREFIX + PREFIX + "person-field";
+
+    static final String ROLE_FIELD_ID = GenericConstants.ID_PREFIX + PREFIX + "role-field";
+
+    static final String SAVE_BUTTON_ID = GenericConstants.ID_PREFIX + PREFIX + "save-button";
+
+    private final TextField<String> group;
+
+    private final TextField<String> user;
+
+    private final AdapterField roleBox;
 
     public AddRoleDialog(final GenericViewContext viewContext, final RolesView roleList)
     {
@@ -48,33 +64,58 @@ public class AddRoleDialog extends Window
         form.setBodyBorder(false);
         add(form);
 
-        final TextField<String> group = new TextField<String>();
+        group = new TextField<String>();
         group.setWidth(100);
         group.setFieldLabel("Group");
         group.setAllowBlank(false);
+        group.setId(GROUP_FIELD_ID);
 
-        final AdapterField roleBox = new AdapterField(new RoleListBox(group));
+        roleBox = new AdapterField(new RoleListBox(group));
         roleBox.setFieldLabel("Role");
         roleBox.setWidth(100);
+        roleBox.setId(ROLE_FIELD_ID);
         form.add(roleBox);
         form.add(group);
 
-        final TextField<String> user = new TextField<String>();
+        user = new TextField<String>();
         user.setWidth(100);
         user.setFieldLabel("Person");
         user.setAllowBlank(false);
+        user.setId(PERSON_FIELD_ID);
         form.add(user);
 
-        addButton(new Button("Save", new SelectionListener<ComponentEvent>()
+        addButton(createSaveButton(viewContext, roleList));
+        addButton(new Button("Cancel", new SelectionListener<ComponentEvent>()
             {
                 @Override
                 public void componentSelected(ComponentEvent ce)
                 {
+                    hide();
+                }
+            }));
+    }
+
+    private final Button createSaveButton(final GenericViewContext viewContext,
+            final RolesView roleList)
+    {
+        final Button button = new Button("Save", new SelectionListener<ComponentEvent>()
+            {
+                //
+                // SelectionListener
+                //
+
+                @Override
+                public final void componentSelected(final ComponentEvent ce)
+                {
                     final AbstractAsyncCallback<Void> roleLoadingCallback =
                             new AbstractAsyncCallback<Void>(viewContext)
                                 {
+                                    //
+                                    // AbstractAsyncCallback
+                                    //
+
                                     @Override
-                                    public void process(Void result)
+                                    public final void process(final Void result)
                                     {
                                         hide();
                                         roleList.refresh();
@@ -93,14 +134,8 @@ public class AddRoleDialog extends Window
                                 user.getValue(), roleLoadingCallback);
                     }
                 }
-            }));
-        addButton(new Button("Cancel", new SelectionListener<ComponentEvent>()
-            {
-                @Override
-                public void componentSelected(ComponentEvent ce)
-                {
-                    hide();
-                }
-            }));
+            });
+        button.setId(SAVE_BUTTON_ID);
+        return button;
     }
 }
