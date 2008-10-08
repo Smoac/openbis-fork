@@ -6,7 +6,7 @@
 # and 'cisd-vesuvio.ethz.ch'. This is typically configured in the SSH config file.
 
 if [ $# -lt 1 ]; then
-    echo "Usage: $0 <sprint number> [subversion]"
+    echo "Usage: $0 <sprint number> [minor]"
     exit 1
 fi
 
@@ -36,6 +36,7 @@ scp *.zip $CISD_SERVER:$SPRINT_DIR
 
 echo Copying new openBIS components to \'$SPRINT_SERVER\'...
 scp openBIS-server-*.zip $SPRINT_SERVER:.
+scp openbis-*.zip $SPRINT_SERVER:.
 scp download-server-*.zip $SPRINT_SERVER:.
 
 # If sprint install script is present and executable, run it!
