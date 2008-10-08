@@ -58,11 +58,7 @@
       <sysproperty key="script-folder" value="sourceTest"/>
       <sysproperty key="mass-upload-folder" value="sourceTest/sql/postgresql"/>
       <formatter type="xml"/>
-      <batchtest todir="${output.test}" haltonfailure="true">
-    	<fileset dir="${sources.test}">
-          <include name="**/web/client/**/*Test.java"/>
-        </fileset>   
-      </batchtest>
+      <test name="ch.systemsx.cisd.openbis.generic.SystemTestSuite" todir="${output.test}" />
     </junit>
   </target>
                 
