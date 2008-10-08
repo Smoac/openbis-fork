@@ -27,7 +27,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Strin
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.InvalidSessionException;
 
 /**
- * Abstract super class of call backs. Its implements {@link #onFailure(Throwable)}.
+ * Abstract super class of call backs. Subclasses have to implement {@link #process(Object)}.
+ * Note, that instances of this class and its subclasses are stateful and can not be reused.
  * 
  * @author Franz-Josef Elmer
  */
@@ -53,7 +54,8 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
             new ArrayList<AbstractAsyncCallback<?>>();
 
     /**
-     * Sets all callback objects silent. Note: THIS METHOD SHOULD ONLY BE USED IN TEST CODE.
+     * Sets all callback objects silent. Note: THIS METHOD SHOULD NEVER BE USED. It is
+     * only used inside the testing framework.
      */
     public static void setAllCallbackObjectsSilent()
     {
@@ -65,7 +67,8 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
     }
 
     /**
-     * Sets the global callback listener. Note: THIS METHOD SHOULD ONLY BE USED IN TEST CODE.
+     * Sets the global callback listener.  Note: THIS METHOD SHOULD NEVER BE USED. It is
+     * only used inside the testing framework.
      */
     public static void setCallbackListener(final ICallbackListener listenerOrNull)
     {
@@ -82,7 +85,10 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
     public AbstractAsyncCallback(final GenericViewContext viewContext)
     {
         this.viewContext = viewContext;
-        callbackObjects.add(this);
+        if (callbackListener != DUMMY_LISTENER)
+        {
+            callbackObjects.add(this);
+        }
     }
 
     @SuppressWarnings("unchecked")
