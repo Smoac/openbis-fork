@@ -54,11 +54,11 @@ public final class SampleTypePE extends EntityTypePE
 
     private List<SampleTypePropertyTypePE> sampleTypePropertyTypes;
 
-    private boolean listable;
+    private Boolean listable;
 
-    private int generatedFromHierarchyDepth;
+    private Integer generatedFromHierarchyDepth;
 
-    private int containerHierarchyDepth;
+    private Integer containerHierarchyDepth;
 
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = ColumnNames.SAMPLE_TYPE_COLUMN, updatable = false)
@@ -75,34 +75,34 @@ public final class SampleTypePE extends EntityTypePE
     }
 
     @Column(name = ColumnNames.IS_LISTABLE)
-    public boolean isListable()
+    public Boolean isListable()
     {
         return listable;
     }
 
-    public void setListable(final boolean listable)
+    public void setListable(final Boolean listable)
     {
         this.listable = listable;
     }
 
     @Column(name = ColumnNames.GENERATED_FROM_DEPTH)
-    public int getGeneratedFromHierarchyDepth()
+    public Integer getGeneratedFromHierarchyDepth()
     {
         return generatedFromHierarchyDepth;
     }
 
-    public void setGeneratedFromHierarchyDepth(final int generatedFromHierarchyDepth)
+    public void setGeneratedFromHierarchyDepth(final Integer generatedFromHierarchyDepth)
     {
         this.generatedFromHierarchyDepth = generatedFromHierarchyDepth;
     }
 
     @Column(name = ColumnNames.PART_OF_DEPTH)
-    public int getContainerHierarchyDepth()
+    public Integer getContainerHierarchyDepth()
     {
         return containerHierarchyDepth;
     }
 
-    public void setContainerHierarchyDepth(final int partOfHierarchyDepth)
+    public void setContainerHierarchyDepth(final Integer partOfHierarchyDepth)
     {
         this.containerHierarchyDepth = partOfHierarchyDepth;
     }
