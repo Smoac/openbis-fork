@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -118,7 +118,7 @@ final class RoleAssignmentTable extends AbstractBusinessObject implements IRoleA
             try
             {
                 getRoleAssignmentDAO().createRoleAssignment(roleAssignment);
-            } catch (DataAccessException ex)
+            } catch (final DataIntegrityViolationException ex)
             {
                 throwException(ex, "Role assignment");
             }

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 import java.util.List;
 
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
@@ -40,6 +41,7 @@ public interface IRoleAssignmentDAO
      * Creates a new role assignment in the database.
      * 
      * @param roleAssignment {@link RoleAssignmentPE} which should be stored in database.
+     * @throws DataIntegrityViolationException if given role assignment already exists.
      */
     public void createRoleAssignment(final RoleAssignmentPE roleAssignment)
             throws DataAccessException;
