@@ -54,6 +54,10 @@ public final class SampleTypePE extends EntityTypePE
 
     private List<SampleTypePropertyTypePE> sampleTypePropertyTypes;
 
+    //
+    // NOTE: Should be objects in order to allow Hibernate to find SampleType by example.
+    //
+
     private Boolean listable;
 
     private Integer generatedFromHierarchyDepth;
