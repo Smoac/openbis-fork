@@ -36,8 +36,6 @@ import javax.persistence.UniqueConstraint;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
@@ -143,7 +141,6 @@ public class MaterialPE extends HibernateAbstractRegistratrationHolder implement
     }
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entity")
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private List<MaterialPropertyPE> getMaterialProperties()
     {
         return properties;

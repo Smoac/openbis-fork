@@ -30,8 +30,6 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.validator.NotNull;
 
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
@@ -43,7 +41,6 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
  */
 @Entity
 @Table(name = TableNames.EXPERIMENT_PROPERTIES_TABLE)
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class ExperimentPropertyPE extends EntityPropertyPE
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
