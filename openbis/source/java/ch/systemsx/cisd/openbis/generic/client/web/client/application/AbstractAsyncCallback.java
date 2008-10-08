@@ -26,18 +26,17 @@ import com.google.gwt.user.client.rpc.InvocationException;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.InvalidSessionException;
 
-
-
 /**
  * Abstract super class of call backs. Its implements {@link #onFailure(Throwable)}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
 {
     private static final ICallbackListener DUMMY_LISTENER = new ICallbackListener()
         {
-            public void onFailureOf(AsyncCallback<Object> callback, String failureMessage, Throwable throwable)
+            public void onFailureOf(AsyncCallback<Object> callback, String failureMessage,
+                    Throwable throwable)
             {
             }
 
@@ -45,54 +44,54 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
             {
             }
         };
-    
+
     private static final String PREFIX = "exception_";
 
     private static ICallbackListener callbackListener = DUMMY_LISTENER;
-    
+
     private static final List<AbstractAsyncCallback<?>> callbackObjects =
             new ArrayList<AbstractAsyncCallback<?>>();
-    
+
     /**
      * Sets all callback objects silent. Note: THIS METHOD SHOULD ONLY BE USED IN TEST CODE.
      */
     public static void setAllCallbackObjectsSilent()
     {
-        for (AbstractAsyncCallback<?> callback : callbackObjects)
+        for (final AbstractAsyncCallback<?> callback : callbackObjects)
         {
             callback.silent = true;
         }
         callbackObjects.clear();
     }
-    
+
     /**
      * Sets the global callback listener. Note: THIS METHOD SHOULD ONLY BE USED IN TEST CODE.
      */
-    public static void setCallbackListener(ICallbackListener listenerOrNull)
+    public static void setCallbackListener(final ICallbackListener listenerOrNull)
     {
         callbackListener = listenerOrNull == null ? DUMMY_LISTENER : listenerOrNull;
     }
-    
+
     protected final GenericViewContext viewContext;
-    
+
     private boolean silent;
-    
+
     /**
      * Creates an instance for the specified view context.
      */
-    public AbstractAsyncCallback(GenericViewContext viewContext)
+    public AbstractAsyncCallback(final GenericViewContext viewContext)
     {
         this.viewContext = viewContext;
         callbackObjects.add(this);
     }
-    
+
     @SuppressWarnings("unchecked")
     private AsyncCallback<Object> getThis()
     {
         return (AsyncCallback<Object>) this;
     }
-    
-    public void onFailure(Throwable caught)
+
+    public final void onFailure(final Throwable caught)
     {
         if (silent)
         {
@@ -113,7 +112,9 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
             final String message = caught.getMessage();
             if (StringUtils.isBlank(message))
             {
-                msg = viewContext.getMessage(PREFIX + "withoutMessage", caught.getClass().getName());
+                msg =
+                        viewContext.getMessage(PREFIX + "withoutMessage", caught.getClass()
+                                .getName());
             } else
             {
                 msg = message;
@@ -121,14 +122,14 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
         }
         callbackListener.onFailureOf(getThis(), msg, caught);
         MessageBox.alert("Error", msg, null);
-        IPageController pageController = viewContext.getPageController();
+        final IPageController pageController = viewContext.getPageController();
         if (caught instanceof InvalidSessionException)
         {
             pageController.reload();
         }
     }
 
-    public final void onSuccess(T result)
+    public final void onSuccess(final T result)
     {
         if (silent)
         {
