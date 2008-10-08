@@ -25,7 +25,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceA
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 
 /**
  * @author Franz-Josef Elmer
@@ -34,7 +33,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 public class Client implements EntryPoint
 {
     private GenericViewContext viewContext;
-    private AbstractAsyncCallback<SessionContext> loginCallback;
     
     public final GenericViewContext tryToGetViewContext()
     {
@@ -46,7 +44,6 @@ public class Client implements EntryPoint
         if (viewContext == null)
         {
             viewContext = createViewContext();
-            loginCallback = new SessionContextCallback(viewContext);
         }
         final IGenericClientServiceAsync service = viewContext.getService();
         service.getApplicationInfo(new AbstractAsyncCallback<ApplicationInfo>(viewContext)
@@ -55,7 +52,7 @@ public class Client implements EntryPoint
                 public void process(ApplicationInfo info)
                 {
                     viewContext.getModel().setApplicationInfo(info);
-                    service.tryToGetCurrentSessionContext(loginCallback);
+                    service.tryToGetCurrentSessionContext(new SessionContextCallback(viewContext));
                 }
             });
     }

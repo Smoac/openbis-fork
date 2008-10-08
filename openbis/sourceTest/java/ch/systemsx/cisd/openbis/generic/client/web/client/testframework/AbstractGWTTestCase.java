@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 import com.google.gwt.junit.client.GWTTestCase;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Client;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
@@ -74,6 +75,7 @@ public abstract class AbstractGWTTestCase extends GWTTestCase
     @Override
     protected final void gwtTearDown() throws Exception
     {
+        AbstractAsyncCallback.setAllCallbackObjectsSilent();
         GenericViewContext viewContext = client.tryToGetViewContext();
         if (viewContext != null)
         {

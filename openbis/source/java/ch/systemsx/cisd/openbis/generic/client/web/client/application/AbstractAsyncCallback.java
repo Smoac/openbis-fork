@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.InvocationException;
@@ -47,6 +50,21 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
 
     private static ICallbackListener callbackListener = DUMMY_LISTENER;
     
+    private static final List<AbstractAsyncCallback<?>> callbackObjects =
+            new ArrayList<AbstractAsyncCallback<?>>();
+    
+    /**
+     * Sets all callback objects silent. Note: THIS METHOD SHOULD ONLY BE USED IN TEST CODE.
+     */
+    public static void setAllCallbackObjectsSilent()
+    {
+        for (AbstractAsyncCallback<?> callback : callbackObjects)
+        {
+            callback.silent = true;
+        }
+        callbackObjects.clear();
+    }
+    
     /**
      * Sets the global callback listener. Note: THIS METHOD SHOULD ONLY BE USED IN TEST CODE.
      */
@@ -57,12 +75,15 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
     
     protected final GenericViewContext viewContext;
     
+    private boolean silent;
+    
     /**
      * Creates an instance for the specified view context.
      */
     public AbstractAsyncCallback(GenericViewContext viewContext)
     {
         this.viewContext = viewContext;
+        callbackObjects.add(this);
     }
     
     @SuppressWarnings("unchecked")
@@ -73,6 +94,10 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
     
     public void onFailure(Throwable caught)
     {
+        if (silent)
+        {
+            return;
+        }
         final String msg;
         if (caught instanceof InvocationException)
         {
@@ -105,6 +130,10 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
 
     public final void onSuccess(T result)
     {
+        if (silent)
+        {
+            return;
+        }
         process(result);
         callbackListener.finishOnSuccessOf(getThis(), result);
     }
