@@ -21,6 +21,7 @@ import junit.framework.Assert;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SessionContextCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
@@ -54,7 +55,7 @@ public class Login extends AbstractDefaultTestCommand
         Assert.assertEquals(user, textField.getValue());
         textField = GWTTestUtil.<String> getTextFieldWithID(LoginWidget.PASSWORD_FIELD_ID);
         textField.setValue(password);
-        Assert.assertEquals(password, textField.getValue());
+        Assert.assertEquals(StringUtils.isBlank(password) ? null : password, textField.getValue());
         GWTTestUtil.clickButtonWithID(LoginWidget.BUTTON_ID);
     }
 }
