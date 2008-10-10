@@ -46,13 +46,13 @@ public class SampleTranslator
     {
         final Sample result = new Sample();
         result.setCode(samplePE.getCode());
+        result.setIdentifier(samplePE.getSampleIdentifier().toString());
         if (withDetails)
         {
             result.setSampleType(st);
             result.setGroup(GroupTranslater.translate(samplePE.getGroup()));
             result.setDatabaseInstance(DatabaseInstanceTranslater.translate(samplePE
                     .getDatabaseInstance()));
-            result.setIdentifier(samplePE.getSampleIdentifier().toString());
             result.setRegistrator(PersonTranslator.translate(samplePE.getRegistrator()));
             result.setRegistrationDate(samplePE.getRegistrationDate());
             result.setProperties(SamplePropertyTranslator.translate(samplePE.getProperties(), st));
