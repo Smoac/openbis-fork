@@ -16,17 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
-import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
-import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
-import com.extjs.gxt.ui.client.event.FieldEvent;
-import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.VerticalPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 
@@ -101,22 +97,16 @@ public class LoginWidget extends VerticalPanel
         return field;
     }
 
-    private final void addEnterKeyListener(final Component component,
+    private final void addEnterKeyListener(final Field<String> field,
             final GenericViewContext viewContext)
     {
-        component.addListener(Events.KeyPress, new Listener<BaseEvent>()
+        field.addKeyListener(new EnterKeyListener()
             {
-                //
-                // Listener
-                //
 
-                public final void handleEvent(final BaseEvent be)
+                @Override
+                protected final void onEnterKey()
                 {
-                    final int keyCode = ((FieldEvent) be).getKeyCode();
-                    if (keyCode == 13)
-                    {
-                        doLogin(viewContext);
-                    }
+                    doLogin(viewContext);
                 }
             });
     }
