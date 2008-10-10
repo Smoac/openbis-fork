@@ -19,15 +19,18 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.data.BaseListLoader;
+import com.extjs.gxt.ui.client.data.ListLoader;
+import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
@@ -36,41 +39,89 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypePropertyType;
 
+/**
+ * The samples browser.
+ * 
+ * @author Christian Ribeaud
+ */
 class SampleBrowserGrid extends LayoutContainer
 {
-
     private final GenericViewContext viewContext;
 
-    public SampleBrowserGrid(GenericViewContext viewContext)
+    private ContentPanel contentPanel;
+
+    private Grid<SampleModel> grid;
+
+    public SampleBrowserGrid(final GenericViewContext viewContext)
     {
         this.viewContext = viewContext;
         setLayout(new FitLayout());
+        getContentPanel();
     }
 
-    private void display(List<Sample> samples, ColumnModel columnModel, String header)
+    private void display(final SampleType sampleType, final String selectedGroupCode,
+            final boolean showGroup, final boolean showInstance)
     {
-        ListStore<SampleModel> sampleStore = new ListStore<SampleModel>();
-        for (Sample s : samples)
-        {
-            sampleStore.add(new SampleModel(s));
-        }
-        final ContentPanel cp = new ContentPanel();
-        cp.setHeading(header);
-        cp.setLayout(new FitLayout());
+        final RpcProxy<Object, List<SampleModel>> proxy = new RpcProxy<Object, List<SampleModel>>()
+            {
+                //
+                // RpcProxy
+                //
 
-        Grid<SampleModel> grid = new Grid<SampleModel>(sampleStore, columnModel);
-        cp.add(grid);
-
-        removeAll();
-        add(cp);
+                @Override
+                public final void load(final Object loadConfig,
+                        final AsyncCallback<List<SampleModel>> callback)
+                {
+                    viewContext.getService().listSamples(sampleType, selectedGroupCode, showGroup,
+                            showInstance, new ListSamplesCallback(viewContext, callback));
+                }
+            };
+        final ColumnModel columnModel = createColumnModel(sampleType, sampleType);
+        final String header = createHeader(sampleType, selectedGroupCode, showGroup, showInstance);
+        final ListLoader<?> loader = createListLoader(proxy);
+        final ListStore<SampleModel> sampleStore = new ListStore<SampleModel>(loader);
+        getContentPanel().setHeading(header);
+        createOrReconfigureGrid(columnModel, sampleStore);
+        loader.load();
         layout();
-
     }
 
-    private String createHeader(SampleType sampleType, String selectedGroupCode, boolean showGroup,
-            boolean showInstance)
+    @SuppressWarnings("unchecked")
+    private final static ListLoader<?> createListLoader(
+            final RpcProxy<Object, List<SampleModel>> proxy)
     {
-        StringBuilder sb = new StringBuilder("Samples");
+        return new BaseListLoader(proxy);
+    }
+
+    private final void createOrReconfigureGrid(final ColumnModel columnModel,
+            final ListStore<SampleModel> sampleStore)
+    {
+        if (grid == null)
+        {
+            grid = new Grid<SampleModel>(sampleStore, columnModel);
+            grid.setLoadMask(true);
+            getContentPanel().add(grid);
+        } else
+        {
+            grid.reconfigure(sampleStore, columnModel);
+        }
+    }
+
+    private final ContentPanel getContentPanel()
+    {
+        if (contentPanel == null)
+        {
+            contentPanel = new ContentPanel();
+            contentPanel.setLayout(new FitLayout());
+            add(contentPanel);
+        }
+        return contentPanel;
+    }
+
+    private String createHeader(final SampleType sampleType, final String selectedGroupCode,
+            final boolean showGroup, final boolean showInstance)
+    {
+        final StringBuilder sb = new StringBuilder("Samples");
         sb.append(" ");
         sb.append("of type");
         sb.append(" ");
@@ -95,28 +146,16 @@ class SampleBrowserGrid extends LayoutContainer
         return sb.toString();
     }
 
-    public void refresh(final SampleType sampleType, final String selectedGroupCode,
+    public final void refresh(final SampleType sampleType, final String selectedGroupCode,
             final boolean showGroup, final boolean showInstance)
     {
-        removeAll();
-        add(new Text("data loading..."));
-        viewContext.getService().listSamples(sampleType, selectedGroupCode, showGroup,
-                showInstance, new AbstractAsyncCallback<List<Sample>>(viewContext)
-                    {
-                        @Override
-                        public void process(List<Sample> samples)
-                        {
-                            display(samples, createColumnModel(sampleType, sampleType),
-                                    createHeader(sampleType, selectedGroupCode, showGroup,
-                                            showInstance));
-                        }
-
-                    });
+        display(sampleType, selectedGroupCode, showGroup, showInstance);
     }
 
-    ColumnModel createColumnModel(SampleType type, SampleType sampleType)
+    private final static ColumnModel createColumnModel(final SampleType type,
+            final SampleType sampleType)
     {
-        List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
+        final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
         configs.add(createCodeColumn());
         configs.add(createIdentifierColumn());
         configs.add(createAssignedToIdentifierColumn());
@@ -128,9 +167,9 @@ class SampleBrowserGrid extends LayoutContainer
         return new ColumnModel(configs);
     }
 
-    private ColumnConfig createIdentifierColumn()
+    private final static ColumnConfig createIdentifierColumn()
     {
-        ColumnConfig columnConfig = new ColumnConfig();
+        final ColumnConfig columnConfig = new ColumnConfig();
         columnConfig.setId(SampleModel.SAMPLE_IDENTIFIER);
         columnConfig.setHeader("Identifier");
         columnConfig.setHidden(true);
@@ -138,27 +177,27 @@ class SampleBrowserGrid extends LayoutContainer
         return columnConfig;
     }
 
-    private ColumnConfig createCodeColumn()
+    private final static ColumnConfig createCodeColumn()
     {
-        ColumnConfig columnConfig = new ColumnConfig();
+        final ColumnConfig columnConfig = new ColumnConfig();
         columnConfig.setId(SampleModel.SAMPLE_CODE);
         columnConfig.setHeader("Code");
         columnConfig.setWidth(100);
         return columnConfig;
     }
 
-    private ColumnConfig createAssignedToIdentifierColumn()
+    private final static ColumnConfig createAssignedToIdentifierColumn()
     {
-        ColumnConfig columnConfig = new ColumnConfig();
+        final ColumnConfig columnConfig = new ColumnConfig();
         columnConfig.setId(SampleModel.ATTACHED_TO_IDENTIFIER);
         columnConfig.setHeader("Attached to");
         columnConfig.setWidth(100);
         return columnConfig;
     }
 
-    private ColumnConfig createRegistratorColumn()
+    private final static ColumnConfig createRegistratorColumn()
     {
-        ColumnConfig columnConfig = new ColumnConfig();
+        final ColumnConfig columnConfig = new ColumnConfig();
         columnConfig.setId(SampleModel.REGISTRATOR);
         columnConfig.setHeader("Registrator");
         columnConfig.setWidth(100);
@@ -167,9 +206,9 @@ class SampleBrowserGrid extends LayoutContainer
         return columnConfig;
     }
 
-    private ColumnConfig createRegistionDateColumn()
+    private final static ColumnConfig createRegistionDateColumn()
     {
-        ColumnConfig columnConfig = new ColumnConfig();
+        final ColumnConfig columnConfig = new ColumnConfig();
         columnConfig.setId(SampleModel.REGISTRATION_DATE);
         columnConfig.setHeader("Registration Date");
         columnConfig.setWidth(100);
@@ -178,7 +217,8 @@ class SampleBrowserGrid extends LayoutContainer
         return columnConfig;
     }
 
-    private void addGeneratedFromParentColumns(List<ColumnConfig> configs, int dep, int maxDep)
+    private final static void addGeneratedFromParentColumns(final List<ColumnConfig> configs,
+            final int dep, final int maxDep)
     {
         if (dep <= maxDep)
         {
@@ -187,7 +227,8 @@ class SampleBrowserGrid extends LayoutContainer
         }
     }
 
-    private void addContainerParentColumns(List<ColumnConfig> configs, int dep, int maxDep)
+    private final static void addContainerParentColumns(final List<ColumnConfig> configs,
+            final int dep, final int maxDep)
     {
         if (dep <= maxDep)
         {
@@ -196,36 +237,37 @@ class SampleBrowserGrid extends LayoutContainer
         }
     }
 
-    private ColumnConfig createGeneratedFromParentColumn(int i)
+    private final static ColumnConfig createGeneratedFromParentColumn(final int i)
     {
-        ColumnConfig columnConfig = new ColumnConfig();
+        final ColumnConfig columnConfig = new ColumnConfig();
         columnConfig.setId(SampleModel.GENERATED_FROM_PARENT_PREFIX + i);
         columnConfig.setHeader("Parent (gener.) " + i);
         columnConfig.setWidth(150);
         return columnConfig;
     }
 
-    private ColumnConfig createContainerParentColumn(int i)
+    private final static ColumnConfig createContainerParentColumn(final int i)
     {
-        ColumnConfig columnConfig = new ColumnConfig();
+        final ColumnConfig columnConfig = new ColumnConfig();
         columnConfig.setId(SampleModel.CONTAINER_PARENT_PREFIX + i);
         columnConfig.setHeader("Parent (cont.) " + i);
         columnConfig.setWidth(150);
         return columnConfig;
     }
 
-    private void addPropertyColumns(List<ColumnConfig> configs, SampleType sampleType)
+    private final static void addPropertyColumns(final List<ColumnConfig> configs,
+            final SampleType sampleType)
     {
-        for (SampleTypePropertyType stpt : sampleType.getSampleTypePropertyTypes())
+        for (final SampleTypePropertyType stpt : sampleType.getSampleTypePropertyTypes())
         {
             configs.add(createPropertyColumn(stpt.getPropertyType().getCode(),
                     stpt.isDisplayed() == true));
         }
     }
 
-    private ColumnConfig createPropertyColumn(String code, boolean isHidden)
+    private final static ColumnConfig createPropertyColumn(final String code, final boolean isHidden)
     {
-        ColumnConfig columnConfig = new ColumnConfig();
+        final ColumnConfig columnConfig = new ColumnConfig();
         columnConfig.setId(SampleModel.PROPERTY_PREFIX + code);
         columnConfig.setHeader(code);
         columnConfig.setWidth(80);
@@ -233,4 +275,30 @@ class SampleBrowserGrid extends LayoutContainer
         return columnConfig;
     }
 
+    private final class ListSamplesCallback extends AbstractAsyncCallback<List<Sample>>
+    {
+        private final AsyncCallback<List<SampleModel>> delegate;
+
+        ListSamplesCallback(final GenericViewContext viewContext,
+                final AsyncCallback<List<SampleModel>> delegate)
+        {
+            super(viewContext);
+            this.delegate = delegate;
+        }
+
+        //
+        // AbstractAsyncCallback
+        //
+
+        @Override
+        protected final void process(final List<Sample> result)
+        {
+            final List<SampleModel> sampleModels = new ArrayList<SampleModel>(result.size());
+            for (final Sample sample : result)
+            {
+                sampleModels.add(new SampleModel(sample));
+            }
+            delegate.onSuccess(sampleModels);
+        }
+    }
 }

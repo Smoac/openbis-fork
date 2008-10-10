@@ -35,7 +35,6 @@ class SampleTypeSelectionWidget extends ComboBox<SampleTypeModel>
 
     public SampleTypeSelectionWidget(GenericViewContext viewContext)
     {
-
         this.viewContext = viewContext;
         setEmptyText("Select a sample type...");
         setDisplayField(SampleTypeModel.CODE);

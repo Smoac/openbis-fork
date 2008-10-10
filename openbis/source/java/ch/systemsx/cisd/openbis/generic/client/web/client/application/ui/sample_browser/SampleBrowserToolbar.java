@@ -29,6 +29,11 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
+/**
+ * The sample browser toolbar.
+ * 
+ * @author Christian Ribeaud
+ */
 class SampleBrowserToolbar extends ToolBar
 {
 
@@ -38,7 +43,8 @@ class SampleBrowserToolbar extends ToolBar
 
     final GroupSelectionWidget groupSelectionWidget;
 
-    public SampleBrowserToolbar(GenericViewContext viewContext, SampleBrowserGrid rightPanel)
+    public SampleBrowserToolbar(final GenericViewContext viewContext,
+            final SampleBrowserGrid rightPanel)
     {
         this.grid = rightPanel;
         setBorders(true);
@@ -106,7 +112,7 @@ class SampleBrowserToolbar extends ToolBar
 
     private boolean checkForMissingInformation(final SampleType selectedType,
             final String selectedGroupCode, final Boolean includeGroup,
-            final Boolean includeInstance, StringBuilder sb)
+            final Boolean includeInstance, final StringBuilder sb)
     {
         boolean error = false;
         if (includeGroup && selectedGroupCode == null)
