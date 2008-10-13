@@ -66,20 +66,21 @@ class SampleTypeSelectionWidget extends ComboBox<SampleTypeModel>
                         protected void process(List<SampleType> result)
                         {
                             sampleTypeStore.add(convert(result));
+                            if (sampleTypeStore.getCount() > 0)
+                            {
+                                setValue(sampleTypeStore.getAt(0));
+                            }
                         }
 
+                        List<SampleTypeModel> convert(List<SampleType> sampleTypes)
+                        {
+                            List<SampleTypeModel> result = new ArrayList<SampleTypeModel>();
+                            for (SampleType st : sampleTypes)
+                            {
+                                result.add(new SampleTypeModel(st));
+                            }
+                            return result;
+                        }
                     });
-
     }
-
-    List<SampleTypeModel> convert(List<SampleType> sampleTypes)
-    {
-        List<SampleTypeModel> result = new ArrayList<SampleTypeModel>();
-        for (SampleType st : sampleTypes)
-        {
-            result.add(new SampleTypeModel(st));
-        }
-        return result;
-    }
-
 }

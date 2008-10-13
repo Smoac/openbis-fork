@@ -16,7 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser;
 
+import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -25,6 +30,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.user.client.Event;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
@@ -32,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 /**
  * The sample browser toolbar.
  * 
+ * @author Izabela  Adamczyk
  * @author Christian Ribeaud
  */
 class SampleBrowserToolbar extends ToolBar
@@ -43,18 +50,80 @@ class SampleBrowserToolbar extends ToolBar
 
     final GroupSelectionWidget groupSelectionWidget;
 
-    public SampleBrowserToolbar(final GenericViewContext viewContext,
-            final SampleBrowserGrid rightPanel)
+    final ToolbarController controller;
+
+    private CheckBox instanceCheckbox;
+
+    private CheckBox groupCheckbox;
+
+    private Button submitButton;
+
+    private ColumnChooser columnChooser;
+
+    public SampleBrowserToolbar(GenericViewContext viewContext, SampleBrowserGrid rightPanel)
     {
         this.grid = rightPanel;
-        setBorders(true);
         sampleTypeSelectionWidget = new SampleTypeSelectionWidget(viewContext);
         groupSelectionWidget = new GroupSelectionWidget(viewContext);
+        instanceCheckbox = new CheckBox();
+        groupCheckbox = new CheckBox();
+        groupCheckbox.setValue(true);
+        columnChooser = new ColumnChooser();
+        submitButton = createSubmitButton();
+        submitButton.setEnabled(false);
+
+        controller =
+                new ToolbarController(sampleTypeSelectionWidget, groupSelectionWidget,
+                        instanceCheckbox, groupCheckbox, submitButton, columnChooser);
+
+        final SelectionChangedListener<ModelData> listener =
+                new SelectionChangedListener<ModelData>()
+                    {
+                        @Override
+                        public void selectionChanged(SelectionChangedEvent<ModelData> se)
+                        {
+                            controller.refreshSubmitButton();
+
+                        }
+                    };
+        sampleTypeSelectionWidget.addSelectionChangedListener(listener);
+        groupSelectionWidget.addSelectionChangedListener(listener);
+        final Listener<BaseEvent> clickListener = new Listener<BaseEvent>()
+            {
+
+                public void handleEvent(BaseEvent be)
+                {
+                    controller.refreshSubmitButton();
+                }
+            };
+        instanceCheckbox.addListener(Event.ONCLICK, clickListener);
+        groupCheckbox.addListener(Event.ONCLICK, clickListener);
+        groupCheckbox.addListener(Event.ONCLICK, new Listener<BaseEvent>()
+            {
+
+                public void handleEvent(BaseEvent be)
+                {
+                    controller.showOrHideGroupList();
+                }
+            });
+
+        sampleTypeSelectionWidget
+                .addSelectionChangedListener(new SelectionChangedListener<ModelData>()
+                    {
+                        @Override
+                        public void selectionChanged(SelectionChangedEvent<ModelData> se)
+                        {
+                            controller.refreshColumnChooser();
+
+                        }
+                    });
+
         refresh();
     }
 
     private void display()
     {
+        setBorders(true);
         removeAll();
         add(new LabelToolItem("Sample type:"));
         add(new AdapterToolItem(sampleTypeSelectionWidget));
@@ -62,20 +131,26 @@ class SampleBrowserToolbar extends ToolBar
         add(new SeparatorToolItem());
 
         add(new LabelToolItem("Instance:"));
-        final CheckBox instanceCheckbox = new CheckBox();
-        instanceCheckbox.setValue(false);
         add(new AdapterToolItem(instanceCheckbox));
 
         add(new SeparatorToolItem());
 
         add(new LabelToolItem("Group:"));
-        final CheckBox groupCheckbox = new CheckBox();
-        groupCheckbox.setValue(true);
         add(new AdapterToolItem(groupCheckbox));
         add(new AdapterToolItem(groupSelectionWidget));
 
         add(new SeparatorToolItem());
 
+        add(columnChooser);
+
+        add(new SeparatorToolItem());
+
+        add(new AdapterToolItem(submitButton));
+        layout();
+    }
+
+    private Button createSubmitButton()
+    {
         final Button refreshButton = new Button("Refresh", new SelectionListener<ComponentEvent>()
             {
                 @Override
@@ -105,14 +180,12 @@ class SampleBrowserToolbar extends ToolBar
                     }
                 }
             });
-
-        add(new AdapterToolItem(refreshButton));
-        layout();
+        return refreshButton;
     }
 
     private boolean checkForMissingInformation(final SampleType selectedType,
             final String selectedGroupCode, final Boolean includeGroup,
-            final Boolean includeInstance, final StringBuilder sb)
+            final Boolean includeInstance, StringBuilder sb)
     {
         boolean error = false;
         if (includeGroup && selectedGroupCode == null)

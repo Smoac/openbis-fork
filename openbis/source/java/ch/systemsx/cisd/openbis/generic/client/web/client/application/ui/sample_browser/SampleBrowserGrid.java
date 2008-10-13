@@ -169,6 +169,7 @@ class SampleBrowserGrid extends LayoutContainer
     private final static ColumnConfig createIdentifierColumn()
     {
         final ColumnConfig columnConfig = new ColumnConfig();
+        columnConfig.setMenuDisabled(true);
         columnConfig.setId(SampleModel.SAMPLE_IDENTIFIER);
         columnConfig.setHeader("Identifier");
         columnConfig.setHidden(true);
@@ -179,6 +180,7 @@ class SampleBrowserGrid extends LayoutContainer
     private final static ColumnConfig createCodeColumn()
     {
         final ColumnConfig columnConfig = new ColumnConfig();
+        columnConfig.setMenuDisabled(true);
         columnConfig.setId(SampleModel.SAMPLE_CODE);
         columnConfig.setHeader("Code");
         columnConfig.setWidth(100);
@@ -188,6 +190,7 @@ class SampleBrowserGrid extends LayoutContainer
     private final static ColumnConfig createAssignedToIdentifierColumn()
     {
         final ColumnConfig columnConfig = new ColumnConfig();
+        columnConfig.setMenuDisabled(true);
         columnConfig.setId(SampleModel.ATTACHED_TO_IDENTIFIER);
         columnConfig.setHeader("Attached to");
         columnConfig.setWidth(100);
@@ -197,6 +200,7 @@ class SampleBrowserGrid extends LayoutContainer
     private final static ColumnConfig createRegistratorColumn()
     {
         final ColumnConfig columnConfig = new ColumnConfig();
+        columnConfig.setMenuDisabled(true);
         columnConfig.setId(SampleModel.REGISTRATOR);
         columnConfig.setHeader("Registrator");
         columnConfig.setWidth(100);
@@ -208,6 +212,7 @@ class SampleBrowserGrid extends LayoutContainer
     private final static ColumnConfig createRegistionDateColumn()
     {
         final ColumnConfig columnConfig = new ColumnConfig();
+        columnConfig.setMenuDisabled(true);
         columnConfig.setId(SampleModel.REGISTRATION_DATE);
         columnConfig.setHeader("Registration Date");
         columnConfig.setWidth(100);
@@ -239,6 +244,7 @@ class SampleBrowserGrid extends LayoutContainer
     private final static ColumnConfig createGeneratedFromParentColumn(final int i)
     {
         final ColumnConfig columnConfig = new ColumnConfig();
+        columnConfig.setMenuDisabled(true);
         columnConfig.setId(SampleModel.GENERATED_FROM_PARENT_PREFIX + i);
         columnConfig.setHeader("Parent (gener.) " + i);
         columnConfig.setWidth(150);
@@ -248,6 +254,7 @@ class SampleBrowserGrid extends LayoutContainer
     private final static ColumnConfig createContainerParentColumn(final int i)
     {
         final ColumnConfig columnConfig = new ColumnConfig();
+        columnConfig.setMenuDisabled(true);
         columnConfig.setId(SampleModel.CONTAINER_PARENT_PREFIX + i);
         columnConfig.setHeader("Parent (cont.) " + i);
         columnConfig.setWidth(150);
@@ -260,13 +267,14 @@ class SampleBrowserGrid extends LayoutContainer
         for (final SampleTypePropertyType stpt : sampleType.getSampleTypePropertyTypes())
         {
             configs.add(createPropertyColumn(stpt.getPropertyType().getCode(),
-                    stpt.isDisplayed() == true));
+                    stpt.isDisplayed() == false));
         }
     }
 
     private final static ColumnConfig createPropertyColumn(final String code, final boolean isHidden)
     {
         final ColumnConfig columnConfig = new ColumnConfig();
+        columnConfig.setMenuDisabled(true);
         columnConfig.setId(SampleModel.PROPERTY_PREFIX + code);
         columnConfig.setHeader(code);
         columnConfig.setWidth(80);

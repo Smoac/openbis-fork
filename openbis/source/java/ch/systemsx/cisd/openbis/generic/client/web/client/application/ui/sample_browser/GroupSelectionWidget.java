@@ -68,6 +68,10 @@ class GroupSelectionWidget extends ComboBox<GroupModel>
                         protected void process(List<Group> result)
                         {
                             groupStore.add(convert(result));
+                            if (groupStore.getCount() > 0)
+                            {
+                                setValue(groupStore.getAt(0));
+                            }
                         }
                     });
     }
