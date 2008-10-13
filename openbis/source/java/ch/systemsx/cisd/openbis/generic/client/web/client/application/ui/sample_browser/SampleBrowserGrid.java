@@ -56,7 +56,6 @@ class SampleBrowserGrid extends LayoutContainer
     {
         this.viewContext = viewContext;
         setLayout(new FitLayout());
-        getContentPanel();
     }
 
     private void display(final SampleType sampleType, final String selectedGroupCode,
@@ -289,6 +288,12 @@ class SampleBrowserGrid extends LayoutContainer
         //
         // AbstractAsyncCallback
         //
+
+        @Override
+        protected void finishOnFailure(final Throwable caught)
+        {
+            delegate.onFailure(caught);
+        }
 
         @Override
         protected final void process(final List<Sample> result)
