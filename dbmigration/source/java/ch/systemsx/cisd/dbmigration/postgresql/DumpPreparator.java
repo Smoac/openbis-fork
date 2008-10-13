@@ -102,11 +102,30 @@ public class DumpPreparator
      */
     public final static boolean createDatabaseDump(final String dataBaseName, final File dumpFile)
     {
+        return createDatabaseDump(dataBaseName, dumpFile, false);
+    }
+
+    /**
+     * Creates a dump of the specified database schema and stores it into the specified file.
+     */
+    public final static boolean createDatabaseSchemaDump(final String dataBaseName,
+            final File dumpSchemaFile)
+    {
+        return createDatabaseDump(dataBaseName, dumpSchemaFile, true);
+    }
+
+    private final static boolean createDatabaseDump(final String dataBaseName, final File dumpFile,
+            boolean onlySchema)
+    {
         final String dumpExec = getDumpExecutable();
         final String dumpFilePath = dumpFile.getAbsolutePath();
-        final List<String> command =
-                Arrays.asList(dumpExec, "-U", "postgres", "--no-owner", "-f", dumpFilePath,
-                        dataBaseName);
+        final List<String> command = new ArrayList<String>();
+        command.addAll(Arrays.asList(dumpExec, "-U", "postgres", "--no-owner", "-f", dumpFilePath));
+        if (onlySchema)
+        {
+            command.add("--schema-only");
+        }
+        command.add(dataBaseName);
         final Logger rootLogger = Logger.getRootLogger();
         final boolean ok = ProcessExecutionHelper.runAndLog(command, rootLogger, rootLogger);
         return ok;
@@ -258,7 +277,8 @@ public class DumpPreparator
 
         private final boolean writeEmptyTabFiles;
 
-        UploadFileManager(File destinationFolder, Set<String> filteredSchemaLines, boolean writeEmptyTabFiles)
+        UploadFileManager(File destinationFolder, Set<String> filteredSchemaLines,
+                boolean writeEmptyTabFiles)
         {
             this.destinationFolder = destinationFolder;
             this.filteredSchemaLines = filteredSchemaLines;
@@ -283,7 +303,7 @@ public class DumpPreparator
             currentTable = new Table(tableName, extractColumnNames(columns));
             tables.put(tableName, currentTable);
         }
-        
+
         private List<String> extractColumnNames(String columns)
         {
             List<String> list = new ArrayList<String>();
