@@ -99,7 +99,7 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistratrationH
     }
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = ColumnNames.VOCABULARY_TERM_COLUMN, updatable = false)
+    @JoinColumn(name = ColumnNames.VOCABULARY_TERM_COLUMN)
     public VocabularyTermPE getVocabularyTerm()
     {
         return vocabularyTerm;
