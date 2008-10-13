@@ -56,7 +56,7 @@ public class SqlScriptProvider implements ISqlScriptProvider
      * @param databaseEngineCode The code of the database engine. Used to find the db engine
      *            specific schema script folder.
      */
-    public SqlScriptProvider(String schemaScriptRootFolder, String databaseEngineCode)
+    public SqlScriptProvider(final String schemaScriptRootFolder, final String databaseEngineCode)
     {
         this.genericScriptFolder = schemaScriptRootFolder + "/generic";
         this.specificScriptFolder = schemaScriptRootFolder + "/" + databaseEngineCode;
@@ -66,23 +66,23 @@ public class SqlScriptProvider implements ISqlScriptProvider
      * Returns <code>true</code> if a &lt;finish script&gt; is found and <code>false</code>
      * otherwise.
      */
-    public boolean isDumpRestore(String version)
+    public boolean isDumpRestore(final String version)
     {
         return getDumprestoreFile(version).exists();
     }
 
-    public void markAsDumpRestorable(String version)
+    public void markAsDumpRestorable(final String version)
     {
         try
         {
             FileUtils.touch(getDumprestoreFile(version));
-        } catch (IOException ex)
+        } catch (final IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
 
-    private File getDumprestoreFile(String version)
+    private File getDumprestoreFile(final String version)
     {
         return new File(getDumpFolder(version), DUMP_FILENAME);
     }
@@ -90,7 +90,7 @@ public class SqlScriptProvider implements ISqlScriptProvider
     /**
      * Returns the folder where all dump files for <var>version</var> reside.
      */
-    public File getDumpFolder(String version)
+    public File getDumpFolder(final String version)
     {
         return new File(specificScriptFolder, version);
     }
@@ -102,7 +102,7 @@ public class SqlScriptProvider implements ISqlScriptProvider
      * &lt;schema script folder&gt;/&lt;version&gt;/schema-&lt;version&gt;.sql
      * </pre>
      */
-    public Script tryGetSchemaScript(String version)
+    public Script tryGetSchemaScript(final String version)
     {
         return tryLoadScript("schema-" + version + SQL_FILE_TYPE, version);
     }
@@ -115,7 +115,7 @@ public class SqlScriptProvider implements ISqlScriptProvider
      * &lt;data script folder&gt;/&lt;version&gt;/function-&lt;version&gt;.sql
      * </pre>
      */
-    public Script tryGetFunctionScript(String version)
+    public Script tryGetFunctionScript(final String version)
     {
         return tryLoadScript("function-" + version + SQL_FILE_TYPE, version);
     }
@@ -127,7 +127,7 @@ public class SqlScriptProvider implements ISqlScriptProvider
      * &lt;data script folder&gt;/&lt;version&gt;/data-&lt;version&gt;.sql
      * </pre>
      */
-    public Script tryGetDataScript(String version)
+    public Script tryGetDataScript(final String version)
     {
         return tryLoadScript("data-" + version + SQL_FILE_TYPE, version);
     }
@@ -140,18 +140,18 @@ public class SqlScriptProvider implements ISqlScriptProvider
      * &lt;schema script folder&gt;/migration/migration-&lt;fromVersion&gt;-&lt;toVersion&gt;.sql
      * </pre>
      */
-    public Script tryGetMigrationScript(String fromVersion, String toVersion)
+    public Script tryGetMigrationScript(final String fromVersion, final String toVersion)
     {
         final String scriptName = "migration-" + fromVersion + "-" + toVersion + SQL_FILE_TYPE;
         return tryLoadScript(scriptName, toVersion, "migration");
     }
 
-    private Script tryLoadScript(String scriptName, String scriptVersion)
+    private Script tryLoadScript(final String scriptName, final String scriptVersion)
     {
         return tryLoadScript(scriptName, scriptVersion, scriptVersion);
     }
 
-    private Script tryLoadScript(String scriptName, String scriptVersion, String prefix)
+    private Script tryLoadScript(final String scriptName, final String scriptVersion, final String prefix)
     {
         Script script =
                 tryPrimLoadScript(specificScriptFolder + "/" + prefix, scriptName, scriptVersion);
@@ -163,14 +163,14 @@ public class SqlScriptProvider implements ISqlScriptProvider
         return script;
     }
 
-    private Script tryPrimLoadScript(String scriptFolder, String scriptName, String scriptVersion)
+    private Script tryPrimLoadScript(final String scriptFolder, final String scriptName, final String scriptVersion)
     {
         final String scriptPath = scriptFolder + "/" + scriptName;
         final String resource = "/" + scriptPath;
         String script = FileUtilities.loadToString(getClass(), resource);
         if (script == null)
         {
-            File file = new File(scriptFolder, scriptName);
+            final File file = new File(scriptFolder, scriptName);
             if (operationLog.isDebugEnabled())
             {
                 operationLog.debug("Resource '" + resource + "' could not be found. Trying '"
