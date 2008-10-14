@@ -131,6 +131,7 @@ public interface IGenericServer
      */
     @RolesAllowed(RoleSet.OBSERVER)
     public List<SamplePE> listSamples(String sessionToken,
-            List<SampleOwnerIdentifier> ownerIdentifiers, SampleTypePE sampleType);
+            List<SampleOwnerIdentifier> ownerIdentifiers, SampleTypePE sampleType,
+            List<String> propertyCodes);
 
 }

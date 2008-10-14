@@ -30,11 +30,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
  */
 public interface ISampleDAO
 {
-    List<SamplePE> listSamplesByTypeAndGroup(final SampleTypePE sampleType, final GroupPE group)
-            throws DataAccessException;
+    List<SamplePE> listSamplesByTypeAndGroup(final SampleTypePE sampleType, final GroupPE group,
+            List<String> propertyCodes) throws DataAccessException;
 
     List<SamplePE> listSamplesByTypeAndDatabaseInstance(final SampleTypePE sampleType,
-            final DatabaseInstancePE databaseInstance);
+            final DatabaseInstancePE databaseInstance, List<String> propertyCodes);
 
     void createSample(final SamplePE sample) throws DataAccessException;
 }

@@ -61,6 +61,7 @@ class SampleBrowserGrid extends LayoutContainer
     private void display(final SampleType sampleType, final String selectedGroupCode,
             final boolean showGroup, final boolean showInstance)
     {
+
         final RpcProxy<Object, List<SampleModel>> proxy = new RpcProxy<Object, List<SampleModel>>()
             {
                 //
@@ -83,6 +84,7 @@ class SampleBrowserGrid extends LayoutContainer
         createOrReconfigureGrid(columnModel, sampleStore);
         loader.load();
         layout();
+
     }
 
     @SuppressWarnings("unchecked")

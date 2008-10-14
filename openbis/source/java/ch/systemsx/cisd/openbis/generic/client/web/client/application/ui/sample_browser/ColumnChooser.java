@@ -16,10 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser;
 
+import java.util.List;
+
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.menu.CheckMenuItem;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
+import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
@@ -27,19 +30,44 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypeProperty
 
 class ColumnChooser extends TextToolItem
 {
+    private static final int START = 1;
+
+    private static final int MENU_LENGTH = 15;
 
     public ColumnChooser()
     {
-        super("Columns");
+        super("Properties");
         setEnabled(false);
     }
 
     public void load(SampleType type)
     {
         Menu columnsMenu = new Menu();
-        for (SampleTypePropertyType stpt : type.getSampleTypePropertyTypes())
+        Menu subMenu = new Menu();
+        int counter = START;
+        final List<SampleTypePropertyType> sampleTypePropertyTypes =
+                type.getSampleTypePropertyTypes();
+        int numberOfElements = sampleTypePropertyTypes.size();
+
+        for (SampleTypePropertyType stpt : sampleTypePropertyTypes)
         {
-            columnsMenu.add(createColumn(stpt));
+            if (numberOfElements <= MENU_LENGTH)
+            {
+                columnsMenu.add(createColumn(stpt));
+            } else
+            {
+                if (counter % MENU_LENGTH - START == 0)
+                {
+                    MenuItem menuItem =
+                            new MenuItem(counter + " - "
+                                    + Math.min(counter + MENU_LENGTH - 1, numberOfElements));
+                    subMenu = new Menu();
+                    menuItem.setSubMenu(subMenu);
+                    columnsMenu.add(menuItem);
+                }
+                subMenu.add(createColumn(stpt));
+                counter++;
+            }
         }
         setMenu(columnsMenu);
     }
@@ -57,7 +85,6 @@ class ColumnChooser extends TextToolItem
                     stpt.setDisplayed(checkMenuItem.isChecked());
                 }
             });
-
         return checkMenuItem;
     }
 }

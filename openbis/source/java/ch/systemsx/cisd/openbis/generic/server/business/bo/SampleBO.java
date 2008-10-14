@@ -43,7 +43,7 @@ public class SampleBO extends AbstractBusinessObject implements ISampleBO
     }
 
     public List<SamplePE> listSamples(SampleTypePE sampleTypeExample,
-            List<SampleOwnerIdentifier> ownerIdentifiers)
+            List<SampleOwnerIdentifier> ownerIdentifiers, List<String> propertyCodes)
     {
         SampleTypePE sampleType = getSampleTypeDAO().tryFindByExample(sampleTypeExample);
         if (sampleType == null)
@@ -56,21 +56,23 @@ public class SampleBO extends AbstractBusinessObject implements ISampleBO
         for (SampleOwnerIdentifier sampleOwnerIdentifier : ownerIdentifiers)
         {
             SampleOwner owner = finder.figureSampleOwner(sampleOwnerIdentifier);
-            samples.addAll(listSamples(sampleType, owner));
+            samples.addAll(listSamples(sampleType, owner, propertyCodes));
         }
         return samples;
     }
 
-    private List<SamplePE> listSamples(SampleTypePE sampleType, SampleOwner owner)
+    private List<SamplePE> listSamples(SampleTypePE sampleType, SampleOwner owner,
+            List<String> propertyCodes)
     {
         ISampleDAO sampleDAO = getSampleDAO();
         if (owner.isGroupLevel())
         {
-            return sampleDAO.listSamplesByTypeAndGroup(sampleType, owner.tryGetGroup());
+            return sampleDAO.listSamplesByTypeAndGroup(sampleType, owner.tryGetGroup(),
+                    propertyCodes);
         } else
         {
             return sampleDAO.listSamplesByTypeAndDatabaseInstance(sampleType, owner
-                    .tryGetDatabaseInstance());
+                    .tryGetDatabaseInstance(), propertyCodes);
         }
     }
 }

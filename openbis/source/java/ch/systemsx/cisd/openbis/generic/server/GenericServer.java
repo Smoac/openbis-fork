@@ -336,11 +336,13 @@ public class GenericServer implements IGenericServer, ISessionProvider,
 
     @Transactional
     public List<SamplePE> listSamples(String sessionToken,
-            List<SampleOwnerIdentifier> ownerIdentifiers, SampleTypePE sampleType)
+            List<SampleOwnerIdentifier> ownerIdentifiers, SampleTypePE sampleType,
+            List<String> propertyCodes)
     {
         Session session = sessionManager.getSession(sessionToken);
         final List<SamplePE> samples =
-                boFactory.createSampleBO(session).listSamples(sampleType, ownerIdentifiers);
+                boFactory.createSampleBO(session).listSamples(sampleType, ownerIdentifiers,
+                        propertyCodes);
         return samples;
     }
 

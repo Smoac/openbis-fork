@@ -16,12 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
-import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
@@ -35,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 
 /**
@@ -66,7 +68,8 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
         return criteria;
     }
 
-    private void fetchRelations(final Criteria criteria, final String relationName, final int relationDepth)
+    private void fetchRelations(final Criteria criteria, final String relationName,
+            final int relationDepth)
     {
         String relationPath = relationName;
         for (int i = 0; i < relationDepth; i++)
@@ -93,13 +96,13 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
     }
 
     public final List<SamplePE> listSamplesByTypeAndGroup(final SampleTypePE sampleType,
-            final GroupPE group) throws DataAccessException
+            final GroupPE group, List<String> propertyCodes) throws DataAccessException
     {
         final Criteria criteria = createListSampleForTypeCriteria(sampleType);
         criteria.add(Restrictions.eq("group", group));
 
         final List<SamplePE> list = cast(criteria.list());
-        fetchSampleProperties(list);
+        new GroupPropertiesFetcher(sampleType, list, propertyCodes, group).fetch();
 
         if (operationLog.isDebugEnabled())
         {
@@ -111,13 +114,13 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
     }
 
     public final List<SamplePE> listSamplesByTypeAndDatabaseInstance(final SampleTypePE sampleType,
-            final DatabaseInstancePE databaseInstance)
+            final DatabaseInstancePE databaseInstance, List<String> propertyCodes)
     {
         final Criteria criteria = createListSampleForTypeCriteria(sampleType);
         criteria.add(Restrictions.eq("databaseInstance", databaseInstance));
 
         final List<SamplePE> list = cast(criteria.list());
-        fetchSampleProperties(list);
+        new InstancePropertiesFetcher(sampleType, list, propertyCodes, databaseInstance).fetch();
 
         if (operationLog.isDebugEnabled())
         {
@@ -128,11 +131,117 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
         return list;
     }
 
-    private void fetchSampleProperties(final List<SamplePE> samples)
+    abstract class PropertiesFetcher
     {
-        for (final SamplePE sample : samples)
+        protected static final String PROPERTIES_QUERY =
+                "from %s sp where sp.entityTypePropertyType.entityType.code = ? and sp.entityTypePropertyType.propertyType.simpleCode = ? ";
+
+        protected final SampleTypePE sampleType;
+
+        protected final List<SamplePE> samples;
+
+        protected final List<String> propertyCodes;
+
+        protected PropertiesFetcher(SampleTypePE sampleType, List<SamplePE> samples,
+                List<String> propertyCodes)
         {
-            Hibernate.initialize(sample.getProperties());
+            this.sampleType = sampleType;
+            this.samples = samples;
+            this.propertyCodes = propertyCodes;
+        }
+
+        protected HashMap<String, SamplePE> convertToMap(final List<SamplePE> samps)
+        {
+            HashMap<String, SamplePE> sampleMap = new HashMap<String, SamplePE>(samps.size());
+            for (SamplePE s : samps)
+            {
+                s.setProperties(new ArrayList<SamplePropertyPE>());
+                sampleMap.put(s.getCode(), s);
+            }
+            return sampleMap;
+        }
+
+        public void fetch()
+        {
+            if (samples.size() == 0)
+            {
+                return;
+            }
+            HashMap<String, SamplePE> sampleMap = convertToMap(samples);
+            for (String propertyTypeCode : propertyCodes)
+            {
+                for (SamplePropertyPE sp : listProperties(propertyTypeCode))
+                {
+                    final String sampleCode = sp.getSample().getCode();
+                    final SamplePE sample = sampleMap.get(sampleCode);
+                    if (sample != null)
+                    {
+                        sample.getProperties().add(sp);
+                    }
+                }
+            }
+        }
+
+        abstract public List<SamplePropertyPE> listProperties(String propertyTypeCode);
+
+    }
+
+    class GroupPropertiesFetcher extends PropertiesFetcher
+    {
+
+        private final GroupPE group;
+
+        GroupPropertiesFetcher(SampleTypePE sampleType, List<SamplePE> samples,
+                List<String> propertyCodes, GroupPE group)
+        {
+            super(sampleType, samples, propertyCodes);
+            this.group = group;
+        }
+
+        @Override
+        public List<SamplePropertyPE> listProperties(String propertyTypeCode)
+        {
+            final List<SamplePropertyPE> list =
+                    cast(getHibernateTemplate().find(
+                            String.format(PROPERTIES_QUERY + " and sp.entity.group.code = ?",
+                                    SamplePropertyPE.class.getSimpleName()), new Object[]
+                                { sampleType.getCode(), propertyTypeCode, group.getCode() }));
+            if (operationLog.isDebugEnabled())
+            {
+                operationLog.debug("listGroupProperties(" + sampleType.getCode() + ","
+                        + propertyTypeCode + ")");
+            }
+            return list;
         }
     }
+
+    class InstancePropertiesFetcher extends PropertiesFetcher
+    {
+
+        private final DatabaseInstancePE instance;
+
+        InstancePropertiesFetcher(SampleTypePE sampleType, List<SamplePE> samples,
+                List<String> propertyCodes, DatabaseInstancePE instance)
+        {
+            super(sampleType, samples, propertyCodes);
+            this.instance = instance;
+        }
+
+        @Override
+        public List<SamplePropertyPE> listProperties(String propertyTypeCode)
+        {
+            final List<SamplePropertyPE> list =
+                    cast(getHibernateTemplate().find(
+                            String.format(PROPERTIES_QUERY + "and sp.entity.databaseInstance = ?",
+                                    SamplePropertyPE.class.getSimpleName()), new Object[]
+                                { sampleType.getCode(), propertyTypeCode, instance }));
+            if (operationLog.isDebugEnabled())
+            {
+                operationLog.debug("listInstanceProperties(" + sampleType.getCode() + ","
+                        + propertyTypeCode + ")");
+            }
+            return list;
+        }
+    }
+
 }

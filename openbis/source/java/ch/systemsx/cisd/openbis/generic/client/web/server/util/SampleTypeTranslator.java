@@ -16,7 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 
 /**
@@ -47,6 +51,19 @@ public class SampleTypeTranslator
         result.setCode(sampleType.getCode());
         return result;
 
+    }
+
+    public static List<String> extractPropertyTypeCodesToDisplay(SampleType sampleType)
+    {
+        final ArrayList<String> result = new ArrayList<String>();
+        for (SampleTypePropertyType stpt : sampleType.getSampleTypePropertyTypes())
+        {
+            if (stpt.isDisplayed())
+            {
+                result.add(stpt.getPropertyType().getCode());
+            }
+        }
+        return result;
     }
 
 }

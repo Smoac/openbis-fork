@@ -218,9 +218,11 @@ class GenericServerLogger implements IGenericServer, ISessionProvider
     }
 
     public List<SamplePE> listSamples(String sessionToken,
-            List<SampleOwnerIdentifier> ownerIdentifiers, SampleTypePE sampleType)
+            List<SampleOwnerIdentifier> ownerIdentifiers, SampleTypePE sampleType,
+            List<String> propertyTypeCodes)
     {
-        logAccess(sessionToken, "list_samples", "TYPE(%s) OWNERS(%s)", sampleType, ownerIdentifiers);
+        logAccess(sessionToken, "list_samples", "TYPE(%s) OWNERS(%s) PROPERTY_TYPE_CODES(%s)",
+                sampleType, ownerIdentifiers, propertyTypeCodes.size());
         return null;
     }
 

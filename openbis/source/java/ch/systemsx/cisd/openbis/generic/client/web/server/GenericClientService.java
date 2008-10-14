@@ -396,7 +396,8 @@ public class GenericClientService implements IGenericClientService
             }
             List<SamplePE> samples =
                     server.listSamples(getSessionToken(), ownerIdentifiers, SampleTypeTranslator
-                            .translate(sampleType));
+                            .translate(sampleType), SampleTypeTranslator
+                            .extractPropertyTypeCodesToDisplay(sampleType));
             List<Sample> result = new ArrayList<Sample>();
             for (SamplePE sample : samples)
             {

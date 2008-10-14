@@ -20,6 +20,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Hibernate;
@@ -41,18 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
     { "db", "sample" })
 public final class SampleDAOTest extends AbstractDAOTest
 {
-    @Test
-    public void testListSamplesPropertiesPresent()
-    {
-        SampleTypePE type = getSampleType(SampleTypeCode.MASTER_PLATE);
-        GroupPE group = new GroupPE();
-        group.setId(1L);
-        List<SamplePE> samples = daoFactory.getSampleDAO().listSamplesByTypeAndGroup(type, group);
-        for (SamplePE sample : samples)
-        {
-            assertTrue(Hibernate.isInitialized(sample.getProperties()));
-        }
-    }
+
 
     @Test
     public final void testListGroupSamples()
@@ -63,7 +53,8 @@ public final class SampleDAOTest extends AbstractDAOTest
         SamplePE sample = createSample(sampleType, "code", null, SampleOwner.createGroup(group));
         save(sample);
         List<SamplePE> samples =
-                daoFactory.getSampleDAO().listSamplesByTypeAndGroup(sampleType, group);
+                daoFactory.getSampleDAO().listSamplesByTypeAndGroup(sampleType, group,
+                        new ArrayList<String>());
         assertEquals(1, samples.size());
         assertEquals(sample, samples.get(0));
     }
@@ -88,7 +79,7 @@ public final class SampleDAOTest extends AbstractDAOTest
         save(superContainer, container, well); // clear session to avoid using samples from first
         // level cache
         sessionFactory.getCurrentSession().clear();
-        List<SamplePE> samples = listSamplesFromHomeDatabase(type3);
+        List<SamplePE> samples = listSamplesFromHomeDatabase(type3, new ArrayList<String>());
         SamplePE foundWell = findSample(well, samples);
         assertTrue(Hibernate.isInitialized(foundWell.getContainer()));
         SamplePE foundContainer = foundWell.getContainer();
@@ -99,11 +90,12 @@ public final class SampleDAOTest extends AbstractDAOTest
         assertFalse(Hibernate.isInitialized(parent.getGeneratedFrom()));
     }
 
-    private List<SamplePE> listSamplesFromHomeDatabase(SampleTypePE sampleType)
+    private List<SamplePE> listSamplesFromHomeDatabase(SampleTypePE sampleType,
+            List<String> propertyCodes)
     {
         final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
         return sampleDAO.listSamplesByTypeAndDatabaseInstance(sampleType, daoFactory
-                .getHomeDatabaseInstance());
+                .getHomeDatabaseInstance(), propertyCodes);
     }
 
     private SamplePE findSample(SamplePE sample, List<SamplePE> samples)
