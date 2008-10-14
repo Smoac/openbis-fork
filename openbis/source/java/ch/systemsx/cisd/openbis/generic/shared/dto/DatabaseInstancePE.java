@@ -108,7 +108,7 @@ public final class DatabaseInstancePE extends AbstractIdAndCodeHolder<DatabaseIn
     @Generated(GenerationTime.INSERT)
     public final Date getRegistrationDate()
     {
-        return HibernateAbstractRegistratrationHolder.getDate(registrationDate);
+        return HibernateAbstractRegistrationHolder.getDate(registrationDate);
     }
 
     public void setRegistrationDate(final Date registrationDate)

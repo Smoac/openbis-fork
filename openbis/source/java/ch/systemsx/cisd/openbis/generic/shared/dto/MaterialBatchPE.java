@@ -55,7 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 @Table(name = TableNames.MATERIAL_BATCHES_TABLE, uniqueConstraints =
     { @UniqueConstraint(columnNames =
         { ColumnNames.CODE_COLUMN, ColumnNames.MATERIAL_COLUMN }) })
-public final class MaterialBatchPE extends HibernateAbstractRegistratrationHolder implements
+public final class MaterialBatchPE extends HibernateAbstractRegistrationHolder implements
         IIdAndCodeHolder, Serializable
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;

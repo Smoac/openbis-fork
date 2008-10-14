@@ -40,7 +40,7 @@ import org.hibernate.annotations.GenerationTime;
  * @author Christian Ribeaud
  */
 @MappedSuperclass
-public abstract class HibernateAbstractRegistratrationHolder implements IRegistratorHolder,
+public abstract class HibernateAbstractRegistrationHolder implements IRegistratorHolder,
         Serializable
 {
     private static final long serialVersionUID = 1L;

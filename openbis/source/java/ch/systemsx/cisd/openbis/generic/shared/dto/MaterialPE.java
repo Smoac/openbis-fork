@@ -54,7 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 @Table(name = TableNames.MATERIALS_TABLE, uniqueConstraints = @UniqueConstraint(columnNames =
     { ColumnNames.CODE_COLUMN, ColumnNames.MATERIAL_TYPE_COLUMN,
             ColumnNames.DATABASE_INSTANCE_COLUMN }))
-public class MaterialPE extends HibernateAbstractRegistratrationHolder implements IIdAndCodeHolder,
+public class MaterialPE extends HibernateAbstractRegistrationHolder implements IIdAndCodeHolder,
         Comparable<MaterialPE>, IEntityPropertiesHolder<MaterialPropertyPE>
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;

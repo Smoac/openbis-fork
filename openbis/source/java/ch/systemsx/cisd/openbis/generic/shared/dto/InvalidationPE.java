@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
  */
 @Entity
 @Table(name = TableNames.INVALIDATION_TABLE)
-public class InvalidationPE extends HibernateAbstractRegistratrationHolder implements IIdHolder,
+public class InvalidationPE extends HibernateAbstractRegistrationHolder implements IIdHolder,
         Serializable
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;

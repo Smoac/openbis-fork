@@ -50,7 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 @Table(name = TableNames.PROJECTS_TABLE, uniqueConstraints =
     { @UniqueConstraint(columnNames =
         { ColumnNames.CODE_COLUMN, ColumnNames.GROUP_COLUMN }) })
-public final class ProjectPE extends HibernateAbstractRegistratrationHolder implements
+public final class ProjectPE extends HibernateAbstractRegistrationHolder implements
         Comparable<ProjectPE>, IIdAndCodeHolder, Serializable
 {
     public static final ProjectPE[] EMPTY_ARRAY = new ProjectPE[0];

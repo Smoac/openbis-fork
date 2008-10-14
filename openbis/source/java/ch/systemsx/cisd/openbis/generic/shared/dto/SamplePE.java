@@ -59,7 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 @Check(constraints = "(" + ColumnNames.DATABASE_INSTANCE_COLUMN + " IS NOT NULL AND "
         + ColumnNames.GROUP_COLUMN + " IS NULL) OR (" + ColumnNames.DATABASE_INSTANCE_COLUMN
         + " IS NULL AND " + ColumnNames.GROUP_COLUMN + " IS NOT NULL)")
-public class SamplePE extends HibernateAbstractRegistratrationHolder implements IIdAndCodeHolder,
+public class SamplePE extends HibernateAbstractRegistrationHolder implements IIdAndCodeHolder,
         Comparable<SamplePE>, IEntityPropertiesHolder<SamplePropertyPE>
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;

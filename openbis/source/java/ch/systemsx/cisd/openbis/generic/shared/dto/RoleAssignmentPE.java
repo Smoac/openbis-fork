@@ -56,7 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
     { @UniqueConstraint(columnNames =
         { ColumnNames.PERSON_GRANTEE_COLUMN, ColumnNames.ROLE_COLUMN, ColumnNames.GROUP_COLUMN,
                 ColumnNames.DATABASE_INSTANCE_COLUMN }) })
-public final class RoleAssignmentPE extends HibernateAbstractRegistratrationHolder implements
+public final class RoleAssignmentPE extends HibernateAbstractRegistrationHolder implements
         IIdHolder, Serializable
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;

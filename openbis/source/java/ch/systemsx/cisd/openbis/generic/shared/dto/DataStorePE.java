@@ -103,7 +103,7 @@ public final class DataStorePE extends AbstractIdAndCodeHolder<DataStorePE>
     @Generated(GenerationTime.INSERT)
     public final Date getRegistrationDate()
     {
-        return HibernateAbstractRegistratrationHolder.getDate(registrationDate);
+        return HibernateAbstractRegistrationHolder.getDate(registrationDate);
     }
 
     public final void setRegistrationDate(final Date registrationDate)

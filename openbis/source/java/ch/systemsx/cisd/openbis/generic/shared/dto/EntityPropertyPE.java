@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * @author Izabela Adamczyk
  */
 @MappedSuperclass
-public abstract class EntityPropertyPE extends HibernateAbstractRegistratrationHolder implements
+public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHolder implements
         IRegistratorHolder, IUntypedValueSetter, IEntityProperty
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;

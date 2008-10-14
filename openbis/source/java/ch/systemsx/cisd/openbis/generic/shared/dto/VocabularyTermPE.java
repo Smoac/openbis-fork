@@ -51,7 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 @Table(name = TableNames.CONTROLLED_VOCABULARY_TERM_TABLE, uniqueConstraints =
     { @UniqueConstraint(columnNames =
         { ColumnNames.CODE_COLUMN, ColumnNames.CONTROLLED_VOCABULARY_COLUMN }) })
-public class VocabularyTermPE extends HibernateAbstractRegistratrationHolder implements
+public class VocabularyTermPE extends HibernateAbstractRegistrationHolder implements
         IIdAndCodeHolder, Comparable<VocabularyTermPE>, Serializable
 {
 

@@ -57,7 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 @Table(name = TableNames.EXPERIMENTS_TABLE, uniqueConstraints =
     { @UniqueConstraint(columnNames =
         { ColumnNames.CODE_COLUMN, ColumnNames.PROJECT_COLUMN }) })
-public class ExperimentPE extends HibernateAbstractRegistratrationHolder implements
+public class ExperimentPE extends HibernateAbstractRegistrationHolder implements
         IEntityPropertiesHolder<ExperimentPropertyPE>, IIdAndCodeHolder, Comparable<ExperimentPE>
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
@@ -274,7 +274,7 @@ public class ExperimentPE extends HibernateAbstractRegistratrationHolder impleme
     @Transient
     public Date getLastDataSetDate()
     {
-        return HibernateAbstractRegistratrationHolder.getDate(lastDataSetDate);
+        return HibernateAbstractRegistrationHolder.getDate(lastDataSetDate);
     }
 
     public void setLastDataSetDate(final Date lastDataSetDate)

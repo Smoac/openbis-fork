@@ -53,7 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 @Table(name = TableNames.PERSONS_TABLE, uniqueConstraints =
     { @UniqueConstraint(columnNames =
         { ColumnNames.USER_COLUMN, ColumnNames.DATABASE_INSTANCE_COLUMN }) })
-public final class PersonPE extends HibernateAbstractRegistratrationHolder implements
+public final class PersonPE extends HibernateAbstractRegistrationHolder implements
         Comparable<PersonPE>, IIdHolder, Serializable
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;

@@ -99,7 +99,7 @@ public class ProcedurePE implements IIdHolder, Serializable
     @Generated(GenerationTime.INSERT)
     public Date getRegistrationDate()
     {
-        return HibernateAbstractRegistratrationHolder.getDate(registrationDate);
+        return HibernateAbstractRegistrationHolder.getDate(registrationDate);
     }
 
     public void setRegistrationDate(final Date registrationDate)

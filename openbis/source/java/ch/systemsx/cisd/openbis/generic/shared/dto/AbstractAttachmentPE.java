@@ -44,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
  * @author Tomasz Pylak
  */
 @MappedSuperclass
-public class AbstractAttachmentPE extends HibernateAbstractRegistratrationHolder implements
+public class AbstractAttachmentPE extends HibernateAbstractRegistrationHolder implements
         Serializable, Comparable<AbstractAttachmentPE>
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;

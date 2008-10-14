@@ -55,7 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
     { @UniqueConstraint(columnNames =
         { ColumnNames.CODE_COLUMN, ColumnNames.IS_INTERNAL_NAMESPACE,
                 ColumnNames.DATABASE_INSTANCE_COLUMN }) })
-public class VocabularyPE extends HibernateAbstractRegistratrationHolder implements
+public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
         IIdAndCodeHolder, Comparable<VocabularyPE>, Serializable
 {
 

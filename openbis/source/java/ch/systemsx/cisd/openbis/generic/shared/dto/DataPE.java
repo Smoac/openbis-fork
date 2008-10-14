@@ -97,7 +97,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE>
     @Generated(GenerationTime.ALWAYS)
     public Date getRegistrationDate()
     {
-        return HibernateAbstractRegistratrationHolder.getDate(registrationDate);
+        return HibernateAbstractRegistrationHolder.getDate(registrationDate);
     }
 
     public void setRegistrationDate(final Date registrationDate)
@@ -177,7 +177,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE>
     @Column(name = ColumnNames.PRODUCTION_TIMESTAMP_COLUMN)
     public Date getProductionDate()
     {
-        return HibernateAbstractRegistratrationHolder.getDate(productionDate);
+        return HibernateAbstractRegistrationHolder.getDate(productionDate);
     }
 
     /**

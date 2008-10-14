@@ -50,7 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 @Table(name = TableNames.GROUPS_TABLE, uniqueConstraints =
     { @UniqueConstraint(columnNames =
         { ColumnNames.CODE_COLUMN, ColumnNames.DATABASE_INSTANCE_COLUMN }) })
-public final class GroupPE extends HibernateAbstractRegistratrationHolder implements
+public final class GroupPE extends HibernateAbstractRegistrationHolder implements
         IIdAndCodeHolder, Comparable<GroupPE>, Serializable
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;

@@ -51,7 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
     { @UniqueConstraint(columnNames =
         { ColumnNames.CODE_COLUMN, ColumnNames.IS_INTERNAL_NAMESPACE,
                 ColumnNames.DATABASE_INSTANCE_COLUMN }) })
-public final class PropertyTypePE extends HibernateAbstractRegistratrationHolder implements
+public final class PropertyTypePE extends HibernateAbstractRegistrationHolder implements
         Comparable<PropertyTypePE>, IIdAndCodeHolder
 {
     public static final PropertyTypePE[] EMPTY_ARRAY = new PropertyTypePE[0];
