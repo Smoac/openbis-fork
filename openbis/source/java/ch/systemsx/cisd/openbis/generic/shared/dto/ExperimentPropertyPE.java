@@ -52,10 +52,15 @@ public class ExperimentPropertyPE extends EntityPropertyPE
 
     public static final List<ExperimentPropertyPE> EMPTY_LIST = Collections.emptyList();
 
+    private ExperimentPE experiment;
+    
+    /**
+     * Returns the experiment that this property belongs to.
+     */
     @Transient
     public final ExperimentPE getExperiment()
     {
-        return (ExperimentPE) getEntity();
+        return experiment;
     }
 
     //
@@ -82,6 +87,23 @@ public class ExperimentPropertyPE extends EntityPropertyPE
     @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN, updatable = false)
     public IIdAndCodeHolder getEntity()
     {
-        return entity;
+        return getExperiment();
+    }
+    
+    /**
+     * Sets the <var>experiment</var> of this property.
+     * <p>
+     * <i>Do not use directly, instead, call {@link MaterialPE#addProperty(MaterialPropertyPE)} with
+     * <code>this</code> object!</i>
+     */
+    void setEntity(IIdAndCodeHolder entity)
+    {
+        this.experiment = (ExperimentPE) entity; 
+    }
+
+    @Override
+    public void setHolder(IIdAndCodeHolder entity)
+    {
+        ((ExperimentPE) entity).addProperty(this);
     }
 }

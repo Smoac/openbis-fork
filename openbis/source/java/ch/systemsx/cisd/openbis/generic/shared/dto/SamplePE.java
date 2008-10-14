@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -104,7 +105,7 @@ public class SamplePE extends HibernateAbstractRegistrationHolder implements IId
      */
     private InvalidationPE invalidation;
 
-    private List<SamplePropertyPE> properties = SamplePropertyPE.EMPTY_LIST;
+    private List<SamplePropertyPE> properties = new LinkedList<SamplePropertyPE>();
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.INVALIDATION_COLUMN)
@@ -181,7 +182,9 @@ public class SamplePE extends HibernateAbstractRegistrationHolder implements IId
     {
         return properties;
     }
-
+    
+    // Required by Hibernate.
+    @SuppressWarnings("unused")
     private void setSampleProperties(final List<SamplePropertyPE> properties)
     {
         this.properties = properties;
@@ -363,15 +366,22 @@ public class SamplePE extends HibernateAbstractRegistrationHolder implements IId
 
     public void setProperties(final List<SamplePropertyPE> properties)
     {
+        getSampleProperties().clear();
         for (final SamplePropertyPE sampleProperty : properties)
         {
             final SamplePE parent = sampleProperty.getSample();
             if (parent != null)
             {
-                parent.getProperties().remove(sampleProperty);
+                parent.getSampleProperties().remove(sampleProperty);
             }
-            sampleProperty.setEntity(this);
+            addProperty(sampleProperty);
         }
-        setSampleProperties(properties);
     }
+
+    public void addProperty(SamplePropertyPE property)
+    {
+        property.setEntity(this);
+        getSampleProperties().add(property);
+    }
+    
 }

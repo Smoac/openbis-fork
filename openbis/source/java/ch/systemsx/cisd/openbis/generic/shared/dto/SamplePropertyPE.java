@@ -53,10 +53,15 @@ public class SamplePropertyPE extends EntityPropertyPE
     public static final List<SamplePropertyPE> EMPTY_LIST =
             Collections.<SamplePropertyPE> emptyList();
 
+    private SamplePE sample;
+    
+    /**
+     * Returns the sample that this property belongs to.
+     */
     @Transient
     public final SamplePE getSample()
     {
-        return (SamplePE) getEntity();
+        return sample;
     }
 
     //
@@ -83,6 +88,23 @@ public class SamplePropertyPE extends EntityPropertyPE
     @JoinColumn(name = ColumnNames.SAMPLE_COLUMN, updatable = false)
     public IIdAndCodeHolder getEntity()
     {
-        return entity;
+        return getSample();
+    }
+
+    /**
+     * Sets the <var>sample</var> of this property.
+     * <p>
+     * <i>Do not use directly, instead, call {@link MaterialPE#addProperty(MaterialPropertyPE)} with
+     * <code>this</code> object!</i>
+     */
+    void setEntity(IIdAndCodeHolder entity)
+    {
+        this.sample = (SamplePE) entity; 
+    }
+
+    @Override
+    public void setHolder(IIdAndCodeHolder entity)
+    {
+        ((SamplePE) entity).addProperty(this);
     }
 }

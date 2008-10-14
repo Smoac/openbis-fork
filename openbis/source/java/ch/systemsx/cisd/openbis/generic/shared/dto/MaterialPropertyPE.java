@@ -53,10 +53,15 @@ public class MaterialPropertyPE extends EntityPropertyPE
     public static final List<MaterialPropertyPE> EMPTY_LIST =
             Collections.<MaterialPropertyPE> emptyList();
 
+    private MaterialPE material;
+
+    /**
+     * Returns the material that this property belongs to.
+     */
     @Transient
     public final MaterialPE getMaterial()
     {
-        return (MaterialPE) getEntity();
+        return material;
     }
 
     //
@@ -83,6 +88,23 @@ public class MaterialPropertyPE extends EntityPropertyPE
     @JoinColumn(name = ColumnNames.MATERIAL_COLUMN, updatable = false)
     public IIdAndCodeHolder getEntity()
     {
-        return entity;
+        return getMaterial();
+    }
+
+    /**
+     * Sets the <var>material</var> of this property.
+     * <p>
+     * <i>Do not use directly, instead, call {@link MaterialPE#addProperty(MaterialPropertyPE)} with
+     * <code>this</code> object!</i>
+     */
+    void setEntity(IIdAndCodeHolder entity)
+    {
+        this.material = (MaterialPE) entity; 
+    }
+
+    @Override
+    public void setHolder(IIdAndCodeHolder entity)
+    {
+        ((MaterialPE) entity).addProperty(this);
     }
 }

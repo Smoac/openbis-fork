@@ -26,7 +26,9 @@ import java.util.List;
 public interface IEntityPropertiesHolder<T extends EntityPropertyPE>
 {
     /**
-     * Gets the entity properties.
+     * Gets a copy of the entity properties. Note that the property collection returned must not be
+     * modified directory or else the bidirectional relation of entities and properties might be
+     * broken (and the second-level cache is going to cache these broken objects).
      */
     public List<T> getProperties();
 
@@ -34,5 +36,10 @@ public interface IEntityPropertiesHolder<T extends EntityPropertyPE>
      * Sets the entity properties.
      */
     public void setProperties(final List<T> properties);
+
+    /**
+     * Adds the <var>property</var> to the list of properties of this property holder.
+     */
+    public void addProperty(T property);
 
 }

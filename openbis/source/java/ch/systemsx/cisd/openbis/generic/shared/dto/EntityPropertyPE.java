@@ -62,8 +62,6 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
 
     protected EntityTypePropertyTypePE entityTypePropertyType;
 
-    protected IIdAndCodeHolder entity;
-
     public <T extends EntityTypePropertyTypePE> void setEntityTypePropertyType(
             final T entityTypePropertyType)
     {
@@ -80,10 +78,14 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
         this.value = value;
     }
 
-    public void setEntity(final IIdAndCodeHolder entity)
-    {
-        this.entity = entity;
-    }
+    /**
+     * Sets the entity that holds this property. Needs to be of the correct sub-class of
+     * {@link IIdAndCodeHolder}.
+     * <p>
+     * <i>Note: Consider using the <code>addProperty()</code> method of the holder instead of using
+     * this method!</i>
+     */
+    abstract public void setHolder(final IIdAndCodeHolder entity);
 
     @Column(name = ColumnNames.VALUE)
     @Length(max = 1024, message = ValidationMessages.VALUE_LENGTH_MESSAGE)

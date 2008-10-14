@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -67,7 +68,7 @@ public class MaterialPE extends HibernateAbstractRegistrationHolder implements I
 
     private DatabaseInstancePE databaseInstance;
 
-    private List<MaterialPropertyPE> properties = MaterialPropertyPE.EMPTY_LIST;
+    private List<MaterialPropertyPE> properties = new LinkedList<MaterialPropertyPE>();
 
     public static final MaterialPE[] EMPTY_ARRAY = new MaterialPE[0];
 
@@ -149,7 +150,9 @@ public class MaterialPE extends HibernateAbstractRegistrationHolder implements I
         return properties;
     }
 
-    private void setMaterialProperties(final List<MaterialPropertyPE> properties)
+    // Required by Hibernate.
+    @SuppressWarnings("unused")
+    private void setMaterialProperties(List<MaterialPropertyPE> properties)
     {
         this.properties = properties;
     }
@@ -166,13 +169,24 @@ public class MaterialPE extends HibernateAbstractRegistrationHolder implements I
 
     public void setProperties(final List<MaterialPropertyPE> properties)
     {
+        getMaterialProperties().clear();
         for (final MaterialPropertyPE materialProperty : properties)
         {
-            materialProperty.setEntity(this);
+            final MaterialPE parent = materialProperty.getMaterial();
+            if (parent != null)
+            {
+                parent.getMaterialProperties().remove(parent);
+            }
+            addProperty(materialProperty);
         }
-        setMaterialProperties(properties);
     }
 
+    public void addProperty(MaterialPropertyPE property)
+    {
+        property.setEntity(this);
+        getMaterialProperties().add(property);
+    }
+    
     //
     // Object
     //

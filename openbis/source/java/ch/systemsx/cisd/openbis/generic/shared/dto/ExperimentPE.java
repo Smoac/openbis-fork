@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.util.Date;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -84,7 +85,7 @@ public class ExperimentPE extends HibernateAbstractRegistrationHolder implements
 
     private InvalidationPE invalidation;
 
-    private List<ExperimentPropertyPE> properties = ExperimentPropertyPE.EMPTY_LIST;
+    private List<ExperimentPropertyPE> properties = new LinkedList<ExperimentPropertyPE>();
 
     private DataStorePE dataStore;
 
@@ -183,7 +184,9 @@ public class ExperimentPE extends HibernateAbstractRegistrationHolder implements
         return properties;
     }
 
-    private void setExperimentProperties(final List<ExperimentPropertyPE> properties)
+    // Required by Hibernate.
+    @SuppressWarnings("unused")
+    private void setExperimentProperties(List<ExperimentPropertyPE> properties)
     {
         this.properties = properties;
     }
@@ -196,18 +199,24 @@ public class ExperimentPE extends HibernateAbstractRegistrationHolder implements
 
     public void setProperties(final List<ExperimentPropertyPE> properties)
     {
+        getExperimentProperties().clear();
         for (final ExperimentPropertyPE experimentProperty : properties)
         {
             final ExperimentPE parent = experimentProperty.getExperiment();
             if (parent != null)
             {
-                parent.getProperties().remove(experimentProperty);
+                parent.getExperimentProperties().remove(experimentProperty);
             }
-            experimentProperty.setEntity(this);
+            addProperty(experimentProperty);
         }
-        setExperimentProperties(properties);
     }
 
+    public void addProperty(ExperimentPropertyPE property)
+    {
+        property.setEntity(this);
+        getExperimentProperties().add(property);
+    }
+    
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "parent")
     @Private
     public List<AttachmentPE> getExperimentAttachments()
@@ -373,4 +382,5 @@ public class ExperimentPE extends HibernateAbstractRegistrationHolder implements
         }
         return fileName;
     }
+
 }
