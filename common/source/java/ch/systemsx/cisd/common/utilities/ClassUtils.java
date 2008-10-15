@@ -238,12 +238,12 @@ public final class ClassUtils
      * Wraps any checked exception in a {@link CheckedExceptionTunnel}.
      * </p>
      */
-    public final static void invokeMethod(final Method method, final Object obj,
+    public final static Object invokeMethod(final Method method, final Object obj,
             final Object... args)
     {
         try
         {
-            method.invoke(obj, args);
+            return method.invoke(obj, args);
         } catch (final IllegalAccessException ex)
         {
             throw new CheckedExceptionTunnel(ex);
