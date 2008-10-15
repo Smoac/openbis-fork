@@ -208,11 +208,34 @@ ALTER TABLE data
 ALTER TABLE data_set_relationships
         ADD CONSTRAINT dsre_bk_uk UNIQUE (data_id_child, data_id_parent);
 
-ALTER TABLE material_properties
+-- There was a bug in migration from db 7 to 18 - the constraint was not created. So we create it if it does not exist.
+create function add_mapr_bk_uk_constraint() returns void AS $$
+begin
+   perform *
+     FROM information_schema.table_constraints WHERE constraint_name='mapr_bk_uk';
+   if not found
+   then
+			ALTER TABLE material_properties
         ADD CONSTRAINT mapr_bk_uk UNIQUE (mate_id, mtpt_id);
+   end if;
+end;
+$$ language 'plpgsql';
+select add_mapr_bk_uk_constraint();
+drop function add_mapr_bk_uk_constraint();
 
-ALTER TABLE material_types
-        DROP CONSTRAINT maty_uk;
+-- There was a bug in migration from db 7 to 18 - the constraint was not dropped. So we drop it now if it exists.
+create function remove_maty_uk_constraint() returns void AS $$
+begin
+   perform *
+     FROM information_schema.table_constraints WHERE constraint_name='maty_uk';
+   if found
+   then
+			ALTER TABLE material_types DROP CONSTRAINT maty_uk;
+   end if;
+end;
+$$ language 'plpgsql';
+select remove_maty_uk_constraint();
+drop function remove_maty_uk_constraint();
 
 ALTER TABLE persons
         ADD CONSTRAINT pers_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
