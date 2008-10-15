@@ -38,6 +38,7 @@ import javax.persistence.Transient;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.hibernate.Hibernate;
 import org.hibernate.annotations.Check;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -45,6 +46,7 @@ import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
+import ch.systemsx.cisd.common.collections.UnmodifiableListDecorator;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
@@ -361,7 +363,7 @@ public class SamplePE extends HibernateAbstractRegistrationHolder implements IId
     @Transient
     public List<SamplePropertyPE> getProperties()
     {
-        return getSampleProperties();
+        return new UnmodifiableListDecorator<SamplePropertyPE>(getSampleProperties());
     }
 
     public void setProperties(final List<SamplePropertyPE> properties)
@@ -382,6 +384,11 @@ public class SamplePE extends HibernateAbstractRegistrationHolder implements IId
     {
         property.setEntity(this);
         getSampleProperties().add(property);
+    }
+
+    public void ensurePropertiesAreLoaded()
+    {
+        Hibernate.initialize(getSampleProperties());
     }
     
 }

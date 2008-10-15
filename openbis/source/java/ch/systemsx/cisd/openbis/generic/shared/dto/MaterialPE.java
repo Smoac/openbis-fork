@@ -37,12 +37,14 @@ import javax.persistence.UniqueConstraint;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.hibernate.Hibernate;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
+import ch.systemsx.cisd.common.collections.UnmodifiableListDecorator;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 
@@ -55,7 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 @Table(name = TableNames.MATERIALS_TABLE, uniqueConstraints = @UniqueConstraint(columnNames =
     { ColumnNames.CODE_COLUMN, ColumnNames.MATERIAL_TYPE_COLUMN,
             ColumnNames.DATABASE_INSTANCE_COLUMN }))
-public class MaterialPE extends HibernateAbstractRegistrationHolder implements IIdAndCodeHolder,
+            public class MaterialPE extends HibernateAbstractRegistrationHolder implements IIdAndCodeHolder,
         Comparable<MaterialPE>, IEntityPropertiesHolder<MaterialPropertyPE>
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
@@ -164,7 +166,7 @@ public class MaterialPE extends HibernateAbstractRegistrationHolder implements I
     @Transient
     public List<MaterialPropertyPE> getProperties()
     {
-        return getMaterialProperties();
+        return new UnmodifiableListDecorator<MaterialPropertyPE>(getMaterialProperties());
     }
 
     public void setProperties(final List<MaterialPropertyPE> properties)
@@ -236,6 +238,11 @@ public class MaterialPE extends HibernateAbstractRegistrationHolder implements I
     public final int compareTo(final MaterialPE o)
     {
         return AbstractIdAndCodeHolder.compare(this, o);
+    }
+
+    public void ensurePropertiesAreLoaded()
+    {
+        Hibernate.initialize(getMaterialProperties());
     }
 
 }

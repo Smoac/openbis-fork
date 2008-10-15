@@ -39,6 +39,7 @@ import javax.persistence.UniqueConstraint;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.hibernate.Hibernate;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.validator.Length;
@@ -46,6 +47,7 @@ import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.collections.UnmodifiableListDecorator;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 
@@ -194,7 +196,7 @@ public class ExperimentPE extends HibernateAbstractRegistrationHolder implements
     @Transient
     public List<ExperimentPropertyPE> getProperties()
     {
-        return getExperimentProperties();
+        return new UnmodifiableListDecorator<ExperimentPropertyPE>(getExperimentProperties());
     }
 
     public void setProperties(final List<ExperimentPropertyPE> properties)
@@ -381,6 +383,11 @@ public class ExperimentPE extends HibernateAbstractRegistrationHolder implements
             return HIDDEN_EXPERIMENT_PROPERTY_PREFIX + fileName;
         }
         return fileName;
+    }
+
+    public void ensurePropertiesAreLoaded()
+    {
+        Hibernate.initialize(getExperimentProperties());
     }
 
 }
