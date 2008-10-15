@@ -26,7 +26,7 @@ begin
      FROM information_schema.table_constraints WHERE constraint_name='SAMB_PK';
    if found
    then
-
+			ALTER TABLE SAMPLE_MATERIAL_BATCHES DROP CONSTRAINT SAMB_PK;
    end if;
 end;
 $$ language 'plpgsql';
