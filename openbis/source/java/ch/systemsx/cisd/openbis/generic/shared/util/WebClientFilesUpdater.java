@@ -49,7 +49,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ClientPlug
 public final class WebClientFilesUpdater
 {
     private static final String CLIENT_PLUGIN_PROVIDER_CLASS =
-            "ch.systemsx.cisd.openbis.generic.client.web.client.application";
+            "ch.systemsx.cisd.openbis.generic.client.web.client.application.ClientPluginProvider";
 
     private static final String INHERITS_ELEMENT = "inherits";
 
