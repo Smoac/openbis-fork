@@ -47,12 +47,21 @@ class CommonColumns
         columns.add(createIsSharedColumn());
         columns.add(createRegistratorColumn());
         columns.add(createRegistionDateColumn());
+        columns.add(createIsInvalidColumn());
+        disableColumnMenu();
+    }
+
+    private void disableColumnMenu()
+    {
+        for (ColumnConfig columnConfig : columns)
+        {
+            columnConfig.setMenuDisabled(true);
+        }
     }
 
     private final ColumnConfig createCodeColumn()
     {
         final ColumnConfig columnConfig = new ColumnConfig();
-        columnConfig.setMenuDisabled(true);
         columnConfig.setId(SampleModel.SAMPLE_CODE);
         columnConfig.setHeader("Code");
         columnConfig.setWidth(100);
@@ -62,7 +71,6 @@ class CommonColumns
     private final ColumnConfig createIdentifierColumn()
     {
         final ColumnConfig columnConfig = new ColumnConfig();
-        columnConfig.setMenuDisabled(true);
         columnConfig.setId(SampleModel.SAMPLE_IDENTIFIER);
         columnConfig.setHeader("Identifier");
         columnConfig.setHidden(true);
@@ -73,7 +81,6 @@ class CommonColumns
     private final ColumnConfig createIsSharedColumn()
     {
         final ColumnConfig columnConfig = new ColumnConfig();
-        columnConfig.setMenuDisabled(true);
         columnConfig.setId(SampleModel.IS_INSTANCE_SAMPLE_COLUMN);
         columnConfig.setHeader("Is shared?");
         columnConfig.setHidden(true);
@@ -84,7 +91,6 @@ class CommonColumns
     private final ColumnConfig createRegistratorColumn()
     {
         final ColumnConfig columnConfig = new ColumnConfig();
-        columnConfig.setMenuDisabled(true);
         columnConfig.setId(SampleModel.REGISTRATOR);
         columnConfig.setHeader("Registrator");
         columnConfig.setWidth(100);
@@ -96,11 +102,20 @@ class CommonColumns
     private final ColumnConfig createRegistionDateColumn()
     {
         final ColumnConfig columnConfig = new ColumnConfig();
-        columnConfig.setMenuDisabled(true);
         columnConfig.setId(SampleModel.REGISTRATION_DATE);
         columnConfig.setHeader("Registration Date");
         columnConfig.setWidth(100);
         columnConfig.setDateTimeFormat(DateTimeFormat.getShortDateFormat());
+        columnConfig.setHidden(true);
+        return columnConfig;
+    }
+
+    private final ColumnConfig createIsInvalidColumn()
+    {
+        final ColumnConfig columnConfig = new ColumnConfig();
+        columnConfig.setId(SampleModel.IS_INVALID);
+        columnConfig.setHeader("Is invalid?");
+        columnConfig.setWidth(100);
         columnConfig.setHidden(true);
         return columnConfig;
     }

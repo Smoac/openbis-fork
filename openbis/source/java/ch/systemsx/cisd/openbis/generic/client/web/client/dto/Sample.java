@@ -47,6 +47,8 @@ public class Sample implements IsSerializable
 
     private List<SampleProperty> properties;
 
+    private boolean isInvalid;
+
     public String getCode()
     {
         return code;
@@ -148,4 +150,13 @@ public class Sample implements IsSerializable
         this.properties = properties;
     }
 
+    public boolean isInvalid()
+    {
+        return isInvalid;
+    }
+
+    public void setInvalid(boolean isInvalid)
+    {
+        this.isInvalid = isInvalid;
+    }
 }

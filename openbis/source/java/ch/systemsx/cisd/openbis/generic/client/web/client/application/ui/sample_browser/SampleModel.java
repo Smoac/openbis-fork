@@ -52,6 +52,8 @@ public class SampleModel extends BaseModelData
 
     public static final String GENERATED_FROM_PARENT_PREFIX = "generatedFromParent";
 
+    public static final String IS_INVALID = "isInvalid";
+
     public SampleModel(Sample s)
     {
         set(SAMPLE_CODE, printShortIdentifier(s));
@@ -62,6 +64,7 @@ public class SampleModel extends BaseModelData
         set(REGISTRATOR, s.getRegistrator());
         set(REGISTRATION_DATE, s.getRegistrationDate());
         set(IS_GROUP_SAMPLE, s.getGroup() != null);
+        set(IS_INVALID, s.isInvalid());
         setGeneratedFromParents(s, 1, s.getSampleType().getGeneratedFromHierarchyDepth());
         setContainerParents(s, 1, s.getSampleType().getPartOfHierarchyDepth());
         setProperties(s);

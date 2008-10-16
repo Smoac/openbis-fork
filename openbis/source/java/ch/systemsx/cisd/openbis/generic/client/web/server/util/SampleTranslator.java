@@ -79,6 +79,7 @@ public class SampleTranslator
             result.setGeneratedFrom(SampleTranslator.translate(samplePE.getGeneratedFrom(), 0,
                     generatedFromDep - 1, null, false, null));
         }
+        result.setInvalid(samplePE.getInvalidation() != null);
         return result;
     }
 
