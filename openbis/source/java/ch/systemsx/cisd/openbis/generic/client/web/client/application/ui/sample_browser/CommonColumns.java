@@ -76,6 +76,7 @@ class CommonColumns
         columnConfig.setMenuDisabled(true);
         columnConfig.setId(SampleModel.IS_INSTANCE_SAMPLE_COLUMN);
         columnConfig.setHeader("Is shared?");
+        columnConfig.setHidden(true);
         columnConfig.setWidth(100);
         return columnConfig;
     }

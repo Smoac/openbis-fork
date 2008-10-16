@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 
@@ -53,7 +54,7 @@ public class SampleModel extends BaseModelData
 
     public SampleModel(Sample s)
     {
-        set(SAMPLE_CODE, s.getCode());
+        set(SAMPLE_CODE, printShortIdentifier(s));
         set(SAMPLE_TYPE, s.getSampleType());
         set(OBJECT, s);
         set(SAMPLE_IDENTIFIER, s.getIdentifier());
@@ -71,9 +72,10 @@ public class SampleModel extends BaseModelData
     {
         for (SampleProperty p : s.getProperties())
         {
-            set(PROPERTY_PREFIX
-                    + p.getSampleTypePropertyType().getPropertyType().isInternalNamespace()
-                    + p.getSampleTypePropertyType().getPropertyType().getSimpleCode(), p.getValue());
+            PropertyType propertyType = p.getSampleTypePropertyType().getPropertyType();
+            set(
+                    PROPERTY_PREFIX + propertyType.isInternalNamespace()
+                            + propertyType.getSimpleCode(), p.getValue());
         }
 
     }
@@ -82,7 +84,7 @@ public class SampleModel extends BaseModelData
     {
         if (depth <= maxDepth && s.getGeneratedFrom() != null)
         {
-            set(GENERATED_FROM_PARENT_PREFIX + depth, s.getGeneratedFrom().getIdentifier());
+            set(GENERATED_FROM_PARENT_PREFIX + depth, printShortIdentifier(s.getGeneratedFrom()));
             setGeneratedFromParents(s.getGeneratedFrom(), depth + 1, maxDepth);
         }
     }
@@ -91,14 +93,20 @@ public class SampleModel extends BaseModelData
     {
         if (depth <= maxDepth && s.getContainer() != null)
         {
-            set(CONTAINER_PARENT_PREFIX + depth, s.getContainer().getIdentifier());
+            set(CONTAINER_PARENT_PREFIX + depth, printShortIdentifier(s.getContainer()));
             setContainerParents(s.getContainer(), depth + 1, maxDepth);
         }
     }
 
-    void setProperty(String code, String value)
+    private static String printShortIdentifier(Sample sample)
     {
-        set(PROPERTY_PREFIX + code, value);
+        if (sample.getDatabaseInstance() != null)
+        {
+            return "/" + sample.getCode();
+        } else
+        {
+            return sample.getCode();
+        }
     }
 
 }
