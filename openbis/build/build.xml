@@ -179,7 +179,7 @@
       -->
     <target name="prepare-web-client" description="Updates 'ClientPluginProvider.java' and 'OpenBIS.gwt.xml' with requested plugins.">
         <java classname="ch.systemsx.cisd.openbis.generic.client.web.client.application.WebClientFilesUpdater"
-              classpath="${ecp}" dir="." fork="true" failonerror="true">
+              classpath="${ecp}:${sources}" dir="." fork="true" failonerror="true">
             <arg value="${sources}" />
         </java>
     </target>
