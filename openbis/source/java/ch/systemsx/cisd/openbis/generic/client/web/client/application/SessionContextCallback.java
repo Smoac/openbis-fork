@@ -31,15 +31,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
  */
 public final class SessionContextCallback extends AbstractAsyncCallback<SessionContext>
 {
-    SessionContextCallback(GenericViewContext viewContext)
+    SessionContextCallback(final GenericViewContext viewContext)
     {
         super(viewContext);
     }
 
     @Override
-    public void process(SessionContext sessionContext)
+    public void process(final SessionContext sessionContext)
     {
-        RootPanel rootPanel = RootPanel.get();
+        final RootPanel rootPanel = RootPanel.get();
         rootPanel.clear();
         Component widget;
         if (sessionContext == null)
@@ -49,6 +49,7 @@ public final class SessionContextCallback extends AbstractAsyncCallback<SessionC
         {
             viewContext.getModel().setSessionContext(sessionContext);
             widget = new Application(viewContext);
+            ClientPluginProvider.setOriginalViewContext(viewContext);
         }
         rootPanel.add(widget);
     }

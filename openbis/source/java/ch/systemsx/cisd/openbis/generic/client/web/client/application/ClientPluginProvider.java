@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 import java.util.HashSet;
 import java.util.Set;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ClientPluginFactory;
 
 /**
@@ -28,19 +29,32 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Cli
  */
 public final class ClientPluginProvider
 {
-    private final static IClientPluginFactory GENERIC_PLUGIN_FACTORY = new ClientPluginFactory();
-
     private final static Set<IClientPluginFactory> plugins = new HashSet<IClientPluginFactory>();
+
+    private static IClientPluginFactory genericPluginFactory;
+
+    private static IViewContext<IGenericClientServiceAsync> originalViewContext;
 
     private ClientPluginProvider()
     {
         // Can not be instantiated.
     }
 
-    static
+    /**
+     * Sets the original view context created on {@link Client}.
+     */
+    public static final void setOriginalViewContext(
+            final IViewContext<IGenericClientServiceAsync> originalViewContext)
+    {
+        ClientPluginProvider.originalViewContext = originalViewContext;
+        genericPluginFactory = new ClientPluginFactory(originalViewContext);
+        registerPluginFactories();
+    }
+
+    private final static void registerPluginFactories()
     {
         // Automatically generated part - START
-        registerPluginFactory(new ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory());
+        registerPluginFactory(new ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory(originalViewContext));
         // Automatically generated part - END
     }
 
@@ -70,11 +84,12 @@ public final class ClientPluginProvider
         assert sampleTypeCode != null : "Unspecified sample type code";
         for (final IClientPluginFactory pluginFactory : plugins)
         {
-            if (pluginFactory.getSampleTypeCodes().contains(sampleTypeCode))
+            final Set<String> sampleTypeCodes = pluginFactory.getSampleTypeCodes();
+            if (sampleTypeCodes.contains(sampleTypeCode))
             {
                 return pluginFactory;
             }
         }
-        return GENERIC_PLUGIN_FACTORY;
+        return genericPluginFactory;
     }
 }

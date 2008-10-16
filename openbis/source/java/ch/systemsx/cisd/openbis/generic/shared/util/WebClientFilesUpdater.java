@@ -73,7 +73,8 @@ public final class WebClientFilesUpdater
             "ch.systemsx.cisd.openbis.plugin.%s.client.web.client.application.ClientPluginFactory";
 
     private static final String PLUGIN_FACTORY_REGISTRATION_TEMPLATE =
-            "registerPluginFactory(new " + PLUGIN_FACTORY_CLASS_NAME_TEMPLATE + "());";
+            "registerPluginFactory(new " + PLUGIN_FACTORY_CLASS_NAME_TEMPLATE
+                    + "(originalViewContext));";
 
     private static final String SCRIPT_ELEMENT = "script";
 

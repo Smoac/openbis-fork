@@ -14,21 +14,26 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.client.web.client;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
- * Service interface for the <i>generic</i> <i>GWT</i> client.
+ * The generic view context interface.
  * 
  * @author Christian Ribeaud
  */
-public interface IScreeningClientServiceAsync extends IClientServiceAsync
+public interface IViewContext<T> extends IMessageProvider
 {
 
-    /** @see IScreeningClientService#getSampleInfo(String) */
-    public void getSampleInfo(final String sampleIdentifier, final AsyncCallback<Sample> callback);
+    public T getService();
+
+    public GenericViewModel getModel();
+
+    public String getMessage(final String key, final Object... parameters);
+
+    public IGenericImageBundle getImageBundle();
+
+    public IPageController getPageController();
+
 }

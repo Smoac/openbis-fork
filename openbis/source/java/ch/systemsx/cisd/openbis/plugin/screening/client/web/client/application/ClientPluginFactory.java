@@ -22,30 +22,52 @@ import java.util.TreeSet;
 
 import com.extjs.gxt.ui.client.widget.MessageBox;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ISampleViewClientPlugin;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 
 /**
  * {@link IClientPluginFactory} implementation for <i>Screening</i> technology.
  * 
  * @author Christian Ribeaud
  */
-public final class ClientPluginFactory implements IClientPluginFactory
+public final class ClientPluginFactory extends
+        AbstractClientPluginFactory<IScreeningClientServiceAsync>
 {
     private final static Set<String> sampleTypes = createSampleTypes();
 
-    private static Set<String> createSampleTypes()
+    public ClientPluginFactory(final IViewContext<IGenericClientServiceAsync> originalViewContext)
+    {
+        super(originalViewContext);
+    }
+
+    private final static Set<String> createSampleTypes()
     {
         final Set<String> set = new TreeSet<String>();
         for (final SampleTypeCode sampleTypeCode : SampleTypeCode.values())
         {
-            if (sampleTypeCode.equals(SampleTypeCode.CONTROL_LAYOUT.getCode()))
+            if (sampleTypeCode.equals(SampleTypeCode.CONTROL_LAYOUT))
             {
                 continue;
             }
             set.add(sampleTypeCode.getCode());
         }
         return set;
+    }
+
+    //
+    // AbstractClientPluginFactory
+    //
+
+    @Override
+    protected final IViewContext<IScreeningClientServiceAsync> createViewContext(
+            final IViewContext<IGenericClientServiceAsync> originalViewContext)
+    {
+        return new ScreeningViewContext(originalViewContext.getImageBundle(), originalViewContext
+                .getModel(), originalViewContext.getPageController());
     }
 
     //

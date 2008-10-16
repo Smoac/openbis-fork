@@ -21,8 +21,11 @@ import java.util.Set;
 
 import com.extjs.gxt.ui.client.widget.MessageBox;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ISampleViewClientPlugin;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.SampleTypeCode;
 
 /**
@@ -30,8 +33,25 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.S
  * 
  * @author Christian Ribeaud
  */
-public final class ClientPluginFactory implements IClientPluginFactory
+public final class ClientPluginFactory extends
+        AbstractClientPluginFactory<IGenericClientServiceAsync>
 {
+
+    public ClientPluginFactory(final IViewContext<IGenericClientServiceAsync> originalViewContext)
+    {
+        super(originalViewContext);
+    }
+
+    //
+    // AbstractClientPluginFactory
+    //
+
+    @Override
+    protected final IViewContext<IGenericClientServiceAsync> createViewContext(
+            final IViewContext<IGenericClientServiceAsync> originalViewContext)
+    {
+        return originalViewContext;
+    }
 
     //
     // IClientPluginFactory

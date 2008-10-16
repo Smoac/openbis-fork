@@ -14,40 +14,31 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application;
+package ch.systemsx.cisd.openbis.generic.client.web.client;
+
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 
 /**
- * The view model.
  * 
- * @author Franz-Josef Elmer
+ *
+ * @author Christian Ribeaud
  */
-public class GenericViewModel
+public interface IClientServiceAsync
 {
-    private ApplicationInfo applicationInfo;
 
-    private SessionContext sessionContext;
+    /** @see IGenericClientService#getApplicationInfo() */
+    public void getApplicationInfo(AsyncCallback<ApplicationInfo> callback);
 
-    public final ApplicationInfo getApplicationInfo()
-    {
-        return applicationInfo;
-    }
+    /** @see IGenericClientService#tryToGetCurrentSessionContext() */
+    public void tryToGetCurrentSessionContext(AsyncCallback<SessionContext> callback);
 
-    public final void setApplicationInfo(final ApplicationInfo applicationInfo)
-    {
-        this.applicationInfo = applicationInfo;
-    }
+    /** @see IGenericClientService#tryToLogin(String, String) */
+    public void tryToLogin(String userID, String password, AsyncCallback<SessionContext> callback);
 
-    public final SessionContext getSessionContext()
-    {
-        return sessionContext;
-    }
-
-    public final void setSessionContext(final SessionContext sessionContext)
-    {
-        this.sessionContext = sessionContext;
-    }
+    /** @see IGenericClientService#logout() */
+    public void logout(AsyncCallback<Void> callback);
 
 }

@@ -22,7 +22,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 /**
  * @author Franz-Josef Elmer
  */
-public class GenericViewContext implements IMessageProvider
+public class GenericViewContext implements IViewContext<IGenericClientServiceAsync>
 {
     private final IGenericClientServiceAsync service;
 
@@ -34,8 +34,9 @@ public class GenericViewContext implements IMessageProvider
 
     private final IPageController pageController;
 
-    GenericViewContext(IGenericClientServiceAsync service, IMessageProvider messageProvider,
-            IGenericImageBundle imageBundle, IPageController pageController)
+    GenericViewContext(final IGenericClientServiceAsync service,
+            final IMessageProvider messageProvider, final IGenericImageBundle imageBundle,
+            final IPageController pageController)
     {
         this.service = service;
         this.messageProvider = messageProvider;
@@ -44,17 +45,21 @@ public class GenericViewContext implements IMessageProvider
         viewModel = new GenericViewModel();
     }
 
-    public final GenericViewModel getModel()
-    {
-        return viewModel;
-    }
+    //
+    // IViewContext
+    //
 
     public final IGenericClientServiceAsync getService()
     {
         return service;
     }
 
-    public String getMessage(String key, Object... parameters)
+    public final GenericViewModel getModel()
+    {
+        return viewModel;
+    }
+
+    public final String getMessage(final String key, final Object... parameters)
     {
         return messageProvider.getMessage(key, parameters);
     }

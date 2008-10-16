@@ -20,34 +20,20 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 
 /**
  * Asynchronous version of {@link IGenericClientService}.
  * 
  * @author Franz-Josef Elmer
  */
-public interface IGenericClientServiceAsync
+public interface IGenericClientServiceAsync extends IClientServiceAsync
 {
-    /** @see IGenericClientService#getApplicationInfo() */
-    public void getApplicationInfo(AsyncCallback<ApplicationInfo> callback);
-
-    /** @see IGenericClientService#tryToGetCurrentSessionContext() */
-    public void tryToGetCurrentSessionContext(AsyncCallback<SessionContext> callback);
-
-    /** @see IGenericClientService#tryToLogin(String, String) */
-    public void tryToLogin(String userID, String password, AsyncCallback<SessionContext> callback);
-
-    /** @see IGenericClientService#logout() */
-    public void logout(AsyncCallback<Void> callback);
-
     /** @see IGenericClientService#listGroups(String) */
     public void listGroups(String databaseInstanceCode, AsyncCallback<List<Group>> callback);
 

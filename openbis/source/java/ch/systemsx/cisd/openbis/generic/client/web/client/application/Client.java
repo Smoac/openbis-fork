@@ -39,6 +39,28 @@ public class Client implements EntryPoint
         return viewContext;
     }
 
+    private GenericViewContext createViewContext()
+    {
+        IGenericClientServiceAsync service = GWT.create(IGenericClientService.class);
+        ServiceDefTarget endpoint = (ServiceDefTarget) service;
+        endpoint.setServiceEntryPoint(GenericConstants.GENERIC_SERVER_NAME);
+        IGenericImageBundle imageBundle =
+                GWT.<IGenericImageBundle> create(IGenericImageBundle.class);
+        IMessageProvider messageProvider = new DictonaryBasedMessageProvider("generic");
+        IPageController pageController = new IPageController()
+            {
+                public void reload()
+                {
+                    onModuleLoad();
+                }
+            };
+        return new GenericViewContext(service, messageProvider, imageBundle, pageController);
+    }
+
+    //
+    // EntryPoint
+    //
+
     public void onModuleLoad()
     {
         if (viewContext == null)
@@ -55,24 +77,6 @@ public class Client implements EntryPoint
                     service.tryToGetCurrentSessionContext(new SessionContextCallback(viewContext));
                 }
             });
-    }
-
-    private GenericViewContext createViewContext()
-    {
-        IGenericClientServiceAsync service = GWT.create(IGenericClientService.class);
-        ServiceDefTarget endpoint = (ServiceDefTarget) service;
-        endpoint.setServiceEntryPoint(GenericConstants.SERVER_NAME);
-        IGenericImageBundle imageBundle =
-                GWT.<IGenericImageBundle> create(IGenericImageBundle.class);
-        IMessageProvider messageProvider = new DictonaryBasedMessageProvider("generic");
-        IPageController pageController = new IPageController()
-            {
-                public void reload()
-                {
-                    onModuleLoad();
-                }
-            };
-        return new GenericViewContext(service, messageProvider, imageBundle, pageController);
     }
 
 }
