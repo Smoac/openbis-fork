@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.server;
-
-import java.util.Properties;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 /**
- * Configuration parameters for the generic openBIS module. Source of parameters is a
- * {@link Properties} object. 
- *
- * @author Franz-Josef Elmer
+ * The sample view plugin.
+ * 
+ * @author Christian Ribeaud
  */
-public class GenericConfigParameters
+public interface ISampleViewClientPlugin
 {
-    public GenericConfigParameters(Properties properties)
-    {
-        
-    }
+
+    /**
+     * Shows a detailed view of the sample identifier by given <var>sampleIdentifier</var>.
+     */
+    public void viewSample(final String sampleIdentifier);
 }

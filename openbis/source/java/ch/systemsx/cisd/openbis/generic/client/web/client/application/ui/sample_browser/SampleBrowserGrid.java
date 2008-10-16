@@ -19,9 +19,12 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.data.BaseListLoader;
 import com.extjs.gxt.ui.client.data.ListLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
+import com.extjs.gxt.ui.client.event.GridEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -33,7 +36,9 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ClientPluginProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
@@ -101,6 +106,28 @@ class SampleBrowserGrid extends LayoutContainer
         {
             grid = new Grid<SampleModel>(sampleStore, columnModel);
             grid.setLoadMask(true);
+            grid.addListener(Events.CellClick, new Listener<GridEvent>()
+                {
+
+                    //
+                    // Listener
+                    //
+
+                    public final void handleEvent(final GridEvent be)
+                    {
+                        final SampleModel sampleModel =
+                                (SampleModel) be.grid.getStore().getAt(be.rowIndex);
+                        final SampleType sampleType =
+                                (SampleType) sampleModel.get(SampleModel.SAMPLE_TYPE);
+                        final String sampleIdentifier =
+                                sampleModel.get(SampleModel.SAMPLE_IDENTIFIER);
+                        final String code = sampleType.getCode();
+                        final IClientPluginFactory pluginFactory =
+                                ClientPluginProvider.getPluginFactory(code);
+                        pluginFactory.createViewClientForSampleType(code).viewSample(
+                                sampleIdentifier);
+                    }
+                });
             getContentPanel().add(grid);
         } else
         {

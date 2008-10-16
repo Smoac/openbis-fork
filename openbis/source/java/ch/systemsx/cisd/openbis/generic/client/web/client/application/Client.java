@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 public class Client implements EntryPoint
 {
     private GenericViewContext viewContext;
-    
+
     public final GenericViewContext tryToGetViewContext()
     {
         return viewContext;

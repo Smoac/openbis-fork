@@ -52,7 +52,7 @@ public class Sample implements IsSerializable
         return code;
     }
 
-    public void setCode(String code)
+    public void setCode(final String code)
     {
         this.code = code;
     }
@@ -62,12 +62,12 @@ public class Sample implements IsSerializable
         return sampleType;
     }
 
-    public void setSampleType(SampleType sampleType)
+    public void setSampleType(final SampleType sampleType)
     {
         this.sampleType = sampleType;
     }
 
-    public void setGroup(Group group)
+    public void setGroup(final Group group)
     {
         this.group = group;
 
@@ -83,7 +83,7 @@ public class Sample implements IsSerializable
         return databaseInstance;
     }
 
-    public void setDatabaseInstance(DatabaseInstance databaseInstance)
+    public void setDatabaseInstance(final DatabaseInstance databaseInstance)
     {
         this.databaseInstance = databaseInstance;
     }
@@ -93,7 +93,7 @@ public class Sample implements IsSerializable
         return identifier;
     }
 
-    public void setIdentifier(String identifier)
+    public void setIdentifier(final String identifier)
     {
         this.identifier = identifier;
     }
@@ -103,7 +103,7 @@ public class Sample implements IsSerializable
         return registrator;
     }
 
-    public void setRegistrator(Person registrator)
+    public void setRegistrator(final Person registrator)
     {
         this.registrator = registrator;
     }
@@ -113,7 +113,7 @@ public class Sample implements IsSerializable
         return registrationDate;
     }
 
-    public void setRegistrationDate(Date registrationDate)
+    public void setRegistrationDate(final Date registrationDate)
     {
         this.registrationDate = registrationDate;
     }
@@ -123,7 +123,7 @@ public class Sample implements IsSerializable
         return container;
     }
 
-    public void setContainer(Sample container)
+    public void setContainer(final Sample container)
     {
         this.container = container;
     }
@@ -133,7 +133,7 @@ public class Sample implements IsSerializable
         return generatedFrom;
     }
 
-    public void setGeneratedFrom(Sample generatedFrom)
+    public void setGeneratedFrom(final Sample generatedFrom)
     {
         this.generatedFrom = generatedFrom;
     }
@@ -143,7 +143,7 @@ public class Sample implements IsSerializable
         return properties;
     }
 
-    public void setProperties(List<SampleProperty> properties)
+    public void setProperties(final List<SampleProperty> properties)
     {
         this.properties = properties;
     }
