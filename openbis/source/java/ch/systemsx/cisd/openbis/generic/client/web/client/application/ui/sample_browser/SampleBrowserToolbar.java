@@ -103,7 +103,8 @@ class SampleBrowserToolbar extends ToolBar
             {
                 public void handleEvent(BaseEvent be)
                 {
-                    controller.resetPropertyCache(includeInstanceCheckbox.getValue().booleanValue());
+                    controller
+                            .resetPropertyCache(includeInstanceCheckbox.getValue().booleanValue());
                     controller.refreshSubmitButton();
                 }
             });
@@ -124,16 +125,15 @@ class SampleBrowserToolbar extends ToolBar
 
     private void addSelectSampleTypeListeners()
     {
-        selectSampleTypeCombo
-                .addSelectionChangedListener(new SelectionChangedListener<ModelData>()
-                    {
-                        @Override
-                        public void selectionChanged(SelectionChangedEvent<ModelData> se)
-                        {
-                            controller.rebuildColumnChooser();
-                            controller.refreshSubmitButton();
-                        }
-                    });
+        selectSampleTypeCombo.addSelectionChangedListener(new SelectionChangedListener<ModelData>()
+            {
+                @Override
+                public void selectionChanged(SelectionChangedEvent<ModelData> se)
+                {
+                    controller.rebuildColumnChooser();
+                    controller.refreshSubmitButton();
+                }
+            });
     }
 
     private void display()
@@ -145,7 +145,7 @@ class SampleBrowserToolbar extends ToolBar
 
         add(new SeparatorToolItem());
 
-        add(new LabelToolItem("Instance:"));
+        add(new LabelToolItem("Shared:"));
         add(new AdapterToolItem(includeInstanceCheckbox));
 
         add(new SeparatorToolItem());
@@ -174,8 +174,8 @@ class SampleBrowserToolbar extends ToolBar
 
                     final SampleType selectedType = selectSampleTypeCombo.tryGetSelected();
                     final String selectedGroupCode =
-                            selectGroupCombo.tryGetSelected() == null ? null
-                                    : selectGroupCombo.tryGetSelected().getCode();
+                            selectGroupCombo.tryGetSelected() == null ? null : selectGroupCombo
+                                    .tryGetSelected().getCode();
 
                     final Boolean includeGroup = includeGroupCheckbox.getValue();
                     final Boolean includeInstance = includeInstanceCheckbox.getValue();
@@ -226,7 +226,7 @@ class SampleBrowserToolbar extends ToolBar
         }
         if (includeGroup == false && includeInstance == false)
         {
-            sb.append("Neither GROUP nor INSTANCE checkbox selected.");
+            sb.append("Neither group nor shared samples checkbox was selected.");
             error = true;
         }
         return error;

@@ -33,7 +33,7 @@ public class SampleModel extends BaseModelData
 
     static final String SAMPLE_CODE = "code";
 
-    static final String ATTACHED_TO_IDENTIFIER = "attachedToIdentifier";
+    static final String IS_INSTANCE_SAMPLE_COLUMN = "isShared";
 
     static final String IS_GROUP_SAMPLE = "isGroupSample";
 
@@ -57,8 +57,7 @@ public class SampleModel extends BaseModelData
         set(SAMPLE_TYPE, s.getSampleType());
         set(OBJECT, s);
         set(SAMPLE_IDENTIFIER, s.getIdentifier());
-        set(ATTACHED_TO_IDENTIFIER, s.getGroup() != null ? s.getGroup().getIdentifier() : s
-                .getDatabaseInstance().getIdentifier());
+        set(IS_INSTANCE_SAMPLE_COLUMN, (s.getDatabaseInstance() != null));
         set(REGISTRATOR, s.getRegistrator());
         set(REGISTRATION_DATE, s.getRegistrationDate());
         set(IS_GROUP_SAMPLE, s.getGroup() != null);
@@ -79,21 +78,21 @@ public class SampleModel extends BaseModelData
 
     }
 
-    private void setGeneratedFromParents(Sample s, int dep, int maxDep)
+    private void setGeneratedFromParents(Sample s, int depth, int maxDepth)
     {
-        if (dep <= maxDep && s.getGeneratedFrom() != null)
+        if (depth <= maxDepth && s.getGeneratedFrom() != null)
         {
-            set(GENERATED_FROM_PARENT_PREFIX + dep, s.getGeneratedFrom().getIdentifier());
-            setGeneratedFromParents(s.getGeneratedFrom(), dep + 1, maxDep);
+            set(GENERATED_FROM_PARENT_PREFIX + depth, s.getGeneratedFrom().getIdentifier());
+            setGeneratedFromParents(s.getGeneratedFrom(), depth + 1, maxDepth);
         }
     }
 
-    private void setContainerParents(Sample s, int dep, int maxDep)
+    private void setContainerParents(Sample s, int depth, int maxDepth)
     {
-        if (dep <= maxDep && s.getContainer() != null)
+        if (depth <= maxDepth && s.getContainer() != null)
         {
-            set(CONTAINER_PARENT_PREFIX + dep, s.getContainer().getIdentifier());
-            setContainerParents(s.getContainer(), dep + 1, maxDep);
+            set(CONTAINER_PARENT_PREFIX + depth, s.getContainer().getIdentifier());
+            setContainerParents(s.getContainer(), depth + 1, maxDepth);
         }
     }
 

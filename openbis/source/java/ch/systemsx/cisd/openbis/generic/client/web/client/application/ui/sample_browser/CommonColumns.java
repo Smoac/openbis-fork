@@ -44,7 +44,7 @@ class CommonColumns
     {
         columns.add(createCodeColumn());
         columns.add(createIdentifierColumn());
-        columns.add(createAssignedToIdentifierColumn());
+        columns.add(createIsSharedColumn());
         columns.add(createRegistratorColumn());
         columns.add(createRegistionDateColumn());
     }
@@ -70,12 +70,12 @@ class CommonColumns
         return columnConfig;
     }
 
-    private final ColumnConfig createAssignedToIdentifierColumn()
+    private final ColumnConfig createIsSharedColumn()
     {
         final ColumnConfig columnConfig = new ColumnConfig();
         columnConfig.setMenuDisabled(true);
-        columnConfig.setId(SampleModel.ATTACHED_TO_IDENTIFIER);
-        columnConfig.setHeader("Attached to");
+        columnConfig.setId(SampleModel.IS_INSTANCE_SAMPLE_COLUMN);
+        columnConfig.setHeader("Is shared?");
         columnConfig.setWidth(100);
         return columnConfig;
     }

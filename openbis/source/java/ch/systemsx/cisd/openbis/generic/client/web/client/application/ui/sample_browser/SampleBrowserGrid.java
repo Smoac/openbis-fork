@@ -211,26 +211,22 @@ class SampleBrowserGrid extends LayoutContainer
             final boolean showGroup, final boolean showInstance)
     {
         final StringBuilder sb = new StringBuilder("Samples");
-        sb.append(" ");
-        sb.append("of type");
-        sb.append(" ");
+        sb.append(" of type ");
         sb.append(sampleType.getCode());
         if (showGroup)
         {
-            sb.append(" ");
-            sb.append("from group");
-            sb.append(" ");
+            sb.append(" belonging to the group ");
             sb.append(selectedGroupCode);
         }
         if (showInstance)
         {
             if (showGroup)
             {
-                sb.append(" ");
-                sb.append("and");
+                sb.append(" or shared");
+            } else
+            {
+                sb.append(" which are shared among all the groups");
             }
-            sb.append(" ");
-            sb.append("from instance level");
         }
         return sb.toString();
     }
