@@ -14,30 +14,33 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server;
+package ch.systemsx.cisd.openbis.generic.shared;
 
-import ch.systemsx.cisd.authentication.ISessionFactory;
-import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
- * Factory of {@link Session} objects.
+ * An basic server.
  * 
- * @author Franz-Josef Elmer
+ * @author Christian Ribeaud
  */
-public final class SessionFactory implements ISessionFactory<Session>
+public interface IServer
 {
 
-    //
-    // ISessionFactory
-    //
+    /**
+     * Returns the version of this interface.
+     */
+    public int getVersion();
 
-    public final Session create(final String sessionToken, final String userName,
-            final Principal principal, final String remoteHost, final long sessionStart,
-            final int expirationTime)
-    {
-        return new Session(userName, sessionToken, principal, remoteHost, sessionStart,
-                expirationTime);
-    }
+    /**
+     * Tries to authenticate the specified user with given password.
+     * 
+     * @return <code>null</code> if authentication failed.
+     */
+    public Session tryToAuthenticate(String user, String password);
+
+    /**
+     * Logout the session with the specified session token.
+     */
+    public void logout(String sessionToken);
 
 }

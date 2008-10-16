@@ -16,28 +16,20 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
-import ch.systemsx.cisd.authentication.ISessionFactory;
-import ch.systemsx.cisd.authentication.Principal;
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-
 /**
- * Factory of {@link Session} objects.
+ * Some generic constants used on the server side.
  * 
- * @author Franz-Josef Elmer
+ * @author Christian Ribeaud
  */
-public final class SessionFactory implements ISessionFactory<Session>
+public final class Constants
 {
 
-    //
-    // ISessionFactory
-    //
-
-    public final Session create(final String sessionToken, final String userName,
-            final Principal principal, final String remoteHost, final long sessionStart,
-            final int expirationTime)
+    private Constants()
     {
-        return new Session(userName, sessionToken, principal, remoteHost, sessionStart,
-                expirationTime);
     }
+
+    public static final String OPENBIS_SESSION_ATTRIBUTE_KEY = "openbis-session";
+
+    public static final String OPENBIS_SERVER_ATTRIBUTE_KEY = "openbis-server";
 
 }

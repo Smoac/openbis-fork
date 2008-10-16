@@ -1,0 +1,178 @@
+/*
+ * Copyright 2008 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.openbis.plugin;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpSession;
+
+import org.apache.log4j.Logger;
+
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
+import ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo;
+import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.User;
+import ch.systemsx.cisd.openbis.generic.client.web.server.util.UserFailureExceptionTranslater;
+import ch.systemsx.cisd.openbis.generic.server.Constants;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+
+/**
+ * An <i>abstract</i> {@link IClientService} implementation.
+ * 
+ * @author Christian Ribeaud
+ */
+public abstract class AbstractClientService implements IClientService
+{
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, AbstractClientService.class);
+
+    @Resource(name = "request-context-provider")
+    private IRequestContextProvider requestContextProvider;
+
+    public AbstractClientService()
+    {
+    }
+
+    private final SessionContext createSessionContext(final Session session)
+    {
+        final SessionContext sessionContext = new SessionContext();
+        sessionContext.setSessionID(session.getSessionToken());
+        final User user = new User();
+        user.setUserName(session.getUserName());
+        final PersonPE person = session.tryGetPerson();
+        if (person != null)
+        {
+            final GroupPE homeGroup = person.getHomeGroup();
+            if (homeGroup != null)
+            {
+                user.setHomeGroupCode(homeGroup.getCode());
+            }
+        }
+        sessionContext.setUser(user);
+        return sessionContext;
+    }
+
+    protected final String getSessionToken()
+    {
+        final HttpSession httpSession = getHttpSession();
+        if (httpSession == null)
+        {
+            throw new InvalidSessionException("Session expired. Please login again.");
+        }
+        return getSession(httpSession).getSessionToken();
+    }
+
+    private final Session getSession(final HttpSession httpSession)
+    {
+        final Session session = (Session) httpSession.getAttribute(Constants.OPENBIS_SESSION_ATTRIBUTE_KEY);
+        if (session == null)
+        {
+            final String remoteHost =
+                    requestContextProvider.getHttpServletRequest().getRemoteHost();
+            final String msg =
+                    "Attempt to get non-existent session from host '" + remoteHost
+                            + "': user is not logged in.";
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info(msg);
+            }
+            throw new InvalidSessionException(msg);
+
+        }
+        return session;
+    }
+
+    private final HttpSession getHttpSession()
+    {
+        return getOrCreateHttpSession(false);
+    }
+
+    private final HttpSession creatHttpSession()
+    {
+        return getOrCreateHttpSession(true);
+    }
+
+    private final HttpSession getOrCreateHttpSession(final boolean create)
+    {
+        return requestContextProvider.getHttpServletRequest().getSession(create);
+    }
+
+    protected abstract IServer getServer();
+
+    //
+    // IClientService
+    //
+
+    public final ApplicationInfo getApplicationInfo()
+    {
+        final ApplicationInfo applicationInfo = new ApplicationInfo();
+        applicationInfo.setVersion(BuildAndEnvironmentInfo.INSTANCE.getFullVersion());
+        return applicationInfo;
+    }
+
+    public final SessionContext tryToGetCurrentSessionContext()
+    {
+        final HttpSession httpSession = getHttpSession();
+        if (httpSession == null)
+        {
+            return null;
+        }
+        final Session session = getSession(httpSession);
+        return createSessionContext(session);
+    }
+
+    public final SessionContext tryToLogin(final String userID, final String password)
+    {
+        try
+        {
+            final Session session = getServer().tryToAuthenticate(userID, password);
+            if (session == null)
+            {
+                return null;
+            }
+            final HttpSession httpSession = creatHttpSession();
+            // Expiration time of httpSession is 10 seconds less than of session
+            httpSession.setMaxInactiveInterval(session.getSessionExpirationTime() / 1000 - 10);
+            httpSession.setAttribute(Constants.OPENBIS_SESSION_ATTRIBUTE_KEY, session);
+            httpSession.setAttribute(Constants.OPENBIS_SERVER_ATTRIBUTE_KEY, getServer());
+            return createSessionContext(session);
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslater.translate(e);
+        }
+    }
+
+    public final void logout()
+    {
+        final HttpSession httpSession = getHttpSession();
+        if (httpSession != null)
+        {
+            final Session session = getSession(httpSession);
+            httpSession.removeAttribute(Constants.OPENBIS_SESSION_ATTRIBUTE_KEY);
+            httpSession.removeAttribute(Constants.OPENBIS_SERVER_ATTRIBUTE_KEY);
+            httpSession.invalidate();
+            getServer().logout(session.getSessionToken());
+        }
+    }
+}

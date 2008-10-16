@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server;
 import java.util.Collections;
 import java.util.List;
 
-import org.hibernate.Hibernate;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.rinn.restrictions.Private;
@@ -31,7 +30,6 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.servlet.RequestContextProviderAdapter;
-import ch.systemsx.cisd.common.spring.IInvocationLoggerFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.GenericBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGenericBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
@@ -39,10 +37,8 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.ISessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
@@ -59,20 +55,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentif
  * 
  * @author Franz-Josef Elmer
  */
-public class GenericServer implements IGenericServer, ISessionProvider,
-        IInvocationLoggerFactory<IGenericServer>
+public class GenericServer extends AbstractServer implements IGenericServer
 {
-    private final ISessionManager<Session> sessionManager;
-
-    private final IDAOFactory daoFactory;
-
     private final IGenericBusinessObjectFactory boFactory;
 
     private final IAuthenticationService authenticationService;
 
-    public GenericServer(IAuthenticationService authenticationService,
-            IRequestContextProvider requestContextProvider, IDAOFactory daoFactory,
-            int sessionExpirationPeriodInMinutes)
+    public GenericServer(final IAuthenticationService authenticationService,
+            final IRequestContextProvider requestContextProvider, final IDAOFactory daoFactory,
+            final int sessionExpirationPeriodInMinutes)
     {
         this(authenticationService, new DefaultSessionManager<Session>(new SessionFactory(),
                 new LogMessagePrefixGenerator(), authenticationService,
@@ -82,98 +73,28 @@ public class GenericServer implements IGenericServer, ISessionProvider,
     }
 
     @Private
-    GenericServer(IAuthenticationService authenticationService,
-            ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
-            IGenericBusinessObjectFactory boFactory)
+    GenericServer(final IAuthenticationService authenticationService,
+            final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
+            final IGenericBusinessObjectFactory boFactory)
     {
+        super(sessionManager, daoFactory);
         this.authenticationService = authenticationService;
-        this.daoFactory = daoFactory;
-        this.sessionManager = sessionManager;
         this.boFactory = boFactory;
     }
 
-    private PersonPE createPerson(Principal principal, PersonPE registrator)
-    {
-        PersonPE person;
-        person = new PersonPE();
-        person.setUserId(principal.getUserId());
-        person.setFirstName(principal.getFirstName());
-        person.setLastName(principal.getLastName());
-        person.setEmail(principal.getEmail());
-        person.setRegistrator(registrator);
-        daoFactory.getPersonDAO().createPerson(person);
-        return person;
-    }
-
-    /**
-     * Creates a logger used to log invocations of objects of this class.
-     */
-    public GenericServerLogger createLogger(boolean invocationSuccessful)
-    {
-        return new GenericServerLogger(sessionManager, invocationSuccessful);
-    }
-
-    public IAuthSession getSession(String sessionToken)
-    {
-        return sessionManager.getSession(sessionToken);
-    }
-
-    public int getVersion()
-    {
-        return 1;
-    }
-
-    public void logout(String sessionToken)
-    {
-        sessionManager.closeSession(sessionToken);
-    }
+    //
+    // IGenericServer
+    //
 
     @Transactional
-    public Session tryToAuthenticate(String user, String password)
+    public final List<GroupPE> listGroups(final String sessionToken,
+            final DatabaseInstanceIdentifier identifier)
     {
-        String sessionToken = sessionManager.tryToOpenSession(user, password);
-        if (sessionToken == null)
-        {
-            return null;
-        }
-        Session session = sessionManager.getSession(sessionToken);
-        final List<PersonPE> persons = daoFactory.getPersonDAO().listPersons();
-        final boolean isFirstLoggedUser = persons.size() == 1;
-        PersonPE registrator = persons.get(0);
-        PersonPE personPE = daoFactory.getPersonDAO().tryFindPersonByUserId(user);
-        if (personPE == null)
-        {
-            personPE = createPerson(session.getPrincipal(), registrator);
-        } else
-        {
-            Hibernate.initialize(personPE.getRoleAssignments());
-        }
-        if (session.tryGetPerson() == null)
-        {
-            session.setPerson(personPE);
-        }
-        if (isFirstLoggedUser)
-        {
-            final RoleAssignmentPE roleAssignmentPE = new RoleAssignmentPE();
-            final PersonPE person = session.tryGetPerson();
-            roleAssignmentPE.setPerson(person);
-            roleAssignmentPE.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
-            roleAssignmentPE.setRegistrator(registrator);
-            roleAssignmentPE.setRole(RoleCode.ADMIN);
-            daoFactory.getRoleAssignmentDAO().createRoleAssignment(roleAssignmentPE);
-            person.setRoleAssignments(Collections.singletonList(roleAssignmentPE));
-        }
-        return session;
-    }
-
-    @Transactional
-    public List<GroupPE> listGroups(String sessionToken, DatabaseInstanceIdentifier identifier)
-    {
-        Session session = sessionManager.getSession(sessionToken);
-        DatabaseInstancePE databaseInstance =
-                GroupIdentifierHelper.getDatabaseInstance(identifier, daoFactory);
-        List<GroupPE> groups = daoFactory.getGroupDAO().listGroups(databaseInstance);
-        Long homeGroupID = session.tryGetHomeGroupId();
+        final Session session = getSessionManager().getSession(sessionToken);
+        final DatabaseInstancePE databaseInstance =
+                GroupIdentifierHelper.getDatabaseInstance(identifier, getDAOFactory());
+        final List<GroupPE> groups = getDAOFactory().getGroupDAO().listGroups(databaseInstance);
+        final Long homeGroupID = session.tryGetHomeGroupId();
         for (final GroupPE group : groups)
         {
             group.setHome(homeGroupID != null && homeGroupID.equals(group.getId()));
@@ -183,34 +104,35 @@ public class GenericServer implements IGenericServer, ISessionProvider,
     }
 
     @Transactional
-    public void registerGroup(String sessionToken, String groupCode, String descriptionOrNull,
-            String groupLeaderOrNull)
+    public final void registerGroup(final String sessionToken, final String groupCode,
+            final String descriptionOrNull, final String groupLeaderOrNull)
     {
-        Session session = sessionManager.getSession(sessionToken);
-        IGroupBO groupBO = boFactory.createGroupBO(session);
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IGroupBO groupBO = boFactory.createGroupBO(session);
         groupBO.define(groupCode, descriptionOrNull, groupLeaderOrNull);
         groupBO.save();
     }
 
     @Transactional
-    public void registerPerson(String sessionToken, String userID)
+    public final void registerPerson(final String sessionToken, final String userID)
     {
-        Session session = sessionManager.getSession(sessionToken);
-        PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(userID);
+        final Session session = getSessionManager().getSession(sessionToken);
+        final PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userID);
         if (person != null)
         {
             throw UserFailureException.fromTemplate("Person '%s' already exists.", userID);
         }
-        String applicationToken = authenticationService.authenticateApplication();
+        final String applicationToken = authenticationService.authenticateApplication();
         if (applicationToken == null)
         {
             throw new EnvironmentFailureException("Authentication service cannot be accessed.");
         }
         try
         {
-            Principal principal = authenticationService.getPrincipal(applicationToken, userID);
+            final Principal principal =
+                    authenticationService.getPrincipal(applicationToken, userID);
             createPerson(principal, session.tryGetPerson());
-        } catch (IllegalArgumentException e)
+        } catch (final IllegalArgumentException e)
         {
             throw new UserFailureException("Person '" + userID
                     + "' unknown by the authentication service.");
@@ -218,19 +140,19 @@ public class GenericServer implements IGenericServer, ISessionProvider,
     }
 
     @Transactional
-    public List<RoleAssignmentPE> listRoles(String sessionToken)
+    public final List<RoleAssignmentPE> listRoles(final String sessionToken)
     {
-        sessionManager.getSession(sessionToken);
-        return daoFactory.getRoleAssignmentDAO().listRoleAssignments();
+        getSessionManager().getSession(sessionToken);
+        return getDAOFactory().getRoleAssignmentDAO().listRoleAssignments();
     }
 
     @Transactional
-    public void registerGroupRole(String sessionToken, RoleCode roleCode,
-            GroupIdentifier groupIdentifier, String person)
+    public final void registerGroupRole(final String sessionToken, final RoleCode roleCode,
+            final GroupIdentifier groupIdentifier, final String person)
     {
-        Session session = sessionManager.getSession(sessionToken);
+        final Session session = getSessionManager().getSession(sessionToken);
 
-        NewRoleAssignment newRoleAssignment = new NewRoleAssignment();
+        final NewRoleAssignment newRoleAssignment = new NewRoleAssignment();
         newRoleAssignment.setUserId(person);
         newRoleAssignment.setGroupIdentifier(groupIdentifier);
         newRoleAssignment.setRole(roleCode);
@@ -242,11 +164,12 @@ public class GenericServer implements IGenericServer, ISessionProvider,
     }
 
     @Transactional
-    public void registerInstanceRole(String sessionToken, RoleCode roleCode, String person)
+    public final void registerInstanceRole(final String sessionToken, final RoleCode roleCode,
+            final String person)
     {
-        Session session = sessionManager.getSession(sessionToken);
+        final Session session = getSessionManager().getSession(sessionToken);
 
-        NewRoleAssignment newRoleAssignment = new NewRoleAssignment();
+        final NewRoleAssignment newRoleAssignment = new NewRoleAssignment();
         newRoleAssignment.setUserId(person);
         newRoleAssignment.setDatabaseInstanceIdentifier(new DatabaseInstanceIdentifier(
                 DatabaseInstanceIdentifier.HOME));
@@ -259,27 +182,27 @@ public class GenericServer implements IGenericServer, ISessionProvider,
     }
 
     @Transactional
-    public void deleteGroupRole(String sessionToken, RoleCode roleCode,
-            GroupIdentifier groupIdentifier, String person)
+    public final void deleteGroupRole(final String sessionToken, final RoleCode roleCode,
+            final GroupIdentifier groupIdentifier, final String person)
     {
 
-        Session session = sessionManager.getSession(sessionToken);
+        final Session session = getSessionManager().getSession(sessionToken);
 
-        RoleAssignmentPE roleAssignment =
-                daoFactory.getRoleAssignmentDAO().tryFindGroupRoleAssignment(roleCode,
+        final RoleAssignmentPE roleAssignment =
+                getDAOFactory().getRoleAssignmentDAO().tryFindGroupRoleAssignment(roleCode,
                         groupIdentifier.getGroupCode(), person);
         if (roleAssignment == null)
         {
             throw new UserFailureException("Given role does not exist.");
         }
-        PersonPE personPE = session.tryGetPerson();
+        final PersonPE personPE = session.tryGetPerson();
         if (roleAssignment.getPerson().compareTo(personPE) == 0
                 && roleAssignment.getRole().compareTo(RoleCode.ADMIN) == 0)
         {
             boolean isInstanceAdmin = false;
             if (personPE != null && personPE.getRoleAssignments() != null)
             {
-                for (RoleAssignmentPE ra : personPE.getRoleAssignments())
+                for (final RoleAssignmentPE ra : personPE.getRoleAssignments())
                 {
                     if (ra.getDatabaseInstance() != null && ra.getRole().equals(RoleCode.ADMIN))
                     {
@@ -293,17 +216,18 @@ public class GenericServer implements IGenericServer, ISessionProvider,
                         "For safety reason you cannot give away your own group admin power. Ask instance admin to do that for you.");
             }
         }
-        daoFactory.getRoleAssignmentDAO().deleteRoleAssignment(roleAssignment);
+        getDAOFactory().getRoleAssignmentDAO().deleteRoleAssignment(roleAssignment);
     }
 
     @Transactional
-    public void deleteInstanceRole(String sessionToken, RoleCode roleCode, String person)
+    public final void deleteInstanceRole(final String sessionToken, final RoleCode roleCode,
+            final String person)
     {
 
-        Session session = sessionManager.getSession(sessionToken);
-
-        RoleAssignmentPE roleAssignment =
-                daoFactory.getRoleAssignmentDAO().tryFindInstanceRoleAssignment(roleCode, person);
+        final Session session = getSessionManager().getSession(sessionToken);
+        final RoleAssignmentPE roleAssignment =
+                getDAOFactory().getRoleAssignmentDAO().tryFindInstanceRoleAssignment(roleCode,
+                        person);
         if (roleAssignment == null)
         {
             throw new UserFailureException("Given role does not exist.");
@@ -315,31 +239,31 @@ public class GenericServer implements IGenericServer, ISessionProvider,
             throw new UserFailureException(
                     "For safety reason you cannot give away your own omnipotence. Ask another instance admin to do that for you.");
         }
-        daoFactory.getRoleAssignmentDAO().deleteRoleAssignment(roleAssignment);
+        getDAOFactory().getRoleAssignmentDAO().deleteRoleAssignment(roleAssignment);
     }
 
     @Transactional
-    public List<PersonPE> listPersons(String sessionToken)
+    public final List<PersonPE> listPersons(final String sessionToken)
     {
-        sessionManager.getSession(sessionToken);
-        List<PersonPE> persons = daoFactory.getPersonDAO().listPersons();
+        getSessionManager().getSession(sessionToken);
+        final List<PersonPE> persons = getDAOFactory().getPersonDAO().listPersons();
         Collections.sort(persons);
         return persons;
     }
 
     @Transactional
-    public List<SampleTypePE> listSampleTypes(String sessionToken)
+    public final List<SampleTypePE> listSampleTypes(final String sessionToken)
     {
-        sessionManager.getSession(sessionToken);
-        return daoFactory.getSampleTypeDAO().listSampleTypes(true);
+        getSessionManager().getSession(sessionToken);
+        return getDAOFactory().getSampleTypeDAO().listSampleTypes(true);
     }
 
     @Transactional
-    public List<SamplePE> listSamples(String sessionToken,
-            List<SampleOwnerIdentifier> ownerIdentifiers, SampleTypePE sampleType,
-            List<String> propertyCodes)
+    public final List<SamplePE> listSamples(final String sessionToken,
+            final List<SampleOwnerIdentifier> ownerIdentifiers, final SampleTypePE sampleType,
+            final List<String> propertyCodes)
     {
-        Session session = sessionManager.getSession(sessionToken);
+        final Session session = getSessionManager().getSession(sessionToken);
         final List<SamplePE> samples =
                 boFactory.createSampleBO(session).listSamples(sampleType, ownerIdentifiers,
                         propertyCodes);

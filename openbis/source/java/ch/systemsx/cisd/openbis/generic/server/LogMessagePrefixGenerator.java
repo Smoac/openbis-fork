@@ -23,10 +23,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
  * Log message prefix generator based on user information found in a {@link Session} object.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-class LogMessagePrefixGenerator implements ILogMessagePrefixGenerator<Session>
+public final class LogMessagePrefixGenerator implements ILogMessagePrefixGenerator<Session>
 {
     static final String UNDEFINED = "<UNDEFINED>";
 
@@ -51,13 +51,13 @@ class LogMessagePrefixGenerator implements ILogMessagePrefixGenerator<Session>
     {
         return createPrefix(user, null, remoteHost);
     }
-    
+
     private String createPrefix(String user, String groupCodeOrNull, String remoteHost)
     {
-        return String.format("[USER:%s GROUP:%s HOST:%s]", cite(user),
-        cite(groupCodeOrNull), cite(remoteHost));
+        return String.format("[USER:%s GROUP:%s HOST:%s]", cite(user), cite(groupCodeOrNull),
+                cite(remoteHost));
     }
-    
+
     private String cite(final String text)
     {
         return text == null ? UNDEFINED : "'" + text + "'";

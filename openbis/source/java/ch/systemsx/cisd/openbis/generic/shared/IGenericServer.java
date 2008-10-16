@@ -30,7 +30,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
@@ -40,25 +39,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentif
  * 
  * @author Franz-Josef Elmer
  */
-public interface IGenericServer
+public interface IGenericServer extends IServer
 {
-    /**
-     * Returns the version of this interface.
-     */
-    public int getVersion();
-
-    /**
-     * Tries to authenticate the specified user with given password.
-     * 
-     * @return <code>null</code> if authentication failed.
-     */
-    public Session tryToAuthenticate(String user, String password);
-
-    /**
-     * Logout the session with the specified session token.
-     */
-    public void logout(String sessionToken);
-
     /**
      * Returns all groups which belong to the specified database instance.
      */
