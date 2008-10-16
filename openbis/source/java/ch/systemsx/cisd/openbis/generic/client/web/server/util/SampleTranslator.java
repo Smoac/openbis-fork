@@ -16,9 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
  * @author Franz-Josef Elmer
@@ -29,7 +36,8 @@ public class SampleTranslator
     {
     }
 
-    public static Sample translate(SamplePE samplePE, SampleType st)
+    public static Sample translate(SamplePE samplePE, SampleType st,
+            Map<SampleIdentifier, List<SamplePropertyPE>> samplesProperties)
     {
         if (samplePE == null)
         {
@@ -37,12 +45,13 @@ public class SampleTranslator
         }
         int containerDep = samplePE.getSampleType().getContainerHierarchyDepth();
         int generatedFromDep = samplePE.getSampleType().getGeneratedFromHierarchyDepth();
-        return translate(samplePE, containerDep, generatedFromDep, st, true);
+        return translate(samplePE, containerDep, generatedFromDep, st, true, samplesProperties);
 
     }
 
     private static Sample translate(SamplePE samplePE, int containerDep, int generatedFromDep,
-            SampleType st, boolean withDetails)
+            SampleType st, boolean withDetails,
+            Map<SampleIdentifier, List<SamplePropertyPE>> samplesProperties)
     {
         final Sample result = new Sample();
         result.setCode(samplePE.getCode());
@@ -55,17 +64,20 @@ public class SampleTranslator
                     .getDatabaseInstance()));
             result.setRegistrator(PersonTranslator.translate(samplePE.getRegistrator()));
             result.setRegistrationDate(samplePE.getRegistrationDate());
-            result.setProperties(SamplePropertyTranslator.translate(samplePE.getProperties(), st));
+            final List<SamplePropertyPE> list =
+                    samplesProperties.get(samplePE.getSampleIdentifier());
+            result.setProperties(list == null ? new ArrayList<SampleProperty>()
+                    : SamplePropertyTranslator.translate(list, st));
         }
         if (containerDep > 0 && samplePE.getContainer() != null)
         {
             result.setContainer(SampleTranslator.translate(samplePE.getContainer(),
-                    containerDep - 1, 0, null, false));
+                    containerDep - 1, 0, null, false, null));
         }
         if (generatedFromDep > 0 && samplePE.getGeneratedFrom() != null)
         {
             result.setGeneratedFrom(SampleTranslator.translate(samplePE.getGeneratedFrom(), 0,
-                    generatedFromDep - 1, null, false));
+                    generatedFromDep - 1, null, false, null));
         }
         return result;
     }

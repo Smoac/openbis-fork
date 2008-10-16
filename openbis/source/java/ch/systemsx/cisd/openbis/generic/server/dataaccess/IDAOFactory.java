@@ -26,4 +26,6 @@ public interface IDAOFactory extends IAuthorizationDAOFactory
 
     ISampleTypeDAO getSampleTypeDAO();
 
+    ISamplePropertyDAO getSamplePropertyDAO();
+
 }

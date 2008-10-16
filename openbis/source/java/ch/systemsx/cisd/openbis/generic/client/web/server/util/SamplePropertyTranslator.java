@@ -47,13 +47,11 @@ public class SamplePropertyTranslator
 
     public static List<SampleProperty> translate(List<SamplePropertyPE> list, SampleType sampleType)
     {
-
         List<SampleProperty> result = new ArrayList<SampleProperty>();
-        for (SamplePropertyPE s : list)
+        for (SamplePropertyPE samplePropertyPE : list)
         {
-            result.add(translate(s, sampleType));
+            result.add(translate(samplePropertyPE, sampleType));
         }
         return result;
     }
-
 }

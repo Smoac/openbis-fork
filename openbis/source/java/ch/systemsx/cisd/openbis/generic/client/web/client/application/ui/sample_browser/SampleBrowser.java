@@ -29,8 +29,15 @@ public class SampleBrowser extends LayoutContainer
     {
         setLayout(new RowLayout());
 
-        final SampleBrowserGrid grid = new SampleBrowserGrid(viewContext);
-        final SampleBrowserToolbar toolbar = new SampleBrowserToolbar(viewContext, grid);
+        CommonColumns commonColumns = new CommonColumns();
+        ParentColumns parentColumns = new ParentColumns();
+        PropertyColumns propertyColumns = new PropertyColumns();
+
+        final SampleBrowserGrid grid =
+                new SampleBrowserGrid(viewContext, commonColumns, parentColumns, propertyColumns);
+        final SampleBrowserToolbar toolbar =
+                new SampleBrowserToolbar(viewContext, grid, commonColumns, parentColumns,
+                        propertyColumns);
 
         add(toolbar);
         add(grid, new RowData(1, 1));

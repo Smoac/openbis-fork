@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -28,13 +29,16 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.ISessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
 /**
@@ -218,11 +222,17 @@ class GenericServerLogger implements IGenericServer, ISessionProvider
     }
 
     public List<SamplePE> listSamples(String sessionToken,
-            List<SampleOwnerIdentifier> ownerIdentifiers, SampleTypePE sampleType,
-            List<String> propertyTypeCodes)
+            List<SampleOwnerIdentifier> ownerIdentifiers, SampleTypePE sampleType)
     {
-        logAccess(sessionToken, "list_samples", "TYPE(%s) OWNERS(%s) PROPERTY_TYPE_CODES(%s)",
-                sampleType, ownerIdentifiers, propertyTypeCodes.size());
+        logAccess(sessionToken, "list_samples", "TYPE(%s) OWNERS(%s)", sampleType, ownerIdentifiers);
+        return null;
+    }
+
+    public Map<SampleIdentifier, List<SamplePropertyPE>> listSamplesProperties(String sessionToken,
+            List<SampleIdentifier> samples, List<PropertyTypePE> propertyCodes)
+    {
+        logAccess(sessionToken, "list_samples_properties", "SAMPLES(%s) PROPERTIES(%s)", samples
+                .size(), propertyCodes.size());
         return null;
     }
 

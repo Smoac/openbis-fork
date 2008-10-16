@@ -23,6 +23,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
@@ -83,9 +84,16 @@ public interface IGenericClientServiceAsync
     public void listSampleTypes(AsyncCallback<List<SampleType>> asyncCallback);
 
     /**
-     * @see IGenericClientService#listSamples(SampleType, String, boolean, boolean)
+     * @see IGenericClientService#listSamples(SampleType, String, boolean, boolean, List)
      */
     public void listSamples(SampleType sampleType, String groupCode, boolean includeGroup,
-            boolean includeInstance, AsyncCallback<List<Sample>> asyncCallback);
+            boolean includeInstance, List<PropertyType> propertyCodes,
+            AsyncCallback<List<Sample>> asyncCallback);
+
+    /**
+     * @see IGenericClientService#updateSamples(List, List)
+     */
+    public void updateSamples(List<Sample> samples, List<PropertyType> propertyCodes,
+            AsyncCallback<List<Sample>> asyncCallback);
 
 }

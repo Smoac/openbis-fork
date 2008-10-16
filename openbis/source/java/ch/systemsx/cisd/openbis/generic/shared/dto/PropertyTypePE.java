@@ -92,7 +92,7 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
      * Sets code in 'database format' - without 'user prefix'. To set full code (with user prefix
      * use {@link #setCode(String)}).
      */
-    private void setSimpleCode(final String simpleCode)
+    public void setSimpleCode(final String simpleCode)
     {
         this.simpleCode = simpleCode.toUpperCase();
     }
@@ -114,7 +114,7 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
     @Length(min = 1, max = 40, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @Pattern(regex = AbstractIdAndCodeHolder.CODE_PATTERN, flags = java.util.regex.Pattern.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
-    private String getSimpleCode()
+    public String getSimpleCode()
     {
         return simpleCode;
     }

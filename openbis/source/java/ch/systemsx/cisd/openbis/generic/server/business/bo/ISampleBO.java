@@ -33,6 +33,5 @@ public interface ISampleBO
      * 
      * @param ownerIdentifiers groups and database instances from which samples should be returned.
      */
-    List<SamplePE> listSamples(SampleTypePE sampleType,
-            List<SampleOwnerIdentifier> ownerIdentifiers, List<String> propertyCodes);
+    List<SamplePE> listSamples(SampleTypePE sampleType, List<SampleOwnerIdentifier> ownerIdentifiers);
 }

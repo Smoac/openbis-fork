@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.server;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -27,12 +28,16 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.GroupTranslater;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.PersonTranslator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.util.PropertyTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.RoleAssignmentTranslator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.util.SamplePropertyTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.UserFailureExceptionTranslater;
@@ -43,9 +48,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.plugin.AbstractClientService;
 
@@ -258,13 +265,12 @@ public final class GenericClientService extends AbstractClientService implements
         }
     }
 
-    public final List<Sample> listSamples(final SampleType sampleType, final String groupCode,
-            final boolean includeGroup, final boolean includeInstance)
+    public List<Sample> listSamples(SampleType sampleType, String groupCode, boolean includeGroup,
+            boolean includeInstance, List<PropertyType> propertyCodes)
     {
         try
         {
-            final List<SampleOwnerIdentifier> ownerIdentifiers =
-                    new ArrayList<SampleOwnerIdentifier>();
+            List<SampleOwnerIdentifier> ownerIdentifiers = new ArrayList<SampleOwnerIdentifier>();
             if (includeGroup)
             {
                 ownerIdentifiers.add(new SampleOwnerIdentifier(new GroupIdentifier(
@@ -275,19 +281,78 @@ public final class GenericClientService extends AbstractClientService implements
                 ownerIdentifiers.add(new SampleOwnerIdentifier(DatabaseInstanceIdentifier
                         .createHome()));
             }
-            final List<SamplePE> samples =
+            List<SamplePE> samplePEs =
                     genericServer.listSamples(getSessionToken(), ownerIdentifiers,
-                            SampleTypeTranslator.translate(sampleType), SampleTypeTranslator
-                                    .extractPropertyTypeCodesToDisplay(sampleType));
-            final List<Sample> result = new ArrayList<Sample>();
-            for (final SamplePE sample : samples)
+                            SampleTypeTranslator.translate(sampleType));
+
+            List<SampleIdentifier> identifiers = new ArrayList<SampleIdentifier>();
+            for (SamplePE s : samplePEs)
             {
-                result.add(SampleTranslator.translate(sample, sampleType));
+                identifiers.add(s.getSampleIdentifier());
+            }
+            Map<SampleIdentifier, List<SamplePropertyPE>> samplesProperties =
+                    genericServer.listSamplesProperties(getSessionToken(), identifiers,
+                            PropertyTypeTranslator.translate(propertyCodes));
+
+            List<Sample> result = new ArrayList<Sample>();
+            for (SamplePE sample : samplePEs)
+            {
+                result.add(SampleTranslator.translate(sample, sampleType, samplesProperties));
             }
             return result;
-        } catch (final UserFailureException e)
+        } catch (UserFailureException e)
         {
             throw UserFailureExceptionTranslater.translate(e);
+        }
+    }
+
+    public List<Sample> updateSamples(final List<Sample> samples, List<PropertyType> propertyCodes)
+    {
+        if (samples.size() == 0 || propertyCodes.size() == 0)
+        {
+            return samples;
+        }
+        List<SampleIdentifier> identifiers = extractIdentifiers(samples);
+        SampleType sampleType = samples.get(0).getSampleType(); // FIXME:
+        Map<SampleIdentifier, List<SamplePropertyPE>> samplesProperties =
+                genericServer.listSamplesProperties(getSessionToken(), identifiers,
+                        PropertyTypeTranslator.translate(propertyCodes));
+        for (Sample s : samples)
+        {
+            List<SamplePropertyPE> list = samplesProperties.get(extractIdentifier(s));
+            s.getProperties().addAll(
+                    list == null ? new ArrayList<SampleProperty>() : SamplePropertyTranslator
+                            .translate(list, sampleType));
+        }
+        return samples;
+    }
+
+    private List<SampleIdentifier> extractIdentifiers(final List<Sample> samples)
+    {
+        List<SampleIdentifier> identifiers = new ArrayList<SampleIdentifier>();
+        for (Sample s : samples)
+        {
+            identifiers.add(extractIdentifier(s));
+        }
+        return identifiers;
+    }
+
+    SampleIdentifier extractIdentifier(Sample s)
+    {
+        if (s.getGroup() != null)
+        {
+            final String groupInstanceCode =
+                    s.getGroup().getInstance() == null ? null : s.getGroup().getInstance()
+                            .getCode();
+            final String groupCode = s.getGroup().getCode();
+            final GroupIdentifier groupIdentifer =
+                    new GroupIdentifier(new DatabaseInstanceIdentifier(groupInstanceCode),
+                            groupCode);
+            return new SampleIdentifier(groupIdentifer, s.getCode());
+        } else
+        {
+            final String instanceCode = s.getDatabaseInstance().getCode();
+            return new SampleIdentifier(new DatabaseInstanceIdentifier(instanceCode), s.getCode());
         }
     }
 }

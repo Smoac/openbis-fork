@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Events;
@@ -32,17 +33,15 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ClientPluginProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.PropertyColumns.LoadableColumnConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IClientPluginFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypePropertyType;
 
 /**
  * The samples browser.
@@ -57,39 +56,101 @@ class SampleBrowserGrid extends LayoutContainer
 
     private Grid<SampleModel> grid;
 
-    public SampleBrowserGrid(final GenericViewContext viewContext)
+    private final GridConfiguration oldConfiguration;
+
+    private final GridConfiguration newConfiguration;
+
+    private final CommonColumns commonColumns;
+
+    private final ParentColumns parentColumns;
+
+    private final PropertyColumns propertyColumns;
+
+    public SampleBrowserGrid(final GenericViewContext viewContext, CommonColumns commonColumns,
+            ParentColumns parentColumns, PropertyColumns propertyColumns)
     {
         this.viewContext = viewContext;
+        this.commonColumns = commonColumns;
+        this.parentColumns = parentColumns;
+        this.propertyColumns = propertyColumns;
+        oldConfiguration = new GridConfiguration(); // Already loaded
+        newConfiguration = new GridConfiguration(); // Requested
         setLayout(new FitLayout());
     }
 
     private void display(final SampleType sampleType, final String selectedGroupCode,
             final boolean showGroup, final boolean showInstance)
     {
+        newConfiguration.update(sampleType, selectedGroupCode, showGroup, showInstance);
+        final ColumnModel columnModel = createColumnModel(sampleType);
+        final String header = createHeader(sampleType, selectedGroupCode, showGroup, showInstance);
+        getContentPanel().setHeading(header);
+        final List<SampleModel> models =
+                grid != null && grid.getStore() != null ? grid.getStore().getModels() : null;
 
         final RpcProxy<Object, List<SampleModel>> proxy = new RpcProxy<Object, List<SampleModel>>()
             {
-                //
-                // RpcProxy
-                //
-
                 @Override
                 public final void load(final Object loadConfig,
                         final AsyncCallback<List<SampleModel>> callback)
                 {
-                    viewContext.getService().listSamples(sampleType, selectedGroupCode, showGroup,
-                            showInstance, new ListSamplesCallback(viewContext, callback));
+                    if (oldConfiguration.majorChange(newConfiguration))
+                    {
+                        viewContext.getService().listSamples(sampleType, selectedGroupCode,
+                                showGroup, showInstance, propertyColumns.getDirtyColumns(),
+                                new ListSamplesCallback(viewContext, callback));
+                        return;
+                    }
+
+                    if (oldConfiguration.minorChange(newConfiguration))
+                    {
+                        removeUnnecessarySamples(models);
+                    }
+
+                    if (propertyColumns.isDirty())
+                    {
+                        viewContext.getService().updateSamples(extractSamplesFromModel(models),
+                                propertyColumns.getDirtyColumns(),
+                                new ListSamplesCallback(viewContext, callback));
+                        return;
+                    }
+
+                    callback.onSuccess(models);
+                }
+
+                private List<Sample> extractSamplesFromModel(final List<SampleModel> modelList)
+                {
+                    List<Sample> samples = new ArrayList<Sample>();
+                    for (SampleModel model : modelList)
+                    {
+                        samples.add((Sample) model.get(SampleModel.OBJECT));
+                    }
+                    return samples;
                 }
             };
-        final ColumnModel columnModel = createColumnModel(sampleType, sampleType);
-        final String header = createHeader(sampleType, selectedGroupCode, showGroup, showInstance);
         final ListLoader<?> loader = createListLoader(proxy);
         final ListStore<SampleModel> sampleStore = new ListStore<SampleModel>(loader);
-        getContentPanel().setHeading(header);
         createOrReconfigureGrid(columnModel, sampleStore);
         loader.load();
         layout();
 
+    }
+
+    protected void removeUnnecessarySamples(List<SampleModel> models)
+    {
+        Iterator<SampleModel> iterator = models.iterator();
+        while (iterator.hasNext())
+        {
+            SampleModel next = iterator.next();
+            final Boolean isGroupLevelSample = (Boolean) next.get(SampleModel.IS_GROUP_SAMPLE);
+            final boolean isInstanceLevelSample = isGroupLevelSample == false;
+            if (isGroupLevelSample && newConfiguration.includeGroup == false
+                    || isInstanceLevelSample && newConfiguration.includeInstance == false)
+            {
+                iterator.remove();
+            }
+        }
+        oldConfiguration.update(newConfiguration);
     }
 
     @SuppressWarnings("unchecked")
@@ -180,135 +241,13 @@ class SampleBrowserGrid extends LayoutContainer
         display(sampleType, selectedGroupCode, showGroup, showInstance);
     }
 
-    private final static ColumnModel createColumnModel(final SampleType type,
-            final SampleType sampleType)
+    private final ColumnModel createColumnModel(final SampleType type)
     {
         final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-        configs.add(createCodeColumn());
-        configs.add(createIdentifierColumn());
-        configs.add(createAssignedToIdentifierColumn());
-        configs.add(createRegistratorColumn());
-        configs.add(createRegistionDateColumn());
-        addGeneratedFromParentColumns(configs, 1, type.getGeneratedFromHierarchyDepth());
-        addContainerParentColumns(configs, 1, type.getPartOfHierarchyDepth());
-        addPropertyColumns(configs, sampleType);
+        configs.addAll(commonColumns.getColumns());
+        configs.addAll(parentColumns.getColumns());
+        configs.addAll(propertyColumns.getColumns());
         return new ColumnModel(configs);
-    }
-
-    private final static ColumnConfig createIdentifierColumn()
-    {
-        final ColumnConfig columnConfig = new ColumnConfig();
-        columnConfig.setMenuDisabled(true);
-        columnConfig.setId(SampleModel.SAMPLE_IDENTIFIER);
-        columnConfig.setHeader("Identifier");
-        columnConfig.setHidden(true);
-        columnConfig.setWidth(150);
-        return columnConfig;
-    }
-
-    private final static ColumnConfig createCodeColumn()
-    {
-        final ColumnConfig columnConfig = new ColumnConfig();
-        columnConfig.setMenuDisabled(true);
-        columnConfig.setId(SampleModel.SAMPLE_CODE);
-        columnConfig.setHeader("Code");
-        columnConfig.setWidth(100);
-        return columnConfig;
-    }
-
-    private final static ColumnConfig createAssignedToIdentifierColumn()
-    {
-        final ColumnConfig columnConfig = new ColumnConfig();
-        columnConfig.setMenuDisabled(true);
-        columnConfig.setId(SampleModel.ATTACHED_TO_IDENTIFIER);
-        columnConfig.setHeader("Attached to");
-        columnConfig.setWidth(100);
-        return columnConfig;
-    }
-
-    private final static ColumnConfig createRegistratorColumn()
-    {
-        final ColumnConfig columnConfig = new ColumnConfig();
-        columnConfig.setMenuDisabled(true);
-        columnConfig.setId(SampleModel.REGISTRATOR);
-        columnConfig.setHeader("Registrator");
-        columnConfig.setWidth(100);
-        columnConfig.setRenderer(new PersonRenderer());
-        columnConfig.setHidden(true);
-        return columnConfig;
-    }
-
-    private final static ColumnConfig createRegistionDateColumn()
-    {
-        final ColumnConfig columnConfig = new ColumnConfig();
-        columnConfig.setMenuDisabled(true);
-        columnConfig.setId(SampleModel.REGISTRATION_DATE);
-        columnConfig.setHeader("Registration Date");
-        columnConfig.setWidth(100);
-        columnConfig.setDateTimeFormat(DateTimeFormat.getShortDateFormat());
-        columnConfig.setHidden(true);
-        return columnConfig;
-    }
-
-    private final static void addGeneratedFromParentColumns(final List<ColumnConfig> configs,
-            final int dep, final int maxDep)
-    {
-        if (dep <= maxDep)
-        {
-            configs.add(createGeneratedFromParentColumn(dep));
-            addGeneratedFromParentColumns(configs, dep + 1, maxDep);
-        }
-    }
-
-    private final static void addContainerParentColumns(final List<ColumnConfig> configs,
-            final int dep, final int maxDep)
-    {
-        if (dep <= maxDep)
-        {
-            configs.add(createContainerParentColumn(dep));
-            addContainerParentColumns(configs, dep + 1, maxDep);
-        }
-    }
-
-    private final static ColumnConfig createGeneratedFromParentColumn(final int i)
-    {
-        final ColumnConfig columnConfig = new ColumnConfig();
-        columnConfig.setMenuDisabled(true);
-        columnConfig.setId(SampleModel.GENERATED_FROM_PARENT_PREFIX + i);
-        columnConfig.setHeader("Parent (gener.) " + i);
-        columnConfig.setWidth(150);
-        return columnConfig;
-    }
-
-    private final static ColumnConfig createContainerParentColumn(final int i)
-    {
-        final ColumnConfig columnConfig = new ColumnConfig();
-        columnConfig.setMenuDisabled(true);
-        columnConfig.setId(SampleModel.CONTAINER_PARENT_PREFIX + i);
-        columnConfig.setHeader("Parent (cont.) " + i);
-        columnConfig.setWidth(150);
-        return columnConfig;
-    }
-
-    private final static void addPropertyColumns(final List<ColumnConfig> configs,
-            final SampleType sampleType)
-    {
-        for (final SampleTypePropertyType stpt : sampleType.getSampleTypePropertyTypes())
-        {
-            configs.add(createPropertyColumn(stpt.getPropertyType().getCode(),
-                    stpt.isDisplayed() == false));
-        }
-    }
-
-    private final static ColumnConfig createPropertyColumn(final String code, final boolean isHidden)
-    {
-        final ColumnConfig columnConfig = new ColumnConfig();
-        columnConfig.setMenuDisabled(true);
-        columnConfig.setId(SampleModel.PROPERTY_PREFIX + code);
-        columnConfig.setHeader(code);
-        columnConfig.setWidth(80);
-        columnConfig.setHidden(isHidden);
-        return columnConfig;
     }
 
     private final class ListSamplesCallback extends AbstractAsyncCallback<List<Sample>>
@@ -340,7 +279,24 @@ class SampleBrowserGrid extends LayoutContainer
             {
                 sampleModels.add(new SampleModel(sample));
             }
+            oldConfiguration.update(newConfiguration);
+            updateLoadedPropertyColumns();
             delegate.onSuccess(sampleModels);
         }
     }
+
+    private void updateLoadedPropertyColumns()
+    {
+        if (propertyColumns.isDirty())
+        {
+            for (LoadableColumnConfig cc : propertyColumns.getColumns())
+            {
+                if (cc.isDirty())
+                {
+                    cc.setLoaded(true);
+                }
+            }
+        }
+    }
+
 }

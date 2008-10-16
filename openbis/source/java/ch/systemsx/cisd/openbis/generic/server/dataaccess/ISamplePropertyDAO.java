@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2007 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,24 +17,27 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.dao.DataAccessException;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
- * @author Tomasz Pylak
+ * An interface that contains all data access operations on {@link SamplePropertyPE}s.
+ * 
+ * @author Izabela Adamczyk
  */
-public interface ISampleDAO
+public interface ISamplePropertyDAO
 {
-    List<SamplePE> listSamplesByTypeAndGroup(final SampleTypePE sampleType, final GroupPE group)
+    /**
+     * Returns {@link SamplePropertyPE}s for given list of {@link SampleIdentifier}s and list of
+     * property types.
+     */
+    public Map<SampleIdentifier, List<SamplePropertyPE>> listSampleProperties(
+            List<SampleIdentifier> samples, List<PropertyTypePE> propertyCodes)
             throws DataAccessException;
 
-    List<SamplePE> listSamplesByTypeAndDatabaseInstance(final SampleTypePE sampleType,
-            final DatabaseInstancePE databaseInstance);
-
-    void createSample(final SamplePE sample) throws DataAccessException;
 }

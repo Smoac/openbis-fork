@@ -23,16 +23,46 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public class PropertyType implements IsSerializable
 {
-    String code;
 
-    public String getCode()
+    private String simpleCode;
+
+    private String label;
+
+    private boolean internalNamespace;
+
+    public String getSimpleCode()
     {
-        return code;
+        return simpleCode;
     }
 
-    public void setCode(String code)
+    public void setSimpleCode(String code)
     {
-        this.code = code;
+        this.simpleCode = code;
+    }
+
+    public String getLabel()
+    {
+        return label;
+    }
+
+    public void setLabel(String label)
+    {
+        this.label = label;
+    }
+
+    public boolean isInternalNamespace()
+    {
+        return internalNamespace;
+    }
+
+    public void setInternalNamespace(boolean internalNamespace)
+    {
+        this.internalNamespace = internalNamespace;
+    }
+
+    public String getId()
+    {
+        return isInternalNamespace() + getSimpleCode();
     }
 
 }

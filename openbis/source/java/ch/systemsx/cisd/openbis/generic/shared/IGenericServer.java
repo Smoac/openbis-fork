@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared;
 
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
@@ -26,12 +27,15 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIden
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.GroupValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
 /**
@@ -108,12 +112,17 @@ public interface IGenericServer extends IServer
     public List<SampleTypePE> listSampleTypes(String sessionToken);
 
     /**
-     * Lists samples using given configuration. Only sample properties which are configured to be
-     * displayed are included in the result.
+     * Lists samples using given configuration.No properties are loaded.
      */
     @RolesAllowed(RoleSet.OBSERVER)
     public List<SamplePE> listSamples(String sessionToken,
-            List<SampleOwnerIdentifier> ownerIdentifiers, SampleTypePE sampleType,
-            List<String> propertyCodes);
+            List<SampleOwnerIdentifier> ownerIdentifiers, SampleTypePE sampleType);
+
+    /**
+     * Lists chosen properties for given samples.
+     */
+    @RolesAllowed(RoleSet.OBSERVER)
+    public Map<SampleIdentifier, List<SamplePropertyPE>> listSamplesProperties(String sessionToken,
+            List<SampleIdentifier> sampleIdentifiers, List<PropertyTypePE> list);
 
 }

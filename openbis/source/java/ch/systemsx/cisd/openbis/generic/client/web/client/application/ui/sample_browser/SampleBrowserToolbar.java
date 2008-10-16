@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 /**
  * The sample browser toolbar.
  * 
- * @author Izabela  Adamczyk
+ * @author Izabela Adamczyk
  * @author Christian Ribeaud
  */
 class SampleBrowserToolbar extends ToolBar
@@ -46,79 +46,94 @@ class SampleBrowserToolbar extends ToolBar
 
     final SampleBrowserGrid grid;
 
-    final SampleTypeSelectionWidget sampleTypeSelectionWidget;
+    final SampleTypeSelectionWidget selectSampleTypeCombo;
 
-    final GroupSelectionWidget groupSelectionWidget;
+    final GroupSelectionWidget selectGroupCombo;
 
     final ToolbarController controller;
 
-    private CheckBox instanceCheckbox;
+    private CheckBox includeInstanceCheckbox;
 
-    private CheckBox groupCheckbox;
+    private CheckBox includeGroupCheckbox;
 
     private Button submitButton;
 
     private ColumnChooser columnChooser;
 
-    public SampleBrowserToolbar(GenericViewContext viewContext, SampleBrowserGrid rightPanel)
+    public SampleBrowserToolbar(GenericViewContext viewContext, SampleBrowserGrid rightPanel,
+            CommonColumns commonColumns, ParentColumns parentColumns,
+            PropertyColumns propertyColumns)
     {
         this.grid = rightPanel;
-        sampleTypeSelectionWidget = new SampleTypeSelectionWidget(viewContext);
-        groupSelectionWidget = new GroupSelectionWidget(viewContext);
-        instanceCheckbox = new CheckBox();
-        groupCheckbox = new CheckBox();
-        groupCheckbox.setValue(true);
-        columnChooser = new ColumnChooser();
+        selectSampleTypeCombo = new SampleTypeSelectionWidget(viewContext);
+        selectGroupCombo = new GroupSelectionWidget(viewContext);
+        includeInstanceCheckbox = new CheckBox();
+        includeGroupCheckbox = new CheckBox();
+        includeGroupCheckbox.setValue(true);
+        columnChooser = new ColumnChooser(commonColumns, parentColumns, propertyColumns);
         submitButton = createSubmitButton();
         submitButton.setEnabled(false);
-
         controller =
-                new ToolbarController(sampleTypeSelectionWidget, groupSelectionWidget,
-                        instanceCheckbox, groupCheckbox, submitButton, columnChooser);
+                new ToolbarController(selectSampleTypeCombo, selectGroupCombo,
+                        includeInstanceCheckbox, includeGroupCheckbox, submitButton, columnChooser,
+                        parentColumns, propertyColumns);
+        addSelectSampleTypeListeners();
+        addSelectGroupListeners();
+        addIncludeInstanceListeners();
+        addIncludeGroupListeners();
+        refresh();
+    }
 
-        final SelectionChangedListener<ModelData> listener =
-                new SelectionChangedListener<ModelData>()
-                    {
-                        @Override
-                        public void selectionChanged(SelectionChangedEvent<ModelData> se)
-                        {
-                            controller.refreshSubmitButton();
-
-                        }
-                    };
-        sampleTypeSelectionWidget.addSelectionChangedListener(listener);
-        groupSelectionWidget.addSelectionChangedListener(listener);
-        final Listener<BaseEvent> clickListener = new Listener<BaseEvent>()
+    private void addIncludeGroupListeners()
+    {
+        includeGroupCheckbox.addListener(Event.ONCLICK, new Listener<BaseEvent>()
             {
-
                 public void handleEvent(BaseEvent be)
                 {
+                    controller.resetPropertyCache(includeGroupCheckbox.getValue().booleanValue());
                     controller.refreshSubmitButton();
-                }
-            };
-        instanceCheckbox.addListener(Event.ONCLICK, clickListener);
-        groupCheckbox.addListener(Event.ONCLICK, clickListener);
-        groupCheckbox.addListener(Event.ONCLICK, new Listener<BaseEvent>()
-            {
-
-                public void handleEvent(BaseEvent be)
-                {
                     controller.showOrHideGroupList();
                 }
             });
+    }
 
-        sampleTypeSelectionWidget
+    private void addIncludeInstanceListeners()
+    {
+        includeInstanceCheckbox.addListener(Event.ONCLICK, new Listener<BaseEvent>()
+            {
+                public void handleEvent(BaseEvent be)
+                {
+                    controller.resetPropertyCache(includeInstanceCheckbox.getValue().booleanValue());
+                    controller.refreshSubmitButton();
+                }
+            });
+    }
+
+    private void addSelectGroupListeners()
+    {
+        selectGroupCombo.addSelectionChangedListener(new SelectionChangedListener<ModelData>()
+            {
+                @Override
+                public void selectionChanged(SelectionChangedEvent<ModelData> se)
+                {
+                    controller.resetPropertyCache(true);
+                    controller.refreshSubmitButton();
+                }
+            });
+    }
+
+    private void addSelectSampleTypeListeners()
+    {
+        selectSampleTypeCombo
                 .addSelectionChangedListener(new SelectionChangedListener<ModelData>()
                     {
                         @Override
                         public void selectionChanged(SelectionChangedEvent<ModelData> se)
                         {
-                            controller.refreshColumnChooser();
-
+                            controller.rebuildColumnChooser();
+                            controller.refreshSubmitButton();
                         }
                     });
-
-        refresh();
     }
 
     private void display()
@@ -126,18 +141,18 @@ class SampleBrowserToolbar extends ToolBar
         setBorders(true);
         removeAll();
         add(new LabelToolItem("Sample type:"));
-        add(new AdapterToolItem(sampleTypeSelectionWidget));
+        add(new AdapterToolItem(selectSampleTypeCombo));
 
         add(new SeparatorToolItem());
 
         add(new LabelToolItem("Instance:"));
-        add(new AdapterToolItem(instanceCheckbox));
+        add(new AdapterToolItem(includeInstanceCheckbox));
 
         add(new SeparatorToolItem());
 
         add(new LabelToolItem("Group:"));
-        add(new AdapterToolItem(groupCheckbox));
-        add(new AdapterToolItem(groupSelectionWidget));
+        add(new AdapterToolItem(includeGroupCheckbox));
+        add(new AdapterToolItem(selectGroupCombo));
 
         add(new SeparatorToolItem());
 
@@ -157,13 +172,13 @@ class SampleBrowserToolbar extends ToolBar
                 public void componentSelected(ComponentEvent ce)
                 {
 
-                    final SampleType selectedType = sampleTypeSelectionWidget.tryGetSelected();
+                    final SampleType selectedType = selectSampleTypeCombo.tryGetSelected();
                     final String selectedGroupCode =
-                            groupSelectionWidget.tryGetSelected() == null ? null
-                                    : groupSelectionWidget.tryGetSelected().getCode();
+                            selectGroupCombo.tryGetSelected() == null ? null
+                                    : selectGroupCombo.tryGetSelected().getCode();
 
-                    final Boolean includeGroup = groupCheckbox.getValue();
-                    final Boolean includeInstance = instanceCheckbox.getValue();
+                    final Boolean includeGroup = includeGroupCheckbox.getValue();
+                    final Boolean includeInstance = includeInstanceCheckbox.getValue();
 
                     StringBuilder errorReport = new StringBuilder();
                     boolean error =
@@ -180,6 +195,7 @@ class SampleBrowserToolbar extends ToolBar
                     }
                 }
             });
+        refreshButton.setIconStyle("x-tbar-loading");
         return refreshButton;
     }
 
@@ -219,8 +235,8 @@ class SampleBrowserToolbar extends ToolBar
     public void refresh()
     {
         display();
-        sampleTypeSelectionWidget.refresh();
-        groupSelectionWidget.refresh();
+        selectSampleTypeCombo.refresh();
+        selectGroupCombo.refresh();
     }
 
 }

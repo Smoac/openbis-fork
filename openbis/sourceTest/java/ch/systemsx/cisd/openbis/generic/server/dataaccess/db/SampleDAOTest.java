@@ -43,7 +43,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
 public final class SampleDAOTest extends AbstractDAOTest
 {
 
-
     @Test
     public final void testListGroupSamples()
     {
@@ -53,8 +52,7 @@ public final class SampleDAOTest extends AbstractDAOTest
         SamplePE sample = createSample(sampleType, "code", null, SampleOwner.createGroup(group));
         save(sample);
         List<SamplePE> samples =
-                daoFactory.getSampleDAO().listSamplesByTypeAndGroup(sampleType, group,
-                        new ArrayList<String>());
+                daoFactory.getSampleDAO().listSamplesByTypeAndGroup(sampleType, group);
         assertEquals(1, samples.size());
         assertEquals(sample, samples.get(0));
     }
@@ -95,7 +93,7 @@ public final class SampleDAOTest extends AbstractDAOTest
     {
         final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
         return sampleDAO.listSamplesByTypeAndDatabaseInstance(sampleType, daoFactory
-                .getHomeDatabaseInstance(), propertyCodes);
+                .getHomeDatabaseInstance());
     }
 
     private SamplePE findSample(SamplePE sample, List<SamplePE> samples)

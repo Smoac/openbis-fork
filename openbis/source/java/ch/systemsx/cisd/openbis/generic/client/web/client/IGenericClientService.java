@@ -20,6 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
@@ -89,5 +90,8 @@ public interface IGenericClientService extends IClientService
      * Returns a list of samples for given sample type.
      */
     public List<Sample> listSamples(SampleType sampleType, String groupCode, boolean includeGroup,
-            boolean includeInstance) throws UserFailureException;
+            boolean includeInstance, List<PropertyType> propertyCodes) throws UserFailureException;
+
+    /** Returns a list of samples with updated properties */
+    public List<Sample> updateSamples(List<Sample> samples, List<PropertyType> propertyCodes);
 }

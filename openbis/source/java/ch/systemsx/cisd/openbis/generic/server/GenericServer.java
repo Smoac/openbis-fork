@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,13 +42,16 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
 /**
@@ -260,14 +264,22 @@ public class GenericServer extends AbstractServer implements IGenericServer
 
     @Transactional
     public final List<SamplePE> listSamples(final String sessionToken,
-            final List<SampleOwnerIdentifier> ownerIdentifiers, final SampleTypePE sampleType,
-            final List<String> propertyCodes)
+            final List<SampleOwnerIdentifier> ownerIdentifiers, final SampleTypePE sampleType)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final List<SamplePE> samples =
-                boFactory.createSampleBO(session).listSamples(sampleType, ownerIdentifiers,
-                        propertyCodes);
+                boFactory.createSampleBO(session).listSamples(sampleType, ownerIdentifiers);
         return samples;
+    }
+
+    @Transactional
+    public Map<SampleIdentifier, List<SamplePropertyPE>> listSamplesProperties(String sessionToken,
+            List<SampleIdentifier> sampleIdentifiers, List<PropertyTypePE> propertyCodes)
+    {
+        getSessionManager().getSession(sessionToken);
+        return getDAOFactory().getSamplePropertyDAO().listSampleProperties(sampleIdentifiers,
+                propertyCodes);
+
     }
 
 }

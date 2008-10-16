@@ -16,17 +16,18 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.menu.CheckMenuItem;
+import com.extjs.gxt.ui.client.widget.menu.Item;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
+import com.extjs.gxt.ui.client.widget.menu.SeparatorMenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypePropertyType;
 
 class ColumnChooser extends TextToolItem
 {
@@ -34,57 +35,114 @@ class ColumnChooser extends TextToolItem
 
     private static final int MENU_LENGTH = 15;
 
-    public ColumnChooser()
+    private final CommonColumns commonColumns;
+
+    private final ParentColumns parentColumns;
+
+    private final PropertyColumns propertyColumns;
+
+    public ColumnChooser(CommonColumns commonColumns, ParentColumns parentColumns,
+            PropertyColumns propertyColumns)
     {
-        super("Properties");
+        super("Columns");
+        this.commonColumns = commonColumns;
+        this.parentColumns = parentColumns;
+        this.propertyColumns = propertyColumns;
         setEnabled(false);
     }
 
-    public void load(SampleType type)
+    public void reload()
     {
-        Menu columnsMenu = new Menu();
+        Menu menu = new Menu();
+        addSubMenu(createCommonMenu(), menu, "Common", false);
+        addSubMenu(createParentsMenu(), menu, "Parents", false);
+        addSubMenu(createPropertiesMenu(), menu, "Properties", true);
+        setMenu(menu);
+    }
+
+    private List<Item> createCommonMenu()
+    {
+        final ArrayList<Item> result = new ArrayList<Item>();
+        for (ColumnConfig cc : commonColumns.getColumns())
+        {
+            result.add(createFromConfig(cc));
+        }
+        return result;
+    }
+
+    private List<Item> createParentsMenu()
+    {
+        final ArrayList<Item> result = new ArrayList<Item>();
+        for (ColumnConfig cc : parentColumns.getColumns())
+        {
+            result.add(createFromConfig(cc));
+        }
+        return result;
+    }
+
+    private List<Item> createPropertiesMenu()
+    {
+        final ArrayList<Item> result = new ArrayList<Item>();
+        for (ColumnConfig cc : propertyColumns.getColumns())
+        {
+            result.add(createFromConfig(cc));
+        }
+        return result;
+
+    }
+
+    private Item createFromConfig(final ColumnConfig cc)
+    {
+        final CheckMenuItem result = new CheckMenuItem(cc.getHeader());
+        result.setChecked(cc.isHidden() == false);
+        result.setHideOnClick(false);
+        result.addSelectionListener(new SelectionListener<ComponentEvent>()
+            {
+                @Override
+                public void componentSelected(ComponentEvent ce)
+                {
+                    cc.setHidden(result.isChecked() == false);
+                }
+            });
+        return result;
+    }
+
+    private void addSubMenu(List<Item> columns, Menu menu, String title, boolean isLastSubmenu)
+    {
+        if (columns.size() > 0)
+        {
+            addItems(menu, menu.getItemCount() + columns.size() > MENU_LENGTH, title, columns);
+            if (false == isLastSubmenu)
+            {
+                menu.add(new SeparatorMenuItem());
+            }
+        }
+    }
+
+    private void addItems(Menu columnsMenu, boolean folded, String title, List<Item> columns)
+    {
         Menu subMenu = new Menu();
         int counter = START;
-        final List<SampleTypePropertyType> sampleTypePropertyTypes =
-                type.getSampleTypePropertyTypes();
-        int numberOfElements = sampleTypePropertyTypes.size();
-
-        for (SampleTypePropertyType stpt : sampleTypePropertyTypes)
+        for (Item column : columns)
         {
-            if (numberOfElements <= MENU_LENGTH)
+            if (folded == false)
             {
-                columnsMenu.add(createColumn(stpt));
+                columnsMenu.add(column);
             } else
             {
                 if (counter % MENU_LENGTH - START == 0)
                 {
                     MenuItem menuItem =
-                            new MenuItem(counter + " - "
-                                    + Math.min(counter + MENU_LENGTH - 1, numberOfElements));
+                            new MenuItem(title + " " + counter + " - "
+                                    + Math.min(counter + MENU_LENGTH - 1, columns.size()));
                     subMenu = new Menu();
                     menuItem.setSubMenu(subMenu);
                     columnsMenu.add(menuItem);
                 }
-                subMenu.add(createColumn(stpt));
+                subMenu.add(column);
                 counter++;
             }
         }
-        setMenu(columnsMenu);
     }
 
-    CheckMenuItem createColumn(final SampleTypePropertyType stpt)
-    {
-        final CheckMenuItem checkMenuItem = new CheckMenuItem(stpt.getPropertyType().getCode());
-        checkMenuItem.setHideOnClick(false);
-        checkMenuItem.setChecked(stpt.isDisplayed());
-        checkMenuItem.addSelectionListener(new SelectionListener<ComponentEvent>()
-            {
-                @Override
-                public void componentSelected(ComponentEvent ce)
-                {
-                    stpt.setDisplayed(checkMenuItem.isChecked());
-                }
-            });
-        return checkMenuItem;
-    }
 }

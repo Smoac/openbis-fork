@@ -1,0 +1,107 @@
+/*
+ * Copyright 2008 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.google.gwt.i18n.client.DateTimeFormat;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonRenderer;
+
+class CommonColumns
+{
+    List<ColumnConfig> columns;
+
+    public CommonColumns()
+    {
+        columns = new ArrayList<ColumnConfig>();
+        define();
+
+    }
+
+    public List<ColumnConfig> getColumns()
+    {
+        return columns;
+    }
+
+    private void define()
+    {
+        columns.add(createCodeColumn());
+        columns.add(createIdentifierColumn());
+        columns.add(createAssignedToIdentifierColumn());
+        columns.add(createRegistratorColumn());
+        columns.add(createRegistionDateColumn());
+    }
+
+    private final ColumnConfig createCodeColumn()
+    {
+        final ColumnConfig columnConfig = new ColumnConfig();
+        columnConfig.setMenuDisabled(true);
+        columnConfig.setId(SampleModel.SAMPLE_CODE);
+        columnConfig.setHeader("Code");
+        columnConfig.setWidth(100);
+        return columnConfig;
+    }
+
+    private final ColumnConfig createIdentifierColumn()
+    {
+        final ColumnConfig columnConfig = new ColumnConfig();
+        columnConfig.setMenuDisabled(true);
+        columnConfig.setId(SampleModel.SAMPLE_IDENTIFIER);
+        columnConfig.setHeader("Identifier");
+        columnConfig.setHidden(true);
+        columnConfig.setWidth(150);
+        return columnConfig;
+    }
+
+    private final ColumnConfig createAssignedToIdentifierColumn()
+    {
+        final ColumnConfig columnConfig = new ColumnConfig();
+        columnConfig.setMenuDisabled(true);
+        columnConfig.setId(SampleModel.ATTACHED_TO_IDENTIFIER);
+        columnConfig.setHeader("Attached to");
+        columnConfig.setWidth(100);
+        return columnConfig;
+    }
+
+    private final ColumnConfig createRegistratorColumn()
+    {
+        final ColumnConfig columnConfig = new ColumnConfig();
+        columnConfig.setMenuDisabled(true);
+        columnConfig.setId(SampleModel.REGISTRATOR);
+        columnConfig.setHeader("Registrator");
+        columnConfig.setWidth(100);
+        columnConfig.setRenderer(new PersonRenderer());
+        columnConfig.setHidden(true);
+        return columnConfig;
+    }
+
+    private final ColumnConfig createRegistionDateColumn()
+    {
+        final ColumnConfig columnConfig = new ColumnConfig();
+        columnConfig.setMenuDisabled(true);
+        columnConfig.setId(SampleModel.REGISTRATION_DATE);
+        columnConfig.setHeader("Registration Date");
+        columnConfig.setWidth(100);
+        columnConfig.setDateTimeFormat(DateTimeFormat.getShortDateFormat());
+        columnConfig.setHidden(true);
+        return columnConfig;
+    }
+
+}

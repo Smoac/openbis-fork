@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
  */
 public class ToolbarController
 {
+
     private final SampleTypeSelectionWidget sampleTypeSelectionWidget;
 
     private final GroupSelectionWidget groupSelectionWidget;
@@ -38,9 +39,14 @@ public class ToolbarController
 
     private final ColumnChooser columnChooser;
 
+    private final ParentColumns parentColumns;
+
+    private final PropertyColumns propertyColumns;
+
     public ToolbarController(SampleTypeSelectionWidget sampleTypeSelectionWidget,
             GroupSelectionWidget groupSelectionWidget, CheckBox instanceCheckbox,
-            CheckBox groupCheckbox, Button submitButton, ColumnChooser columnChooser)
+            CheckBox groupCheckbox, Button submitButton, ColumnChooser columnChooser,
+            ParentColumns parentColumns, PropertyColumns propertyColumns)
     {
         this.sampleTypeSelectionWidget = sampleTypeSelectionWidget;
         this.groupSelectionWidget = groupSelectionWidget;
@@ -48,6 +54,8 @@ public class ToolbarController
         this.groupCheckbox = groupCheckbox;
         this.submitButton = submitButton;
         this.columnChooser = columnChooser;
+        this.parentColumns = parentColumns;
+        this.propertyColumns = propertyColumns;
     }
 
     public void refreshSubmitButton()
@@ -65,12 +73,24 @@ public class ToolbarController
         groupSelectionWidget.setVisible(groupCheckbox.getValue());
     }
 
-    public void refreshColumnChooser()
+    public void rebuildColumnChooser()
     {
         final SampleType type = sampleTypeSelectionWidget.tryGetSelected();
         if (type != null)
         {
-            columnChooser.load(type);
+            propertyColumns.define(type);
+            parentColumns.define(type);
+            columnChooser.reload();
+            columnChooser.setEnabled(true);
+        }
+    }
+
+    public void resetPropertyCache(boolean reset)
+    {
+        if (reset)
+        {
+            propertyColumns.resetLoaded();
+            columnChooser.reload();
             columnChooser.setEnabled(true);
         }
     }

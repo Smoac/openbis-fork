@@ -35,6 +35,8 @@ public class SampleModel extends BaseModelData
 
     static final String ATTACHED_TO_IDENTIFIER = "attachedToIdentifier";
 
+    static final String IS_GROUP_SAMPLE = "isGroupSample";
+
     static final String SAMPLE_IDENTIFIER = "sampleIdentifier";
 
     static final long serialVersionUID = 1L;
@@ -59,6 +61,7 @@ public class SampleModel extends BaseModelData
                 .getDatabaseInstance().getIdentifier());
         set(REGISTRATOR, s.getRegistrator());
         set(REGISTRATION_DATE, s.getRegistrationDate());
+        set(IS_GROUP_SAMPLE, s.getGroup() != null);
         setGeneratedFromParents(s, 1, s.getSampleType().getGeneratedFromHierarchyDepth());
         setContainerParents(s, 1, s.getSampleType().getPartOfHierarchyDepth());
         setProperties(s);
@@ -69,8 +72,9 @@ public class SampleModel extends BaseModelData
     {
         for (SampleProperty p : s.getProperties())
         {
-            set(PROPERTY_PREFIX + p.getSampleTypePropertyType().getPropertyType().getCode(), p
-                    .getValue());
+            set(PROPERTY_PREFIX
+                    + p.getSampleTypePropertyType().getPropertyType().isInternalNamespace()
+                    + p.getSampleTypePropertyType().getPropertyType().getSimpleCode(), p.getValue());
         }
 
     }

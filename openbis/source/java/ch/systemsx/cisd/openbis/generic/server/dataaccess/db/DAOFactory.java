@@ -33,6 +33,8 @@ public class DAOFactory extends AuthorizationDAOFactory implements IDAOFactory
 
     private final ISampleTypeDAO sampleTypeDAO;
 
+    private final SamplePropertyDAO samplePropertyDAO;
+
     public DAOFactory(DatabaseConfigurationContext context, SessionFactory sessionFactory)
     {
         super(context, sessionFactory);
@@ -40,6 +42,7 @@ public class DAOFactory extends AuthorizationDAOFactory implements IDAOFactory
 
         sampleDAO = new SampleDAO(sessionFactory, databaseInstance);
         sampleTypeDAO = new SampleTypeDAO(sessionFactory, databaseInstance);
+        samplePropertyDAO = new SamplePropertyDAO(sessionFactory, databaseInstance);
     }
 
     public ISampleDAO getSampleDAO()
@@ -50,6 +53,11 @@ public class DAOFactory extends AuthorizationDAOFactory implements IDAOFactory
     public ISampleTypeDAO getSampleTypeDAO()
     {
         return sampleTypeDAO;
+    }
+
+    public SamplePropertyDAO getSamplePropertyDAO()
+    {
+        return samplePropertyDAO;
     }
 
 }

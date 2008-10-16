@@ -38,6 +38,7 @@ public class GroupTranslater
         Group result = new Group();
         result.setCode(group.getCode());
         result.setDescription(group.getDescription());
+        result.setInstance(DatabaseInstanceTranslater.translate(group.getDatabaseInstance()));
         result.setRegistrationDate(group.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(group.getRegistrator()));
         result.setIdentifier(IdentifierHelper.createIdentifier(group).toString());
