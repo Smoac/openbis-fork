@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.common.filesystem;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -26,10 +29,8 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UnknownLastChangedException;
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogInitializer;
-
-import static org.testng.AssertJUnit.*;
+import ch.systemsx.cisd.common.test.Retry10;
 
 /**
  * Test cases for the {@link FileUtilities#lastChanged(File)} method.
@@ -136,7 +137,7 @@ public class FileUtilitiesLastChangedTest
         assertEquals(1000L, FileUtilities.lastChanged(dirA, true, 999L));
     }
 
-    @Test
+    @Test(retryAnalyzer = Retry10.class)
     public void testLastChangedRelative() throws IOException
     {
         final File dirA = new File(workingDirectory, "a-relative");
