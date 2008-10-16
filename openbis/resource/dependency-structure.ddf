@@ -35,6 +35,13 @@ layer generic.web.shared = [generic.web.shared]
 
 check layeringOf generic.web.shared generic.web.client-server
 
+{generic.web.ui} = ${generic.web}.client.application.ui
+
+[sample-browser] = ${generic.web.ui}.sample_browser
+[admin-console] = ${generic.web.ui}.amc
+check [sample-browser] independentOf [admin-console]
+check [admin-console]  independentOf [sample-browser]
+
 #-------- Server -------------------------
 {generic.server} = ${generic}.server
 
