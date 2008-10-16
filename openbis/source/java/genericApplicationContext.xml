@@ -2,47 +2,23 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:plugins="http://www.springframework.org/schema/context"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-			http://www.springframework.org/schema/beans/spring-beans.xsd
+			http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
 			http://www.springframework.org/schema/tx
-			http://www.springframework.org/schema/tx/spring-tx.xsd">
+			http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd">
 
-    <!-- 
-        // Web Client Service Server
-    -->
+    <import resource="hibernateContext.xml" />
 
-    <bean id="generic-service" class="ch.systemsx.cisd.openbis.generic.client.web.server.GenericClientService">
-        <constructor-arg ref="generic-server" />
-        <constructor-arg ref="request-context-provider" />
-    </bean>
-    
-    <bean id="generic-server" class="org.springframework.aop.framework.ProxyFactoryBean">
-        <property name="proxyInterfaces">
-            <list>
-                <value>ch.systemsx.cisd.openbis.generic.shared.IGenericServer</value>
-                <value>ch.systemsx.cisd.openbis.generic.shared.authorization.ISessionProvider</value>
-            </list>
-        </property>
-                
-        <property name="target">
-            <bean class="ch.systemsx.cisd.openbis.generic.server.GenericServer">
-                <constructor-arg ref="${authentication-service}" />
-                <constructor-arg ref="request-context-provider" />
-                <constructor-arg ref="generic-dao-factory" />
-                <!-- The time after which an inactive session is expired by the service (in minutes). -->
-                <constructor-arg value="${session-timeout}" />
-            </bean>
-        </property>
-        <property name="interceptorNames">
-            <list>
-                <value>logInterceptor</value>
-            </list>
-        </property>
-    </bean>
-    
-    <bean id="logInterceptor" class="ch.systemsx.cisd.common.spring.LogInterceptor"/>
-    
+    <import resource="genericServiceContext.xml" />
+
+    <import resource="screeningServiceContext.xml" />
+
     <import resource="dbConfigurationContext.xml" />
+
+    <bean id="logInterceptor" class="ch.systemsx.cisd.common.spring.LogInterceptor" />
 
     <bean id="data-source" factory-bean="db-configuration-context" factory-method="getDataSource" />
 
@@ -55,87 +31,14 @@
         factory-method="createOrMigrateDatabaseAndGetScriptProvider">
         <constructor-arg ref="db-configuration-context" />
         <constructor-arg>
-            <bean class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DatabaseVersionHolder"
+            <bean
+                class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DatabaseVersionHolder"
                 factory-method="getDatabaseVersion" />
         </constructor-arg>
     </bean>
 
-
-    <bean id="hibernate-session-factory"
-          class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean"
-          depends-on="sql-script-provider">
-        <property name="dataSource">
-            <ref bean="data-source" />
-        </property>
-        <property name="annotatedClasses">
-            <list>
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE</value>
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE</value>
-
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE</value>
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE</value>
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE</value>
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE</value>
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE</value>
-
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE</value>
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE</value>
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE</value>
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.ProcedureTypePE</value>
-
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE</value>
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE</value>
-
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE</value>
-
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE</value>
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE</value>
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE</value>
-
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE</value>
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePropertyTypePE</value>
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePropertyTypePE</value>
-
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE</value>
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE</value>
-
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.FileAttachmentPE</value>
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE</value>
-
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE</value>
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE</value>
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE</value>
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.DataPE</value>
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE</value>
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE</value>
-
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE</value>
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE</value>
-
-
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE</value>
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.MaterialBatchPE</value>
-            </list>
-        </property>
-        <property name="hibernateProperties">
-            <props>
-                <prop key="hibernate.cache.use_query_cache">true</prop>
-                <prop key="hibernate.cache.provider_class">
-                    org.hibernate.cache.EhCacheProvider
-                </prop>
-                <!--   
-                    <prop key="hibernate.search.default.indexBase">./indexes</prop> 
-                    <prop key="hibernate.search.default.directory_provider">org.hibernate.search.store.FSDirectoryProvider</prop>
-               
-                    <prop key="hibernate.show_sql">true</prop>
-                    <prop key="hibernate.format_sql">true</prop>
-                    <prop key="hibernate.use_sql_comments">true</prop>
-                -->
-            </props>
-        </property>
-    </bean>
-
-    <bean id="generic-dao-factory" class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory">
+    <bean id="generic-dao-factory"
+        class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory">
         <constructor-arg ref="db-configuration-context" />
         <constructor-arg ref="hibernate-session-factory" />
     </bean>
@@ -171,10 +74,23 @@
         <constructor-arg ref="${authorization-component-factory}" />
     </bean>
 
-    <bean id="no-authorization" class="ch.systemsx.cisd.openbis.generic.server.authorization.NoAuthorization" />
+    <bean id="no-authorization"
+        class="ch.systemsx.cisd.openbis.generic.server.authorization.NoAuthorization" />
 
     <bean id="active-authorization"
         class="ch.systemsx.cisd.openbis.generic.server.authorization.ActiveAuthorization">
         <constructor-arg ref="generic-dao-factory" />
     </bean>
+
+    <!--
+        // Plugins
+    -->
+
+    <plugins:annotation-config />
+
+    <plugins:component-scan base-package="ch.systemsx.cisd.openbis.plugin">
+        <plugins:exclude-filter type="annotation"
+            expression="org.springframework.stereotype.Controller" />
+    </plugins:component-scan>
+
 </beans>

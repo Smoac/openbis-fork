@@ -7,11 +7,13 @@
 
     <display-name>openBIS</display-name>
     <description>openBIS server</description>
-    
+
     &common;
 
     <listener>
-        <listener-class>ch.systemsx.cisd.openbis.generic.client.web.server.GenericHttpSessionListener</listener-class>
+        <listener-class>
+            ch.systemsx.cisd.openbis.generic.server.GenericHttpSessionListener
+        </listener-class>
     </listener>
 
     <!-- Trying kind of extension (i.e., '*.do') here as 'url-pattern' does not work. -->

@@ -1,37 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Automatically generated - DO NOT EDIT!-->
 <module>
-    <!--
-        // Inherit the core Web Toolkit stuff.
-    -->
-    <inherits name='com.google.gwt.user.User'/>
-    <inherits name="com.google.gwt.i18n.I18N" />
-    
-    <!--
-        // Inherit the core EXT GWT stuff.
-    -->
-    <inherits name='com.extjs.gxt.ui.GXT'/>
-    
-    <!--
-        // The following scripts loads dictionaries which are used for all text messages.
-    -->
-    <script src="common-dictionary.js"/>
-    <script src="generic-dictionary.js"/>
-    
-    <stylesheet src="css/openbis.css" />
-    
-    <!--
-        // Application entry point 
-     -->    
-    <entry-point class='ch.systemsx.cisd.openbis.generic.client.web.client.application.Client' />
-    
-    <!--
-        // Source path elements to Java classes to be compiled to JavaScript
-    -->
-    <source path="generic/client/web/client" />
-    <!--source path="plugin/hcs/client/web/client" /-->
-    
-    <public path="public"/>
-    <public path="generic/client/web/public"/>
-
-    <!-- Do not define servlets here, use web.xml -->
-
+<stylesheet src="css/openbis.css"/>
+<entry-point class="ch.systemsx.cisd.openbis.generic.client.web.client.application.Client"/>
+<inherits name="com.google.gwt.user.User"/>
+<inherits name="com.google.gwt.i18n.I18N"/>
+<inherits name="com.extjs.gxt.ui.GXT"/>
+<script src="common-dictionary.js"/>
+<script src="generic-dictionary.js"/>
+<script src="screening-dictionary.js"/>
+<source path="generic/client/web/client"/>
+<source path="plugin/screening/client/web/client"/>
+<public path="public"/>
+<public path="generic/client/web/public"/>
+<public path="plugin/screening/client/web/public"/>
 </module>

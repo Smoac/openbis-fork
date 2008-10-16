@@ -18,15 +18,11 @@ package ch.systemsx.cisd.openbis.generic.client.web.client;
 
 import java.util.List;
 
-import com.google.gwt.user.client.rpc.RemoteService;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
 /**
@@ -34,29 +30,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureE
  * 
  * @author Franz-Josef Elmer
  */
-public interface IGenericClientService extends RemoteService
+public interface IGenericClientService extends IClientService
 {
-    /**
-     * Returns static information of the application needed by the client.
-     */
-    public ApplicationInfo getApplicationInfo();
-
-    /**
-     * Tries to return the current session context. If failed <code>null</code> is returned.
-     */
-    public SessionContext tryToGetCurrentSessionContext();
-
-    /**
-     * Tries to login with specified user ID and password. If failed <code>null</code> is
-     * returned.
-     */
-    public SessionContext tryToLogin(String userID, String password) throws UserFailureException;
-
-    /**
-     * Logs out.
-     */
-    public void logout();
-
     /**
      * Returns a list of all groups which belong to the specified database instance.
      */
