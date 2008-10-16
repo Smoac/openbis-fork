@@ -29,7 +29,7 @@ public final class MDFloatArray extends MDAbstractArray<Float>
 
     public MDFloatArray(long[] dimensions)
     {
-        this(new float[getLength(dimensions)], toInt(dimensions), true);
+        this(new float[getLength(dimensions)], toInt(dimensions), false);
     }
 
     public MDFloatArray(float[] flattenedArray, long[] dimensions)
@@ -44,7 +44,7 @@ public final class MDFloatArray extends MDAbstractArray<Float>
 
     public MDFloatArray(int[] dimensions)
     {
-        this(new float[getLength(dimensions)], dimensions, true);
+        this(new float[getLength(dimensions)], dimensions, false);
     }
 
     public MDFloatArray(float[] flattenedArray, int[] dimensions)
@@ -76,15 +76,15 @@ public final class MDFloatArray extends MDAbstractArray<Float>
     }
 
     @Override
-    public Float getAsObject(int[] indices)
+    public Float getAsObject(int... indices)
     {
         return get(indices);
     }
 
     @Override
-    public void setToObject(int[] indices, Float value)
+    public void setToObject(Float value, int... indices)
     {
-        set(indices, value);
+        set(value, indices);
     }
 
     /**
@@ -99,7 +99,7 @@ public final class MDFloatArray extends MDAbstractArray<Float>
     /**
      * Returns the value of array at the position defined by <var>indices</var>.
      */
-    public float get(int[] indices)
+    public float get(int... indices)
     {
         return flattenedArray[computeIndex(indices)];
     }
@@ -139,7 +139,7 @@ public final class MDFloatArray extends MDAbstractArray<Float>
     /**
      * Sets the <var>value</var> of array at the position defined by <var>indices</var>.
      */
-    public void set(int[] indices, float value)
+    public void set(float value, int... indices)
     {
         flattenedArray[computeIndex(indices)] = value;
     }
@@ -150,7 +150,7 @@ public final class MDFloatArray extends MDAbstractArray<Float>
      * <p>
      * <b>Do not call for arrays other than one-dimensional!</b>
      */
-    public void set(int index, float value)
+    public void set(float value, int index)
     {
         flattenedArray[index] = value;
     }
@@ -161,7 +161,7 @@ public final class MDFloatArray extends MDAbstractArray<Float>
      * <p>
      * <b>Do not call for arrays other than two-dimensional!</b>
      */
-    public void set(int indexX, int indexY, float value)
+    public void set(float value, int indexX, int indexY)
     {
         flattenedArray[computeIndex(indexX, indexY)] = value;
     }
@@ -172,7 +172,7 @@ public final class MDFloatArray extends MDAbstractArray<Float>
      * <p>
      * <b>Do not call for arrays other than three-dimensional!</b>
      */
-    public void set(int indexX, int indexY, int indexZ, float value)
+    public void set(float value, int indexX, int indexY, int indexZ)
     {
         flattenedArray[computeIndex(indexX, indexY, indexZ)] = value;
     }

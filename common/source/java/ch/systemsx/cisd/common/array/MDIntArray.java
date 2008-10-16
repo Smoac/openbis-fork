@@ -29,7 +29,7 @@ public final class MDIntArray extends MDAbstractArray<Integer>
 
     public MDIntArray(long[] dimensions)
     {
-        this(new int[getLength(dimensions)], toInt(dimensions), true);
+        this(new int[getLength(dimensions)], toInt(dimensions), false);
     }
 
     public MDIntArray(int[] flattenedArray, long[] dimensions)
@@ -44,7 +44,7 @@ public final class MDIntArray extends MDAbstractArray<Integer>
 
     public MDIntArray(int[] dimensions)
     {
-        this(new int[getLength(dimensions)], dimensions, true);
+        this(new int[getLength(dimensions)], dimensions, false);
     }
 
     public MDIntArray(int[] flattenedArray, int[] dimensions)
@@ -76,15 +76,15 @@ public final class MDIntArray extends MDAbstractArray<Integer>
     }
 
     @Override
-    public Integer getAsObject(int[] indices)
+    public Integer getAsObject(int... indices)
     {
         return get(indices);
     }
 
     @Override
-    public void setToObject(int[] indices, Integer value)
+    public void setToObject(Integer value, int... indices)
     {
-        set(indices, value);
+        set(value, indices);
     }
 
     /**
@@ -99,7 +99,7 @@ public final class MDIntArray extends MDAbstractArray<Integer>
     /**
      * Returns the value of array at the position defined by <var>indices</var>.
      */
-    public int get(int[] indices)
+    public int get(int... indices)
     {
         return flattenedArray[computeIndex(indices)];
     }
@@ -139,7 +139,7 @@ public final class MDIntArray extends MDAbstractArray<Integer>
     /**
      * Sets the <var>value</var> of array at the position defined by <var>indices</var>.
      */
-    public void set(int[] indices, int value)
+    public void set(int value, int... indices)
     {
         flattenedArray[computeIndex(indices)] = value;
     }
@@ -150,7 +150,7 @@ public final class MDIntArray extends MDAbstractArray<Integer>
      * <p>
      * <b>Do not call for arrays other than one-dimensional!</b>
      */
-    public void set(int index, int value)
+    public void set(int value, int index)
     {
         flattenedArray[index] = value;
     }
@@ -161,7 +161,7 @@ public final class MDIntArray extends MDAbstractArray<Integer>
      * <p>
      * <b>Do not call for arrays other than two-dimensional!</b>
      */
-    public void set(int indexX, int indexY, int value)
+    public void set(int value, int indexX, int indexY)
     {
         flattenedArray[computeIndex(indexX, indexY)] = value;
     }
@@ -172,7 +172,7 @@ public final class MDIntArray extends MDAbstractArray<Integer>
      * <p>
      * <b>Do not call for arrays other than three-dimensional!</b>
      */
-    public void set(int indexX, int indexY, int indexZ, int value)
+    public void set(int value, int indexX, int indexY, int indexZ)
     {
         flattenedArray[computeIndex(indexX, indexY, indexZ)] = value;
     }

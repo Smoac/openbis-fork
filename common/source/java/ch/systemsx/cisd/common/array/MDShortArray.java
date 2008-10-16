@@ -29,7 +29,7 @@ public final class MDShortArray extends MDAbstractArray<Short>
 
     public MDShortArray(long[] dimensions)
     {
-        this(new short[getLength(dimensions)], toInt(dimensions), true);
+        this(new short[getLength(dimensions)], toInt(dimensions), false);
     }
 
     public MDShortArray(short[] flattenedArray, long[] dimensions)
@@ -44,7 +44,7 @@ public final class MDShortArray extends MDAbstractArray<Short>
 
     public MDShortArray(int[] dimensions)
     {
-        this(new short[getLength(dimensions)], dimensions, true);
+        this(new short[getLength(dimensions)], dimensions, false);
     }
 
     public MDShortArray(short[] flattenedArray, int[] dimensions)
@@ -76,15 +76,15 @@ public final class MDShortArray extends MDAbstractArray<Short>
     }
 
     @Override
-    public Short getAsObject(int[] indices)
+    public Short getAsObject(int... indices)
     {
         return get(indices);
     }
 
     @Override
-    public void setToObject(int[] indices, Short value)
+    public void setToObject(Short value, int... indices)
     {
-        set(indices, value);
+        set(value, indices);
     }
 
     /**
@@ -99,7 +99,7 @@ public final class MDShortArray extends MDAbstractArray<Short>
     /**
      * Returns the value of array at the position defined by <var>indices</var>.
      */
-    public short get(int[] indices)
+    public short get(int... indices)
     {
         return flattenedArray[computeIndex(indices)];
     }
@@ -139,7 +139,7 @@ public final class MDShortArray extends MDAbstractArray<Short>
     /**
      * Sets the <var>value</var> of array at the position defined by <var>indices</var>.
      */
-    public void set(int[] indices, short value)
+    public void set(short value, int... indices)
     {
         flattenedArray[computeIndex(indices)] = value;
     }
@@ -150,7 +150,7 @@ public final class MDShortArray extends MDAbstractArray<Short>
      * <p>
      * <b>Do not call for arrays other than one-dimensional!</b>
      */
-    public void set(int index, short value)
+    public void set(short value, int index)
     {
         flattenedArray[index] = value;
     }
@@ -161,7 +161,7 @@ public final class MDShortArray extends MDAbstractArray<Short>
      * <p>
      * <b>Do not call for arrays other than two-dimensional!</b>
      */
-    public void set(int indexX, int indexY, short value)
+    public void set(short value, int indexX, int indexY)
     {
         flattenedArray[computeIndex(indexX, indexY)] = value;
     }
@@ -172,7 +172,7 @@ public final class MDShortArray extends MDAbstractArray<Short>
      * <p>
      * <b>Do not call for arrays other than three-dimensional!</b>
      */
-    public void set(int indexX, int indexY, int indexZ, short value)
+    public void set(short value, int indexX, int indexY, int indexZ)
     {
         flattenedArray[computeIndex(indexX, indexY, indexZ)] = value;
     }

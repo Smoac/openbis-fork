@@ -82,18 +82,18 @@ public abstract class MDAbstractArray<T>
      * Return an object which has the same value as the element of the array specified by
      * <var>indices</var>.
      */
-    public abstract T getAsObject(int[] indices);
+    public abstract T getAsObject(int... indices);
 
     /**
      * Sets the element of the array specified by <var>indices</var> to the particular
      * <var>value</var>.
      */
-    public abstract void setToObject(int[] indices, T value);
+    public abstract void setToObject(T value, int... indices);
 
     /**
      * Computes the linear index for the multi-dimensional <var>indices</var> provided.
      */
-    protected int computeIndex(int[] indices)
+    protected int computeIndex(int... indices)
     {
         assert indices != null;
         assert indices.length == dimensions.length;

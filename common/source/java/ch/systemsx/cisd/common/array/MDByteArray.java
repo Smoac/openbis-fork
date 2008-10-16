@@ -29,7 +29,7 @@ public final class MDByteArray extends MDAbstractArray<Byte>
 
     public MDByteArray(long[] dimensions)
     {
-        this(new byte[getLength(dimensions)], toInt(dimensions), true);
+        this(new byte[getLength(dimensions)], toInt(dimensions), false);
     }
 
     public MDByteArray(byte[] flattenedArray, long[] dimensions)
@@ -44,7 +44,7 @@ public final class MDByteArray extends MDAbstractArray<Byte>
 
     public MDByteArray(int[] dimensions)
     {
-        this(new byte[getLength(dimensions)], dimensions, true);
+        this(new byte[getLength(dimensions)], dimensions, false);
     }
 
     public MDByteArray(byte[] flattenedArray, int[] dimensions)
@@ -76,15 +76,15 @@ public final class MDByteArray extends MDAbstractArray<Byte>
     }
 
     @Override
-    public Byte getAsObject(int[] indices)
+    public Byte getAsObject(int... indices)
     {
         return get(indices);
     }
 
     @Override
-    public void setToObject(int[] indices, Byte value)
+    public void setToObject(Byte value, int... indices)
     {
-        set(indices, value);
+        set(value, indices);
     }
 
     /**
@@ -99,7 +99,7 @@ public final class MDByteArray extends MDAbstractArray<Byte>
     /**
      * Returns the value of array at the position defined by <var>indices</var>.
      */
-    public byte get(int[] indices)
+    public byte get(int... indices)
     {
         return flattenedArray[computeIndex(indices)];
     }
@@ -139,7 +139,7 @@ public final class MDByteArray extends MDAbstractArray<Byte>
     /**
      * Sets the <var>value</var> of array at the position defined by <var>indices</var>.
      */
-    public void set(int[] indices, byte value)
+    public void set(byte value, int... indices)
     {
         flattenedArray[computeIndex(indices)] = value;
     }
@@ -150,7 +150,7 @@ public final class MDByteArray extends MDAbstractArray<Byte>
      * <p>
      * <b>Do not call for arrays other than one-dimensional!</b>
      */
-    public void set(int index, byte value)
+    public void set(byte value, int index)
     {
         flattenedArray[index] = value;
     }
@@ -161,7 +161,7 @@ public final class MDByteArray extends MDAbstractArray<Byte>
      * <p>
      * <b>Do not call for arrays other than two-dimensional!</b>
      */
-    public void set(int indexX, int indexY, byte value)
+    public void set(byte value, int indexX, int indexY)
     {
         flattenedArray[computeIndex(indexX, indexY)] = value;
     }
@@ -172,7 +172,7 @@ public final class MDByteArray extends MDAbstractArray<Byte>
      * <p>
      * <b>Do not call for arrays other than three-dimensional!</b>
      */
-    public void set(int indexX, int indexY, int indexZ, byte value)
+    public void set(byte value, int indexX, int indexY, int indexZ)
     {
         flattenedArray[computeIndex(indexX, indexY, indexZ)] = value;
     }

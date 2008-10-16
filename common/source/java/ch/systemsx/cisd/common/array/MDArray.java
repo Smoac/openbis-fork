@@ -28,16 +28,9 @@ public class MDArray<T> extends MDAbstractArray<T>
 
     private final T[] flattenedArray;
     
-    @SuppressWarnings("unchecked")
-    private static <V> V[] createArray(Class<V> componentClass, final int vectorLength)
-    {
-        final V[] value =
-                (V[]) java.lang.reflect.Array.newInstance(componentClass, vectorLength);
-        return value;
-    }
     public MDArray(Class<T> componentClass, long[] dimensions)
     {
-        this(createArray(componentClass, getLength(dimensions)), toInt(dimensions), true);
+        this(createArray(componentClass, getLength(dimensions)), toInt(dimensions), false);
     }
 
     public MDArray(T[] flattenedArray, long[] dimensions)
@@ -52,7 +45,7 @@ public class MDArray<T> extends MDAbstractArray<T>
 
     public MDArray(Class<T> componentClass, int[] dimensions)
     {
-        this(createArray(componentClass, getLength(dimensions)), dimensions, true);
+        this(createArray(componentClass, getLength(dimensions)), dimensions, false);
     }
 
     public MDArray(T[] flattenedArray, int[] dimensions)
@@ -77,14 +70,22 @@ public class MDArray<T> extends MDAbstractArray<T>
         this.flattenedArray = flattenedArray;
     }
 
+    @SuppressWarnings("unchecked")
+    private static <V> V[] createArray(Class<V> componentClass, final int vectorLength)
+    {
+        final V[] value =
+                (V[]) java.lang.reflect.Array.newInstance(componentClass, vectorLength);
+        return value;
+    }
+
     @Override
-    public T getAsObject(int[] indices)
+    public T getAsObject(int... indices)
     {
         return get(indices);
     }
 
     @Override
-    public void setToObject(int[] indices, T value)
+    public void setToObject(T value, int... indices)
     {
         set(indices, value);
     }
@@ -107,7 +108,7 @@ public class MDArray<T> extends MDAbstractArray<T>
     /**
      * Returns the value of array at the position defined by <var>indices</var>.
      */
-    public T get(int[] indices)
+    public T get(int... indices)
     {
         return flattenedArray[computeIndex(indices)];
     }
@@ -158,7 +159,7 @@ public class MDArray<T> extends MDAbstractArray<T>
      * <p>
      * <b>Do not call for arrays other than one-dimensional!</b>
      */
-    public void set(int index, T value)
+    public void set(T value, int index)
     {
         flattenedArray[index] = value;
     }
@@ -169,7 +170,7 @@ public class MDArray<T> extends MDAbstractArray<T>
      * <p>
      * <b>Do not call for arrays other than two-dimensional!</b>
      */
-    public void set(int indexX, int indexY, T value)
+    public void set(T value, int indexX, int indexY)
     {
         flattenedArray[computeIndex(indexX, indexY)] = value;
     }
@@ -180,7 +181,7 @@ public class MDArray<T> extends MDAbstractArray<T>
      * <p>
      * <b>Do not call for arrays other than three-dimensional!</b>
      */
-    public void set(int indexX, int indexY, int indexZ, T value)
+    public void set(T value, int indexX, int indexY, int indexZ)
     {
         flattenedArray[computeIndex(indexX, indexY, indexZ)] = value;
     }

@@ -38,13 +38,13 @@ public class MDArraytest
         }
 
         @Override
-        public Void getAsObject(int[] indices)
+        public Void getAsObject(int... indices)
         {
             return null;
         }
 
         @Override
-        public void setToObject(int[] indices, Void value)
+        public void setToObject(Void value, int... indices)
         {
         }
 
