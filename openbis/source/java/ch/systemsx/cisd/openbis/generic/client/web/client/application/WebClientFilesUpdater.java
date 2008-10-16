@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.util;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -39,7 +39,6 @@ import org.w3c.dom.Element;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ClientPluginProvider;
 
 /**
  * Class which updates <code>OpenBIS.gwt.xml</code> and {@link ClientPluginProvider}.
@@ -48,6 +47,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ClientPlug
  */
 public final class WebClientFilesUpdater
 {
+    private static final String CLIENT_PLUGIN_PROVIDER_CLASS = ClientPluginProvider.class.getName();
+
     private static final String INHERITS_ELEMENT = "inherits";
 
     private static final String MODULE_ELEMENT = "module";
@@ -303,8 +304,7 @@ public final class WebClientFilesUpdater
             return;
         }
         final File clientPluginProviderJavaFile =
-                new File(workingDirectory, ClientPluginProvider.class.getName().replace(".", "/")
-                        + ".java");
+                new File(workingDirectory, CLIENT_PLUGIN_PROVIDER_CLASS.replace(".", "/") + ".java");
         final String response =
                 FileUtilities.checkFileFullyAccessible(clientPluginProviderJavaFile, "java");
         if (response != null)
@@ -365,6 +365,9 @@ public final class WebClientFilesUpdater
         }
         final WebClientFilesUpdater webClientFilesUpdater =
                 new WebClientFilesUpdater(workingDirectory, technologies);
+        webClientFilesUpdater.updateOpenBISGwtXmlFile();
+        System.out.println(String.format("'%s' has been written out.", OPENBIS_GWT_XML_FILE_NAME));
         webClientFilesUpdater.updateClientPluginProvider();
+        System.out.println(String.format("'%s' has been updated.", CLIENT_PLUGIN_PROVIDER_CLASS));
     }
 }
