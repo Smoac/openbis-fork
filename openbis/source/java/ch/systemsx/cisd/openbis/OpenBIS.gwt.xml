@@ -10,6 +10,7 @@
 <script src="generic-dictionary.js"/>
 <script src="screening-dictionary.js"/>
 <source path="generic/client/web/client"/>
+<source path="plugin/generic/client/web/client"/>
 <source path="plugin/screening/client/web/client"/>
 <public path="public"/>
 <public path="generic/client/web/public"/>

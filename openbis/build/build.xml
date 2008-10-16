@@ -131,7 +131,7 @@
     <!--
       // Compiles the javascript using GWT compiler.
       -->
-    <target name="compile-javascript" description="Compiles the javascript using GWT compiler.">
+    <target name="compile-javascript" depends="prepare-web-client" description="Compiles the javascript using GWT compiler.">
         <property name="application.gwt.path" value="ch.systemsx.cisd.openbis.OpenBIS" />
         <echo>
         </echo>
@@ -167,23 +167,18 @@
     </target>
 
     <!--
-      // Override 'compile' target by writing out 'OpenBIS.gwt.xml' and updating 'ClientPluginProvider.java'.
-      -->
-    <target name="compile">
-        <antcall target="prepare-web-client" />
-    	<antcall target="build-common.compile" />
-    </target>
-
-    <!--
       // Updates 'ClientPluginProvider.java' and 'OpenBIS.gwt.xml' with requested plugins.
       -->
-    <target name="prepare-web-client" description="Updates 'ClientPluginProvider.java' and 'OpenBIS.gwt.xml' with requested plugins.">
-        <java classname="ch.systemsx.cisd.openbis.generic.client.web.client.application.WebClientFilesUpdater"
-              classpath="${ecp}:${sources}" dir="." fork="true" failonerror="true">
+    <target name="prepare-web-client"
+            description="Updates 'ClientPluginProvider.java' and 'OpenBIS.gwt.xml' with requested plugins.">
+        <java classname="ch.systemsx.cisd.openbis.generic.shared.util.WebClientFilesUpdater"
+              classpath="${ecp}:${sources}"
+              fork="true"
+              failonerror="true">
             <arg value="${sources}" />
         </java>
     </target>
-    
+
     <!--
       // Creates JAR file.
       -->

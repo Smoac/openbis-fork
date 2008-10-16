@@ -46,6 +46,17 @@ public final class ClientPluginProvider
 
     private final static void registerPluginFactory(final IClientPluginFactory pluginFactory)
     {
+        for (final IClientPluginFactory plugin : plugins)
+        {
+            final Set<String> set = new HashSet<String>(plugin.getSampleTypeCodes());
+            set.retainAll(pluginFactory.getSampleTypeCodes());
+            if (set.size() > 0)
+            {
+                throw new IllegalArgumentException(
+                        "There is already a plugin factory registered for sample type code(s) '"
+                                + set + "'.");
+            }
+        }
         plugins.add(pluginFactory);
     }
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application;
+package ch.systemsx.cisd.openbis.generic.shared.util;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -39,6 +39,7 @@ import org.w3c.dom.Element;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ClientPluginProvider;
 
 /**
  * Class which updates <code>OpenBIS.gwt.xml</code> and {@link ClientPluginProvider}.
@@ -47,7 +48,8 @@ import ch.systemsx.cisd.common.utilities.OSUtilities;
  */
 public final class WebClientFilesUpdater
 {
-    private static final String CLIENT_PLUGIN_PROVIDER_CLASS = ClientPluginProvider.class.getName();
+    private static final String CLIENT_PLUGIN_PROVIDER_CLASS =
+            "ch.systemsx.cisd.openbis.generic.client.web.client.application";
 
     private static final String INHERITS_ELEMENT = "inherits";
 
@@ -189,10 +191,6 @@ public final class WebClientFilesUpdater
             module.appendChild(createSourceElement(document, "generic/client/web/client"));
             for (final String technology : technologies)
             {
-                if (technology.equals("generic"))
-                {
-                    continue;
-                }
                 module.appendChild(createSourceElement(document, String.format(
                         SOURCE_PATH_TEMPLATE, technology)));
             }
