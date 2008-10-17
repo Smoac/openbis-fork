@@ -43,6 +43,23 @@
         <constructor-arg ref="hibernate-session-factory" />
     </bean>
 
+    <bean id="session-manager" class="ch.systemsx.cisd.authentication.DefaultSessionManager">
+        <constructor-arg>
+            <bean class="ch.systemsx.cisd.openbis.generic.server.SessionFactory" />
+        </constructor-arg>
+        <constructor-arg>
+            <bean class="ch.systemsx.cisd.openbis.generic.server.LogMessagePrefixGenerator" />
+        </constructor-arg>
+        <constructor-arg ref="${authentication-service}" />
+        <constructor-arg>
+            <bean class="ch.systemsx.cisd.common.servlet.RequestContextProviderAdapter">
+                <constructor-arg ref="request-context-provider" />
+            </bean>
+        </constructor-arg>
+        <!-- The time after which an inactive session is expired by the service (in minutes). -->
+        <constructor-arg value="${session-timeout}" />
+    </bean>
+
     <!-- 
         // Transaction
     -->

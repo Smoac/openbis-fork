@@ -26,7 +26,6 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.ISessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
@@ -40,17 +39,20 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
  * 
  * @author Christian Ribeaud
  */
-public class AbstractServer implements IServer, ISessionProvider,
-        IInvocationLoggerFactory<IGenericServer>
+public abstract class AbstractServer<T extends IServer> implements IServer, ISessionProvider,
+        IInvocationLoggerFactory<T>
 {
-    private ISessionManager<Session> sessionManager;
+    private static ISessionManager<Session> sessionManager;
 
     private IDAOFactory daoFactory;
 
     protected AbstractServer(final ISessionManager<Session> sessionManager,
             final IDAOFactory daoFactory)
     {
-        this.sessionManager = sessionManager;
+        if (AbstractServer.sessionManager == null)
+        {
+            AbstractServer.sessionManager = sessionManager;
+        }
         this.daoFactory = daoFactory;
     }
 
@@ -79,14 +81,6 @@ public class AbstractServer implements IServer, ISessionProvider,
     //
     // IServer
     //
-
-    /**
-     * Creates a logger used to log invocations of objects of this class.
-     */
-    public final GenericServerLogger createLogger(final boolean invocationSuccessful)
-    {
-        return new GenericServerLogger(sessionManager, invocationSuccessful);
-    }
 
     public final IAuthSession getSession(final String sessionToken)
     {

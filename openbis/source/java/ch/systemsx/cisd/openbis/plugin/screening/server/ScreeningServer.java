@@ -18,24 +18,16 @@ package ch.systemsx.cisd.openbis.plugin.screening.server;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.authentication.DefaultSessionManager;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ISessionManager;
-import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
-import ch.systemsx.cisd.common.servlet.RequestContextProviderAdapter;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
-import ch.systemsx.cisd.openbis.generic.server.LogMessagePrefixGenerator;
-import ch.systemsx.cisd.openbis.generic.server.SessionFactory;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.GenericBusinessObjectFactory;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IGenericBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.plugin.ISampleServerPlugin;
-import ch.systemsx.cisd.openbis.plugin.SampleServerPluginRegistry;
 import ch.systemsx.cisd.openbis.plugin.Technology;
+import ch.systemsx.cisd.openbis.plugin.screening.server.business.bo.IScreeningBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.server.business.bo.ScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 
 /**
@@ -43,27 +35,31 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
  * 
  * @author Christian Ribeaud
  */
-public final class ScreeningServer extends AbstractServer implements IScreeningServer
+@SuppressWarnings("unused")
+public final class ScreeningServer extends AbstractServer<IScreeningServer> implements
+        IScreeningServer
 {
+    private final IScreeningBusinessObjectFactory businessObjectFactory;
+
     private static final Technology SCREENING_TECHNOLOGY = new Technology("SCREENING");
 
     public ScreeningServer(final IAuthenticationService authenticationService,
-            final IRequestContextProvider requestContextProvider, final IDAOFactory daoFactory,
-            final int sessionExpirationPeriodInMinutes)
-    {
-        this(authenticationService, new DefaultSessionManager<Session>(new SessionFactory(),
-                new LogMessagePrefixGenerator(), authenticationService,
-                new RequestContextProviderAdapter(requestContextProvider),
-                sessionExpirationPeriodInMinutes), daoFactory, new GenericBusinessObjectFactory(
-                daoFactory));
-    }
-
-    @Private
-    ScreeningServer(final IAuthenticationService authenticationService,
-            final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
-            final IGenericBusinessObjectFactory boFactory)
+            final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory)
     {
         super(sessionManager, daoFactory);
+        this.businessObjectFactory = new ScreeningBusinessObjectFactory(daoFactory);
+    }
+
+    //
+    // IInvocationLoggerFactory
+    //
+
+    /**
+     * Creates a logger used to log invocations of objects of this class.
+     */
+    public final IScreeningServer createLogger(final boolean invocationSuccessful)
+    {
+        return new ScreeningServerLogger(getSessionManager(), invocationSuccessful);
     }
 
     //
@@ -75,9 +71,10 @@ public final class ScreeningServer extends AbstractServer implements IScreeningS
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final SamplePE samplePE = new SamplePE();
-        final ISampleServerPlugin plugin =
-                SampleServerPluginRegistry
-                        .getPlugin(SCREENING_TECHNOLOGY, samplePE.getSampleType());
-        return null;
+        samplePE.setCode("CHOUBIDOU");
+        // final ISampleServerPlugin plugin =
+        // SampleServerPluginRegistry
+        // .getPlugin(SCREENING_TECHNOLOGY, samplePE.getSampleType());
+        return samplePE;
     }
 }

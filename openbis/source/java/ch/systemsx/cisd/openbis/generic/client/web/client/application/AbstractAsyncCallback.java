@@ -75,14 +75,14 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
         callbackListener = listenerOrNull == null ? DUMMY_LISTENER : listenerOrNull;
     }
 
-    protected final GenericViewContext viewContext;
+    protected final IViewContext<?> viewContext;
 
     private boolean silent;
 
     /**
      * Creates an instance for the specified view context.
      */
-    public AbstractAsyncCallback(final GenericViewContext viewContext)
+    public AbstractAsyncCallback(final IViewContext<?> viewContext)
     {
         this.viewContext = viewContext;
         if (callbackListener != DUMMY_LISTENER)

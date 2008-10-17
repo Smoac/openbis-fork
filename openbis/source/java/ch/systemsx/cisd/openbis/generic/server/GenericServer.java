@@ -23,14 +23,11 @@ import java.util.Map;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.authentication.DefaultSessionManager;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
-import ch.systemsx.cisd.common.servlet.RequestContextProviderAdapter;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.GenericBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGenericBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
@@ -59,20 +56,16 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentif
  * 
  * @author Franz-Josef Elmer
  */
-public class GenericServer extends AbstractServer implements IGenericServer
+public class GenericServer extends AbstractServer<IGenericServer> implements IGenericServer
 {
     private final IGenericBusinessObjectFactory boFactory;
 
     private final IAuthenticationService authenticationService;
 
     public GenericServer(final IAuthenticationService authenticationService,
-            final IRequestContextProvider requestContextProvider, final IDAOFactory daoFactory,
-            final int sessionExpirationPeriodInMinutes)
+            final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory)
     {
-        this(authenticationService, new DefaultSessionManager<Session>(new SessionFactory(),
-                new LogMessagePrefixGenerator(), authenticationService,
-                new RequestContextProviderAdapter(requestContextProvider),
-                sessionExpirationPeriodInMinutes), daoFactory, new GenericBusinessObjectFactory(
+        this(authenticationService, sessionManager, daoFactory, new GenericBusinessObjectFactory(
                 daoFactory));
     }
 
@@ -84,6 +77,18 @@ public class GenericServer extends AbstractServer implements IGenericServer
         super(sessionManager, daoFactory);
         this.authenticationService = authenticationService;
         this.boFactory = boFactory;
+    }
+
+    //
+    // IInvocationLoggerFactory
+    //
+
+    /**
+     * Creates a logger used to log invocations of objects of this class.
+     */
+    public final IGenericServer createLogger(final boolean invocationSuccessful)
+    {
+        return new GenericServerLogger(getSessionManager(), invocationSuccessful);
     }
 
     //
@@ -273,13 +278,12 @@ public class GenericServer extends AbstractServer implements IGenericServer
     }
 
     @Transactional
-    public Map<SampleIdentifier, List<SamplePropertyPE>> listSamplesProperties(String sessionToken,
-            List<SampleIdentifier> sampleIdentifiers, List<PropertyTypePE> propertyCodes)
+    public Map<SampleIdentifier, List<SamplePropertyPE>> listSamplesProperties(final String sessionToken,
+            final List<SampleIdentifier> sampleIdentifiers, final List<PropertyTypePE> propertyCodes)
     {
         getSessionManager().getSession(sessionToken);
         return getDAOFactory().getSamplePropertyDAO().listSampleProperties(sampleIdentifiers,
                 propertyCodes);
 
     }
-
 }

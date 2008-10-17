@@ -66,6 +66,7 @@ public class Client implements EntryPoint
         if (viewContext == null)
         {
             viewContext = createViewContext();
+            ClientPluginProvider.setOriginalViewContext(viewContext);
         }
         final IGenericClientServiceAsync service = viewContext.getService();
         service.getApplicationInfo(new AbstractAsyncCallback<ApplicationInfo>(viewContext)
@@ -74,9 +75,9 @@ public class Client implements EntryPoint
                 public void process(ApplicationInfo info)
                 {
                     viewContext.getModel().setApplicationInfo(info);
-                    service.tryToGetCurrentSessionContext(new SessionContextCallback(viewContext));
+                    service.tryToGetCurrentSessionContext(new SessionContextCallback(
+                            (GenericViewContext) viewContext));
                 }
             });
     }
-
 }

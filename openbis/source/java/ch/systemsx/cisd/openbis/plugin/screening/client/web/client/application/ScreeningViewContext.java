@@ -3,6 +3,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IGenericImageBundle;
@@ -20,22 +21,15 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningCli
  */
 public final class ScreeningViewContext implements IViewContext<IScreeningClientServiceAsync>
 {
-    private final IGenericImageBundle imageBundle;
-
-    private final GenericViewModel model;
-
-    private final IPageController pageController;
+    private final IViewContext<IGenericClientServiceAsync> originalViewContext;
 
     private final IMessageProvider messageProvider;
 
     private final IScreeningClientServiceAsync service;
 
-    public ScreeningViewContext(final IGenericImageBundle imageBundle,
-            final GenericViewModel model, final IPageController pageController)
+    public ScreeningViewContext(final IViewContext<IGenericClientServiceAsync> originalViewContext)
     {
-        this.imageBundle = imageBundle;
-        this.model = model;
-        this.pageController = pageController;
+        this.originalViewContext = originalViewContext;
         this.messageProvider = new DictonaryBasedMessageProvider("screening");
         this.service = createScreeningClientService();
     }
@@ -54,7 +48,7 @@ public final class ScreeningViewContext implements IViewContext<IScreeningClient
 
     public final IGenericImageBundle getImageBundle()
     {
-        return imageBundle;
+        return originalViewContext.getImageBundle();
     }
 
     public final String getMessage(final String key, final Object... parameters)
@@ -64,12 +58,12 @@ public final class ScreeningViewContext implements IViewContext<IScreeningClient
 
     public final GenericViewModel getModel()
     {
-        return model;
+        return originalViewContext.getModel();
     }
 
     public final IPageController getPageController()
     {
-        return pageController;
+        return originalViewContext.getPageController();
     }
 
     public final IScreeningClientServiceAsync getService()

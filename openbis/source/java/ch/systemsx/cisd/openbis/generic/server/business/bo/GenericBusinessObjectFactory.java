@@ -20,29 +20,34 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
+ * The unique {@link IGenericBusinessObjectFactory} implementation.
+ * 
  * @author Tomasz Pylak
  */
-public class GenericBusinessObjectFactory implements IGenericBusinessObjectFactory
+public class GenericBusinessObjectFactory extends AbstractBusinessObjectFactory implements
+        IGenericBusinessObjectFactory
 {
-    private final IDAOFactory daoFactory;
-
-    public GenericBusinessObjectFactory(IDAOFactory daoFactory)
+    public GenericBusinessObjectFactory(final IDAOFactory daoFactory)
     {
-        this.daoFactory = daoFactory;
+        super(daoFactory);
     }
+
+    //
+    // IGenericBusinessObjectFactory
+    //
 
     public final IGroupBO createGroupBO(final Session session)
     {
-        return new GroupBO(daoFactory, session);
+        return new GroupBO(getDaoFactory(), session);
     }
 
     public final IRoleAssignmentTable createRoleAssignmentTable(final Session session)
     {
-        return new RoleAssignmentTable(daoFactory, session);
+        return new RoleAssignmentTable(getDaoFactory(), session);
     }
 
     public final ISampleBO createSampleBO(final Session session)
     {
-        return new SampleBO(daoFactory, session);
+        return new SampleBO(getDaoFactory(), session);
     }
 }

@@ -21,10 +21,8 @@
         <property name="target">
             <bean class="ch.systemsx.cisd.openbis.plugin.screening.server.ScreeningServer">
                 <constructor-arg ref="${authentication-service}" />
-                <constructor-arg ref="request-context-provider" />
+                <constructor-arg ref="session-manager" />
                 <constructor-arg ref="generic-dao-factory" />
-                <!-- The time after which an inactive session is expired by the service (in minutes). -->
-                <constructor-arg value="${session-timeout}" />
             </bean>
         </property>
         <property name="interceptorNames">
@@ -33,5 +31,5 @@
             </list>
         </property>
     </bean>
-            
+
 </beans>

@@ -14,20 +14,23 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.business.bo;
+package ch.systemsx.cisd.openbis.plugin.screening.server.business.bo;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.AbstractBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 
 /**
- * The <i>generic</i> specific <i>Business Object</i> factory.
+ * The unique {@link IScreeningBusinessObjectFactory} implementation.
  * 
- * @author Tomasz Pylak
+ * @author Christian Ribeaud
  */
-public interface IGenericBusinessObjectFactory
+public final class ScreeningBusinessObjectFactory extends AbstractBusinessObjectFactory implements
+        IScreeningBusinessObjectFactory
 {
-    public IGroupBO createGroupBO(final Session session);
 
-    public IRoleAssignmentTable createRoleAssignmentTable(final Session session);
+    public ScreeningBusinessObjectFactory(final IDAOFactory daoFactory)
+    {
+        super(daoFactory);
+    }
 
-    public ISampleBO createSampleBO(final Session session);
 }

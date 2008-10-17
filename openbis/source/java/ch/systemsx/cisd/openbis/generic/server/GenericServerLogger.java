@@ -19,15 +19,9 @@ package ch.systemsx.cisd.openbis.generic.server;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
-
 import ch.systemsx.cisd.authentication.ISessionManager;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.ISessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
@@ -46,113 +40,26 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentif
  * 
  * @author Franz-Josef Elmer
  */
-class GenericServerLogger implements IGenericServer, ISessionProvider
+final class GenericServerLogger extends AbstractServerLogger implements IGenericServer
 {
-    private final static String RESULT_SUCCESS = "";
-
-    private final static String RESULT_FAILURE = " ...FAILED";
-
-    private static final Logger accessLog =
-            LogFactory.getLogger(LogCategory.ACCESS, GenericServer.class);
-
-    private static final Logger trackingLog =
-            LogFactory.getLogger(LogCategory.TRACKING, GenericServer.class);
-
-    private final ISessionManager<Session> sessionManager;
-
-    private final boolean invocationSuccessful;
-
-    private final LogMessagePrefixGenerator logMessagePrefixGenerator;
-
     /**
      * Creates an instance for the specified session manager and invocation status. The session
      * manager is used to retrieve user information which will be a part of the log message.
      */
-    GenericServerLogger(ISessionManager<Session> sessionManager, boolean invocationSuccessful)
+    GenericServerLogger(final ISessionManager<Session> sessionManager,
+            final boolean invocationSuccessful)
     {
-        this.sessionManager = sessionManager;
-        this.invocationSuccessful = invocationSuccessful;
-        logMessagePrefixGenerator = new LogMessagePrefixGenerator();
-    }
-
-    private void logAccess(final String sessionToken, final String commandName)
-    {
-        logAccess(sessionToken, commandName, "");
-    }
-
-    private void logAccess(final String sessionToken, final String commandName,
-            final String parameterDisplayFormat, final Object... parameters)
-    {
-        logMessage(accessLog, sessionToken, commandName, parameterDisplayFormat, parameters);
-    }
-
-    private void logTracking(final String sessionToken, final String commandName,
-            final String parameterDisplayFormat, final Object... parameters)
-    {
-        logMessage(trackingLog, sessionToken, commandName, parameterDisplayFormat, parameters);
-    }
-
-    private void logMessage(final Logger logger, final String sessionToken,
-            final String commandName, final String parameterDisplayFormat, final Object[] parameters)
-    {
-        final Session session = sessionManager.getSession(sessionToken);
-        final String prefix = logMessagePrefixGenerator.createPrefix(session);
-        for (int i = 0; i < parameters.length; i++)
-        {
-            Object parameter = parameters[i];
-            if (parameter == null)
-            {
-                parameters[i] = LogMessagePrefixGenerator.UNDEFINED;
-            } else
-            {
-                parameters[i] = "'" + parameter + "'";
-            }
-        }
-        final String message = String.format(parameterDisplayFormat, parameters);
-        final String invocationStatusMessage = getInvocationStatusMessage();
-        // We put on purpose 2 spaces between the command and the message derived from the
-        // parameters.
-        logger.info(prefix
-                + String.format(": %s  %s%s", commandName, message, invocationStatusMessage));
-    }
-
-    private String getInvocationStatusMessage()
-    {
-        return invocationSuccessful ? RESULT_SUCCESS : RESULT_FAILURE;
-    }
-
-    //
-    // ISessionProvider
-    //
-
-    public IAuthSession getSession(String sessionToken)
-    {
-        return null;
+        super(sessionManager, invocationSuccessful);
     }
 
     //
     // IGenericServer
     //
 
-    public int getVersion()
+    public List<GroupPE> listGroups(final String sessionToken,
+            final DatabaseInstanceIdentifier identifier)
     {
-        return 0;
-    }
-
-    public Session tryToAuthenticate(String user, String password)
-    {
-        // No logging because already done by the session manager
-        return null;
-    }
-
-    public void logout(String sessionToken)
-    {
-        // No logging because already done by the session manager
-    }
-
-    public List<GroupPE> listGroups(String sessionToken, DatabaseInstanceIdentifier identifier)
-    {
-        String command = "list_groups";
+        final String command = "list_groups";
         if (identifier == null || identifier.getDatabaseInstanceCode() == null)
         {
             logAccess(sessionToken, command);
@@ -163,73 +70,76 @@ class GenericServerLogger implements IGenericServer, ISessionProvider
         return null;
     }
 
-    public void registerGroup(String sessionToken, String groupCode, String descriptionOrNull,
-            String groupLeaderOrNull)
+    public void registerGroup(final String sessionToken, final String groupCode,
+            final String descriptionOrNull, final String groupLeaderOrNull)
     {
         logTracking(sessionToken, "register_group", "CODE(%s)", groupCode);
     }
 
-    public List<PersonPE> listPersons(String sessionToken)
+    public List<PersonPE> listPersons(final String sessionToken)
     {
         logAccess(sessionToken, "list_persons");
         return null;
     }
 
-    public void registerPerson(String sessionToken, String userID)
+    public void registerPerson(final String sessionToken, final String userID)
     {
         logTracking(sessionToken, "register_person", "CODE(%s)", userID);
 
     }
 
-    public List<RoleAssignmentPE> listRoles(String sessionToken)
+    public List<RoleAssignmentPE> listRoles(final String sessionToken)
     {
         logAccess(sessionToken, "list_roles");
         return null;
     }
 
-    public void registerGroupRole(String sessionToken, RoleCode roleCode,
-            GroupIdentifier groupIdentifier, String person)
+    public void registerGroupRole(final String sessionToken, final RoleCode roleCode,
+            final GroupIdentifier groupIdentifier, final String person)
     {
         logTracking(sessionToken, "register_role", "ROLE(%s) GROUP(%s) PERSON(%s)", roleCode,
                 groupIdentifier, person);
 
     }
 
-    public void registerInstanceRole(String sessionToken, RoleCode roleCode, String person)
+    public void registerInstanceRole(final String sessionToken, final RoleCode roleCode,
+            final String person)
     {
         logTracking(sessionToken, "register_role", "ROLE(%s)  PERSON(%s)", roleCode, person);
 
     }
 
-    public void deleteGroupRole(String sessionToken, RoleCode roleCode,
-            GroupIdentifier groupIdentifier, String person)
+    public void deleteGroupRole(final String sessionToken, final RoleCode roleCode,
+            final GroupIdentifier groupIdentifier, final String person)
     {
         logTracking(sessionToken, "delete_role", "ROLE(%s) GROUP(%s) PERSON(%s)", roleCode,
                 groupIdentifier, person);
 
     }
 
-    public void deleteInstanceRole(String sessionToken, RoleCode roleCode, String person)
+    public void deleteInstanceRole(final String sessionToken, final RoleCode roleCode,
+            final String person)
     {
         logTracking(sessionToken, "delete_role", "ROLE(%s) PERSON(%s)", roleCode, person);
 
     }
 
-    public List<SampleTypePE> listSampleTypes(String sessionToken)
+    public List<SampleTypePE> listSampleTypes(final String sessionToken)
     {
         logAccess(sessionToken, "list_sample_types");
         return null;
     }
 
-    public List<SamplePE> listSamples(String sessionToken,
-            List<SampleOwnerIdentifier> ownerIdentifiers, SampleTypePE sampleType)
+    public List<SamplePE> listSamples(final String sessionToken,
+            final List<SampleOwnerIdentifier> ownerIdentifiers, final SampleTypePE sampleType)
     {
         logAccess(sessionToken, "list_samples", "TYPE(%s) OWNERS(%s)", sampleType, ownerIdentifiers);
         return null;
     }
 
-    public Map<SampleIdentifier, List<SamplePropertyPE>> listSamplesProperties(String sessionToken,
-            List<SampleIdentifier> samples, List<PropertyTypePE> propertyCodes)
+    public Map<SampleIdentifier, List<SamplePropertyPE>> listSamplesProperties(
+            final String sessionToken, final List<SampleIdentifier> samples,
+            final List<PropertyTypePE> propertyCodes)
     {
         logAccess(sessionToken, "list_samples_properties", "SAMPLES(%s) PROPERTIES(%s)", samples
                 .size(), propertyCodes.size());

@@ -23,10 +23,12 @@ import java.util.TreeSet;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ISampleViewClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 
 /**
@@ -66,8 +68,7 @@ public final class ClientPluginFactory extends
     protected final IViewContext<IScreeningClientServiceAsync> createViewContext(
             final IViewContext<IGenericClientServiceAsync> originalViewContext)
     {
-        return new ScreeningViewContext(originalViewContext.getImageBundle(), originalViewContext
-                .getModel(), originalViewContext.getPageController());
+        return new ScreeningViewContext(originalViewContext);
     }
 
     //
@@ -88,7 +89,7 @@ public final class ClientPluginFactory extends
     // Helper classes
     //
 
-    private final static class SampleViewClientPlugin implements ISampleViewClientPlugin
+    private final class SampleViewClientPlugin implements ISampleViewClientPlugin
     {
 
         //
@@ -97,7 +98,21 @@ public final class ClientPluginFactory extends
 
         public final void viewSample(final String sampleIdentifier)
         {
-            MessageBox.alert("Screening", sampleIdentifier, null);
+            final IViewContext<IScreeningClientServiceAsync> viewContext = getViewContext();
+            viewContext.getService().getSampleInfo(sampleIdentifier,
+                    new AbstractAsyncCallback<Sample>(viewContext)
+                        {
+
+                            //
+                            // AbstractAsyncCallback
+                            //
+
+                            @Override
+                            protected final void process(final Sample result)
+                            {
+                                MessageBox.alert("Screening", result.getCode(), null);
+                            }
+                        });
         }
     }
 }

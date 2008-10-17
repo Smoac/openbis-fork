@@ -44,12 +44,11 @@ public final class SessionContextCallback extends AbstractAsyncCallback<SessionC
         Component widget;
         if (sessionContext == null)
         {
-            widget = new LoginPage(viewContext);
+            widget = new LoginPage((GenericViewContext) viewContext);
         } else
         {
             viewContext.getModel().setSessionContext(sessionContext);
-            widget = new Application(viewContext);
-            ClientPluginProvider.setOriginalViewContext(viewContext);
+            widget = new Application((GenericViewContext) viewContext);
         }
         rootPanel.add(widget);
     }

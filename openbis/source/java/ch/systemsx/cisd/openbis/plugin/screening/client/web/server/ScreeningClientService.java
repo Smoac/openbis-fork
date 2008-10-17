@@ -61,7 +61,9 @@ public final class ScreeningClientService extends AbstractClientService implemen
             final String sessionToken = getSessionToken();
             final SampleIdentifier identifier = SampleIdentifierFactory.parse(sampleIdentifier);
             final SamplePE samplePE = screeningServer.getSampleInfo(sessionToken, identifier);
-            return null;
+            final Sample sample = new Sample();
+            sample.setCode(samplePE.getCode());
+            return sample;
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslater.translate(e);

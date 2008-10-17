@@ -14,20 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.business.bo;
-
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+package ch.systemsx.cisd.openbis.plugin.screening.server.business.bo;
 
 /**
- * The <i>generic</i> specific <i>Business Object</i> factory.
+ * The <i>screening</i> specific <i>Business Object</i> factory.
  * 
- * @author Tomasz Pylak
+ * @author Christian Ribeaud
  */
-public interface IGenericBusinessObjectFactory
+public interface IScreeningBusinessObjectFactory
 {
-    public IGroupBO createGroupBO(final Session session);
 
-    public IRoleAssignmentTable createRoleAssignmentTable(final Session session);
-
-    public ISampleBO createSampleBO(final Session session);
 }

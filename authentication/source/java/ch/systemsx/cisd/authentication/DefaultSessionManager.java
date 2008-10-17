@@ -33,27 +33,28 @@ import ch.systemsx.cisd.common.server.IRemoteHostProvider;
 import ch.systemsx.cisd.common.utilities.TokenGenerator;
 
 /**
- * Default session manager. Needs  
- * <ul><li>a {@link ISessionFactory} for creating new session objects, 
- *     <li>a {@link ILogMessagePrefixGenerator} for generating log messages which are
- *         logged by a logger with category {@link LogCategory#AUTH},
- *     <li>a {@link IAuthenticationService} for authenticating users,
- *     <li>a {@link IRemoteHostProvider} for providing the remote host of the user client.
- * </ul>  
- *
+ * Default session manager. Needs
+ * <ul>
+ * <li>a {@link ISessionFactory} for creating new session objects,
+ * <li>a {@link ILogMessagePrefixGenerator} for generating log messages which are logged by a
+ * logger with category {@link LogCategory#AUTH},
+ * <li>a {@link IAuthenticationService} for authenticating users,
+ * <li>a {@link IRemoteHostProvider} for providing the remote host of the user client.
+ * </ul>
+ * 
  * @author Franz-Josef Elmer
  */
 public class DefaultSessionManager<T extends BasicSession> implements ISessionManager<T>
 {
     private static final String LOGOUT_PREFIX = "LOGOUT: ";
+
     private static final String LOGIN_PREFIX = "LOGIN: ";
-    
 
     private static final Logger authenticationLog =
             LogFactory.getLogger(LogCategory.AUTH, DefaultSessionManager.class);
-    
+
     private static final Logger operationLog =
-        LogFactory.getLogger(LogCategory.OPERATION, DefaultSessionManager.class);
+            LogFactory.getLogger(LogCategory.OPERATION, DefaultSessionManager.class);
 
     private static final TokenGenerator tokenGenerator = new TokenGenerator();
 
@@ -100,14 +101,15 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     }
 
     private final ISessionFactory<T> sessionFactory;
-    
+
     private final ILogMessagePrefixGenerator<T> prefixGenerator;
-    
+
     /**
      * The map of session tokens to sessions. Access to this data structure needs to be
      * synchronized.
      */
-    private final Map<String, FullSession<T>> sessions = new LinkedHashMap<String, FullSession<T>>();
+    private final Map<String, FullSession<T>> sessions =
+            new LinkedHashMap<String, FullSession<T>>();
 
     private final IAuthenticationService authenticationService;
 
@@ -127,7 +129,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         assert remoteHostProvider != null : "Missing remote host provider.";
         assert sessionExpirationPeriodMinutes >= 0 : "Session experation time has to be a positive value: "
                 + sessionExpirationPeriodMinutes; // == 0 is for unit test
-        
+
         this.sessionFactory = sessionFactory;
         this.prefixGenerator = prefixGenerator;
         this.authenticationService = authenticationService;
@@ -141,7 +143,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
                 sessionExpirationPeriodMillis));
         authenticationService.check();
     }
-    
+
     private final T createAndStoreSession(final String user, final Principal principal,
             final long now)
     {
@@ -149,9 +151,9 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         synchronized (sessions)
         {
             final T session =
-                    sessionFactory.create(sessionToken, user, principal, getRemoteHost(), now, sessionExpirationPeriodMillis);
-            final FullSession<T> createdSession =
-                    new FullSession<T>(session);
+                    sessionFactory.create(sessionToken, user, principal, getRemoteHost(), now,
+                            sessionExpirationPeriodMillis);
+            final FullSession<T> createdSession = new FullSession<T>(session);
             sessions.put(user, createdSession);
             return session;
         }
@@ -165,7 +167,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
             throw UserFailureException.fromTemplate("No '%s' specified.", name);
         }
     }
-    
+
     private boolean isSessionUnavailable(final FullSession<T> session)
     {
         return session == null || doSessionExpiration(session);
@@ -201,22 +203,22 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         operationLog.error(LOGIN_PREFIX + "Error when trying to authenticate user '" + user + "'.",
                 ex);
     }
-    
+
     private void logAuthenticationFailure(String user)
     {
         String prefix = prefixGenerator.createPrefix(user, getRemoteHost());
         authenticationLog.info(prefix + ": login   ...FAILED");
     }
-    
+
     private void logSessionExpired(FullSession<T> fullSession)
     {
         T session = fullSession.getSession();
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format("%sExpiring session '%s' for user '%s' "
-                    + "after %d minutes of inactivity.", LOGOUT_PREFIX,
-                    session.getSessionToken(), session.getUserName(),
-                    sessionExpirationPeriodMillis / DateUtils.MILLIS_PER_MINUTE));
+                    + "after %d minutes of inactivity.", LOGOUT_PREFIX, session.getSessionToken(),
+                    session.getUserName(), sessionExpirationPeriodMillis
+                            / DateUtils.MILLIS_PER_MINUTE));
         }
         String prefix = prefixGenerator.createPrefix(session);
         authenticationLog.info(prefix + ": session_expired  [inactive "
@@ -235,7 +237,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
                     + "'.");
         }
     }
-    
+
     public T getSession(String sessionToken) throws UserFailureException
     {
         checkIfNotBlank(sessionToken, "sessionToken");
@@ -278,7 +280,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
             return session.getSession();
         }
     }
-    
+
     public String tryToOpenSession(String user, String password)
     {
         checkIfNotBlank(user, "user");
@@ -322,7 +324,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
             throw ex;
         }
     }
-    
+
     public void closeSession(String sessionToken)
     {
         synchronized (sessions)
@@ -337,5 +339,5 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     {
         return remoteHostProvider.getRemoteHost();
     }
-    
+
 }

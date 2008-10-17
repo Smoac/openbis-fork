@@ -16,18 +16,24 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 
 /**
- * The <i>generic</i> specific <i>Business Object</i> factory.
+ * An <i>abstract</i> <i>Business Object</i> factory.
  * 
- * @author Tomasz Pylak
+ * @author Christian Ribeaud
  */
-public interface IGenericBusinessObjectFactory
+public abstract class AbstractBusinessObjectFactory
 {
-    public IGroupBO createGroupBO(final Session session);
+    private final IDAOFactory daoFactory;
 
-    public IRoleAssignmentTable createRoleAssignmentTable(final Session session);
+    protected AbstractBusinessObjectFactory(final IDAOFactory daoFactory)
+    {
+        this.daoFactory = daoFactory;
+    }
 
-    public ISampleBO createSampleBO(final Session session);
+    protected final IDAOFactory getDaoFactory()
+    {
+        return daoFactory;
+    }
 }

@@ -21,18 +21,16 @@
         <property name="target">
             <bean class="ch.systemsx.cisd.openbis.generic.server.GenericServer">
                 <constructor-arg ref="${authentication-service}" />
-                <constructor-arg ref="request-context-provider" />
+                <constructor-arg ref="session-manager" />
                 <constructor-arg ref="generic-dao-factory" />
-                <!-- The time after which an inactive session is expired by the service (in minutes). -->
-                <constructor-arg value="${session-timeout}" />
             </bean>
         </property>
-        
+
         <property name="interceptorNames">
             <list>
                 <value>logInterceptor</value>
             </list>
         </property>
     </bean>
-            
+
 </beans>
