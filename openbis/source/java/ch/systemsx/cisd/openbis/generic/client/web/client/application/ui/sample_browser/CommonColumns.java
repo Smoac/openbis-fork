@@ -65,6 +65,7 @@ class CommonColumns
         columnConfig.setId(SampleModel.SAMPLE_CODE);
         columnConfig.setHeader("Code");
         columnConfig.setWidth(100);
+        columnConfig.setRenderer(new SampleRenderer());
         return columnConfig;
     }
 
@@ -119,5 +120,4 @@ class CommonColumns
         columnConfig.setHidden(true);
         return columnConfig;
     }
-
 }
