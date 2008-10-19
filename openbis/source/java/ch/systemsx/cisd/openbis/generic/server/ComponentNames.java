@@ -14,22 +14,25 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.client.web.server;
+package ch.systemsx.cisd.openbis.generic.server;
 
 /**
- * Some constants.
+ * The name of the components declared on <code>genericApplicationContext.xml</code>.
  * 
  * @author Christian Ribeaud
  */
-public class ScreeningConstants
+public final class ComponentNames
 {
-    public final static String SCREENING_SERVICE = "screening-service";
 
-    public final static String SCREENING_SERVER = "screening-server";
-
-    private ScreeningConstants()
+    private ComponentNames()
     {
-        // Can not be instantiated.
     }
 
+    public final static String AUTHENTICATION_SERVICE = "authentication-service";
+
+    public final static String SESSION_MANAGER = "session-manager";
+
+    public static final String LOG_INTERCEPTOR = "log-interceptor";
+
+    public static final String DAO_FACTORY = "dao-factory";
 }

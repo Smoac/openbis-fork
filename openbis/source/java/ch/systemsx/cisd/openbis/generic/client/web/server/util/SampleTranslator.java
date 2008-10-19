@@ -59,8 +59,8 @@ public class SampleTranslator
         if (withDetails)
         {
             result.setSampleType(st);
-            result.setGroup(GroupTranslater.translate(samplePE.getGroup()));
-            result.setDatabaseInstance(DatabaseInstanceTranslater.translate(samplePE
+            result.setGroup(GroupTranslator.translate(samplePE.getGroup()));
+            result.setDatabaseInstance(DatabaseInstanceTranslator.translate(samplePE
                     .getDatabaseInstance()));
             result.setRegistrator(PersonTranslator.translate(samplePE.getRegistrator()));
             result.setRegistrationDate(samplePE.getRegistrationDate());

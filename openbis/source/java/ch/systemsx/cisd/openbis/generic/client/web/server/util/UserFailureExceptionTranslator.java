@@ -23,21 +23,21 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureE
 /**
  * Translator of server side {@link ch.systemsx.cisd.common.exceptions.UserFailureException} into
  * GWT compatible {@link UserFailureException}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-public class UserFailureExceptionTranslater
+public class UserFailureExceptionTranslator
 {
     private static final String WEB_CLIENT_EXCEPTIONS_PACKAGE =
             getPackageName(UserFailureException.class);
-    
+
     private static String getPackageName(Class<?> clazz)
     {
         String fullName = clazz.getName();
         return fullName.substring(0, fullName.length() - clazz.getSimpleName().length() - 1);
     }
-    
-    private UserFailureExceptionTranslater()
+
+    private UserFailureExceptionTranslator()
     {
     }
 
@@ -46,9 +46,11 @@ public class UserFailureExceptionTranslater
      * it to a <i>GWT</i> {@link UserFailureException} (or subclass of it if this one could be
      * found in the same package).
      */
-    public static UserFailureException translate(ch.systemsx.cisd.common.exceptions.UserFailureException exception)
+    public static UserFailureException translate(
+            ch.systemsx.cisd.common.exceptions.UserFailureException exception)
     {
-        final String className = WEB_CLIENT_EXCEPTIONS_PACKAGE + exception.getClass().getSimpleName();
+        final String className =
+                WEB_CLIENT_EXCEPTIONS_PACKAGE + exception.getClass().getSimpleName();
         String message = exception.getMessage();
         try
         {
@@ -57,6 +59,6 @@ public class UserFailureExceptionTranslater
         {
             return new UserFailureException(message);
         }
-        
+
     }
 }

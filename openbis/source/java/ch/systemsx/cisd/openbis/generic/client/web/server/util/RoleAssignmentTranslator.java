@@ -32,8 +32,8 @@ public class RoleAssignmentTranslator
             return null;
         }
         RoleAssignment result = new RoleAssignment();
-        result.setGroup(GroupTranslater.translate(role.getGroup()));
-        result.setInstance(DatabaseInstanceTranslater.translate(role.getDatabaseInstance()));
+        result.setGroup(GroupTranslator.translate(role.getGroup()));
+        result.setInstance(DatabaseInstanceTranslator.translate(role.getDatabaseInstance()));
         result.setPerson(PersonTranslator.translate(role.getPerson()));
         result.setCode(getRoleCode(role));
         return result;

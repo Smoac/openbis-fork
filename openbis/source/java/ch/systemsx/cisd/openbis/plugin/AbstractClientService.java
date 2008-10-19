@@ -30,8 +30,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.User;
-import ch.systemsx.cisd.openbis.generic.client.web.server.util.UserFailureExceptionTranslater;
-import ch.systemsx.cisd.openbis.generic.server.Constants;
+import ch.systemsx.cisd.openbis.generic.client.web.server.util.UserFailureExceptionTranslator;
+import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -85,7 +85,7 @@ public abstract class AbstractClientService implements IClientService
 
     private final Session getSession(final HttpSession httpSession)
     {
-        final Session session = (Session) httpSession.getAttribute(Constants.OPENBIS_SESSION_ATTRIBUTE_KEY);
+        final Session session = (Session) httpSession.getAttribute(SessionConstants.OPENBIS_SESSION_ATTRIBUTE_KEY);
         if (session == null)
         {
             final String remoteHost =
@@ -154,12 +154,12 @@ public abstract class AbstractClientService implements IClientService
             final HttpSession httpSession = creatHttpSession();
             // Expiration time of httpSession is 10 seconds less than of session
             httpSession.setMaxInactiveInterval(session.getSessionExpirationTime() / 1000 - 10);
-            httpSession.setAttribute(Constants.OPENBIS_SESSION_ATTRIBUTE_KEY, session);
-            httpSession.setAttribute(Constants.OPENBIS_SERVER_ATTRIBUTE_KEY, getServer());
+            httpSession.setAttribute(SessionConstants.OPENBIS_SESSION_ATTRIBUTE_KEY, session);
+            httpSession.setAttribute(SessionConstants.OPENBIS_SERVER_ATTRIBUTE_KEY, getServer());
             return createSessionContext(session);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
-            throw UserFailureExceptionTranslater.translate(e);
+            throw UserFailureExceptionTranslator.translate(e);
         }
     }
 
@@ -169,8 +169,8 @@ public abstract class AbstractClientService implements IClientService
         if (httpSession != null)
         {
             final Session session = getSession(httpSession);
-            httpSession.removeAttribute(Constants.OPENBIS_SESSION_ATTRIBUTE_KEY);
-            httpSession.removeAttribute(Constants.OPENBIS_SERVER_ATTRIBUTE_KEY);
+            httpSession.removeAttribute(SessionConstants.OPENBIS_SESSION_ATTRIBUTE_KEY);
+            httpSession.removeAttribute(SessionConstants.OPENBIS_SERVER_ATTRIBUTE_KEY);
             httpSession.invalidate();
             getServer().logout(session.getSessionToken());
         }

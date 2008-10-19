@@ -12,13 +12,9 @@
 
     <import resource="hibernateContext.xml" />
 
-    <import resource="genericServiceContext.xml" />
-
-    <import resource="screeningServiceContext.xml" />
-
     <import resource="dbConfigurationContext.xml" />
 
-    <bean id="logInterceptor" class="ch.systemsx.cisd.common.spring.LogInterceptor" />
+    <bean id="log-interceptor" class="ch.systemsx.cisd.common.spring.LogInterceptor" />
 
     <bean id="data-source" factory-bean="db-configuration-context" factory-method="getDataSource" />
 
@@ -37,10 +33,15 @@
         </constructor-arg>
     </bean>
 
-    <bean id="generic-dao-factory"
+    <bean id="dao-factory"
         class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory">
         <constructor-arg ref="db-configuration-context" />
         <constructor-arg ref="hibernate-session-factory" />
+    </bean>
+
+    <bean id="authentication-service"
+        class="ch.systemsx.cisd.openbis.generic.server.AuthenticationServiceHolder">
+        <constructor-arg ref="${authentication-service}" />
     </bean>
 
     <bean id="session-manager" class="ch.systemsx.cisd.authentication.DefaultSessionManager">
@@ -50,7 +51,7 @@
         <constructor-arg>
             <bean class="ch.systemsx.cisd.openbis.generic.server.LogMessagePrefixGenerator" />
         </constructor-arg>
-        <constructor-arg ref="${authentication-service}" />
+        <constructor-arg ref="authentication-service" />
         <constructor-arg>
             <bean class="ch.systemsx.cisd.common.servlet.RequestContextProviderAdapter">
                 <constructor-arg ref="request-context-provider" />
@@ -71,10 +72,10 @@
         class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" />
 
     <bean class="org.springframework.transaction.interceptor.TransactionAttributeSourceAdvisor">
-        <property name="transactionInterceptor" ref="transactionInterceptor" />
+        <property name="transactionInterceptor" ref="transaction-interceptor" />
     </bean>
 
-    <bean id="transactionInterceptor"
+    <bean id="transaction-interceptor"
         class="org.springframework.transaction.interceptor.TransactionInterceptor">
         <property name="transactionManager" ref="transaction-manager" />
         <property name="transactionAttributeSource">
@@ -96,7 +97,7 @@
 
     <bean id="active-authorization"
         class="ch.systemsx.cisd.openbis.generic.server.authorization.ActiveAuthorization">
-        <constructor-arg ref="generic-dao-factory" />
+        <constructor-arg ref="dao-factory" />
     </bean>
 
     <!--

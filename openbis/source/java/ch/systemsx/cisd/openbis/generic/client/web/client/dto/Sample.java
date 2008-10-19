@@ -22,18 +22,21 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
+ * <i>Java Bean</i> which contain information about <i>sample</i>.
+ * 
  * @author Izabela Adamczyk
  */
 public class Sample implements IsSerializable
 {
+    public static final Sample[] EMPTY_ARRAY = new Sample[0];
 
-    String code;
+    private String code;
 
-    SampleType sampleType;
+    private SampleType sampleType;
 
     private Group group;
 
-    DatabaseInstance databaseInstance;
+    private DatabaseInstance databaseInstance;
 
     private String identifier;
 

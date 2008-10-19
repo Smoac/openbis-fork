@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server;
+package ch.systemsx.cisd.openbis.plugin.generic.server;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -22,7 +22,6 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
-import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
@@ -40,11 +39,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
+ * Unit tests for {@link GenericServer}.
  * 
- *
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses = GenericServer.class)
 public abstract class GenericServerTestCase extends AssertJUnit
 {
     protected static final String HOME_DATABASE_INSTANCE_CODE = "HOME_DATABASE";
@@ -84,16 +82,16 @@ public abstract class GenericServerTestCase extends AssertJUnit
         context = new Mockery();
         authenticationService = context.mock(IAuthenticationService.class);
         sessionManager = context.mock(ISessionManager.class);
-        
+
         daoFactory = context.mock(IDAOFactory.class);
         databaseInstanceDAO = context.mock(IDatabaseInstanceDAO.class);
         personDAO = context.mock(IPersonDAO.class);
         groupDAO = context.mock(IGroupDAO.class);
         roleAssignmentDAO = context.mock(IRoleAssignmentDAO.class);
-        
+
         boFactory = context.mock(IGenericBusinessObjectFactory.class);
         groupBO = context.mock(IGroupBO.class);
-        
+
         homeDatabaseInstance = createDatabaseInstance(HOME_DATABASE_INSTANCE_CODE);
         context.checking(new Expectations()
             {
@@ -124,7 +122,7 @@ public abstract class GenericServerTestCase extends AssertJUnit
     {
         return new GenericServer(authenticationService, sessionManager, daoFactory, boFactory);
     }
-    
+
     protected Session createExampleSession()
     {
         return new Session(USER_ID, SESSION_TOKEN, PRINCIPAL, "remote-host", 1);
@@ -136,7 +134,7 @@ public abstract class GenericServerTestCase extends AssertJUnit
         databaseInstance.setCode(code);
         return databaseInstance;
     }
-    
+
     protected PersonPE createPersonFromPrincipal(Principal principal)
     {
         final PersonPE person = new PersonPE();
@@ -146,7 +144,7 @@ public abstract class GenericServerTestCase extends AssertJUnit
         person.setEmail(principal.getEmail());
         return person;
     }
-    
+
     protected GroupPE createGroup(String groupCode, DatabaseInstancePE databaseInstance)
     {
         GroupPE group = new GroupPE();
@@ -154,7 +152,7 @@ public abstract class GenericServerTestCase extends AssertJUnit
         group.setDatabaseInstance(databaseInstance);
         return group;
     }
-    
+
     protected Session prepareGetSession()
     {
         final Session session = createExampleSession();

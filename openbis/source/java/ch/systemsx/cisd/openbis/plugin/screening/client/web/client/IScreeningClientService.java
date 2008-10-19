@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
 /**
@@ -29,7 +30,8 @@ public interface IScreeningClientService extends IClientService
 {
 
     /**
-     * For given <var>sampleIdentifier</var> return the full sample.
+     * For given <var>sampleIdentifier</var> return the found {@link Sample} and its children.
      */
-    public Sample getSampleInfo(final String sampleIdentifier) throws UserFailureException;
+    public SampleGeneration getSampleInfo(final String sampleIdentifier)
+            throws UserFailureException;
 }

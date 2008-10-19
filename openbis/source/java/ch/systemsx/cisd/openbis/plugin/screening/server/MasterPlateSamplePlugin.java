@@ -16,14 +16,11 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server;
 
-import javax.annotation.Resource;
-
 import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.openbis.plugin.AbstractSampleServerPlugin;
 import ch.systemsx.cisd.openbis.plugin.ISampleServerPlugin;
 import ch.systemsx.cisd.openbis.plugin.ISlaveServerPlugin;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.GenericConstants;
 
 /**
  * The {@link ISampleServerPlugin} implementation for <i>Screening</i> technology.
@@ -40,7 +37,6 @@ public final class MasterPlateSamplePlugin extends AbstractSampleServerPlugin
 
     private static final String MASTER_PLATE_TYPE_CODE = "MASTER_PLATE";
 
-    @Resource(name = GenericConstants.GENERIC_SLAVE_SERVER_COMPONENT_NAME)
     private ISlaveServerPlugin slaveServer;
 
     //

@@ -33,14 +33,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.client.web.server.util.GroupTranslater;
+import ch.systemsx.cisd.openbis.generic.client.web.server.util.GroupTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.PersonTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.PropertyTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.RoleAssignmentTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.SamplePropertyTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.SampleTypeTranslator;
-import ch.systemsx.cisd.openbis.generic.client.web.server.util.UserFailureExceptionTranslater;
+import ch.systemsx.cisd.openbis.generic.client.web.server.util.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
@@ -55,17 +55,18 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.plugin.AbstractClientService;
+import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
 /**
  * The {@link IGenericClientService} implementation.
  * 
  * @author Franz-Josef Elmer
  */
-@Component(value = GenericConstants.GENERIC_SERVICE)
+@Component(value = ResourceNames.GENERIC_SERVICE)
 public final class GenericClientService extends AbstractClientService implements
         IGenericClientService
 {
-    @Resource(name = GenericConstants.GENERIC_SERVER)
+    @Resource(name = ResourceNames.GENERIC_SERVER)
     private IGenericServer genericServer;
 
     private final static RoleCode translateRoleSetCode(final String code)
@@ -112,12 +113,12 @@ public final class GenericClientService extends AbstractClientService implements
             final List<GroupPE> groups = genericServer.listGroups(getSessionToken(), identifier);
             for (final GroupPE group : groups)
             {
-                result.add(GroupTranslater.translate(group));
+                result.add(GroupTranslator.translate(group));
             }
             return result;
         } catch (final UserFailureException e)
         {
-            throw UserFailureExceptionTranslater.translate(e);
+            throw UserFailureExceptionTranslator.translate(e);
         }
     }
 
@@ -131,7 +132,7 @@ public final class GenericClientService extends AbstractClientService implements
                     groupLeaderOrNull);
         } catch (final UserFailureException e)
         {
-            throw UserFailureExceptionTranslater.translate(e);
+            throw UserFailureExceptionTranslator.translate(e);
         }
     }
 
@@ -150,7 +151,7 @@ public final class GenericClientService extends AbstractClientService implements
             return result;
         } catch (final UserFailureException e)
         {
-            throw UserFailureExceptionTranslater.translate(e);
+            throw UserFailureExceptionTranslator.translate(e);
         }
     }
 
@@ -162,7 +163,7 @@ public final class GenericClientService extends AbstractClientService implements
             genericServer.registerPerson(sessionToken, code);
         } catch (final UserFailureException e)
         {
-            throw UserFailureExceptionTranslater.translate(e);
+            throw UserFailureExceptionTranslator.translate(e);
         }
     }
 
@@ -180,7 +181,7 @@ public final class GenericClientService extends AbstractClientService implements
             return result;
         } catch (final UserFailureException e)
         {
-            throw UserFailureExceptionTranslater.translate(e);
+            throw UserFailureExceptionTranslator.translate(e);
         }
     }
 
@@ -197,7 +198,7 @@ public final class GenericClientService extends AbstractClientService implements
                     groupIdentifier, person);
         } catch (final UserFailureException e)
         {
-            throw UserFailureExceptionTranslater.translate(e);
+            throw UserFailureExceptionTranslator.translate(e);
         }
     }
 
@@ -211,7 +212,7 @@ public final class GenericClientService extends AbstractClientService implements
                     person);
         } catch (final UserFailureException e)
         {
-            throw UserFailureExceptionTranslater.translate(e);
+            throw UserFailureExceptionTranslator.translate(e);
         }
     }
 
@@ -228,7 +229,7 @@ public final class GenericClientService extends AbstractClientService implements
                     groupIdentifier, person);
         } catch (final UserFailureException e)
         {
-            throw UserFailureExceptionTranslater.translate(e);
+            throw UserFailureExceptionTranslator.translate(e);
         }
 
     }
@@ -243,7 +244,7 @@ public final class GenericClientService extends AbstractClientService implements
                     person);
         } catch (final UserFailureException e)
         {
-            throw UserFailureExceptionTranslater.translate(e);
+            throw UserFailureExceptionTranslator.translate(e);
         }
 
     }
@@ -261,7 +262,7 @@ public final class GenericClientService extends AbstractClientService implements
             return result;
         } catch (final UserFailureException e)
         {
-            throw UserFailureExceptionTranslater.translate(e);
+            throw UserFailureExceptionTranslator.translate(e);
         }
     }
 
@@ -302,7 +303,7 @@ public final class GenericClientService extends AbstractClientService implements
             return result;
         } catch (UserFailureException e)
         {
-            throw UserFailureExceptionTranslater.translate(e);
+            throw UserFailureExceptionTranslator.translate(e);
         }
     }
 

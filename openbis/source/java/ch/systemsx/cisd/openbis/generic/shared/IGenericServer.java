@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.shared;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
@@ -48,6 +50,7 @@ public interface IGenericServer extends IServer
     /**
      * Returns all groups which belong to the specified database instance.
      */
+    @Transactional
     @RolesAllowed(RoleSet.OBSERVER)
     @ReturnValueFilter(validatorClass = GroupValidator.class)
     public List<GroupPE> listGroups(String sessionToken, DatabaseInstanceIdentifier identifier);
@@ -55,6 +58,7 @@ public interface IGenericServer extends IServer
     /**
      * Registers a new group with specified code and optional description and group leader ID.
      */
+    @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     public void registerGroup(String sessionToken, String groupCode, String descriptionOrNull,
             String groupLeaderOrNull);
@@ -62,24 +66,28 @@ public interface IGenericServer extends IServer
     /**
      * Returns all persons from current instance.
      */
+    @Transactional
     @RolesAllowed(RoleSet.OBSERVER)
     public List<PersonPE> listPersons(String sessionToken);
 
     /**
      * Registers a new person.
      */
+    @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     public void registerPerson(String sessionToken, String userID);
 
     /**
      * Returns a list of all roles.
      */
+    @Transactional
     @RolesAllowed(RoleSet.GROUP_ADMIN)
     public List<RoleAssignmentPE> listRoles(String sessionToken);
 
     /**
      * Registers a new group role.
      */
+    @Transactional
     @RolesAllowed(RoleSet.GROUP_ADMIN)
     public void registerGroupRole(String sessionToken, RoleCode roleCode,
             @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class)
@@ -88,12 +96,14 @@ public interface IGenericServer extends IServer
     /**
      * Registers a new instance role.
      */
+    @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     public void registerInstanceRole(String sessionToken, RoleCode roleCode, String person);
 
     /**
      * Deletes role described by given role code, group identifier and user id.
      */
+    @Transactional
     @RolesAllowed(RoleSet.GROUP_ADMIN)
     public void deleteGroupRole(String sessionToken, RoleCode roleCode,
             @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class)
@@ -102,18 +112,21 @@ public interface IGenericServer extends IServer
     /**
      * Deletes role described by given role code and user id.
      */
+    @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     public void deleteInstanceRole(String sessionToken, RoleCode roleCode, String person);
 
     /**
      * Lists sample types which are appropriate for listing.
      */
+    @Transactional
     @RolesAllowed(RoleSet.OBSERVER)
     public List<SampleTypePE> listSampleTypes(String sessionToken);
 
     /**
      * Lists samples using given configuration.No properties are loaded.
      */
+    @Transactional
     @RolesAllowed(RoleSet.OBSERVER)
     public List<SamplePE> listSamples(String sessionToken,
             List<SampleOwnerIdentifier> ownerIdentifiers, SampleTypePE sampleType);
@@ -121,6 +134,7 @@ public interface IGenericServer extends IServer
     /**
      * Lists chosen properties for given samples.
      */
+    @Transactional
     @RolesAllowed(RoleSet.OBSERVER)
     public Map<SampleIdentifier, List<SamplePropertyPE>> listSamplesProperties(String sessionToken,
             List<SampleIdentifier> sampleIdentifiers, List<PropertyTypePE> list);

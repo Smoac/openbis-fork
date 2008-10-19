@@ -44,11 +44,11 @@ public final class GenericHttpSessionListener implements HttpSessionListener
     {
         final HttpSession httpSession = sessionEvent.getSession();
         final Session session =
-                (Session) httpSession.getAttribute(Constants.OPENBIS_SESSION_ATTRIBUTE_KEY);
+                (Session) httpSession.getAttribute(SessionConstants.OPENBIS_SESSION_ATTRIBUTE_KEY);
         if (session != null)
         {
             final IServer server =
-                    (IServer) httpSession.getAttribute(Constants.OPENBIS_SERVER_ATTRIBUTE_KEY);
+                    (IServer) httpSession.getAttribute(SessionConstants.OPENBIS_SERVER_ATTRIBUTE_KEY);
             if (server != null)
             {
                 server.logout(session.getSessionToken());

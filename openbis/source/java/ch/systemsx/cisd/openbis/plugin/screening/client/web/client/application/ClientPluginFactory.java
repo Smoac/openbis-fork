@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractCl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ISampleViewClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 
 /**
@@ -100,7 +100,7 @@ public final class ClientPluginFactory extends
         {
             final IViewContext<IScreeningClientServiceAsync> viewContext = getViewContext();
             viewContext.getService().getSampleInfo(sampleIdentifier,
-                    new AbstractAsyncCallback<Sample>(viewContext)
+                    new AbstractAsyncCallback<SampleGeneration>(viewContext)
                         {
 
                             //
@@ -108,9 +108,10 @@ public final class ClientPluginFactory extends
                             //
 
                             @Override
-                            protected final void process(final Sample result)
+                            protected final void process(final SampleGeneration result)
                             {
-                                MessageBox.alert("Screening", result.getCode(), null);
+                                MessageBox
+                                        .alert("Screening", result.getGenerator().getCode(), null);
                             }
                         });
         }

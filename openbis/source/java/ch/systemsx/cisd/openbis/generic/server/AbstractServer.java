@@ -19,15 +19,18 @@ package ch.systemsx.cisd.openbis.generic.server;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.Resource;
+
 import org.hibernate.Hibernate;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.aop.framework.ProxyFactory;
+import org.springframework.beans.factory.FactoryBean;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerFactory;
+import ch.systemsx.cisd.common.spring.LogInterceptor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.ISessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
@@ -39,20 +42,41 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
  * 
  * @author Christian Ribeaud
  */
-public abstract class AbstractServer<T extends IServer> implements IServer, ISessionProvider,
-        IInvocationLoggerFactory<T>
+public abstract class AbstractServer<T extends IServer> implements IServer,
+        IInvocationLoggerFactory<T>, FactoryBean
 {
-    private static ISessionManager<Session> sessionManager;
+    @Resource(name = ComponentNames.SESSION_MANAGER)
+    private ISessionManager<Session> sessionManager;
 
+    @Resource(name = ComponentNames.DAO_FACTORY)
     private IDAOFactory daoFactory;
+
+    @Resource(name = ComponentNames.LOG_INTERCEPTOR)
+    private LogInterceptor logInterceptor;
+
+    private ProxyFactory proxyFactory;
+
+    public AbstractServer()
+    {
+    }
+
+    private final ProxyFactory getProxyFactory()
+    {
+        if (proxyFactory == null)
+        {
+            proxyFactory = new ProxyFactory();
+            proxyFactory.setTarget(this);
+            proxyFactory.setInterfaces(new Class[]
+                { getProxyInterface() });
+            proxyFactory.addAdvice(logInterceptor);
+        }
+        return proxyFactory;
+    }
 
     protected AbstractServer(final ISessionManager<Session> sessionManager,
             final IDAOFactory daoFactory)
     {
-        if (AbstractServer.sessionManager == null)
-        {
-            AbstractServer.sessionManager = sessionManager;
-        }
+        this.sessionManager = sessionManager;
         this.daoFactory = daoFactory;
     }
 
@@ -78,6 +102,28 @@ public abstract class AbstractServer<T extends IServer> implements IServer, ISes
         return daoFactory;
     }
 
+    protected abstract Class<T> getProxyInterface();
+
+    //
+    // FactoryBean
+    //
+
+    public final Object getObject() throws Exception
+    {
+        return getProxyFactory().getProxy();
+    }
+
+    @SuppressWarnings("unchecked")
+    public final Class getObjectType()
+    {
+        return getClass();
+    }
+
+    public final boolean isSingleton()
+    {
+        return true;
+    }
+
     //
     // IServer
     //
@@ -97,7 +143,6 @@ public abstract class AbstractServer<T extends IServer> implements IServer, ISes
         sessionManager.closeSession(sessionToken);
     }
 
-    @Transactional
     public final Session tryToAuthenticate(final String user, final String password)
     {
         final String sessionToken = sessionManager.tryToOpenSession(user, password);

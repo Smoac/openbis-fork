@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server.business.bo;
 
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+
 /**
  * The <i>screening</i> specific <i>Business Object</i> factory.
  * 
@@ -23,5 +26,8 @@ package ch.systemsx.cisd.openbis.plugin.screening.server.business.bo;
  */
 public interface IScreeningBusinessObjectFactory
 {
+
+    /** Creates a {@link ISampleBO} <i>Business Object</i>. */
+    ISampleBO createSampleBO(final Session session);
 
 }

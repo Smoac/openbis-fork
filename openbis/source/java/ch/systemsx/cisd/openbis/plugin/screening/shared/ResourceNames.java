@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.client.web.client;
-
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
+package ch.systemsx.cisd.openbis.plugin.screening.shared;
 
 /**
- * Service interface for the <i>generic</i> <i>GWT</i> client.
+ * Resource name used in <i>screening</i> plug-in.
  * 
  * @author Christian Ribeaud
  */
-public interface IScreeningClientServiceAsync extends IClientServiceAsync
+public final class ResourceNames
 {
+    public final static String SCREENING_SERVICE = "screening-service";
 
-    /** @see IScreeningClientService#getSampleInfo(String) */
-    public void getSampleInfo(final String sampleIdentifier,
-            final AsyncCallback<SampleGeneration> callback);
+    public final static String SCREENING_SERVER = "screening-server";
+
+    private ResourceNames()
+    {
+        // Can not be instantiated.
+    }
+
 }

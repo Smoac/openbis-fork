@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import ch.systemsx.cisd.common.servlet.GWTRPCServiceExporter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientService;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 
 /**
  * The {@link GWTRPCServiceExporter} for the <i>screening</i> service.
@@ -42,7 +43,7 @@ public final class ScreeningClientServiceServlet extends GWTRPCServiceExporter
 {
     private static final long serialVersionUID = 1L;
 
-    @Resource(name = ScreeningConstants.SCREENING_SERVICE)
+    @Resource(name = ResourceNames.SCREENING_SERVICE)
     private IScreeningClientService service;
 
     //

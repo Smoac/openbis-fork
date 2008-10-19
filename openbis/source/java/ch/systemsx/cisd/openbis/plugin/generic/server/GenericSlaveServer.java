@@ -16,17 +16,13 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
-import org.springframework.stereotype.Component;
-
 import ch.systemsx.cisd.openbis.plugin.ISlaveServerPlugin;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.GenericConstants;
 
 /**
  * The generic slave server.
  * 
  * @author Christian Ribeaud
  */
-@Component(GenericConstants.GENERIC_SLAVE_SERVER_COMPONENT_NAME)
 public final class GenericSlaveServer implements ISlaveServerPlugin
 {
 

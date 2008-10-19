@@ -46,8 +46,8 @@ public class GenericBusinessObjectFactory extends AbstractBusinessObjectFactory 
         return new RoleAssignmentTable(getDaoFactory(), session);
     }
 
-    public final ISampleBO createSampleBO(final Session session)
+    public final ISampleTable createSampleTable(final Session session)
     {
-        return new SampleBO(getDaoFactory(), session);
+        return new SampleTable(getDaoFactory(), session);
     }
 }

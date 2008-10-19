@@ -17,14 +17,14 @@
 package ch.systemsx.cisd.openbis.generic.server;
 
 /**
- * Some generic constants used on the server side.
+ * Some session constants.
  * 
  * @author Christian Ribeaud
  */
-public final class Constants
+public final class SessionConstants
 {
 
-    private Constants()
+    private SessionConstants()
     {
     }
 

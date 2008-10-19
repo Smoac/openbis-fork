@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 /**
  * @author Izabela Adamczyk
  */
-public class DatabaseInstanceTranslater
+public class DatabaseInstanceTranslator
 {
 
     public static DatabaseInstance translate(DatabaseInstancePE databaseInstance)

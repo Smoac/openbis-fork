@@ -20,28 +20,30 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
+import ch.systemsx.cisd.common.utilities.BeanUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.client.web.server.util.UserFailureExceptionTranslater;
+import ch.systemsx.cisd.openbis.generic.client.web.server.util.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.plugin.AbstractClientService;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientService;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 
 /**
  * The {@link IScreeningClientService} implementation.
  * 
  * @author Christian Ribeaud
  */
-@Component(value = ScreeningConstants.SCREENING_SERVICE)
+@Component(value = ResourceNames.SCREENING_SERVICE)
 public final class ScreeningClientService extends AbstractClientService implements
         IScreeningClientService
 {
 
-    @Resource(name = ScreeningConstants.SCREENING_SERVER)
+    @Resource(name = ResourceNames.SCREENING_SERVER)
     private IScreeningServer screeningServer;
 
     @Override
@@ -54,19 +56,18 @@ public final class ScreeningClientService extends AbstractClientService implemen
     // IScreeningClientService
     //
 
-    public final Sample getSampleInfo(final String sampleIdentifier) throws UserFailureException
+    public final SampleGeneration getSampleInfo(final String sampleIdentifier)
+            throws UserFailureException
     {
         try
         {
-            final String sessionToken = getSessionToken();
             final SampleIdentifier identifier = SampleIdentifierFactory.parse(sampleIdentifier);
-            final SamplePE samplePE = screeningServer.getSampleInfo(sessionToken, identifier);
-            final Sample sample = new Sample();
-            sample.setCode(samplePE.getCode());
-            return sample;
+            final SampleGenerationDTO sampleGeneration =
+                    screeningServer.getSampleInfo(getSessionToken(), identifier);
+            return BeanUtils.createBean(SampleGeneration.class, sampleGeneration);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
-            throw UserFailureExceptionTranslater.translate(e);
+            throw UserFailureExceptionTranslator.translate(e);
         }
     }
 }

@@ -16,61 +16,46 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwnerFinder;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwnerFinder.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
- * @author Tomasz Pylak
+ * The unique {@link ISampleBO} implementation.
+ * 
+ * @author Christian Ribeaud
  */
 public class SampleBO extends AbstractBusinessObject implements ISampleBO
 {
-    private final IDAOFactory daoFactory;
+    private final SampleOwnerFinder sampleOwnerFinder;
 
-    SampleBO(IDAOFactory daoFactory, Session session)
+    private SamplePE sample;
+
+    public SampleBO(final IDAOFactory daoFactory, final Session session)
     {
         super(daoFactory, session);
-        this.daoFactory = daoFactory;
+        this.sampleOwnerFinder = new SampleOwnerFinder(daoFactory, session.tryGetPerson());
     }
 
-    public List<SamplePE> listSamples(SampleTypePE sampleTypeExample,
-            List<SampleOwnerIdentifier> ownerIdentifiers)
+    //
+    // ISampleBO
+    //
+
+    public final SamplePE getSample()
     {
-        SampleTypePE sampleType = getSampleTypeDAO().tryFindByExample(sampleTypeExample);
-        if (sampleType == null)
+        if (sample == null)
         {
-            throw new UserFailureException("Cannot find a sample type matching to "
-                    + sampleTypeExample);
+            throw new UserFailureException("Undefined sample.");
         }
-        SampleOwnerFinder finder = new SampleOwnerFinder(daoFactory, findRegistrator());
-        List<SamplePE> samples = new ArrayList<SamplePE>();
-        for (SampleOwnerIdentifier sampleOwnerIdentifier : ownerIdentifiers)
-        {
-            SampleOwner owner = finder.figureSampleOwner(sampleOwnerIdentifier);
-            samples.addAll(listSamples(sampleType, owner));
-        }
-        return samples;
+        return sample;
     }
 
-    private List<SamplePE> listSamples(SampleTypePE sampleType, SampleOwner owner)
+    public final void loadBySampleIdentifier(final SampleIdentifier identifier)
     {
-        ISampleDAO sampleDAO = getSampleDAO();
-        if (owner.isGroupLevel())
-        {
-            return sampleDAO.listSamplesByTypeAndGroup(sampleType, owner.tryGetGroup());
-        } else
-        {
-            return sampleDAO.listSamplesByTypeAndDatabaseInstance(sampleType, owner
-                    .tryGetDatabaseInstance());
-        }
+        // TODO Auto-generated method stub
+
     }
 }

@@ -14,22 +14,20 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.generic.client.web.server;
+package ch.systemsx.cisd.openbis.plugin.generic.shared;
 
 /**
- * Some constants.
+ * Resource name used in <i>generic</i> plug-in.
  * 
  * @author Christian Ribeaud
  */
-public class GenericConstants
+public final class ResourceNames
 {
-    public final static String GENERIC_SLAVE_SERVER_COMPONENT_NAME = "GenericSlaveServer";
-
     public final static String GENERIC_SERVICE = "generic-service";
 
     public final static String GENERIC_SERVER = "generic-server";
 
-    private GenericConstants()
+    private ResourceNames()
     {
         // Can not be instantiated.
     }

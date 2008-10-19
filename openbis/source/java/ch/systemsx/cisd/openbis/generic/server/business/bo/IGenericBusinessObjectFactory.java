@@ -29,5 +29,5 @@ public interface IGenericBusinessObjectFactory
 
     public IRoleAssignmentTable createRoleAssignmentTable(final Session session);
 
-    public ISampleBO createSampleBO(final Session session);
+    public ISampleTable createSampleTable(final Session session);
 }

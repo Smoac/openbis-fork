@@ -17,7 +17,10 @@
 package ch.systemsx.cisd.openbis.plugin.screening.server.business.bo;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.AbstractBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
  * The unique {@link IScreeningBusinessObjectFactory} implementation.
@@ -33,4 +36,12 @@ public final class ScreeningBusinessObjectFactory extends AbstractBusinessObject
         super(daoFactory);
     }
 
+    //
+    // IScreeningBusinessObjectFactory
+    //
+
+    public final ISampleBO createSampleBO(final Session session)
+    {
+        return new SampleBO(getDaoFactory(), session);
+    }
 }

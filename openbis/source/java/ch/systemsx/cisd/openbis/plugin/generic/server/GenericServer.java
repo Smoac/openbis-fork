@@ -14,20 +14,24 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server;
+package ch.systemsx.cisd.openbis.plugin.generic.server;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.transaction.annotation.Transactional;
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 
-import ch.rinn.restrictions.Private;
+import org.springframework.stereotype.Component;
+
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
+import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.GenericBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGenericBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
@@ -50,26 +54,25 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceId
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
+import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
 /**
  * Implementation of client-server interface.
  * 
  * @author Franz-Josef Elmer
  */
-public class GenericServer extends AbstractServer<IGenericServer> implements IGenericServer
+@Component(ResourceNames.GENERIC_SERVER)
+public final class GenericServer extends AbstractServer<IGenericServer> implements IGenericServer
 {
-    private final IGenericBusinessObjectFactory boFactory;
+    private IGenericBusinessObjectFactory boFactory;
 
-    private final IAuthenticationService authenticationService;
+    @Resource(name = ComponentNames.AUTHENTICATION_SERVICE)
+    private IAuthenticationService authenticationService;
 
-    public GenericServer(final IAuthenticationService authenticationService,
-            final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory)
+    public GenericServer()
     {
-        this(authenticationService, sessionManager, daoFactory, new GenericBusinessObjectFactory(
-                daoFactory));
     }
 
-    @Private
     GenericServer(final IAuthenticationService authenticationService,
             final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
             final IGenericBusinessObjectFactory boFactory)
@@ -77,6 +80,23 @@ public class GenericServer extends AbstractServer<IGenericServer> implements IGe
         super(sessionManager, daoFactory);
         this.authenticationService = authenticationService;
         this.boFactory = boFactory;
+    }
+
+    @SuppressWarnings("unused")
+    @PostConstruct
+    private final void createScreeningBusinessObjectFactory()
+    {
+        this.boFactory = new GenericBusinessObjectFactory(getDAOFactory());
+    }
+
+    //
+    // AbstractServer
+    //
+
+    @Override
+    protected final Class<IGenericServer> getProxyInterface()
+    {
+        return IGenericServer.class;
     }
 
     //
@@ -95,7 +115,6 @@ public class GenericServer extends AbstractServer<IGenericServer> implements IGe
     // IGenericServer
     //
 
-    @Transactional
     public final List<GroupPE> listGroups(final String sessionToken,
             final DatabaseInstanceIdentifier identifier)
     {
@@ -112,7 +131,6 @@ public class GenericServer extends AbstractServer<IGenericServer> implements IGe
         return groups;
     }
 
-    @Transactional
     public final void registerGroup(final String sessionToken, final String groupCode,
             final String descriptionOrNull, final String groupLeaderOrNull)
     {
@@ -122,7 +140,6 @@ public class GenericServer extends AbstractServer<IGenericServer> implements IGe
         groupBO.save();
     }
 
-    @Transactional
     public final void registerPerson(final String sessionToken, final String userID)
     {
         final Session session = getSessionManager().getSession(sessionToken);
@@ -148,14 +165,12 @@ public class GenericServer extends AbstractServer<IGenericServer> implements IGe
         }
     }
 
-    @Transactional
     public final List<RoleAssignmentPE> listRoles(final String sessionToken)
     {
         getSessionManager().getSession(sessionToken);
         return getDAOFactory().getRoleAssignmentDAO().listRoleAssignments();
     }
 
-    @Transactional
     public final void registerGroupRole(final String sessionToken, final RoleCode roleCode,
             final GroupIdentifier groupIdentifier, final String person)
     {
@@ -172,7 +187,6 @@ public class GenericServer extends AbstractServer<IGenericServer> implements IGe
 
     }
 
-    @Transactional
     public final void registerInstanceRole(final String sessionToken, final RoleCode roleCode,
             final String person)
     {
@@ -190,7 +204,6 @@ public class GenericServer extends AbstractServer<IGenericServer> implements IGe
 
     }
 
-    @Transactional
     public final void deleteGroupRole(final String sessionToken, final RoleCode roleCode,
             final GroupIdentifier groupIdentifier, final String person)
     {
@@ -228,7 +241,6 @@ public class GenericServer extends AbstractServer<IGenericServer> implements IGe
         getDAOFactory().getRoleAssignmentDAO().deleteRoleAssignment(roleAssignment);
     }
 
-    @Transactional
     public final void deleteInstanceRole(final String sessionToken, final RoleCode roleCode,
             final String person)
     {
@@ -251,7 +263,6 @@ public class GenericServer extends AbstractServer<IGenericServer> implements IGe
         getDAOFactory().getRoleAssignmentDAO().deleteRoleAssignment(roleAssignment);
     }
 
-    @Transactional
     public final List<PersonPE> listPersons(final String sessionToken)
     {
         getSessionManager().getSession(sessionToken);
@@ -260,30 +271,27 @@ public class GenericServer extends AbstractServer<IGenericServer> implements IGe
         return persons;
     }
 
-    @Transactional
     public final List<SampleTypePE> listSampleTypes(final String sessionToken)
     {
         getSessionManager().getSession(sessionToken);
         return getDAOFactory().getSampleTypeDAO().listSampleTypes(true);
     }
 
-    @Transactional
     public final List<SamplePE> listSamples(final String sessionToken,
             final List<SampleOwnerIdentifier> ownerIdentifiers, final SampleTypePE sampleType)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final List<SamplePE> samples =
-                boFactory.createSampleBO(session).listSamples(sampleType, ownerIdentifiers);
+                boFactory.createSampleTable(session).listSamples(sampleType, ownerIdentifiers);
         return samples;
     }
 
-    @Transactional
-    public Map<SampleIdentifier, List<SamplePropertyPE>> listSamplesProperties(final String sessionToken,
-            final List<SampleIdentifier> sampleIdentifiers, final List<PropertyTypePE> propertyCodes)
+    public Map<SampleIdentifier, List<SamplePropertyPE>> listSamplesProperties(
+            final String sessionToken, final List<SampleIdentifier> sampleIdentifiers,
+            final List<PropertyTypePE> propertyCodes)
     {
         getSessionManager().getSession(sessionToken);
         return getDAOFactory().getSamplePropertyDAO().listSampleProperties(sampleIdentifiers,
                 propertyCodes);
-
     }
 }

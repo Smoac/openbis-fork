@@ -23,9 +23,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 /**
  * @author Franz-Josef Elmer
  */
-public class GroupTranslater
+public class GroupTranslator
 {
-    private GroupTranslater()
+    private GroupTranslator()
     {
     }
 
@@ -38,7 +38,7 @@ public class GroupTranslater
         Group result = new Group();
         result.setCode(group.getCode());
         result.setDescription(group.getDescription());
-        result.setInstance(DatabaseInstanceTranslater.translate(group.getDatabaseInstance()));
+        result.setInstance(DatabaseInstanceTranslator.translate(group.getDatabaseInstance()));
         result.setRegistrationDate(group.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(group.getRegistrator()));
         result.setIdentifier(IdentifierHelper.createIdentifier(group).toString());

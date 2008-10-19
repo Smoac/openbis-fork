@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared;
 
+import org.springframework.transaction.annotation.Transactional;
+
+import ch.systemsx.cisd.openbis.generic.shared.authorization.ISessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
@@ -23,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
  * 
  * @author Christian Ribeaud
  */
-public interface IServer
+public interface IServer extends ISessionProvider
 {
 
     /**
@@ -36,6 +39,7 @@ public interface IServer
      * 
      * @return <code>null</code> if authentication failed.
      */
+    @Transactional
     public Session tryToAuthenticate(String user, String password);
 
     /**
