@@ -29,6 +29,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -42,7 +43,8 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
  * @author Izabela Adamczyk
  */
 @Entity
-@Table(name = TableNames.MATERIAL_PROPERTIES_TABLE)
+@Table(name = TableNames.MATERIAL_PROPERTIES_TABLE, uniqueConstraints = @UniqueConstraint(columnNames =
+    { ColumnNames.MATERIAL_COLUMN, ColumnNames.MATERIAL_TYPE_PROPERTY_TYPE_COLUMN }))
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class MaterialPropertyPE extends EntityPropertyPE
 {
@@ -99,7 +101,7 @@ public class MaterialPropertyPE extends EntityPropertyPE
      */
     void setEntity(IIdAndCodeHolder entity)
     {
-        this.material = (MaterialPE) entity; 
+        this.material = (MaterialPE) entity;
     }
 
     @Override

@@ -43,7 +43,8 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 @Entity
 @Table(name = TableNames.SAMPLE_PROPERTIES_TABLE, uniqueConstraints =
     { @UniqueConstraint(columnNames =
-        { ColumnNames.ID_COLUMN }) })
+        { ColumnNames.SAMPLE_COLUMN, ColumnNames.SAMPLE_TYPE_PROPERTY_TYPE_COLUMN }) })
+// @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class SamplePropertyPE extends EntityPropertyPE
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
@@ -54,7 +55,7 @@ public class SamplePropertyPE extends EntityPropertyPE
             Collections.<SamplePropertyPE> emptyList();
 
     private SamplePE sample;
-    
+
     /**
      * Returns the sample that this property belongs to.
      */
@@ -99,7 +100,7 @@ public class SamplePropertyPE extends EntityPropertyPE
      */
     void setEntity(IIdAndCodeHolder entity)
     {
-        this.sample = (SamplePE) entity; 
+        this.sample = (SamplePE) entity;
     }
 
     @Override

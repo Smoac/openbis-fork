@@ -180,11 +180,12 @@ public class SamplePE extends HibernateAbstractRegistrationHolder implements IId
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entity")
     @Fetch(FetchMode.SUBSELECT)
+    // @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private List<SamplePropertyPE> getSampleProperties()
     {
         return properties;
     }
-    
+
     // Required by Hibernate.
     @SuppressWarnings("unused")
     private void setSampleProperties(final List<SamplePropertyPE> properties)
@@ -390,5 +391,5 @@ public class SamplePE extends HibernateAbstractRegistrationHolder implements IId
     {
         Hibernate.initialize(getSampleProperties());
     }
-    
+
 }

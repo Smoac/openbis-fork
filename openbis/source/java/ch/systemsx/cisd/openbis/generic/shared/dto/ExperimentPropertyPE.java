@@ -29,6 +29,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -42,7 +43,8 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
  * @author Izabela Adamczyk
  */
 @Entity
-@Table(name = TableNames.EXPERIMENT_PROPERTIES_TABLE)
+@Table(name = TableNames.EXPERIMENT_PROPERTIES_TABLE, uniqueConstraints = @UniqueConstraint(columnNames =
+    { ColumnNames.EXPERIMENT_COLUMN, ColumnNames.EXPERIMENT_TYPE_PROPERTY_TYPE_COLUMN }))
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class ExperimentPropertyPE extends EntityPropertyPE
 {
@@ -53,7 +55,7 @@ public class ExperimentPropertyPE extends EntityPropertyPE
     public static final List<ExperimentPropertyPE> EMPTY_LIST = Collections.emptyList();
 
     private ExperimentPE experiment;
-    
+
     /**
      * Returns the experiment that this property belongs to.
      */
@@ -89,7 +91,7 @@ public class ExperimentPropertyPE extends EntityPropertyPE
     {
         return getExperiment();
     }
-    
+
     /**
      * Sets the <var>experiment</var> of this property.
      * <p>
@@ -98,7 +100,7 @@ public class ExperimentPropertyPE extends EntityPropertyPE
      */
     void setEntity(IIdAndCodeHolder entity)
     {
-        this.experiment = (ExperimentPE) entity; 
+        this.experiment = (ExperimentPE) entity;
     }
 
     @Override
