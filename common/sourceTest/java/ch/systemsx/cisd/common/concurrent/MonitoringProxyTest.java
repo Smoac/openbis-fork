@@ -308,7 +308,7 @@ public class MonitoringProxyTest
         assertEquals(THE_STRING, defaultReturningProxy.getString(false));
     }
 
-    @Test
+    @Test(retryAnalyzer = Retry10.class)
     public void testGetStringExceptionThrowingPolicy()
     {
         assertEquals(THE_STRING, exceptionThrowingProxy.getString(false));
