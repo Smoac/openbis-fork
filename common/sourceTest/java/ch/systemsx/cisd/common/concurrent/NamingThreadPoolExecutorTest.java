@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.common.concurrent;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.util.Collections;
@@ -35,6 +35,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.test.Retry10;
 
 /**
  * Test cases for the {@link NamingThreadPoolExecutor}.
@@ -250,7 +251,7 @@ public class NamingThreadPoolExecutorTest
         }
     }
 
-    @Test(groups = "slow")
+    @Test(groups = "slow", retryAnalyzer = Retry10.class)
     public void testSubmitNamedCallables() throws Throwable
     {
         final String callableName1 = "This is the first special callable name";

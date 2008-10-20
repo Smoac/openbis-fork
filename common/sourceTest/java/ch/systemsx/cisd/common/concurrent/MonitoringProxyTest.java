@@ -374,7 +374,7 @@ public class MonitoringProxyTest
         exceptionThrowingProxy.getInteger(true);
     }
 
-    @Test(groups = "slow", expectedExceptions = StopException.class)
+    @Test(groups = "slow", expectedExceptions = StopException.class, retryAnalyzer = Retry10.class)
     public void testInterruptTheUninterruptableThrowsException()
     {
         final ITest proxy =
