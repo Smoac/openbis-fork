@@ -22,7 +22,6 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.ISessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
@@ -31,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
  * 
  * @author Christian Ribeaud
  */
-public abstract class AbstractServerLogger implements ISessionProvider, IServer
+public abstract class AbstractServerLogger implements IServer
 {
     private static final String RESULT_SUCCESS = "";
 
