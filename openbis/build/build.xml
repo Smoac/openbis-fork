@@ -160,10 +160,10 @@
     <!--
       // Override 'prepare-gwt' target by writing out 'OpenBIS.gwt.xml' and updating 'ClientPluginProvider.java'.
       -->
-    <target name="prepare-gwt"
-            depends="server-common-common.prepare-gwt"
+    <target name="prepare-gwt" depends="compile"
             description="Override 'prepare-gwt' by writing out 'OpenBIS.gwt.xml' and updating 'ClientPluginProvider.java'.">
         <antcall target="prepare-web-client" />
+        <antcall target="server-common-common.prepare-gwt" />    	
     </target>
 
     <!--
