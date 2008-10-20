@@ -27,3 +27,7 @@ body,div,td {
     color: gray;
     background-color: white;
 }
+
+.invalidated-sample {
+    text-decoration: line-through;
+}
