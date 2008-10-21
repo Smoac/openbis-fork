@@ -49,6 +49,7 @@ class ColumnChooser extends TextToolItem
         this.parentColumns = parentColumns;
         this.propertyColumns = propertyColumns;
         setEnabled(false);
+        reload();
     }
 
     public void reload()
