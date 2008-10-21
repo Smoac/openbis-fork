@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser;
+package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Procedure;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
+import com.extjs.gxt.ui.client.data.ModelData;
 
 /**
+ * {@link ModelData} for {@link Sample}
+ * 
  * @author Izabela Adamczyk
  */
 public class SampleModel extends BaseModelData
@@ -32,19 +29,19 @@ public class SampleModel extends BaseModelData
 
     private static final String SEPARATOR = "/";
 
-    static final String OBJECT = "object";
+    public static final String OBJECT = "object";
 
-    static final String SAMPLE_TYPE = "sampleType";
+    public static final String SAMPLE_TYPE = "sampleType";
 
-    static final String SAMPLE_CODE = "code";
+    public static final String SAMPLE_CODE = "code";
 
-    static final String IS_INSTANCE_SAMPLE_COLUMN = "isShared";
+    public static final String IS_INSTANCE_SAMPLE_COLUMN = "isShared";
 
-    static final String IS_GROUP_SAMPLE = "isGroupSample";
+    public static final String IS_GROUP_SAMPLE = "isGroupSample";
 
-    static final String SAMPLE_IDENTIFIER = "sampleIdentifier";
+    public static final String SAMPLE_IDENTIFIER = "sampleIdentifier";
 
-    static final long serialVersionUID = 1L;
+    public static final long serialVersionUID = 1L;
 
     public static final String REGISTRATOR = "registrator";
 

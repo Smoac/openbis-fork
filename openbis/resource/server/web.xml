@@ -21,10 +21,10 @@
         <servlet-name>spring</servlet-name>
         <url-pattern>/genericopenbis/*</url-pattern>
     </servlet-mapping>
-
-    <!--
-        // Additional servlets
-    -->
+     
+  <!--
+    // Additional servlets
+  -->
 
     &gwt;
 </web-app>

@@ -26,6 +26,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
+/**
+ * {@link ComboBox} containing list of sample types loaded from the server.
+ * 
+ * @author Izabela Adamczyk
+ */
 class SampleTypeSelectionWidget extends ComboBox<SampleTypeModel>
 {
 

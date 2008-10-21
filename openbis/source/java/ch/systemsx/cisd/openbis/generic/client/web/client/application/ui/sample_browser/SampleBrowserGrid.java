@@ -38,13 +38,17 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ClientPluginProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.PropertyColumns.LoadableColumnConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IClientPluginFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CommonColumns;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.LoadableColumnConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParentColumns;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
 /**
- * The samples browser.
+ * The grid part of samples browser.
  * 
  * @author Christian Ribeaud
  */

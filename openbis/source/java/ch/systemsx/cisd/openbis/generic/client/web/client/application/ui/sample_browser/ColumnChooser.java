@@ -29,6 +29,16 @@ import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.menu.SeparatorMenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CommonColumns;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParentColumns;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyColumns;
+
+/**
+ * Class which allows to change manipulate {@link CommonColumns}, {@link ParentColumns} and
+ * {@link PropertyColumns}.
+ * 
+ * @author Izabela Adamczyk
+ */
 class ColumnChooser extends TextToolItem
 {
     private static final int START = 1;

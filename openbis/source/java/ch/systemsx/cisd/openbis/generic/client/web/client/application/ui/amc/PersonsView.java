@@ -49,7 +49,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnFilter;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 
 /**
@@ -108,7 +107,6 @@ public class PersonsView extends LayoutContainer
         registratorColumnConfig.setId(PersonModel.REGISTRATOR);
         registratorColumnConfig.setHeader("Registrator");
         registratorColumnConfig.setWidth(COL_PERSON);
-        registratorColumnConfig.setRenderer(new PersonRenderer());
         configs.add(registratorColumnConfig);
 
         final ColumnConfig registrationDateColumnConfig = new ColumnConfig();

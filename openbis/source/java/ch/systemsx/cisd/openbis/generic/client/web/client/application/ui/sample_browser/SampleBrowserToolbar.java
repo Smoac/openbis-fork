@@ -31,12 +31,18 @@ import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Window;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CommonColumns;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParentColumns;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyColumns;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleQueryConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
 /**
- * The sample browser toolbar.
+ * The toolbar of sample browser.
  * 
  * @author Izabela Adamczyk
  * @author Christian Ribeaud
@@ -44,27 +50,32 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 class SampleBrowserToolbar extends ToolBar
 {
 
-    final SampleBrowserGrid grid;
+    private final SampleBrowserGrid grid;
 
-    final SampleTypeSelectionWidget selectSampleTypeCombo;
+    private final SampleTypeSelectionWidget selectSampleTypeCombo;
 
-    final GroupSelectionWidget selectGroupCombo;
+    private final GroupSelectionWidget selectGroupCombo;
 
-    final ToolbarController controller;
+    private final ToolbarController controller;
 
-    private CheckBox includeInstanceCheckbox;
+    private final CheckBox includeInstanceCheckbox;
 
-    private CheckBox includeGroupCheckbox;
+    private final CheckBox includeGroupCheckbox;
 
-    private Button submitButton;
+    private final Button submitButton;
 
-    private ColumnChooser columnChooser;
+    private final Button exportButton;
+
+    private final ColumnChooser columnChooser;
+
+    private final PropertyColumns propertyColumns;
 
     public SampleBrowserToolbar(GenericViewContext viewContext, SampleBrowserGrid rightPanel,
             CommonColumns commonColumns, ParentColumns parentColumns,
             PropertyColumns propertyColumns)
     {
         this.grid = rightPanel;
+        this.propertyColumns = propertyColumns;
         selectSampleTypeCombo = new SampleTypeSelectionWidget(viewContext);
         selectGroupCombo = new GroupSelectionWidget(viewContext);
         includeInstanceCheckbox = new CheckBox();
@@ -73,10 +84,12 @@ class SampleBrowserToolbar extends ToolBar
         columnChooser = new ColumnChooser(commonColumns, parentColumns, propertyColumns);
         submitButton = createSubmitButton();
         submitButton.setEnabled(false);
+        exportButton = createExportButton();
+        exportButton.setEnabled(false);
         controller =
                 new ToolbarController(selectSampleTypeCombo, selectGroupCombo,
-                        includeInstanceCheckbox, includeGroupCheckbox, submitButton, columnChooser,
-                        parentColumns, propertyColumns);
+                        includeInstanceCheckbox, includeGroupCheckbox, submitButton, exportButton,
+                        columnChooser, parentColumns, propertyColumns);
         addSelectSampleTypeListeners();
         addSelectGroupListeners();
         addIncludeInstanceListeners();
@@ -91,7 +104,7 @@ class SampleBrowserToolbar extends ToolBar
                 public void handleEvent(BaseEvent be)
                 {
                     controller.resetPropertyCache(includeGroupCheckbox.getValue().booleanValue());
-                    controller.refreshSubmitButton();
+                    controller.refreshButtons();
                     controller.showOrHideGroupList();
                 }
             });
@@ -105,7 +118,7 @@ class SampleBrowserToolbar extends ToolBar
                 {
                     controller
                             .resetPropertyCache(includeInstanceCheckbox.getValue().booleanValue());
-                    controller.refreshSubmitButton();
+                    controller.refreshButtons();
                 }
             });
     }
@@ -118,7 +131,7 @@ class SampleBrowserToolbar extends ToolBar
                 public void selectionChanged(SelectionChangedEvent<ModelData> se)
                 {
                     controller.resetPropertyCache(true);
-                    controller.refreshSubmitButton();
+                    controller.refreshButtons();
                 }
             });
     }
@@ -131,7 +144,7 @@ class SampleBrowserToolbar extends ToolBar
                 public void selectionChanged(SelectionChangedEvent<ModelData> se)
                 {
                     controller.rebuildColumnChooser();
-                    controller.refreshSubmitButton();
+                    controller.refreshButtons();
                 }
             });
     }
@@ -161,6 +174,10 @@ class SampleBrowserToolbar extends ToolBar
         add(new SeparatorToolItem());
 
         add(new AdapterToolItem(submitButton));
+
+        add(new SeparatorToolItem());
+
+        add(new AdapterToolItem(exportButton));
         layout();
     }
 
@@ -197,6 +214,48 @@ class SampleBrowserToolbar extends ToolBar
             });
         refreshButton.setIconStyle("x-tbar-loading");
         return refreshButton;
+    }
+
+    private Button createExportButton()
+    {
+        final Button button = new Button("Export data", new SelectionListener<ComponentEvent>()
+            {
+                @Override
+                public void componentSelected(ComponentEvent ce)
+                {
+                    Window.open(getExportQueryString(), "", "");
+                }
+
+                private String getExportQueryString()
+                {
+                    QueryBuilder q = new QueryBuilder("/genericopenbis/file-export");
+                    int propNr = propertyColumns.getChosenColumns().size();
+                    q.setParameter(SampleQueryConstants.SAMPLE_TYPE, selectSampleTypeCombo
+                            .tryGetSelected().getCode());
+                    q.setParameter(SampleQueryConstants.GROUP, selectGroupCombo.tryGetSelected()
+                            .getCode());
+                    q.setParameter(SampleQueryConstants.INCLUDE_GROUP, includeGroupCheckbox
+                            .getValue());
+                    q.setParameter(SampleQueryConstants.INCLUDE_SHARED, includeInstanceCheckbox
+                            .getValue());
+                    q.setParameter(SampleQueryConstants.PARENT_OF_DEPTH, selectSampleTypeCombo
+                            .tryGetSelected().getPartOfHierarchyDepth());
+                    q.setParameter(SampleQueryConstants.GENERATED_FROM_DEPTH, selectSampleTypeCombo
+                            .tryGetSelected().getGeneratedFromHierarchyDepth());
+                    q.setParameter(SampleQueryConstants.NUMBER_OF_PROPERTIES, propNr);
+                    for (PropertyType p : propertyColumns.getChosenColumns())
+                    {
+                        propNr--;
+                        q.setParameter(SampleQueryConstants.PROPERTY_INTERNAL + propNr, p
+                                .isInternalNamespace());
+                        q.setParameter(SampleQueryConstants.PROPRETY_LABEL + propNr, p.getLabel());
+                        q.setParameter(SampleQueryConstants.PROPERTY + propNr, p.getSimpleCode());
+                    }
+                    return q.getQuery();
+
+                }
+            });
+        return button;
     }
 
     private boolean checkForMissingInformation(final SampleType selectedType,

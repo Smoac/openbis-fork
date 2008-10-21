@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser;
+package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypePropertyType;
-
-class PropertyColumns
+/**
+ * Defines the sample properties columns for sample grid/table.
+ * 
+ * @author Izabela Adamczyk
+ */
+public class PropertyColumns
 {
 
     List<LoadableColumnConfig> columns;
@@ -97,38 +96,17 @@ class PropertyColumns
         return result;
     }
 
-    class LoadableColumnConfig extends ColumnConfig
+    public List<PropertyType> getChosenColumns()
     {
-
-        private boolean loaded = false;
-
-        private PropertyType propertyType;
-
-        public boolean isLoaded()
+        final ArrayList<PropertyType> result = new ArrayList<PropertyType>();
+        for (LoadableColumnConfig cc : columns)
         {
-            return loaded;
+            if (cc.isHidden() == false)
+            {
+                result.add(cc.getPropertyType());
+            }
         }
-
-        public void setPropertyType(PropertyType propertyType)
-        {
-            this.propertyType = propertyType;
-        }
-
-        public void setLoaded(boolean loaded)
-        {
-            this.loaded = loaded;
-        }
-
-        public boolean isDirty()
-        {
-            return isLoaded() == false && isHidden() == false;
-        }
-
-        public PropertyType getPropertyType()
-        {
-            return propertyType;
-        }
-
+        return result;
     }
 
 }

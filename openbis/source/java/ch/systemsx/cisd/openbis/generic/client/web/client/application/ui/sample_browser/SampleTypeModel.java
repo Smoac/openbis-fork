@@ -17,10 +17,13 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.data.ModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
 /**
+ * {@link ModelData} for {@link SampleType}.
+ * 
  * @author Izabela Adamczyk
  */
 public class SampleTypeModel extends BaseModelData

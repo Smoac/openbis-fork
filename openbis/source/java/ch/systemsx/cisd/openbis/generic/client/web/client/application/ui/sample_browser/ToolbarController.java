@@ -19,9 +19,13 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParentColumns;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
 /**
+ * Encapsulates the logic of interaction between Sample Browser GUI elements.
+ * 
  * @author Izabela Adamczyk
  */
 public class ToolbarController
@@ -43,29 +47,36 @@ public class ToolbarController
 
     private final PropertyColumns propertyColumns;
 
+    private final Button exportButton;
+
     public ToolbarController(SampleTypeSelectionWidget sampleTypeSelectionWidget,
             GroupSelectionWidget groupSelectionWidget, CheckBox instanceCheckbox,
-            CheckBox groupCheckbox, Button submitButton, ColumnChooser columnChooser,
-            ParentColumns parentColumns, PropertyColumns propertyColumns)
+            CheckBox groupCheckbox, Button submitButton, Button exportButton,
+            ColumnChooser columnChooser, ParentColumns parentColumns,
+            PropertyColumns propertyColumns)
     {
         this.sampleTypeSelectionWidget = sampleTypeSelectionWidget;
         this.groupSelectionWidget = groupSelectionWidget;
         this.instanceCheckbox = instanceCheckbox;
         this.groupCheckbox = groupCheckbox;
         this.submitButton = submitButton;
+        this.exportButton = exportButton;
         this.columnChooser = columnChooser;
         this.parentColumns = parentColumns;
         this.propertyColumns = propertyColumns;
     }
 
-    public void refreshSubmitButton()
+    public void refreshButtons()
     {
         final boolean sampleTypeSelected = sampleTypeSelectionWidget.isValid();
         final boolean showGroupSamples = groupCheckbox.getValue();
         final boolean groupChosen = groupSelectionWidget.isValid();
         final boolean showInstanceSamples = instanceCheckbox.getValue() == true;
-        submitButton.setEnabled(sampleTypeSelected
-                && (showGroupSamples && groupChosen || showInstanceSamples));
+        final boolean enable =
+                sampleTypeSelected && (showGroupSamples && groupChosen || showInstanceSamples);
+        submitButton.setEnabled(enable);
+        exportButton.setEnabled(enable);
+
     }
 
     public void showOrHideGroupList()

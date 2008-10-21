@@ -14,17 +14,21 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser;
+package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
-import com.google.gwt.i18n.client.DateTimeFormat;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.SampleRenderer;
 
-class CommonColumns
+/**
+ * Defines the common columns of sample grid/table.
+ * 
+ * @author Izabela Adamczyk
+ */
+public class CommonColumns
 {
     List<ColumnConfig> columns;
 
@@ -96,7 +100,6 @@ class CommonColumns
         columnConfig.setId(SampleModel.REGISTRATOR);
         columnConfig.setHeader("Registrator");
         columnConfig.setWidth(100);
-        columnConfig.setRenderer(new PersonRenderer());
         columnConfig.setHidden(true);
         return columnConfig;
     }
@@ -107,7 +110,6 @@ class CommonColumns
         columnConfig.setId(SampleModel.REGISTRATION_DATE);
         columnConfig.setHeader("Registration Date");
         columnConfig.setWidth(100);
-        columnConfig.setDateTimeFormat(DateTimeFormat.getShortDateFormat());
         columnConfig.setHidden(true);
         return columnConfig;
     }
@@ -121,7 +123,7 @@ class CommonColumns
         columnConfig.setHidden(true);
         return columnConfig;
     }
-    
+
     private ColumnConfig createExperimentColumn()
     {
         final ColumnConfig columnConfig = new ColumnConfig();

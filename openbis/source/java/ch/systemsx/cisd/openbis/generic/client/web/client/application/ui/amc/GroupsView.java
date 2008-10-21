@@ -49,7 +49,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnFilter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 
 /**
@@ -108,14 +107,12 @@ public class GroupsView extends LayoutContainer
         leaderColumnConfig.setId(GroupModel.LEADER);
         leaderColumnConfig.setHeader("Leader");
         leaderColumnConfig.setWidth(COL_PERSON);
-        leaderColumnConfig.setRenderer(new PersonRenderer());
         configs.add(leaderColumnConfig);
 
         final ColumnConfig registratorColumnConfig = new ColumnConfig();
         registratorColumnConfig.setId(GroupModel.REGISTRATOR);
         registratorColumnConfig.setHeader("Registrator");
         registratorColumnConfig.setWidth(COL_PERSON);
-        registratorColumnConfig.setRenderer(new PersonRenderer());
         configs.add(registratorColumnConfig);
 
         final ColumnConfig registrationDateColumnConfig = new ColumnConfig();
@@ -147,14 +144,15 @@ public class GroupsView extends LayoutContainer
         grid.setId(TABLE_ID);
 
         cp.add(grid);
-        final Button addGroupButton = new Button("Add group", new SelectionListener<ComponentEvent>()
-            {
-                @Override
-                public void componentSelected(ComponentEvent ce)
-                {
-                    new AddGroupDialog(viewContext, groupList).show();
-                }
-            });
+        final Button addGroupButton =
+                new Button("Add group", new SelectionListener<ComponentEvent>()
+                    {
+                        @Override
+                        public void componentSelected(ComponentEvent ce)
+                        {
+                            new AddGroupDialog(viewContext, groupList).show();
+                        }
+                    });
         addGroupButton.setId(ADD_BUTTON_ID);
 
         final ToolBar toolBar = new ToolBar();

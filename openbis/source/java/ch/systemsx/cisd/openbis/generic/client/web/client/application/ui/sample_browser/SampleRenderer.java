@@ -23,6 +23,8 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleModel;
+
 /**
  * Renders sample code and marks if the sample is invalid
  * 

@@ -97,4 +97,19 @@ public class Person implements IsSerializable
         registrationDate = d;
     }
 
+    @Override
+    public String toString()
+    {
+        StringBuilder result = new StringBuilder();
+        if (firstName != null && lastName != null)
+        {
+            result.append(firstName);
+            result.append(" ");
+            result.append(lastName);
+        } else
+        {
+            result.append(userId);
+        }
+        return result.toString();
+    }
 }

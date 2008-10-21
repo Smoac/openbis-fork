@@ -21,7 +21,15 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CommonColumns;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParentColumns;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyColumns;
 
+/**
+ * Main view component of Sample Browser.
+ * 
+ * @author Izabela Adamczyk
+ */
 public class SampleBrowser extends LayoutContainer
 {
 

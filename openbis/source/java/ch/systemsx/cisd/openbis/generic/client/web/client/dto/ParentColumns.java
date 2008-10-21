@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser;
+package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
-
-class ParentColumns
+/**
+ * Defines the sample parents columns for sample grid/table.
+ * 
+ * @author Izabela Adamczyk
+ */
+public class ParentColumns
 {
     private List<ColumnConfig> columns;
 

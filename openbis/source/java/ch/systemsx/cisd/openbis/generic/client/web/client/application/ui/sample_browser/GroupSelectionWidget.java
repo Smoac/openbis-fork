@@ -27,6 +27,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericVie
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 
+/**
+ * {@link ComboBox} containing list of groups loaded from the server.
+ * 
+ * @author Izabela Adamczyk
+ */
 class GroupSelectionWidget extends ComboBox<GroupModel>
 {
 

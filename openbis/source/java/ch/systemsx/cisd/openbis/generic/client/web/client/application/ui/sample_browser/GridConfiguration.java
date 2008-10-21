@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
 /**
+ * Stores the information about grid state.
+ * 
  * @author Izabela Adamczyk
  */
 public class GridConfiguration
