@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.collections;
 
 import java.io.File;
+import java.io.Serializable;
 
 /**
  * A factory class for {@link IExtendedBlockingQueue}s.
@@ -36,7 +37,7 @@ public class ExtendedBlockingQueueFactory
      * @param autoSync If <code>true</code>, the underlying file will be synchronized after each
      *            write operation. This is safer, but costs a lot of performance.
      */
-    public static <E> PersistentExtendedBlockingQueueDecorator<E> createPersistRecordBased(
+    public static <E extends Serializable> PersistentExtendedBlockingQueueDecorator<E> createPersistRecordBased(
             File queueFile, int initialRecordSize, boolean autoSync)
     {
         final IExtendedBlockingQueue<E> queue = new ExtendedLinkedBlockingQueue<E>();
@@ -53,7 +54,7 @@ public class ExtendedBlockingQueueFactory
      * @param initialRecordSize The initial size of the record. If an element of the queue is larger
      *            than this, the whole queue file has to be re-written with a larger record size.
      */
-    public static <E> PersistentExtendedBlockingQueueDecorator<E> createPersistRecordBased(
+    public static <E extends Serializable> PersistentExtendedBlockingQueueDecorator<E> createPersistRecordBased(
             File queueFile, int initialRecordSize)
     {
         return createPersistRecordBased(queueFile, initialRecordSize, false);
@@ -66,7 +67,7 @@ public class ExtendedBlockingQueueFactory
      * 
      * @param queueFile The file to persist the queue in.
      */
-    public static <E> PersistentExtendedBlockingQueueDecorator<E> createPersistRecordBased(
+    public static <E extends Serializable> PersistentExtendedBlockingQueueDecorator<E> createPersistRecordBased(
             File queueFile)
     {
         return createPersistRecordBased(queueFile,

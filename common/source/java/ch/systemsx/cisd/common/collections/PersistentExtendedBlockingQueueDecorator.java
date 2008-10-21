@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.common.collections;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
@@ -29,8 +30,8 @@ import ch.systemsx.cisd.common.filesystem.ISynchronizable;
  * 
  * @author Bernd Rinn
  */
-public class PersistentExtendedBlockingQueueDecorator<E> implements IExtendedBlockingQueue<E>,
-        ICloseable, ISynchronizable
+public class PersistentExtendedBlockingQueueDecorator<E extends Serializable> implements
+        IExtendedBlockingQueue<E>, ICloseable, ISynchronizable
 {
 
     private final IExtendedBlockingQueue<E> delegate;
@@ -47,7 +48,7 @@ public class PersistentExtendedBlockingQueueDecorator<E> implements IExtendedBlo
     //
     // Closeable
     //
-    
+
     public void close()
     {
         persister.close();
@@ -56,7 +57,7 @@ public class PersistentExtendedBlockingQueueDecorator<E> implements IExtendedBlo
     //
     // ISynchronizable
     //
-    
+
     public void synchronize()
     {
         persister.sync();
