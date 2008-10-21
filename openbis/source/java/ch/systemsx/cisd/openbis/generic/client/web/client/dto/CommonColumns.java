@@ -21,7 +21,6 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.SampleRenderer;
 
 /**
  * Defines the common columns of sample grid/table.

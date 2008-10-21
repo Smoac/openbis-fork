@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser;
+package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -23,7 +23,6 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleModel;
 
 /**
  * Renders sample code and marks if the sample is invalid
