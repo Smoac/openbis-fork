@@ -68,6 +68,7 @@ public class SampleTranslator
                     samplesProperties.get(samplePE.getSampleIdentifier());
             result.setProperties(list == null ? new ArrayList<SampleProperty>()
                     : SamplePropertyTranslator.translate(list, st));
+            result.setValidProcedure(ProcedureTranslator.translate(samplePE.getValidProcedure()));
         }
         if (containerDep > 0 && samplePE.getContainer() != null)
         {

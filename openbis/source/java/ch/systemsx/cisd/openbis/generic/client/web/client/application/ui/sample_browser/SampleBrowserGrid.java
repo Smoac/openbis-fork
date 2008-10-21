@@ -144,8 +144,8 @@ class SampleBrowserGrid extends LayoutContainer
             SampleModel next = iterator.next();
             final Boolean isGroupLevelSample = (Boolean) next.get(SampleModel.IS_GROUP_SAMPLE);
             final boolean isInstanceLevelSample = isGroupLevelSample == false;
-            if (isGroupLevelSample && newConfiguration.includeGroup == false
-                    || isInstanceLevelSample && newConfiguration.includeInstance == false)
+            if (isGroupLevelSample && newConfiguration.isIncludeGroup() == false
+                    || isInstanceLevelSample && newConfiguration.isIncludeInstance() == false)
             {
                 iterator.remove();
             }

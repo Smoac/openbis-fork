@@ -48,6 +48,7 @@ class CommonColumns
         columns.add(createRegistratorColumn());
         columns.add(createRegistionDateColumn());
         columns.add(createIsInvalidColumn());
+        columns.add(createExperimentColumn());
         disableColumnMenu();
     }
 
@@ -118,6 +119,15 @@ class CommonColumns
         columnConfig.setHeader("Is invalid?");
         columnConfig.setWidth(100);
         columnConfig.setHidden(true);
+        return columnConfig;
+    }
+    
+    private ColumnConfig createExperimentColumn()
+    {
+        final ColumnConfig columnConfig = new ColumnConfig();
+        columnConfig.setId(SampleModel.EXPERIMENT);
+        columnConfig.setHeader("Experiment");
+        columnConfig.setWidth(100);
         return columnConfig;
     }
 }

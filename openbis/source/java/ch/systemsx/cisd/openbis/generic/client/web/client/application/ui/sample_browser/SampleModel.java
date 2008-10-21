@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Procedure;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
@@ -27,6 +29,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
  */
 public class SampleModel extends BaseModelData
 {
+
+    private static final String SEPARATOR = "/";
 
     static final String OBJECT = "object";
 
@@ -54,6 +58,8 @@ public class SampleModel extends BaseModelData
 
     public static final String IS_INVALID = "isInvalid";
 
+    public static final String EXPERIMENT = "experiment";
+
     public SampleModel(Sample s)
     {
         set(SAMPLE_CODE, printShortIdentifier(s));
@@ -65,6 +71,7 @@ public class SampleModel extends BaseModelData
         set(REGISTRATION_DATE, s.getRegistrationDate());
         set(IS_GROUP_SAMPLE, s.getGroup() != null);
         set(IS_INVALID, s.isInvalid());
+        set(EXPERIMENT, printExperimentIdentifier(s));
         setGeneratedFromParents(s, 1, s.getSampleType().getGeneratedFromHierarchyDepth());
         setContainerParents(s, 1, s.getSampleType().getPartOfHierarchyDepth());
         setProperties(s);
@@ -101,11 +108,30 @@ public class SampleModel extends BaseModelData
         }
     }
 
+    private static String printExperimentIdentifier(Sample s)
+    {
+        Procedure procedure = s.getValidProcedure();
+        if (procedure != null)
+        {
+            Experiment experiment = procedure.getExperiment();
+            if (experiment != null)
+            {
+                return printExperimentidentifier(experiment);
+            }
+        }
+        return null;
+    }
+
+    private static String printExperimentidentifier(Experiment experiment)
+    {
+        return experiment.getProject().getCode() + SEPARATOR + experiment.getCode();
+    }
+
     private static String printShortIdentifier(Sample sample)
     {
         if (sample.getDatabaseInstance() != null)
         {
-            return "/" + sample.getCode();
+            return SEPARATOR + sample.getCode();
         } else
         {
             return sample.getCode();

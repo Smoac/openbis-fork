@@ -52,6 +52,8 @@ public class Sample implements IsSerializable
 
     private boolean isInvalid;
 
+    private Procedure validProcedure;
+
     public String getCode()
     {
         return code;
@@ -162,4 +164,15 @@ public class Sample implements IsSerializable
     {
         this.isInvalid = isInvalid;
     }
+
+    public Procedure getValidProcedure()
+    {
+        return validProcedure;
+    }
+
+    public void setValidProcedure(Procedure validProcedure)
+    {
+        this.validProcedure = validProcedure;
+    }
+
 }

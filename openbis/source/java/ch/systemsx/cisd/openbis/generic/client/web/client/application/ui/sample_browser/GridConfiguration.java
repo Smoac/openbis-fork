@@ -24,13 +24,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 public class GridConfiguration
 {
 
-    SampleType sampleType;
+    private SampleType sampleType;
 
-    String groupCode;
+    private String groupCode;
 
-    boolean includeGroup;
+    private boolean includeGroup;
 
-    boolean includeInstance;
+    private boolean includeInstance;
 
     public boolean majorChange(GridConfiguration newConfiguration)
     {
@@ -46,7 +46,8 @@ public class GridConfiguration
                 || includeInstance == true && newConfiguration.isIncludeInstance() == false;
     }
 
-    public void update(SampleType sampleTypeNewValue, String groupCodeNewValue, boolean includeGroupNewValue, boolean includeInstanceNewValue)
+    public void update(SampleType sampleTypeNewValue, String groupCodeNewValue,
+            boolean includeGroupNewValue, boolean includeInstanceNewValue)
     {
         setSampleType(sampleTypeNewValue);
         setGroupCode(groupCodeNewValue);
@@ -65,7 +66,8 @@ public class GridConfiguration
     private boolean groupRequested(String groupCodeNewValue, boolean includeGroupNewValue)
     {
         return includeGroupNewValue
-                && (includeGroup == false || groupCode == null || groupCodeNewValue.equals(groupCode) == false);
+                && (includeGroup == false || groupCode == null || groupCodeNewValue
+                        .equals(groupCode) == false);
     }
 
     private boolean instanceRequested(boolean includeInstanceNewValue)
@@ -75,25 +77,26 @@ public class GridConfiguration
 
     private boolean sampleTypeChanged(SampleType sampleTypeNewValue)
     {
-        return sampleType == null || sampleTypeNewValue.getCode().equals(sampleType.getCode()) == false;
+        return sampleType == null
+                || sampleTypeNewValue.getCode().equals(sampleType.getCode()) == false;
     }
 
-    public SampleType getSampleType()
+    private SampleType getSampleType()
     {
         return sampleType;
     }
 
-    public void setSampleType(SampleType sampleType)
+    private void setSampleType(SampleType sampleType)
     {
         this.sampleType = sampleType;
     }
 
-    public String getGroupCode()
+    private String getGroupCode()
     {
         return groupCode;
     }
 
-    public void setGroupCode(String groupCode)
+    private void setGroupCode(String groupCode)
     {
         this.groupCode = groupCode;
     }
@@ -103,7 +106,7 @@ public class GridConfiguration
         return includeGroup;
     }
 
-    public void setIncludeGroup(boolean includeGroup)
+    private void setIncludeGroup(boolean includeGroup)
     {
         this.includeGroup = includeGroup;
     }
@@ -113,7 +116,7 @@ public class GridConfiguration
         return includeInstance;
     }
 
-    public void setIncludeInstance(boolean includeInstance)
+    private void setIncludeInstance(boolean includeInstance)
     {
         this.includeInstance = includeInstance;
     }

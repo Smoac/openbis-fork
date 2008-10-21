@@ -32,9 +32,17 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
  */
 public interface ISampleDAO
 {
+    /**
+     * Lists sampels of given type from the given group. Samples are enriched with procedures and
+     * their experiments.
+     */
     List<SamplePE> listSamplesByTypeAndGroup(final SampleTypePE sampleType, final GroupPE group)
             throws DataAccessException;
 
+    /**
+     * The same as {@link #listSamplesByTypeAndGroup(SampleTypePE, GroupPE)}, but lists samples
+     * from the database instance instead of the group.
+     */
     List<SamplePE> listSamplesByTypeAndDatabaseInstance(final SampleTypePE sampleType,
             final DatabaseInstancePE databaseInstance);
 

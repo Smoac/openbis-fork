@@ -66,6 +66,11 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
         criteria.add(Restrictions.eq("sampleType", sampleType));
         fetchRelations(criteria, "container", sampleType.getContainerHierarchyDepth());
         fetchRelations(criteria, "generatedFrom", sampleType.getGeneratedFromHierarchyDepth());
+
+        // fetch procedures from valid experiments
+        criteria.setFetchMode("procedures", FetchMode.JOIN);
+        criteria.setFetchMode("procedures.experiment", FetchMode.JOIN);
+
         return criteria;
     }
 
@@ -133,7 +138,6 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
         }
         return list;
     }
-
     public final SamplePE tryFindByCodeAndDatabaseInstance(final String sampleCode,
             final DatabaseInstancePE databaseInstance)
     {
