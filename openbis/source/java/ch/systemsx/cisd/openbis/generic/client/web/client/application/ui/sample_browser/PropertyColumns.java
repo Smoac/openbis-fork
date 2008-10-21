@@ -62,13 +62,13 @@ class PropertyColumns
     {
         final LoadableColumnConfig columnConfig = new LoadableColumnConfig();
         columnConfig.setMenuDisabled(true);
-        columnConfig.setId(SampleModel.PROPERTY_PREFIX
-                + stpt.getPropertyType().isInternalNamespace()
-                + stpt.getPropertyType().getSimpleCode());
-        columnConfig.setHeader(stpt.getPropertyType().getLabel());
+        PropertyType propertyType = stpt.getPropertyType();
+        columnConfig.setId(SampleModel.PROPERTY_PREFIX + propertyType.isInternalNamespace()
+                + propertyType.getSimpleCode());
+        columnConfig.setHeader(propertyType.getLabel());
         columnConfig.setWidth(80);
         columnConfig.setHidden(stpt.isDisplayed() == false);
-        columnConfig.setPropertyType(stpt.getPropertyType());
+        columnConfig.setPropertyType(propertyType);
         return columnConfig;
     }
 
