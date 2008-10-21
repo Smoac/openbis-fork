@@ -27,6 +27,10 @@ public final class ResourceNames
 
     public final static String GENERIC_SERVER = "generic-server";
 
+    public final static String GENERIC_SLAVE_SERVER = "generic-slave-server";
+
+    public final static String GENERIC_BUSINESS_OBJECT_FACTORY = "generic-business-object-factory";
+
     private ResourceNames()
     {
         // Can not be instantiated.

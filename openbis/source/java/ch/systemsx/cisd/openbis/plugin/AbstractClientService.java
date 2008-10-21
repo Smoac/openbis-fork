@@ -85,7 +85,8 @@ public abstract class AbstractClientService implements IClientService
 
     private final Session getSession(final HttpSession httpSession)
     {
-        final Session session = (Session) httpSession.getAttribute(SessionConstants.OPENBIS_SESSION_ATTRIBUTE_KEY);
+        final Session session =
+                (Session) httpSession.getAttribute(SessionConstants.OPENBIS_SESSION_ATTRIBUTE_KEY);
         if (session == null)
         {
             final String remoteHost =
@@ -118,6 +119,7 @@ public abstract class AbstractClientService implements IClientService
         return requestContextProvider.getHttpServletRequest().getSession(create);
     }
 
+    /** Returns the {@link IServer} implementation for this client service. */
     protected abstract IServer getServer();
 
     //

@@ -17,8 +17,10 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwnerFinder;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -28,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  * 
  * @author Christian Ribeaud
  */
-public class SampleBO extends AbstractBusinessObject implements ISampleBO
+public final class SampleBO extends AbstractBusinessObject implements ISampleBO
 {
     private final SampleOwnerFinder sampleOwnerFinder;
 
@@ -46,16 +48,29 @@ public class SampleBO extends AbstractBusinessObject implements ISampleBO
 
     public final SamplePE getSample()
     {
-        if (sample == null)
-        {
-            throw new UserFailureException("Undefined sample.");
-        }
+        assert sample != null : "Unloaded sample.";
         return sample;
     }
 
     public final void loadBySampleIdentifier(final SampleIdentifier identifier)
     {
-        // TODO Auto-generated method stub
-
+        final SampleOwner sampleOwner = sampleOwnerFinder.figureSampleOwner(identifier);
+        final String sampleCode = identifier.getSampleCode();
+        final ISampleDAO sampleDAO = getSampleDAO();
+        if (sampleOwner.isDatabaseInstanceLevel())
+        {
+            sample =
+                    sampleDAO.tryFindByCodeAndDatabaseInstance(sampleCode, sampleOwner
+                            .tryGetDatabaseInstance());
+        } else
+        {
+            assert sampleOwner.isGroupLevel() : "Must be of group level.";
+            sample = sampleDAO.tryFindByCodeAndGroup(sampleCode, sampleOwner.tryGetGroup());
+        }
+        if (sample == null)
+        {
+            throw UserFailureException.fromTemplate(
+                    "No sample could be found with given identifier '%s'.", identifier);
+        }
     }
 }

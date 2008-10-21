@@ -23,77 +23,41 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 /**
  * @author Izabela Adamczyk
  */
-public class SampleType implements IsSerializable
+public final class SampleType extends EntityType implements IsSerializable
 {
-
-    String code;
-
-    String description;
-
-    DatabaseInstance databaseInstance;
-
     private int generatedFromHierarchyDepth;
 
     private int partOfHierarchyDepth;
 
     private List<SampleTypePropertyType> sampleTypePropertyTypes;
 
-    public String getCode()
-    {
-        return code;
-    }
-
-    public void setCode(String codel)
-    {
-        this.code = codel;
-    }
-
-    public String getDescription()
-    {
-        return description;
-    }
-
-    public void setDescription(String description)
-    {
-        this.description = description;
-    }
-
-    public DatabaseInstance getDatabaseInstance()
-    {
-        return databaseInstance;
-    }
-
-    public void setDatabaseInstance(DatabaseInstance databaseInstance)
-    {
-        this.databaseInstance = databaseInstance;
-    }
-
-    public void setGeneratedFromHierarchyDepth(int generatedFromHierarchyDepth)
+    public final void setGeneratedFromHierarchyDepth(final int generatedFromHierarchyDepth)
     {
         this.generatedFromHierarchyDepth = generatedFromHierarchyDepth;
     }
 
-    public void setPartOfHierarchyDepth(int partOfHierarchyDepth)
+    public final void setPartOfHierarchyDepth(final int partOfHierarchyDepth)
     {
         this.partOfHierarchyDepth = partOfHierarchyDepth;
     }
 
-    public int getGeneratedFromHierarchyDepth()
+    public final int getGeneratedFromHierarchyDepth()
     {
         return generatedFromHierarchyDepth;
     }
 
-    public int getPartOfHierarchyDepth()
+    public final int getPartOfHierarchyDepth()
     {
         return partOfHierarchyDepth;
     }
 
-    public List<SampleTypePropertyType> getSampleTypePropertyTypes()
+    public final List<SampleTypePropertyType> getSampleTypePropertyTypes()
     {
         return sampleTypePropertyTypes;
     }
 
-    public void setSampleTypePropertyTypes(List<SampleTypePropertyType> sampleTypePropertyTypes)
+    public final void setSampleTypePropertyTypes(
+            final List<SampleTypePropertyType> sampleTypePropertyTypes)
     {
         this.sampleTypePropertyTypes = sampleTypePropertyTypes;
     }

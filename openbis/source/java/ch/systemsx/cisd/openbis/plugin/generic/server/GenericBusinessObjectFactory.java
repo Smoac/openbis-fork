@@ -14,22 +14,34 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.business.bo;
+package ch.systemsx.cisd.openbis.plugin.generic.server;
 
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import org.springframework.stereotype.Component;
+
+import ch.systemsx.cisd.openbis.generic.server.business.bo.AbstractBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.GroupBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IGenericBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.RoleAssignmentTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleTable;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
 /**
  * The unique {@link IGenericBusinessObjectFactory} implementation.
  * 
  * @author Tomasz Pylak
  */
+@Component(ResourceNames.GENERIC_BUSINESS_OBJECT_FACTORY)
 public class GenericBusinessObjectFactory extends AbstractBusinessObjectFactory implements
         IGenericBusinessObjectFactory
 {
-    public GenericBusinessObjectFactory(final IDAOFactory daoFactory)
+    private GenericBusinessObjectFactory()
     {
-        super(daoFactory);
     }
 
     //
@@ -49,5 +61,10 @@ public class GenericBusinessObjectFactory extends AbstractBusinessObjectFactory 
     public final ISampleTable createSampleTable(final Session session)
     {
         return new SampleTable(getDaoFactory(), session);
+    }
+
+    public final ISampleBO createSampleBO(final Session session)
+    {
+        return new SampleBO(getDaoFactory(), session);
     }
 }

@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
@@ -32,7 +31,6 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.GenericBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGenericBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
@@ -64,8 +62,6 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 @Component(ResourceNames.GENERIC_SERVER)
 public final class GenericServer extends AbstractServer<IGenericServer> implements IGenericServer
 {
-    private IGenericBusinessObjectFactory boFactory;
-
     @Resource(name = ComponentNames.AUTHENTICATION_SERVICE)
     private IAuthenticationService authenticationService;
 
@@ -77,16 +73,8 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
             final IGenericBusinessObjectFactory boFactory)
     {
-        super(sessionManager, daoFactory);
+        super(sessionManager, daoFactory, boFactory);
         this.authenticationService = authenticationService;
-        this.boFactory = boFactory;
-    }
-
-    @SuppressWarnings("unused")
-    @PostConstruct
-    private final void createScreeningBusinessObjectFactory()
-    {
-        this.boFactory = new GenericBusinessObjectFactory(getDAOFactory());
     }
 
     //
@@ -135,7 +123,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             final String descriptionOrNull, final String groupLeaderOrNull)
     {
         final Session session = getSessionManager().getSession(sessionToken);
-        final IGroupBO groupBO = boFactory.createGroupBO(session);
+        final IGroupBO groupBO = getBusinessObjectFactory().createGroupBO(session);
         groupBO.define(groupCode, descriptionOrNull, groupLeaderOrNull);
         groupBO.save();
     }
@@ -181,7 +169,8 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         newRoleAssignment.setGroupIdentifier(groupIdentifier);
         newRoleAssignment.setRole(roleCode);
 
-        final IRoleAssignmentTable table = boFactory.createRoleAssignmentTable(session);
+        final IRoleAssignmentTable table =
+                getBusinessObjectFactory().createRoleAssignmentTable(session);
         table.add(newRoleAssignment);
         table.save();
 
@@ -198,7 +187,8 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 DatabaseInstanceIdentifier.HOME));
         newRoleAssignment.setRole(roleCode);
 
-        final IRoleAssignmentTable table = boFactory.createRoleAssignmentTable(session);
+        final IRoleAssignmentTable table =
+                getBusinessObjectFactory().createRoleAssignmentTable(session);
         table.add(newRoleAssignment);
         table.save();
 
@@ -282,7 +272,8 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final List<SamplePE> samples =
-                boFactory.createSampleTable(session).listSamples(sampleType, ownerIdentifiers);
+                getBusinessObjectFactory().createSampleTable(session).listSamples(sampleType,
+                        ownerIdentifiers);
         return samples;
     }
 

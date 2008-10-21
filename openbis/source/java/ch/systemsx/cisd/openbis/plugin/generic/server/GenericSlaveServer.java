@@ -16,14 +16,36 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
-import ch.systemsx.cisd.openbis.plugin.ISlaveServerPlugin;
+import java.util.List;
+
+import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleHierarchyFiller;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.plugin.ISampleTypeSlaveServerPlugin;
 
 /**
  * The generic slave server.
  * 
  * @author Christian Ribeaud
  */
-public final class GenericSlaveServer implements ISlaveServerPlugin
+public final class GenericSlaveServer implements ISampleTypeSlaveServerPlugin
 {
 
+    //
+    // ISlaveServerPlugin
+    //
+
+    public final SampleGenerationDTO getSampleInfo(final IDAOFactory daoFactory, final Session session,
+            final SamplePE sample)
+    {
+        assert sample != null : "Unspecified sample.";
+        sample.ensurePropertiesAreLoaded();
+        SampleHierarchyFiller.enrichWithFullHierarchy(sample);
+        final List<SamplePE> generated =
+                daoFactory.getSampleDAO().listSampleByGeneratedFrom(sample);
+        final SampleGenerationDTO sampleGenerationDTO = new SampleGenerationDTO(sample, generated);
+        return sampleGenerationDTO;
+    }
 }

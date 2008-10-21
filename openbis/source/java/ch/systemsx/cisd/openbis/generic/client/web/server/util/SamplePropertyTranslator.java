@@ -33,22 +33,22 @@ public class SamplePropertyTranslator
     {
     }
 
-    public static SampleProperty translate(SamplePropertyPE samplePropertyPE, SampleType sampleType)
+    public static SampleProperty translate(final SamplePropertyPE samplePropertyPE, final SampleType sampleType)
     {
         final SampleProperty result = new SampleProperty();
         result.setValue(samplePropertyPE.getValue() == null ? samplePropertyPE.getVocabularyTerm()
                 .getCode() : samplePropertyPE.getValue());
-        result.setSampleTypePropertyType(SampleTypePropertyTypeTranslator
+        result.setEntityTypePropertyType(SampleTypePropertyTypeTranslator
                 .translate((SampleTypePropertyTypePE) samplePropertyPE.getEntityTypePropertyType(),
                         sampleType));
         return result;
 
     }
 
-    public static List<SampleProperty> translate(List<SamplePropertyPE> list, SampleType sampleType)
+    public static List<SampleProperty> translate(final List<SamplePropertyPE> list, final SampleType sampleType)
     {
-        List<SampleProperty> result = new ArrayList<SampleProperty>();
-        for (SamplePropertyPE samplePropertyPE : list)
+        final List<SampleProperty> result = new ArrayList<SampleProperty>();
+        for (final SamplePropertyPE samplePropertyPE : list)
         {
             result.add(translate(samplePropertyPE, sampleType));
         }

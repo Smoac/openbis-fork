@@ -30,4 +30,7 @@ public interface IGenericBusinessObjectFactory
     public IRoleAssignmentTable createRoleAssignmentTable(final Session session);
 
     public ISampleTable createSampleTable(final Session session);
+
+    /** Creates a {@link ISampleBO} <i>Business Object</i>. */
+    public ISampleBO createSampleBO(final Session session);
 }

@@ -75,7 +75,7 @@ public class SampleModel extends BaseModelData
     {
         for (SampleProperty p : s.getProperties())
         {
-            PropertyType propertyType = p.getSampleTypePropertyType().getPropertyType();
+            PropertyType propertyType = p.getEntityTypePropertyType().getPropertyType();
             set(
                     PROPERTY_PREFIX + propertyType.isInternalNamespace()
                             + propertyType.getSimpleCode(), p.getValue());

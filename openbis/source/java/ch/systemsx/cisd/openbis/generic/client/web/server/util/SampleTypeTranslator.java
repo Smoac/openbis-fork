@@ -28,7 +28,7 @@ public class SampleTypeTranslator
     {
     }
 
-    public static SampleType translate(SampleTypePE sampleTypePE)
+    public static SampleType translate(final SampleTypePE sampleTypePE)
     {
         final SampleType result = new SampleType();
         result.setCode(sampleTypePE.getCode());
@@ -41,7 +41,7 @@ public class SampleTypeTranslator
 
     }
 
-    public static SampleTypePE translate(SampleType sampleType)
+    public static SampleTypePE translate(final SampleType sampleType)
     {
         final SampleTypePE result = new SampleTypePE();
         result.setCode(sampleType.getCode());

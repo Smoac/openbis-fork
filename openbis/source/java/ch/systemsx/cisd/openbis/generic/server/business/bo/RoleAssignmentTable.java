@@ -41,13 +41,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
  * 
  * @author Christian Ribeaud
  */
-final class RoleAssignmentTable extends AbstractBusinessObject implements IRoleAssignmentTable
+public final class RoleAssignmentTable extends AbstractBusinessObject implements
+        IRoleAssignmentTable
 {
     private List<RoleAssignmentPE> roleAssignments;
 
     private TableMap<String, PersonPE> personsByUserId;
 
-    RoleAssignmentTable(final IDAOFactory daoFactory, final Session session)
+    public RoleAssignmentTable(final IDAOFactory daoFactory, final Session session)
     {
         super(daoFactory, session);
     }

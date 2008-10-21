@@ -16,36 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
 /**
+ * The {@link EntityProperty} extension for <i>Sample</i>.
+ * 
  * @author Izabela Adamczyk
  */
-public class SampleProperty implements IsSerializable
+public final class SampleProperty extends EntityProperty<SampleType, SampleTypePropertyType>
 {
-
-    private String value;
-
-    private SampleTypePropertyType sampleTypePropertyType;
-
-    public String getValue()
-    {
-        return value;
-    }
-
-    public void setValue(String value)
-    {
-        this.value = value;
-    }
-
-    public SampleTypePropertyType getSampleTypePropertyType()
-    {
-        return sampleTypePropertyType;
-    }
-
-    public void setSampleTypePropertyType(SampleTypePropertyType sampleTypePropertyType)
-    {
-        this.sampleTypePropertyType = sampleTypePropertyType;
-    }
 
 }

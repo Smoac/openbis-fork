@@ -16,22 +16,37 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-/**
- * The {@link EntityTypePropertyType} extension for <i>Sample Type</i>.
- * 
- * @author Izabela Adamczyk
- */
-public class SampleTypePropertyType extends EntityTypePropertyType<SampleType>
-{
-    private boolean isDisplayed;
+import com.google.gwt.user.client.rpc.IsSerializable;
 
-    public final boolean isDisplayed()
+/**
+ * An <i>abstract</i> entity property.
+ * 
+ * @author Christian Ribeaud
+ */
+public abstract class EntityProperty<T extends EntityType, P extends EntityTypePropertyType<T>>
+        implements IsSerializable
+{
+    private String value;
+
+    private P entityTypePropertyType;
+
+    public final String getValue()
     {
-        return isDisplayed;
+        return value;
     }
 
-    public final void setDisplayed(final boolean isDisplayed)
+    public final void setValue(final String value)
     {
-        this.isDisplayed = isDisplayed;
+        this.value = value;
+    }
+
+    public final P getEntityTypePropertyType()
+    {
+        return entityTypePropertyType;
+    }
+
+    public final void setEntityTypePropertyType(final P entityTypePropertyType)
+    {
+        this.entityTypePropertyType = entityTypePropertyType;
     }
 }

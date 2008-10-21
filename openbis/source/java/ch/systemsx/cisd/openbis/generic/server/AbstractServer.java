@@ -29,6 +29,7 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerFactory;
 import ch.systemsx.cisd.common.spring.LogInterceptor;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IGenericBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
@@ -36,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
 /**
  * An <i>abstract</i> {@link IServer} implementation.
@@ -54,9 +56,12 @@ public abstract class AbstractServer<T extends IServer> implements IServer,
     @Resource(name = ComponentNames.LOG_INTERCEPTOR)
     private LogInterceptor logInterceptor;
 
+    @Resource(name = ResourceNames.GENERIC_BUSINESS_OBJECT_FACTORY)
+    private IGenericBusinessObjectFactory businessObjectFactory;
+
     private ProxyFactory proxyFactory;
 
-    public AbstractServer()
+    protected AbstractServer()
     {
     }
 
@@ -74,10 +79,11 @@ public abstract class AbstractServer<T extends IServer> implements IServer,
     }
 
     protected AbstractServer(final ISessionManager<Session> sessionManager,
-            final IDAOFactory daoFactory)
+            final IDAOFactory daoFactory, IGenericBusinessObjectFactory boFactory)
     {
         this.sessionManager = sessionManager;
         this.daoFactory = daoFactory;
+        this.businessObjectFactory = boFactory;
     }
 
     protected final PersonPE createPerson(final Principal principal, final PersonPE registrator)
@@ -90,6 +96,11 @@ public abstract class AbstractServer<T extends IServer> implements IServer,
         person.setRegistrator(registrator);
         daoFactory.getPersonDAO().createPerson(person);
         return person;
+    }
+
+    protected final IGenericBusinessObjectFactory getBusinessObjectFactory()
+    {
+        return businessObjectFactory;
     }
 
     protected final ISessionManager<Session> getSessionManager()

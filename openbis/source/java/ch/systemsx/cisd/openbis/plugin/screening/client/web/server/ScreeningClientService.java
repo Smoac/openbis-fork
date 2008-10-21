@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.client.web.server.util.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
@@ -46,6 +47,10 @@ public final class ScreeningClientService extends AbstractClientService implemen
     @Resource(name = ResourceNames.SCREENING_SERVER)
     private IScreeningServer screeningServer;
 
+    //
+    // AbstractClientService
+    //
+
     @Override
     protected final IServer getServer()
     {
@@ -64,7 +69,8 @@ public final class ScreeningClientService extends AbstractClientService implemen
             final SampleIdentifier identifier = SampleIdentifierFactory.parse(sampleIdentifier);
             final SampleGenerationDTO sampleGeneration =
                     screeningServer.getSampleInfo(getSessionToken(), identifier);
-            return BeanUtils.createBean(SampleGeneration.class, sampleGeneration);
+            return BeanUtils.createBean(SampleGeneration.class, sampleGeneration, DtoConverters
+                    .getSampleConverter());
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

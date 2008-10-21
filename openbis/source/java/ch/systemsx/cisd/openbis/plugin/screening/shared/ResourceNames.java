@@ -23,13 +23,12 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared;
  */
 public final class ResourceNames
 {
-    public final static String SCREENING_SERVICE = "screening-service";
-
-    public final static String SCREENING_SERVER = "screening-server";
-
     private ResourceNames()
     {
         // Can not be instantiated.
     }
 
+    public final static String SCREENING_SERVICE = "screening-service";
+
+    public final static String SCREENING_SERVER = "screening-server";
 }

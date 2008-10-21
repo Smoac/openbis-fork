@@ -37,11 +37,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 
 /**
+ * Implementation of {@link ISampleDAO} for databases.
+ * 
  * @author Tomasz Pylak
  */
 public class SampleDAO extends AbstractDAO implements ISampleDAO
 {
     private final static Class<SamplePE> ENTITY_CLASS = SamplePE.class;
+
+    private static final String TABLE_NAME = ENTITY_CLASS.getSimpleName();
 
     /**
      * This logger does not output any SQL statement. If you want to do so, you had better set an
@@ -56,7 +60,7 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
         super(sessionFactory, databaseInstance);
     }
 
-    private Criteria createListSampleForTypeCriteria(final SampleTypePE sampleType)
+    private final Criteria createListSampleForTypeCriteria(final SampleTypePE sampleType)
     {
         final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
         criteria.add(Restrictions.eq("sampleType", sampleType));
@@ -65,7 +69,7 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
         return criteria;
     }
 
-    private void fetchRelations(final Criteria criteria, final String relationName,
+    private final void fetchRelations(final Criteria criteria, final String relationName,
             final int relationDepth)
     {
         String relationPath = relationName;
@@ -91,6 +95,10 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
             operationLog.info("ADD: sample " + sample);
         }
     }
+
+    //
+    // ISampleDAO
+    //
 
     public final List<SamplePE> listSamplesByTypeAndGroup(final SampleTypePE sampleType,
             final GroupPE group) throws DataAccessException
@@ -126,4 +134,55 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
         return list;
     }
 
+    public final SamplePE tryFindByCodeAndDatabaseInstance(final String sampleCode,
+            final DatabaseInstancePE databaseInstance)
+    {
+        assert sampleCode != null : "Unspecified sample code.";
+        assert databaseInstance != null : "Unspecified database instance.";
+
+        final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
+        criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(sampleCode)));
+        criteria.add(Restrictions.eq("databaseInstance", databaseInstance));
+        final SamplePE sample = (SamplePE) criteria.uniqueResult();
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String
+                    .format("Following sample '%s' has been found for "
+                            + "code '%s' and database instance '%s'.", sample, sampleCode,
+                            databaseInstance));
+        }
+        return sample;
+    }
+
+    public final SamplePE tryFindByCodeAndGroup(final String sampleCode, final GroupPE group)
+    {
+        assert sampleCode != null : "Unspecified sample code.";
+        assert group != null : "Unspecified group.";
+
+        final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
+        criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(sampleCode)));
+        criteria.add(Restrictions.eq("group", group));
+        final SamplePE sample = (SamplePE) criteria.uniqueResult();
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format(
+                    "Following sample '%s' has been found for code '%s' and group '%s'.", sample,
+                    sampleCode, group));
+        }
+        return sample;
+    }
+
+    public final List<SamplePE> listSampleByGeneratedFrom(final SamplePE sample)
+    {
+        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+        final String hql = String.format("from %s s where s.generatedFrom = ?", TABLE_NAME);
+        final List<SamplePE> list = cast(hibernateTemplate.find(hql, toArray(sample)));
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format(
+                    "%d sample(s) have been found for \"generatedFrom\" sample '%s'.", list.size(),
+                    sample));
+        }
+        return list;
+    }
 }

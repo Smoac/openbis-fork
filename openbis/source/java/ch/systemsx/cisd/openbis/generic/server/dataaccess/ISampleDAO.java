@@ -26,6 +26,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 
 /**
+ * An interface that contains all data access operations on {@link SamplePE}s.
+ * 
  * @author Tomasz Pylak
  */
 public interface ISampleDAO
@@ -37,4 +39,20 @@ public interface ISampleDAO
             final DatabaseInstancePE databaseInstance);
 
     void createSample(final SamplePE sample) throws DataAccessException;
+
+    /**
+     * Returns the sample specified by given <var>sampleCode</var> and given <var>databaseInstance</var>.
+     */
+    SamplePE tryFindByCodeAndDatabaseInstance(final String sampleCode,
+            final DatabaseInstancePE databaseInstance);
+
+    /**
+     * Returns the sample specified by given <var>sampleCode</var> and given <var>group</var>.
+     */
+    SamplePE tryFindByCodeAndGroup(final String sampleCode, final GroupPE group);
+
+    /**
+     * For given <var>sample</var> returns all {@link SamplePE}s that are generated from it.
+     */
+    List<SamplePE> listSampleByGeneratedFrom(final SamplePE sample);
 }

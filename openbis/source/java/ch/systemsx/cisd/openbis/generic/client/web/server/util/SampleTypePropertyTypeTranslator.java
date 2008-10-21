@@ -32,23 +32,24 @@ public class SampleTypePropertyTypeTranslator
     {
     }
 
-    public static SampleTypePropertyType translate(SampleTypePropertyTypePE s, SampleType sampleType)
+    public static SampleTypePropertyType translate(final SampleTypePropertyTypePE s,
+            final SampleType sampleType)
     {
         final SampleTypePropertyType result = new SampleTypePropertyType();
         result.setDisplayed(s.isDisplayed());
         result.setManagedInternally(s.isManagedInternally());
         result.setMandatory(s.isMandatory());
         result.setPropertyType(PropertyTypeTranslator.translate(s.getPropertyType()));
-        result.setSampleType(sampleType);
+        result.setEntityType(sampleType);
         return result;
 
     }
 
-    public static List<SampleTypePropertyType> translate(List<SampleTypePropertyTypePE> list,
-            SampleType sampleType)
+    public static List<SampleTypePropertyType> translate(final List<SampleTypePropertyTypePE> list,
+            final SampleType sampleType)
     {
         final List<SampleTypePropertyType> result = new ArrayList<SampleTypePropertyType>();
-        for (SampleTypePropertyTypePE st : list)
+        for (final SampleTypePropertyTypePE st : list)
         {
             result.add(translate(st, sampleType));
         }

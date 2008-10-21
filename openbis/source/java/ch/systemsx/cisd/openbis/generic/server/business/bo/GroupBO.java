@@ -35,12 +35,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
  * 
  * @author Christian Ribeaud
  */
-final class GroupBO extends AbstractBusinessObject implements IGroupBO
+public final class GroupBO extends AbstractBusinessObject implements IGroupBO
 {
 
     private GroupPE group;
 
-    GroupBO(final IDAOFactory daoFactory, final Session session)
+    public GroupBO(final IDAOFactory daoFactory, final Session session)
     {
         super(daoFactory, session);
     }
@@ -67,7 +67,7 @@ final class GroupBO extends AbstractBusinessObject implements IGroupBO
         assert groupCode != null : "Unspecified group code.";
         group = new GroupPE();
         final GroupIdentifier groupIdentifier =
-            new GroupIdentifier(DatabaseInstanceIdentifier.HOME, groupCode);
+                new GroupIdentifier(DatabaseInstanceIdentifier.HOME, groupCode);
         final DatabaseInstancePE databaseInstance =
                 GroupIdentifierHelper.getDatabaseInstance(groupIdentifier, this);
         group.setDatabaseInstance(databaseInstance);

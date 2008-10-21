@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
 import ch.systemsx.cisd.openbis.plugin.ISampleServerPlugin;
-import ch.systemsx.cisd.openbis.plugin.ISlaveServerPlugin;
+import ch.systemsx.cisd.openbis.plugin.ISampleTypeSlaveServerPlugin;
 
 /**
  * The {@link ISampleServerPlugin} implementation for the <i>generic</i> technology.
@@ -38,7 +38,7 @@ public class GenericSampleServerPlugin implements ISampleServerPlugin
                 + "the generic implementation.");
     }
 
-    public final ISlaveServerPlugin getSlaveServer()
+    public final ISampleTypeSlaveServerPlugin getSlaveServer()
     {
         return GENERIC_SLAVE_SERVER;
     }

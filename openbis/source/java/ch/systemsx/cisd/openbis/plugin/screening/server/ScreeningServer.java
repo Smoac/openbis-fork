@@ -16,12 +16,11 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IGenericBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
@@ -31,8 +30,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.ISampleServerPlugin;
 import ch.systemsx.cisd.openbis.plugin.SampleServerPluginRegistry;
 import ch.systemsx.cisd.openbis.plugin.Technology;
-import ch.systemsx.cisd.openbis.plugin.screening.server.business.bo.IScreeningBusinessObjectFactory;
-import ch.systemsx.cisd.openbis.plugin.screening.server.business.bo.ScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 
@@ -45,24 +42,16 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 public final class ScreeningServer extends AbstractServer<IScreeningServer> implements
         IScreeningServer
 {
-    private IScreeningBusinessObjectFactory businessObjectFactory;
-
     private static final Technology SCREENING_TECHNOLOGY = new Technology("SCREENING");
 
     public ScreeningServer()
     {
     }
 
-    ScreeningServer(final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory)
+    ScreeningServer(final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
+            final IGenericBusinessObjectFactory businessObjectFactory)
     {
-        super(sessionManager, daoFactory);
-    }
-
-    @SuppressWarnings("unused")
-    @PostConstruct
-    private final void createScreeningBusinessObjectFactory()
-    {
-        this.businessObjectFactory = new ScreeningBusinessObjectFactory(getDAOFactory());
+        super(sessionManager, daoFactory, businessObjectFactory);
     }
 
     //
@@ -95,11 +84,11 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
             final SampleIdentifier identifier)
     {
         final Session session = getSessionManager().getSession(sessionToken);
-        final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
+        final ISampleBO sampleBO = getBusinessObjectFactory().createSampleBO(session);
         sampleBO.loadBySampleIdentifier(identifier);
         final SamplePE sample = sampleBO.getSample();
         final ISampleServerPlugin plugin =
                 SampleServerPluginRegistry.getPlugin(SCREENING_TECHNOLOGY, sample.getSampleType());
-        return null;
+        return plugin.getSlaveServer().getSampleInfo(getDAOFactory(), session, sample);
     }
 }

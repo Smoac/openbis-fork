@@ -32,5 +32,5 @@ public interface ISampleServerPlugin
     /**
      * Returns the slave server of this sample server plug-in.
      */
-    public ISlaveServerPlugin getSlaveServer();
+    public ISampleTypeSlaveServerPlugin getSlaveServer();
 }
