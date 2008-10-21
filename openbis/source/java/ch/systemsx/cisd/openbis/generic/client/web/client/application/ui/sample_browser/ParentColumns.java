@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
 class ParentColumns
 {
-    List<ColumnConfig> columns;
+    private List<ColumnConfig> columns;
 
     public ParentColumns()
     {
