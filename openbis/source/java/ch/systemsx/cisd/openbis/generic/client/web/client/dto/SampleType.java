@@ -18,12 +18,12 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import java.util.List;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
 /**
+ * A {@link EntityType} extension for <i>Sample Type</i>.
+ * 
  * @author Izabela Adamczyk
  */
-public final class SampleType extends EntityType implements IsSerializable
+public final class SampleType extends EntityType
 {
     private int generatedFromHierarchyDepth;
 

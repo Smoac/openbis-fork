@@ -17,11 +17,11 @@
 package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.hibernate.Hibernate;
 
+import ch.systemsx.cisd.common.collections.UnmodifiableListDecorator;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityType;
@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 
 /**
  * A static class which converts <i>business</i> <i>DTOs</i> into <i>GWT</i> ones.
@@ -97,6 +98,19 @@ public class DtoConverters
         {
             return propertiesConverter.convertToProperties(entity);
         }
+
+        public final List<SampleTypePropertyType> convertToSampleTypePropertyTypes(
+                final SampleTypePE sampleTypePE)
+        {
+            final List<SampleTypePropertyTypePE> sampleTypePropertyTypes =
+                    sampleTypePE.getSampleTypePropertyTypes();
+            if (Hibernate.isInitialized(sampleTypePropertyTypes) == false)
+            {
+                return new ArrayList<SampleTypePropertyType>();
+            }
+            return BeanUtils.createBeanList(SampleTypePropertyType.class, sampleTypePropertyTypes);
+        }
+
     }
 
     private static abstract class EntityPropertiesConverter<T extends EntityPropertyPE, R extends EntityType, S extends EntityTypePropertyType<R>, P extends EntityProperty<R, S>>
@@ -107,6 +121,12 @@ public class DtoConverters
         {
         }
 
+        /**
+         * Converts given {@link EntityPropertyPE} into a {@link EntityProperty}.
+         * <p>
+         * Must be implemented by subclasses.
+         * </p>
+         */
         protected abstract P convert(final T property);
 
         //
@@ -115,10 +135,14 @@ public class DtoConverters
 
         public final List<P> convertToProperties(final IEntityPropertiesHolder<T> entity)
         {
-            final List<T> properties = entity.getProperties();
+            List<T> properties = entity.getProperties();
+            if (properties instanceof UnmodifiableListDecorator)
+            {
+                properties = ((UnmodifiableListDecorator<T>) properties).getDecorated();
+            }
             if (Hibernate.isInitialized(properties) == false)
             {
-                return Collections.emptyList();
+                return new ArrayList<P>();
             }
             final List<P> entityProperties = new ArrayList<P>();
             for (final T property : properties)

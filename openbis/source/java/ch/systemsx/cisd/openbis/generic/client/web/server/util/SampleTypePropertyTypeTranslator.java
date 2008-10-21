@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.Hibernate;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
@@ -49,6 +51,10 @@ public class SampleTypePropertyTypeTranslator
             final SampleType sampleType)
     {
         final List<SampleTypePropertyType> result = new ArrayList<SampleTypePropertyType>();
+        if (Hibernate.isInitialized(list) == false)
+        {
+            return new ArrayList<SampleTypePropertyType>();
+        }
         for (final SampleTypePropertyTypePE st : list)
         {
             result.add(translate(st, sampleType));
