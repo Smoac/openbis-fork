@@ -26,6 +26,7 @@ import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypePropertyType;
@@ -89,9 +90,28 @@ public class DtoConverters
                         };
         }
 
+        private final static Sample convertToSample(final SamplePE sample)
+        {
+            if (Hibernate.isInitialized(sample) == false)
+            {
+                return null;
+            }
+            return BeanUtils.createBean(Sample.class, sample);
+        }
+
         //
         // BeanUtils.Converter
         //
+
+        public final Sample convertToGeneratedFrom(final SamplePE samplePE)
+        {
+            return convertToSample(samplePE.getGeneratedFrom());
+        }
+
+        public final Sample convertToContainer(final SamplePE samplePE)
+        {
+            return convertToSample(samplePE.getContainer());
+        }
 
         public final List<SampleProperty> convertToProperties(
                 final IEntityPropertiesHolder<SamplePropertyPE> entity)
