@@ -21,6 +21,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningCli
  */
 public final class ScreeningViewContext implements IViewContext<IScreeningClientServiceAsync>
 {
+    private static final String TECHNOLOGY_NAME = "screening";
+
     private final IViewContext<IGenericClientServiceAsync> originalViewContext;
 
     private final IMessageProvider messageProvider;
@@ -30,7 +32,7 @@ public final class ScreeningViewContext implements IViewContext<IScreeningClient
     public ScreeningViewContext(final IViewContext<IGenericClientServiceAsync> originalViewContext)
     {
         this.originalViewContext = originalViewContext;
-        this.messageProvider = new DictonaryBasedMessageProvider("screening");
+        this.messageProvider = new DictonaryBasedMessageProvider(TECHNOLOGY_NAME);
         this.service = createScreeningClientService();
     }
 
@@ -38,7 +40,7 @@ public final class ScreeningViewContext implements IViewContext<IScreeningClient
     {
         final IScreeningClientServiceAsync service = GWT.create(IScreeningClientService.class);
         final ServiceDefTarget endpoint = (ServiceDefTarget) service;
-        endpoint.setServiceEntryPoint(GenericConstants.SCREENING_SERVER_NAME);
+        endpoint.setServiceEntryPoint(GenericConstants.createServicePath(TECHNOLOGY_NAME));
         return service;
     }
 

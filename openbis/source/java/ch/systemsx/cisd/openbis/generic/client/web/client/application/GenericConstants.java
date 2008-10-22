@@ -38,8 +38,6 @@ public class GenericConstants
 
     public static final String GENERIC_SERVER_NAME = createServicePath("generic");
 
-    public static final String SCREENING_SERVER_NAME = createServicePath("screening");
-
     /**
      * Creates for the specified service name the service path.
      */
