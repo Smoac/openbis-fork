@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.plugin.ISampleTypeSlaveServerPlugin;
  * 
  * @author Christian Ribeaud
  */
-public class GenericSampleServerPlugin implements ISampleServerPlugin
+public final class GenericSampleServerPlugin implements ISampleServerPlugin
 {
     private static final GenericSlaveServer GENERIC_SLAVE_SERVER = new GenericSlaveServer();
 

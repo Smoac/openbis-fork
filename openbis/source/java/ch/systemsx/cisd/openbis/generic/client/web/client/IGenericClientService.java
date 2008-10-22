@@ -93,5 +93,11 @@ public interface IGenericClientService extends IClientService
             boolean includeInstance, List<PropertyType> propertyCodes) throws UserFailureException;
 
     /** Returns a list of samples with updated properties */
-    public List<Sample> updateSamples(List<Sample> samples, List<PropertyType> propertyCodes);
+    public List<Sample> updateSamples(List<Sample> samples, List<PropertyType> propertyCodes)
+            throws UserFailureException;
+
+    /**
+     * For given <var>sampleIdentifier</var> returns corresponding {@link Sample}.
+     */
+    public Sample getSampleInfo(final String sampleIdentifier) throws UserFailureException;
 }

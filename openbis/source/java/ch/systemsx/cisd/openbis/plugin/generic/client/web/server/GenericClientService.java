@@ -89,6 +89,35 @@ public final class GenericClientService extends AbstractClientService implements
         }
     }
 
+    private final List<SampleIdentifier> extractIdentifiers(final List<Sample> samples)
+    {
+        final List<SampleIdentifier> identifiers = new ArrayList<SampleIdentifier>();
+        for (final Sample s : samples)
+        {
+            identifiers.add(extractIdentifier(s));
+        }
+        return identifiers;
+    }
+
+    private final SampleIdentifier extractIdentifier(final Sample s)
+    {
+        if (s.getGroup() != null)
+        {
+            final String groupInstanceCode =
+                    s.getGroup().getInstance() == null ? null : s.getGroup().getInstance()
+                            .getCode();
+            final String groupCode = s.getGroup().getCode();
+            final GroupIdentifier groupIdentifer =
+                    new GroupIdentifier(new DatabaseInstanceIdentifier(groupInstanceCode),
+                            groupCode);
+            return new SampleIdentifier(groupIdentifer, s.getCode());
+        } else
+        {
+            final String instanceCode = s.getDatabaseInstance().getCode();
+            return new SampleIdentifier(new DatabaseInstanceIdentifier(instanceCode), s.getCode());
+        }
+    }
+
     //
     // AbstractClientService
     //
@@ -250,6 +279,7 @@ public final class GenericClientService extends AbstractClientService implements
     }
 
     public final List<SampleType> listSampleTypes()
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
@@ -266,12 +296,15 @@ public final class GenericClientService extends AbstractClientService implements
         }
     }
 
-    public List<Sample> listSamples(SampleType sampleType, String groupCode, boolean includeGroup,
-            boolean includeInstance, List<PropertyType> propertyCodes)
+    public List<Sample> listSamples(final SampleType sampleType, final String groupCode,
+            final boolean includeGroup, final boolean includeInstance,
+            final List<PropertyType> propertyCodes)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
-            List<SampleOwnerIdentifier> ownerIdentifiers = new ArrayList<SampleOwnerIdentifier>();
+            final List<SampleOwnerIdentifier> ownerIdentifiers =
+                    new ArrayList<SampleOwnerIdentifier>();
             if (includeGroup)
             {
                 ownerIdentifiers.add(new SampleOwnerIdentifier(new GroupIdentifier(
@@ -282,45 +315,47 @@ public final class GenericClientService extends AbstractClientService implements
                 ownerIdentifiers.add(new SampleOwnerIdentifier(DatabaseInstanceIdentifier
                         .createHome()));
             }
-            List<SamplePE> samplePEs =
+            final List<SamplePE> samplePEs =
                     genericServer.listSamples(getSessionToken(), ownerIdentifiers,
                             SampleTypeTranslator.translate(sampleType));
 
-            List<SampleIdentifier> identifiers = new ArrayList<SampleIdentifier>();
-            for (SamplePE s : samplePEs)
+            final List<SampleIdentifier> identifiers = new ArrayList<SampleIdentifier>();
+            for (final SamplePE s : samplePEs)
             {
                 identifiers.add(s.getSampleIdentifier());
             }
-            Map<SampleIdentifier, List<SamplePropertyPE>> samplesProperties =
+            final Map<SampleIdentifier, List<SamplePropertyPE>> samplesProperties =
                     genericServer.listSamplesProperties(getSessionToken(), identifiers,
                             PropertyTypeTranslator.translate(propertyCodes));
 
-            List<Sample> result = new ArrayList<Sample>();
-            for (SamplePE sample : samplePEs)
+            final List<Sample> result = new ArrayList<Sample>();
+            for (final SamplePE sample : samplePEs)
             {
                 result.add(SampleTranslator.translate(sample, sampleType, samplesProperties));
             }
             return result;
-        } catch (UserFailureException e)
+        } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
     }
 
-    public List<Sample> updateSamples(final List<Sample> samples, List<PropertyType> propertyCodes)
+    public List<Sample> updateSamples(final List<Sample> samples,
+            final List<PropertyType> propertyCodes)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         if (samples.size() == 0 || propertyCodes.size() == 0)
         {
             return samples;
         }
-        List<SampleIdentifier> identifiers = extractIdentifiers(samples);
-        SampleType sampleType = samples.get(0).getSampleType(); // FIXME:
-        Map<SampleIdentifier, List<SamplePropertyPE>> samplesProperties =
+        final List<SampleIdentifier> identifiers = extractIdentifiers(samples);
+        final SampleType sampleType = samples.get(0).getSampleType(); // FIXME:
+        final Map<SampleIdentifier, List<SamplePropertyPE>> samplesProperties =
                 genericServer.listSamplesProperties(getSessionToken(), identifiers,
                         PropertyTypeTranslator.translate(propertyCodes));
-        for (Sample s : samples)
+        for (final Sample s : samples)
         {
-            List<SamplePropertyPE> list = samplesProperties.get(extractIdentifier(s));
+            final List<SamplePropertyPE> list = samplesProperties.get(extractIdentifier(s));
             s.getProperties().addAll(
                     list == null ? new ArrayList<SampleProperty>() : SamplePropertyTranslator
                             .translate(list, sampleType));
@@ -328,32 +363,9 @@ public final class GenericClientService extends AbstractClientService implements
         return samples;
     }
 
-    private List<SampleIdentifier> extractIdentifiers(final List<Sample> samples)
+    public final Sample getSampleInfo(final String sampleIdentifier)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        List<SampleIdentifier> identifiers = new ArrayList<SampleIdentifier>();
-        for (Sample s : samples)
-        {
-            identifiers.add(extractIdentifier(s));
-        }
-        return identifiers;
-    }
-
-    SampleIdentifier extractIdentifier(Sample s)
-    {
-        if (s.getGroup() != null)
-        {
-            final String groupInstanceCode =
-                    s.getGroup().getInstance() == null ? null : s.getGroup().getInstance()
-                            .getCode();
-            final String groupCode = s.getGroup().getCode();
-            final GroupIdentifier groupIdentifer =
-                    new GroupIdentifier(new DatabaseInstanceIdentifier(groupInstanceCode),
-                            groupCode);
-            return new SampleIdentifier(groupIdentifer, s.getCode());
-        } else
-        {
-            final String instanceCode = s.getDatabaseInstance().getCode();
-            return new SampleIdentifier(new DatabaseInstanceIdentifier(instanceCode), s.getCode());
-        }
+        return null;
     }
 }

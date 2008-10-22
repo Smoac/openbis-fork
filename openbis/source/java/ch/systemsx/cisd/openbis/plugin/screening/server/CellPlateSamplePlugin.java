@@ -29,14 +29,14 @@ import ch.systemsx.cisd.openbis.plugin.ISampleTypeSlaveServerPlugin;
  * 
  * @author Christian Ribeaud
  */
-public final class ControlLayoutSamplePlugin extends AbstractSampleServerPlugin
+public final class CellPlateSamplePlugin extends AbstractSampleServerPlugin
 {
 
-    private ControlLayoutSamplePlugin()
+    private CellPlateSamplePlugin()
     {
     }
 
-    private static final String CONTROL_LAYOUT_TYPE_CODE = "CONTROL_LAYOUT";
+    private static final String CELL_PLATE_TYPE_CODE = "CELL_PLATE";
 
     //
     // ISampleServerPlugin
@@ -44,23 +44,24 @@ public final class ControlLayoutSamplePlugin extends AbstractSampleServerPlugin
 
     public final String getSampleTypeCode()
     {
-        return CONTROL_LAYOUT_TYPE_CODE;
+        return CELL_PLATE_TYPE_CODE;
     }
 
     public final ISampleTypeSlaveServerPlugin getSlaveServer()
     {
-        return ControlLayoutSlaveServerPlugin.INSTANCE;
+        return CellPlateSlaveServerPlugin.INSTANCE;
     }
 
     //
     // Helper classes
     //
 
-    private final static class ControlLayoutSlaveServerPlugin implements ISampleTypeSlaveServerPlugin
+    private final static class CellPlateSlaveServerPlugin implements
+            ISampleTypeSlaveServerPlugin
     {
-        static final ISampleTypeSlaveServerPlugin INSTANCE = new ControlLayoutSlaveServerPlugin();
+        static final ISampleTypeSlaveServerPlugin INSTANCE = new CellPlateSlaveServerPlugin();
 
-        private ControlLayoutSlaveServerPlugin()
+        private CellPlateSlaveServerPlugin()
         {
         }
 

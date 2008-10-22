@@ -31,3 +31,19 @@ body,div,td {
 .invalidated-sample {
     text-decoration: line-through;
 }
+
+.property-grid {
+    table-layout: auto;
+    border-collapse: collapse;
+}
+
+.property-grid td {
+    border: 1px solid #ffffff;
+    padding: 3px 5px 3px 5px;
+    vertical-align: top;
+}
+
+.property-grid .header {
+    font-weight: bold;
+    background-color: #dddddd;
+}

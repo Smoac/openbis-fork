@@ -29,7 +29,7 @@ public class Person implements IsSerializable
 
     private String lastName;
 
-    private String eMail;
+    private String email;
 
     private String userId;
 
@@ -42,7 +42,7 @@ public class Person implements IsSerializable
         return firstName;
     }
 
-    public final void setFirstName(String firstName)
+    public final void setFirstName(final String firstName)
     {
         this.firstName = firstName;
     }
@@ -52,19 +52,19 @@ public class Person implements IsSerializable
         return lastName;
     }
 
-    public final void setLastName(String lastName)
+    public final void setLastName(final String lastName)
     {
         this.lastName = lastName;
     }
 
-    public final String getEMail()
+    public final String getEmail()
     {
-        return eMail;
+        return email;
     }
 
-    public final void setEMail(String mail)
+    public final void setEmail(final String mail)
     {
-        eMail = mail;
+        email = mail;
     }
 
     public String getUserId()
@@ -72,7 +72,7 @@ public class Person implements IsSerializable
         return userId;
     }
 
-    public void setUserId(String code)
+    public void setUserId(final String code)
     {
         this.userId = code;
     }
@@ -82,7 +82,7 @@ public class Person implements IsSerializable
         return registrator;
     }
 
-    public void setRegistrator(Person p)
+    public void setRegistrator(final Person p)
     {
         registrator = p;
     }
@@ -92,7 +92,7 @@ public class Person implements IsSerializable
         return registrationDate;
     }
 
-    public void setRegistrationDate(Date d)
+    public void setRegistrationDate(final Date d)
     {
         registrationDate = d;
     }

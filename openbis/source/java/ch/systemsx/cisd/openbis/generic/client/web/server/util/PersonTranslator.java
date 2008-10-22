@@ -42,7 +42,7 @@ public class PersonTranslator
         Person result = new Person();
         result.setFirstName(person.getFirstName());
         result.setLastName(person.getLastName());
-        result.setEMail(person.getEmail());
+        result.setEmail(person.getEmail());
         result.setUserId(person.getUserId());
         result.setRegistrationDate(person.getRegistrationDate());
         if (recursively)

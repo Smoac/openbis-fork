@@ -82,4 +82,9 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
     public void updateSamples(List<Sample> samples, List<PropertyType> propertyCodes,
             AsyncCallback<List<Sample>> asyncCallback);
 
+    /**
+     * @see IGenericClientService#getSampleInfo(String)
+     */
+    public void getSampleInfo(final String sampleIdentifier, AsyncCallback<Sample> asyncCallback);
+
 }

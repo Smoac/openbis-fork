@@ -59,7 +59,7 @@ public class PersonModel extends BaseModelData
         set(REGISTRATION_DATE, p.getRegistrationDate());
         set(FIRST_NAME, p.getFirstName());
         set(LAST_NAME, p.getLastName());
-        set(EMAIL, p.getEMail());
+        set(EMAIL, p.getEmail());
         set(ROLES, new ArrayList<RoleAssignment>());
     }
 }
