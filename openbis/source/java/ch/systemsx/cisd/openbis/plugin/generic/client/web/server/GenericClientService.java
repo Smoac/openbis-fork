@@ -348,9 +348,10 @@ public final class GenericClientService extends AbstractClientService implements
         {
             return samples;
         }
-        final List<SampleIdentifier> identifiers = extractIdentifiers(samples);
-        final SampleType sampleType = samples.get(0).getSampleType(); // FIXME:
-        final Map<SampleIdentifier, List<SamplePropertyPE>> samplesProperties =
+		final List<SampleIdentifier> identifiers = extractIdentifiers(samples);
+		// TODO 2008-10-22, Izabela Adamczyk: make sample type the parameter of the method
+		final SampleType sampleType = samples.get(0).getSampleType();
+		final Map<SampleIdentifier, List<SamplePropertyPE>> samplesProperties =
                 genericServer.listSamplesProperties(getSessionToken(), identifiers,
                         PropertyTypeTranslator.translate(propertyCodes));
         for (final Sample s : samples)
