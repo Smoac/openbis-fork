@@ -17,15 +17,21 @@
 package ch.systemsx.cisd.openbis.generic.shared;
 
 /**
+ * Some public shared constants.
  * 
- *
  * @author Franz-Josef Elmer
  */
-public class GenericSharedConstants
+public final class GenericSharedConstants
 {
+
+    private GenericSharedConstants()
+    {
+        // Can not be instantiated.
+    }
+
     /**
-     * Everytime some public class in this package or subpackages are are changed, we should
-     * increment this.
+     * Every time some public class in this package or subpackage is changed, we should increment
+     * this.
      */
-    public static final int VERSION = 28; // for release S40
+    public static final int VERSION = 29; // for release S42
 }
