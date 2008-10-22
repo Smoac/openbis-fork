@@ -80,6 +80,7 @@ class SampleBrowserToolbar extends ToolBar
         selectGroupCombo = new GroupSelectionWidget(viewContext);
         includeInstanceCheckbox = new CheckBox();
         includeGroupCheckbox = new CheckBox();
+        includeGroupCheckbox.setStyleAttribute("margin", "4px");
         includeGroupCheckbox.setValue(true);
         columnChooser = new ColumnChooser(commonColumns, parentColumns, propertyColumns);
         submitButton = createSubmitButton();
@@ -153,6 +154,7 @@ class SampleBrowserToolbar extends ToolBar
     {
         setBorders(true);
         removeAll();
+
         add(new LabelToolItem("Sample type:"));
         add(new AdapterToolItem(selectSampleTypeCombo));
 
@@ -164,13 +166,13 @@ class SampleBrowserToolbar extends ToolBar
         add(new SeparatorToolItem());
 
         add(new LabelToolItem("Group:"));
+
         add(new AdapterToolItem(includeGroupCheckbox));
         add(new AdapterToolItem(selectGroupCombo));
 
         add(new SeparatorToolItem());
 
         add(columnChooser);
-
         add(new SeparatorToolItem());
 
         add(new AdapterToolItem(submitButton));

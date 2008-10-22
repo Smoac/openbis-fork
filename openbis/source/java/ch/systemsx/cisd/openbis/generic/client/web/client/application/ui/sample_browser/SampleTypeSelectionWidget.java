@@ -45,6 +45,7 @@ class SampleTypeSelectionWidget extends ComboBox<SampleTypeModel>
         setDisplayField(SampleTypeModel.CODE);
         setAllowBlank(false);
         setEditable(false);
+        setWidth(150);
         sampleTypeStore = new ListStore<SampleTypeModel>();
         setStore(sampleTypeStore);
     }

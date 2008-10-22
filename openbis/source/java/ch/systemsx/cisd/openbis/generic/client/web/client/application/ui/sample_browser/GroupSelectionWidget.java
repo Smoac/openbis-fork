@@ -47,6 +47,7 @@ class GroupSelectionWidget extends ComboBox<GroupModel>
         setDisplayField(GroupModel.CODE);
         setAllowBlank(false);
         setEditable(false);
+        setWidth(150);
         groupStore = new ListStore<GroupModel>();
         setStore(groupStore);
     }
