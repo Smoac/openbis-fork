@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
@@ -32,8 +33,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
  * 
  * @author Izabela Adamczyk
  */
-class GroupSelectionWidget extends ComboBox<GroupModel>
+class GroupSelectionWidget extends ExtendedComboBox<GroupModel>
 {
+    private static final String PREFIX = "group-select";
+
+    static final String ID = GenericConstants.ID_PREFIX + PREFIX;
 
     private final GenericViewContext viewContext;
 
@@ -43,6 +47,7 @@ class GroupSelectionWidget extends ComboBox<GroupModel>
     {
 
         this.viewContext = viewContext;
+        setId(ID);
         setEmptyText("Select a group...");
         setDisplayField(GroupModel.CODE);
         setAllowBlank(false);

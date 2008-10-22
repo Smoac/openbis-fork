@@ -37,6 +37,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ClientPluginProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CommonColumns;
@@ -54,6 +55,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
  */
 class SampleBrowserGrid extends LayoutContainer
 {
+    private static final String PREFIX = "sample-browser-grid";
+
+    static final String GRID_ID = GenericConstants.ID_PREFIX + PREFIX + "grid";
+
     private final GenericViewContext viewContext;
 
     private ContentPanel contentPanel;
@@ -170,6 +175,7 @@ class SampleBrowserGrid extends LayoutContainer
         if (grid == null)
         {
             grid = new Grid<SampleModel>(sampleStore, columnModel);
+            grid.setId(GRID_ID);
             grid.setLoadMask(true);
             grid.addListener(Events.CellClick, new Listener<GridEvent>()
                 {
@@ -250,7 +256,7 @@ class SampleBrowserGrid extends LayoutContainer
         return new ColumnModel(configs);
     }
 
-    private final class ListSamplesCallback extends AbstractAsyncCallback<List<Sample>>
+    final class ListSamplesCallback extends AbstractAsyncCallback<List<Sample>>
     {
         private final AsyncCallback<List<SampleModel>> delegate;
 

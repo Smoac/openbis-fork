@@ -22,6 +22,7 @@ import java.util.List;
 import junit.framework.Assert;
 
 import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Container;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -29,6 +30,7 @@ import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.AdapterField;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.google.gwt.user.client.Element;
@@ -91,6 +93,21 @@ public class GWTTestUtil
         Assert.assertTrue("Widget '" + id + "' isn't a ListBox: " + widget.getClass(),
                 widget instanceof ListBox);
         return (ListBox) widget;
+    }
+
+    /**
+     * Gets the {@link ComboBox} with specified id.
+     * 
+     * @throws AssertionError if not found or isn't a list box.
+     */
+    @SuppressWarnings("unchecked")
+    public final static ComboBox<ModelData> getComboBoxWithID(final String id)
+    {
+        final Widget widget = tryToFindByID(id);
+        assertWidgetFound("Combo box", id, widget);
+        Assert.assertTrue("Widget '" + id + "' isn't a ComboBox: " + widget.getClass(),
+                widget instanceof ComboBox);
+        return (ComboBox<ModelData>) widget;
     }
 
     /**

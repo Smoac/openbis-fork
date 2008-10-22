@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
@@ -31,8 +32,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
  * 
  * @author Izabela Adamczyk
  */
-class SampleTypeSelectionWidget extends ComboBox<SampleTypeModel>
+class SampleTypeSelectionWidget extends ExtendedComboBox<SampleTypeModel>
 {
+
+    private static final String PREFIX = "sample-select";
+
+    static final String ID = GenericConstants.ID_PREFIX + PREFIX;
 
     private final GenericViewContext viewContext;
 
@@ -41,6 +46,7 @@ class SampleTypeSelectionWidget extends ComboBox<SampleTypeModel>
     public SampleTypeSelectionWidget(GenericViewContext viewContext)
     {
         this.viewContext = viewContext;
+        setId(ID);
         setEmptyText("Select a sample type...");
         setDisplayField(SampleTypeModel.CODE);
         setAllowBlank(false);

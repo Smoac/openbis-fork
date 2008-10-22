@@ -67,4 +67,5 @@ public final class GWTUtils
         throw new IllegalArgumentException("Given value '" + value
                 + "' not found in given list box.");
     }
+
 }

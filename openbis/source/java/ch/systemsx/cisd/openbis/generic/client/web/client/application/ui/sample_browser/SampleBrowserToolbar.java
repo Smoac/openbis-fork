@@ -33,6 +33,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CommonColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParentColumns;
@@ -49,6 +50,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
  */
 class SampleBrowserToolbar extends ToolBar
 {
+
+    private static final String PREFIX = "sample-browser-toolbar_";
+
+    static final String REFRESH_BUTTON_ID = GenericConstants.ID_PREFIX + PREFIX + "refresh-button";
+
+    public static final String INCLUDE_GROUP_CHECKBOX_ID =
+            GenericConstants.ID_PREFIX + PREFIX + "include-group-checkbox";
+
+    public static final String INCLUDE_SHARED_CHECKBOX_ID =
+            GenericConstants.ID_PREFIX + PREFIX + "include-shared-checkbox";
 
     private final SampleBrowserGrid grid;
 
@@ -79,7 +90,9 @@ class SampleBrowserToolbar extends ToolBar
         selectSampleTypeCombo = new SampleTypeSelectionWidget(viewContext);
         selectGroupCombo = new GroupSelectionWidget(viewContext);
         includeInstanceCheckbox = new CheckBox();
+        includeInstanceCheckbox.setId(INCLUDE_SHARED_CHECKBOX_ID);
         includeGroupCheckbox = new CheckBox();
+        includeGroupCheckbox.setId(INCLUDE_GROUP_CHECKBOX_ID);
         includeGroupCheckbox.setStyleAttribute("margin", "4px");
         includeGroupCheckbox.setValue(true);
         columnChooser = new ColumnChooser(commonColumns, parentColumns, propertyColumns);
@@ -154,7 +167,6 @@ class SampleBrowserToolbar extends ToolBar
     {
         setBorders(true);
         removeAll();
-
         add(new LabelToolItem("Sample type:"));
         add(new AdapterToolItem(selectSampleTypeCombo));
 
@@ -166,13 +178,13 @@ class SampleBrowserToolbar extends ToolBar
         add(new SeparatorToolItem());
 
         add(new LabelToolItem("Group:"));
-
         add(new AdapterToolItem(includeGroupCheckbox));
         add(new AdapterToolItem(selectGroupCombo));
 
         add(new SeparatorToolItem());
 
         add(columnChooser);
+
         add(new SeparatorToolItem());
 
         add(new AdapterToolItem(submitButton));
@@ -214,6 +226,7 @@ class SampleBrowserToolbar extends ToolBar
                     }
                 }
             });
+        refreshButton.setId(REFRESH_BUTTON_ID);
         refreshButton.setIconStyle("x-tbar-loading");
         return refreshButton;
     }
