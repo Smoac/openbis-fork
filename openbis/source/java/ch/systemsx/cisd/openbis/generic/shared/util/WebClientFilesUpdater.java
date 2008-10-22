@@ -43,6 +43,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ClientPlug
 
 /**
  * Class which updates <code>OpenBIS.gwt.xml</code> and {@link ClientPluginProvider}.
+ * <p>
+ * Usage: 
+ * <tt>java {@link WebClientFilesUpdater} [<working directory> [<technology 1> <technology 2> ...]]</tt>
+ * 
+ * Without technology arguments all technologies found in the code base are available. If at least
+ * one technology is specified only the specified technologies will be available. 
  * 
  * @author Christian Ribeaud
  */
@@ -283,10 +289,6 @@ public final class WebClientFilesUpdater
      */
     public final void updateOpenBISGwtXmlFile()
     {
-        if (technologies.length == 0)
-        {
-            return;
-        }
         final File openBISGwtXmlFile =
                 new File(workingDirectory, OPENBIS_PACKAGE_NAME + "/" + OPENBIS_GWT_XML_FILE_NAME);
         final Document document = createXMLDocument(openBISGwtXmlFile);
@@ -298,10 +300,6 @@ public final class WebClientFilesUpdater
      */
     public final void updateClientPluginProvider()
     {
-        if (technologies.length == 0)
-        {
-            return;
-        }
         final File clientPluginProviderJavaFile =
                 new File(workingDirectory, CLIENT_PLUGIN_PROVIDER_CLASS.replace(".", "/") + ".java");
         final String response =
@@ -327,8 +325,8 @@ public final class WebClientFilesUpdater
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
             }
             builder.append(indent);
-            builder.append(String.format(PLUGIN_FACTORY_REGISTRATION_TEMPLATE, technology)).append(
-                    OSUtilities.LINE_SEPARATOR);
+            builder.append(String.format(PLUGIN_FACTORY_REGISTRATION_TEMPLATE, technology));
+            builder.append(OSUtilities.LINE_SEPARATOR);
         }
         builder.append(indent);
         String content = FileUtilities.loadToString(clientPluginProviderJavaFile);

@@ -66,7 +66,7 @@ public class Client implements EntryPoint
         if (viewContext == null)
         {
             viewContext = createViewContext();
-            ClientPluginProvider.setOriginalViewContext(viewContext);
+            ClientPluginProvider.registerPluginFactories(viewContext);
         }
         final IGenericClientServiceAsync service = viewContext.getService();
         service.getApplicationInfo(new AbstractAsyncCallback<ApplicationInfo>(viewContext)

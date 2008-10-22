@@ -33,29 +33,17 @@ public final class ClientPluginProvider
 
     private static IClientPluginFactory genericPluginFactory;
 
-    private static IViewContext<IGenericClientServiceAsync> originalViewContext;
-
     private ClientPluginProvider()
     {
         // Can not be instantiated.
     }
 
-    /**
-     * Sets the original view context created on {@link Client}.
-     */
-    public static final void setOriginalViewContext(
+    final static void registerPluginFactories(
             final IViewContext<IGenericClientServiceAsync> originalViewContext)
     {
-        ClientPluginProvider.originalViewContext = originalViewContext;
         genericPluginFactory = new ClientPluginFactory(originalViewContext);
-        registerPluginFactories();
-    }
-
-    private final static void registerPluginFactories()
-    {
         // Automatically generated part - START
-        registerPluginFactory(new ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory(
-                originalViewContext));
+        registerPluginFactory(new ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory(originalViewContext));
         // Automatically generated part - END
     }
 
@@ -67,12 +55,12 @@ public final class ClientPluginProvider
             set.retainAll(pluginFactory.getSampleTypeCodes());
             // TODO 2008-10-22, Christian Ribeaud: Uncomment once we understood why openBIS Smoke
             // Tests are broken in Eclipse environment.
-            // if (set.size() > 0)
-            // {
-            // throw new IllegalArgumentException(
-            // "There is already a plugin factory registered for sample type code(s) '"
-            // + set + "'.");
-            // }
+//            if (set.size() > 0)
+//            {
+//                throw new IllegalArgumentException("There is already a plugin factory ("
+//                        + plugin.getClass().getName() + ") registered for sample type code(s) '"
+//                        + set + "'.");
+//            }
         }
         plugins.add(pluginFactory);
     }
@@ -84,6 +72,7 @@ public final class ClientPluginProvider
      */
     public final static IClientPluginFactory getPluginFactory(final String sampleTypeCode)
     {
+        assert genericPluginFactory != null : "No plugin factories registered.";
         assert sampleTypeCode != null : "Unspecified sample type code";
         for (final IClientPluginFactory pluginFactory : plugins)
         {
