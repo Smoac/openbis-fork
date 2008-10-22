@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server;
 
+import org.springframework.stereotype.Component;
+
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -23,16 +25,19 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.AbstractSampleServerPlugin;
 import ch.systemsx.cisd.openbis.plugin.ISampleServerPlugin;
 import ch.systemsx.cisd.openbis.plugin.ISampleTypeSlaveServerPlugin;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 
 /**
- * The {@link ISampleServerPlugin} implementation for <i>Control Layout</i> plates.
+ * The {@link ISampleServerPlugin} implementation for <i>Cell Plate</i> plates.
  * 
  * @author Christian Ribeaud
  */
-public final class CellPlateSamplePlugin extends AbstractSampleServerPlugin
+// TODO 2008-10-22, Christian Ribeaud: Finish integration of this sample server plugin.
+@Component(ResourceNames.CELL_PLATE_SAMPLE_SERVER)
+public final class CellPlateSampleServerPlugin extends AbstractSampleServerPlugin
 {
 
-    private CellPlateSamplePlugin()
+    private CellPlateSampleServerPlugin()
     {
     }
 
@@ -56,8 +61,7 @@ public final class CellPlateSamplePlugin extends AbstractSampleServerPlugin
     // Helper classes
     //
 
-    private final static class CellPlateSlaveServerPlugin implements
-            ISampleTypeSlaveServerPlugin
+    private final static class CellPlateSlaveServerPlugin implements ISampleTypeSlaveServerPlugin
     {
         static final ISampleTypeSlaveServerPlugin INSTANCE = new CellPlateSlaveServerPlugin();
 

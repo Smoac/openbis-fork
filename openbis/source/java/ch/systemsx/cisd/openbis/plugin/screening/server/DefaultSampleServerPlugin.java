@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.generic.server;
+package ch.systemsx.cisd.openbis.plugin.screening.server;
 
 import ch.systemsx.cisd.openbis.plugin.ISampleServerPlugin;
 import ch.systemsx.cisd.openbis.plugin.ISampleTypeSlaveServerPlugin;
 
 /**
- * The {@link ISampleServerPlugin} implementation for the <i>generic</i> technology.
+ * The default {@link ISampleServerPlugin} implementation for the <i>screening</i> technology.
  * 
  * @author Christian Ribeaud
  */
-public final class GenericSampleServerPlugin implements ISampleServerPlugin
+public final class DefaultSampleServerPlugin implements ISampleServerPlugin
 {
-    private static final GenericSlaveServer GENERIC_SLAVE_SERVER = new GenericSlaveServer();
+    private static final DefaultSlaveServerPlugin GENERIC_SLAVE_SERVER = new DefaultSlaveServerPlugin();
 
     //
     // ISampleServerPlugin

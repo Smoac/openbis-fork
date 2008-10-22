@@ -25,7 +25,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
-import ch.systemsx.cisd.openbis.plugin.generic.server.GenericSampleServerPlugin;
+import ch.systemsx.cisd.openbis.plugin.screening.server.DefaultSampleServerPlugin;
 
 /**
  * A sample server registry for plug-ins.
@@ -37,7 +37,7 @@ public final class SampleServerPluginRegistry
     private final static String PACKAGE_START = "ch.systemsx.cisd.openbis.plugin.";
 
     private final static ISampleServerPlugin GENERIC_SAMPLE_SERVER_PLUGIN =
-            new GenericSampleServerPlugin();
+            new DefaultSampleServerPlugin();
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, SampleServerPluginRegistry.class);

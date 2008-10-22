@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.generic.server;
+package ch.systemsx.cisd.openbis.plugin.screening.server;
 
 import java.util.List;
 
@@ -26,19 +26,19 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.ISampleTypeSlaveServerPlugin;
 
 /**
- * The generic slave server.
+ * The default slave server.
  * 
  * @author Christian Ribeaud
  */
-public final class GenericSlaveServer implements ISampleTypeSlaveServerPlugin
+public final class DefaultSlaveServerPlugin implements ISampleTypeSlaveServerPlugin
 {
 
     //
     // ISlaveServerPlugin
     //
 
-    public final SampleGenerationDTO getSampleInfo(final IDAOFactory daoFactory, final Session session,
-            final SamplePE sample)
+    public final SampleGenerationDTO getSampleInfo(final IDAOFactory daoFactory,
+            final Session session, final SamplePE sample)
     {
         assert sample != null : "Unspecified sample.";
         sample.ensurePropertiesAreLoaded();

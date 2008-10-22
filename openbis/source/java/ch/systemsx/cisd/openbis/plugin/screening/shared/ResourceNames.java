@@ -31,4 +31,6 @@ public final class ResourceNames
     public final static String SCREENING_SERVICE = "screening-service";
 
     public final static String SCREENING_SERVER = "screening-server";
+
+    public final static String CELL_PLATE_SAMPLE_SERVER = "cell-plate-sample-server";
 }
