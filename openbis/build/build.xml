@@ -133,8 +133,6 @@
       -->
     <target name="compile-javascript" depends="prepare-web-client" description="Compiles the javascript using GWT compiler.">
         <property name="application.gwt.path" value="ch.systemsx.cisd.openbis.OpenBIS" />
-        <echo>
-        </echo>
         <delete dir="${webapp.dist}" />
         <java classpath="${ecp}:${gwt.dev.lib}:${gwt.user.lib}:${sources}"
               classname="com.google.gwt.dev.GWTCompiler"
@@ -160,7 +158,7 @@
     <!--
       // Override 'prepare-gwt' target by writing out 'OpenBIS.gwt.xml' and updating 'ClientPluginProvider.java'.
       -->
-    <target name="prepare-gwt" depends="compile"
+    <target name="prepare-gwt"
             description="Override 'prepare-gwt' by writing out 'OpenBIS.gwt.xml' and updating 'ClientPluginProvider.java'.">
         <antcall target="prepare-web-client" />
         <antcall target="server-common-common.prepare-gwt" />    	
@@ -169,7 +167,7 @@
     <!--
       // Updates 'ClientPluginProvider.java' and 'OpenBIS.gwt.xml' with requested plugins.
       -->
-    <target name="prepare-web-client"
+    <target name="prepare-web-client" depends="compile"
             description="Updates 'ClientPluginProvider.java' and 'OpenBIS.gwt.xml' with requested plugins.">
         <java classname="ch.systemsx.cisd.openbis.generic.shared.util.WebClientFilesUpdater"
               classpath="${ecp}:${sources}"
@@ -262,6 +260,9 @@
             <lib dir="${gwt.lib}">
                 <include name="gwt-servlet.jar" />
             </lib>
+            <lib dir="${lib}/hibernate-search">
+                <include name="jms.jar" />
+            </lib>
             <!-- Database -->
             <lib dir="${lib}/postgresql">
                 <include name="postgresql.jar" />
@@ -312,13 +313,6 @@
             <lib dir="${lib}/slf4j/log4j12">
                 <include name="*.jar" />
                 <exclude name="src.jar" />
-            </lib>
-            <!-- Beanlib -->
-            <lib dir="${lib}/beanlib">
-                <include name="beanlib.jar" />
-            </lib>
-            <lib dir="${lib}/beanlib-hibernate">
-                <include name="beanlib-hibernate.jar" />
             </lib>
         </war>
         <!-- Does some cleaning. -->
