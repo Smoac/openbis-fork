@@ -25,6 +25,7 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
@@ -33,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.client.web.server.util.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.GroupTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.PersonTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.PropertyTypeTranslator;
@@ -53,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.plugin.AbstractClientService;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
@@ -367,6 +370,14 @@ public final class GenericClientService extends AbstractClientService implements
     public final Sample getSampleInfo(final String sampleIdentifier)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return null;
+        try
+        {
+            final SampleIdentifier identifier = SampleIdentifierFactory.parse(sampleIdentifier);
+            final SamplePE sample = genericServer.getSampleInfo(getSessionToken(), identifier);
+            return BeanUtils.createBean(Sample.class, sample, DtoConverters.getSampleConverter());
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
     }
 }

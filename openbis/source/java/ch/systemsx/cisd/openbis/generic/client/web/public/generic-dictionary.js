@@ -29,5 +29,19 @@ var generic = {
   groupsView_heading: "Groups",
   rolesView_heading: "Roles",
   
-  lastline: "" // we need a line without a comma
+  lastline: "", // we need a line without a comma
+  
+  //
+  // Registration
+  // 
+
+  registrator: common["registrator"],
+  registration_date: common["registration_date"],
+
+  //
+  // Sample
+  //
+  
+  sample: "Sample",
+  sample_type: "Sample Type",
 };

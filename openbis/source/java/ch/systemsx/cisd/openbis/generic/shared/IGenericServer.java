@@ -139,4 +139,10 @@ public interface IGenericServer extends IServer
     public Map<SampleIdentifier, List<SamplePropertyPE>> listSamplesProperties(String sessionToken,
             List<SampleIdentifier> sampleIdentifiers, List<PropertyTypePE> list);
 
+    /**
+     * For given {@link SampleIdentifier} returns the corresponding {@link SamplePE}.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.OBSERVER)
+    public SamplePE getSampleInfo(final String sessionToken, final SampleIdentifier identifier);
 }

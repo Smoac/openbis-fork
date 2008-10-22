@@ -125,20 +125,20 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
 
     }
 
-    public List<SampleTypePE> listSampleTypes(final String sessionToken)
+    public final List<SampleTypePE> listSampleTypes(final String sessionToken)
     {
         logAccess(sessionToken, "list_sample_types");
         return null;
     }
 
-    public List<SamplePE> listSamples(final String sessionToken,
+    public final List<SamplePE> listSamples(final String sessionToken,
             final List<SampleOwnerIdentifier> ownerIdentifiers, final SampleTypePE sampleType)
     {
         logAccess(sessionToken, "list_samples", "TYPE(%s) OWNERS(%s)", sampleType, ownerIdentifiers);
         return null;
     }
 
-    public Map<SampleIdentifier, List<SamplePropertyPE>> listSamplesProperties(
+    public final Map<SampleIdentifier, List<SamplePropertyPE>> listSamplesProperties(
             final String sessionToken, final List<SampleIdentifier> samples,
             final List<PropertyTypePE> propertyCodes)
     {
@@ -147,4 +147,9 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         return null;
     }
 
+    public final SamplePE getSampleInfo(final String sessionToken, final SampleIdentifier identifier)
+    {
+        logTracking(sessionToken, "get_sample_info", "CODE(%s)", identifier);
+        return null;
+    }
 }

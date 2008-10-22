@@ -36,11 +36,9 @@ public abstract class AbstractServerLogger implements IServer
 
     private static final String RESULT_FAILURE = " ...FAILED";
 
-    private static final Logger accessLog =
-            LogFactory.getLogger(LogCategory.ACCESS, AbstractServerLogger.class);
+    private final Logger accessLog;
 
-    private static final Logger trackingLog =
-            LogFactory.getLogger(LogCategory.TRACKING, AbstractServerLogger.class);
+    private final Logger trackingLog;
 
     protected final ISessionManager<Session> sessionManager;
 
@@ -54,6 +52,8 @@ public abstract class AbstractServerLogger implements IServer
         this.sessionManager = sessionManager;
         this.invocationSuccessful = invocationSuccessful;
         logMessagePrefixGenerator = new LogMessagePrefixGenerator();
+        accessLog = LogFactory.getLogger(LogCategory.ACCESS, getClass());
+        trackingLog = LogFactory.getLogger(LogCategory.TRACKING, getClass());
     }
 
     protected final void logAccess(final String sessionToken, final String commandName)

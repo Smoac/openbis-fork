@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGenericBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
@@ -285,4 +286,13 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         return getDAOFactory().getSamplePropertyDAO().listSampleProperties(sampleIdentifiers,
                 propertyCodes);
     }
+
+    public final SamplePE getSampleInfo(final String sessionToken, final SampleIdentifier identifier)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final ISampleBO sampleBO = getBusinessObjectFactory().createSampleBO(session);
+        sampleBO.loadBySampleIdentifier(identifier);
+        return sampleBO.getSample();
+    }
+
 }
