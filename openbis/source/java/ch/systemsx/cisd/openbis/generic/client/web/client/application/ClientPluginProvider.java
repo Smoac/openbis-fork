@@ -53,7 +53,7 @@ public final class ClientPluginProvider
         {
             final Set<String> set = new HashSet<String>(plugin.getSampleTypeCodes());
             set.retainAll(pluginFactory.getSampleTypeCodes());
-            // TODO 2008-10-22, Christian Ribeaud: Uncomment once we understood why openBIS Smoke
+            // TODO 2008-10-22, Christian Ribeaud: Uncomment once we understood why openBIS System
             // Tests are broken in Eclipse environment.
 //            if (set.size() > 0)
 //            {
