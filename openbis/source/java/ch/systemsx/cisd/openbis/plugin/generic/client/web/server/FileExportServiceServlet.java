@@ -51,7 +51,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 @Controller
 @RequestMapping(
     { "/file-export", "/genericopenbis/file-export" })
-public class FileExportServiceServlet implements InitializingBean,
+public final class FileExportServiceServlet implements InitializingBean,
         org.springframework.web.servlet.mvc.Controller
 {
     @Resource(name = ResourceNames.GENERIC_SERVICE)
@@ -62,40 +62,33 @@ public class FileExportServiceServlet implements InitializingBean,
 
     }
 
-    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
-            throws Exception
-    {
-        doGet(request, response);
-        return null;
-    }
-
-    protected final void doGet(final HttpServletRequest request, final HttpServletResponse response)
+    private final void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException
     {
         try
         {
 
-            SampleRequestParameters parameters = new SampleRequestParameters(request);
+            final SampleRequestParameters parameters = new SampleRequestParameters(request);
 
-            CommonColumns commonColumns = new CommonColumns();
-            ParentColumns parentColumns = new ParentColumns();
+            final CommonColumns commonColumns = new CommonColumns();
+            final ParentColumns parentColumns = new ParentColumns();
             parentColumns.define(parameters.getSampleType());
-            PropertyColumns propertyColumns = new PropertyColumns();
+            final PropertyColumns propertyColumns = new PropertyColumns();
             propertyColumns.define(parameters.getSampleType());
 
-            List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
+            final List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
 
             columns.addAll(commonColumns.getColumns());
             columns.addAll(parentColumns.getColumns());
             columns.addAll(propertyColumns.getColumns());
 
-            List<Sample> samples =
+            final List<Sample> samples =
                     service.listSamples(parameters.getSampleType(), parameters.getGroup(),
                             parameters.isIncludeGroup(), parameters.isIncludeShared(), parameters
                                     .getPropertyTypes());
 
-            List<SampleModel> sampleModels = new ArrayList<SampleModel>();
-            for (Sample s : samples)
+            final List<SampleModel> sampleModels = new ArrayList<SampleModel>();
+            for (final Sample s : samples)
             {
                 sampleModels.add(new SampleModel(s));
             }
@@ -108,21 +101,21 @@ public class FileExportServiceServlet implements InitializingBean,
 
     }
 
-    private String createFile(List<SampleModel> models, List<ColumnConfig> columns)
+    private final String createFile(final List<SampleModel> models, final List<ColumnConfig> columns)
     {
 
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         List<String> lineColumns = new ArrayList<String>();
-        for (ColumnConfig cc : columns)
+        for (final ColumnConfig cc : columns)
         {
             lineColumns.add(cc.getHeader());
         }
         sb.append(createLine(lineColumns, true));
-        for (SampleModel s : models)
+        for (final SampleModel s : models)
 
         {
             lineColumns = new ArrayList<String>();
-            for (ColumnConfig cc : columns)
+            for (final ColumnConfig cc : columns)
             {
                 lineColumns.add(s.get(cc.getId()) != null ? s.get(cc.getId()).toString() : "");
             }
@@ -132,11 +125,11 @@ public class FileExportServiceServlet implements InitializingBean,
         return sb.toString();
     }
 
-    private String createLine(List<String> columns, boolean isHeader)
+    private final String createLine(final List<String> columns, final boolean isHeader)
     {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         boolean first = true;
-        for (String c : columns)
+        for (final String c : columns)
         {
             if (first)
             {
@@ -155,7 +148,7 @@ public class FileExportServiceServlet implements InitializingBean,
         return sb.toString();
     }
 
-    protected void writeResponse(final HttpServletResponse response, final String value)
+    private final void writeResponse(final HttpServletResponse response, final String value)
             throws IOException
     {
         final PrintWriter writer = response.getWriter();
@@ -164,7 +157,7 @@ public class FileExportServiceServlet implements InitializingBean,
         writer.close();
     }
 
-    protected void writeFileResponse(final HttpServletResponse response, final String fileName,
+    private final void writeFileResponse(final HttpServletResponse response, final String fileName,
             final String fileContent) throws IOException
     {
         response.setHeader("Content-disposition", String
@@ -173,10 +166,21 @@ public class FileExportServiceServlet implements InitializingBean,
     }
 
     //
+    // Controller
+    //
+
+    public final ModelAndView handleRequest(final HttpServletRequest request,
+            final HttpServletResponse response) throws Exception
+    {
+        doGet(request, response);
+        return null;
+    }
+
+    //
     // InitializingBean
     //
 
-    public void afterPropertiesSet() throws Exception
+    public final void afterPropertiesSet() throws Exception
     {
         LogInitializer.init();
         if (service == null)
