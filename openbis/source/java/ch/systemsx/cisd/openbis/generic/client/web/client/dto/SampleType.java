@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import ch.systemsx.cisd.common.annotation.CollectionMapping;
 
 /**
  * A {@link EntityType} extension for <i>Sample Type</i>.
@@ -56,6 +59,7 @@ public final class SampleType extends EntityType
         return sampleTypePropertyTypes;
     }
 
+    @CollectionMapping(collectionClass = ArrayList.class, elementClass = SampleTypePropertyType.class)
     public final void setSampleTypePropertyTypes(
             final List<SampleTypePropertyType> sampleTypePropertyTypes)
     {

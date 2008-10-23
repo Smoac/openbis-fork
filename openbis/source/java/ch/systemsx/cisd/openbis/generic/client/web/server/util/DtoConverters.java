@@ -62,6 +62,11 @@ public class DtoConverters
     // Helper classes
     //
 
+    /**
+     * A {@link BeanUtils.Converter} for converting {@link SamplePE} into {@link Sample}.
+     * 
+     * @author Christian Ribeaud
+     */
     private final static class SampleConverter implements BeanUtils.Converter
     {
         static final SampleConverter INSTANCE = new SampleConverter();
@@ -90,13 +95,13 @@ public class DtoConverters
                         };
         }
 
-        private final static Sample convertToSample(final SamplePE sample)
+        private final Sample convertToSample(final SamplePE sample)
         {
             if (Hibernate.isInitialized(sample) == false)
             {
                 return null;
             }
-            return BeanUtils.createBean(Sample.class, sample);
+            return BeanUtils.createBean(Sample.class, sample, this);
         }
 
         //
@@ -122,6 +127,33 @@ public class DtoConverters
         public final List<SampleTypePropertyType> convertToSampleTypePropertyTypes(
                 final SampleTypePE sampleTypePE)
         {
+            return SampleTypeConverter.INSTANCE.convertToSampleTypePropertyTypes(sampleTypePE);
+        }
+
+    }
+
+    /**
+     * A {@link BeanUtils.Converter} for converting {@link EntityPropertyPE} into
+     * {@link EntityProperty}.
+     * 
+     * @author Christian Ribeaud
+     */
+    private final static class SampleTypeConverter implements BeanUtils.Converter
+    {
+
+        static final SampleTypeConverter INSTANCE = new SampleTypeConverter();
+
+        private SampleTypeConverter()
+        {
+        }
+
+        //
+        // BeanUtils.Converter
+        //
+
+        public final List<SampleTypePropertyType> convertToSampleTypePropertyTypes(
+                final SampleTypePE sampleTypePE)
+        {
             final List<SampleTypePropertyTypePE> sampleTypePropertyTypes =
                     sampleTypePE.getSampleTypePropertyTypes();
             if (Hibernate.isInitialized(sampleTypePropertyTypes) == false)
@@ -133,11 +165,17 @@ public class DtoConverters
 
     }
 
+    /**
+     * A {@link BeanUtils.Converter} for converting {@link EntityPropertyPE} into
+     * {@link EntityProperty}.
+     * 
+     * @author Christian Ribeaud
+     */
     private static abstract class EntityPropertiesConverter<T extends EntityPropertyPE, R extends EntityType, S extends EntityTypePropertyType<R>, P extends EntityProperty<R, S>>
             implements BeanUtils.Converter
     {
 
-        private EntityPropertiesConverter()
+        EntityPropertiesConverter()
         {
         }
 

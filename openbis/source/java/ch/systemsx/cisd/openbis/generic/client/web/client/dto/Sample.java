@@ -16,10 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
+
+import ch.systemsx.cisd.common.annotation.CollectionMapping;
 
 /**
  * <i>Java Bean</i> which contain information about <i>sample</i>.
@@ -150,6 +153,7 @@ public class Sample implements IsSerializable
         return properties;
     }
 
+    @CollectionMapping(collectionClass = ArrayList.class, elementClass = SampleProperty.class)
     public void setProperties(final List<SampleProperty> properties)
     {
         this.properties = properties;
@@ -160,7 +164,7 @@ public class Sample implements IsSerializable
         return isInvalid;
     }
 
-    public void setInvalid(boolean isInvalid)
+    public void setInvalid(final boolean isInvalid)
     {
         this.isInvalid = isInvalid;
     }
@@ -170,7 +174,7 @@ public class Sample implements IsSerializable
         return validProcedure;
     }
 
-    public void setValidProcedure(Procedure validProcedure)
+    public void setValidProcedure(final Procedure validProcedure)
     {
         this.validProcedure = validProcedure;
     }
