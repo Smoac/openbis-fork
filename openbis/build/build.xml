@@ -221,6 +221,9 @@
             <classes dir="${sources}">
                 <include name="**/*.xml" />
             </classes>
+            <classes dir="${original.dist}">
+                <include name="etc/log.xml" />
+            </classes>
             <lib dir="${dist}">
                 <include name="${jar.file.name}" />
             </lib>

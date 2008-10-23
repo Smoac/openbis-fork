@@ -81,9 +81,9 @@ class SampleBrowserToolbar extends ToolBar
 
     private final PropertyColumns propertyColumns;
 
-    public SampleBrowserToolbar(GenericViewContext viewContext, SampleBrowserGrid rightPanel,
-            CommonColumns commonColumns, ParentColumns parentColumns,
-            PropertyColumns propertyColumns)
+    public SampleBrowserToolbar(final GenericViewContext viewContext,
+            final SampleBrowserGrid rightPanel, final CommonColumns commonColumns,
+            final ParentColumns parentColumns, final PropertyColumns propertyColumns)
     {
         this.grid = rightPanel;
         this.propertyColumns = propertyColumns;
@@ -115,7 +115,7 @@ class SampleBrowserToolbar extends ToolBar
     {
         includeGroupCheckbox.addListener(Event.ONCLICK, new Listener<BaseEvent>()
             {
-                public void handleEvent(BaseEvent be)
+                public void handleEvent(final BaseEvent be)
                 {
                     controller.resetPropertyCache(includeGroupCheckbox.getValue().booleanValue());
                     controller.refreshButtons();
@@ -128,7 +128,7 @@ class SampleBrowserToolbar extends ToolBar
     {
         includeInstanceCheckbox.addListener(Event.ONCLICK, new Listener<BaseEvent>()
             {
-                public void handleEvent(BaseEvent be)
+                public void handleEvent(final BaseEvent be)
                 {
                     controller
                             .resetPropertyCache(includeInstanceCheckbox.getValue().booleanValue());
@@ -142,7 +142,7 @@ class SampleBrowserToolbar extends ToolBar
         selectGroupCombo.addSelectionChangedListener(new SelectionChangedListener<ModelData>()
             {
                 @Override
-                public void selectionChanged(SelectionChangedEvent<ModelData> se)
+                public void selectionChanged(final SelectionChangedEvent<ModelData> se)
                 {
                     controller.resetPropertyCache(true);
                     controller.refreshButtons();
@@ -155,7 +155,7 @@ class SampleBrowserToolbar extends ToolBar
         selectSampleTypeCombo.addSelectionChangedListener(new SelectionChangedListener<ModelData>()
             {
                 @Override
-                public void selectionChanged(SelectionChangedEvent<ModelData> se)
+                public void selectionChanged(final SelectionChangedEvent<ModelData> se)
                 {
                     controller.rebuildColumnChooser();
                     controller.refreshButtons();
@@ -243,7 +243,8 @@ class SampleBrowserToolbar extends ToolBar
 
                 private String getExportQueryString()
                 {
-                    QueryBuilder q = new QueryBuilder("/genericopenbis/file-export");
+                    final QueryBuilder q =
+                            new QueryBuilder(GenericConstants.createServicePath("file-export"));
                     int propNr = propertyColumns.getChosenColumns().size();
                     q.setParameter(SampleQueryConstants.SAMPLE_TYPE, selectSampleTypeCombo
                             .tryGetSelected().getCode());
@@ -275,7 +276,7 @@ class SampleBrowserToolbar extends ToolBar
 
     private boolean checkForMissingInformation(final SampleType selectedType,
             final String selectedGroupCode, final Boolean includeGroup,
-            final Boolean includeInstance, StringBuilder sb)
+            final Boolean includeInstance, final StringBuilder sb)
     {
         boolean error = false;
         if (includeGroup && selectedGroupCode == null)
