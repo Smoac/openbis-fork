@@ -27,50 +27,49 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Cli
  * 
  * @author Christian Ribeaud
  */
-public final class ClientPluginProvider
+public final class DefaultClientPluginFactoryProvider implements IClientPluginFactoryProvider
 {
-    private final static Set<IClientPluginFactory> plugins = new HashSet<IClientPluginFactory>();
+    private final Set<IClientPluginFactory> plugins = new HashSet<IClientPluginFactory>();
 
-    private static IClientPluginFactory genericPluginFactory;
+    private IClientPluginFactory genericPluginFactory;
 
-    private ClientPluginProvider()
-    {
-        // Can not be instantiated.
-    }
-
-    final static void registerPluginFactories(
+    public DefaultClientPluginFactoryProvider(
             final IViewContext<IGenericClientServiceAsync> originalViewContext)
     {
         genericPluginFactory = new ClientPluginFactory(originalViewContext);
+        registerPluginFactories(originalViewContext);
+    }
+
+    private final void registerPluginFactories(
+            final IViewContext<IGenericClientServiceAsync> originalViewContext)
+    {
         // Automatically generated part - START
-        registerPluginFactory(new ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory(originalViewContext));
+        registerPluginFactory(new ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory(
+                originalViewContext));
         // Automatically generated part - END
     }
 
-    private final static void registerPluginFactory(final IClientPluginFactory pluginFactory)
+    private final void registerPluginFactory(final IClientPluginFactory pluginFactory)
     {
         for (final IClientPluginFactory plugin : plugins)
         {
             final Set<String> set = new HashSet<String>(plugin.getSampleTypeCodes());
             set.retainAll(pluginFactory.getSampleTypeCodes());
-            // TODO 2008-10-22, Christian Ribeaud: Uncomment once we understood why openBIS System
-            // Tests are broken in Eclipse environment.
-//            if (set.size() > 0)
-//            {
-//                throw new IllegalArgumentException("There is already a plugin factory ("
-//                        + plugin.getClass().getName() + ") registered for sample type code(s) '"
-//                        + set + "'.");
-//            }
+            if (set.size() > 0)
+            {
+                throw new IllegalArgumentException("There is already a plugin factory ("
+                        + plugin.getClass().getName() + ") registered for sample type code(s) '"
+                        + set + "'.");
+            }
         }
         plugins.add(pluginFactory);
     }
 
-    /**
-     * For given sample type code return corresponding {@link IClientPluginFactory}.
-     * 
-     * @return never <code>null</code> but could return the <i>generic</i> implementation.
-     */
-    public final static IClientPluginFactory getPluginFactory(final String sampleTypeCode)
+    //
+    // IClientPluginFactoryProvider
+    //
+
+    public final IClientPluginFactory getClientPluginFactory(final String sampleTypeCode)
     {
         assert genericPluginFactory != null : "No plugin factories registered.";
         assert sampleTypeCode != null : "Unspecified sample type code";

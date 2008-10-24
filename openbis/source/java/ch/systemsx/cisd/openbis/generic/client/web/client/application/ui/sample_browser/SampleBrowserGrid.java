@@ -36,7 +36,6 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ClientPluginProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IClientPluginFactory;
@@ -194,7 +193,8 @@ class SampleBrowserGrid extends LayoutContainer
                                 sampleModel.get(SampleModel.SAMPLE_IDENTIFIER);
                         final String code = sampleType.getCode();
                         final IClientPluginFactory pluginFactory =
-                                ClientPluginProvider.getPluginFactory(code);
+                                viewContext.getClientPluginFactoryProvider()
+                                        .getClientPluginFactory(code);
                         pluginFactory.createViewClientForSampleType(code).viewSample(
                                 sampleIdentifier);
                     }

@@ -16,24 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-
 /**
- * The view context interface.
+ * An <i>abstract</i> {@link IViewContext} implementation.
  * 
  * @author Christian Ribeaud
  */
-public interface IViewContext<T>
+public abstract class AbstractViewContext<T> implements IViewContext<T>
 {
-    public T getService();
-
-    public GenericViewModel getModel();
-
-    public IGenericImageBundle getImageBundle();
-
-    public IPageController getPageController();
-
-    public IMessageProvider getMessageProvider();
-
-    public IClientPluginFactoryProvider getClientPluginFactoryProvider();
+    public final String getMessage(final String key, final Object... parameters)
+    {
+        return getMessageProvider().getMessage(key, parameters);
+    }
 }

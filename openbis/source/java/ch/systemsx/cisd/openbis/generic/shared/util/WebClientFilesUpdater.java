@@ -28,10 +28,10 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ClientPluginProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.DefaultClientPluginFactoryProvider;
 
 /**
- * Class which updates <code>OpenBIS.gwt.xml</code> and {@link ClientPluginProvider}.
+ * Class which updates <code>OpenBIS.gwt.xml</code> and {@link DefaultClientPluginFactoryProvider}.
  * <p>
  * Usage:
  * <tt>java {@link WebClientFilesUpdater} [<working directory> [<technology 1> <technology 2> ...]]</tt>
@@ -77,7 +77,7 @@ public final class WebClientFilesUpdater
 
     @Private
     static final String CLIENT_PLUGIN_PROVIDER_CLASS =
-            "ch.systemsx.cisd.openbis.generic.client.web.client.application.ClientPluginProvider";
+            "ch.systemsx.cisd.openbis.generic.client.web.client.application.DefaultClientPluginFactoryProvider";
 
     @Private
     static final String OPENBIS_GWT_XML_FILE_NAME = "OpenBIS.gwt.xml";
@@ -207,7 +207,7 @@ public final class WebClientFilesUpdater
     }
 
     /**
-     * Updates {@link ClientPluginProvider} class up to the technologies found.
+     * Updates {@link DefaultClientPluginFactoryProvider} class up to the technologies found.
      */
     public final void updateClientPluginProvider()
     {

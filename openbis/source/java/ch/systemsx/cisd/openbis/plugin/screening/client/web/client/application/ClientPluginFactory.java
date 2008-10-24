@@ -150,7 +150,7 @@ public final class ClientPluginFactory extends
         protected final void process(final SampleGeneration result)
         {
             final String title = result.getGenerator().getCode();
-            dialog = new ScreeningSampleViewer(title, viewContext, result);
+            dialog = new ScreeningSampleViewer(title, viewContext.getMessageProvider(), result);
             dialog.show();
         }
     }

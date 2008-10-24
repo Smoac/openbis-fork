@@ -116,7 +116,7 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
         {
             if (StringUtils.isBlank(caught.getMessage()))
             {
-                msg = viewContext.getMessage(PREFIX + "invocationMessage");
+                msg = viewContext.getMessageProvider().getMessage(PREFIX + "invocationMessage");
             } else
             {
                 msg = caught.getMessage();
@@ -127,8 +127,8 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
             if (StringUtils.isBlank(message))
             {
                 msg =
-                        viewContext.getMessage(PREFIX + "withoutMessage", caught.getClass()
-                                .getName());
+                        viewContext.getMessageProvider().getMessage(PREFIX + "withoutMessage",
+                                caught.getClass().getName());
             } else
             {
                 msg = message;

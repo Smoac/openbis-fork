@@ -16,36 +16,41 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
 
+import java.util.MissingResourceException;
+
 import com.extjs.gxt.ui.client.util.Format;
 import com.google.gwt.i18n.client.Dictionary;
 
 /**
- * Message provider based on a {@link Dictionary} instance. The messages are dynamically loaded
- * at runtime from a JavaScript file.
- *
+ * Message provider based on a {@link Dictionary} instance. The messages are dynamically loaded at
+ * runtime from a JavaScript file.
+ * 
  * @author Franz-Josef Elmer
  */
-public class DictonaryBasedMessageProvider implements IMessageProvider
+public final class DictonaryBasedMessageProvider extends AbstractDictionaryBasedMessageProvider
 {
-    private Dictionary dictionary;
-    
     /**
      * Creates a new instance for the specified dictionary name.
      */
-    public DictonaryBasedMessageProvider(String dictonaryName)
+    public DictonaryBasedMessageProvider(final String dictonaryName)
     {
-        dictionary = Dictionary.getDictionary(dictonaryName);
+        super(dictonaryName);
     }
-    
-    public String getMessage(String key, Object... parameters)
+
+    //
+    // IMessageProvider
+    //
+
+    public final String getMessage(final String key, final Object... parameters)
     {
+        final Dictionary dictionary = getDictionary();
         String message;
         try
         {
             message = dictionary.get(key);
-        } catch (Exception ex)
+        } catch (final MissingResourceException ex)
         {
-            return "Unknown key '" + key + "' in " + dictionary + ".";
+            return "Unknown key '" + key + "' in '" + dictionary + "' dictionary.";
         }
         if (parameters.length == 0)
         {

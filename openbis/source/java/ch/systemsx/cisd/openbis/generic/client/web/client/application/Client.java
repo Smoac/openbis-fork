@@ -22,8 +22,8 @@ import com.google.gwt.user.client.rpc.ServiceDefTarget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.AbstractDictionaryBasedMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 
 /**
@@ -46,7 +46,8 @@ public class Client implements EntryPoint
         endpoint.setServiceEntryPoint(GenericConstants.GENERIC_SERVER_NAME);
         IGenericImageBundle imageBundle =
                 GWT.<IGenericImageBundle> create(IGenericImageBundle.class);
-        IMessageProvider messageProvider = new DictonaryBasedMessageProvider("generic");
+        AbstractDictionaryBasedMessageProvider messageProvider =
+                new DictonaryBasedMessageProvider("generic");
         IPageController pageController = new IPageController()
             {
                 public void reload()
@@ -66,7 +67,6 @@ public class Client implements EntryPoint
         if (viewContext == null)
         {
             viewContext = createViewContext();
-            ClientPluginProvider.registerPluginFactories(viewContext);
         }
         final IGenericClientServiceAsync service = viewContext.getService();
         service.getApplicationInfo(new AbstractAsyncCallback<ApplicationInfo>(viewContext)

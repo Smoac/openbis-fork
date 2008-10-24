@@ -17,16 +17,19 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.AbstractDictionaryBasedMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
+ * The <i>generic</i> {@link IViewContext} implementation.
+ * 
  * @author Franz-Josef Elmer
  */
-public class GenericViewContext implements IViewContext<IGenericClientServiceAsync>
+public final class GenericViewContext extends AbstractViewContext<IGenericClientServiceAsync>
 {
     private final IGenericClientServiceAsync service;
 
-    private final IMessageProvider messageProvider;
+    private final AbstractDictionaryBasedMessageProvider messageProvider;
 
     private final IGenericImageBundle imageBundle;
 
@@ -34,20 +37,28 @@ public class GenericViewContext implements IViewContext<IGenericClientServiceAsy
 
     private final IPageController pageController;
 
+    private final IClientPluginFactoryProvider clientPluginFactoryProvider;
+
     GenericViewContext(final IGenericClientServiceAsync service,
-            final IMessageProvider messageProvider, final IGenericImageBundle imageBundle,
-            final IPageController pageController)
+            final AbstractDictionaryBasedMessageProvider messageProvider,
+            final IGenericImageBundle imageBundle, final IPageController pageController)
     {
         this.service = service;
         this.messageProvider = messageProvider;
         this.imageBundle = imageBundle;
         this.pageController = pageController;
         viewModel = new GenericViewModel();
+        clientPluginFactoryProvider = new DefaultClientPluginFactoryProvider(this);
     }
 
     //
     // IViewContext
     //
+
+    public final IMessageProvider getMessageProvider()
+    {
+        return messageProvider;
+    }
 
     public final IGenericClientServiceAsync getService()
     {
@@ -57,11 +68,6 @@ public class GenericViewContext implements IViewContext<IGenericClientServiceAsy
     public final GenericViewModel getModel()
     {
         return viewModel;
-    }
-
-    public final String getMessage(final String key, final Object... parameters)
-    {
-        return messageProvider.getMessage(key, parameters);
     }
 
     public final IGenericImageBundle getImageBundle()
@@ -74,4 +80,8 @@ public class GenericViewContext implements IViewContext<IGenericClientServiceAsy
         return pageController;
     }
 
+    public final IClientPluginFactoryProvider getClientPluginFactoryProvider()
+    {
+        return clientPluginFactoryProvider;
+    }
 }

@@ -16,24 +16,18 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-
 /**
- * The view context interface.
+ * A {@link IClientPluginFactory} provider.
  * 
  * @author Christian Ribeaud
  */
-public interface IViewContext<T>
+public interface IClientPluginFactoryProvider
 {
-    public T getService();
 
-    public GenericViewModel getModel();
-
-    public IGenericImageBundle getImageBundle();
-
-    public IPageController getPageController();
-
-    public IMessageProvider getMessageProvider();
-
-    public IClientPluginFactoryProvider getClientPluginFactoryProvider();
+    /**
+     * For given sample type code return corresponding {@link IClientPluginFactory}.
+     * 
+     * @return never <code>null</code> but could return the <i>generic</i> implementation.
+     */
+    public IClientPluginFactory getClientPluginFactory(final String sampleTypeCode);
 }
