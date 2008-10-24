@@ -55,11 +55,6 @@ public final class WebClientFilesUpdaterTest extends AbstractFileSystemTestCase
 
     private WebClientFilesUpdater filesUpdater;
 
-    public WebClientFilesUpdaterTest()
-    {
-        super(false);
-    }
-
     //
     // AbstractFileSystemTestCase
     //
@@ -136,7 +131,8 @@ public final class WebClientFilesUpdaterTest extends AbstractFileSystemTestCase
         assertEquals(
                 "// Automatically generated part - START"
                         + OSUtilities.LINE_SEPARATOR
-                        + "        registerPluginFactory(new ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory(originalViewContext));"
+                        + "        registerPluginFactory(new ch.systemsx.cisd.openbis.plugin."
+                        + "screening.client.web.client.application.ClientPluginFactory(originalViewContext));"
                         + OSUtilities.LINE_SEPARATOR
                         + "        // Automatically generated part - END"
                         + OSUtilities.LINE_SEPARATOR, FileUtils
