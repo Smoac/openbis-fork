@@ -43,7 +43,7 @@ public interface IScreeningServer extends IServer
      * @throws UserFailureException if given <var>sessionToken</var> is invalid or whether sample
      *             uniquely identified by given <var>sampleIdentifier</var> does not exist.
      */
-    @Transactional
+    @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     SampleGenerationDTO getSampleInfo(final String sessionToken,
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)

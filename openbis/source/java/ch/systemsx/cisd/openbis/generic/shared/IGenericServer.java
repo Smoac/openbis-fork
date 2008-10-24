@@ -50,7 +50,7 @@ public interface IGenericServer extends IServer
     /**
      * Returns all groups which belong to the specified database instance.
      */
-    @Transactional
+    @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     @ReturnValueFilter(validatorClass = GroupValidator.class)
     public List<GroupPE> listGroups(String sessionToken, DatabaseInstanceIdentifier identifier);
@@ -66,7 +66,7 @@ public interface IGenericServer extends IServer
     /**
      * Returns all persons from current instance.
      */
-    @Transactional
+    @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     public List<PersonPE> listPersons(String sessionToken);
 
@@ -80,7 +80,7 @@ public interface IGenericServer extends IServer
     /**
      * Returns a list of all roles.
      */
-    @Transactional
+    @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.GROUP_ADMIN)
     public List<RoleAssignmentPE> listRoles(String sessionToken);
 
@@ -119,14 +119,14 @@ public interface IGenericServer extends IServer
     /**
      * Lists sample types which are appropriate for listing.
      */
-    @Transactional
+    @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     public List<SampleTypePE> listSampleTypes(String sessionToken);
 
     /**
      * Lists samples using given configuration.No properties are loaded.
      */
-    @Transactional
+    @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     public List<SamplePE> listSamples(String sessionToken,
             List<SampleOwnerIdentifier> ownerIdentifiers, SampleTypePE sampleType);
@@ -134,7 +134,7 @@ public interface IGenericServer extends IServer
     /**
      * Lists chosen properties for given samples.
      */
-    @Transactional
+    @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     public Map<SampleIdentifier, List<SamplePropertyPE>> listSamplesProperties(String sessionToken,
             List<SampleIdentifier> sampleIdentifiers, List<PropertyTypePE> list);
@@ -142,7 +142,7 @@ public interface IGenericServer extends IServer
     /**
      * For given {@link SampleIdentifier} returns the corresponding {@link SamplePE}.
      */
-    @Transactional
+    @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     public SamplePE getSampleInfo(final String sessionToken, final SampleIdentifier identifier);
 }
