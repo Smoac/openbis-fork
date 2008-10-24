@@ -268,8 +268,8 @@ public final class FileUtilities
      *            <code>null</code>).
      * @param resource Absolute path of the resource (will be the argument of
      *            <code>getResource()</code>).
-     * @return The content of the resource, or <code>null</code> if the specified resource does not
-     *         exist.
+     * @return The content of the resource, or <code>null</code> if the specified resource does
+     *         not exist.
      * @throws WrappedIOException for wrapping an {@link IOException}
      */
     public static String loadToString(final Class<?> clazz, final String resource)
@@ -417,7 +417,8 @@ public final class FileUtilities
     }
 
     /**
-     * Checks whether a <var>path</var> of some <var>kind</var> is fully accessible to the program.
+     * Checks whether a <var>path</var> of some <var>kind</var> is fully accessible to the
+     * program.
      * 
      * @param kindOfPath description of given <var>path</var>. Mainly used for error messages.
      * @return <code>null</code> if the <var>directory</var> is fully accessible and an error
@@ -451,8 +452,8 @@ public final class FileUtilities
      * Checks whether a <var>directory</var> of some <var>kind</var> is accessible for reading to
      * the program (it's a directory, you can read and write in it)
      * 
-     * @return <code>null</code> if the <var>directory</var> is accessible for reading and an error
-     *         message describing the problem with the <var>directory</var> otherwise.
+     * @return <code>null</code> if the <var>directory</var> is accessible for reading and an
+     *         error message describing the problem with the <var>directory</var> otherwise.
      */
     public static String checkDirectoryReadAccessible(final File directory,
             final String kindOfDirectory)
@@ -513,8 +514,8 @@ public final class FileUtilities
     }
 
     /**
-     * Checks whether a <var>file</var> of some <var>kindOfFile</var> is accessible for reading and
-     * writing to the program (so it's a file and you can read and write it)
+     * Checks whether a <var>file</var> of some <var>kindOfFile</var> is accessible for reading
+     * and writing to the program (so it's a file and you can read and write it)
      * 
      * @return <code>null</code> if the <var>file</var> is fully accessible and an error message
      *         describing the problem with the <var>file</var> otherwise.
@@ -625,10 +626,10 @@ public final class FileUtilities
      * @param path Path of the file or directory to delete.
      * @param loggerOrNull The logger that should be used to log deletion of path entries, or
      *            <code>null</code> if nothing should be logged.
-     * @param observerOrNull If not <code>null</code>, will be updated on progress in the deletion.
-     *            This can be used to find out whether a (potentially) long-running recursive
-     *            deletion call is alive-and-kicking or hangs (e.g. due to a remote directory
-     *            becoming unresponsive).
+     * @param observerOrNull If not <code>null</code>, will be updated on progress in the
+     *            deletion. This can be used to find out whether a (potentially) long-running
+     *            recursive deletion call is alive-and-kicking or hangs (e.g. due to a remote
+     *            directory becoming unresponsive).
      * @return <code>true</code> if the path has been deleted successfully, <code>false</code>
      *         otherwise.
      * @throws StopException If the current thread has been interrupted.
@@ -703,10 +704,10 @@ public final class FileUtilities
      * @param filter The {@link FileFilter} to use when deciding which paths to delete.
      * @param logger The logger that should be used to log deletion of path entries, or
      *            <code>null</code> if nothing should be logged.
-     * @param observerOrNull If not <code>null</code>, will be updated on progress in the deletion.
-     *            This can be used to find out whether a (potentially) long-running recursive
-     *            deletion call is alive-and-kicking or hangs (e.g. due to a remote directory
-     *            becoming unresponsive).
+     * @param observerOrNull If not <code>null</code>, will be updated on progress in the
+     *            deletion. This can be used to find out whether a (potentially) long-running
+     *            recursive deletion call is alive-and-kicking or hangs (e.g. due to a remote
+     *            directory becoming unresponsive).
      * @return <code>true</code> if the <var>path</var> itself has been deleted.
      * @throws StopException If the current thread has been interrupted.
      */
@@ -856,21 +857,22 @@ public final class FileUtilities
     }
 
     /**
-     * Determines the time (in milliseconds since start of the epoch) when any item below
-     * <var>path</var> has last been changed in the file system.
+     * Determines the time (in milliseconds since start of the epoch) when any item below <var>path</var>
+     * has last been changed in the file system.
      * 
      * @param path The path (file or directory) to check for last change.
-     * @param subDirectoriesOnly If <code>true</code>, only subdirectories of <var>path</var> are
-     *            checked, if <var>path</var> is a directory. If <var>path</var> is a file, this
-     *            parameter is ignored. When considering what this parameter is good for, note that
-     *            the mtime of a directory is changed when an entry in the directory changes.
+     * @param subDirectoriesOnly If <code>true</code>, only subdirectories of <var>path</var>
+     *            are checked, if <var>path</var> is a directory. If <var>path</var> is a file,
+     *            this parameter is ignored. When considering what this parameter is good for, note
+     *            that the mtime of a directory is changed when an entry in the directory changes.
      * @param stopWhenFindYounger If &gt; 0, the recursive search for younger file will be stopped
      *            when a file or directory is found that is younger than the time specified in this
      *            parameter. Supposed to be used when one does not care about the absolute youngest
      *            entry, but only, if there are entries that are "young enough".
      * @return The time when any file in (or below) <var>path</var> has last been changed in the
      *         file system.
-     * @throws UnknownLastChangedException if the <var>path</var> does not exist or is not readable.
+     * @throws UnknownLastChangedException if the <var>path</var> does not exist or is not
+     *             readable.
      * @throws StopException if the thread that the method runs in gets interrupted.
      */
     public static long lastChanged(final File path, final boolean subDirectoriesOnly,
@@ -880,14 +882,14 @@ public final class FileUtilities
     }
 
     /**
-     * Determines the time (in milliseconds since start of the epoch) when any item below
-     * <var>path</var> has last been changed in the file system.
+     * Determines the time (in milliseconds since start of the epoch) when any item below <var>path</var>
+     * has last been changed in the file system.
      * 
      * @param path The path (file or directory) to check for last change.
-     * @param subDirectoriesOnly If <code>true</code>, only subdirectories of <var>path</var> are
-     *            checked, if <var>path</var> is a directory. If <var>path</var> is a file, this
-     *            parameter is ignored. When considering what this parameter is good for, note that
-     *            the mtime of a directory is changed when an entry in the directory changes.
+     * @param subDirectoriesOnly If <code>true</code>, only subdirectories of <var>path</var>
+     *            are checked, if <var>path</var> is a directory. If <var>path</var> is a file,
+     *            this parameter is ignored. When considering what this parameter is good for, note
+     *            that the mtime of a directory is changed when an entry in the directory changes.
      * @param stopWhenFindYounger If &gt; 0, the recursive search for younger file will be stopped
      *            when a file or directory is found that is younger than the time specified in this
      *            parameter. Supposed to be used when one does not care about the absolute youngest
@@ -898,7 +900,8 @@ public final class FileUtilities
      *            becoming unresponsive).
      * @return The time when any file in (or below) <var>path</var> has last been changed in the
      *         file system.
-     * @throws UnknownLastChangedException if the <var>path</var> does not exist or is not readable.
+     * @throws UnknownLastChangedException if the <var>path</var> does not exist or is not
+     *             readable.
      * @throws StopException if the thread that the method runs in gets interrupted.
      */
     public static long lastChanged(final File path, final boolean subDirectoriesOnly,
@@ -910,22 +913,23 @@ public final class FileUtilities
     }
 
     /**
-     * Determines the time (in milliseconds since start of the epoch) when any item below
-     * <var>path</var> has last been changed in the file system.
+     * Determines the time (in milliseconds since start of the epoch) when any item below <var>path</var>
+     * has last been changed in the file system.
      * 
      * @param path The path (file or directory) to check for last change.
-     * @param subDirectoriesOnly If <code>true</code>, only subdirectories of <var>path</var> are
-     *            checked, if <var>path</var> is a directory. If <var>path</var> is a file, this
-     *            parameter is ignored. When considering what this parameter is good for, note that
-     *            the mtime of a directory is changed when an entry in the directory changes.
+     * @param subDirectoriesOnly If <code>true</code>, only subdirectories of <var>path</var>
+     *            are checked, if <var>path</var> is a directory. If <var>path</var> is a file,
+     *            this parameter is ignored. When considering what this parameter is good for, note
+     *            that the mtime of a directory is changed when an entry in the directory changes.
      * @param stopWhenFindYoungerRelative If &gt; 0, the recursive search for younger file will be
      *            stopped when a file or directory is found that is younger than
-     *            <code>System.currentTimeMillis() - stopWhenYoungerRelative</code>. Supposed to be
-     *            used when one does not care about the absolute youngest entry, but only, if there
-     *            are entries that are "young enough".
+     *            <code>System.currentTimeMillis() - stopWhenYoungerRelative</code>. Supposed to
+     *            be used when one does not care about the absolute youngest entry, but only, if
+     *            there are entries that are "young enough".
      * @return The time when any file in (or below) <var>path</var> has last been changed in the
      *         file system.
-     * @throws UnknownLastChangedException if the <var>path</var> does not exist or is not readable.
+     * @throws UnknownLastChangedException if the <var>path</var> does not exist or is not
+     *             readable.
      * @throws StopException if the thread that the method runs in gets interrupted.
      */
     public static long lastChangedRelative(final File path, final boolean subDirectoriesOnly,
@@ -935,26 +939,27 @@ public final class FileUtilities
     }
 
     /**
-     * Determines the time (in milliseconds since start of the epoch) when any item below
-     * <var>path</var> has last been changed in the file system.
+     * Determines the time (in milliseconds since start of the epoch) when any item below <var>path</var>
+     * has last been changed in the file system.
      * 
      * @param path The path (file or directory) to check for last change.
-     * @param subDirectoriesOnly If <code>true</code>, only subdirectories of <var>path</var> are
-     *            checked, if <var>path</var> is a directory. If <var>path</var> is a file, this
-     *            parameter is ignored. When considering what this parameter is good for, note that
-     *            the mtime of a directory is changed when an entry in the directory changes.
+     * @param subDirectoriesOnly If <code>true</code>, only subdirectories of <var>path</var>
+     *            are checked, if <var>path</var> is a directory. If <var>path</var> is a file,
+     *            this parameter is ignored. When considering what this parameter is good for, note
+     *            that the mtime of a directory is changed when an entry in the directory changes.
      * @param stopWhenFindYoungerRelative If &gt; 0, the recursive search for younger file will be
      *            stopped when a file or directory is found that is younger than
-     *            <code>System.currentTimeMillis() - stopWhenYoungerRelative</code>. Supposed to be
-     *            used when one does not care about the absolute youngest entry, but only, if there
-     *            are entries that are "young enough".
+     *            <code>System.currentTimeMillis() - stopWhenYoungerRelative</code>. Supposed to
+     *            be used when one does not care about the absolute youngest entry, but only, if
+     *            there are entries that are "young enough".
      * @param observerOrNull If not <code>null</code>, will be updated on progress in scanning.
      *            This can be used to find out whether a (potentially) long-running recursive
      *            deletion call is alive-and-kicking or hangs (e.g. due to a remote directory
      *            becoming unresponsive).
      * @return The time when any file in (or below) <var>path</var> has last been changed in the
      *         file system.
-     * @throws UnknownLastChangedException if the <var>path</var> does not exist or is not readable.
+     * @throws UnknownLastChangedException if the <var>path</var> does not exist or is not
+     *             readable.
      * @throws StopException if the thread that the method runs in gets interrupted.
      */
     public static long lastChangedRelative(final File path, final boolean subDirectoriesOnly,
@@ -968,7 +973,8 @@ public final class FileUtilities
     /**
      * @return The time when any file in (or below) <var>path</var> has last been changed in the
      *         file system.
-     * @throws UnknownLastChangedException if the <var>path</var> does not exist or is not readable.
+     * @throws UnknownLastChangedException if the <var>path</var> does not exist or is not
+     *             readable.
      * @throws StopException if the thread that the method runs in gets interrupted.
      */
     public static long lastChanged(final File path) throws UnknownLastChangedException
@@ -1105,8 +1111,8 @@ public final class FileUtilities
      * 
      * @param directory the directory to list
      * @param loggerOrNull logger, if <code>null</code> than no logging occurs
-     * @return all files in <var>directory</var> or <code>null</code>, if <var>directory</var> does
-     *         not exist or is not a directory.
+     * @return all files in <var>directory</var> or <code>null</code>, if <var>directory</var>
+     *         does not exist or is not a directory.
      */
     public static File[] tryListFiles(final File directory, final ISimpleLogger loggerOrNull)
     {
@@ -1232,8 +1238,8 @@ public final class FileUtilities
      * Loads the native library <var>libraryName</var> from a Java resource that follows tha naming
      * convention described in {@link #tryCopyNativeLibraryToTempFile(String)}.
      * 
-     * @return <code>true</code> if the library has been loaded successfully and <code>false</code>
-     *         otherwise.
+     * @return <code>true</code> if the library has been loaded successfully and
+     *         <code>false</code> otherwise.
      */
     public final static boolean loadNativeLibraryFromResource(final String libraryName)
     {
@@ -1562,8 +1568,8 @@ public final class FileUtilities
      * Returns a human-readable version of the file size, where the input represents a specific
      * number of bytes.
      * <p>
-     * By comparison with {@link FileUtils#byteCountToDisplaySize(long)}, the output of this version
-     * is more exact.
+     * By comparison with {@link FileUtils#byteCountToDisplaySize(long)}, the output of this
+     * version is more exact.
      * </p>
      * 
      * @param size the number of bytes
@@ -1588,6 +1594,21 @@ public final class FileUtilities
             displaySize = SIZE_FORMAT.format(size) + " bytes";
         }
         return displaySize;
+    }
+
+    /**
+     * For given array of {@link File} returns the file names.
+     */
+    public final static String[] toFileNames(final File[] files)
+    {
+        assert files != null : "Unspecified files";
+        final String[] fileNames = new String[files.length];
+        int i = 0;
+        for (final File file : files)
+        {
+            fileNames[i++] = file.getName();
+        }
+        return fileNames;
     }
 
 }
