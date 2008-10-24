@@ -250,12 +250,7 @@ public final class ClassUtils
         } catch (final InvocationTargetException ex)
         {
             // We are interested in the cause exception.
-            final Throwable cause = ex.getCause();
-            if (cause instanceof Exception)
-            {
-                throw CheckedExceptionTunnel.wrapIfNecessary(cause);
-            }
-            throw (Error) cause;
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex.getCause());
         }
     }
 
