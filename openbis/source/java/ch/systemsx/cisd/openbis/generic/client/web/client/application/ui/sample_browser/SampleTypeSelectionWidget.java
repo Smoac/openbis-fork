@@ -47,9 +47,9 @@ class SampleTypeSelectionWidget extends ExtendedComboBox<SampleTypeModel>
     {
         this.viewContext = viewContext;
         setId(ID);
-        setEmptyText("Select a sample type...");
+        setEmptyText("- No sample types found -");
+        setEnabled(false);
         setDisplayField(SampleTypeModel.CODE);
-        setAllowBlank(false);
         setEditable(false);
         setWidth(150);
         sampleTypeStore = new ListStore<SampleTypeModel>();
@@ -80,6 +80,7 @@ class SampleTypeSelectionWidget extends ExtendedComboBox<SampleTypeModel>
                             sampleTypeStore.add(convert(result));
                             if (sampleTypeStore.getCount() > 0)
                             {
+                                setEnabled(true);
                                 setValue(sampleTypeStore.getAt(0));
                             }
                         }

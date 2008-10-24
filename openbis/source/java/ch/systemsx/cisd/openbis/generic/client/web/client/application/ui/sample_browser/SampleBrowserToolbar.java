@@ -35,6 +35,7 @@ import com.google.gwt.user.client.Window;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.OpenbisEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CommonColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParentColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyColumns;
@@ -91,6 +92,7 @@ class SampleBrowserToolbar extends ToolBar
         selectGroupCombo = new GroupSelectionWidget(viewContext);
         includeInstanceCheckbox = new CheckBox();
         includeInstanceCheckbox.setId(INCLUDE_SHARED_CHECKBOX_ID);
+        includeInstanceCheckbox.setValue(true);
         includeGroupCheckbox = new CheckBox();
         includeGroupCheckbox.setId(INCLUDE_GROUP_CHECKBOX_ID);
         includeGroupCheckbox.setStyleAttribute("margin", "4px");
@@ -146,6 +148,15 @@ class SampleBrowserToolbar extends ToolBar
                 {
                     controller.resetPropertyCache(true);
                     controller.refreshButtons();
+                }
+            });
+
+        selectGroupCombo.addListener(OpenbisEvents.CALLBACK_FINNISHED, new Listener<BaseEvent>()
+            {
+
+                public void handleEvent(BaseEvent be)
+                {
+                    controller.refreshGroupCheckbox();
                 }
             });
     }
@@ -227,7 +238,6 @@ class SampleBrowserToolbar extends ToolBar
                 }
             });
         refreshButton.setId(REFRESH_BUTTON_ID);
-        refreshButton.setIconStyle("x-tbar-loading");
         return refreshButton;
     }
 
@@ -248,8 +258,11 @@ class SampleBrowserToolbar extends ToolBar
                     int propNr = propertyColumns.getChosenColumns().size();
                     q.setParameter(SampleQueryConstants.SAMPLE_TYPE, selectSampleTypeCombo
                             .tryGetSelected().getCode());
-                    q.setParameter(SampleQueryConstants.GROUP, selectGroupCombo.tryGetSelected()
-                            .getCode());
+                    if (includeGroupCheckbox.getValue())
+                    {
+                        q.setParameter(SampleQueryConstants.GROUP, selectGroupCombo
+                                .tryGetSelected().getCode());
+                    }
                     q.setParameter(SampleQueryConstants.INCLUDE_GROUP, includeGroupCheckbox
                             .getValue());
                     q.setParameter(SampleQueryConstants.INCLUDE_SHARED, includeInstanceCheckbox

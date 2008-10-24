@@ -68,9 +68,9 @@ public class ToolbarController
 
     public void refreshButtons()
     {
-        final boolean sampleTypeSelected = sampleTypeSelectionWidget.isValid();
+        final boolean sampleTypeSelected = sampleTypeSelectionWidget.tryGetSelected() != null;
         final boolean showGroupSamples = groupCheckbox.getValue();
-        final boolean groupChosen = groupSelectionWidget.isValid();
+        final boolean groupChosen = groupSelectionWidget.tryGetSelected() != null;
         final boolean showInstanceSamples = instanceCheckbox.getValue() == true;
         final boolean enable =
                 sampleTypeSelected && (showGroupSamples && groupChosen || showInstanceSamples);
@@ -104,5 +104,13 @@ public class ToolbarController
             columnChooser.reload();
             columnChooser.setEnabled(true);
         }
+    }
+
+    public void refreshGroupCheckbox()
+    {
+        final boolean atLeastOneGroupExists = groupSelectionWidget.getStore().getCount() > 0;
+        groupCheckbox.setEnabled(atLeastOneGroupExists);
+        groupCheckbox.setValue(atLeastOneGroupExists);
+        instanceCheckbox.setValue(atLeastOneGroupExists == false);
     }
 }
