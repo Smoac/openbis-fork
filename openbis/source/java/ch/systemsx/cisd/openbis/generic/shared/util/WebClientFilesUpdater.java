@@ -20,22 +20,11 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.Arrays;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
@@ -44,53 +33,57 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ClientPlug
 /**
  * Class which updates <code>OpenBIS.gwt.xml</code> and {@link ClientPluginProvider}.
  * <p>
- * Usage: 
+ * Usage:
  * <tt>java {@link WebClientFilesUpdater} [<working directory> [<technology 1> <technology 2> ...]]</tt>
- * 
  * Without technology arguments all technologies found in the code base are available. If at least
- * one technology is specified only the specified technologies will be available. 
+ * one technology is specified only the specified technologies will be available.
  * 
  * @author Christian Ribeaud
  */
 public final class WebClientFilesUpdater
 {
-    private static final String CLIENT_PLUGIN_PROVIDER_CLASS =
-            "ch.systemsx.cisd.openbis.generic.client.web.client.application.ClientPluginProvider";
+    @Private
+    static final String SOURCE_TAG_TEMPLATE = "<source path=\"plugin/%s/client/web/client\"/>";
 
-    private static final String INHERITS_ELEMENT = "inherits";
+    @Private
+    static final String SCRIPT_TAG_TEMPLATE = "<script src=\"%s-dictionary.js\"/>";
 
-    private static final String MODULE_ELEMENT = "module";
+    @Private
+    static final String PUBLIC_TAG_TEMPLATE = "<public path=\"plugin/%s/client/web/public\"/>";
 
-    private static final String PLUGIN_PACKAGE_NAME = "plugin";
+    @Private
+    static final String JAVA_MARKER_START = "// Automatically generated part - START";
 
-    private static final String OPENBIS_GWT_XML_FILE_NAME = "OpenBIS.gwt.xml";
+    @Private
+    static final String XML_MARKER_START = "<!-- Automatically generated part - START -->";
 
-    private static final String OPENBIS_PACKAGE_NAME = "ch/systemsx/cisd/openbis";
+    @Private
+    static final String JAVA_MARKER_END = "// Automatically generated part - END";
 
-    private static final String SOURCE_PATH_TEMPLATE = "plugin/%s/client/web/client";
+    @Private
+    static final String XML_MARKER_END = "<!-- Automatically generated part - END -->";
 
-    private static final String PUBLIC_PATH_TEMPLATE = "plugin/%s/client/web/public";
-
-    private static final String JAVA_MARKER_START = "// Automatically generated part - START";
-
-    private static final String JAVA_MARKER_END = "// Automatically generated part - END";
-
-    private static final String PLUGIN_FACTORY_CLASS_NAME_TEMPLATE =
+    @Private
+    static final String PLUGIN_FACTORY_CLASS_NAME_TEMPLATE =
             "ch.systemsx.cisd.openbis.plugin.%s.client.web.client.application.ClientPluginFactory";
 
-    private static final String PLUGIN_FACTORY_REGISTRATION_TEMPLATE =
+    @Private
+    static final String PLUGIN_FACTORY_REGISTRATION_TEMPLATE =
             "registerPluginFactory(new " + PLUGIN_FACTORY_CLASS_NAME_TEMPLATE
                     + "(originalViewContext));";
 
-    private static final String SCRIPT_ELEMENT = "script";
+    @Private
+    static final String PLUGIN_PACKAGE_NAME = "plugin";
 
-    private static final String STYLESHEET_ELEMENT = "stylesheet";
+    @Private
+    static final String CLIENT_PLUGIN_PROVIDER_CLASS =
+            "ch.systemsx.cisd.openbis.generic.client.web.client.application.ClientPluginProvider";
 
-    private static final String ENTRY_POINT_ELEMENT = "entry-point";
+    @Private
+    static final String OPENBIS_GWT_XML_FILE_NAME = "OpenBIS.gwt.xml";
 
-    private static final String PUBLIC_ELEMENT = "public";
-
-    private static final String SOURCE_ELEMENT = "source";
+    @Private
+    static final String OPENBIS_PACKAGE_NAME = "ch/systemsx/cisd/openbis";
 
     private final String[] allTechnologies;
 
@@ -98,8 +91,10 @@ public final class WebClientFilesUpdater
 
     private final File workingDirectory;
 
-    private WebClientFilesUpdater(final String workingDirectory, final String... technologies)
+    @Private
+    WebClientFilesUpdater(final String workingDirectory, final String... technologies)
     {
+        assert workingDirectory != null : "Unspecified working directory.";
         this.workingDirectory = getWorkingDirectory(workingDirectory);
         this.allTechnologies = scanAllTechnologies(this.workingDirectory);
         this.technologies = getTechnologies(allTechnologies, technologies);
@@ -143,7 +138,7 @@ public final class WebClientFilesUpdater
         final File[] pluginDirs =
                 pluginRootDirectory.listFiles((FileFilter) FileFilterUtils
                         .makeSVNAware(FileFilterUtils.directoryFileFilter()));
-        return toFileNames(pluginDirs);
+        return FileUtilities.toFileNames(pluginDirs);
     }
 
     private final static File getPluginRootDirectory(final File rootDirectory)
@@ -159,129 +154,14 @@ public final class WebClientFilesUpdater
         return openBISPackage;
     }
 
-    private final static String[] toFileNames(final File[] files)
+    private final static StringBuilder createTag(final String template, final String indent,
+            final String technology)
     {
-        final String[] fileNames = new String[files.length];
-        int i = 0;
-        for (final File file : files)
-        {
-            fileNames[i++] = file.getName();
-        }
-        return fileNames;
-    }
-
-    private final Document createXMLDocument(final File openBISGwtXmlFile)
-    {
-        try
-        {
-            final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            final DocumentBuilder db = dbf.newDocumentBuilder();
-            final Document document = db.newDocument();
-            final Element module = document.createElement(MODULE_ELEMENT);
-            document.appendChild(document.createComment("Automatically generated - DO NOT EDIT!"));
-            document.appendChild(module);
-            module.appendChild(createStylesheetElement(document, "css/openbis.css"));
-            module.appendChild(createEntryPointElement(document,
-                    "ch.systemsx.cisd.openbis.generic.client.web.client.application.Client"));
-            // 'inherits' tag.
-            module.appendChild(createInheritsElement(document, "com.google.gwt.user.User"));
-            module.appendChild(createInheritsElement(document, "com.google.gwt.i18n.I18N"));
-            module.appendChild(createInheritsElement(document, "com.extjs.gxt.ui.GXT"));
-            // 'script' tag.
-            module.appendChild(createScriptElement(document, "common-dictionary.js"));
-            for (final String technology : technologies)
-            {
-                module.appendChild(createScriptElement(document, String.format("%s-dictionary.js",
-                        technology)));
-            }
-            // 'source' tag.
-            module.appendChild(createSourceElement(document, "generic/client/web/client"));
-            for (final String technology : technologies)
-            {
-                module.appendChild(createSourceElement(document, String.format(
-                        SOURCE_PATH_TEMPLATE, technology)));
-            }
-            // 'public' tag.
-            module.appendChild(createPublicElement(document, "public"));
-            module.appendChild(createPublicElement(document, "generic/client/web/public"));
-            for (final String technology : technologies)
-            {
-                if (technology.equals("generic"))
-                {
-                    continue;
-                }
-                module.appendChild(createPublicElement(document, String.format(
-                        PUBLIC_PATH_TEMPLATE, technology)));
-            }
-            return document;
-        } catch (final Exception e)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(e);
-        }
-    }
-
-    private final static Element createPublicElement(final Document document,
-            final String attributeValue)
-    {
-        final Element element = document.createElement(PUBLIC_ELEMENT);
-        element.setAttribute("path", attributeValue);
-        return element;
-    }
-
-    private final static Element createSourceElement(final Document document,
-            final String attributeValue)
-    {
-        final Element element = document.createElement(SOURCE_ELEMENT);
-        element.setAttribute("path", attributeValue);
-        return element;
-    }
-
-    private final static Element createEntryPointElement(final Document document,
-            final String attributeValue)
-    {
-        final Element element = document.createElement(ENTRY_POINT_ELEMENT);
-        element.setAttribute("class", attributeValue);
-        return element;
-    }
-
-    private final static Element createScriptElement(final Document document,
-            final String attributeValue)
-    {
-        final Element element = document.createElement(SCRIPT_ELEMENT);
-        element.setAttribute("src", attributeValue);
-        return element;
-    }
-
-    private final static Element createStylesheetElement(final Document document,
-            final String attributeValue)
-    {
-        final Element element = document.createElement(STYLESHEET_ELEMENT);
-        element.setAttribute("src", attributeValue);
-        return element;
-    }
-
-    private final static Element createInheritsElement(final Document document,
-            final String attributeValue)
-    {
-        final Element element = document.createElement(INHERITS_ELEMENT);
-        element.setAttribute("name", attributeValue);
-        return element;
-    }
-
-    private static void writeXmlFile(final Document doc, final File file)
-    {
-        try
-        {
-            final Source source = new DOMSource(doc);
-            final Result result = new StreamResult(file);
-            final Transformer transformer = TransformerFactory.newInstance().newTransformer();
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty(OutputKeys.METHOD, "xml");
-            transformer.transform(source, result);
-        } catch (final Exception e)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(e);
-        }
+        final StringBuilder builder = new StringBuilder();
+        builder.append(indent);
+        builder.append(String.format(template, technology));
+        builder.append(OSUtilities.LINE_SEPARATOR);
+        return builder;
     }
 
     /**
@@ -291,8 +171,39 @@ public final class WebClientFilesUpdater
     {
         final File openBISGwtXmlFile =
                 new File(workingDirectory, OPENBIS_PACKAGE_NAME + "/" + OPENBIS_GWT_XML_FILE_NAME);
-        final Document document = createXMLDocument(openBISGwtXmlFile);
-        writeXmlFile(document, openBISGwtXmlFile);
+        final String response = FileUtilities.checkFileFullyAccessible(openBISGwtXmlFile, "xml");
+        if (response != null)
+        {
+            throw new RuntimeException(response);
+        }
+        final StringBuilder builder = new StringBuilder(XML_MARKER_START);
+        final String sep = OSUtilities.LINE_SEPARATOR;
+        builder.append(sep);
+        final String indent = StringUtils.repeat(" ", 4);
+        boolean first = true;
+        for (final String technology : technologies)
+        {
+            if (first == false)
+            {
+                builder.append(sep);
+            }
+            first = false;
+            builder.append(indent);
+            builder.append(String.format("<!-- %s plugin -->", StringUtils.capitalize(technology)));
+            builder.append(sep);
+            // <script>-tag
+            builder.append(createTag(SCRIPT_TAG_TEMPLATE, indent, technology));
+            // <public>-tag
+            builder.append(createTag(PUBLIC_TAG_TEMPLATE, indent, technology));
+            // <source>-tag
+            builder.append(createTag(SOURCE_TAG_TEMPLATE, indent, technology));
+        }
+        builder.append(indent);
+        String content = FileUtilities.loadToString(openBISGwtXmlFile);
+        content =
+                content.substring(0, content.indexOf(XML_MARKER_START)) + builder.toString()
+                        + content.substring(content.indexOf(XML_MARKER_END), content.length());
+        FileUtilities.writeToFile(openBISGwtXmlFile, content);
     }
 
     /**
