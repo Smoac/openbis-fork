@@ -11,7 +11,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IClientPlu
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IGenericImageBundle;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IPageController;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.AbstractDictionaryBasedMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.CompositeMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
@@ -38,8 +37,7 @@ public final class ScreeningViewContext extends AbstractViewContext<IScreeningCl
         this.originalViewContext = originalViewContext;
         this.messageProvider =
                 new CompositeMessageProvider(new DictonaryBasedMessageProvider(TECHNOLOGY_NAME),
-                        (AbstractDictionaryBasedMessageProvider) originalViewContext
-                                .getMessageProvider());
+                        originalViewContext.getMessageProvider());
         this.service = createScreeningClientService();
     }
 

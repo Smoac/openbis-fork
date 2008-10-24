@@ -25,9 +25,9 @@ import java.util.MissingResourceException;
  */
 public final class CompositeMessageProvider implements IMessageProvider
 {
-    private final AbstractDictionaryBasedMessageProvider[] messageProviders;
+    private final IMessageProvider[] messageProviders;
 
-    public CompositeMessageProvider(final AbstractDictionaryBasedMessageProvider... messageProviders)
+    public CompositeMessageProvider(final IMessageProvider... messageProviders)
     {
         assert messageProviders != null : "Unspecified message providers.";
         assert messageProviders.length > 0 : "No message provider has been specified.";
@@ -38,9 +38,21 @@ public final class CompositeMessageProvider implements IMessageProvider
     // IMessageProvider
     //
 
+    public final boolean containsKey(final String key)
+    {
+        for (final IMessageProvider messageProvider : messageProviders)
+        {
+            if (messageProvider.containsKey(key))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public final String getMessage(final String key, final Object... parameters)
     {
-        for (final AbstractDictionaryBasedMessageProvider messageProvider : messageProviders)
+        for (final IMessageProvider messageProvider : messageProviders)
         {
             if (messageProvider.containsKey(key))
             {

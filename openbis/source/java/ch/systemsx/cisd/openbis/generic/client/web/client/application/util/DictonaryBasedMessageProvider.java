@@ -27,23 +27,27 @@ import com.google.gwt.i18n.client.Dictionary;
  * 
  * @author Franz-Josef Elmer
  */
-public final class DictonaryBasedMessageProvider extends AbstractDictionaryBasedMessageProvider
+public final class DictonaryBasedMessageProvider implements IMessageProvider
 {
-    /**
-     * Creates a new instance for the specified dictionary name.
-     */
-    public DictonaryBasedMessageProvider(final String dictonaryName)
+    private final Dictionary dictionary;
+
+    public DictonaryBasedMessageProvider(final String dictionaryName)
     {
-        super(dictonaryName);
+        this.dictionary = Dictionary.getDictionary(dictionaryName);
     }
 
     //
     // IMessageProvider
     //
 
+    /** Whether this implementation contains given <var>key</var>. */
+    public final boolean containsKey(final String key)
+    {
+        return dictionary.keySet().contains(key);
+    }
+
     public final String getMessage(final String key, final Object... parameters)
     {
-        final Dictionary dictionary = getDictionary();
         String message;
         try
         {

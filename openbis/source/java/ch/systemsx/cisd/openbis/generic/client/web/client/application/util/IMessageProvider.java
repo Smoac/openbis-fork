@@ -16,10 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
 
-
 /**
  * Interface of objects providing messages.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IMessageProvider
@@ -30,7 +29,10 @@ public interface IMessageProvider
      * etc.
      * <p>
      * If a message couldn't be found an error message is returned which includes the invalid key
-     * and information about the message source of this provider. 
+     * and information about the message source of this provider.
      */
     public String getMessage(String key, Object... parameters);
+
+    /** Whether this implementation contains given <var>key</var>. */
+    public boolean containsKey(String key);
 }

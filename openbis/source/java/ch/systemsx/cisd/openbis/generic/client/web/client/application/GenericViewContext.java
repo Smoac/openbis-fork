@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.AbstractDictionaryBasedMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
@@ -29,7 +28,7 @@ public final class GenericViewContext extends AbstractViewContext<IGenericClient
 {
     private final IGenericClientServiceAsync service;
 
-    private final AbstractDictionaryBasedMessageProvider messageProvider;
+    private final IMessageProvider messageProvider;
 
     private final IGenericImageBundle imageBundle;
 
@@ -40,8 +39,8 @@ public final class GenericViewContext extends AbstractViewContext<IGenericClient
     private final IClientPluginFactoryProvider clientPluginFactoryProvider;
 
     GenericViewContext(final IGenericClientServiceAsync service,
-            final AbstractDictionaryBasedMessageProvider messageProvider,
-            final IGenericImageBundle imageBundle, final IPageController pageController)
+            final IMessageProvider messageProvider, final IGenericImageBundle imageBundle,
+            final IPageController pageController)
     {
         this.service = service;
         this.messageProvider = messageProvider;

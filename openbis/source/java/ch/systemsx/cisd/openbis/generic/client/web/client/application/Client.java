@@ -22,8 +22,8 @@ import com.google.gwt.user.client.rpc.ServiceDefTarget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.AbstractDictionaryBasedMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 
 /**
@@ -41,14 +41,13 @@ public class Client implements EntryPoint
 
     private GenericViewContext createViewContext()
     {
-        IGenericClientServiceAsync service = GWT.create(IGenericClientService.class);
-        ServiceDefTarget endpoint = (ServiceDefTarget) service;
+        final IGenericClientServiceAsync service = GWT.create(IGenericClientService.class);
+        final ServiceDefTarget endpoint = (ServiceDefTarget) service;
         endpoint.setServiceEntryPoint(GenericConstants.GENERIC_SERVER_NAME);
-        IGenericImageBundle imageBundle =
+        final IGenericImageBundle imageBundle =
                 GWT.<IGenericImageBundle> create(IGenericImageBundle.class);
-        AbstractDictionaryBasedMessageProvider messageProvider =
-                new DictonaryBasedMessageProvider("generic");
-        IPageController pageController = new IPageController()
+        final IMessageProvider messageProvider = new DictonaryBasedMessageProvider("generic");
+        final IPageController pageController = new IPageController()
             {
                 public void reload()
                 {
@@ -72,7 +71,7 @@ public class Client implements EntryPoint
         service.getApplicationInfo(new AbstractAsyncCallback<ApplicationInfo>(viewContext)
             {
                 @Override
-                public void process(ApplicationInfo info)
+                public void process(final ApplicationInfo info)
                 {
                     viewContext.getModel().setApplicationInfo(info);
                     service.tryToGetCurrentSessionContext(new SessionContextCallback(
