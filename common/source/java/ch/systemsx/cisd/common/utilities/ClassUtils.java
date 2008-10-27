@@ -117,16 +117,7 @@ public final class ClassUtils
         {
         } catch (final InvocationTargetException ex)
         {
-            final Throwable cause = ex.getCause();
-            if (cause instanceof Error)
-            {
-                final Error error = (Error) cause;
-                throw error;
-            }
-            if (cause instanceof Exception)
-            {
-                throw CheckedExceptionTunnel.wrapIfNecessary((Exception) cause);
-            }
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex.getCause());
         } catch (final NoSuchMethodException ex)
         {
         }
