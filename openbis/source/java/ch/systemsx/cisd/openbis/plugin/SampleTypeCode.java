@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application;
+package ch.systemsx.cisd.openbis.plugin;
 
 /**
  * The <i>Screening</i> sample types.

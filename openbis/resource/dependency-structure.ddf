@@ -2,11 +2,10 @@
 
 {project} = ch.systemsx.cisd.openbis
 {generic} = ${project}.generic
+{plugin} = ${project}.plugin
 
 ##########################################
-#
 # Generic module
-#
 ##########################################
 
 [generic.client] = ${generic}.client.*
@@ -61,3 +60,72 @@ layer generic.server.4 = [generic.server.business]
 layer generic.server.5 = [generic.server-subpackages]
 
 check layeringOf generic.server.1 generic.server.2 generic.server.3 generic.server.4 generic.server.5 
+
+##########################################
+# Plugins
+##########################################
+
+{plugin.generic} = ${plugin}.generic
+{plugin.screening} = ${plugin}.screening
+
+[plugin.generic] = ${plugin.generic}.*
+[plugin.screening] = ${plugin.screening}.*
+
+check sets [plugin.generic] [plugin.screening]
+
+#ÊA technology can have dependencies to the 'generic' technology but not the other way around.
+check [plugin.generic] independentOf [plugin.screening]
+
+###########################################
+# Generic plugin
+
+# Dependencies between 'client', 'server' and 'shared' packages
+[plugin.generic.client] = ${plugin.generic}.client.*
+[plugin.generic.server] = ${plugin.generic}.server.*
+[plugin.generic.shared] = ${plugin.generic}.shared.*
+
+check sets [plugin.generic.client] [plugin.generic.server] [plugin.generic.shared]
+
+layer plugin.generic.client-server = [plugin.generic.client] [plugin.generic.server]
+layer plugin.generic.shared = [plugin.generic.shared]
+
+check layeringOf plugin.generic.shared plugin.generic.client-server
+
+# Dependencies between 'web.client' and 'web.server' packages
+{plugin.generic.web} = ${plugin.generic}.client.web
+
+[plugin.generic.web.client] = ${plugin.generic.web}.client.application.*
+[plugin.generic.web.server] = ${plugin.generic.web}.server.*
+
+check sets [plugin.generic.web.client] [plugin.generic.web.server]
+
+layer plugin.generic.web.client-server = [plugin.generic.web.client] [plugin.generic.web.server]
+
+check layeringOf plugin.generic.web.client-server
+
+###########################################
+# Screening plugin
+
+# Dependencies between 'client', 'server' and 'shared' packages
+[plugin.screening.client] = ${plugin.screening}.client.*
+[plugin.screening.server] = ${plugin.screening}.server.*
+[plugin.screening.shared] = ${plugin.screening}.shared.*
+
+check sets [plugin.screening.client] [plugin.screening.server] [plugin.screening.shared]
+
+layer plugin.screening.client-server = [plugin.screening.client] [plugin.screening.server]
+layer plugin.screening.shared = [plugin.screening.shared]
+
+check layeringOf plugin.screening.shared plugin.screening.client-server
+
+# Dependencies between 'web.client' and 'web.server' packages
+{plugin.screening.web} = ${plugin.screening}.client.web
+
+[plugin.screening.web.client] = ${plugin.screening.web}.client.application.*
+[plugin.screening.web.server] = ${plugin.screening.web}.server.*
+
+check sets [plugin.screening.web.client] [plugin.screening.web.server]
+
+layer plugin.screening.web.client-server = [plugin.screening.web.client] [plugin.screening.web.server]
+
+check layeringOf plugin.screening.web.client-server

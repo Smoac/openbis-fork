@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IClientPlu
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ISampleViewClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.SampleTypeCode;
+import ch.systemsx.cisd.openbis.plugin.SampleTypeCode;
 
 /**
  * {@link IClientPluginFactory} implementation for <i>Generic</i> technology.
