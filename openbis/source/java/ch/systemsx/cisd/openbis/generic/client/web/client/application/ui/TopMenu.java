@@ -20,6 +20,7 @@ import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
+import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
@@ -47,6 +48,7 @@ public class TopMenu extends LayoutContainer
         setBorders(true);
         final ToolBar toolBar = new ToolBar();
         final LabelToolItem userInfoText = new LabelToolItem(createUserInfo(viewContext));
+        toolBar.add(new FillToolItem());
         toolBar.add(userInfoText);
         toolBar.add(new SeparatorToolItem());
         toolBar.add(new LogoutButton(viewContext));

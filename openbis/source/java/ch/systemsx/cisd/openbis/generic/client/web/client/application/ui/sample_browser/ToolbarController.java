@@ -76,6 +76,16 @@ public class ToolbarController
                 sampleTypeSelected && (showGroupSamples && groupChosen || showInstanceSamples);
         submitButton.setEnabled(enable);
         exportButton.setEnabled(enable);
+        if (enable)
+        {
+            submitButton.setTitle("Load or update sample table");
+            exportButton.setTitle("Export sample table to excel file");
+        } else
+        {
+            final String msg = "HINT: To activate select group or shared checkbox";
+            submitButton.setTitle(msg);
+            exportButton.setTitle(msg);
+        }
 
     }
 

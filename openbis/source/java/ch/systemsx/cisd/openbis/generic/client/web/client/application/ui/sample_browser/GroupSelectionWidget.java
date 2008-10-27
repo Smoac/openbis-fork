@@ -19,6 +19,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
@@ -56,6 +59,13 @@ class GroupSelectionWidget extends ExtendedComboBox<GroupModel>
         setWidth(150);
         groupStore = new ListStore<GroupModel>();
         setStore(groupStore);
+        addListener(Events.OnClick, new Listener<BaseEvent>()
+            {
+                public void handleEvent(BaseEvent be)
+                {
+                    expand();
+                }
+            });
     }
 
     public Group tryGetSelected()

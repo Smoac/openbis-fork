@@ -27,6 +27,7 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
@@ -119,7 +120,6 @@ class SampleBrowserToolbar extends ToolBar
             {
                 public void handleEvent(final BaseEvent be)
                 {
-                    controller.resetPropertyCache(includeGroupCheckbox.getValue().booleanValue());
                     controller.refreshButtons();
                     controller.showOrHideGroupList();
                 }
@@ -132,8 +132,6 @@ class SampleBrowserToolbar extends ToolBar
             {
                 public void handleEvent(final BaseEvent be)
                 {
-                    controller
-                            .resetPropertyCache(includeInstanceCheckbox.getValue().booleanValue());
                     controller.refreshButtons();
                 }
             });
@@ -196,7 +194,7 @@ class SampleBrowserToolbar extends ToolBar
 
         add(columnChooser);
 
-        add(new SeparatorToolItem());
+        add(new FillToolItem());
 
         add(new AdapterToolItem(submitButton));
 
@@ -238,6 +236,8 @@ class SampleBrowserToolbar extends ToolBar
                 }
             });
         refreshButton.setId(REFRESH_BUTTON_ID);
+        // refreshButton.setStyleAttribute("border-color", "#ff0000");
+        refreshButton.setBorders(true);
         return refreshButton;
     }
 
@@ -284,6 +284,7 @@ class SampleBrowserToolbar extends ToolBar
 
                 }
             });
+        button.setBorders(true);
         return button;
     }
 
