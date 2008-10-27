@@ -11,6 +11,7 @@ var generic = {
   login_userLabel: "User",
   login_passwordLabel: "Password",
   login_buttonLabel: "login",
+  login_failed: "Sorry, you entered an invalid username or password.<br>Please try again.",
   
   //
   // AbstractAsyncCallback
@@ -21,6 +22,7 @@ var generic = {
   //
   // Header
   //
+  
   header_userWithoutHomegroup: "{0} (no home group)",
   header_userWithHomegroup: "{0} (home group: {1})",
   header_logoutButtonLabel: "logout",

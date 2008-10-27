@@ -40,7 +40,6 @@ public final class DictonaryBasedMessageProvider implements IMessageProvider
     // IMessageProvider
     //
 
-    /** Whether this implementation contains given <var>key</var>. */
     public final boolean containsKey(final String key)
     {
         return dictionary.keySet().contains(key);

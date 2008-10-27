@@ -46,7 +46,7 @@ public class Client implements EntryPoint
         endpoint.setServiceEntryPoint(GenericConstants.GENERIC_SERVER_NAME);
         final IGenericImageBundle imageBundle =
                 GWT.<IGenericImageBundle> create(IGenericImageBundle.class);
-        final IMessageProvider messageProvider = new DictonaryBasedMessageProvider("generic");
+        final IMessageProvider messageProvider = new DictonaryBasedMessageProvider("common");
         final IPageController pageController = new IPageController()
             {
                 public void reload()

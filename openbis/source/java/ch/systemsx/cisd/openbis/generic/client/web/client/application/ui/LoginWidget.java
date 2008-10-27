@@ -18,7 +18,10 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.event.WindowEvent;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.VerticalPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -30,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 
 /**
@@ -172,7 +176,23 @@ public class LoginWidget extends VerticalPanel
         @Override
         public final void process(final SessionContext sessionContext)
         {
-            viewContext.getPageController().reload();
+            final IMessageProvider messageProvider = viewContext.getMessageProvider();
+            if (sessionContext == null)
+            {
+                MessageBox.alert(messageProvider.getMessage("messagebox_warning"), messageProvider
+                        .getMessage("login_failed"), new Listener<WindowEvent>()
+                    {
+
+                        //
+                        // Listener
+                        //
+
+                        public void handleEvent(final WindowEvent be)
+                        {
+                            viewContext.getPageController().reload();
+                        }
+                    });
+            }
         }
     }
 }
