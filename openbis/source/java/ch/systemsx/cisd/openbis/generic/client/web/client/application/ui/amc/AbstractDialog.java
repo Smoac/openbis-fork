@@ -41,7 +41,7 @@ public abstract class AbstractDialog extends Dialog
         setScrollMode(Scroll.AUTO);
         setWidth(width);
         setHeight(height);
-        setBodyStyle("background-color: #ffffff;");
+        setBodyStyle("backgroundColor: #ffffff;");
         setHideOnButtonClick(true);
     }
 
