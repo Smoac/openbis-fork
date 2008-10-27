@@ -17,12 +17,9 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application;
 
 import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.widget.Dialog;
-import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -30,12 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractCl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ISampleViewClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AbstractDialog;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.SampleTypeCode;
 
 /**
@@ -89,7 +81,7 @@ public final class ClientPluginFactory extends
     private final class SampleViewClientPlugin implements ISampleViewClientPlugin
     {
 
-        SampleInfoCallback sampleInfoCallback;
+        SampleGenerationInfoCallback sampleInfoCallback;
 
         //
         // ISampleViewClientPlugin
@@ -102,16 +94,16 @@ public final class ClientPluginFactory extends
             {
                 sampleInfoCallback.destroy();
             }
-            sampleInfoCallback = new SampleInfoCallback(viewContext);
+            sampleInfoCallback = new SampleGenerationInfoCallback(viewContext);
             viewContext.getService().getSampleInfo(sampleIdentifier, sampleInfoCallback);
         }
     }
 
-    private final static class SampleInfoCallback extends AbstractAsyncCallback<Sample>
+    private final static class SampleGenerationInfoCallback extends AbstractAsyncCallback<SampleGeneration>
     {
         private Dialog dialog;
 
-        private SampleInfoCallback(final IViewContext<?> viewContext)
+        private SampleGenerationInfoCallback(final IViewContext<?> viewContext)
         {
             super(viewContext);
         }
@@ -129,57 +121,11 @@ public final class ClientPluginFactory extends
         //
 
         @Override
-        protected final void process(final Sample result)
+        protected final void process(final SampleGeneration result)
         {
-            final String title = result.getCode();
+            final String title = result.getGenerator().getCode();
             dialog = new GenericSampleViewer(title, viewContext.getMessageProvider(), result);
             dialog.show();
         }
     }
-
-    private final static class GenericSampleViewer extends AbstractDialog
-    {
-        private final Sample sample;
-
-        private final IMessageProvider messageProvider;
-
-        private GenericSampleViewer(final String heading, final IMessageProvider messageProvider,
-                final Sample sample)
-        {
-            super(heading);
-            this.sample = sample;
-            this.messageProvider = messageProvider;
-            addWidget();
-        }
-
-        private final static Map<String, Object> createProperties(
-                final IMessageProvider messageProvider, final Sample sample)
-        {
-            final Map<String, Object> properties = new LinkedHashMap<String, Object>();
-            properties.put(messageProvider.getMessage("sample"), sample);
-            properties.put(messageProvider.getMessage("sample_type"), sample.getSampleType());
-            properties.put(messageProvider.getMessage("registrator"), sample.getRegistrator());
-            properties.put(messageProvider.getMessage("registration_date"), sample
-                    .getRegistrationDate());
-            return properties;
-        }
-
-        //
-        // AbstractDialog
-        //
-
-        @Override
-        public final Widget getWidget()
-        {
-            final Map<String, Object> properties = createProperties(messageProvider, sample);
-            final PropertyGrid propertyGrid = new PropertyGrid(messageProvider, properties.size());
-            propertyGrid.registerPropertyValueRenderer(SampleType.class, PropertyValueRenderers
-                    .getSampleTypePropertyValueRenderer(messageProvider));
-            propertyGrid.registerPropertyValueRenderer(Sample.class, PropertyValueRenderers
-                    .getSamplePropertyValueRenderer(messageProvider));
-            propertyGrid.setProperties(properties);
-            return propertyGrid;
-        }
-    }
-
 }

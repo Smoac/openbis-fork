@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.DtoConverters;
@@ -49,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
@@ -351,10 +353,10 @@ public final class GenericClientService extends AbstractClientService implements
         {
             return samples;
         }
-		final List<SampleIdentifier> identifiers = extractIdentifiers(samples);
-		// TODO 2008-10-22, Izabela Adamczyk: make sample type the parameter of the method
-		final SampleType sampleType = samples.get(0).getSampleType();
-		final Map<SampleIdentifier, List<SamplePropertyPE>> samplesProperties =
+        final List<SampleIdentifier> identifiers = extractIdentifiers(samples);
+        // TODO 2008-10-22, Izabela Adamczyk: make sample type the parameter of the method
+        final SampleType sampleType = samples.get(0).getSampleType();
+        final Map<SampleIdentifier, List<SamplePropertyPE>> samplesProperties =
                 genericServer.listSamplesProperties(getSessionToken(), identifiers,
                         PropertyTypeTranslator.translate(propertyCodes));
         for (final Sample s : samples)
@@ -367,14 +369,16 @@ public final class GenericClientService extends AbstractClientService implements
         return samples;
     }
 
-    public final Sample getSampleInfo(final String sampleIdentifier)
+    public final SampleGeneration getSampleInfo(final String sampleIdentifier)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final SampleIdentifier identifier = SampleIdentifierFactory.parse(sampleIdentifier);
-            final SamplePE sample = genericServer.getSampleInfo(getSessionToken(), identifier);
-            return BeanUtils.createBean(Sample.class, sample, DtoConverters.getSampleConverter());
+            final SampleGenerationDTO sampleGeneration =
+                    genericServer.getSampleInfo(getSessionToken(), identifier);
+            return BeanUtils.createBean(SampleGeneration.class, sampleGeneration, DtoConverters
+                    .getSampleConverter());
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

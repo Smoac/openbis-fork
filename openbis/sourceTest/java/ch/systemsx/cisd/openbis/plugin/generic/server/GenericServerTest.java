@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server;
+package ch.systemsx.cisd.openbis.plugin.generic.server;
 
 import java.util.Arrays;
 import java.util.List;
@@ -23,20 +23,29 @@ import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
+import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
-import ch.systemsx.cisd.openbis.plugin.generic.server.GenericServerTestCase;
+import ch.systemsx.cisd.openbis.plugin.screening.server.ScreeningServer;
 
 /**
+ * Test cases for corresponding {@link ScreeningServer} class.
+ * 
  * @author Franz-Josef Elmer
  */
-public class GenericServerAuthenticationAuthorizationTest extends GenericServerTestCase
+public final class GenericServerTest extends AbstractServerTestCase
 {
-    
+
+    protected IGenericServer createServer()
+    {
+        return new GenericServer(authenticationService, sessionManager, daoFactory, boFactory);
+    }
+
     @Test
     public void testLogout()
     {
@@ -47,10 +56,10 @@ public class GenericServerAuthenticationAuthorizationTest extends GenericServerT
                 }
             });
         createServer().logout(SESSION_TOKEN);
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testTryToAuthenticateWhichFailed()
     {
@@ -63,12 +72,12 @@ public class GenericServerAuthenticationAuthorizationTest extends GenericServerT
                     will(returnValue(null));
                 }
             });
-        
+
         assertEquals(null, createServer().tryToAuthenticate(user, password));
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testFirstTryToAuthenticate()
     {
@@ -87,26 +96,26 @@ public class GenericServerAuthenticationAuthorizationTest extends GenericServerT
                 {
                     one(sessionManager).tryToOpenSession(user, password);
                     will(returnValue(SESSION_TOKEN));
-                    
+
                     one(sessionManager).getSession(SESSION_TOKEN);
                     will(returnValue(session));
-                    
+
                     one(personDAO).listPersons();
                     will(returnValue(Arrays.asList(systemPerson))); // only 'system' in database
-                    
+
                     one(personDAO).tryFindPersonByUserId(user); // first login
-                    will(returnValue(null)); 
-                    
+                    will(returnValue(null));
+
                     one(personDAO).createPerson(person);
                     one(roleAssignmentDAO).createRoleAssignment(roleAssignment);
                 }
             });
-        
+
         final Session s = createServer().tryToAuthenticate(user, password);
-        
+
         assertEquals(person, s.tryGetPerson());
         assertEquals(roleAssignment, s.tryGetPerson().getRoleAssignments().get(0));
-        
+
         context.assertIsSatisfied();
     }
 
@@ -177,7 +186,7 @@ public class GenericServerAuthenticationAuthorizationTest extends GenericServerT
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testListGroups()
     {
@@ -196,18 +205,18 @@ public class GenericServerAuthenticationAuthorizationTest extends GenericServerT
                     will(returnValue(Arrays.asList(g1, g2)));
                 }
             });
-        
+
         List<GroupPE> groups = createServer().listGroups(SESSION_TOKEN, identifier);
-        
+
         assertSame(g1, groups.get(0));
         assertSame(g2, groups.get(1));
         assertEquals(2, groups.size());
         assertEquals(true, g1.isHome().booleanValue());
         assertEquals(false, g2.isHome().booleanValue());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testRegisterGroup()
     {
@@ -220,17 +229,17 @@ public class GenericServerAuthenticationAuthorizationTest extends GenericServerT
                 {
                     one(boFactory).createGroupBO(session);
                     will(returnValue(groupBO));
-                    
+
                     one(groupBO).define(groupCode, description, leader);
                     one(groupBO).save();
                 }
             });
-        
+
         createServer().registerGroup(SESSION_TOKEN, groupCode, description, leader);
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testListPersons()
     {
@@ -243,15 +252,15 @@ public class GenericServerAuthenticationAuthorizationTest extends GenericServerT
                     will(returnValue(Arrays.asList(person)));
                 }
             });
-        
+
         List<PersonPE> persons = createServer().listPersons(SESSION_TOKEN);
-        
+
         assertSame(person, persons.get(0));
         assertEquals(1, persons.size());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testRegisterPerson()
     {
@@ -261,24 +270,24 @@ public class GenericServerAuthenticationAuthorizationTest extends GenericServerT
                 {
                     one(personDAO).tryFindPersonByUserId(USER_ID);
                     will(returnValue(null));
-                    
+
                     String applicationToken = "application-token";
                     one(authenticationService).authenticateApplication();
                     will(returnValue(applicationToken));
-                    
+
                     one(authenticationService).getPrincipal(applicationToken, USER_ID);
                     will(returnValue(PRINCIPAL));
-                    
+
                     PersonPE person = createPersonFromPrincipal(PRINCIPAL);
                     one(personDAO).createPerson(person);
                 }
             });
-        
+
         createServer().registerPerson(SESSION_TOKEN, USER_ID);
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testRegisterExistingPerson()
     {
@@ -290,7 +299,7 @@ public class GenericServerAuthenticationAuthorizationTest extends GenericServerT
                     will(returnValue(createPersonFromPrincipal(PRINCIPAL)));
                 }
             });
-        
+
         try
         {
             createServer().registerPerson(SESSION_TOKEN, USER_ID);
@@ -299,10 +308,10 @@ public class GenericServerAuthenticationAuthorizationTest extends GenericServerT
         {
             assertEquals("Person '" + USER_ID + "' already exists.", e.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testRegisterUnknownPerson()
     {
@@ -312,28 +321,29 @@ public class GenericServerAuthenticationAuthorizationTest extends GenericServerT
                 {
                     one(personDAO).tryFindPersonByUserId(USER_ID);
                     will(returnValue(null));
-                    
+
                     String applicationToken = "application-token";
                     one(authenticationService).authenticateApplication();
                     will(returnValue(applicationToken));
-                    
+
                     one(authenticationService).getPrincipal(applicationToken, USER_ID);
                     will(throwException(new IllegalArgumentException()));
                 }
             });
-        
+
         try
         {
             createServer().registerPerson(SESSION_TOKEN, USER_ID);
             fail("UserFailureException expected");
         } catch (UserFailureException e)
         {
-            assertEquals("Person '" + USER_ID + "' unknown by the authentication service.", e.getMessage());
+            assertEquals("Person '" + USER_ID + "' unknown by the authentication service.", e
+                    .getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testListRoles()
     {
@@ -346,12 +356,12 @@ public class GenericServerAuthenticationAuthorizationTest extends GenericServerT
                     will(returnValue(Arrays.asList(role)));
                 }
             });
-        
+
         List<RoleAssignmentPE> roles = createServer().listRoles(SESSION_TOKEN);
-        
+
         assertSame(role, roles.get(0));
         assertEquals(1, roles.size());
-        
+
         context.assertIsSatisfied();
     }
 }

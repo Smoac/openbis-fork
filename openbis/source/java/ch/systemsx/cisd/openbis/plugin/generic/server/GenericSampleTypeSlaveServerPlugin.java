@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.server;
+package ch.systemsx.cisd.openbis.plugin.generic.server;
 
 import java.util.List;
+
+import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleHierarchyFiller;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -24,13 +26,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.ISampleTypeSlaveServerPlugin;
+import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
 /**
- * The default slave server.
+ * The <i>generic</i> slave server.
  * 
  * @author Christian Ribeaud
  */
-public final class DefaultSlaveServerPlugin implements ISampleTypeSlaveServerPlugin
+@Component(ResourceNames.GENERIC_SAMPLE_TYPE_SLAVE_SERVER_PLUGIN)
+public final class GenericSampleTypeSlaveServerPlugin implements ISampleTypeSlaveServerPlugin
 {
 
     //

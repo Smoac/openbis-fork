@@ -29,7 +29,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.ISampleServerPlugin;
 import ch.systemsx.cisd.openbis.plugin.SampleServerPluginRegistry;
-import ch.systemsx.cisd.openbis.plugin.Technology;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 
@@ -42,8 +41,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 public final class ScreeningServer extends AbstractServer<IScreeningServer> implements
         IScreeningServer
 {
-    private static final Technology SCREENING_TECHNOLOGY = new Technology("SCREENING");
-
     public ScreeningServer()
     {
     }
@@ -88,7 +85,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         sampleBO.loadBySampleIdentifier(identifier);
         final SamplePE sample = sampleBO.getSample();
         final ISampleServerPlugin plugin =
-                SampleServerPluginRegistry.getPlugin(SCREENING_TECHNOLOGY, sample.getSampleType());
+                SampleServerPluginRegistry.getPlugin(this, sample.getSampleType());
         return plugin.getSlaveServer().getSampleInfo(getDAOFactory(), session, sample);
     }
 }

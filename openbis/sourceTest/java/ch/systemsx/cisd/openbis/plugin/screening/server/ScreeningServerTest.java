@@ -14,23 +14,16 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.shared;
+package ch.systemsx.cisd.openbis.plugin.screening.server;
+
+import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 
 /**
- * Resource name used in <i>screening</i> plug-in.
+ * Test cases for corresponding {@link ScreeningServer} class.
  * 
  * @author Christian Ribeaud
  */
-public final class ResourceNames
+public final class ScreeningServerTest extends AbstractServerTestCase
 {
-    private ResourceNames()
-    {
-        // Can not be instantiated.
-    }
 
-    public final static String SCREENING_SERVICE = "screening-service";
-
-    public final static String SCREENING_SERVER = "screening-server";
-
-    public final static String CELL_PLATE_SAMPLE_SERVER_PLUGIN = "cell-plate-sample-server-plugin";
 }

@@ -24,8 +24,10 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
+import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
-import ch.systemsx.cisd.openbis.plugin.screening.server.DefaultSampleServerPlugin;
+import ch.systemsx.cisd.openbis.plugin.generic.server.GenericSampleServerPlugin;
 
 /**
  * A sample server registry for plug-ins.
@@ -37,7 +39,7 @@ public final class SampleServerPluginRegistry
     private final static String PACKAGE_START = "ch.systemsx.cisd.openbis.plugin.";
 
     private final static ISampleServerPlugin GENERIC_SAMPLE_SERVER_PLUGIN =
-            new DefaultSampleServerPlugin();
+            new GenericSampleServerPlugin();
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, SampleServerPluginRegistry.class);
@@ -58,7 +60,7 @@ public final class SampleServerPluginRegistry
         assert plugin != null : "Unspecified plugin.";
         final String sampleTypeCode = plugin.getSampleTypeCode();
         assert sampleTypeCode != null : "Unspecified sample type code.";
-        final Technology technology = getTechnology(plugin);
+        final Technology technology = getTechnology(plugin.getClass());
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format(
@@ -77,9 +79,9 @@ public final class SampleServerPluginRegistry
         plugins.put(technologySampleType, plugin);
     }
 
-    private final static Technology getTechnology(final ISampleServerPlugin plugin)
+    private final static <T> Technology getTechnology(final Class<T> clazz)
     {
-        final String packageName = plugin.getClass().getPackage().getName();
+        final String packageName = clazz.getPackage().getName();
         assert packageName.startsWith(PACKAGE_START) : String.format(
                 "Package name '%s' does not start as expected '%s'.", packageName, PACKAGE_START);
         final int len = PACKAGE_START.length();
@@ -88,16 +90,20 @@ public final class SampleServerPluginRegistry
     }
 
     /**
-     * Returns the appropriate plug-in for given sample type and given technology.
+     * Returns the appropriate plug-in for given sample type.
      * 
-     * @return never <code>null</code> but could return the generic implementation if none has
-     *         been found for given technology and given sample type.
+     * @return never <code>null</code> but could return the <i>generic</i> implementation if none
+     *         has been found for given sample type.
      */
-    public final static synchronized ISampleServerPlugin getPlugin(final Technology technology,
-            final SampleTypePE sampleType)
+    public final static synchronized <T extends IServer> ISampleServerPlugin getPlugin(
+            final T server, final SampleTypePE sampleType)
     {
-        assert technology != null : "Unspecified technology.";
         assert sampleType != null : "Unspecified sample type.";
+        if (server instanceof IGenericServer)
+        {
+            return GENERIC_SAMPLE_SERVER_PLUGIN;
+        }
+        final Technology technology = getTechnology(server.getClass());
         final ISampleServerPlugin sampleServerPlugin =
                 plugins.get(new TechnologySampleType(technology, sampleType.getCode()));
         if (sampleServerPlugin == null)

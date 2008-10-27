@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
@@ -53,6 +54,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceId
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
+import ch.systemsx.cisd.openbis.plugin.ISampleServerPlugin;
+import ch.systemsx.cisd.openbis.plugin.SampleServerPluginRegistry;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
 /**
@@ -287,12 +290,16 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 propertyCodes);
     }
 
-    public final SamplePE getSampleInfo(final String sessionToken, final SampleIdentifier identifier)
+    public final SampleGenerationDTO getSampleInfo(final String sessionToken,
+            final SampleIdentifier identifier)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final ISampleBO sampleBO = getBusinessObjectFactory().createSampleBO(session);
         sampleBO.loadBySampleIdentifier(identifier);
-        return sampleBO.getSample();
+        final SamplePE sample = sampleBO.getSample();
+        final ISampleServerPlugin plugin =
+                SampleServerPluginRegistry.getPlugin(this, sample.getSampleType());
+        return plugin.getSlaveServer().getSampleInfo(getDAOFactory(), session, sample);
     }
 
 }

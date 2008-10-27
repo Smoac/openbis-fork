@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.generic.server;
+package ch.systemsx.cisd.openbis.generic.shared;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -32,18 +32,17 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
-import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
- * Unit tests for {@link GenericServer}.
+ * An <i>abstract</i> test infrastructure for {@link IServer} implementations.
  * 
  * @author Franz-Josef Elmer
  */
-public abstract class GenericServerTestCase extends AssertJUnit
+public abstract class AbstractServerTestCase extends AssertJUnit
 {
     protected static final String HOME_DATABASE_INSTANCE_CODE = "HOME_DATABASE";
 
@@ -118,24 +117,19 @@ public abstract class GenericServerTestCase extends AssertJUnit
         context.assertIsSatisfied();
     }
 
-    protected IGenericServer createServer()
-    {
-        return new GenericServer(authenticationService, sessionManager, daoFactory, boFactory);
-    }
-
     protected Session createExampleSession()
     {
         return new Session(USER_ID, SESSION_TOKEN, PRINCIPAL, "remote-host", 1);
     }
 
-    protected DatabaseInstancePE createDatabaseInstance(String code)
+    protected DatabaseInstancePE createDatabaseInstance(final String code)
     {
         final DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
         databaseInstance.setCode(code);
         return databaseInstance;
     }
 
-    protected PersonPE createPersonFromPrincipal(Principal principal)
+    protected PersonPE createPersonFromPrincipal(final Principal principal)
     {
         final PersonPE person = new PersonPE();
         person.setUserId(principal.getUserId());
@@ -145,9 +139,9 @@ public abstract class GenericServerTestCase extends AssertJUnit
         return person;
     }
 
-    protected GroupPE createGroup(String groupCode, DatabaseInstancePE databaseInstance)
+    protected GroupPE createGroup(final String groupCode, final DatabaseInstancePE databaseInstance)
     {
-        GroupPE group = new GroupPE();
+        final GroupPE group = new GroupPE();
         group.setCode(groupCode);
         group.setDatabaseInstance(databaseInstance);
         return group;

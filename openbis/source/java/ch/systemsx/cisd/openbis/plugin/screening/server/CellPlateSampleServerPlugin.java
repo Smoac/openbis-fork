@@ -18,30 +18,29 @@ package ch.systemsx.cisd.openbis.plugin.screening.server;
 
 import org.springframework.stereotype.Component;
 
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.AbstractSampleServerPlugin;
 import ch.systemsx.cisd.openbis.plugin.ISampleServerPlugin;
 import ch.systemsx.cisd.openbis.plugin.ISampleTypeSlaveServerPlugin;
+import ch.systemsx.cisd.openbis.plugin.SampleServerPluginRegistry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 
 /**
  * The {@link ISampleServerPlugin} implementation for <i>Cell Plate</i> plates.
+ * <p>
+ * This class is annotated with {@link Component} so that it automatically gets registered to
+ * {@link SampleServerPluginRegistry} by <i>Spring</i>.
+ * </p>
  * 
  * @author Christian Ribeaud
  */
-// TODO 2008-10-22, Christian Ribeaud: Finish integration of this sample server plugin.
-@Component(ResourceNames.CELL_PLATE_SAMPLE_SERVER)
+@Component(ResourceNames.CELL_PLATE_SAMPLE_SERVER_PLUGIN)
 public final class CellPlateSampleServerPlugin extends AbstractSampleServerPlugin
 {
+    private static final String CELL_PLATE_TYPE_CODE = "CELL_PLATE";
 
     private CellPlateSampleServerPlugin()
     {
     }
-
-    private static final String CELL_PLATE_TYPE_CODE = "CELL_PLATE";
 
     //
     // ISampleServerPlugin
@@ -54,32 +53,6 @@ public final class CellPlateSampleServerPlugin extends AbstractSampleServerPlugi
 
     public final ISampleTypeSlaveServerPlugin getSlaveServer()
     {
-        return CellPlateSlaveServerPlugin.INSTANCE;
-    }
-
-    //
-    // Helper classes
-    //
-
-    private final static class CellPlateSlaveServerPlugin implements ISampleTypeSlaveServerPlugin
-    {
-        static final ISampleTypeSlaveServerPlugin INSTANCE = new CellPlateSlaveServerPlugin();
-
-        private CellPlateSlaveServerPlugin()
-        {
-        }
-
-        //
-        // ISlaveServerPlugin
-        //
-
-        public final SampleGenerationDTO getSampleInfo(final IDAOFactory factory,
-                final Session session, final SamplePE sample)
-        {
-            sample.ensurePropertiesAreLoaded();
-            final SampleGenerationDTO sampleGeneration = new SampleGenerationDTO();
-            sampleGeneration.setGenerator(sample);
-            return sampleGeneration;
-        }
+        return getGenericSampleTypeSlaveServerPlugin();
     }
 }
