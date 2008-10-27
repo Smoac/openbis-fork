@@ -16,10 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import java.util.ArrayList;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoginWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.CheckListSamples;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.ListSamples;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
-import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.WaitFor;
 
 /**
  * A {@link AbstractGWTTestCase} extension to test <i>AMC</i>.
@@ -31,13 +34,9 @@ public class SampleBrowserTest extends AbstractGWTTestCase
 
     public final void testListSamples()
     {
-        // TODO 2008-10-22, Izabela Adamczyk: finish this test once we have system test framework
-        // allowing more than one callback
         remoteConsole.prepare(new Login("test", "a"));
-        // TODO 2008-10-27, Franz-Josef Elmer: remove next line when this test is finished
-        remoteConsole.prepare(new WaitFor(LoginWidget.LoginCallback.class));
-        // remoteConsole.prepare(new ListSamples("MASTER_PLATE", "3V", true, true));
-        // remoteConsole.prepare(new CheckListSamples(new ArrayList<Sample>())).finish(10000);
+        remoteConsole.prepare(new ListSamples("MASTER_PLATE", "3V", true, true));
+        remoteConsole.prepare(new CheckListSamples(new ArrayList<Sample>())).finish(10000);
         remoteConsole.finish(10000);
         client.onModuleLoad();
     }

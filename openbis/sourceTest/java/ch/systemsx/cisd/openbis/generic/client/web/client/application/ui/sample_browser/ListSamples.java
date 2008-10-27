@@ -42,7 +42,8 @@ public final class ListSamples extends AbstractDefaultTestCommand
     public ListSamples(final String sampleTypeNameOrNull, final String groupNameOrNull,
             final boolean includeGroup, final boolean includeShared)
     {
-        super(SampleBrowserGrid.ListSamplesCallback.class);
+        addCallbackClass(GroupSelectionWidget.ListGroupsCallback.class);
+        addCallbackClass(SampleTypeSelectionWidget.ListSampleTypesCallback.class);
         assert sampleTypeNameOrNull != null && groupNameOrNull != null;
         this.sampleTypeNameOrNull = sampleTypeNameOrNull;
         this.groupNameOrNull = groupNameOrNull;
