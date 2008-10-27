@@ -17,12 +17,12 @@
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
 import java.util.List;
-import java.util.Map;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
@@ -35,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
 /**
  * Logger class for {@link GenericServer} which creates readable logs of method invocations.
@@ -133,18 +132,18 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     }
 
     public final List<SamplePE> listSamples(final String sessionToken,
-            final List<SampleOwnerIdentifier> ownerIdentifiers, final SampleTypePE sampleType)
+            final ListSampleCriteriaDTO criteria)
     {
-        logAccess(sessionToken, "list_samples", "TYPE(%s) OWNERS(%s)", sampleType, ownerIdentifiers);
+        logAccess(sessionToken, "list_samples", "TYPE(%s) OWNERS(%s)", criteria.getSampleType(),
+                criteria.getOwnerIdentifiers());
         return null;
     }
 
-    public final Map<SampleIdentifier, List<SamplePropertyPE>> listSamplesProperties(
-            final String sessionToken, final List<SampleIdentifier> samples,
-            final List<PropertyTypePE> propertyCodes)
+    public final List<SamplePropertyPE> listSamplesProperties(final String sessionToken,
+            final ListSampleCriteriaDTO criteria, final List<PropertyTypePE> propertyCodes)
     {
-        logAccess(sessionToken, "list_samples_properties", "SAMPLES(%s) PROPERTIES(%s)", samples
-                .size(), propertyCodes.size());
+        logAccess(sessionToken, "list_samples_properties", "CRITERIA(%s) PROPERTIES(%s)", criteria,
+                propertyCodes.size());
         return null;
     }
 

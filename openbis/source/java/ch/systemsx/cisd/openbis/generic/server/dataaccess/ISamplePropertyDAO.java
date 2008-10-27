@@ -17,13 +17,13 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
 /**
  * An interface that contains all data access operations on {@link SamplePropertyPE}s.
@@ -33,11 +33,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 public interface ISamplePropertyDAO
 {
     /**
-     * Returns {@link SamplePropertyPE}s for given list of {@link SampleIdentifier}s and list of
-     * property types.
+     * Returns {@link SamplePropertyPE}s for all samples fullfiling given criteria.
      */
-    public Map<SampleIdentifier, List<SamplePropertyPE>> listSampleProperties(
-            List<SampleIdentifier> samples, List<PropertyTypePE> propertyCodes)
-            throws DataAccessException;
+    public List<SamplePropertyPE> listSampleProperties(SampleOwnerIdentifier ownerIdentifier,
+            SampleTypePE sampleType, List<PropertyTypePE> propertyCodes) throws DataAccessException;
 
 }

@@ -86,11 +86,7 @@ public class DtoConverters
                             @Override
                             protected final SampleProperty convert(final SamplePropertyPE property)
                             {
-                                final SampleTypePE entityType =
-                                        (SampleTypePE) property.getEntityTypePropertyType()
-                                                .getEntityType();
-                                return SamplePropertyTranslator.translate(property,
-                                        SampleTypeTranslator.translate(entityType));
+                                return SamplePropertyTranslator.translate(property);
                             }
                         };
         }

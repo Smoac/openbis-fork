@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwnerFinde
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
@@ -44,18 +45,18 @@ public final class SampleTable extends AbstractBusinessObject implements ISample
         this.daoFactory = daoFactory;
     }
 
-    public List<SamplePE> listSamples(final SampleTypePE sampleTypeExample,
-            final List<SampleOwnerIdentifier> ownerIdentifiers)
+    public List<SamplePE> listSamples(final ListSampleCriteriaDTO criteria)
     {
-        final SampleTypePE sampleType = getSampleTypeDAO().tryFindByExample(sampleTypeExample);
+        final SampleTypePE sampleType =
+                getSampleTypeDAO().tryFindByExample(criteria.getSampleType());
         if (sampleType == null)
         {
             throw new UserFailureException("Cannot find a sample type matching to "
-                    + sampleTypeExample);
+                    + criteria.getSampleType());
         }
         final SampleOwnerFinder finder = new SampleOwnerFinder(daoFactory, findRegistrator());
         final List<SamplePE> samples = new ArrayList<SamplePE>();
-        for (final SampleOwnerIdentifier sampleOwnerIdentifier : ownerIdentifiers)
+        for (final SampleOwnerIdentifier sampleOwnerIdentifier : criteria.getOwnerIdentifiers())
         {
             final SampleOwner owner = finder.figureSampleOwner(sampleOwnerIdentifier);
             samples.addAll(listSamples(sampleType, owner));

@@ -34,21 +34,19 @@ public class SampleTypePropertyTypeTranslator
     {
     }
 
-    public static SampleTypePropertyType translate(final SampleTypePropertyTypePE s,
-            final SampleType sampleType)
+    public static SampleTypePropertyType translate(final SampleTypePropertyTypePE s)
     {
         final SampleTypePropertyType result = new SampleTypePropertyType();
         result.setDisplayed(s.isDisplayed());
         result.setManagedInternally(s.isManagedInternally());
         result.setMandatory(s.isMandatory());
         result.setPropertyType(PropertyTypeTranslator.translate(s.getPropertyType()));
-        result.setEntityType(sampleType);
         return result;
 
     }
 
     public static List<SampleTypePropertyType> translate(final List<SampleTypePropertyTypePE> list,
-            final SampleType sampleType)
+            SampleType sampleType)
     {
         final List<SampleTypePropertyType> result = new ArrayList<SampleTypePropertyType>();
         if (Hibernate.isInitialized(list) == false)
@@ -57,7 +55,9 @@ public class SampleTypePropertyTypeTranslator
         }
         for (final SampleTypePropertyTypePE st : list)
         {
-            result.add(translate(st, sampleType));
+            SampleTypePropertyType etpt = translate(st);
+            etpt.setEntityType(sampleType);
+            result.add(etpt);
         }
         return result;
 

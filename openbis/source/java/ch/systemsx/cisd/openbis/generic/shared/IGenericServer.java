@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.shared;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAll
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.GroupValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
@@ -39,7 +39,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
 /**
  * Definition of the client-server interface.
@@ -129,16 +128,15 @@ public interface IGenericServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<SamplePE> listSamples(String sessionToken,
-            List<SampleOwnerIdentifier> ownerIdentifiers, SampleTypePE sampleType);
+    public List<SamplePE> listSamples(String sessionToken, ListSampleCriteriaDTO criteria);
 
     /**
      * Lists chosen properties for given samples.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public Map<SampleIdentifier, List<SamplePropertyPE>> listSamplesProperties(String sessionToken,
-            List<SampleIdentifier> sampleIdentifiers, List<PropertyTypePE> list);
+    public List<SamplePropertyPE> listSamplesProperties(String sessionToken,
+            ListSampleCriteriaDTO criteria, List<PropertyTypePE> propertyCodes);
 
     /**
      * For given {@link SampleIdentifier} returns the corresponding {@link SamplePE}.

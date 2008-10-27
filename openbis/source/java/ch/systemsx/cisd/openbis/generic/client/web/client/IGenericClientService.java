@@ -17,13 +17,16 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client;
 
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
@@ -90,12 +93,15 @@ public interface IGenericClientService extends IClientService
     /**
      * Returns a list of samples for given sample type.
      */
-    public List<Sample> listSamples(SampleType sampleType, String groupCode, boolean includeGroup,
-            boolean includeInstance, List<PropertyType> propertyCodes) throws UserFailureException;
-
-    /** Returns a list of samples with updated properties */
-    public List<Sample> updateSamples(List<Sample> samples, List<PropertyType> propertyCodes)
+    public List<Sample> listSamples(ListSampleCriteria criteria, List<PropertyType> propertyCodes)
             throws UserFailureException;
+
+    /**
+     * Returns a list of sample properties for each sample fulfilling the specified criteria. The
+     * key is the sample technical id.
+     */
+    public Map<Long, List<SampleProperty>> listSamplesProperties(ListSampleCriteria criteria,
+            List<PropertyType> propertyCodes) throws UserFailureException;
 
     /**
      * For given <var>sampleIdentifier</var> returns corresponding {@link Sample}.

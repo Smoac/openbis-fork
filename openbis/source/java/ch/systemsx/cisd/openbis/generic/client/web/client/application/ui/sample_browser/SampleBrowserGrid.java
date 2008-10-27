@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.data.BaseListLoader;
@@ -45,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParentColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
 /**
@@ -104,8 +106,8 @@ class SampleBrowserGrid extends LayoutContainer
                 {
                     if (oldConfiguration.majorChange(newConfiguration))
                     {
-                        viewContext.getService().listSamples(sampleType, selectedGroupCode,
-                                showGroup, showInstance, propertyColumns.getDirtyColumns(),
+                        viewContext.getService().listSamples(newConfiguration.getCriterias(),
+                                propertyColumns.getDirtyColumns(),
                                 new ListSamplesCallback(viewContext, callback));
                         return;
                     }
@@ -117,9 +119,16 @@ class SampleBrowserGrid extends LayoutContainer
 
                     if (propertyColumns.isDirty())
                     {
-                        viewContext.getService().updateSamples(extractSamplesFromModel(models),
-                                propertyColumns.getDirtyColumns(),
-                                new ListSamplesCallback(viewContext, callback));
+                        List<Sample> currentSamples = extractSamplesFromModel(models);
+                        if (currentSamples.size() > 0)
+                        {
+                            viewContext.getService()
+                                    .listSamplesProperties(
+                                            newConfiguration.getCriterias(),
+                                            propertyColumns.getDirtyColumns(),
+                                            new UpdateSamplesCallback(viewContext, currentSamples,
+                                                    callback));
+                        }
                         return;
                     }
 
@@ -256,6 +265,58 @@ class SampleBrowserGrid extends LayoutContainer
         return new ColumnModel(configs);
     }
 
+    final class UpdateSamplesCallback extends
+            AbstractAsyncCallback<Map<Long, List<SampleProperty>>>
+    {
+        private final AsyncCallback<List<SampleModel>> delegate;
+
+        private final List<Sample> currentSamples;
+
+        UpdateSamplesCallback(final GenericViewContext viewContext,
+                final List<Sample> currentSamples, final AsyncCallback<List<SampleModel>> delegate)
+        {
+            super(viewContext);
+            this.delegate = delegate;
+            this.currentSamples = currentSamples;
+        }
+
+        @Override
+        protected void finishOnFailure(final Throwable caught)
+        {
+            delegate.onFailure(caught);
+        }
+
+        @Override
+        protected final void process(final Map<Long, List<SampleProperty>> result)
+        {
+            setSampleProperties(currentSamples, result);
+            final List<SampleModel> sampleModels = asSampleModels(currentSamples);
+            oldConfiguration.update(newConfiguration);
+            updateLoadedPropertyColumns();
+            delegate.onSuccess(sampleModels);
+        }
+
+        private void setSampleProperties(final List<Sample> samples,
+                final Map<Long, List<SampleProperty>> propertiesMap)
+        {
+            for (final Sample sample : samples)
+            {
+                long sampleId = sample.getId();
+                List<SampleProperty> props = sample.getProperties();
+                if (props == null)
+                {
+                    props = new ArrayList<SampleProperty>();
+                }
+                final List<SampleProperty> list = propertiesMap.get(sampleId);
+                if (list != null)
+                {
+                    props.addAll(list);
+                }
+                sample.setProperties(props);
+            }
+        }
+    }
+
     final class ListSamplesCallback extends AbstractAsyncCallback<List<Sample>>
     {
         private final AsyncCallback<List<SampleModel>> delegate;
@@ -267,10 +328,6 @@ class SampleBrowserGrid extends LayoutContainer
             this.delegate = delegate;
         }
 
-        //
-        // AbstractAsyncCallback
-        //
-
         @Override
         protected void finishOnFailure(final Throwable caught)
         {
@@ -280,27 +337,30 @@ class SampleBrowserGrid extends LayoutContainer
         @Override
         protected final void process(final List<Sample> result)
         {
-            final List<SampleModel> sampleModels = new ArrayList<SampleModel>(result.size());
-            for (final Sample sample : result)
-            {
-                sampleModels.add(new SampleModel(sample));
-            }
+            final List<SampleModel> sampleModels = asSampleModels(result);
             oldConfiguration.update(newConfiguration);
             updateLoadedPropertyColumns();
             delegate.onSuccess(sampleModels);
         }
     }
 
+    private static List<SampleModel> asSampleModels(final List<Sample> samples)
+    {
+        final List<SampleModel> sampleModels = new ArrayList<SampleModel>(samples.size());
+        for (final Sample sample : samples)
+        {
+            sampleModels.add(new SampleModel(sample));
+        }
+        return sampleModels;
+    }
+
     private void updateLoadedPropertyColumns()
     {
-        if (propertyColumns.isDirty())
+        for (LoadableColumnConfig cc : propertyColumns.getColumns())
         {
-            for (LoadableColumnConfig cc : propertyColumns.getColumns())
+            if (cc.isDirty())
             {
-                if (cc.isDirty())
-                {
-                    cc.setLoaded(true);
-                }
+                cc.setLoaded(true);
             }
         }
     }

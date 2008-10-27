@@ -33,6 +33,8 @@ public class Sample implements IsSerializable
 {
     public static final Sample[] EMPTY_ARRAY = new Sample[0];
 
+    private long id;
+
     private String code;
 
     private SampleType sampleType;
@@ -179,4 +181,13 @@ public class Sample implements IsSerializable
         this.validProcedure = validProcedure;
     }
 
+    public long getId()
+    {
+        return id;
+    }
+
+    public void setId(long id)
+    {
+        this.id = id;
+    }
 }

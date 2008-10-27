@@ -36,6 +36,7 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CommonColumns;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParentColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
@@ -83,9 +84,8 @@ public final class FileExportServiceServlet implements InitializingBean,
             columns.addAll(propertyColumns.getColumns());
 
             final List<Sample> samples =
-                    service.listSamples(parameters.getSampleType(), parameters.getGroup(),
-                            parameters.isIncludeGroup(), parameters.isIncludeShared(), parameters
-                                    .getPropertyTypes());
+                    service.listSamples(createListCriteria(parameters), parameters
+                            .getPropertyTypes());
 
             final List<SampleModel> sampleModels = new ArrayList<SampleModel>();
             for (final Sample s : samples)
@@ -99,6 +99,16 @@ public final class FileExportServiceServlet implements InitializingBean,
             throw UserFailureExceptionTranslator.translate(e);
         }
 
+    }
+
+    private static ListSampleCriteria createListCriteria(SampleRequestParameters parameters)
+    {
+        ListSampleCriteria criteria = new ListSampleCriteria();
+        criteria.setSampleType(parameters.getSampleType());
+        criteria.setGroupCode(parameters.getGroup());
+        criteria.setIncludeGroup(parameters.isIncludeGroup());
+        criteria.setIncludeInstance(parameters.isIncludeShared());
+        return criteria;
     }
 
     private final String createFile(final List<SampleModel> models, final List<ColumnConfig> columns)

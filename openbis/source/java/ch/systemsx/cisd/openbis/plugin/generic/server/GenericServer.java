@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -36,10 +36,12 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISamplePropertyDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
@@ -272,22 +274,33 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     }
 
     public final List<SamplePE> listSamples(final String sessionToken,
-            final List<SampleOwnerIdentifier> ownerIdentifiers, final SampleTypePE sampleType)
+            final ListSampleCriteriaDTO criteria)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final List<SamplePE> samples =
-                getBusinessObjectFactory().createSampleTable(session).listSamples(sampleType,
-                        ownerIdentifiers);
+                getBusinessObjectFactory().createSampleTable(session).listSamples(criteria);
         return samples;
     }
 
-    public Map<SampleIdentifier, List<SamplePropertyPE>> listSamplesProperties(
-            final String sessionToken, final List<SampleIdentifier> sampleIdentifiers,
-            final List<PropertyTypePE> propertyCodes)
+    public List<SamplePropertyPE> listSamplesProperties(final String sessionToken,
+            final ListSampleCriteriaDTO criteria, final List<PropertyTypePE> propertyCodes)
     {
         getSessionManager().getSession(sessionToken);
-        return getDAOFactory().getSamplePropertyDAO().listSampleProperties(sampleIdentifiers,
-                propertyCodes);
+        List<SamplePropertyPE> result = new LinkedList<SamplePropertyPE>();
+        if (propertyCodes.isEmpty())
+        {
+            return result;
+        }
+        ISamplePropertyDAO samplePropertyDAO = getDAOFactory().getSamplePropertyDAO();
+        List<SampleOwnerIdentifier> owners = criteria.getOwnerIdentifiers();
+        for (SampleOwnerIdentifier owner : owners)
+        {
+            List<SamplePropertyPE> props =
+                    samplePropertyDAO.listSampleProperties(owner, criteria.getSampleType(),
+                            propertyCodes);
+            result.addAll(props);
+        }
+        return result;
     }
 
     public final SampleGenerationDTO getSampleInfo(final String sessionToken,

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.server;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,7 +28,9 @@ import org.springframework.stereotype.Component;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
@@ -47,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.util.UserFailureExcept
 import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
@@ -91,35 +95,6 @@ public final class GenericClientService extends AbstractClientService implements
         } else
         {
             throw new IllegalArgumentException("Unknown role set");
-        }
-    }
-
-    private final List<SampleIdentifier> extractIdentifiers(final List<Sample> samples)
-    {
-        final List<SampleIdentifier> identifiers = new ArrayList<SampleIdentifier>();
-        for (final Sample s : samples)
-        {
-            identifiers.add(extractIdentifier(s));
-        }
-        return identifiers;
-    }
-
-    private final SampleIdentifier extractIdentifier(final Sample s)
-    {
-        if (s.getGroup() != null)
-        {
-            final String groupInstanceCode =
-                    s.getGroup().getInstance() == null ? null : s.getGroup().getInstance()
-                            .getCode();
-            final String groupCode = s.getGroup().getCode();
-            final GroupIdentifier groupIdentifer =
-                    new GroupIdentifier(new DatabaseInstanceIdentifier(groupInstanceCode),
-                            groupCode);
-            return new SampleIdentifier(groupIdentifer, s.getCode());
-        } else
-        {
-            final String instanceCode = s.getDatabaseInstance().getCode();
-            return new SampleIdentifier(new DatabaseInstanceIdentifier(instanceCode), s.getCode());
         }
     }
 
@@ -301,43 +276,25 @@ public final class GenericClientService extends AbstractClientService implements
         }
     }
 
-    public List<Sample> listSamples(final SampleType sampleType, final String groupCode,
-            final boolean includeGroup, final boolean includeInstance,
+    public List<Sample> listSamples(final ListSampleCriteria listCriteria,
             final List<PropertyType> propertyCodes)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
-            final List<SampleOwnerIdentifier> ownerIdentifiers =
-                    new ArrayList<SampleOwnerIdentifier>();
-            if (includeGroup)
-            {
-                ownerIdentifiers.add(new SampleOwnerIdentifier(new GroupIdentifier(
-                        DatabaseInstanceIdentifier.HOME, groupCode)));
-            }
-            if (includeInstance)
-            {
-                ownerIdentifiers.add(new SampleOwnerIdentifier(DatabaseInstanceIdentifier
-                        .createHome()));
-            }
-            final List<SamplePE> samplePEs =
-                    genericServer.listSamples(getSessionToken(), ownerIdentifiers,
-                            SampleTypeTranslator.translate(sampleType));
+            final ListSampleCriteriaDTO criteria = createCriteriaDTO(listCriteria);
 
-            final List<SampleIdentifier> identifiers = new ArrayList<SampleIdentifier>();
-            for (final SamplePE s : samplePEs)
-            {
-                identifiers.add(s.getSampleIdentifier());
-            }
-            final Map<SampleIdentifier, List<SamplePropertyPE>> samplesProperties =
-                    genericServer.listSamplesProperties(getSessionToken(), identifiers,
-                            PropertyTypeTranslator.translate(propertyCodes));
-
+            final List<SamplePE> samplePEs = genericServer.listSamples(getSessionToken(), criteria);
             final List<Sample> result = new ArrayList<Sample>();
             for (final SamplePE sample : samplePEs)
             {
-                result.add(SampleTranslator.translate(sample, sampleType, samplesProperties));
+                result.add(SampleTranslator.translate(sample));
             }
+
+            final List<SamplePropertyPE> propertiesMap =
+                    genericServer.listSamplesProperties(getSessionToken(), criteria,
+                            PropertyTypeTranslator.translate(propertyCodes));
+            setSampleProperties(result, propertiesMap);
             return result;
         } catch (final UserFailureException e)
         {
@@ -345,28 +302,89 @@ public final class GenericClientService extends AbstractClientService implements
         }
     }
 
-    public List<Sample> updateSamples(final List<Sample> samples,
-            final List<PropertyType> propertyCodes)
+    private static void setSampleProperties(final List<Sample> samples,
+            List<SamplePropertyPE> properties)
+    {
+        final Map<Long, List<SampleProperty>> propertiesMap = splitForSamples(properties);
+        for (final Sample sample : samples)
+        {
+            long sampleId = sample.getId();
+            List<SampleProperty> props = sample.getProperties();
+            if (props == null)
+            {
+                props = new ArrayList<SampleProperty>();
+            }
+            final List<SampleProperty> list = propertiesMap.get(sampleId);
+            if (list != null)
+            {
+                props.addAll(list);
+            }
+            sample.setProperties(props);
+        }
+    }
+
+    private static ListSampleCriteriaDTO createCriteriaDTO(final ListSampleCriteria listCriteria)
+    {
+        final List<SampleOwnerIdentifier> ownerIdentifiers = createOwnerIdentifiers(listCriteria);
+        final ListSampleCriteriaDTO criteria =
+                new ListSampleCriteriaDTO(ownerIdentifiers, SampleTypeTranslator
+                        .translate(listCriteria.getSampleType()));
+        return criteria;
+    }
+
+    private static List<SampleOwnerIdentifier> createOwnerIdentifiers(
+            ListSampleCriteria listCriteria)
+    {
+        final List<SampleOwnerIdentifier> ownerIdentifiers = new ArrayList<SampleOwnerIdentifier>();
+        DatabaseInstanceIdentifier databaseIdentifier = getDatabaseIdentifier(listCriteria);
+        if (listCriteria.isIncludeGroup())
+
+        {
+            ownerIdentifiers.add(new SampleOwnerIdentifier(new GroupIdentifier(databaseIdentifier,
+                    listCriteria.getGroupCode())));
+        }
+        if (listCriteria.isIncludeInstance())
+        {
+            ownerIdentifiers.add(new SampleOwnerIdentifier(databaseIdentifier));
+        }
+        return ownerIdentifiers;
+    }
+
+    private static DatabaseInstanceIdentifier getDatabaseIdentifier(ListSampleCriteria listCriteria)
+    {
+        DatabaseInstance databaseInstance = listCriteria.getSampleType().getDatabaseInstance();
+        return new DatabaseInstanceIdentifier(databaseInstance.getCode());
+    }
+
+    public Map<Long, List<SampleProperty>> listSamplesProperties(
+            final ListSampleCriteria listCriteria, final List<PropertyType> propertyCodes)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        if (samples.size() == 0 || propertyCodes.size() == 0)
+        final List<SamplePropertyPE> allProperties =
+                genericServer.listSamplesProperties(getSessionToken(),
+                        createCriteriaDTO(listCriteria), PropertyTypeTranslator
+                                .translate(propertyCodes));
+
+        final Map<Long, List<SampleProperty>> propertiesMap = splitForSamples(allProperties);
+        return propertiesMap;
+    }
+
+    private static Map<Long, List<SampleProperty>> splitForSamples(List<SamplePropertyPE> properties)
+    {
+        Map<Long, List<SampleProperty>> propertiesMap = new HashMap<Long, List<SampleProperty>>();
+
+        for (SamplePropertyPE prop : properties)
         {
-            return samples;
+            long sampleId = prop.getSample().getId();
+            List<SampleProperty> sampleProps = propertiesMap.get(sampleId);
+            if (sampleProps == null)
+            {
+                sampleProps = new ArrayList<SampleProperty>();
+            }
+            sampleProps.add(SamplePropertyTranslator.translate(prop));
+            propertiesMap.put(sampleId, sampleProps);
         }
-        final List<SampleIdentifier> identifiers = extractIdentifiers(samples);
-        // TODO 2008-10-22, Izabela Adamczyk: make sample type the parameter of the method
-        final SampleType sampleType = samples.get(0).getSampleType();
-        final Map<SampleIdentifier, List<SamplePropertyPE>> samplesProperties =
-                genericServer.listSamplesProperties(getSessionToken(), identifiers,
-                        PropertyTypeTranslator.translate(propertyCodes));
-        for (final Sample s : samples)
-        {
-            final List<SamplePropertyPE> list = samplesProperties.get(extractIdentifier(s));
-            s.getProperties().addAll(
-                    list == null ? new ArrayList<SampleProperty>() : SamplePropertyTranslator
-                            .translate(list, sampleType));
-        }
-        return samples;
+        return propertiesMap;
     }
 
     public final SampleGeneration getSampleInfo(final String sampleIdentifier)

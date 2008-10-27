@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
 /**
@@ -25,14 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
  */
 public class GridConfiguration
 {
-
-    private SampleType sampleType;
-
-    private String groupCode;
-
-    private boolean includeGroup;
-
-    private boolean includeInstance;
+    private ListSampleCriteria criteria = new ListSampleCriteria();
 
     public boolean majorChange(GridConfiguration newConfiguration)
     {
@@ -44,8 +38,8 @@ public class GridConfiguration
 
     public boolean minorChange(GridConfiguration newConfiguration)
     {
-        return includeGroup == true && newConfiguration.isIncludeGroup() == false
-                || includeInstance == true && newConfiguration.isIncludeInstance() == false;
+        return isIncludeGroup() == true && newConfiguration.isIncludeGroup() == false
+                || isIncludeInstance() == true && newConfiguration.isIncludeInstance() == false;
     }
 
     public void update(SampleType sampleTypeNewValue, String groupCodeNewValue,
@@ -68,59 +62,64 @@ public class GridConfiguration
     private boolean groupRequested(String groupCodeNewValue, boolean includeGroupNewValue)
     {
         return includeGroupNewValue
-                && (includeGroup == false || groupCode == null || groupCodeNewValue
-                        .equals(groupCode) == false);
+                && (isIncludeGroup() == false || getGroupCode() == null || groupCodeNewValue
+                        .equals(getGroupCode()) == false);
     }
 
     private boolean instanceRequested(boolean includeInstanceNewValue)
     {
-        return includeInstanceNewValue && includeInstance == false;
+        return includeInstanceNewValue && isIncludeInstance() == false;
     }
 
     private boolean sampleTypeChanged(SampleType sampleTypeNewValue)
     {
-        return sampleType == null
-                || sampleTypeNewValue.getCode().equals(sampleType.getCode()) == false;
+        return getSampleType() == null
+                || sampleTypeNewValue.getCode().equals(getSampleType().getCode()) == false;
     }
 
     private SampleType getSampleType()
     {
-        return sampleType;
+        return this.criteria.getSampleType();
     }
 
     private void setSampleType(SampleType sampleType)
     {
-        this.sampleType = sampleType;
+        this.criteria.setSampleType(sampleType);
     }
 
     private String getGroupCode()
     {
-        return groupCode;
+        return this.criteria.getGroupCode();
     }
 
     private void setGroupCode(String groupCode)
     {
-        this.groupCode = groupCode;
+        this.criteria.setGroupCode(groupCode);
     }
 
     public boolean isIncludeGroup()
     {
-        return includeGroup;
+        return this.criteria.isIncludeGroup();
     }
 
     private void setIncludeGroup(boolean includeGroup)
     {
-        this.includeGroup = includeGroup;
+        this.criteria.setIncludeGroup(includeGroup);
     }
 
     public boolean isIncludeInstance()
     {
-        return includeInstance;
+        return this.criteria.isIncludeInstance();
     }
 
     private void setIncludeInstance(boolean includeInstance)
     {
-        this.includeInstance = includeInstance;
+        this.criteria.setIncludeInstance(includeInstance);
+    }
+
+    public ListSampleCriteria getCriterias()
+    {
+        return criteria;
     }
 
 }

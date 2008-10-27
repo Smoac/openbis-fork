@@ -18,9 +18,8 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
 /**
  * @author Tomasz Pylak
@@ -30,8 +29,6 @@ public interface ISampleTable
     /**
      * Lists sample of a particular type. Container and generator fields will be initialized up to
      * the specified nesting level.
-     * 
-     * @param ownerIdentifiers groups and database instances from which samples should be returned.
      */
-    List<SamplePE> listSamples(SampleTypePE sampleType, List<SampleOwnerIdentifier> ownerIdentifiers);
+    List<SamplePE> listSamples(ListSampleCriteriaDTO criteria);
 }

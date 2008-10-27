@@ -16,10 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.hibernate.SessionFactory;
 import org.springframework.dao.DataAccessException;
@@ -29,7 +27,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISamplePropertyDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
 /**
  * Data access object for {@link SamplePropertyPE}.
@@ -44,60 +43,51 @@ final class SamplePropertyDAO extends AbstractDAO implements ISamplePropertyDAO
         super(sessionFactory, databaseInstance);
     }
 
-    public Map<SampleIdentifier, List<SamplePropertyPE>> listSampleProperties(
-            List<SampleIdentifier> sampleIdentifiers, List<PropertyTypePE> propertyCodes)
-            throws DataAccessException
+    public List<SamplePropertyPE> listSampleProperties(SampleOwnerIdentifier ownerIdentifier,
+            SampleTypePE sampleType, List<PropertyTypePE> propertyCodes) throws DataAccessException
     {
-        Map<SampleIdentifier, List<SamplePropertyPE>> result =
-                new HashMap<SampleIdentifier, List<SamplePropertyPE>>();
-        if (sampleIdentifiers.size() != 0 && propertyCodes.size() != 0)
+        String query;
+        Object[] args;
+
+        String joinClouse =
+                "join fetch sp.entityTypePropertyType"
+                        + " join fetch sp.entityTypePropertyType.propertyType"
+                        + " join fetch sp.entity";
+        if (ownerIdentifier.isDatabaseInstanceLevel())
         {
-            for (SampleIdentifier sampleIdentifier : sampleIdentifiers)
-            {
-                List<SamplePropertyPE> list = null;
-                if (sampleIdentifier.isDatabaseInstanceLevel())
-                {
-                    final String format =
-                            String.format(
-                                    "from %s sp where sp.entity.code = ? and sp.entity.databaseInstance.code = ?"
-                                            + " and  %s", SamplePropertyPE.class.getSimpleName(),
-                                    extractCodes(propertyCodes));
-                    list =
-                            cast(getHibernateTemplate().find(
-                                    format,
-                                    new Object[]
-                                        {
-                                                sampleIdentifier.getSampleCode(),
-                                                sampleIdentifier.getDatabaseInstanceLevel()
-                                                        .getDatabaseInstanceCode() }));
-                } else
-                {
-                    final String format =
-                            String.format(
-                                    "from %s sp where sp.entity.code = ? and sp.entity.group.code = ?"
-                                            + " and sp.entity.group.databaseInstance.code = ?"
-                                            + " and %s", SamplePropertyPE.class.getSimpleName(),
-                                    extractCodes(propertyCodes));
-                    list =
-                            cast(getHibernateTemplate().find(
-                                    format,
-                                    new Object[]
-                                        {
-                                                sampleIdentifier.getSampleCode(),
-                                                sampleIdentifier.getGroupLevel().getGroupCode(),
-                                                sampleIdentifier.getGroupLevel()
-                                                        .getDatabaseInstanceCode() }));
-                }
-                result.put(sampleIdentifier, list);
-            }
+            query =
+                    "from %s sp "
+                            + joinClouse
+                            + " where sp.entityTypePropertyType.entityType.code = ? and sp.entity.databaseInstance.code = ?"
+                            + " and  %s";
+            args =
+                    new Object[]
+                        {
+                                sampleType.getCode(),
+                                ownerIdentifier.getDatabaseInstanceLevel()
+                                        .getDatabaseInstanceCode() };
+        } else
+        {
+            query =
+                    "from %s sp "
+                            + joinClouse
+                            + " where sp.entityTypePropertyType.entityType.code = ? and sp.entity.group.code = ?"
+                            + " and sp.entity.group.databaseInstance.code = ? and %s";
+            args =
+                    new Object[]
+                        { sampleType.getCode(), ownerIdentifier.getGroupLevel().getGroupCode(),
+                                ownerIdentifier.getGroupLevel().getDatabaseInstanceCode() };
         }
-        return result;
+        final String format =
+                String.format(query, SamplePropertyPE.class.getSimpleName(),
+                        extractCodes(propertyCodes));
+        return cast(getHibernateTemplate().find(format, args));
     }
 
     @Private
     public static String extractCodes(List<PropertyTypePE> propertyCodes)
     {
-        assert propertyCodes.size() > 0;
+        assert propertyCodes.size() > 0 : "no properties specified";
         StringBuilder sb = new StringBuilder();
         sb.append("(");
         Iterator<PropertyTypePE> it = propertyCodes.iterator();

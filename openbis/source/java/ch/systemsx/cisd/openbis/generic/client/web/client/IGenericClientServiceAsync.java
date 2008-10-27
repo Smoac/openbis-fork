@@ -17,15 +17,18 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client;
 
 import java.util.List;
+import java.util.Map;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
 /**
@@ -71,21 +74,23 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
     public void listSampleTypes(AsyncCallback<List<SampleType>> asyncCallback);
 
     /**
-     * @see IGenericClientService#listSamples(SampleType, String, boolean, boolean, List)
+     * @see IGenericClientService#listSamples(ListSampleCriteria, List)
      */
-    public void listSamples(SampleType sampleType, String groupCode, boolean includeGroup,
-            boolean includeInstance, List<PropertyType> propertyCodes,
+    public void listSamples(ListSampleCriteria criteria, List<PropertyType> propertyCodes,
             AsyncCallback<List<Sample>> asyncCallback);
 
     /**
-     * @see IGenericClientService#updateSamples(List, List)
+     * @see IGenericClientService#listSamplesProperties(ListSampleCriteria, List)
      */
-    public void updateSamples(List<Sample> samples, List<PropertyType> propertyCodes,
-            AsyncCallback<List<Sample>> asyncCallback);
+    public void listSamplesProperties(ListSampleCriteria criteria,
+            List<PropertyType> propertyCodes,
+            AsyncCallback<Map<Long, List<SampleProperty>>> asyncCallback);
 
     /**
      * @see IGenericClientService#getSampleInfo(String)
      */
+    // TODO 2008-10-23, Tomasz Pylak: use SampleIdentifier type or sample technical id. This is
+    // ugly.
     public void getSampleInfo(final String sampleIdentifier,
             AsyncCallback<SampleGeneration> asyncCallback);
 

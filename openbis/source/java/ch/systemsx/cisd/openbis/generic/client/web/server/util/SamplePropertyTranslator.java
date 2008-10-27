@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 
@@ -33,24 +32,29 @@ public class SamplePropertyTranslator
     {
     }
 
-    public static SampleProperty translate(final SamplePropertyPE samplePropertyPE, final SampleType sampleType)
+    public static SampleProperty translate(final SamplePropertyPE samplePropertyPE)
     {
         final SampleProperty result = new SampleProperty();
         result.setValue(samplePropertyPE.getValue() == null ? samplePropertyPE.getVocabularyTerm()
                 .getCode() : samplePropertyPE.getValue());
-        result.setEntityTypePropertyType(SampleTypePropertyTypeTranslator
-                .translate((SampleTypePropertyTypePE) samplePropertyPE.getEntityTypePropertyType(),
-                        sampleType));
+        result
+                .setEntityTypePropertyType(SampleTypePropertyTypeTranslator
+                        .translate((SampleTypePropertyTypePE) samplePropertyPE
+                                .getEntityTypePropertyType()));
         return result;
 
     }
 
-    public static List<SampleProperty> translate(final List<SamplePropertyPE> list, final SampleType sampleType)
+    public static List<SampleProperty> translate(final List<SamplePropertyPE> list)
     {
+        if (list == null)
+        {
+            return null;
+        }
         final List<SampleProperty> result = new ArrayList<SampleProperty>();
         for (final SamplePropertyPE samplePropertyPE : list)
         {
-            result.add(translate(samplePropertyPE, sampleType));
+            result.add(translate(samplePropertyPE));
         }
         return result;
     }
