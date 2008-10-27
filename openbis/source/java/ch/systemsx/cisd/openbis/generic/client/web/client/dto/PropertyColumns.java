@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModel;
+
 /**
  * Defines the sample properties columns for sample grid/table.
  * 

@@ -21,10 +21,12 @@ import java.util.Map;
 
 import com.google.gwt.user.client.ui.Widget;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AbstractDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
@@ -61,6 +63,7 @@ public final class GenericSampleViewer extends AbstractDialog
                 .getRegistrationDate());
         properties.put(messageProvider.getMessage("generated_samples"), sampleGeneration
                 .getGenerated());
+        properties.put(messageProvider.getMessage("invalidation"), sample.getInvalidation());
         return properties;
     }
 
@@ -73,10 +76,14 @@ public final class GenericSampleViewer extends AbstractDialog
     {
         final Map<String, Object> properties = createProperties(messageProvider, sampleGeneration);
         final PropertyGrid propertyGrid = new PropertyGrid(messageProvider, properties.size());
+        propertyGrid.registerPropertyValueRenderer(Person.class, PropertyValueRenderers
+                .createPersonPropertyValueRenderer(messageProvider));
         propertyGrid.registerPropertyValueRenderer(SampleType.class, PropertyValueRenderers
-                .getSampleTypePropertyValueRenderer(messageProvider));
+                .createSampleTypePropertyValueRenderer(messageProvider));
         propertyGrid.registerPropertyValueRenderer(Sample.class, PropertyValueRenderers
-                .getSamplePropertyValueRenderer(messageProvider));
+                .createSamplePropertyValueRenderer(messageProvider));
+        propertyGrid.registerPropertyValueRenderer(Invalidation.class, PropertyValueRenderers
+                .getInvalidationPropertyValueRenderer(messageProvider));
         propertyGrid.setProperties(properties);
         return propertyGrid;
     }

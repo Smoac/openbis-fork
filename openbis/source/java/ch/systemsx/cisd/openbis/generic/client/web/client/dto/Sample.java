@@ -55,7 +55,7 @@ public class Sample implements IsSerializable
 
     private List<SampleProperty> properties;
 
-    private boolean isInvalid;
+    private Invalidation invalidation;
 
     private Procedure validProcedure;
 
@@ -161,14 +161,14 @@ public class Sample implements IsSerializable
         this.properties = properties;
     }
 
-    public boolean isInvalid()
+    public final Invalidation getInvalidation()
     {
-        return isInvalid;
+        return invalidation;
     }
 
-    public void setInvalid(final boolean isInvalid)
+    public final void setInvalidation(final Invalidation invalidation)
     {
-        this.isInvalid = isInvalid;
+        this.invalidation = invalidation;
     }
 
     public Procedure getValidProcedure()

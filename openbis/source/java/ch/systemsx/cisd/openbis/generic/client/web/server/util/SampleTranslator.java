@@ -29,20 +29,20 @@ public class SampleTranslator
     }
 
     /** NOTE: ignores sample properties */
-    public static Sample translate(SamplePE samplePE)
+    public static Sample translate(final SamplePE samplePE)
     {
         if (samplePE == null)
         {
             return null;
         }
-        int containerDep = samplePE.getSampleType().getContainerHierarchyDepth();
-        int generatedFromDep = samplePE.getSampleType().getGeneratedFromHierarchyDepth();
+        final int containerDep = samplePE.getSampleType().getContainerHierarchyDepth();
+        final int generatedFromDep = samplePE.getSampleType().getGeneratedFromHierarchyDepth();
         return translate(samplePE, containerDep, generatedFromDep, true);
 
     }
 
-    private static Sample translate(SamplePE samplePE, int containerDep, int generatedFromDep,
-            boolean withDetails)
+    private static Sample translate(final SamplePE samplePE, final int containerDep, final int generatedFromDep,
+            final boolean withDetails)
     {
         final Sample result = new Sample();
         result.setCode(samplePE.getCode());
@@ -67,7 +67,7 @@ public class SampleTranslator
             result.setGeneratedFrom(SampleTranslator.translate(samplePE.getGeneratedFrom(), 0,
                     generatedFromDep - 1, false));
         }
-        result.setInvalid(samplePE.getInvalidation() != null);
+        result.setInvalidation(InvalidationTranslator.translate(samplePE.getInvalidation()));
         result.setId(samplePE.getId());
         return result;
     }

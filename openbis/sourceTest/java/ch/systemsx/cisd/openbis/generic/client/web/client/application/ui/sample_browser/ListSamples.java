@@ -19,7 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.GroupModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 

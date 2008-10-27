@@ -47,6 +47,13 @@ var generic = {
   sample_type: "Sample Type",
   generated_samples: "Generated Samples",
   
+  //
+  // Invalidation
+  //
+  
+  invalidation: "Invalidation",
+  invalidation_template: "Invalidated by: {0}<br>Invalidation Date: {1}<br>Invalidation Reason: {2}",
+   
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma
 };
