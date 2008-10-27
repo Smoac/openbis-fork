@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 
+import java.util.List;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
@@ -27,17 +29,24 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface ITestCommand
 {
     /**
-     * Returns <code>true</code> if the specified callback object, failureMessage, and
-     * throwable should trigger this command in case if an invocation of
-     * {@link AsyncCallback#onFailure(Throwable)}. 
+     * Returns <code>true</code> if the specified callback objects, failureMessage, and throwable
+     * should trigger this command in case if an invocation of
+     * {@link AsyncCallback#onFailure(Throwable)}.
+     * 
+     * @param callbackObjects List of callback objects since the last successful match of a test
+     *            command. Contains at least one element.
      */
-    public boolean validOnFailure(AsyncCallback<Object> callback, String failureMessage, Throwable throwable);
+    public boolean validOnFailure(List<AsyncCallback<Object>> callbackObjects,
+            String failureMessage, Throwable throwable);
     
     /**
-     * Returns <code>true</code> if the specified callback object and resul should trigger this
+     * Returns <code>true</code> if the specified callback objects and result should trigger this
      * command in case if an invocation of {@link AsyncCallback#onSuccess(Object)}.
+     * 
+     * @param callbackObjects List of callback objects since the last successful match of a test
+     *            command. Contains at least one element.
      */
-    public boolean validOnSucess(AsyncCallback<Object> callback, Object result);
+    public boolean validOnSucess(List<AsyncCallback<Object>> callbackObjects, Object result);
 
     /**
      * Executes this command.

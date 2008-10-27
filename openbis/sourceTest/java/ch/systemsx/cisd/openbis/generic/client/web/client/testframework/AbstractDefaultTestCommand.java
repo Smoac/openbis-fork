@@ -16,42 +16,69 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
- * Contition which checks whether the class of the callback object is as specified.
+ * Abstract super class of all test commands which are executed if the set of classes of 
+ * recent callback objects includes all classes specified in the constructor.
  *
  * @author Franz-Josef Elmer
  */
 public abstract class AbstractDefaultTestCommand implements ITestCommand
 {
-    private final Class<?> callbackClass;
-
+    protected final Set<Class<? extends AsyncCallback<?>>> callbackClasses =
+            new HashSet<Class<? extends AsyncCallback<?>>>();
+    
     /**
-     * Creates an instance for the specified callback class.
+     * Creates an instance for the specified callback class. 
      */
     public AbstractDefaultTestCommand(Class<? extends AsyncCallback<?>> callbackClass)
     {
-        this.callbackClass = callbackClass;
+        callbackClasses.add(callbackClass);
+    }
+
+    /**
+     * Creates an instance for the specified callback classes. 
+     */
+    public AbstractDefaultTestCommand(List<Class<? extends AsyncCallback<?>>> callbackClasses)
+    {
+        this.callbackClasses.addAll(callbackClasses);
     }
     
-    public boolean validOnFailure(AsyncCallback<Object> callback, String failureMessage,
-            Throwable throwable)
+    public boolean validOnFailure(List<AsyncCallback<Object>> callbackObjects,
+            String failureMessage, Throwable throwable)
     {
         return false;
     }
 
-    public boolean validOnSucess(AsyncCallback<Object> callback, Object result)
+    public boolean validOnSucess(List<AsyncCallback<Object>> callbackObjects, Object result)
     {
-        return equalsExpectedCallback(callback);
+        return containsExpectedCallbacks(callbackObjects);
     }
 
     /**
-     * Returns <code>true</code> if the specified callback object is of expected type. 
+     * Returns <code>true</code> if the specified list of callback objects contain
+     * all of expected types. 
      */
-    protected boolean equalsExpectedCallback(AsyncCallback<Object> callback)
+    protected boolean containsExpectedCallbacks(List<AsyncCallback<Object>> callbackObjects)
     {
-        return callbackClass.equals(callback.getClass());
+        Set<Class<?>> classesOfCallbackObjects = new HashSet<Class<?>>();
+        for (AsyncCallback<Object> asyncCallback : callbackObjects)
+        {
+            classesOfCallbackObjects.add(asyncCallback.getClass());
+        }
+        for (Class<?> clazz : callbackClasses)
+        {
+            if (classesOfCallbackObjects.contains(clazz) == false)
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
 }

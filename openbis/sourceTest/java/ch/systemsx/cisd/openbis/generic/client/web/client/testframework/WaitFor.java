@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 
+import java.util.List;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
@@ -25,12 +27,14 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  */
 public class WaitFor extends AbstractDefaultTestCommand
 {
-    private final String callbackClassName;
-
     public WaitFor(Class<? extends AsyncCallback<?>> callbackClass)
     {
         super(callbackClass);
-        callbackClassName = callbackClass.getName();
+    }
+
+    public WaitFor(List<Class<? extends AsyncCallback<?>>> callbackClasses)
+    {
+        super(callbackClasses);
     }
 
     public void execute()
@@ -40,7 +44,7 @@ public class WaitFor extends AbstractDefaultTestCommand
     @Override
     public String toString()
     {
-        return "Wait for " + callbackClassName;
+        return "Wait for " + callbackClasses;
     }
 
     

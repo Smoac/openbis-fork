@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 
+import java.util.List;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
@@ -40,7 +42,12 @@ public class FailureExpectation extends AbstractDefaultTestCommand
     {
         super(callbackClass);
     }
-    
+
+    public FailureExpectation(List<Class<? extends AsyncCallback<?>>> callbackClasses)
+    {
+        super(callbackClasses);
+    }
+
     public FailureExpectation with(final String failureMessage)
     {
         return with(new IMessageValidator()
@@ -65,10 +72,10 @@ public class FailureExpectation extends AbstractDefaultTestCommand
     }
     
     @Override
-    public boolean validOnFailure(AsyncCallback<Object> callback, String failureMessage,
-            Throwable throwable)
+    public boolean validOnFailure(List<AsyncCallback<Object>> callbackObjects,
+            String failureMessage, Throwable throwable)
     {
-        if (equalsExpectedCallback(callback) == false)
+        if (containsExpectedCallbacks(callbackObjects) == false)
         {
             return false;
         }
@@ -84,7 +91,7 @@ public class FailureExpectation extends AbstractDefaultTestCommand
     }
 
     @Override
-    public boolean validOnSucess(AsyncCallback<Object> callback, Object result)
+    public boolean validOnSucess(List<AsyncCallback<Object>> callbackObjects, Object result)
     {
         return false;
     }

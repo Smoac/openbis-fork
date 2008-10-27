@@ -42,6 +42,9 @@ public class RemoteConsole
 
     private final List<ITestCommand> commands;
 
+    private final List<AsyncCallback<Object>> lastCallbackObjects =
+            new ArrayList<AsyncCallback<Object>>();
+    
     private int entryIndex;
 
     private Timer timer;
@@ -58,9 +61,10 @@ public class RemoteConsole
                 public void onFailureOf(AsyncCallback<Object> callback, String failureMessage,
                         Throwable throwable)
                 {
+                    lastCallbackObjects.add(callback);
                     if (entryIndex < commands.size()
-                            && commands.get(entryIndex).validOnFailure(callback, failureMessage,
-                                    throwable))
+                            && commands.get(entryIndex).validOnFailure(lastCallbackObjects,
+                                    failureMessage, throwable))
                     {
                         executeCommand();
                     } else
@@ -72,8 +76,9 @@ public class RemoteConsole
 
                 public void finishOnSuccessOf(AsyncCallback<Object> callback, Object result)
                 {
+                    lastCallbackObjects.add(callback);
                     if (entryIndex < commands.size()
-                            && commands.get(entryIndex).validOnSucess(callback, result))
+                            && commands.get(entryIndex).validOnSucess(lastCallbackObjects, result))
                     {
                         executeCommand();
                     }
@@ -81,6 +86,7 @@ public class RemoteConsole
 
                 private void executeCommand()
                 {
+                    lastCallbackObjects.clear();
                     ITestCommand testCommand = commands.get(entryIndex++);
                     System.out.println("EXECUTE: " + testCommand);
                     testCommand.execute();
@@ -119,10 +125,22 @@ public class RemoteConsole
                     int numberOfUnexcutedCommands = commands.size() - entryIndex;
                     if (numberOfUnexcutedCommands > 0)
                     {
-                        Assert.fail("Console not finished. Last "
-                                + (numberOfUnexcutedCommands == 1 ? "command has"
-                                        : numberOfUnexcutedCommands + " commands have")
-                                + " not been executed.");
+                        StringBuffer buffer = new StringBuffer("Console not finished. Last ");
+                        buffer.append(numberOfUnexcutedCommands == 1 ? "command has"
+                                        : numberOfUnexcutedCommands + " commands have");
+                        buffer.append(" not been executed. ");
+                        if (lastCallbackObjects.size() == 0)
+                        {
+                            buffer.append("No unmatched callback objects.");
+                        } else
+                        {
+                            buffer.append("Unmatched callback objects:");
+                            for (AsyncCallback<?> callback : lastCallbackObjects)
+                            {
+                                buffer.append('\n').append(callback);
+                            }
+                        }
+                        Assert.fail(buffer.toString());
                     }
                 }
             };
