@@ -274,7 +274,7 @@ public final class WebClientFilesUpdater
         final WebClientFilesUpdater webClientFilesUpdater =
                 new WebClientFilesUpdater(workingDirectory, technologies);
         webClientFilesUpdater.updateOpenBISGwtXmlFile();
-        System.out.println(String.format("'%s' has been written out.", OPENBIS_GWT_XML_FILE_NAME));
+        System.out.println(String.format("'%s' has been updated.", OPENBIS_GWT_XML_FILE_NAME));
         webClientFilesUpdater.updateClientPluginProvider();
         System.out.println(String.format("'%s' has been updated.", CLIENT_PLUGIN_PROVIDER_CLASS));
     }
