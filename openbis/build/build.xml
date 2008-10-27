@@ -45,7 +45,7 @@
     <target name="run-system-tests" depends="prepare-gwt">
         <delete dir="${output.test}" />
         <mkdir dir="${output.test}" />
-        <junit dir="." fork="true" forkmode="once" maxmemory="512m" showoutput="true">
+        <junit dir="." fork="true" forkmode="once" maxmemory="512m" showoutput="true" failureproperty="tests-failed">
             <classpath>
                 <pathelement location="${sources}" />
                 <pathelement location="${sources.test}" />
@@ -62,6 +62,10 @@
             <formatter type="xml" />
             <test name="ch.systemsx.cisd.openbis.generic.SystemTestSuite" todir="${output.test}" />
         </junit>
+        <fail>
+            <condition><isset property="tests-failed"/></condition>
+        </fail>
+
     </target>
 
     <!-- 
