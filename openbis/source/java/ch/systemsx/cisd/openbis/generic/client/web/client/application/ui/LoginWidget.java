@@ -192,6 +192,9 @@ public class LoginWidget extends VerticalPanel
                             viewContext.getPageController().reload();
                         }
                     });
+            } else
+            {
+                viewContext.getPageController().reload();
             }
         }
     }
