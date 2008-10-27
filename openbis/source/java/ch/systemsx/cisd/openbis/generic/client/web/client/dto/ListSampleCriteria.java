@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
+ * @author Izabela Adamczyk
  * @author Tomasz Pylak
  */
 public class ListSampleCriteria implements IsSerializable
