@@ -71,7 +71,7 @@ public class ToolbarController
         final boolean sampleTypeSelected = sampleTypeSelectionWidget.tryGetSelected() != null;
         final boolean showGroupSamples = groupCheckbox.getValue();
         final boolean groupChosen = groupSelectionWidget.tryGetSelected() != null;
-        final boolean showInstanceSamples = instanceCheckbox.getValue() == true;
+        final boolean showInstanceSamples = instanceCheckbox.getValue();
         final boolean enable =
                 sampleTypeSelected && (showGroupSamples && groupChosen || showInstanceSamples);
         submitButton.setEnabled(enable);
@@ -122,5 +122,13 @@ public class ToolbarController
         groupCheckbox.setEnabled(atLeastOneGroupExists);
         groupCheckbox.setValue(atLeastOneGroupExists);
         instanceCheckbox.setValue(atLeastOneGroupExists == false);
+    }
+
+    public void includeInstanceHasChanged()
+    {
+        if (instanceCheckbox.getValue())
+        {
+            propertyColumns.resetLoaded();
+        }
     }
 }

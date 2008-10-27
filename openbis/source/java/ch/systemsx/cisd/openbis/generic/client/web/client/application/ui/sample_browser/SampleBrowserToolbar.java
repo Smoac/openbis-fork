@@ -133,6 +133,7 @@ class SampleBrowserToolbar extends ToolBar
                 public void handleEvent(final BaseEvent be)
                 {
                     controller.refreshButtons();
+                    controller.includeInstanceHasChanged();
                 }
             });
     }
