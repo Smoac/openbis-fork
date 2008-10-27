@@ -32,6 +32,13 @@ public abstract class AbstractDefaultTestCommand implements ITestCommand
 {
     protected final Set<Class<? extends AsyncCallback<?>>> callbackClasses =
             new HashSet<Class<? extends AsyncCallback<?>>>();
+
+    /**
+     * Creates an instance with initially no expected callback class. 
+     */
+    public AbstractDefaultTestCommand()
+    {
+    }
     
     /**
      * Creates an instance for the specified callback class. 
@@ -42,11 +49,11 @@ public abstract class AbstractDefaultTestCommand implements ITestCommand
     }
 
     /**
-     * Creates an instance for the specified callback classes. 
+     * Adds the specified callback classes. 
      */
-    public AbstractDefaultTestCommand(List<Class<? extends AsyncCallback<?>>> callbackClasses)
+    public void addCallbackClass(Class<? extends AsyncCallback<?>> callbackClass)
     {
-        this.callbackClasses.addAll(callbackClasses);
+        this.callbackClasses.add(callbackClass);
     }
     
     public boolean validOnFailure(List<AsyncCallback<Object>> callbackObjects,

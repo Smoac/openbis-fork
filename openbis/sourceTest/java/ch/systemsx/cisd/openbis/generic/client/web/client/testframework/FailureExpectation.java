@@ -43,11 +43,6 @@ public class FailureExpectation extends AbstractDefaultTestCommand
         super(callbackClass);
     }
 
-    public FailureExpectation(List<Class<? extends AsyncCallback<?>>> callbackClasses)
-    {
-        super(callbackClasses);
-    }
-
     public FailureExpectation with(final String failureMessage)
     {
         return with(new IMessageValidator()
