@@ -16,7 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.AbstractPropertyValueRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.DatePropertyValueRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
@@ -34,22 +39,34 @@ public final class PropertyValueRenderers
         // Can not be instantiated
     }
 
-    public final static IPropertyValueRenderer<Sample> getSamplePropertyValueRenderer(
+    public final static IPropertyValueRenderer<Sample> createSamplePropertyValueRenderer(
             final IMessageProvider messageProvider)
     {
         return new SamplePropertyValueRenderer(messageProvider);
     }
 
-    public final static IPropertyValueRenderer<SampleType> getSampleTypePropertyValueRenderer(
+    public final static IPropertyValueRenderer<SampleType> createSampleTypePropertyValueRenderer(
             final IMessageProvider messageProvider)
     {
         return new SampleTypePropertyValueRenderer(messageProvider);
     }
 
-    public final static IPropertyValueRenderer<Person> getPersonPropertyValueRenderer(
+    public final static IPropertyValueRenderer<Person> createPersonPropertyValueRenderer(
             final IMessageProvider messageProvider)
     {
         return new PersonPropertyValueRenderer(messageProvider);
+    }
+
+    public final static IPropertyValueRenderer<Invalidation> createInvalidationPropertyValueRenderer(
+            final IMessageProvider messageProvider)
+    {
+        return new InvalidationPropertyValueRenderer(messageProvider);
+    }
+
+    public final static IPropertyValueRenderer<Invalidation> getInvalidationPropertyValueRenderer(
+            final IMessageProvider messageProvider)
+    {
+        return new InvalidationPropertyValueRenderer(messageProvider);
     }
 
     /**
@@ -73,7 +90,12 @@ public final class PropertyValueRenderers
         @Override
         protected final String renderNotNull(final Sample sample)
         {
-            return sample.getCode();
+            final String code = sample.getCode();
+            if (sample.getInvalidation() != null)
+            {
+                return DOMUtils.createDelElement(code);
+            }
+            return code;
         }
     }
 
@@ -86,7 +108,7 @@ public final class PropertyValueRenderers
             AbstractPropertyValueRenderer<SampleType>
     {
 
-        SampleTypePropertyValueRenderer(IMessageProvider messageProvider)
+        SampleTypePropertyValueRenderer(final IMessageProvider messageProvider)
         {
             super(messageProvider);
         }
@@ -124,6 +146,44 @@ public final class PropertyValueRenderers
         public final String renderNotNull(final Person person)
         {
             return PersonUtils.toString(person);
+        }
+    }
+
+    /**
+     * Renderer for {@link Invalidation}.
+     * 
+     * @author Christian Ribeaud
+     */
+    private final static class InvalidationPropertyValueRenderer extends
+            AbstractPropertyValueRenderer<Invalidation>
+    {
+
+        InvalidationPropertyValueRenderer(final IMessageProvider messageProvider)
+        {
+            super(messageProvider);
+        }
+
+        private final String rendererPerson(final Person person)
+        {
+            if (person != null)
+            {
+                return PersonUtils.toString(person);
+            }
+            return "";
+        }
+
+        //
+        // AbstractPropertyValueRenderer
+        //
+
+        @Override
+        public final String renderNotNull(final Invalidation invalidation)
+        {
+            return getMessageProvider().getMessage(
+                    "invalidation_template",
+                    DatePropertyValueRenderer.defaultDateTimeFormat.format(invalidation
+                            .getRegistrationDate()), invalidation.getReason(),
+                    rendererPerson(invalidation.getRegistrator()));
         }
     }
 }
