@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Procedure;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
@@ -70,8 +72,8 @@ public class SampleModel extends BaseModelData
         set(OBJECT, s);
         set(SAMPLE_IDENTIFIER, s.getIdentifier());
         set(IS_INSTANCE_SAMPLE_COLUMN, (s.getDatabaseInstance() != null));
-        set(REGISTRATOR, s.getRegistrator());
-        set(REGISTRATION_DATE, s.getRegistrationDate());
+        set(REGISTRATOR, PersonRenderer.createPersonAnchor(s.getRegistrator()));
+        set(REGISTRATION_DATE, DateRenderer.renderDate(s.getRegistrationDate()));
         set(IS_GROUP_SAMPLE, s.getGroup() != null);
         set(IS_INVALID, s.getInvalidation() != null);
         set(EXPERIMENT, printExperimentIdentifier(s));

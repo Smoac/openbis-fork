@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.AbstractPropertyValueRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.DatePropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
@@ -145,7 +145,7 @@ public final class PropertyValueRenderers
         @Override
         public final String renderNotNull(final Person person)
         {
-            return PersonUtils.toString(person);
+            return PersonRenderer.toString(person);
         }
     }
 
@@ -167,7 +167,7 @@ public final class PropertyValueRenderers
         {
             if (person != null)
             {
-                return PersonUtils.toString(person);
+                return PersonRenderer.createPersonAnchor(person);
             }
             return "";
         }
@@ -179,11 +179,9 @@ public final class PropertyValueRenderers
         @Override
         public final String renderNotNull(final Invalidation invalidation)
         {
-            return getMessageProvider().getMessage(
-                    "invalidation_template",
-                    DatePropertyValueRenderer.defaultDateTimeFormat.format(invalidation
-                            .getRegistrationDate()), invalidation.getReason(),
-                    rendererPerson(invalidation.getRegistrator()));
+            return getMessageProvider().getMessage("invalidation_template",
+                    DateRenderer.renderDate(invalidation.getRegistrationDate()),
+                    invalidation.getReason(), rendererPerson(invalidation.getRegistrator()));
         }
     }
 }

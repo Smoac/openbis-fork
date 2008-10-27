@@ -18,8 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.proper
 
 import java.util.Date;
 
-import com.google.gwt.i18n.client.DateTimeFormat;
-
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
@@ -29,30 +28,17 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  */
 public class DatePropertyValueRenderer extends AbstractPropertyValueRenderer<Date>
 {
-    /** Default date/time format. */
-    public static final String DEFAULT_DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss zzz";
-
-    /** Default <code>DateTimeFormat</code> used here. */
-    public static final DateTimeFormat defaultDateTimeFormat =
-            DateTimeFormat.getFormat(DEFAULT_DATE_TIME_FORMAT);
-
-    private final DateTimeFormat dateTimeFormat;
+    private final String pattern;
 
     public DatePropertyValueRenderer(final IMessageProvider messageProvider, final String pattern)
     {
-        this(messageProvider, DateTimeFormat.getFormat(pattern));
-    }
-
-    public DatePropertyValueRenderer(final IMessageProvider messageProvider,
-            final DateTimeFormat dateTimeFormat)
-    {
         super(messageProvider);
-        this.dateTimeFormat = dateTimeFormat;
+        this.pattern = pattern;
     }
 
     public DatePropertyValueRenderer(final IMessageProvider messageProvider)
     {
-        this(messageProvider, defaultDateTimeFormat);
+        this(messageProvider, null);
     }
 
     //
@@ -62,6 +48,6 @@ public class DatePropertyValueRenderer extends AbstractPropertyValueRenderer<Dat
     @Override
     protected final String renderNotNull(final Date value)
     {
-        return dateTimeFormat.format(value);
+        return DateRenderer.renderDate(value, pattern);
     }
 }
