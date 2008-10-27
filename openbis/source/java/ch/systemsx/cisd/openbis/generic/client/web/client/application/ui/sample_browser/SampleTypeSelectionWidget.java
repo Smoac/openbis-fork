@@ -28,6 +28,7 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
 /**
@@ -37,6 +38,35 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
  */
 class SampleTypeSelectionWidget extends ExtendedComboBox<SampleTypeModel>
 {
+
+    final class ListSampleTypesCallback extends AbstractAsyncCallback<List<SampleType>>
+    {
+        ListSampleTypesCallback(IViewContext<?> viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        protected void process(List<SampleType> result)
+        {
+            sampleTypeStore.add(convert(result));
+            if (sampleTypeStore.getCount() > 0)
+            {
+                setEnabled(true);
+                setValue(sampleTypeStore.getAt(0));
+            }
+        }
+
+        List<SampleTypeModel> convert(List<SampleType> sampleTypes)
+        {
+            List<SampleTypeModel> result = new ArrayList<SampleTypeModel>();
+            for (SampleType st : sampleTypes)
+            {
+                result.add(new SampleTypeModel(st));
+            }
+            return result;
+        }
+    }
 
     private static final String PREFIX = "sample-select";
 
@@ -82,29 +112,6 @@ class SampleTypeSelectionWidget extends ExtendedComboBox<SampleTypeModel>
 
     void refresh()
     {
-        viewContext.getService().listSampleTypes(
-                new AbstractAsyncCallback<List<SampleType>>(viewContext)
-                    {
-                        @Override
-                        protected void process(List<SampleType> result)
-                        {
-                            sampleTypeStore.add(convert(result));
-                            if (sampleTypeStore.getCount() > 0)
-                            {
-                                setEnabled(true);
-                                setValue(sampleTypeStore.getAt(0));
-                            }
-                        }
-
-                        List<SampleTypeModel> convert(List<SampleType> sampleTypes)
-                        {
-                            List<SampleTypeModel> result = new ArrayList<SampleTypeModel>();
-                            for (SampleType st : sampleTypes)
-                            {
-                                result.add(new SampleTypeModel(st));
-                            }
-                            return result;
-                        }
-                    });
+        viewContext.getService().listSampleTypes(new ListSampleTypesCallback(viewContext));
     }
 }

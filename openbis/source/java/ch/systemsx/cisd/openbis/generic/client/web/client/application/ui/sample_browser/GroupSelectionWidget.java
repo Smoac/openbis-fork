@@ -28,6 +28,7 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.OpenbisEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
@@ -39,6 +40,26 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
  */
 class GroupSelectionWidget extends ExtendedComboBox<GroupModel>
 {
+    final class ListGroupsCallback extends AbstractAsyncCallback<List<Group>>
+    {
+        ListGroupsCallback(IViewContext<?> viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        protected void process(List<Group> result)
+        {
+            groupStore.add(convert(result));
+            if (groupStore.getCount() > 0)
+            {
+                setEnabled(true);
+                setValue(groupStore.getAt(0));
+            }
+            fireEvent(OpenbisEvents.CALLBACK_FINNISHED);
+        }
+    }
+
     private static final String PREFIX = "group-select";
 
     static final String ID = GenericConstants.ID_PREFIX + PREFIX;
@@ -83,21 +104,7 @@ class GroupSelectionWidget extends ExtendedComboBox<GroupModel>
 
     void refresh()
     {
-        viewContext.getService().listGroups(null,
-                new AbstractAsyncCallback<List<Group>>(viewContext)
-                    {
-                        @Override
-                        protected void process(List<Group> result)
-                        {
-                            groupStore.add(convert(result));
-                            if (groupStore.getCount() > 0)
-                            {
-                                setEnabled(true);
-                                setValue(groupStore.getAt(0));
-                            }
-                            fireEvent(OpenbisEvents.CALLBACK_FINNISHED);
-                        }
-                    });
+        viewContext.getService().listGroups(null, new ListGroupsCallback(viewContext));
     }
 
     List<GroupModel> convert(List<Group> groups)
