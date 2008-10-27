@@ -42,7 +42,7 @@
     <!-- 
       // Runs system tests (only on Linux)
       -->
-    <target name="run-system-tests" depends="prepare-gwt">
+    <target name="run-system-tests" depends="prepare-gwt, compile-tests">
         <delete dir="${output.test}" />
         <mkdir dir="${output.test}" />
         <junit dir="." fork="true" forkmode="once" maxmemory="512m" showoutput="true" failureproperty="tests-failed">
