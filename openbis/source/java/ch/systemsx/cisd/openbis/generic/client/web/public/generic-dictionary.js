@@ -29,7 +29,6 @@ var generic = {
   groupsView_heading: "Groups",
   rolesView_heading: "Roles",
   
-  lastline: "", // we need a line without a comma
   
   //
   // Registration
@@ -44,4 +43,7 @@ var generic = {
   
   sample: "Sample",
   sample_type: "Sample Type",
+  
+  // LAST LINE: KEEP IT AT THE END
+  lastline: "" // we need a line without a comma
 };
