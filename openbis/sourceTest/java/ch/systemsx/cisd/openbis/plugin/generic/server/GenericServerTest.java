@@ -29,8 +29,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.server.ScreeningServer;
 
 /**
@@ -41,7 +44,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.server.ScreeningServer;
 public final class GenericServerTest extends AbstractServerTestCase
 {
 
-    protected IGenericServer createServer()
+    private final IGenericServer createServer()
     {
         return new GenericServer(authenticationService, sessionManager, daoFactory, boFactory);
     }
@@ -362,6 +365,38 @@ public final class GenericServerTest extends AbstractServerTestCase
         assertSame(role, roles.get(0));
         assertEquals(1, roles.size());
 
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testGetSampleInfo()
+    {
+        final Session session = prepareGetSession();
+        final SampleIdentifier sampleIdentifier = createSampleIdentifier();
+        final SamplePE samplePE = createSample();
+        context.checking(new Expectations()
+            {
+                {
+                    one(boFactory).createSampleBO(session);
+                    will(returnValue(sampleBO));
+
+                    one(sampleBO).loadBySampleIdentifier(sampleIdentifier);
+
+                    one(sampleBO).getSample();
+                    will(returnValue(samplePE));
+
+                    one(daoFactory).getSampleDAO();
+                    will(returnValue(sampleDAO));
+
+                    one(sampleDAO).listSampleByGeneratedFrom(samplePE);
+                    will(returnValue(SamplePE.EMPTY_LIST));
+                }
+            });
+
+        final SampleGenerationDTO sampleGeneration =
+                createServer().getSampleInfo(SESSION_TOKEN, sampleIdentifier);
+        assertEquals(samplePE, sampleGeneration.getGenerator());
+        assertEquals(0, sampleGeneration.getGenerated().length);
         context.assertIsSatisfied();
     }
 }

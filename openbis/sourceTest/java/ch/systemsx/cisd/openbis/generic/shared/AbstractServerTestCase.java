@@ -27,15 +27,21 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGenericBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
  * An <i>abstract</i> test infrastructure for {@link IServer} implementations.
@@ -51,6 +57,10 @@ public abstract class AbstractServerTestCase extends AssertJUnit
     protected static final Principal PRINCIPAL = new Principal(USER_ID, "john", "doe", "j@d");
 
     protected static final String SESSION_TOKEN = "session-token";
+
+    private static final String SAMPLE_TYPE = "SAMPLE_TYPE";
+
+    private static final String SAMPLE_CODE = "CP001";
 
     protected Mockery context;
 
@@ -72,7 +82,11 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected IGroupDAO groupDAO;
 
+    protected ISampleDAO sampleDAO;
+
     protected IGroupBO groupBO;
+
+    protected ISampleBO sampleBO;
 
     @BeforeMethod
     @SuppressWarnings("unchecked")
@@ -86,10 +100,12 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         databaseInstanceDAO = context.mock(IDatabaseInstanceDAO.class);
         personDAO = context.mock(IPersonDAO.class);
         groupDAO = context.mock(IGroupDAO.class);
+        sampleDAO = context.mock(ISampleDAO.class);
         roleAssignmentDAO = context.mock(IRoleAssignmentDAO.class);
 
         boFactory = context.mock(IGenericBusinessObjectFactory.class);
         groupBO = context.mock(IGroupBO.class);
+        sampleBO = context.mock(ISampleBO.class);
 
         homeDatabaseInstance = createDatabaseInstance(HOME_DATABASE_INSTANCE_CODE);
         context.checking(new Expectations()
@@ -160,4 +176,27 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         return session;
     }
 
+    protected static final SamplePE createSample()
+    {
+        final SamplePE samplePE = new SamplePE();
+        samplePE.setCode(SAMPLE_CODE);
+        final SampleTypePE sampleTypePE = createSampleType();
+        samplePE.setSampleType(sampleTypePE);
+        return samplePE;
+    }
+
+    protected static final SampleTypePE createSampleType()
+    {
+        final SampleTypePE sampleTypePE = new SampleTypePE();
+        sampleTypePE.setCode(SAMPLE_TYPE);
+        return sampleTypePE;
+    }
+
+    protected static final SampleIdentifier createSampleIdentifier()
+    {
+        final SampleIdentifier identifier =
+                new SampleIdentifier(new DatabaseInstanceIdentifier(HOME_DATABASE_INSTANCE_CODE),
+                        SAMPLE_CODE);
+        return identifier;
+    }
 }
