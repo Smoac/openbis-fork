@@ -19,10 +19,12 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
+ * Criteria for listing <i>samples</i>.
+ * 
  * @author Izabela Adamczyk
  * @author Tomasz Pylak
  */
-public class ListSampleCriteria implements IsSerializable
+public final class ListSampleCriteria implements IsSerializable
 {
     private SampleType sampleType;
 
@@ -32,12 +34,24 @@ public class ListSampleCriteria implements IsSerializable
 
     private boolean includeInstance;
 
+    private Sample container;
+
+    public final Sample getContainer()
+    {
+        return container;
+    }
+
+    public final void setContainer(final Sample container)
+    {
+        this.container = container;
+    }
+
     public SampleType getSampleType()
     {
         return sampleType;
     }
 
-    public void setSampleType(SampleType sampleType)
+    public void setSampleType(final SampleType sampleType)
     {
         this.sampleType = sampleType;
     }
@@ -47,7 +61,7 @@ public class ListSampleCriteria implements IsSerializable
         return groupCode;
     }
 
-    public void setGroupCode(String groupCode)
+    public void setGroupCode(final String groupCode)
     {
         this.groupCode = groupCode;
     }
@@ -57,7 +71,7 @@ public class ListSampleCriteria implements IsSerializable
         return includeGroup;
     }
 
-    public void setIncludeGroup(boolean includeGroup)
+    public void setIncludeGroup(final boolean includeGroup)
     {
         this.includeGroup = includeGroup;
     }
@@ -67,7 +81,7 @@ public class ListSampleCriteria implements IsSerializable
         return includeInstance;
     }
 
-    public void setIncludeInstance(boolean includeInstance)
+    public void setIncludeInstance(final boolean includeInstance)
     {
         this.includeInstance = includeInstance;
     }

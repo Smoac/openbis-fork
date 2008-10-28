@@ -22,8 +22,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 
 /**
- * 
- *
  * @author Christian Ribeaud
  */
 public interface IClientServiceAsync

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
@@ -27,8 +28,20 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 public interface ISampleTable
 {
     /**
-     * Lists sample of a particular type. Container and generator fields will be initialized up to
-     * the specified nesting level.
+     * Lists sample of a particular type.
+     * <p>
+     * Container and generator fields will be initialized up to the specified nesting level.
+     * </p>
      */
-    List<SamplePE> listSamples(ListSampleCriteriaDTO criteria);
+    void loadSamplesByCriteria(ListSampleCriteriaDTO criteria);
+
+    /**
+     * Enriches the loaded samples with a valid {@link ProcedurePE}.
+     */
+    void enrichWithValidProcedure();
+
+    /**
+     * Returns the loaded {@link SamplePE}s.
+     */
+    List<SamplePE> getSamples();
 }

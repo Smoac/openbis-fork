@@ -14,21 +14,13 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application;
+package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.extjs.gxt.ui.client.Style.LayoutRegion;
-import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.util.Margins;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Dialog;
-import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
-import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
+import com.google.gwt.user.client.ui.Widget;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AbstractDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
@@ -45,60 +37,19 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
  * 
  * @author Christian Ribeaud
  */
-public final class GenericSampleViewer extends Dialog
+public final class ScreeningSampleViewer extends AbstractDialog
 {
     private final SampleGeneration sampleGeneration;
 
-    private final IViewContext<IGenericClientServiceAsync> viewContext;
+    private final IMessageProvider messageProvider;
 
-    public GenericSampleViewer(final String heading,
-            final IViewContext<IGenericClientServiceAsync> viewContext,
+    public ScreeningSampleViewer(final String heading, final IMessageProvider messageProvider,
             final SampleGeneration sampleGeneration)
     {
+        super(heading);
         this.sampleGeneration = sampleGeneration;
-        this.viewContext = viewContext;
-        init(heading);
-        // Left panel
-        add(createLeftPanel(), createLeftBorderLayoutData());
-        // Center panel
-        add(createRightPanel(), createRightBorderLayoutData());
-    }
-
-    private final static BorderLayoutData createRightBorderLayoutData()
-    {
-        final BorderLayoutData data = new BorderLayoutData(LayoutRegion.CENTER);
-        return data;
-    }
-
-    private final ContentPanel createRightPanel()
-    {
-        final ContentPanel panel = new ContentPanel();
-        panel.setHeading("Center");
-        return panel;
-    }
-
-    private final void init(final String heading)
-    {
-        setHeading(heading);
-        setButtons(OK);
-        setScrollMode(Scroll.AUTO);
-        setWidth(AbstractDialog.DEFAULT_WIDTH);
-        setHeight(AbstractDialog.DEFAULT_HEIGHT);
-        setBodyStyle("backgroundColor: #ffffff;");
-        setHideOnButtonClick(true);
-        setLayout(new BorderLayout());
-        setBodyBorder(false);
-        setInsetBorder(false);
-    }
-
-    private final static BorderLayoutData createLeftBorderLayoutData()
-    {
-        BorderLayoutData data = new BorderLayoutData(LayoutRegion.WEST, 300, 100, 500);
-        data.setMargins(new Margins(0, 5, 0, 0));
-        data.setSplit(true);
-        data.setCollapsible(true);
-        data.setFloatable(true);
-        return data;
+        this.messageProvider = messageProvider;
+        addWidget();
     }
 
     private final static Map<String, Object> createProperties(
@@ -137,17 +88,13 @@ public final class GenericSampleViewer extends Dialog
         return properties;
     }
 
-    private final ContentPanel createLeftPanel()
-    {
-        final ContentPanel panel = new ContentPanel();
-        panel.setHeading(viewContext.getMessageProvider().getMessage("sample_properties"));
-        panel.add(createPropertyGrid());
-        return panel;
-    }
+    //
+    // AbstractDialog
+    //
 
-    private final PropertyGrid createPropertyGrid()
+    @Override
+    public final Widget getWidget()
     {
-        final IMessageProvider messageProvider = viewContext.getMessageProvider();
         final Map<String, Object> properties = createProperties(messageProvider, sampleGeneration);
         final PropertyGrid propertyGrid = new PropertyGrid(messageProvider, properties.size());
         propertyGrid.registerPropertyValueRenderer(Person.class, PropertyValueRenderers

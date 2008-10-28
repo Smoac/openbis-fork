@@ -41,7 +41,8 @@ var generic = {
   generated_samples: "Generated Samples",
   generated_from: "Parent (gener.) {0}",
   part_of: "Parent (cont.) {0}",
-  
+  sample_properties: "Sample Properties",
+    
   //
   // Invalidation
   //

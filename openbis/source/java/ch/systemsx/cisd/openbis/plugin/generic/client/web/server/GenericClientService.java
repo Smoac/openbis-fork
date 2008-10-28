@@ -328,6 +328,12 @@ public final class GenericClientService extends AbstractClientService implements
         final ListSampleCriteriaDTO criteria =
                 new ListSampleCriteriaDTO(ownerIdentifiers, SampleTypeTranslator
                         .translate(listCriteria.getSampleType()));
+        final Sample container = listCriteria.getContainer();
+        if (container != null)
+        {
+            criteria.setContainerIdentifier(SampleIdentifierFactory
+                    .parse(container.getIdentifier()));
+        }
         return criteria;
     }
 

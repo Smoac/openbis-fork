@@ -89,8 +89,7 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
     /**
      * @see IGenericClientService#getSampleInfo(String)
      */
-    // TODO 2008-10-23, Tomasz Pylak: use SampleIdentifier type or sample technical id. This is
-    // ugly.
+    // TODO 2008-10-23, Tomasz Pylak: use SampleIdentifier type or sample technical id.
     public void getSampleInfo(final String sampleIdentifier,
             AsyncCallback<SampleGeneration> asyncCallback);
 

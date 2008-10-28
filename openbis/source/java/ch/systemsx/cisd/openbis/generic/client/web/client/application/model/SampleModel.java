@@ -32,8 +32,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
  * 
  * @author Izabela Adamczyk
  */
-public class SampleModel extends BaseModelData
+public final class SampleModel extends BaseModelData
 {
+    private static final long serialVersionUID = 1L;
 
     private static final String SEPARATOR = "/";
 
@@ -49,8 +50,6 @@ public class SampleModel extends BaseModelData
 
     public static final String SAMPLE_IDENTIFIER = "sampleIdentifier";
 
-    public static final long serialVersionUID = 1L;
-
     public static final String REGISTRATOR = "registrator";
 
     public static final String REGISTRATION_DATE = "registrationDate";
@@ -65,29 +64,28 @@ public class SampleModel extends BaseModelData
 
     public static final String EXPERIMENT = "experiment";
 
-    public SampleModel(Sample s)
+    public SampleModel(final Sample sample)
     {
-        set(SAMPLE_CODE, printShortIdentifier(s));
-        set(SAMPLE_TYPE, s.getSampleType());
-        set(OBJECT, s);
-        set(SAMPLE_IDENTIFIER, s.getIdentifier());
-        set(IS_INSTANCE_SAMPLE_COLUMN, (s.getDatabaseInstance() != null));
-        set(REGISTRATOR, PersonRenderer.createPersonAnchor(s.getRegistrator()));
-        set(REGISTRATION_DATE, DateRenderer.renderDate(s.getRegistrationDate()));
-        set(IS_GROUP_SAMPLE, s.getGroup() != null);
-        set(IS_INVALID, s.getInvalidation() != null);
-        set(EXPERIMENT, printExperimentIdentifier(s));
-        setGeneratedFromParents(s, 1, s.getSampleType().getGeneratedFromHierarchyDepth());
-        setContainerParents(s, 1, s.getSampleType().getPartOfHierarchyDepth());
-        setProperties(s);
-
+        set(SAMPLE_CODE, printShortIdentifier(sample));
+        set(SAMPLE_TYPE, sample.getSampleType());
+        set(OBJECT, sample);
+        set(SAMPLE_IDENTIFIER, sample.getIdentifier());
+        set(IS_INSTANCE_SAMPLE_COLUMN, (sample.getDatabaseInstance() != null));
+        set(REGISTRATOR, PersonRenderer.createPersonAnchor(sample.getRegistrator()));
+        set(REGISTRATION_DATE, DateRenderer.renderDate(sample.getRegistrationDate()));
+        set(IS_GROUP_SAMPLE, sample.getGroup() != null);
+        set(IS_INVALID, sample.getInvalidation() != null);
+        set(EXPERIMENT, printExperimentIdentifier(sample));
+        setGeneratedFromParents(sample, 1, sample.getSampleType().getGeneratedFromHierarchyDepth());
+        setContainerParents(sample, 1, sample.getSampleType().getPartOfHierarchyDepth());
+        setProperties(sample);
     }
 
-    private void setProperties(Sample s)
+    private final void setProperties(final Sample sample)
     {
-        for (SampleProperty p : s.getProperties())
+        for (final SampleProperty p : sample.getProperties())
         {
-            PropertyType propertyType = p.getEntityTypePropertyType().getPropertyType();
+            final PropertyType propertyType = p.getEntityTypePropertyType().getPropertyType();
             set(
                     PROPERTY_PREFIX + propertyType.isInternalNamespace()
                             + propertyType.getSimpleCode(), p.getValue());
@@ -95,30 +93,32 @@ public class SampleModel extends BaseModelData
 
     }
 
-    private void setGeneratedFromParents(Sample s, int depth, int maxDepth)
+    private final void setGeneratedFromParents(final Sample sample, final int depth,
+            final int maxDepth)
     {
-        if (depth <= maxDepth && s.getGeneratedFrom() != null)
+        if (depth <= maxDepth && sample.getGeneratedFrom() != null)
         {
-            set(GENERATED_FROM_PARENT_PREFIX + depth, printShortIdentifier(s.getGeneratedFrom()));
-            setGeneratedFromParents(s.getGeneratedFrom(), depth + 1, maxDepth);
+            set(GENERATED_FROM_PARENT_PREFIX + depth, printShortIdentifier(sample
+                    .getGeneratedFrom()));
+            setGeneratedFromParents(sample.getGeneratedFrom(), depth + 1, maxDepth);
         }
     }
 
-    private void setContainerParents(Sample s, int depth, int maxDepth)
+    private final void setContainerParents(final Sample sample, final int depth, final int maxDepth)
     {
-        if (depth <= maxDepth && s.getContainer() != null)
+        if (depth <= maxDepth && sample.getContainer() != null)
         {
-            set(CONTAINER_PARENT_PREFIX + depth, printShortIdentifier(s.getContainer()));
-            setContainerParents(s.getContainer(), depth + 1, maxDepth);
+            set(CONTAINER_PARENT_PREFIX + depth, printShortIdentifier(sample.getContainer()));
+            setContainerParents(sample.getContainer(), depth + 1, maxDepth);
         }
     }
 
-    private static String printExperimentIdentifier(Sample s)
+    private final static String printExperimentIdentifier(final Sample sample)
     {
-        Procedure procedure = s.getValidProcedure();
+        final Procedure procedure = sample.getValidProcedure();
         if (procedure != null)
         {
-            Experiment experiment = procedure.getExperiment();
+            final Experiment experiment = procedure.getExperiment();
             if (experiment != null)
             {
                 return printExperimentidentifier(experiment);
@@ -127,12 +127,12 @@ public class SampleModel extends BaseModelData
         return null;
     }
 
-    private static String printExperimentidentifier(Experiment experiment)
+    private final static String printExperimentidentifier(final Experiment experiment)
     {
         return experiment.getProject().getCode() + SEPARATOR + experiment.getCode();
     }
 
-    private static String printShortIdentifier(Sample sample)
+    private final static String printShortIdentifier(final Sample sample)
     {
         if (sample.getDatabaseInstance() != null)
         {

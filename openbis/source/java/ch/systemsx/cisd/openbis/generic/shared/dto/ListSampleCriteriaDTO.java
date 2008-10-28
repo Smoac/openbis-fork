@@ -21,6 +21,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
 /**
@@ -38,8 +39,20 @@ public class ListSampleCriteriaDTO extends AbstractHashable implements Serializa
     // list samples of particular type
     private SampleTypePE sampleType;
 
-    public ListSampleCriteriaDTO(List<SampleOwnerIdentifier> ownerIdentifiers,
-            SampleTypePE sampleType)
+    private SampleIdentifier containerIdentifier;
+
+    public final SampleIdentifier getContainerIdentifier()
+    {
+        return containerIdentifier;
+    }
+
+    public final void setContainerIdentifier(final SampleIdentifier container)
+    {
+        this.containerIdentifier = container;
+    }
+
+    public ListSampleCriteriaDTO(final List<SampleOwnerIdentifier> ownerIdentifiers,
+            final SampleTypePE sampleType)
     {
         this.ownerIdentifiers = ownerIdentifiers;
         this.sampleType = sampleType;

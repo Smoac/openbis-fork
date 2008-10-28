@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IGenericBusinessObjec
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISamplePropertyDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
@@ -277,9 +278,10 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             final ListSampleCriteriaDTO criteria)
     {
         final Session session = getSessionManager().getSession(sessionToken);
-        final List<SamplePE> samples =
-                getBusinessObjectFactory().createSampleTable(session).listSamples(criteria);
-        return samples;
+        final ISampleTable sampleTable = getBusinessObjectFactory().createSampleTable(session);
+        sampleTable.loadSamplesByCriteria(criteria);
+        sampleTable.enrichWithValidProcedure();
+        return sampleTable.getSamples();
     }
 
     public List<SamplePropertyPE> listSamplesProperties(final String sessionToken,
@@ -314,5 +316,4 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 SampleServerPluginRegistry.getPlugin(this, sample.getSampleType());
         return plugin.getSlaveServer().getSampleInfo(getDAOFactory(), session, sample);
     }
-
 }

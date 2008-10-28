@@ -30,9 +30,9 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public abstract class AbstractDialog extends Dialog
 {
-    protected static final int DEFAULT_WIDTH = 500;
+    public static final int DEFAULT_WIDTH = 500;
 
-    protected static final int DEFAULT_HEIGHT = 300;
+    public static final int DEFAULT_HEIGHT = 300;
 
     public AbstractDialog(final String heading, final int width, final int height)
     {

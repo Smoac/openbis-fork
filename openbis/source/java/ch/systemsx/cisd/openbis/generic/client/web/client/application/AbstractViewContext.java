@@ -16,12 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
+
 /**
  * An <i>abstract</i> {@link IViewContext} implementation.
  * 
  * @author Christian Ribeaud
  */
-public abstract class AbstractViewContext<T> implements IViewContext<T>
+public abstract class AbstractViewContext<T extends IClientServiceAsync> implements IViewContext<T>
 {
     public final String getMessage(final String key, final Object... parameters)
     {

@@ -28,7 +28,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IClientPlu
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ISampleViewClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.GenericSampleViewer;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.SampleTypeCode;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 
@@ -108,7 +107,7 @@ public final class ClientPluginFactory extends
     {
         private Dialog dialog;
 
-        private SampleInfoCallback(final IViewContext<?> viewContext)
+        private SampleInfoCallback(final IViewContext<IScreeningClientServiceAsync> viewContext)
         {
             super(viewContext);
         }
@@ -125,11 +124,12 @@ public final class ClientPluginFactory extends
         // AbstractAsyncCallback
         //
 
+        @SuppressWarnings("unchecked")
         @Override
         protected final void process(final SampleGeneration result)
         {
             final String title = result.getGenerator().getCode();
-            dialog = new GenericSampleViewer(title, viewContext.getMessageProvider(), result);
+            dialog = new ScreeningSampleViewer(title, viewContext.getMessageProvider(), result);
             dialog.show();
         }
     }

@@ -98,11 +98,13 @@ public final class ClientPluginFactory extends
         }
     }
 
-    private final static class SampleGenerationInfoCallback extends AbstractAsyncCallback<SampleGeneration>
+    private final static class SampleGenerationInfoCallback extends
+            AbstractAsyncCallback<SampleGeneration>
     {
         private Dialog dialog;
 
-        private SampleGenerationInfoCallback(final IViewContext<?> viewContext)
+        private SampleGenerationInfoCallback(
+                final IViewContext<IGenericClientServiceAsync> viewContext)
         {
             super(viewContext);
         }
@@ -119,11 +121,14 @@ public final class ClientPluginFactory extends
         // AbstractAsyncCallback
         //
 
+        @SuppressWarnings("unchecked")
         @Override
         protected final void process(final SampleGeneration result)
         {
             final String title = result.getGenerator().getCode();
-            dialog = new GenericSampleViewer(title, viewContext.getMessageProvider(), result);
+            dialog =
+                    new GenericSampleViewer(title,
+                            (IViewContext<IGenericClientServiceAsync>) viewContext, result);
             dialog.show();
         }
     }

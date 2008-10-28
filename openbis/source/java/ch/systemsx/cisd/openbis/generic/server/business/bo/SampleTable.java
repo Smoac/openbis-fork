@@ -21,7 +21,6 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwnerFinder;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -30,47 +29,19 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
 /**
  * @author Tomasz Pylak
  */
-public final class SampleTable extends AbstractBusinessObject implements ISampleTable
+public final class SampleTable extends AbstractSampleBusinessObject implements ISampleTable
 {
-    private final IDAOFactory daoFactory;
+    private List<SamplePE> samples;
 
     public SampleTable(final IDAOFactory daoFactory, final Session session)
     {
         super(daoFactory, session);
-        this.daoFactory = daoFactory;
-    }
-
-    public List<SamplePE> listSamples(final ListSampleCriteriaDTO criteria)
-    {
-        final SampleTypePE sampleType =
-                getSampleTypeDAO().tryFindByExample(criteria.getSampleType());
-        if (sampleType == null)
-        {
-            throw new UserFailureException("Cannot find a sample type matching to "
-                    + criteria.getSampleType());
-        }
-        final SampleOwnerFinder finder = new SampleOwnerFinder(daoFactory, findRegistrator());
-        final List<SamplePE> samples = new ArrayList<SamplePE>();
-        for (final SampleOwnerIdentifier sampleOwnerIdentifier : criteria.getOwnerIdentifiers())
-        {
-            final SampleOwner owner = finder.figureSampleOwner(sampleOwnerIdentifier);
-            samples.addAll(listSamples(sampleType, owner));
-        }
-        setValidProcedure(samples);
-        return samples;
-    }
-
-    private static void setValidProcedure(List<SamplePE> samples)
-    {
-        for (SamplePE sample : samples)
-        {
-            enrichWithProcedure(sample);
-        }
     }
 
     /**
@@ -112,7 +83,7 @@ public final class SampleTable extends AbstractBusinessObject implements ISample
         return foundProcedure;
     }
 
-    private List<SamplePE> listSamples(final SampleTypePE sampleType, final SampleOwner owner)
+    private final List<SamplePE> listSamples(final SampleTypePE sampleType, final SampleOwner owner)
     {
         final ISampleDAO sampleDAO = getSampleDAO();
         if (owner.isGroupLevel())
@@ -123,5 +94,48 @@ public final class SampleTable extends AbstractBusinessObject implements ISample
             return sampleDAO.listSamplesByTypeAndDatabaseInstance(sampleType, owner
                     .tryGetDatabaseInstance());
         }
+    }
+
+    //
+    // ISampleTable
+    //
+
+    public final void loadSamplesByCriteria(final ListSampleCriteriaDTO criteria)
+    {
+        final SampleIdentifier containerIdentifier = criteria.getContainerIdentifier();
+        if (containerIdentifier != null)
+        {
+            final SamplePE container = getSampleByIdentifier(containerIdentifier);
+            samples = getSampleDAO().listSamplesByContainer(container);
+        } else
+        {
+            final SampleTypePE sampleType =
+                    getSampleTypeDAO().tryFindByExample(criteria.getSampleType());
+            if (sampleType == null)
+            {
+                throw new UserFailureException("Cannot find a sample type matching to "
+                        + criteria.getSampleType());
+            }
+            samples = new ArrayList<SamplePE>();
+            for (final SampleOwnerIdentifier sampleOwnerIdentifier : criteria.getOwnerIdentifiers())
+            {
+                final SampleOwner owner =
+                        getSampleOwnerFinder().figureSampleOwner(sampleOwnerIdentifier);
+                samples.addAll(listSamples(sampleType, owner));
+            }
+        }
+    }
+
+    public final void enrichWithValidProcedure()
+    {
+        for (final SamplePE sample : samples)
+        {
+            enrichWithProcedure(sample);
+        }
+    }
+
+    public final List<SamplePE> getSamples()
+    {
+        return samples;
     }
 }

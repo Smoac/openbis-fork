@@ -208,8 +208,9 @@ public final class PropertyValueRenderers
         public final String renderNotNull(final Invalidation invalidation)
         {
             return getMessageProvider().getMessage("invalidation_template",
+                    rendererPerson(invalidation.getRegistrator()),
                     DateRenderer.renderDate(invalidation.getRegistrationDate()),
-                    invalidation.getReason(), rendererPerson(invalidation.getRegistrator()));
+                    invalidation.getReason());
         }
     }
 

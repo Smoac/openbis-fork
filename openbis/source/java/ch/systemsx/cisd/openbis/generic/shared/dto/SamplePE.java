@@ -381,7 +381,7 @@ public class SamplePE extends HibernateAbstractRegistrationHolder implements IId
         }
     }
 
-    public void addProperty(SamplePropertyPE property)
+    public void addProperty(final SamplePropertyPE property)
     {
         property.setEntity(this);
         getSampleProperties().add(property);
