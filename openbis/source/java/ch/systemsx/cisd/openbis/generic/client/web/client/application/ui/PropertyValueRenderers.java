@@ -23,11 +23,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.propert
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DOMUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityProperty;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
 /**
@@ -43,41 +42,49 @@ public final class PropertyValueRenderers
         // Can not be instantiated
     }
 
+    /**
+     * Creates a {@link IPropertyValueRenderer} implementation for rendering {@link Sample}.
+     */
     public final static IPropertyValueRenderer<Sample> createSamplePropertyValueRenderer(
-            final IMessageProvider messageProvider)
+            final IMessageProvider messageProvider, final boolean withType)
     {
-        return new SamplePropertyValueRenderer(messageProvider);
+        return new SamplePropertyValueRenderer(messageProvider, withType);
     }
 
+    /**
+     * Creates a {@link IPropertyValueRenderer} implementation for rendering {@link SampleType}.
+     */
     public final static IPropertyValueRenderer<SampleType> createSampleTypePropertyValueRenderer(
             final IMessageProvider messageProvider)
     {
         return new SampleTypePropertyValueRenderer(messageProvider);
     }
 
+    /**
+     * Creates a {@link IPropertyValueRenderer} implementation for rendering {@link Person}.
+     */
     public final static IPropertyValueRenderer<Person> createPersonPropertyValueRenderer(
             final IMessageProvider messageProvider)
     {
         return new PersonPropertyValueRenderer(messageProvider);
     }
 
+    /**
+     * Creates a {@link IPropertyValueRenderer} implementation for rendering {@link Invalidation}.
+     */
     public final static IPropertyValueRenderer<Invalidation> createInvalidationPropertyValueRenderer(
             final IMessageProvider messageProvider)
     {
         return new InvalidationPropertyValueRenderer(messageProvider);
     }
 
-    public final static IPropertyValueRenderer<Invalidation> getInvalidationPropertyValueRenderer(
+    /**
+     * Creates a {@link IPropertyValueRenderer} implementation for rendering {@link SampleProperty}.
+     */
+    public final static IPropertyValueRenderer<SampleProperty> createSamplePropertyPropertyValueRenderer(
             final IMessageProvider messageProvider)
     {
-        return new InvalidationPropertyValueRenderer(messageProvider);
-    }
-
-    public final static <T extends EntityProperty> IPropertyValueRenderer<T> getEntityPropertyPropertyValueRenderer(
-            final IMessageProvider messageProvider)
-    {
-        return null;
-        // return new EntityPropertyPropertyValueRenderer<T, P>(messageProvider);
+        return new EntityPropertyPropertyValueRenderer<SampleProperty>(messageProvider);
     }
 
     /**
@@ -88,10 +95,12 @@ public final class PropertyValueRenderers
     private final static class SamplePropertyValueRenderer extends
             AbstractPropertyValueRenderer<Sample>
     {
+        private final boolean withType;
 
-        SamplePropertyValueRenderer(final IMessageProvider messageProvider)
+        SamplePropertyValueRenderer(final IMessageProvider messageProvider, final boolean withType)
         {
             super(messageProvider);
+            this.withType = withType;
         }
 
         //
@@ -102,11 +111,19 @@ public final class PropertyValueRenderers
         protected final String renderNotNull(final Sample sample)
         {
             final String code = sample.getCode();
+            final StringBuilder builder = new StringBuilder();
             if (sample.getInvalidation() != null)
             {
-                return DOMUtils.createDelElement(code);
+                builder.append(DOMUtils.createDelElement(code));
+            } else
+            {
+                builder.append(code);
             }
-            return code;
+            if (withType)
+            {
+                builder.append(" [").append(sample.getSampleType().getCode()).append("]");
+            }
+            return builder.toString();
         }
     }
 
@@ -201,8 +218,8 @@ public final class PropertyValueRenderers
      * 
      * @author Christian Ribeaud
      */
-    private final static class EntityPropertyPropertyValueRenderer<T extends EntityType, P extends EntityTypePropertyType<T>>
-            extends AbstractPropertyValueRenderer<EntityProperty<T, P>>
+    private final static class EntityPropertyPropertyValueRenderer<T extends EntityProperty<?, ?>>
+            extends AbstractPropertyValueRenderer<T>
     {
 
         EntityPropertyPropertyValueRenderer(final IMessageProvider messageProvider)
@@ -215,10 +232,9 @@ public final class PropertyValueRenderers
         //
 
         @Override
-        protected final String renderNotNull(
-                ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityProperty<T, P> value)
+        protected final String renderNotNull(final T value)
         {
-            return null;
+            return value.getValue();
         }
     }
 }

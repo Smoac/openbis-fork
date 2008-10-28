@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
 /**
@@ -57,21 +58,33 @@ public final class GenericSampleViewer extends AbstractDialog
         final Map<String, Object> properties = new LinkedHashMap<String, Object>();
         final Sample sample = sampleGeneration.getGenerator();
         final SampleType sampleType = sample.getSampleType();
-        properties.put(messageProvider.getMessage("sample"), sample);
+        final Invalidation invalidation = sample.getInvalidation();
+        final Sample[] generated = sampleGeneration.getGenerated();
+        properties.put(messageProvider.getMessage("sample"), sample.getCode());
         properties.put(messageProvider.getMessage("sample_type"), sampleType);
         properties.put(messageProvider.getMessage("registrator"), sample.getRegistrator());
         properties.put(messageProvider.getMessage("registration_date"), sample
                 .getRegistrationDate());
-        properties.put(messageProvider.getMessage("generated_samples"), sampleGeneration
-                .getGenerated());
-        properties.put(messageProvider.getMessage("invalidation"), sample.getInvalidation());
+        if (generated.length > 0)
+        {
+            properties.put(messageProvider.getMessage("generated_samples"), generated);
+        }
+        if (invalidation != null)
+        {
+            properties.put(messageProvider.getMessage("invalidation"), invalidation);
+        }
         Sample generatedFrom = sample;
         for (int i = 0; i < sampleType.getGeneratedFromHierarchyDepth() && generatedFrom != null; i++)
         {
             generatedFrom = generatedFrom.getGeneratedFrom();
             properties.put(messageProvider.getMessage("generated_from", i + 1), generatedFrom);
         }
-
+        for (final SampleProperty property : sample.getProperties())
+        {
+            final String simpleCode =
+                    property.getEntityTypePropertyType().getPropertyType().getLabel();
+            properties.put(simpleCode, property);
+        }
         return properties;
     }
 
@@ -89,11 +102,11 @@ public final class GenericSampleViewer extends AbstractDialog
         propertyGrid.registerPropertyValueRenderer(SampleType.class, PropertyValueRenderers
                 .createSampleTypePropertyValueRenderer(messageProvider));
         propertyGrid.registerPropertyValueRenderer(Sample.class, PropertyValueRenderers
-                .createSamplePropertyValueRenderer(messageProvider));
+                .createSamplePropertyValueRenderer(messageProvider, true));
         propertyGrid.registerPropertyValueRenderer(Invalidation.class, PropertyValueRenderers
-                .getInvalidationPropertyValueRenderer(messageProvider));
-        // propertyGrid.registerPropertyValueRenderer(SampleProperty.class, PropertyValueRenderers
-        // .getEntityPropertyPropertyValueRenderer(messageProvider));
+                .createInvalidationPropertyValueRenderer(messageProvider));
+        propertyGrid.registerPropertyValueRenderer(SampleProperty.class, PropertyValueRenderers
+                .createSamplePropertyPropertyValueRenderer(messageProvider));
         propertyGrid.setProperties(properties);
         return propertyGrid;
     }
