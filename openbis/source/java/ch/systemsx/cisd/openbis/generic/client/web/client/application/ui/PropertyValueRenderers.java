@@ -156,7 +156,7 @@ public final class PropertyValueRenderers
         @Override
         public final String renderNotNull(final Person person)
         {
-            return PersonRenderer.toString(person);
+            return PersonRenderer.createPersonAnchor(person);
         }
     }
 

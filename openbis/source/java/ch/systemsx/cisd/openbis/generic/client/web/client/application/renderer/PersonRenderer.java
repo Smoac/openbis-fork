@@ -69,9 +69,10 @@ public final class PersonRenderer
      */
     public final static String createPersonAnchor(final Person person)
     {
+        assert person != null : "Unspecified person.";
         final String email = person.getEmail();
         final String name = createPersonName(person).toString();
-        if (email != null)
+        if (StringUtils.isBlank(email) == false)
         {
             final Element anchor = DOMUtils.createAnchorElement(null, "mailto:" + email, email);
             DOM.setInnerText(anchor, name);
@@ -98,19 +99,27 @@ public final class PersonRenderer
         assert person != null : "Given person can not be null.";
         final StringBuilder builder = new StringBuilder();
         builder.append(createPersonName(person));
-
-        if (builder.length() != 0)
+        // UserId
+        final String userId = person.getUserId();
+        if (StringUtils.isBlank(userId) == false)
         {
-            builder.append(' ');
+            if (builder.length() != 0)
+            {
+                builder.append(' ');
+            }
+            builder.append(LOGIN_START);
+            builder.append(userId);
+            builder.append(LOGIN_END);
         }
-        builder.append(LOGIN_START);
-        builder.append(person.getUserId());
-        builder.append(LOGIN_END);
-
+        // Email
         final String email = person.getEmail();
-        if (StringUtils.isBlank(email) == false && builder.length() > 0)
+        if (StringUtils.isBlank(email) == false)
         {
-            builder.append(" ").append(EMAIL_START);
+            if (builder.length() > 0)
+            {
+                builder.append(" ");
+            }
+            builder.append(EMAIL_START);
             builder.append(email);
             builder.append(EMAIL_END);
         }
