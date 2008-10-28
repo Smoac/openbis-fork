@@ -21,6 +21,7 @@ import org.springframework.dao.DataAccessException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
@@ -51,11 +52,6 @@ abstract class AbstractBusinessObject implements IDAOFactory
         this.session = session;
     }
 
-    protected final Long findRegistratorID()
-    {
-        return findRegistrator().getId();
-    }
-
     protected final PersonPE findRegistrator()
     {
         PersonPE registrator = session.tryGetPerson();
@@ -68,6 +64,10 @@ abstract class AbstractBusinessObject implements IDAOFactory
     {
         DataAccessExceptionTranslator.throwException(exception, subject);
     }
+
+    //
+    // IDAOFactory
+    //
 
     public final DatabaseInstancePE getHomeDatabaseInstance()
     {
@@ -107,5 +107,10 @@ abstract class AbstractBusinessObject implements IDAOFactory
     public final ISamplePropertyDAO getSamplePropertyDAO()
     {
         return daoFactory.getSamplePropertyDAO();
+    }
+
+    public final IExternalDataDAO getExternalDataDAO()
+    {
+        return daoFactory.getExternalDataDAO();
     }
 }

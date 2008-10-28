@@ -138,6 +138,7 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
         }
         return list;
     }
+
     public final SamplePE tryFindByCodeAndDatabaseInstance(final String sampleCode,
             final DatabaseInstancePE databaseInstance)
     {
@@ -176,7 +177,7 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
         return sample;
     }
 
-    public final List<SamplePE> listSampleByGeneratedFrom(final SamplePE sample)
+    public final List<SamplePE> listSamplesByGeneratedFrom(final SamplePE sample)
     {
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
         final String hql = String.format("from %s s where s.generatedFrom = ?", TABLE_NAME);
@@ -189,4 +190,25 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
         }
         return list;
     }
+
+    public final List<SamplePE> listSamplesByContainer(final SamplePE container)
+            throws DataAccessException
+    {
+        assert container != null : "Unspecified container.";
+
+        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+        final String hql =
+                String
+                        .format("from %s s join fetch s.container as cont where cont = ?",
+                                TABLE_NAME);
+        final List<SamplePE> list = cast(hibernateTemplate.find(hql, toArray(container)));
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format(
+                    "%d sample(s) have been found for \"partOf\" sample '%s'.", list.size(),
+                    container));
+        }
+        return list;
+    }
+
 }

@@ -20,44 +20,57 @@ import org.hibernate.SessionFactory;
 
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISamplePropertyDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 
 /**
  * @author Franz-Josef Elmer
  */
-public class DAOFactory extends AuthorizationDAOFactory implements IDAOFactory
+public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFactory
 {
     private final ISampleDAO sampleDAO;
 
     private final ISampleTypeDAO sampleTypeDAO;
 
-    private final SamplePropertyDAO samplePropertyDAO;
+    private final ISamplePropertyDAO samplePropertyDAO;
 
-    public DAOFactory(DatabaseConfigurationContext context, SessionFactory sessionFactory)
+    private final IExternalDataDAO externalDataDAO;
+
+    public DAOFactory(final DatabaseConfigurationContext context,
+            final SessionFactory sessionFactory)
     {
         super(context, sessionFactory);
-        DatabaseInstancePE databaseInstance = getHomeDatabaseInstance();
-
+        final DatabaseInstancePE databaseInstance = getHomeDatabaseInstance();
         sampleDAO = new SampleDAO(sessionFactory, databaseInstance);
         sampleTypeDAO = new SampleTypeDAO(sessionFactory, databaseInstance);
         samplePropertyDAO = new SamplePropertyDAO(sessionFactory, databaseInstance);
+        externalDataDAO = new ExternalDataDAO(sessionFactory, databaseInstance);
     }
 
-    public ISampleDAO getSampleDAO()
+    //
+    // IDAOFactory
+    //
+
+    public final ISampleDAO getSampleDAO()
     {
         return sampleDAO;
     }
 
-    public ISampleTypeDAO getSampleTypeDAO()
+    public final ISampleTypeDAO getSampleTypeDAO()
     {
         return sampleTypeDAO;
     }
 
-    public SamplePropertyDAO getSamplePropertyDAO()
+    public final ISamplePropertyDAO getSamplePropertyDAO()
     {
         return samplePropertyDAO;
     }
 
+    public final IExternalDataDAO getExternalDataDAO()
+    {
+        return externalDataDAO;
+    }
 }

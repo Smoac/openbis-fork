@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
 /**
+ * A <i>Data Access Object</i> factory.
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IDAOFactory extends IAuthorizationDAOFactory
@@ -28,4 +30,5 @@ public interface IDAOFactory extends IAuthorizationDAOFactory
 
     ISamplePropertyDAO getSamplePropertyDAO();
 
+    IExternalDataDAO getExternalDataDAO();
 }

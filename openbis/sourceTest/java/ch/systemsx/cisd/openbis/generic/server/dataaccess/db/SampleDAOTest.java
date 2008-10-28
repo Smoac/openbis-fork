@@ -127,6 +127,21 @@ public final class SampleDAOTest extends AbstractDAOTest
         assertNull(sampleDAO.tryFindByCodeAndGroup("", sample.getGroup()));
     }
 
+    @Test
+    public final void testListSamplesByContainer()
+    {
+        final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
+        boolean fail = true;
+        try
+        {
+            sampleDAO.listSamplesByContainer(null);
+        } catch (final AssertionError e)
+        {
+            fail = false;
+        }
+        assertFalse(fail);
+    }
+
     //
     // Private methods
     //

@@ -48,7 +48,7 @@ public final class GenericSampleTypeSlaveServerPlugin implements ISampleTypeSlav
         sample.ensurePropertiesAreLoaded();
         SampleHierarchyFiller.enrichWithParentAndContainerHierarchy(sample);
         final List<SamplePE> generated =
-                daoFactory.getSampleDAO().listSampleByGeneratedFrom(sample);
+                daoFactory.getSampleDAO().listSamplesByGeneratedFrom(sample);
         final SampleGenerationDTO sampleGenerationDTO = new SampleGenerationDTO(sample, generated);
         return sampleGenerationDTO;
     }

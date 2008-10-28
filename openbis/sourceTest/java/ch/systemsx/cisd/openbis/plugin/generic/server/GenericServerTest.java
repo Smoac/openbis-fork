@@ -388,7 +388,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                     one(daoFactory).getSampleDAO();
                     will(returnValue(sampleDAO));
 
-                    one(sampleDAO).listSampleByGeneratedFrom(samplePE);
+                    one(sampleDAO).listSamplesByGeneratedFrom(samplePE);
                     will(returnValue(SamplePE.EMPTY_LIST));
                 }
             });

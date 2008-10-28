@@ -33,8 +33,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 public interface ISampleDAO
 {
     /**
-     * Lists sampels of given type from the given group. Samples are enriched with procedures and
-     * their experiments.
+     * Lists {@link SamplePE}s of given type from the given group. Returned {@link SamplePE}s are
+     * enriched with procedures and their experiments.
      */
     List<SamplePE> listSamplesByTypeAndGroup(final SampleTypePE sampleType, final GroupPE group)
             throws DataAccessException;
@@ -44,7 +44,7 @@ public interface ISampleDAO
      * from the database instance instead of the group.
      */
     List<SamplePE> listSamplesByTypeAndDatabaseInstance(final SampleTypePE sampleType,
-            final DatabaseInstancePE databaseInstance);
+            final DatabaseInstancePE databaseInstance) throws DataAccessException;
 
     void createSample(final SamplePE sample) throws DataAccessException;
 
@@ -52,15 +52,21 @@ public interface ISampleDAO
      * Returns the sample specified by given <var>sampleCode</var> and given <var>databaseInstance</var>.
      */
     SamplePE tryFindByCodeAndDatabaseInstance(final String sampleCode,
-            final DatabaseInstancePE databaseInstance);
+            final DatabaseInstancePE databaseInstance) throws DataAccessException;
 
     /**
      * Returns the sample specified by given <var>sampleCode</var> and given <var>group</var>.
      */
-    SamplePE tryFindByCodeAndGroup(final String sampleCode, final GroupPE group);
+    SamplePE tryFindByCodeAndGroup(final String sampleCode, final GroupPE group)
+            throws DataAccessException;
 
     /**
      * For given <var>sample</var> returns all {@link SamplePE}s that are generated from it.
      */
-    List<SamplePE> listSampleByGeneratedFrom(final SamplePE sample);
+    List<SamplePE> listSamplesByGeneratedFrom(final SamplePE sample) throws DataAccessException;
+
+    /**
+     * Lists all {@link SamplePE}s which are part of the specified <var>container</var>.
+     */
+    List<SamplePE> listSamplesByContainer(final SamplePE container) throws DataAccessException;
 }
