@@ -285,15 +285,14 @@ public final class GenericClientService extends AbstractClientService implements
             final ListSampleCriteriaDTO criteria = createCriteriaDTO(listCriteria);
 
             final List<SamplePE> samplePEs = genericServer.listSamples(getSessionToken(), criteria);
+            final List<SamplePropertyPE> propertiesMap =
+                    genericServer.listSamplesProperties(getSessionToken(), criteria,
+                            PropertyTypeTranslator.translate(propertyCodes));
             final List<Sample> result = new ArrayList<Sample>();
             for (final SamplePE sample : samplePEs)
             {
                 result.add(SampleTranslator.translate(sample));
             }
-
-            final List<SamplePropertyPE> propertiesMap =
-                    genericServer.listSamplesProperties(getSessionToken(), criteria,
-                            PropertyTypeTranslator.translate(propertyCodes));
             setSampleProperties(result, propertiesMap);
             return result;
         } catch (final UserFailureException e)
