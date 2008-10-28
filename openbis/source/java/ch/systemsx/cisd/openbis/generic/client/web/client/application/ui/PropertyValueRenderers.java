@@ -21,6 +21,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.P
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.AbstractPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
@@ -67,6 +70,13 @@ public final class PropertyValueRenderers
             final IMessageProvider messageProvider)
     {
         return new InvalidationPropertyValueRenderer(messageProvider);
+    }
+
+    public final static <T extends EntityProperty> IPropertyValueRenderer<T> getEntityPropertyPropertyValueRenderer(
+            final IMessageProvider messageProvider)
+    {
+        return null;
+        // return new EntityPropertyPropertyValueRenderer<T, P>(messageProvider);
     }
 
     /**
@@ -182,6 +192,32 @@ public final class PropertyValueRenderers
             return getMessageProvider().getMessage("invalidation_template",
                     DateRenderer.renderDate(invalidation.getRegistrationDate()),
                     invalidation.getReason(), rendererPerson(invalidation.getRegistrator()));
+        }
+    }
+
+    /**
+     * Renderer for {@link EntityProperty}.
+     * 
+     * @author Christian Ribeaud
+     */
+    private final static class EntityPropertyPropertyValueRenderer<T extends EntityType, P extends EntityTypePropertyType<T>>
+            extends AbstractPropertyValueRenderer<EntityProperty<T, P>>
+    {
+
+        EntityPropertyPropertyValueRenderer(final IMessageProvider messageProvider)
+        {
+            super(messageProvider);
+        }
+
+        //
+        // AbstractPropertyValueRenderer
+        //
+
+        @Override
+        protected final String renderNotNull(
+                ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityProperty<T, P> value)
+        {
+            return null;
         }
     }
 }

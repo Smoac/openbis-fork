@@ -22,6 +22,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
  * Defines the sample parents columns for sample grid/table.
@@ -32,8 +33,12 @@ public class ParentColumns
 {
     private List<ColumnConfig> columns;
 
-    public ParentColumns()
+    private final IMessageProvider messageProvider;
+
+    public ParentColumns(final IMessageProvider messageProvider)
     {
+        assert messageProvider != null : "Unspecified message provider.";
+        this.messageProvider = messageProvider;
         columns = new ArrayList<ColumnConfig>();
     }
 
@@ -67,7 +72,7 @@ public class ParentColumns
         final ColumnConfig columnConfig = new ColumnConfig();
         columnConfig.setMenuDisabled(true);
         columnConfig.setId(SampleModel.GENERATED_FROM_PARENT_PREFIX + i);
-        columnConfig.setHeader("Parent (gener.) " + i);
+        columnConfig.setHeader(messageProvider.getMessage("generated_from", i));
         columnConfig.setWidth(150);
         return columnConfig;
     }
@@ -77,7 +82,7 @@ public class ParentColumns
         final ColumnConfig columnConfig = new ColumnConfig();
         columnConfig.setMenuDisabled(true);
         columnConfig.setId(SampleModel.CONTAINER_PARENT_PREFIX + i);
-        columnConfig.setHeader("Parent (cont.) " + i);
+        columnConfig.setHeader(messageProvider.getMessage("part_of", i));
         columnConfig.setWidth(150);
         return columnConfig;
     }

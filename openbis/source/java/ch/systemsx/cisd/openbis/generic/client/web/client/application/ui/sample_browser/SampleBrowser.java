@@ -38,7 +38,7 @@ public class SampleBrowser extends LayoutContainer
         setLayout(new RowLayout());
 
         CommonColumns commonColumns = new CommonColumns();
-        ParentColumns parentColumns = new ParentColumns();
+        ParentColumns parentColumns = new ParentColumns(viewContext.getMessageProvider());
         PropertyColumns propertyColumns = new PropertyColumns();
 
         final SampleBrowserGrid grid =

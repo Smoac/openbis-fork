@@ -72,7 +72,7 @@ public final class FileExportServiceServlet implements InitializingBean,
             final SampleRequestParameters parameters = new SampleRequestParameters(request);
 
             final CommonColumns commonColumns = new CommonColumns();
-            final ParentColumns parentColumns = new ParentColumns();
+            final ParentColumns parentColumns = new ParentColumns(null);
             parentColumns.define(parameters.getSampleType());
             final PropertyColumns propertyColumns = new PropertyColumns();
             propertyColumns.define(parameters.getSampleType());

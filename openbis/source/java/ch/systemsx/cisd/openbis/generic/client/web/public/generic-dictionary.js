@@ -16,6 +16,7 @@ var generic = {
   //
   // AbstractAsyncCallback
   //
+  
   exception_invocationMessage: "Failed to contact service.", 
   exception_withoutMessage: "Unknown failure has occurred (ask administrator):<br>{0}",
   
@@ -31,14 +32,6 @@ var generic = {
   groupsView_heading: "Groups",
   rolesView_heading: "Roles",
   
-  
-  //
-  // Registration
-  // 
-
-  registrator: common["registrator"],
-  registration_date: common["registration_date"],
-
   //
   // Sample
   //
@@ -46,6 +39,8 @@ var generic = {
   sample: "Sample",
   sample_type: "Sample Type",
   generated_samples: "Generated Samples",
+  generated_from: "Parent (gener.) {0}",
+  part_of: "Parent (cont.) {0}",
   
   //
   // Invalidation

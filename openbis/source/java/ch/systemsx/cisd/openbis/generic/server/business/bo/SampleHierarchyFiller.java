@@ -29,6 +29,7 @@ public final class SampleHierarchyFiller
 {
     private SampleHierarchyFiller()
     {
+        // Can not be instantiated.
     }
 
     /**
@@ -43,27 +44,34 @@ public final class SampleHierarchyFiller
     }
 
     /**
-     * Enriches given sample with full hierarchy.
+     * Enriches given sample with <i>caontainer</i> and <i>generatedFrom</i> hierarchy.
      */
     public final static void enrichWithFullHierarchy(final SamplePE sample)
     {
         enrichParentHierarchy(sample);
-        enrichWithTop(sample);
+        enrichContainerHierarchy(sample);
     }
 
-    private final static void enrichWithTop(final SamplePE sample)
+    private final static void enrichContainerHierarchy(final SamplePE sample)
     {
-        initialize(sample.getTop());
+        SamplePE container = sample;
+        int containerHierarchyDepth = sample.getSampleType().getContainerHierarchyDepth();
+        while (containerHierarchyDepth-- > 0 && container != null)
+        {
+            container = container.getContainer();
+            initialize(container);
+        }
     }
 
     private final static void enrichParentHierarchy(final SamplePE sample)
     {
         SamplePE generatedFrom = sample;
-        do
+        int generatedFromHierarchyDepth = sample.getSampleType().getGeneratedFromHierarchyDepth();
+        while (generatedFromHierarchyDepth-- > 0 && generatedFrom != null)
         {
             generatedFrom = generatedFrom.getGeneratedFrom();
             initialize(generatedFrom);
-        } while (generatedFrom != null);
+        }
     }
 
     private final static void initialize(final SamplePE sample)
@@ -71,7 +79,6 @@ public final class SampleHierarchyFiller
         if (sample != null)
         {
             Hibernate.initialize(sample);
-            Hibernate.initialize(sample.getControlLayout());
         }
     }
 }

@@ -56,14 +56,22 @@ public final class GenericSampleViewer extends AbstractDialog
     {
         final Map<String, Object> properties = new LinkedHashMap<String, Object>();
         final Sample sample = sampleGeneration.getGenerator();
+        final SampleType sampleType = sample.getSampleType();
         properties.put(messageProvider.getMessage("sample"), sample);
-        properties.put(messageProvider.getMessage("sample_type"), sample.getSampleType());
+        properties.put(messageProvider.getMessage("sample_type"), sampleType);
         properties.put(messageProvider.getMessage("registrator"), sample.getRegistrator());
         properties.put(messageProvider.getMessage("registration_date"), sample
                 .getRegistrationDate());
         properties.put(messageProvider.getMessage("generated_samples"), sampleGeneration
                 .getGenerated());
         properties.put(messageProvider.getMessage("invalidation"), sample.getInvalidation());
+        Sample generatedFrom = sample;
+        for (int i = 0; i < sampleType.getGeneratedFromHierarchyDepth() && generatedFrom != null; i++)
+        {
+            generatedFrom = generatedFrom.getGeneratedFrom();
+            properties.put(messageProvider.getMessage("generated_from", i + 1), generatedFrom);
+        }
+
         return properties;
     }
 
@@ -84,6 +92,8 @@ public final class GenericSampleViewer extends AbstractDialog
                 .createSamplePropertyValueRenderer(messageProvider));
         propertyGrid.registerPropertyValueRenderer(Invalidation.class, PropertyValueRenderers
                 .getInvalidationPropertyValueRenderer(messageProvider));
+        // propertyGrid.registerPropertyValueRenderer(SampleProperty.class, PropertyValueRenderers
+        // .getEntityPropertyPropertyValueRenderer(messageProvider));
         propertyGrid.setProperties(properties);
         return propertyGrid;
     }
