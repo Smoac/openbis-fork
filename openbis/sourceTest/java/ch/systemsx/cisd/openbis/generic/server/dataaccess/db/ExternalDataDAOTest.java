@@ -27,12 +27,16 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
  * 
  * @author Christian Ribeaud
  */
+@Test(groups =
+    { "db", "externalData" })
 public final class ExternalDataDAOTest extends AbstractDAOTest
 {
 
     @Test
     public final void testListExternalData()
     {
+        // TODO 2008-10-28, Christian Ribeaud: Complete this test once we have added the possibility
+        // to create external data in the database.
         final IExternalDataDAO externalDataDAO = daoFactory.getExternalDataDAO();
         boolean fail = true;
         try
@@ -43,5 +47,6 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
             fail = false;
         }
         assertFalse(fail);
+
     }
 }

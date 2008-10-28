@@ -140,6 +140,13 @@ public final class SampleDAOTest extends AbstractDAOTest
             fail = false;
         }
         assertFalse(fail);
+        final String masterPlateCode = "MP070-1";
+        final SamplePE sample =
+                sampleDAO.tryFindByCodeAndDatabaseInstance(masterPlateCode, daoFactory
+                        .getHomeDatabaseInstance());
+        assertNotNull(sample);
+        final List<SamplePE> samples = sampleDAO.listSamplesByContainer(sample);
+        assertEquals(56, samples.size());
     }
 
     //
