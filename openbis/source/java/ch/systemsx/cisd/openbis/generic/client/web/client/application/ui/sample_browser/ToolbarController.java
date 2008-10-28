@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParentColumns;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyColumns;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ParentColumns;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
 /**

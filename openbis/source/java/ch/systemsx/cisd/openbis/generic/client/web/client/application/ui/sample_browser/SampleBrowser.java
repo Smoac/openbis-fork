@@ -21,9 +21,9 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CommonColumns;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParentColumns;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyColumns;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.CommonColumns;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ParentColumns;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyColumns;
 
 /**
  * Main view component of Sample Browser.

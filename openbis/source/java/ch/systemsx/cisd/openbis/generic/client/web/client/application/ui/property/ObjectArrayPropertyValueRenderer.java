@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.DOMUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DOMUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**

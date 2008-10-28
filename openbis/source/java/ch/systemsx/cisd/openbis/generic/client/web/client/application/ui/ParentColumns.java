@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
 /**
  * Defines the sample parents columns for sample grid/table.

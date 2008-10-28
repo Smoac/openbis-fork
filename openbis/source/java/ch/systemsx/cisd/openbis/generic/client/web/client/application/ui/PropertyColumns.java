@@ -14,22 +14,24 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypePropertyType;
 
 /**
  * Defines the sample properties columns for sample grid/table.
  * 
  * @author Izabela Adamczyk
  */
-public class PropertyColumns
+public final class PropertyColumns
 {
-
-    List<LoadableColumnConfig> columns;
+    private List<LoadableColumnConfig> columns;
 
     public PropertyColumns()
     {

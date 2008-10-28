@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
 
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;

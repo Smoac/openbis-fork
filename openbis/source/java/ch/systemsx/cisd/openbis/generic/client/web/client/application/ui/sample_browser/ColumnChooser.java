@@ -29,9 +29,9 @@ import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.menu.SeparatorMenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CommonColumns;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParentColumns;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyColumns;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.CommonColumns;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ParentColumns;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyColumns;
 
 /**
  * Class which allows to change manipulate {@link CommonColumns}, {@link ParentColumns} and

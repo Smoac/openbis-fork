@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,15 +23,14 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModel;
 
-
 /**
  * Defines the common columns of sample grid/table.
  * 
  * @author Izabela Adamczyk
  */
-public class CommonColumns
+public final class CommonColumns
 {
-    List<ColumnConfig> columns;
+    private List<ColumnConfig> columns;
 
     public CommonColumns()
     {

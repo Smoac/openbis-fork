@@ -20,7 +20,7 @@ import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Html;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.DOMUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DOMUtils;
 
 /**
  * <code>LogImpl</code> implementation for the <i>Web Mode</i>.

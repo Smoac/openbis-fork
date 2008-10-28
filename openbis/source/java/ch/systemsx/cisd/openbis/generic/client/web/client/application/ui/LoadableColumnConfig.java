@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 
 /**
  * {@link ColumnConfig} extension containing {@link PropertyType} for which it has been created and

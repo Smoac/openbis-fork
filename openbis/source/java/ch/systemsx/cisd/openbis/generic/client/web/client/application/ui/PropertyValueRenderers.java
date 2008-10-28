@@ -20,6 +20,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.D
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.AbstractPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DOMUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityType;

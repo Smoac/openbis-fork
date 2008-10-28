@@ -41,10 +41,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CommonColumns;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.LoadableColumnConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParentColumns;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyColumns;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.CommonColumns;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoadableColumnConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ParentColumns;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
