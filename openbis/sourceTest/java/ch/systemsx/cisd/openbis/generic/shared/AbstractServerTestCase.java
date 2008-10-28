@@ -189,6 +189,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
     {
         final SampleTypePE sampleTypePE = new SampleTypePE();
         sampleTypePE.setCode(SAMPLE_TYPE);
+        sampleTypePE.setGeneratedFromHierarchyDepth(0);
+        sampleTypePE.setContainerHierarchyDepth(0);
         return sampleTypePE;
     }
 

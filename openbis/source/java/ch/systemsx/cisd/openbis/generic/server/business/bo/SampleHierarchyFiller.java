@@ -39,14 +39,14 @@ public final class SampleHierarchyFiller
     {
         for (final SamplePE sample : samples)
         {
-            enrichWithFullHierarchy(sample);
+            enrichWithParentAndContainerHierarchy(sample);
         }
     }
 
     /**
      * Enriches given sample with <i>caontainer</i> and <i>generatedFrom</i> hierarchy.
      */
-    public final static void enrichWithFullHierarchy(final SamplePE sample)
+    public final static void enrichWithParentAndContainerHierarchy(final SamplePE sample)
     {
         enrichParentHierarchy(sample);
         enrichContainerHierarchy(sample);
@@ -55,7 +55,9 @@ public final class SampleHierarchyFiller
     private final static void enrichContainerHierarchy(final SamplePE sample)
     {
         SamplePE container = sample;
-        int containerHierarchyDepth = sample.getSampleType().getContainerHierarchyDepth();
+        final Integer integer = sample.getSampleType().getContainerHierarchyDepth();
+        assert integer != null : "'partOf' hierarchy depth not specified.";
+        int containerHierarchyDepth = integer;
         while (containerHierarchyDepth-- > 0 && container != null)
         {
             container = container.getContainer();
@@ -66,7 +68,9 @@ public final class SampleHierarchyFiller
     private final static void enrichParentHierarchy(final SamplePE sample)
     {
         SamplePE generatedFrom = sample;
-        int generatedFromHierarchyDepth = sample.getSampleType().getGeneratedFromHierarchyDepth();
+        final Integer integer = sample.getSampleType().getGeneratedFromHierarchyDepth();
+        assert integer != null : "'generatedFrom' hierarchy depth not specified.";
+        int generatedFromHierarchyDepth = integer;
         while (generatedFromHierarchyDepth-- > 0 && generatedFrom != null)
         {
             generatedFrom = generatedFrom.getGeneratedFrom();

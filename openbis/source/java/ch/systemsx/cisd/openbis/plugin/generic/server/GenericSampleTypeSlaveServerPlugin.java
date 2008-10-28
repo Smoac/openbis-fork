@@ -46,7 +46,7 @@ public final class GenericSampleTypeSlaveServerPlugin implements ISampleTypeSlav
     {
         assert sample != null : "Unspecified sample.";
         sample.ensurePropertiesAreLoaded();
-        SampleHierarchyFiller.enrichWithFullHierarchy(sample);
+        SampleHierarchyFiller.enrichWithParentAndContainerHierarchy(sample);
         final List<SamplePE> generated =
                 daoFactory.getSampleDAO().listSampleByGeneratedFrom(sample);
         final SampleGenerationDTO sampleGenerationDTO = new SampleGenerationDTO(sample, generated);
