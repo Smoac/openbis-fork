@@ -17,19 +17,25 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import com.extjs.gxt.ui.client.Events;
-import com.extjs.gxt.ui.client.data.BaseListLoader;
-import com.extjs.gxt.ui.client.data.ListLoader;
+import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
+import com.extjs.gxt.ui.client.data.BasePagingLoader;
+import com.extjs.gxt.ui.client.data.PagingLoadConfig;
+import com.extjs.gxt.ui.client.data.PagingLoadResult;
+import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
@@ -56,6 +62,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
  */
 class SampleBrowserGrid extends LayoutContainer
 {
+    private static final int PAGE_SIZE = 50;
+
     private static final String PREFIX = "sample-browser-grid";
 
     static final String GRID_ID = GenericConstants.ID_PREFIX + PREFIX + "grid";
@@ -65,6 +73,8 @@ class SampleBrowserGrid extends LayoutContainer
     private ContentPanel contentPanel;
 
     private Grid<SampleModel> grid;
+
+    private PagingToolBar toolBar;
 
     private final GridConfiguration oldConfiguration;
 
@@ -76,6 +86,8 @@ class SampleBrowserGrid extends LayoutContainer
 
     private final PropertyColumns propertyColumns;
 
+    private final PagingLoader<?> loader;
+
     public SampleBrowserGrid(final GenericViewContext viewContext, CommonColumns commonColumns,
             ParentColumns parentColumns, PropertyColumns propertyColumns)
     {
@@ -85,6 +97,7 @@ class SampleBrowserGrid extends LayoutContainer
         this.propertyColumns = propertyColumns;
         oldConfiguration = new GridConfiguration(); // Already loaded
         newConfiguration = new GridConfiguration(); // Requested
+        loader = createSampleLoader();
         setLayout(new FitLayout());
     }
 
@@ -95,62 +108,52 @@ class SampleBrowserGrid extends LayoutContainer
         final ColumnModel columnModel = createColumnModel(sampleType);
         final String header = createHeader(sampleType, selectedGroupCode, showGroup, showInstance);
         getContentPanel().setHeading(header);
-        final List<SampleModel> models =
-                grid != null && grid.getStore() != null ? grid.getStore().getModels() : null;
 
-        final RpcProxy<Object, List<SampleModel>> proxy = new RpcProxy<Object, List<SampleModel>>()
-            {
-                @Override
-                public final void load(final Object loadConfig,
-                        final AsyncCallback<List<SampleModel>> callback)
-                {
-                    if (oldConfiguration.majorChange(newConfiguration))
-                    {
-                        viewContext.getService().listSamples(newConfiguration.getCriterias(),
-                                propertyColumns.getDirtyColumns(),
-                                new ListSamplesCallback(viewContext, callback));
-                        return;
-                    }
-
-                    if (oldConfiguration.minorChange(newConfiguration))
-                    {
-                        removeUnnecessarySamples(models);
-                    }
-
-                    if (propertyColumns.isDirty())
-                    {
-                        List<Sample> currentSamples = extractSamplesFromModel(models);
-                        if (currentSamples.size() > 0)
-                        {
-                            viewContext.getService()
-                                    .listSamplesProperties(
-                                            newConfiguration.getCriterias(),
-                                            propertyColumns.getDirtyColumns(),
-                                            new UpdateSamplesCallback(viewContext, currentSamples,
-                                                    callback));
-                        }
-                        return;
-                    }
-
-                    callback.onSuccess(models);
-                }
-
-                private List<Sample> extractSamplesFromModel(final List<SampleModel> modelList)
-                {
-                    List<Sample> samples = new ArrayList<Sample>();
-                    for (SampleModel model : modelList)
-                    {
-                        samples.add((Sample) model.get(SampleModel.OBJECT));
-                    }
-                    return samples;
-                }
-            };
-        final ListLoader<?> loader = createListLoader(proxy);
-        final ListStore<SampleModel> sampleStore = new ListStore<SampleModel>(loader);
-        createOrReconfigureGrid(columnModel, sampleStore);
-        loader.load();
+        createOrReconfigureGrid(columnModel);
         layout();
+    }
 
+    // loads samples using previous result. Calls a callback with the full new result when finished.
+    private void loadSamples(final List<SampleModel> previousModelsOrNull,
+            final AsyncCallback<List<SampleModel>> callback)
+    {
+        if (oldConfiguration.majorChange(newConfiguration))
+        {
+            viewContext.getService().listSamples(newConfiguration.getCriterias(),
+                    propertyColumns.getDirtyColumns(),
+                    new ListSamplesCallback(viewContext, callback));
+            return;
+        }
+        assert previousModelsOrNull != null : "some samples should be already loaded";
+
+        if (oldConfiguration.minorChange(newConfiguration))
+        {
+            removeUnnecessarySamples(previousModelsOrNull);
+        }
+
+        if (propertyColumns.isDirty())
+        {
+            List<Sample> currentSamples = extractSamplesFromModel(previousModelsOrNull);
+            if (currentSamples.size() > 0)
+            {
+                viewContext.getService().listSamplesProperties(newConfiguration.getCriterias(),
+                        propertyColumns.getDirtyColumns(),
+                        new UpdateSamplesCallback(viewContext, currentSamples, callback));
+                return;
+            }
+        }
+
+        callback.onSuccess(previousModelsOrNull);
+    }
+
+    private List<Sample> extractSamplesFromModel(final List<SampleModel> modelList)
+    {
+        List<Sample> samples = new ArrayList<Sample>();
+        for (SampleModel model : modelList)
+        {
+            samples.add((Sample) model.get(SampleModel.OBJECT));
+        }
+        return samples;
     }
 
     protected void removeUnnecessarySamples(List<SampleModel> models)
@@ -170,16 +173,10 @@ class SampleBrowserGrid extends LayoutContainer
         oldConfiguration.update(newConfiguration);
     }
 
-    @SuppressWarnings("unchecked")
-    private final static ListLoader<?> createListLoader(
-            final RpcProxy<Object, List<SampleModel>> proxy)
+    private final void createOrReconfigureGrid(final ColumnModel columnModel)
     {
-        return new BaseListLoader(proxy);
-    }
+        final ListStore<SampleModel> sampleStore = new ListStore<SampleModel>(loader);
 
-    private final void createOrReconfigureGrid(final ColumnModel columnModel,
-            final ListStore<SampleModel> sampleStore)
-    {
         if (grid == null)
         {
             grid = new Grid<SampleModel>(sampleStore, columnModel);
@@ -187,11 +184,6 @@ class SampleBrowserGrid extends LayoutContainer
             grid.setLoadMask(true);
             grid.addListener(Events.CellClick, new Listener<GridEvent>()
                 {
-
-                    //
-                    // Listener
-                    //
-
                     public final void handleEvent(final GridEvent be)
                     {
                         final SampleModel sampleModel =
@@ -208,11 +200,19 @@ class SampleBrowserGrid extends LayoutContainer
                                 sampleIdentifier);
                     }
                 });
-            getContentPanel().add(grid);
+            toolBar = new PagingToolBar(PAGE_SIZE);
+            toolBar.bind(loader);
+
+            ContentPanel panel = new ContentPanel();
+            panel.setLayout(new FitLayout());
+            panel.add(grid);
+            panel.setBottomComponent(toolBar);
+            getContentPanel().add(panel);
         } else
         {
             grid.reconfigure(sampleStore, columnModel);
         }
+        toolBar.first();
     }
 
     private final ContentPanel getContentPanel()
@@ -342,6 +342,87 @@ class SampleBrowserGrid extends LayoutContainer
             updateLoadedPropertyColumns();
             delegate.onSuccess(sampleModels);
         }
+    }
+
+    private RpcProxy<PagingLoadConfig, PagingLoadResult<SampleModel>> createSampleProxy()
+    {
+        return new RpcProxy<PagingLoadConfig, PagingLoadResult<SampleModel>>()
+            {
+                private List<SampleModel> samples = null;
+
+                @Override
+                public void load(final PagingLoadConfig loadConfig,
+                        final AsyncCallback<PagingLoadResult<SampleModel>> callback)
+                {
+                    loadSamples(samples, createPageCallbackDelegator(loadConfig, callback));
+                }
+
+                private AsyncCallback<List<SampleModel>> createPageCallbackDelegator(
+                        final PagingLoadConfig loadConfig,
+                        final AsyncCallback<PagingLoadResult<SampleModel>> callback)
+                {
+                    return new AsyncCallback<List<SampleModel>>()
+                        {
+                            public void onFailure(Throwable caught)
+                            {
+                                callback.onFailure(caught);
+                            }
+
+                            public void onSuccess(List<SampleModel> result)
+                            {
+                                samples = result;
+                                sort(samples, loadConfig);
+                                PagingLoadResult<SampleModel> pagingLoadResult =
+                                        getSublist(samples, loadConfig);
+                                callback.onSuccess(pagingLoadResult);
+                            }
+                        };
+                }
+            };
+    }
+
+    private PagingLoader<?> createSampleLoader()
+    {
+        RpcProxy<PagingLoadConfig, PagingLoadResult<SampleModel>> proxy = createSampleProxy();
+        BasePagingLoader<PagingLoadConfig, PagingLoadResult<SampleModel>> pagingLoader =
+                new BasePagingLoader<PagingLoadConfig, PagingLoadResult<SampleModel>>(proxy);
+        pagingLoader.setRemoteSort(true);
+        return pagingLoader;
+    }
+
+    private static void sort(List<SampleModel> samples, final PagingLoadConfig config)
+    {
+        if (config.getSortInfo().getSortField() != null)
+        {
+            final String sortField = config.getSortInfo().getSortField();
+            if (sortField != null)
+            {
+                Collections.sort(samples, config.getSortInfo().getSortDir().comparator(
+                        new Comparator<SampleModel>()
+                            {
+                                public int compare(SampleModel p1, SampleModel p2)
+                                {
+                                    return p1.get(sortField, "").compareTo(p2.get(sortField, ""));
+                                }
+                            }));
+            }
+        }
+    }
+
+    private static <T> PagingLoadResult<T> getSublist(List<T> samples, final PagingLoadConfig config)
+    {
+        ArrayList<T> sublist = new ArrayList<T>();
+        int start = config.getOffset();
+        int limit = samples.size();
+        if (config.getLimit() > 0)
+        {
+            limit = Math.min(start + config.getLimit(), limit);
+        }
+        for (int i = config.getOffset(); i < limit; i++)
+        {
+            sublist.add(samples.get(i));
+        }
+        return new BasePagingLoadResult<T>(sublist, config.getOffset(), samples.size());
     }
 
     private static List<SampleModel> asSampleModels(final List<Sample> samples)
