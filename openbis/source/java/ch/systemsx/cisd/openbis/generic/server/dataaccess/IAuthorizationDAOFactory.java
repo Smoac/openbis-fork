@@ -40,7 +40,7 @@ public interface IAuthorizationDAOFactory
     /**
      * @return The implementation of the {@link IDatabaseInstanceDAO}.
      */
-    public IDatabaseInstanceDAO getDatabaseInstancesDAO();
+    public IDatabaseInstanceDAO getDatabaseInstanceDAO();
 
     /**
      * @return The implementation of the {@link IRoleAssignmentDAO}.

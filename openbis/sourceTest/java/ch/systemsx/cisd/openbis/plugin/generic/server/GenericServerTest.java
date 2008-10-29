@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
@@ -398,5 +399,25 @@ public final class GenericServerTest extends AbstractServerTestCase
         assertEquals(samplePE, sampleGeneration.getGenerator());
         assertEquals(0, sampleGeneration.getGenerated().length);
         context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testListExternalData()
+    {
+        final Session session = prepareGetSession();
+        final SampleIdentifier sampleIdentifier = createSampleIdentifier();
+        context.checking(new Expectations()
+            {
+                {
+                    one(boFactory).createExternalDataTable(session);
+                    will(returnValue(externalDataTable));
+
+                    one(externalDataTable).loadBySampleIdentifier(sampleIdentifier);
+
+                    one(externalDataTable).getExternalData();
+                    will(returnValue(ExternalDataPE.EMPTY_LIST));
+                }
+            });
+        createServer().listExternalData(SESSION_TOKEN, sampleIdentifier);
     }
 }

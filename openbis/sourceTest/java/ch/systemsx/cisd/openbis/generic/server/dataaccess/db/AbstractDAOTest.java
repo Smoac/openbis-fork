@@ -173,7 +173,7 @@ public abstract class AbstractDAOTest extends AbstractTransactionalTestNGSpringC
     {
         DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
         databaseInstance.setCode(databaseInstanceCode);
-        daoFactory.getDatabaseInstancesDAO().createDatabaseInstance(databaseInstance);
+        daoFactory.getDatabaseInstanceDAO().createDatabaseInstance(databaseInstance);
         return databaseInstance;
     }
 

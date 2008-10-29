@@ -97,7 +97,7 @@ public class ManagerTestTool
         expectations.allowing(daoFactory).getGroupDAO();
         expectations.will(Expectations.returnValue(groupDAO));
 
-        expectations.allowing(daoFactory).getDatabaseInstancesDAO();
+        expectations.allowing(daoFactory).getDatabaseInstanceDAO();
         expectations.will(Expectations.returnValue(databaseInstanceDAO));
 
         expectations.allowing(databaseInstanceDAO).tryFindDatabaseInstanceByCode(

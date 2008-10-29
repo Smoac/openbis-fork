@@ -105,7 +105,7 @@ public final class RoleAssignmentTableTest
                     one(personDAO).listPersons();
                     will(returnValue(Arrays.asList(new PersonPE[]
                         { personPE })));
-                    one(daoFactory).getDatabaseInstancesDAO();
+                    one(daoFactory).getDatabaseInstanceDAO();
                     will(returnValue(instanceDAO));
 
                     one(instanceDAO).tryFindDatabaseInstanceByCode(databaseInstanceCode);

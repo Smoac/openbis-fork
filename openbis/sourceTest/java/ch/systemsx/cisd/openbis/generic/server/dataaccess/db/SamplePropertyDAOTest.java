@@ -47,7 +47,7 @@ public final class SamplePropertyDAOTest extends AbstractDAOTest
         SampleTypePE type =
                 daoFactory.getSampleTypeDAO().tryFindSampleTypeByCode(
                         SampleTypeCode.MASTER_PLATE.getCode());
-        DatabaseInstancePE instance = daoFactory.getDatabaseInstancesDAO().getHomeInstance();
+        DatabaseInstancePE instance = daoFactory.getDatabaseInstanceDAO().getHomeInstance();
         GroupPE group = getSystemPerson().getHomeGroup();
 
         SamplePE instanceSample = createInstanceSample(type, instance);

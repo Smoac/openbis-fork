@@ -76,7 +76,7 @@ public final class AuthorizationTestUtil
         context.checking(new Expectations()
             {
                 {
-                    allowing(daoFactory).getDatabaseInstancesDAO();
+                    allowing(daoFactory).getDatabaseInstanceDAO();
                     will(returnValue(databaseInstanceDAO));
 
                     allowing(daoFactory).getHomeDatabaseInstance();
@@ -207,7 +207,7 @@ public final class AuthorizationTestUtil
         context.checking(new Expectations()
             {
                 {
-                    allowing(daoFactory).getDatabaseInstancesDAO();
+                    allowing(daoFactory).getDatabaseInstanceDAO();
                     will(returnValue(databaseInstanceDAO));
 
                     allowing(databaseInstanceDAO).listDatabaseInstances();

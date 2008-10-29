@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwnerFinder;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -46,21 +47,30 @@ abstract class AbstractSampleIdentifierBusinessObject extends AbstractBusinessOb
         return sampleOwnerFinder;
     }
 
-    final SamplePE getSampleByIdentifier(final SampleIdentifier identifier)
+    final SamplePE getSampleByIdentifier(final SampleIdentifier sampleIdentifier)
+            throws UserFailureException
     {
-        assert identifier != null : "Sample identifier unspecified.";
-        final SampleOwner sampleOwner = sampleOwnerFinder.figureSampleOwner(identifier);
-        final String sampleCode = identifier.getSampleCode();
+        assert sampleIdentifier != null : "Sample identifier unspecified.";
+        final SampleOwner sampleOwner = sampleOwnerFinder.figureSampleOwner(sampleIdentifier);
+        final String sampleCode = sampleIdentifier.getSampleCode();
         final ISampleDAO sampleDAO = getSampleDAO();
+        final SamplePE sample;
         if (sampleOwner.isDatabaseInstanceLevel())
         {
-            return sampleDAO.tryFindByCodeAndDatabaseInstance(sampleCode, sampleOwner
-                    .tryGetDatabaseInstance());
+            sample =
+                    sampleDAO.tryFindByCodeAndDatabaseInstance(sampleCode, sampleOwner
+                            .tryGetDatabaseInstance());
         } else
         {
             assert sampleOwner.isGroupLevel() : "Must be of group level.";
-            return sampleDAO.tryFindByCodeAndGroup(sampleCode, sampleOwner.tryGetGroup());
+            sample = sampleDAO.tryFindByCodeAndGroup(sampleCode, sampleOwner.tryGetGroup());
         }
+        if (sample == null)
+        {
+            throw UserFailureException.fromTemplate(
+                    "No sample could be found for identifier '%s'.", sampleIdentifier);
+        }
+        return sample;
     }
 
 }

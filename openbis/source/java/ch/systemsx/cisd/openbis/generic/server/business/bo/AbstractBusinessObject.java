@@ -84,9 +84,9 @@ abstract class AbstractBusinessObject implements IDAOFactory
         return daoFactory.getPersonDAO();
     }
 
-    public final IDatabaseInstanceDAO getDatabaseInstancesDAO()
+    public final IDatabaseInstanceDAO getDatabaseInstanceDAO()
     {
-        return daoFactory.getDatabaseInstancesDAO();
+        return daoFactory.getDatabaseInstanceDAO();
     }
 
     public final IRoleAssignmentDAO getRoleAssignmentDAO()

@@ -125,7 +125,7 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
         return homeDatabaseInstance;
     }
 
-    public IDatabaseInstanceDAO getDatabaseInstancesDAO()
+    public IDatabaseInstanceDAO getDatabaseInstanceDAO()
     {
         return databaseInstancesDAO;
     }

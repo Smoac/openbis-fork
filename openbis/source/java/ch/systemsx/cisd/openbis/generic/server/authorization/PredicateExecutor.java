@@ -174,13 +174,13 @@ public final class PredicateExecutor
 
         public DatabaseInstancePE tryFindDatabaseInstanceByCode(String databaseInstanceCode)
         {
-            IDatabaseInstanceDAO databaseInstancesDAO = daoFactory.getDatabaseInstancesDAO();
+            IDatabaseInstanceDAO databaseInstancesDAO = daoFactory.getDatabaseInstanceDAO();
             return databaseInstancesDAO.tryFindDatabaseInstanceByCode(databaseInstanceCode);
         }
 
         public DatabaseInstancePE tryFindDatabaseInstanceByUUID(String databaseInstanceUUID)
         {
-            IDatabaseInstanceDAO databaseInstancesDAO = daoFactory.getDatabaseInstancesDAO();
+            IDatabaseInstanceDAO databaseInstancesDAO = daoFactory.getDatabaseInstanceDAO();
             return databaseInstancesDAO.tryFindDatabaseInstanceByUUID(databaseInstanceUUID);
         }
     }

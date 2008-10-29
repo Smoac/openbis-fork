@@ -56,6 +56,7 @@ public final class ExternalDataTable extends AbstractSampleIdentifierBusinessObj
 
     public final void loadBySampleIdentifier(final SampleIdentifier sampleIdentifier)
     {
+        assert sampleIdentifier != null : "Unspecified sample identifier";
         externalData = new ArrayList<ExternalDataPE>();
         final SamplePE sample = getSampleByIdentifier(sampleIdentifier);
         externalData.addAll(getExternalDataDAO().listExternalData(sample, SourceType.MEASUREMENT));

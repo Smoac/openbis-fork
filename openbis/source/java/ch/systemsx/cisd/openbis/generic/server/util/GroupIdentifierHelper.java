@@ -134,7 +134,7 @@ public final class GroupIdentifierHelper
             final IAuthorizationDAOFactory daoFactory)
     {
         final List<DatabaseInstancePE> instances =
-                daoFactory.getDatabaseInstancesDAO().listDatabaseInstances();
+                daoFactory.getDatabaseInstanceDAO().listDatabaseInstances();
 
         final TableMap<String, DatabaseInstancePE> databaseInstancesByCode =
                 new TableMap<String, DatabaseInstancePE>(instances, KeyExtractorFactory
@@ -178,14 +178,14 @@ public final class GroupIdentifierHelper
 
                 public DatabaseInstancePE tryFindDatabaseInstanceByCode(final String databaseInstanceCode)
                 {
-                    return daoFactory.getDatabaseInstancesDAO().tryFindDatabaseInstanceByCode(
+                    return daoFactory.getDatabaseInstanceDAO().tryFindDatabaseInstanceByCode(
                             databaseInstanceCode);
                 }
 
                 public DatabaseInstancePE tryFindDatabaseInstanceByUUID(
                         final String databaseInstanceUUID)
                 {
-                    return daoFactory.getDatabaseInstancesDAO().tryFindDatabaseInstanceByUUID(
+                    return daoFactory.getDatabaseInstanceDAO().tryFindDatabaseInstanceByUUID(
                             databaseInstanceUUID);
                 }
             };
