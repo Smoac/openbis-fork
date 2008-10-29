@@ -16,47 +16,26 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedureTypePE;
 
 /**
+ * The <i>GWT</i> equivalent to {@link ProcedureTypePE}.
+ * 
  * @author Tomasz Pylak
  */
-public class ProcedureType implements IsSerializable
+public final class ProcedureType extends AbstractType
 {
-    private String code;
-
-    private String description;
 
     private DatabaseInstance databaseInstance;
 
     private boolean dataAcquisition;
-
-    public String getCode()
-    {
-        return code;
-    }
-
-    public void setCode(String code)
-    {
-        this.code = code;
-    }
-
-    public String getDescription()
-    {
-        return description;
-    }
-
-    public void setDescription(String description)
-    {
-        this.description = description;
-    }
 
     public DatabaseInstance getDatabaseInstance()
     {
         return databaseInstance;
     }
 
-    public void setDatabaseInstance(DatabaseInstance databaseInstance)
+    public void setDatabaseInstance(final DatabaseInstance databaseInstance)
     {
         this.databaseInstance = databaseInstance;
     }
@@ -66,7 +45,7 @@ public class ProcedureType implements IsSerializable
         return dataAcquisition;
     }
 
-    public void setDataAcquisition(boolean dataAcquisition)
+    public void setDataAcquisition(final boolean dataAcquisition)
     {
         this.dataAcquisition = dataAcquisition;
     }

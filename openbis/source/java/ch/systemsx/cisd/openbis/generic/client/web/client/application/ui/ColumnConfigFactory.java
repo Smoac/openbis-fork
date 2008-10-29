@@ -67,7 +67,6 @@ public final class ColumnConfigFactory
         columnConfig.setId(ModelDataPropertyNames.REGISTRATION_DATE);
         columnConfig.setHeader(messageProvider.getMessage("registration_date"));
         columnConfig.setWidth(100);
-        columnConfig.setHidden(true);
         return columnConfig;
     }
 

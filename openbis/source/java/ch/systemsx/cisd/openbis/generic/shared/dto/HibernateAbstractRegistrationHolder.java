@@ -24,11 +24,9 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.Transient;
 
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
-
 
 /**
  * Super class of <i>Persistent Entities</i> which hold registration data.
@@ -106,11 +104,4 @@ public abstract class HibernateAbstractRegistrationHolder implements IRegistrato
     {
         this.registrator = registrator;
     }
-
-    @Transient
-    public Long getRegistratorID()
-    {
-        return registrator.getId();
-    }
-
 }

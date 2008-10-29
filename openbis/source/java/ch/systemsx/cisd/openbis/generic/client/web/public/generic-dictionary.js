@@ -52,7 +52,14 @@ var generic = {
   
   invalidation: "Invalidation",
   invalidation_template: "Invalidated by: {0}<br>Invalidation Date: {1}<br>Invalidation Reason: {2}",
-   
+  
+  //
+  // External data
+  //
+  
+  location: "Location",
+  file_format_type: "File Format",
+  
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma
 };

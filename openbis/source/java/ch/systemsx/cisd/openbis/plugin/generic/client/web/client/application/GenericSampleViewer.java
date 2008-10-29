@@ -50,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceA
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExternalDataModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
@@ -205,15 +206,41 @@ public final class GenericSampleViewer extends Dialog
     private final ColumnModel createPartOfSamplesColumnModel()
     {
         final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-        configs.add(ColumnConfigFactory.createCodeColumnConfig(viewContext.getMessageProvider()));
+        final IMessageProvider messageProvider = viewContext.getMessageProvider();
+        configs.add(ColumnConfigFactory.createCodeColumnConfig(messageProvider));
+        configs.add(ColumnConfigFactory.createRegistrationDateColumnConfig(messageProvider));
+        configs.add(ColumnConfigFactory.createRegistratorColumnConfig(messageProvider));
         return new ColumnModel(configs);
     }
 
     private final ColumnModel createExternalDataColumnModel()
     {
         final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-        configs.add(ColumnConfigFactory.createCodeColumnConfig(viewContext.getMessageProvider()));
+        final IMessageProvider messageProvider = viewContext.getMessageProvider();
+        configs.add(ColumnConfigFactory.createCodeColumnConfig(messageProvider));
+        configs.add(ColumnConfigFactory.createRegistrationDateColumnConfig(messageProvider));
+        configs.add(ColumnConfigFactory.createRegistratorColumnConfig(messageProvider));
+        configs.add(createLocationColumnConfig());
+        configs.add(createFileFormatTypeColumnConfig());
         return new ColumnModel(configs);
+    }
+
+    private final ColumnConfig createFileFormatTypeColumnConfig()
+    {
+        final ColumnConfig columnConfig = ColumnConfigFactory.createMenuDisableColumnConfig();
+        columnConfig.setId(ModelDataPropertyNames.FILE_FORMAT_TYPE);
+        columnConfig.setHeader(viewContext.getMessageProvider().getMessage("file_format_type"));
+        columnConfig.setWidth(100);
+        return columnConfig;
+    }
+
+    private final ColumnConfig createLocationColumnConfig()
+    {
+        final ColumnConfig columnConfig = ColumnConfigFactory.createMenuDisableColumnConfig();
+        columnConfig.setId(ModelDataPropertyNames.LOCATION);
+        columnConfig.setHeader(viewContext.getMessageProvider().getMessage("location"));
+        columnConfig.setWidth(100);
+        return columnConfig;
     }
 
     private final void init(final String heading)

@@ -21,7 +21,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
  * 
  * @author Franz-Josef Elmer
  */
-public class ProcessingInstructionDTO extends AbstractRegistratrationHolder
+public class ProcessingInstructionDTO extends AbstractRegistrationHolder
 {
     private static final long serialVersionUID = 1L;
 

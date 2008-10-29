@@ -17,23 +17,21 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 /**
- * Information about invalidation.
+ * The <i>GWT</i> equivalent to {@link AbstractType}.
  * 
  * @author Christian Ribeaud
  */
-public final class Invalidation extends AbstractRegistrationHolder
+public abstract class AbstractType extends Code
 {
+    private String description;
 
-    /** Reason of invalidation. */
-    private String reasonOrNull;
-
-    public final String getReason()
+    public final String getDescription()
     {
-        return reasonOrNull;
+        return description;
     }
 
-    public final void setReason(final String reasonOrNull)
+    public final void setDescription(final String description)
     {
-        this.reasonOrNull = reasonOrNull;
+        this.description = description;
     }
 }

@@ -16,18 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import java.util.Date;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 
 /**
+ * The <i>GWT</i> equivalent to {@link GroupPE}.
+ * 
  * @author Franz-Josef Elmer
  */
-public class Group extends Code
+public final class Group extends CodeWithRegistration
 {
     private String description;
-
-    private Date registrationDate;
-
-    private Person registrator;
 
     private Person leader;
 
@@ -44,29 +42,9 @@ public class Group extends Code
         return description;
     }
 
-    public final void setDescription(String description)
+    public final void setDescription(final String description)
     {
         this.description = description;
-    }
-
-    public final Date getRegistrationDate()
-    {
-        return registrationDate;
-    }
-
-    public final void setRegistrationDate(Date registrationDate)
-    {
-        this.registrationDate = registrationDate;
-    }
-
-    public final Person getRegistrator()
-    {
-        return registrator;
-    }
-
-    public final void setRegistrator(Person registrator)
-    {
-        this.registrator = registrator;
     }
 
     public Person getLeader()
@@ -74,7 +52,7 @@ public class Group extends Code
         return leader;
     }
 
-    public void setLeader(Person leader)
+    public void setLeader(final Person leader)
     {
         this.leader = leader;
     }
@@ -84,7 +62,7 @@ public class Group extends Code
         return parent;
     }
 
-    public void setParent(Group parent)
+    public void setParent(final Group parent)
     {
         this.parent = parent;
     }
@@ -94,7 +72,7 @@ public class Group extends Code
         return instance;
     }
 
-    public void setInstance(DatabaseInstance instance)
+    public void setInstance(final DatabaseInstance instance)
     {
         this.instance = instance;
     }
@@ -104,7 +82,7 @@ public class Group extends Code
         return dataStore;
     }
 
-    public void setDataStore(DataStore dataStore)
+    public void setDataStore(final DataStore dataStore)
     {
         this.dataStore = dataStore;
     }
@@ -114,7 +92,7 @@ public class Group extends Code
         return identifier;
     }
 
-    public void setIdentifier(String identifier)
+    public void setIdentifier(final String identifier)
     {
         this.identifier = identifier;
     }

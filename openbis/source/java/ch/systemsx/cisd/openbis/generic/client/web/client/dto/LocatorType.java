@@ -17,23 +17,11 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 /**
- * Information about invalidation.
+ * The <i>GWT</i> equivalent to {@link LocatorType}.
  * 
  * @author Christian Ribeaud
  */
-public final class Invalidation extends AbstractRegistrationHolder
+public final class LocatorType extends AbstractType
 {
 
-    /** Reason of invalidation. */
-    private String reasonOrNull;
-
-    public final String getReason()
-    {
-        return reasonOrNull;
-    }
-
-    public final void setReason(final String reasonOrNull)
-    {
-        this.reasonOrNull = reasonOrNull;
-    }
 }

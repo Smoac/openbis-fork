@@ -37,6 +37,8 @@ public final class ExternalDataModel extends BaseModelData
     public ExternalDataModel(final ExternalData externalData)
     {
         set(ModelDataPropertyNames.CODE, externalData.getCode());
+        set(ModelDataPropertyNames.LOCATION, externalData.getLocation());
+        set(ModelDataPropertyNames.FILE_FORMAT_TYPE, externalData.getFileFormatType().getCode());
     }
 
     public final static List<ExternalDataModel> asExternalDataModels(final List<ExternalData> result)

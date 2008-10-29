@@ -23,7 +23,42 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
  * 
  * @author Christian Ribeaud
  */
-public class ExternalData extends Code
+public class ExternalData extends CodeWithRegistration
 {
+    private String location;
+
+    private FileFormatType fileFormatType;
+
+    private LocatorType locatorType;
+
+    public final String getLocation()
+    {
+        return location;
+    }
+
+    public final void setLocation(final String location)
+    {
+        this.location = location;
+    }
+
+    public final FileFormatType getFileFormatType()
+    {
+        return fileFormatType;
+    }
+
+    public final void setFileFormatType(final FileFormatType fileFormatType)
+    {
+        this.fileFormatType = fileFormatType;
+    }
+
+    public final LocatorType getLocatorType()
+    {
+        return locatorType;
+    }
+
+    public final void setLocatorType(final LocatorType locatorType)
+    {
+        this.locatorType = locatorType;
+    }
 
 }

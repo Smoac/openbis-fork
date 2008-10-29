@@ -16,24 +16,38 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import java.util.Date;
+
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 /**
- * Information about invalidation.
+ * Super class of <i>DTO</i>s which hold registration data.
  * 
  * @author Christian Ribeaud
  */
-public final class Invalidation extends AbstractRegistrationHolder
+public abstract class AbstractRegistrationHolder implements IsSerializable
 {
+    private Date registrationDate;
 
-    /** Reason of invalidation. */
-    private String reasonOrNull;
+    private Person registrator;
 
-    public final String getReason()
+    public final Date getRegistrationDate()
     {
-        return reasonOrNull;
+        return registrationDate;
     }
 
-    public final void setReason(final String reasonOrNull)
+    public final void setRegistrationDate(final Date registrationDate)
     {
-        this.reasonOrNull = reasonOrNull;
+        this.registrationDate = registrationDate;
+    }
+
+    public final Person getRegistrator()
+    {
+        return registrator;
+    }
+
+    public final void setRegistrator(final Person registrator)
+    {
+        this.registrator = registrator;
     }
 }

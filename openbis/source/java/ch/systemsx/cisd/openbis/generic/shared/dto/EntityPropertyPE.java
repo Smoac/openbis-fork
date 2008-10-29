@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 @MappedSuperclass
 public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHolder implements
-        IRegistratorHolder, IUntypedValueSetter, IEntityProperty
+        IUntypedValueSetter, IEntityProperty
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
@@ -82,8 +82,8 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
      * Sets the entity that holds this property. Needs to be of the correct sub-class of
      * {@link IIdAndCodeHolder}.
      * <p>
-     * <i>Note: Consider using the <code>addProperty()</code> method of the holder instead of using
-     * this method!</i>
+     * <i>Note: Consider using the <code>addProperty()</code> method of the holder instead of
+     * using this method!</i>
      */
     abstract public void setHolder(final IIdAndCodeHolder entity);
 

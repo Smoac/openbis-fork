@@ -26,11 +26,6 @@ import com.extjs.gxt.ui.client.data.ModelData;
 public final class ModelDataPropertyNames
 {
 
-    private ModelDataPropertyNames()
-    {
-        // Can not be instantiated.
-    }
-
     public static final String CODE = "code";
 
     public static final String DESCRIPTION = "description";
@@ -38,6 +33,8 @@ public final class ModelDataPropertyNames
     public static final String EMAIL = "email";
 
     public static final String EXPERIMENT = "experiment";
+
+    public static final String FILE_FORMAT_TYPE = "fileFormatType";
 
     public static final String FIRST_NAME = "firstName";
 
@@ -54,6 +51,8 @@ public final class ModelDataPropertyNames
     public static final String LAST_NAME = "lastName";
 
     public static final String LEADER = "leader";
+
+    public static final String LOCATION = "location";
 
     public static final String OBJECT = "object";
 
@@ -72,5 +71,10 @@ public final class ModelDataPropertyNames
     public static final String SAMPLE_TYPE = "sampleType";
 
     public static final String USER_ID = "userId";
+
+    private ModelDataPropertyNames()
+    {
+        // Can not be instantiated.
+    }
 
 }

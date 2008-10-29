@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import java.util.Date;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
+ * The <i>GWT</i> equivalent to {@link PersonPE}.
+ * 
  * @author Franz-Josef Elmer
  */
-public class Person implements IsSerializable
+public class Person extends AbstractRegistrationHolder
 {
     private String firstName;
 
@@ -32,10 +32,6 @@ public class Person implements IsSerializable
     private String email;
 
     private String userId;
-
-    private Person registrator;
-
-    private Date registrationDate;
 
     public final String getFirstName()
     {
@@ -75,26 +71,6 @@ public class Person implements IsSerializable
     public void setUserId(final String code)
     {
         this.userId = code;
-    }
-
-    public Person getRegistrator()
-    {
-        return registrator;
-    }
-
-    public void setRegistrator(final Person p)
-    {
-        registrator = p;
-    }
-
-    public Date getRegistrationDate()
-    {
-        return registrationDate;
-    }
-
-    public void setRegistrationDate(final Date d)
-    {
-        registrationDate = d;
     }
 
     @Override

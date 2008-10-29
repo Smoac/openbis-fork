@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-
 /**
  * Implementations are aware of the registrator.
  * 
@@ -24,11 +23,6 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
  */
 public interface IRegistratorHolder
 {
-
-    /**
-     * Returns registratorID.
-     */
-    public Long getRegistratorID();
 
     /**
      * Returns the registrator.
@@ -39,9 +33,6 @@ public interface IRegistratorHolder
 
     /**
      * Sets the person who has registered something.
-     * 
-     * @throws AssertionError if {@link #getRegistratorID()} is not <code>null</code> but unequal
-     *             <code>registrator.getId()</code>.
      */
     public void setRegistrator(final PersonPE registrator);
 

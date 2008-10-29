@@ -17,23 +17,21 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 /**
- * Information about invalidation.
+ * An {@link AbstractRegistrationHolder} extension which holds a code.
  * 
  * @author Christian Ribeaud
  */
-public final class Invalidation extends AbstractRegistrationHolder
+public class CodeWithRegistration extends AbstractRegistrationHolder
 {
+    private String code;
 
-    /** Reason of invalidation. */
-    private String reasonOrNull;
-
-    public final String getReason()
+    public final String getCode()
     {
-        return reasonOrNull;
+        return code;
     }
 
-    public final void setReason(final String reasonOrNull)
+    public final void setCode(final String code)
     {
-        this.reasonOrNull = reasonOrNull;
+        this.code = code;
     }
 }

@@ -16,24 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
+
 /**
- * Information about invalidation.
+ * The <i>GWT</i> equivalent to {@link FileFormatTypePE}.
  * 
  * @author Christian Ribeaud
  */
-public final class Invalidation extends AbstractRegistrationHolder
+public final class FileFormatType extends AbstractType
 {
 
-    /** Reason of invalidation. */
-    private String reasonOrNull;
-
-    public final String getReason()
-    {
-        return reasonOrNull;
-    }
-
-    public final void setReason(final String reasonOrNull)
-    {
-        this.reasonOrNull = reasonOrNull;
-    }
 }

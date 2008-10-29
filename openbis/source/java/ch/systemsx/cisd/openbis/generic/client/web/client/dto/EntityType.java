@@ -21,21 +21,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
  * 
  * @author Christian Ribeaud
  */
-public abstract class EntityType extends Code
+public abstract class EntityType extends AbstractType
 {
-    private String description;
-
     private DatabaseInstance databaseInstance;
-
-    public final String getDescription()
-    {
-        return description;
-    }
-
-    public final void setDescription(final String description)
-    {
-        this.description = description;
-    }
 
     public final DatabaseInstance getDatabaseInstance()
     {

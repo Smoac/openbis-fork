@@ -18,13 +18,12 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.util.Date;
 
-
 /**
  * Super class of DTOs which hold registration data.
  * 
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractRegistratrationHolder extends Id implements IRegistratorHolder
+public abstract class AbstractRegistrationHolder extends Id implements IRegistratorHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -47,7 +46,7 @@ public abstract class AbstractRegistratrationHolder extends Id implements IRegis
      */
     private Date registrationDate;
 
-    protected AbstractRegistratrationHolder(final Long registratorID)
+    protected AbstractRegistrationHolder(final Long registratorID)
     {
         this.registratorID = registratorID;
     }
@@ -65,14 +64,6 @@ public abstract class AbstractRegistratrationHolder extends Id implements IRegis
     //
     // IRegistratorHolder
     //
-
-    /**
-     * Returns registratorID.
-     */
-    public final Long getRegistratorID()
-    {
-        return registrator == null ? registratorID : registrator.getId();
-    }
 
     /**
      * Returns the registrator or <code>null</code> if not known.
