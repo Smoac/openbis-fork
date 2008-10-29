@@ -38,44 +38,24 @@ public final class SampleModel extends BaseModelData
 
     private static final String SEPARATOR = "/";
 
-    public static final String OBJECT = "object";
-
-    public static final String SAMPLE_TYPE = "sampleType";
-
-    public static final String SAMPLE_CODE = "code";
-
-    public static final String IS_INSTANCE_SAMPLE_COLUMN = "isShared";
-
-    public static final String IS_GROUP_SAMPLE = "isGroupSample";
-
-    public static final String SAMPLE_IDENTIFIER = "sampleIdentifier";
-
-    public static final String REGISTRATOR = "registrator";
-
-    public static final String REGISTRATION_DATE = "registrationDate";
-
     public static final String PROPERTY_PREFIX = "property";
 
     public static final String CONTAINER_PARENT_PREFIX = "containerParent";
 
     public static final String GENERATED_FROM_PARENT_PREFIX = "generatedFromParent";
 
-    public static final String IS_INVALID = "isInvalid";
-
-    public static final String EXPERIMENT = "experiment";
-
     public SampleModel(final Sample sample)
     {
-        set(SAMPLE_CODE, printShortIdentifier(sample));
-        set(SAMPLE_TYPE, sample.getSampleType());
-        set(OBJECT, sample);
-        set(SAMPLE_IDENTIFIER, sample.getIdentifier());
-        set(IS_INSTANCE_SAMPLE_COLUMN, (sample.getDatabaseInstance() != null));
-        set(REGISTRATOR, PersonRenderer.createPersonAnchor(sample.getRegistrator()));
-        set(REGISTRATION_DATE, DateRenderer.renderDate(sample.getRegistrationDate()));
-        set(IS_GROUP_SAMPLE, sample.getGroup() != null);
-        set(IS_INVALID, sample.getInvalidation() != null);
-        set(EXPERIMENT, printExperimentIdentifier(sample));
+        set(DataModelPropertyNames.CODE, printShortIdentifier(sample));
+        set(DataModelPropertyNames.SAMPLE_TYPE, sample.getSampleType());
+        set(DataModelPropertyNames.OBJECT, sample);
+        set(DataModelPropertyNames.SAMPLE_IDENTIFIER, sample.getIdentifier());
+        set(DataModelPropertyNames.IS_INSTANCE_SAMPLE_COLUMN, (sample.getDatabaseInstance() != null));
+        set(DataModelPropertyNames.REGISTRATOR, PersonRenderer.createPersonAnchor(sample.getRegistrator()));
+        set(DataModelPropertyNames.REGISTRATION_DATE, DateRenderer.renderDate(sample.getRegistrationDate()));
+        set(DataModelPropertyNames.IS_GROUP_SAMPLE, sample.getGroup() != null);
+        set(DataModelPropertyNames.IS_INVALID, sample.getInvalidation() != null);
+        set(DataModelPropertyNames.EXPERIMENT, printExperimentIdentifier(sample));
         setGeneratedFromParents(sample, 1, sample.getSampleType().getGeneratedFromHierarchyDepth());
         setContainerParents(sample, 1, sample.getSampleType().getPartOfHierarchyDepth());
         setProperties(sample);

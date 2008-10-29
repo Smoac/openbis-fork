@@ -14,27 +14,26 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
+package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
-import com.extjs.gxt.ui.client.data.ModelData;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
+import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * {@link ModelData} for {@link SampleType}.
+ * A code.
  * 
- * @author Izabela Adamczyk
+ * @author Christian Ribeaud
  */
-public class SampleTypeModel extends BaseModelData
+public class Code implements IsSerializable
 {
+    private String code;
 
-    private static final long serialVersionUID = 1L;
-
-    public SampleTypeModel(SampleType sampleType)
+    public final String getCode()
     {
-        set(DataModelPropertyNames.CODE, sampleType.getCode());
-        set(DataModelPropertyNames.OBJECT, sampleType);
+        return code;
     }
 
+    public final void setCode(final String code)
+    {
+        this.code = code;
+    }
 }

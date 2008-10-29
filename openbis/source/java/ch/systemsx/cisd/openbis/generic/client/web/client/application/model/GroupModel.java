@@ -28,32 +28,20 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
  */
 public class GroupModel extends BaseModelData
 {
-    public static final String OBJECT = "object";
-
-    public static final String REGISTRATION_DATE = "registrationDate";
-
-    public static final String REGISTRATOR = "registrator";
-
-    public static final String LEADER = "leader";
-
-    public static final String DESCRIPTION = "description";
-
-    public static final String CODE = "code";
-
     private static final long serialVersionUID = 1L;
 
     public GroupModel()
     {
     }
 
-    public GroupModel(Group g)
+    public GroupModel(final Group g)
     {
-        set(CODE, g.getCode());
-        set(DESCRIPTION, g.getDescription());
-        set(LEADER, g.getLeader());
-        set(REGISTRATOR, g.getRegistrator());
-        set(REGISTRATION_DATE, g.getRegistrationDate());
-        set(OBJECT, g);
+        set(DataModelPropertyNames.CODE, g.getCode());
+        set(DataModelPropertyNames.DESCRIPTION, g.getDescription());
+        set(DataModelPropertyNames.LEADER, g.getLeader());
+        set(DataModelPropertyNames.REGISTRATOR, g.getRegistrator());
+        set(DataModelPropertyNames.REGISTRATION_DATE, g.getRegistrationDate());
+        set(DataModelPropertyNames.OBJECT, g);
     }
 
 }

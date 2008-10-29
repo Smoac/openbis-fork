@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.GroupModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleTypeModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DataModelPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
@@ -73,11 +72,11 @@ public final class ListSamples extends AbstractDefaultTestCommand
                 (CheckBox) GWTTestUtil
                         .getWidgetWithID(SampleBrowserToolbar.INCLUDE_GROUP_CHECKBOX_ID);
 
-        sampleTypeSelector.setSelectedItem(SampleTypeModel.CODE, sampleTypeNameOrNull);
+        sampleTypeSelector.setSelectedItem(DataModelPropertyNames.CODE, sampleTypeNameOrNull);
         includeGroupCheckbox.setValue(includeShared);
         if (includeGroup)
         {
-            groupSelector.setSelectedItem(GroupModel.CODE, groupNameOrNull);
+            groupSelector.setSelectedItem(DataModelPropertyNames.CODE, groupNameOrNull);
         }
         includeSharedCheckbox.setValue(includeShared);
 

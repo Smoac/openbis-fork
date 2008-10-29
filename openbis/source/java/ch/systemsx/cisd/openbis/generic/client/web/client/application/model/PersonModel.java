@@ -32,34 +32,20 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 public class PersonModel extends BaseModelData
 {
 
-    public static final String ROLES = "roles";
-
-    public static final String EMAIL = "email";
-
-    public static final String LAST_NAME = "lastName";
-
-    public static final String FIRST_NAME = "firstName";
-
-    public static final String REGISTRATION_DATE = "registrationDate";
-
-    public static final String REGISTRATOR = "registrator";
-
-    public static final String USER_ID = "userId";
-
     private static final long serialVersionUID = 1L;
 
     public PersonModel()
     {
     }
 
-    public PersonModel(Person p)
+    public PersonModel(final Person p)
     {
-        set(USER_ID, p.getUserId());
-        set(REGISTRATOR, p.getRegistrator());
-        set(REGISTRATION_DATE, p.getRegistrationDate());
-        set(FIRST_NAME, p.getFirstName());
-        set(LAST_NAME, p.getLastName());
-        set(EMAIL, p.getEmail());
-        set(ROLES, new ArrayList<RoleAssignment>());
+        set(DataModelPropertyNames.USER_ID, p.getUserId());
+        set(DataModelPropertyNames.REGISTRATOR, p.getRegistrator());
+        set(DataModelPropertyNames.REGISTRATION_DATE, p.getRegistrationDate());
+        set(DataModelPropertyNames.FIRST_NAME, p.getFirstName());
+        set(DataModelPropertyNames.LAST_NAME, p.getLastName());
+        set(DataModelPropertyNames.EMAIL, p.getEmail());
+        set(DataModelPropertyNames.ROLES, new ArrayList<RoleAssignment>());
     }
 }

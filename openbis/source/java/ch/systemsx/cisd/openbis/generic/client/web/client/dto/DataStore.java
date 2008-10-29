@@ -18,34 +18,16 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import java.util.Date;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
 /**
  * @author Izabela Adamczyk
  */
-public class DataStore implements IsSerializable
+public class DataStore extends Code
 {
-    private String code;
-
     private Date registrationDate;
 
     private DatabaseInstance databaseInstance;
 
     private String downloadUrl;
-
-    public DataStore()
-    {
-    }
-
-    public String getCode()
-    {
-        return code;
-    }
-
-    public void setCode(String code)
-    {
-        this.code = code;
-    }
 
     public Date getRegistrationDate()
     {

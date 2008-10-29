@@ -15,6 +15,10 @@
  */
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
+
+/**
+ * @author Christian Ribeaud
+ */
 public enum RoleCode
 {
     ADMIN, USER, OBSERVER, ETL_SERVER;

@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DataModelPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
@@ -83,7 +84,7 @@ class SampleTypeSelectionWidget extends ExtendedComboBox<SampleTypeModel>
         setId(ID);
         setEmptyText("- No sample types found -");
         setEnabled(false);
-        setDisplayField(SampleTypeModel.CODE);
+        setDisplayField(DataModelPropertyNames.CODE);
         setEditable(false);
         setWidth(150);
         sampleTypeStore = new ListStore<SampleTypeModel>();
@@ -104,7 +105,7 @@ class SampleTypeSelectionWidget extends ExtendedComboBox<SampleTypeModel>
         final List<SampleTypeModel> selection = getSelection();
         if (selection.size() > 0)
         {
-            return selection.get(0).get(SampleTypeModel.OBJECT);
+            return selection.get(0).get(DataModelPropertyNames.OBJECT);
         } else
         {
             return null;

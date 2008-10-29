@@ -18,15 +18,11 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import java.util.Date;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
 /**
  * @author Franz-Josef Elmer
  */
-public class Group implements IsSerializable
+public class Group extends Code
 {
-    private String code;
-
     private String description;
 
     private Date registrationDate;
@@ -42,16 +38,6 @@ public class Group implements IsSerializable
     private DataStore dataStore;
 
     private String identifier;
-
-    public final String getCode()
-    {
-        return code;
-    }
-
-    public final void setCode(String code)
-    {
-        this.code = code;
-    }
 
     public final String getDescription()
     {

@@ -22,6 +22,7 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DataModelPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.RoleModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
@@ -61,9 +62,9 @@ public final class CheckRole extends AbstractDefaultTestCommand
         for (int i = 0, n = store.getCount(); i < n; i++)
         {
             final RoleModel roleModel = store.getAt(i);
-            final Object person = roleModel.get(RoleModel.PERSON);
-            final Object group = roleModel.get(RoleModel.GROUP);
-            final Object role = roleModel.get(RoleModel.ROLE);
+            final Object person = roleModel.get(DataModelPropertyNames.PERSON);
+            final Object group = roleModel.get(DataModelPropertyNames.GROUP);
+            final Object role = roleModel.get(DataModelPropertyNames.ROLE);
             if (userId.equals(person) && groupCode.equals(group) && roleCode.equals(role))
             {
                 return;

@@ -16,16 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
 /**
  * @author Tomasz Pylak
  */
-public class Project implements IsSerializable
+public class Project extends Code
 {
     private Group group;
-
-    private String code;
 
     private String description;
 
@@ -36,19 +32,9 @@ public class Project implements IsSerializable
         return group;
     }
 
-    public void setGroup(Group group)
+    public void setGroup(final Group group)
     {
         this.group = group;
-    }
-
-    public String getCode()
-    {
-        return code;
-    }
-
-    public void setCode(String code)
-    {
-        this.code = code;
     }
 
     public String getDescription()
@@ -56,7 +42,7 @@ public class Project implements IsSerializable
         return description;
     }
 
-    public void setDescription(String description)
+    public void setDescription(final String description)
     {
         this.description = description;
     }
@@ -66,7 +52,7 @@ public class Project implements IsSerializable
         return projectLeader;
     }
 
-    public void setProjectLeader(Person projectLeader)
+    public void setProjectLeader(final Person projectLeader)
     {
         this.projectLeader = projectLeader;
     }

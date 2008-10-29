@@ -104,6 +104,11 @@ public class DtoConverters
         // BeanUtils.Converter
         //
 
+        public final String convertToIdentifier(final SamplePE samplePE)
+        {
+            return samplePE.getSampleIdentifier().toString();
+        }
+
         public final Sample convertToGeneratedFrom(final SamplePE samplePE)
         {
             return convertToSample(samplePE.getGeneratedFrom());

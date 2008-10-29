@@ -22,6 +22,7 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DataModelPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.PersonModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
@@ -55,7 +56,7 @@ public final class CheckPerson extends AbstractDefaultTestCommand
         for (int i = 0, n = store.getCount(); i < n; i++)
         {
             final PersonModel personModel = store.getAt(i);
-            final Object value = personModel.get(PersonModel.USER_ID);
+            final Object value = personModel.get(DataModelPropertyNames.USER_ID);
             if (personCode.equals(value))
             {
                 return;

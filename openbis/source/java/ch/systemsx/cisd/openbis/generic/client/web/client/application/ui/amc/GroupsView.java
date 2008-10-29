@@ -47,6 +47,7 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DataModelPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.GroupModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnFilter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
@@ -98,25 +99,25 @@ public class GroupsView extends LayoutContainer
         configs.add(expander);
 
         final ColumnConfig codeColumnConfig = new ColumnConfig();
-        codeColumnConfig.setId(GroupModel.CODE);
+        codeColumnConfig.setId(DataModelPropertyNames.CODE);
         codeColumnConfig.setHeader("Code");
         codeColumnConfig.setWidth(COL_GROUP);
         configs.add(codeColumnConfig);
 
         final ColumnConfig leaderColumnConfig = new ColumnConfig();
-        leaderColumnConfig.setId(GroupModel.LEADER);
+        leaderColumnConfig.setId(DataModelPropertyNames.LEADER);
         leaderColumnConfig.setHeader("Leader");
         leaderColumnConfig.setWidth(COL_PERSON);
         configs.add(leaderColumnConfig);
 
         final ColumnConfig registratorColumnConfig = new ColumnConfig();
-        registratorColumnConfig.setId(GroupModel.REGISTRATOR);
+        registratorColumnConfig.setId(DataModelPropertyNames.REGISTRATOR);
         registratorColumnConfig.setHeader("Registrator");
         registratorColumnConfig.setWidth(COL_PERSON);
         configs.add(registratorColumnConfig);
 
         final ColumnConfig registrationDateColumnConfig = new ColumnConfig();
-        registrationDateColumnConfig.setId(GroupModel.REGISTRATION_DATE);
+        registrationDateColumnConfig.setId(DataModelPropertyNames.REGISTRATION_DATE);
         registrationDateColumnConfig.setHeader("Registration Date");
         registrationDateColumnConfig.setWidth(COL_DATE);
         registrationDateColumnConfig.setAlignment(HorizontalAlignment.RIGHT);
@@ -158,7 +159,7 @@ public class GroupsView extends LayoutContainer
         final ToolBar toolBar = new ToolBar();
         toolBar.add(new LabelToolItem("Filter:"));
         toolBar.add(new AdapterToolItem(
-                new ColumnFilter<GroupModel>(store, GroupModel.CODE, "code")));
+                new ColumnFilter<GroupModel>(store, DataModelPropertyNames.CODE, "code")));
         toolBar.add(new SeparatorToolItem());
         toolBar.add(new AdapterToolItem(addGroupButton));
         cp.setBottomComponent(toolBar);

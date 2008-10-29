@@ -32,7 +32,6 @@ import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.Window;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
@@ -40,8 +39,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.OpenbisEve
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.CommonColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ParentColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyColumns;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleQueryConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
 /**
@@ -81,14 +78,11 @@ class SampleBrowserToolbar extends ToolBar
 
     private final ColumnChooser columnChooser;
 
-    private final PropertyColumns propertyColumns;
-
     public SampleBrowserToolbar(final GenericViewContext viewContext,
             final SampleBrowserGrid rightPanel, final CommonColumns commonColumns,
             final ParentColumns parentColumns, final PropertyColumns propertyColumns)
     {
         this.grid = rightPanel;
-        this.propertyColumns = propertyColumns;
         selectSampleTypeCombo = new SampleTypeSelectionWidget(viewContext);
         selectGroupCombo = new GroupSelectionWidget(viewContext);
         includeInstanceCheckbox = new CheckBox();
@@ -153,7 +147,7 @@ class SampleBrowserToolbar extends ToolBar
         selectGroupCombo.addListener(OpenbisEvents.CALLBACK_FINNISHED, new Listener<BaseEvent>()
             {
 
-                public void handleEvent(BaseEvent be)
+                public void handleEvent(final BaseEvent be)
                 {
                     controller.refreshGroupCheckbox();
                 }
@@ -246,43 +240,14 @@ class SampleBrowserToolbar extends ToolBar
     {
         final Button button = new Button("Export data", new SelectionListener<ComponentEvent>()
             {
+                //
+                // SelectionListener
+                //
+
                 @Override
-                public void componentSelected(ComponentEvent ce)
+                public final void componentSelected(final ComponentEvent ce)
                 {
-                    Window.open(getExportQueryString(), "", "");
-                }
-
-                private String getExportQueryString()
-                {
-                    final QueryBuilder q =
-                            new QueryBuilder(GenericConstants.createServicePath("file-export"));
-                    int propNr = propertyColumns.getChosenColumns().size();
-                    q.setParameter(SampleQueryConstants.SAMPLE_TYPE, selectSampleTypeCombo
-                            .tryGetSelected().getCode());
-                    if (includeGroupCheckbox.getValue())
-                    {
-                        q.setParameter(SampleQueryConstants.GROUP, selectGroupCombo
-                                .tryGetSelected().getCode());
-                    }
-                    q.setParameter(SampleQueryConstants.INCLUDE_GROUP, includeGroupCheckbox
-                            .getValue());
-                    q.setParameter(SampleQueryConstants.INCLUDE_SHARED, includeInstanceCheckbox
-                            .getValue());
-                    q.setParameter(SampleQueryConstants.PARENT_OF_DEPTH, selectSampleTypeCombo
-                            .tryGetSelected().getPartOfHierarchyDepth());
-                    q.setParameter(SampleQueryConstants.GENERATED_FROM_DEPTH, selectSampleTypeCombo
-                            .tryGetSelected().getGeneratedFromHierarchyDepth());
-                    q.setParameter(SampleQueryConstants.NUMBER_OF_PROPERTIES, propNr);
-                    for (PropertyType p : propertyColumns.getChosenColumns())
-                    {
-                        propNr--;
-                        q.setParameter(SampleQueryConstants.PROPERTY_INTERNAL + propNr, p
-                                .isInternalNamespace());
-                        q.setParameter(SampleQueryConstants.PROPRETY_LABEL + propNr, p.getLabel());
-                        q.setParameter(SampleQueryConstants.PROPERTY + propNr, p.getSimpleCode());
-                    }
-                    return q.getQuery();
-
+                    MessageBox.alert("Warning", "Not yet implemented!", null);
                 }
             });
         button.setBorders(true);

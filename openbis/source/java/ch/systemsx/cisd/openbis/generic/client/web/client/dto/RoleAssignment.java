@@ -16,35 +16,20 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
-
 /**
  * @author Izabela Adamczyk
  */
-public class RoleAssignment implements IsSerializable
+public class RoleAssignment extends Code
 {
 
-    String code;
+    private Person person;
 
-    Person person;
-
-    Group group;
+    private Group group;
 
     private DatabaseInstance instance;
 
     public RoleAssignment()
     {
-    }
-
-    public String getCode()
-    {
-        return code;
-    }
-
-    public void setCode(String code)
-    {
-        this.code = code;
     }
 
     public Group getGroup()

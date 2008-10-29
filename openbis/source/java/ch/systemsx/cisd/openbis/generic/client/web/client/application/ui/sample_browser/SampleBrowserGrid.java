@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IClientPluginFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DataModelPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.CommonColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoadableColumnConfig;
@@ -60,7 +61,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
  * 
  * @author Christian Ribeaud
  */
-class SampleBrowserGrid extends LayoutContainer
+public final class SampleBrowserGrid extends LayoutContainer
 {
     private static final int PAGE_SIZE = 50;
 
@@ -151,7 +152,7 @@ class SampleBrowserGrid extends LayoutContainer
         List<Sample> samples = new ArrayList<Sample>();
         for (SampleModel model : modelList)
         {
-            samples.add((Sample) model.get(SampleModel.OBJECT));
+            samples.add((Sample) model.get(DataModelPropertyNames.OBJECT));
         }
         return samples;
     }
@@ -162,7 +163,7 @@ class SampleBrowserGrid extends LayoutContainer
         while (iterator.hasNext())
         {
             SampleModel next = iterator.next();
-            final Boolean isGroupLevelSample = (Boolean) next.get(SampleModel.IS_GROUP_SAMPLE);
+            final Boolean isGroupLevelSample = (Boolean) next.get(DataModelPropertyNames.IS_GROUP_SAMPLE);
             final boolean isInstanceLevelSample = isGroupLevelSample == false;
             if (isGroupLevelSample && newConfiguration.isIncludeGroup() == false
                     || isInstanceLevelSample && newConfiguration.isIncludeInstance() == false)
@@ -189,9 +190,9 @@ class SampleBrowserGrid extends LayoutContainer
                         final SampleModel sampleModel =
                                 (SampleModel) be.grid.getStore().getAt(be.rowIndex);
                         final SampleType sampleType =
-                                (SampleType) sampleModel.get(SampleModel.SAMPLE_TYPE);
+                                (SampleType) sampleModel.get(DataModelPropertyNames.SAMPLE_TYPE);
                         final String sampleIdentifier =
-                                sampleModel.get(SampleModel.SAMPLE_IDENTIFIER);
+                                sampleModel.get(DataModelPropertyNames.SAMPLE_IDENTIFIER);
                         final String code = sampleType.getCode();
                         final IClientPluginFactory pluginFactory =
                                 viewContext.getClientPluginFactoryProvider()
@@ -425,7 +426,7 @@ class SampleBrowserGrid extends LayoutContainer
         return new BasePagingLoadResult<T>(sublist, config.getOffset(), samples.size());
     }
 
-    private static List<SampleModel> asSampleModels(final List<Sample> samples)
+    public final static List<SampleModel> asSampleModels(final List<Sample> samples)
     {
         final List<SampleModel> sampleModels = new ArrayList<SampleModel>(samples.size());
         for (final Sample sample : samples)

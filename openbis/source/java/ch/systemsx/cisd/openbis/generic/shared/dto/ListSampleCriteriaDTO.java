@@ -51,13 +51,6 @@ public class ListSampleCriteriaDTO extends AbstractHashable implements Serializa
         this.containerIdentifier = container;
     }
 
-    public ListSampleCriteriaDTO(final List<SampleOwnerIdentifier> ownerIdentifiers,
-            final SampleTypePE sampleType)
-    {
-        this.ownerIdentifiers = ownerIdentifiers;
-        this.sampleType = sampleType;
-    }
-
     public List<SampleOwnerIdentifier> getOwnerIdentifiers()
     {
         return ownerIdentifiers;
@@ -66,5 +59,15 @@ public class ListSampleCriteriaDTO extends AbstractHashable implements Serializa
     public SampleTypePE getSampleType()
     {
         return sampleType;
+    }
+
+    public final void setOwnerIdentifiers(final List<SampleOwnerIdentifier> ownerIdentifiers)
+    {
+        this.ownerIdentifiers = ownerIdentifiers;
+    }
+
+    public final void setSampleType(final SampleTypePE sampleType)
+    {
+        this.sampleType = sampleType;
     }
 }

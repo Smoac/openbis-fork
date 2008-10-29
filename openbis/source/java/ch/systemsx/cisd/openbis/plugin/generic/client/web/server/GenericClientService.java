@@ -283,7 +283,6 @@ public final class GenericClientService extends AbstractClientService implements
         try
         {
             final ListSampleCriteriaDTO criteria = createCriteriaDTO(listCriteria);
-
             final List<SamplePE> samplePEs = genericServer.listSamples(getSessionToken(), criteria);
             final List<SamplePropertyPE> propertiesMap =
                     genericServer.listSamplesProperties(getSessionToken(), criteria,
@@ -302,12 +301,12 @@ public final class GenericClientService extends AbstractClientService implements
     }
 
     private static void setSampleProperties(final List<Sample> samples,
-            List<SamplePropertyPE> properties)
+            final List<SamplePropertyPE> properties)
     {
         final Map<Long, List<SampleProperty>> propertiesMap = splitForSamples(properties);
         for (final Sample sample : samples)
         {
-            long sampleId = sample.getId();
+            final long sampleId = sample.getId();
             List<SampleProperty> props = sample.getProperties();
             if (props == null)
             {
@@ -324,24 +323,25 @@ public final class GenericClientService extends AbstractClientService implements
 
     private static ListSampleCriteriaDTO createCriteriaDTO(final ListSampleCriteria listCriteria)
     {
-        final List<SampleOwnerIdentifier> ownerIdentifiers = createOwnerIdentifiers(listCriteria);
-        final ListSampleCriteriaDTO criteria =
-                new ListSampleCriteriaDTO(ownerIdentifiers, SampleTypeTranslator
-                        .translate(listCriteria.getSampleType()));
+        final ListSampleCriteriaDTO criteria = new ListSampleCriteriaDTO();
         final Sample container = listCriteria.getContainer();
         if (container != null)
         {
             criteria.setContainerIdentifier(SampleIdentifierFactory
                     .parse(container.getIdentifier()));
+        } else
+        {
+            criteria.setOwnerIdentifiers(createOwnerIdentifiers(listCriteria));
+            criteria.setSampleType(SampleTypeTranslator.translate(listCriteria.getSampleType()));
         }
         return criteria;
     }
 
     private static List<SampleOwnerIdentifier> createOwnerIdentifiers(
-            ListSampleCriteria listCriteria)
+            final ListSampleCriteria listCriteria)
     {
         final List<SampleOwnerIdentifier> ownerIdentifiers = new ArrayList<SampleOwnerIdentifier>();
-        DatabaseInstanceIdentifier databaseIdentifier = getDatabaseIdentifier(listCriteria);
+        final DatabaseInstanceIdentifier databaseIdentifier = getDatabaseIdentifier(listCriteria);
         if (listCriteria.isIncludeGroup())
 
         {
@@ -355,9 +355,11 @@ public final class GenericClientService extends AbstractClientService implements
         return ownerIdentifiers;
     }
 
-    private static DatabaseInstanceIdentifier getDatabaseIdentifier(ListSampleCriteria listCriteria)
+    private static DatabaseInstanceIdentifier getDatabaseIdentifier(
+            final ListSampleCriteria listCriteria)
     {
-        DatabaseInstance databaseInstance = listCriteria.getSampleType().getDatabaseInstance();
+        final DatabaseInstance databaseInstance =
+                listCriteria.getSampleType().getDatabaseInstance();
         return new DatabaseInstanceIdentifier(databaseInstance.getCode());
     }
 
@@ -374,13 +376,15 @@ public final class GenericClientService extends AbstractClientService implements
         return propertiesMap;
     }
 
-    private static Map<Long, List<SampleProperty>> splitForSamples(List<SamplePropertyPE> properties)
+    private static Map<Long, List<SampleProperty>> splitForSamples(
+            final List<SamplePropertyPE> properties)
     {
-        Map<Long, List<SampleProperty>> propertiesMap = new HashMap<Long, List<SampleProperty>>();
+        final Map<Long, List<SampleProperty>> propertiesMap =
+                new HashMap<Long, List<SampleProperty>>();
 
-        for (SamplePropertyPE prop : properties)
+        for (final SamplePropertyPE prop : properties)
         {
-            long sampleId = prop.getSample().getId();
+            final long sampleId = prop.getSample().getId();
             List<SampleProperty> sampleProps = propertiesMap.get(sampleId);
             if (sampleProps == null)
             {

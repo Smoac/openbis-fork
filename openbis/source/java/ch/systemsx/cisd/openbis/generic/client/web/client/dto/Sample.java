@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
 import ch.systemsx.cisd.common.annotation.CollectionMapping;
 
 /**
@@ -29,13 +27,12 @@ import ch.systemsx.cisd.common.annotation.CollectionMapping;
  * 
  * @author Izabela Adamczyk
  */
-public class Sample implements IsSerializable
+public class Sample extends Code
 {
     public static final Sample[] EMPTY_ARRAY = new Sample[0];
 
+    // TODO 2008-10-29, Christian Ribeaud: Since when we allow to have the id here!!!
     private long id;
-
-    private String code;
 
     private SampleType sampleType;
 
@@ -58,16 +55,6 @@ public class Sample implements IsSerializable
     private Invalidation invalidation;
 
     private Procedure validProcedure;
-
-    public String getCode()
-    {
-        return code;
-    }
-
-    public void setCode(final String code)
-    {
-        this.code = code;
-    }
 
     public SampleType getSampleType()
     {

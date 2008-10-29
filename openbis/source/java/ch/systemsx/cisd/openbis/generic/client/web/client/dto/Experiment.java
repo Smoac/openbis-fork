@@ -16,35 +16,21 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
 /**
  * @author Tomasz Pylak
  */
-public class Experiment implements IsSerializable
+public class Experiment extends Code
 {
-    private String code;
-
     private Project project;
 
     private ExperimentType experimentType;
-
-    public String getCode()
-    {
-        return code;
-    }
-
-    public void setCode(String code)
-    {
-        this.code = code;
-    }
 
     public Project getProject()
     {
         return project;
     }
 
-    public void setProject(Project project)
+    public void setProject(final Project project)
     {
         this.project = project;
     }
@@ -54,7 +40,7 @@ public class Experiment implements IsSerializable
         return experimentType;
     }
 
-    public void setExperimentType(ExperimentType experimentType)
+    public void setExperimentType(final ExperimentType experimentType)
     {
         this.experimentType = experimentType;
     }

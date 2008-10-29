@@ -16,30 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
 /**
  * An <i>abstract</i> entity type.
  * 
  * @author Christian Ribeaud
  */
-public abstract class EntityType implements IsSerializable
+public abstract class EntityType extends Code
 {
-    private String code;
-
     private String description;
 
     private DatabaseInstance databaseInstance;
-
-    public final String getCode()
-    {
-        return code;
-    }
-
-    public final void setCode(final String code)
-    {
-        this.code = code;
-    }
 
     public final String getDescription()
     {

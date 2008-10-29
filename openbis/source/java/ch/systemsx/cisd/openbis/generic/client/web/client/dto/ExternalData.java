@@ -14,27 +14,16 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
+package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
-import com.extjs.gxt.ui.client.data.ModelData;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 
 /**
- * {@link ModelData} for {@link SampleType}.
+ * The <i>GWT</i> equivalent to {@link ExternalDataPE}.
  * 
- * @author Izabela Adamczyk
+ * @author Christian Ribeaud
  */
-public class SampleTypeModel extends BaseModelData
+public class ExternalData extends Code
 {
-
-    private static final long serialVersionUID = 1L;
-
-    public SampleTypeModel(SampleType sampleType)
-    {
-        set(DataModelPropertyNames.CODE, sampleType.getCode());
-        set(DataModelPropertyNames.OBJECT, sampleType);
-    }
 
 }

@@ -19,22 +19,16 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 
 /**
- * {@link ModelData} for {@link SampleType}.
+ * {@link ModelData} for {@link ExternalData}.
  * 
- * @author Izabela Adamczyk
+ * @author Christian Ribeaud
  */
-public class SampleTypeModel extends BaseModelData
+public final class ExternalDataModel extends BaseModelData
 {
 
     private static final long serialVersionUID = 1L;
-
-    public SampleTypeModel(SampleType sampleType)
-    {
-        set(DataModelPropertyNames.CODE, sampleType.getCode());
-        set(DataModelPropertyNames.OBJECT, sampleType);
-    }
 
 }
