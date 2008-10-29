@@ -324,7 +324,6 @@ public class RecordBasedQueuePersister<E> implements IQueuePersister<E>
                 final int elementSize = data.length + RECORD_HEADER_LENGTH;
                 if (elementSize > recordSize)
                 {
-                    System.out.println("add to tail: " + elementSize + " > " + recordSize);
                     primPersist(getNewRecordSize(recordSize, elementSize));
                     return;
                 }
