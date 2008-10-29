@@ -257,28 +257,7 @@ public class RecordBasedQueuePersister<E> implements IQueuePersister<E>
             try
             {
                 randomAccessFile.close();
-                final RandomAccessFile newRandomAccessFile =
-                        new RandomAccessFile(newQueueFile, "rw");
-                firstRecord = 0;
-                lastRecord = queue.size();
-                writeFullHeader(newRandomAccessFile, firstRecord, lastRecord, newRecordSize);
-                int pos = HEADER_LENGTH;
-                for (E elem : queue)
-                {
-                    newRandomAccessFile.seek(pos);
-                    pos += newRecordSize;
-                    final byte[] data = toByteArray(elem);
-                    final int elementSize = data.length + RECORD_HEADER_LENGTH;
-                    if (elementSize > newRecordSize)
-                    {
-                        primPersist(getNewRecordSize(newRecordSize, elementSize));
-                        return;
-                    }
-                    newRandomAccessFile.writeInt(data.length);
-                    newRandomAccessFile.write(data);
-                }
-                randomAccessFile = newRandomAccessFile;
-                recordSize = newRecordSize;
+                recordSize = fillNewQueueFile(newRecordSize);
                 if (queueFile.delete() == false)
                 {
                     throw new IOException("Cannot delete file '" + queueFile.getPath() + "'");
@@ -288,6 +267,7 @@ public class RecordBasedQueuePersister<E> implements IQueuePersister<E>
                     throw new IOException("Cannot rename file '" + newQueueFile.getPath()
                             + "' to '" + queueFile.getPath() + "'");
                 }
+                randomAccessFile = new RandomAccessFile(queueFile, "rw");
                 if (autoSync)
                 {
                     sync();
@@ -295,6 +275,40 @@ public class RecordBasedQueuePersister<E> implements IQueuePersister<E>
             } catch (IOException ex)
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
+        }
+    }
+    
+    private int fillNewQueueFile(int newRecordSize) throws IOException
+    {
+        RandomAccessFile newRandomAccessFile = null;
+        try
+        {
+            newRandomAccessFile = new RandomAccessFile(newQueueFile, "rw");
+            firstRecord = 0;
+            lastRecord = queue.size();
+            writeFullHeader(newRandomAccessFile, firstRecord, lastRecord, newRecordSize);
+            int pos = HEADER_LENGTH;
+            for (E elem : queue)
+            {
+                newRandomAccessFile.seek(pos);
+                pos += newRecordSize;
+                final byte[] data = toByteArray(elem);
+                final int elementSize = data.length + RECORD_HEADER_LENGTH;
+                if (elementSize > newRecordSize)
+                {
+                    newRandomAccessFile.close();
+                    return fillNewQueueFile(getNewRecordSize(newRecordSize, elementSize));
+                }
+                newRandomAccessFile.writeInt(data.length);
+                newRandomAccessFile.write(data);
+            }
+            return newRecordSize;
+        } finally
+        {
+            if (newRandomAccessFile != null)
+            {
+                newRandomAccessFile.close();
             }
         }
     }
@@ -310,6 +324,7 @@ public class RecordBasedQueuePersister<E> implements IQueuePersister<E>
                 final int elementSize = data.length + RECORD_HEADER_LENGTH;
                 if (elementSize > recordSize)
                 {
+                    System.out.println("add to tail: " + elementSize + " > " + recordSize);
                     primPersist(getNewRecordSize(recordSize, elementSize));
                     return;
                 }
