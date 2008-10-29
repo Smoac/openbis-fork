@@ -16,12 +16,31 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import com.extjs.gxt.ui.client.widget.ContentPanel;
+
 /**
- * Additional event codes.
- * 
  * @author Izabela Adamczyk
  */
-public class OpenbisEvents
+public class MenuElement
 {
-    public static int CALLBACK_FINNISHED = 0x100000;
+    private final String title;
+
+    private final ContentPanel associatedComponent;
+
+    public MenuElement(String title, ContentPanel associatedComponent)
+    {
+        this.title = title;
+        this.associatedComponent = associatedComponent;
+    }
+
+    public String getTitle()
+    {
+        return title;
+    }
+
+    public ContentPanel getAssociatedContentPanel()
+    {
+        return associatedComponent;
+    }
+
 }

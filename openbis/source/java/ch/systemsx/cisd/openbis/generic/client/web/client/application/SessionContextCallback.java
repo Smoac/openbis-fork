@@ -16,11 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import com.extjs.gxt.ui.client.widget.Component;
-import com.google.gwt.user.client.ui.RootPanel;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientService;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoginPage;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 
 /**
@@ -39,17 +37,13 @@ public final class SessionContextCallback extends AbstractAsyncCallback<SessionC
     @Override
     public void process(final SessionContext sessionContext)
     {
-        final RootPanel rootPanel = RootPanel.get();
-        rootPanel.clear();
-        Component widget;
         if (sessionContext == null)
         {
-            widget = new LoginPage((GenericViewContext) viewContext);
+            Dispatcher.get().dispatch(AppEvents.UserNotLoggedIn);
         } else
         {
             viewContext.getModel().setSessionContext(sessionContext);
-            widget = new Application((GenericViewContext) viewContext);
+            Dispatcher.get().dispatch(AppEvents.Init);
         }
-        rootPanel.add(widget);
     }
 }

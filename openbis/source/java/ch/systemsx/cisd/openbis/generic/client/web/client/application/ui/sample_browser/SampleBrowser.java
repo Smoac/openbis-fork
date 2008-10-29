@@ -16,10 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser;
 
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.CommonColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ParentColumns;
@@ -30,12 +31,19 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Propert
  * 
  * @author Izabela Adamczyk
  */
-public class SampleBrowser extends LayoutContainer
+public class SampleBrowser extends ContentPanel
 {
+
+    private static final String PREFIX = "sample-browser";
+
+    public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
 
     public SampleBrowser(final GenericViewContext viewContext)
     {
+        setId(ID);
         setLayout(new RowLayout());
+        setHeaderVisible(false);
+        setHeading("Sample browser");
 
         final CommonColumns commonColumns = new CommonColumns(viewContext.getMessageProvider());
         final ParentColumns parentColumns = new ParentColumns(viewContext.getMessageProvider());

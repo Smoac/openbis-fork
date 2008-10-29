@@ -163,7 +163,8 @@ public final class SampleBrowserGrid extends LayoutContainer
         while (iterator.hasNext())
         {
             SampleModel next = iterator.next();
-            final Boolean isGroupLevelSample = (Boolean) next.get(ModelDataPropertyNames.IS_GROUP_SAMPLE);
+            final Boolean isGroupLevelSample =
+                    (Boolean) next.get(ModelDataPropertyNames.IS_GROUP_SAMPLE);
             final boolean isInstanceLevelSample = isGroupLevelSample == false;
             if (isGroupLevelSample && newConfiguration.isIncludeGroup() == false
                     || isInstanceLevelSample && newConfiguration.isIncludeInstance() == false)
@@ -183,6 +184,7 @@ public final class SampleBrowserGrid extends LayoutContainer
             grid = new Grid<SampleModel>(sampleStore, columnModel);
             grid.setId(GRID_ID);
             grid.setLoadMask(true);
+            grid.setDeferHeight(true);
             grid.addListener(Events.CellClick, new Listener<GridEvent>()
                 {
                     public final void handleEvent(final GridEvent be)
@@ -204,11 +206,8 @@ public final class SampleBrowserGrid extends LayoutContainer
             toolBar = new PagingToolBar(PAGE_SIZE);
             toolBar.bind(loader);
 
-            ContentPanel panel = new ContentPanel();
-            panel.setLayout(new FitLayout());
-            panel.add(grid);
-            panel.setBottomComponent(toolBar);
-            getContentPanel().add(panel);
+            getContentPanel().add(grid);
+            getContentPanel().setBottomComponent(toolBar);
         } else
         {
             grid.reconfigure(sampleStore, columnModel);

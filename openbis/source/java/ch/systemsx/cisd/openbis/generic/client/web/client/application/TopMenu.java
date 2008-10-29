@@ -14,21 +14,25 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.mvc.AppEvent;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
+import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.User;
 
@@ -40,19 +44,67 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.User;
  */
 public class TopMenu extends LayoutContainer
 {
-    static final String LOGOUT_BUTTON_ID = GenericConstants.ID_PREFIX + "logout-button";
+    public static final String LOGOUT_BUTTON_ID = GenericConstants.ID_PREFIX + "logout-button";
 
-    public TopMenu(final GenericViewContext viewContext)
+    private final DummyComponent dummyComponent;
+
+    public TopMenu(final GenericViewContext viewContext, DummyComponent dummyComponent)
     {
+        this.dummyComponent = dummyComponent;
         setLayout(new FlowLayout());
         setBorders(true);
         final ToolBar toolBar = new ToolBar();
-        final LabelToolItem userInfoText = new LabelToolItem(createUserInfo(viewContext));
+        toolBar.add(new AdapterToolItem(new Html("<div id=header-title>OpenBIS</div>")));
+
+        toolBar.add(new AdapterToolItem(new DomainChooser()));
+        toolBar.add(new AdapterToolItem(createSearchQueryField()));
+        toolBar.add(new AdapterToolItem(createSearchButton()));
+
         toolBar.add(new FillToolItem());
-        toolBar.add(userInfoText);
+        toolBar.add(new AdapterToolItem(new Html("<div id=header-user-info>"
+                + createUserInfo(viewContext) + "</div>")));
         toolBar.add(new SeparatorToolItem());
         toolBar.add(new LogoutButton(viewContext));
         add(toolBar);
+    }
+
+    private Button createSearchButton()
+    {
+        final Button button = new Button("Search");
+        button.addSelectionListener(new SelectionListener<ComponentEvent>()
+            {
+
+                @Override
+                public void componentSelected(ComponentEvent ce)
+                {
+                    final AppEvent<ContentPanel> event =
+                            new AppEvent<ContentPanel>(AppEvents.MenuEvent);
+                    event.setData(GenericConstants.ASSOCIATED_CONTENT_PANEL, dummyComponent);
+                    Dispatcher.get().dispatch(event);
+                }
+            });
+        return button;
+    }
+
+    private TextField<String> createSearchQueryField()
+    {
+        final TextField<String> field = new TextField<String>();
+        field.setWidth(200);
+        return field;
+    }
+
+    class DomainChooser extends SimpleComboBox<String>
+    {
+        public DomainChooser()
+        {
+            setWidth(100);
+            add("- All -");
+            add("Samples");
+            add("Experiments");
+            add("Materials");
+            setEditable(false);
+            setValue(getStore().getAt(0));
+        }
     }
 
     private String createUserInfo(final GenericViewContext viewContext)

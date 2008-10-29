@@ -33,9 +33,9 @@ import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Event;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.OpenbisEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.CommonColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ParentColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyColumns;
@@ -144,7 +144,7 @@ class SampleBrowserToolbar extends ToolBar
                 }
             });
 
-        selectGroupCombo.addListener(OpenbisEvents.CALLBACK_FINNISHED, new Listener<BaseEvent>()
+        selectGroupCombo.addListener(AppEvents.CALLBACK_FINNISHED, new Listener<BaseEvent>()
             {
 
                 public void handleEvent(final BaseEvent be)
@@ -206,7 +206,6 @@ class SampleBrowserToolbar extends ToolBar
                 @Override
                 public void componentSelected(ComponentEvent ce)
                 {
-
                     final SampleType selectedType = selectSampleTypeCombo.tryGetSelected();
                     final String selectedGroupCode =
                             selectGroupCombo.tryGetSelected() == null ? null : selectGroupCombo
@@ -231,7 +230,6 @@ class SampleBrowserToolbar extends ToolBar
                 }
             });
         refreshButton.setId(REFRESH_BUTTON_ID);
-        // refreshButton.setStyleAttribute("border-color", "#ff0000");
         refreshButton.setBorders(true);
         return refreshButton;
     }

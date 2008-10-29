@@ -16,22 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants.AUTHORIZATION_MANAGEMENT_CONSOLE_VIEW;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants.VIEW_KEY;
-
-import com.extjs.gxt.ui.client.util.Margins;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Viewport;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.layout.RowData;
-import com.extjs.gxt.ui.client.widget.layout.RowLayout;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.Widget;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Footer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TopMenu;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AMC;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.SampleBrowser;
 
 /**
  * Panel of the application.
@@ -41,44 +26,45 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_
  */
 public class Application extends Viewport
 {
-    private static final int MARGIN_SIZE = 3;
-
-    Application(GenericViewContext viewContext)
-    {
-        createGUI(viewContext);
-    }
-
-    private void createGUI(final GenericViewContext viewContext)
-    {
-
-        setLayout(new FitLayout());
-        LayoutContainer panels = new LayoutContainer();
-        panels.setLayout(new RowLayout());
-
-        TopMenu north = new TopMenu(viewContext);
-        Widget center = chosenMainPanel(viewContext);
-        Footer south = new Footer(viewContext);
-
-        RowData northData = new RowData(1, -1, new Margins(MARGIN_SIZE));
-        RowData centerData = new RowData(1, 1, new Margins(MARGIN_SIZE));
-        RowData southData = new RowData(1, -1, new Margins(MARGIN_SIZE));
-
-        panels.add(north, northData);
-        panels.add(center, centerData);
-        panels.add(south, southData);
-
-        add(panels);
-    }
-
-    private Widget chosenMainPanel(final GenericViewContext viewContext)
-    {
-        if (AUTHORIZATION_MANAGEMENT_CONSOLE_VIEW.equals(Window.Location.getParameter(VIEW_KEY)))
-        {
-            return new AMC(viewContext);
-        } else
-        {
-            return new SampleBrowser(viewContext);
-        }
-    }
+    // private static final int MARGIN_SIZE = 3;
+    //
+    // Application(GenericViewContext viewContext)
+    // {
+    // createGUI(viewContext);
+    //
+    // }
+    //
+    // private void createGUI(final GenericViewContext viewContext)
+    // {
+    //
+    // setLayout(new FitLayout());
+    // LayoutContainer panels = new LayoutContainer();
+    // panels.setLayout(new RowLayout());
+    //
+    // TopMenu north = new TopMenu(viewContext);
+    // Widget center = chosenMainPanel(viewContext);
+    // Footer south = new Footer(viewContext);
+    //
+    // RowData northData = new RowData(1, -1, new Margins(MARGIN_SIZE));
+    // RowData centerData = new RowData(1, 1, new Margins(MARGIN_SIZE));
+    // RowData southData = new RowData(1, -1, new Margins(MARGIN_SIZE));
+    //
+    // panels.add(north, northData);
+    // panels.add(center, centerData);
+    // panels.add(south, southData);
+    //
+    // add(panels);
+    // }
+    //
+    // private Widget chosenMainPanel(final GenericViewContext viewContext)
+    // {
+    // if (AUTHORIZATION_MANAGEMENT_CONSOLE_VIEW.equals(Window.Location.getParameter(VIEW_KEY)))
+    // {
+    // return new AMC(viewContext);
+    // } else
+    // {
+    // return new SampleBrowser(viewContext);
+    // }
+    // }
 
 }

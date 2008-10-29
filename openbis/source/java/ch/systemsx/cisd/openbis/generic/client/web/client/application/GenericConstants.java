@@ -48,4 +48,5 @@ public class GenericConstants
                 + serviceName;
     }
 
+    public static final String ASSOCIATED_CONTENT_PANEL = "associated-panel";
 }

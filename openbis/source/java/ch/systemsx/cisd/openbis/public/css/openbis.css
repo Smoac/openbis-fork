@@ -47,3 +47,41 @@ body,div,td {
     font-weight: bold;
     background-color: #dddddd;
 }
+
+#header-user-info {
+	font-weight: lighter;
+	color: black;
+}
+
+#header-title {
+	font-weight: lighter;
+	font-size: large;
+	/*color: navy;*/
+	margin-left: 1em;
+	margin-right: 1em;
+}
+
+.intro-tab{
+	color: navy;
+	font-size: large;
+	text-align: center;
+}
+
+.dummy-component{
+	text-align: center;
+}
+
+/* Overwrite GXT styles */
+
+.x-btn-text{
+	color: navy;
+	text-transform: capitalize;
+}
+.x-accordion-hd{
+	text-transform: capitalize;
+	color: navy;
+}
+
+/*
+.x-btn{
+}*/
