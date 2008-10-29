@@ -25,7 +25,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
@@ -41,8 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
  * @author Christian Ribeaud
  */
 @Entity
-@Table(name = TableNames.DATA_STORES_TABLE, uniqueConstraints = @UniqueConstraint(columnNames =
-    { ColumnNames.CODE_COLUMN, ColumnNames.DATABASE_INSTANCE_COLUMN }))
+@Table(name = TableNames.DATA_STORES_TABLE)
 public final class DataStorePE extends AbstractIdAndCodeHolder<DataStorePE>
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
