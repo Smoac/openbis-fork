@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
@@ -27,13 +26,14 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.AccordionLayout;
 import com.extjs.gxt.ui.client.widget.tree.Tree;
 import com.extjs.gxt.ui.client.widget.tree.TreeItem;
+import com.google.gwt.user.client.Event;
 
 class LeftMenu extends ContentPanel
 {
 
     private final List<MenuCategory> categories;
 
-    public LeftMenu(List<MenuCategory> categories)
+    public LeftMenu(final List<MenuCategory> categories)
     {
         this.categories = categories;
 
@@ -47,10 +47,10 @@ class LeftMenu extends ContentPanel
 
     void addCategories()
     {
-        for (MenuCategory mc : categories)
+        for (final MenuCategory mc : categories)
         {
-            SubMenu subMenu = new SubMenu(mc.getName());
-            for (MenuElement me : mc.getElements())
+            final SubMenu subMenu = new SubMenu(mc.getName());
+            for (final MenuElement me : mc.getElements())
             {
                 subMenu.addCommand(me.getTitle(), me.getAssociatedContentPanel());
             }
@@ -60,20 +60,20 @@ class LeftMenu extends ContentPanel
 
     private class SubMenu extends ContentPanel
     {
-        private Tree tree;
+        private final Tree tree;
 
-        public SubMenu(String title)
+        public SubMenu(final String title)
         {
             setHeading(title);
             tree = new Tree();
-            tree.addListener(Events.SelectionChange, new Listener<BaseEvent>()
+            tree.addListener(Event.ONCLICK, new Listener<BaseEvent>()
                 {
-                    public void handleEvent(BaseEvent be)
+                    public void handleEvent(final BaseEvent be)
                     {
                         if (tree.getSelectedItem().isLeaf())
                         {
 
-                            AppEvent<ContentPanel> event =
+                            final AppEvent<ContentPanel> event =
                                     new AppEvent<ContentPanel>(AppEvents.MenuEvent);
                             event.setData(GenericConstants.ASSOCIATED_CONTENT_PANEL, tree
                                     .getSelectedItem().getData(
@@ -92,7 +92,7 @@ class LeftMenu extends ContentPanel
             add(tree);
         }
 
-        public void addCommand(String name, ContentPanel contentPanel)
+        public void addCommand(final String name, final ContentPanel contentPanel)
         {
             final TreeItem item = new TreeItem(name);
             item.setData(GenericConstants.ASSOCIATED_CONTENT_PANEL, contentPanel);

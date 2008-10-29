@@ -26,6 +26,7 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GroupsView;
 
 /**
  * {@link Window} containing group registration form.

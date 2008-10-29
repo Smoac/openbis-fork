@@ -21,6 +21,9 @@ import com.extjs.gxt.ui.client.widget.TabPanel;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GroupsView;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.PersonsView;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.RolesView;
 
 public class AMC extends TabPanel
 {

@@ -70,8 +70,19 @@ body,div,td {
 .dummy-component{
 	text-align: center;
 }
+/*
+.left-menu-element-icon {
+  background-image: url(../images/favicon.png) !important;
+}
+*/
 
 /* Overwrite GXT styles */
+
+/*.my-tree-item-text{
+	color: navy;
+	text-transform: capitalize;
+	text-decoration: underline;
+}*/
 
 .x-btn-text{
 	color: navy;

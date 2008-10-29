@@ -16,11 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants.AUTHORIZATION_MANAGEMENT_CONSOLE_VIEW;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants.VIEW_KEY;
-
-import com.google.gwt.user.client.Window;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CheckGroup;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CheckPerson;
@@ -42,17 +37,6 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
     private static final String USER_ID = "o";
 
     private static final String TEST_GROUP = "test-group";
-
-    @Override
-    protected void setUpTest() throws Exception
-    {
-        if (AUTHORIZATION_MANAGEMENT_CONSOLE_VIEW.equals(Window.Location.getParameter(VIEW_KEY)) == false)
-        {
-            final String href = Window.Location.getHref();
-            Window.Location.assign(href + "?" + VIEW_KEY + "="
-                    + AUTHORIZATION_MANAGEMENT_CONSOLE_VIEW);
-        }
-    }
 
     public final void testCreateGroup()
     {

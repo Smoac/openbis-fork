@@ -24,6 +24,12 @@ class ComponentProvider
 
     private final DummyComponent dummyComponent;
 
+    private final GroupsView groupsView;
+
+    private final RolesView rolesView;
+
+    private final PersonsView personsView;
+
     public SampleBrowser getSampleBrowser()
     {
         return sampleBrowser;
@@ -34,9 +40,27 @@ class ComponentProvider
         return dummyComponent;
     }
 
-    public ComponentProvider(GenericViewContext viewContext)
+    public ComponentProvider(final GenericViewContext viewContext)
     {
         sampleBrowser = new SampleBrowser(viewContext);
         dummyComponent = new DummyComponent();
+        groupsView = new GroupsView(viewContext);
+        rolesView = new RolesView(viewContext);
+        personsView = new PersonsView(viewContext);
+    }
+
+    public GroupsView getGroupsView()
+    {
+        return groupsView;
+    }
+
+    public RolesView getRolesView()
+    {
+        return rolesView;
+    }
+
+    public PersonsView getPersonsView()
+    {
+        return personsView;
     }
 }

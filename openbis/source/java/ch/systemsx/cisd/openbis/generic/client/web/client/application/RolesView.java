@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import static ch.systemsx.cisd.openbis.generic.client.web.client.application.util.ClientConstants.COL_DB_INSTANCE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.application.util.ClientConstants.COL_GROUP;
@@ -42,12 +42,10 @@ import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.RoleModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnFilter;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddRoleDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 
@@ -56,14 +54,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
  * 
  * @author Izabela Adamczyk
  */
-public class RolesView extends LayoutContainer
+public class RolesView extends ContentPanel
 {
 
     private static final String PREFIX = "roles-view_";
 
-    static final String ADD_BUTTON_ID = GenericConstants.ID_PREFIX + PREFIX + "add-button";
+    public static final String ADD_BUTTON_ID = GenericConstants.ID_PREFIX + PREFIX + "add-button";
 
-    static final String TABLE_ID = GenericConstants.ID_PREFIX + PREFIX + "table";
+    public static final String TABLE_ID = GenericConstants.ID_PREFIX + PREFIX + "table";
 
     private final GenericViewContext viewContext;
 
@@ -71,7 +69,16 @@ public class RolesView extends LayoutContainer
     {
         this.viewContext = viewContext;
         setLayout(new FitLayout());
+        setHeaderVisible(false);
+        setHeading("List roles");
 
+    }
+
+    @Override
+    protected void onLoad()
+    {
+        super.onLoad();
+        refresh();
     }
 
     private void display(final List<RoleAssignment> roles)
@@ -166,27 +173,29 @@ public class RolesView extends LayoutContainer
                             {
                                 viewContext.getService().deleteInstanceRole(
                                         (String) rm.get(ModelDataPropertyNames.ROLE),
-                                        (String) rm.get(ModelDataPropertyNames.PERSON), roleListRefreshCallback);
+                                        (String) rm.get(ModelDataPropertyNames.PERSON),
+                                        roleListRefreshCallback);
                             } else
                             {
                                 viewContext.getService().deleteGroupRole(
                                         (String) rm.get(ModelDataPropertyNames.ROLE),
                                         (String) rm.get(ModelDataPropertyNames.GROUP),
-                                        (String) rm.get(ModelDataPropertyNames.PERSON), roleListRefreshCallback);
+                                        (String) rm.get(ModelDataPropertyNames.PERSON),
+                                        roleListRefreshCallback);
                             }
                         }
                     });
 
         final ToolBar toolBar = new ToolBar();
         toolBar.add(new LabelToolItem("Filter:"));
-        toolBar.add(new AdapterToolItem(new ColumnFilter<RoleModel>(store, ModelDataPropertyNames.PERSON,
-                "person")));
-        toolBar.add(new AdapterToolItem(
-                new ColumnFilter<RoleModel>(store, ModelDataPropertyNames.GROUP, "group")));
-        toolBar.add(new AdapterToolItem(new ColumnFilter<RoleModel>(store, ModelDataPropertyNames.INSTANCE,
-                "instance")));
-        toolBar
-                .add(new AdapterToolItem(new ColumnFilter<RoleModel>(store, ModelDataPropertyNames.ROLE, "role")));
+        toolBar.add(new AdapterToolItem(new ColumnFilter<RoleModel>(store,
+                ModelDataPropertyNames.PERSON, "person")));
+        toolBar.add(new AdapterToolItem(new ColumnFilter<RoleModel>(store,
+                ModelDataPropertyNames.GROUP, "group")));
+        toolBar.add(new AdapterToolItem(new ColumnFilter<RoleModel>(store,
+                ModelDataPropertyNames.INSTANCE, "instance")));
+        toolBar.add(new AdapterToolItem(new ColumnFilter<RoleModel>(store,
+                ModelDataPropertyNames.ROLE, "role")));
         toolBar.add(new SeparatorToolItem());
         toolBar.add(new AdapterToolItem(addRoleButton));
         toolBar.add(new SeparatorToolItem());
@@ -217,7 +226,7 @@ public class RolesView extends LayoutContainer
     // Helper classes
     //
 
-    final class ListRolesCallback extends AbstractAsyncCallback<List<RoleAssignment>>
+    public final class ListRolesCallback extends AbstractAsyncCallback<List<RoleAssignment>>
     {
 
         private ListRolesCallback(final GenericViewContext viewContext)

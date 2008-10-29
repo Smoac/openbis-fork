@@ -1,5 +1,3 @@
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
-
 /*
  * Copyright 2008 ETH Zuerich, CISD
  *
@@ -16,18 +14,18 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
  * limitations under the License.
  */
 
+package ch.systemsx.cisd.openbis.generic.client.web.client.application;
+
 import static ch.systemsx.cisd.openbis.generic.client.web.client.application.util.ClientConstants.COL_DATE;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.util.ClientConstants.COL_EMAIL;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.util.ClientConstants.COL_FIRST_NAME;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.util.ClientConstants.COL_LAST_NAME;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.application.util.ClientConstants.COL_GROUP;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.application.util.ClientConstants.COL_PERSON;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.util.ClientConstants.COL_PERSON_ID;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.application.util.ClientConstants.FIT_SIZE;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.core.XTemplate;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -38,6 +36,7 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.RowExpander;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
@@ -45,65 +44,78 @@ import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.i18n.client.DateTimeFormat;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.GroupModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.PersonModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnFilter;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddGroupDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 
 /**
- * {@link LayoutContainer} with persons functionality.
+ * {@link LayoutContainer} with groups functionality.
  * 
  * @author Izabela Adamczyk
  */
-public class PersonsView extends LayoutContainer
+public class GroupsView extends ContentPanel
 {
-    private static final String PREFIX = "persons-view_";
+    private static final String PREFIX = "groups-view_";
 
-    static final String ADD_BUTTON_ID = GenericConstants.ID_PREFIX + PREFIX + "add-button";
+    public static final String TABLE_ID = GenericConstants.ID_PREFIX + PREFIX + "table";
 
-    static final String TABLE_ID = GenericConstants.ID_PREFIX + PREFIX + "table";
+    public static final String ADD_BUTTON_ID = GenericConstants.ID_PREFIX + PREFIX + "add-button";
+
+    public final class ListGroupsCallback extends AbstractAsyncCallback<List<Group>>
+    {
+        private ListGroupsCallback(final GenericViewContext viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        public void process(final List<Group> groups)
+        {
+            display(groups);
+        }
+    }
+
+    @Override
+    protected void onLoad()
+    {
+        super.onLoad();
+        refresh();
+    }
 
     private final GenericViewContext viewContext;
 
-    public PersonsView(final GenericViewContext viewContext)
+    public GroupsView(final GenericViewContext viewContext)
     {
         this.viewContext = viewContext;
         setLayout(new FitLayout());
-
+        setHeaderVisible(false);
+        setHeading("List groups");
     }
 
-    private void display(final List<Person> persons)
+    private void display(final List<Group> groups)
     {
         removeAll();
 
         final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
 
+        final XTemplate tpl = XTemplate.create("<p>" + "<b>Description:</b> {description}</p>");
+        final RowExpander expander = new RowExpander();
+        expander.setTemplate(tpl);
+        configs.add(expander);
+
         final ColumnConfig codeColumnConfig = new ColumnConfig();
-        codeColumnConfig.setId(ModelDataPropertyNames.USER_ID);
-        codeColumnConfig.setHeader("User ID");
-        codeColumnConfig.setWidth(COL_PERSON_ID);
+        codeColumnConfig.setId(ModelDataPropertyNames.CODE);
+        codeColumnConfig.setHeader("Code");
+        codeColumnConfig.setWidth(COL_GROUP);
         configs.add(codeColumnConfig);
 
-        final ColumnConfig firstNameColumnConfig = new ColumnConfig();
-        firstNameColumnConfig.setId(ModelDataPropertyNames.FIRST_NAME);
-        firstNameColumnConfig.setHeader("First Name");
-        firstNameColumnConfig.setWidth(COL_FIRST_NAME);
-        configs.add(firstNameColumnConfig);
-
-        final ColumnConfig lastNameColumnConfig = new ColumnConfig();
-        lastNameColumnConfig.setId(ModelDataPropertyNames.LAST_NAME);
-        lastNameColumnConfig.setHeader("Last Name");
-        lastNameColumnConfig.setWidth(COL_LAST_NAME);
-        configs.add(lastNameColumnConfig);
-
-        final ColumnConfig emailNameColumnConfig = new ColumnConfig();
-        emailNameColumnConfig.setId(ModelDataPropertyNames.EMAIL);
-        emailNameColumnConfig.setHeader("Email");
-        emailNameColumnConfig.setWidth(COL_EMAIL);
-        configs.add(emailNameColumnConfig);
+        final ColumnConfig leaderColumnConfig = new ColumnConfig();
+        leaderColumnConfig.setId(ModelDataPropertyNames.LEADER);
+        leaderColumnConfig.setHeader("Leader");
+        leaderColumnConfig.setWidth(COL_PERSON);
+        configs.add(leaderColumnConfig);
 
         final ColumnConfig registratorColumnConfig = new ColumnConfig();
         registratorColumnConfig.setId(ModelDataPropertyNames.REGISTRATOR);
@@ -119,42 +131,44 @@ public class PersonsView extends LayoutContainer
         registrationDateColumnConfig.setDateTimeFormat(DateTimeFormat.getShortDateFormat());
         configs.add(registrationDateColumnConfig);
 
+        final GroupsView groupList = this;
+
         final ColumnModel cm = new ColumnModel(configs);
 
-        final ListStore<PersonModel> store = new ListStore<PersonModel>();
-        store.add(getPersonModels(persons));
+        final ListStore<GroupModel> store = new ListStore<GroupModel>();
+        store.add(getGroupModels(groups));
 
         final ContentPanel cp = new ContentPanel();
         cp.setBodyBorder(false);
-        cp.setHeading("Person list");
+        cp.setHeading("Group list");
         cp.setButtonAlign(HorizontalAlignment.CENTER);
-        final PersonsView personList = this;
 
         cp.setLayout(new FitLayout());
         cp.setSize(FIT_SIZE, FIT_SIZE);
 
-        final Grid<PersonModel> grid = new Grid<PersonModel>(store, cm);
-        grid.setId(TABLE_ID);
+        final Grid<GroupModel> grid = new Grid<GroupModel>(store, cm);
+        grid.addPlugin(expander);
         grid.setBorders(true);
-        cp.add(grid);
+        grid.setId(TABLE_ID);
 
-        final Button addPersonButton =
-                new Button("Add person", new SelectionListener<ComponentEvent>()
+        cp.add(grid);
+        final Button addGroupButton =
+                new Button("Add group", new SelectionListener<ComponentEvent>()
                     {
                         @Override
                         public void componentSelected(ComponentEvent ce)
                         {
-                            new AddPersonDialog(viewContext, personList).show();
+                            new AddGroupDialog(viewContext, groupList).show();
                         }
                     });
-        addPersonButton.setId(ADD_BUTTON_ID);
+        addGroupButton.setId(ADD_BUTTON_ID);
 
         final ToolBar toolBar = new ToolBar();
         toolBar.add(new LabelToolItem("Filter:"));
-        toolBar.add(new AdapterToolItem(new ColumnFilter<PersonModel>(store, ModelDataPropertyNames.USER_ID,
-                "user id")));
+        toolBar.add(new AdapterToolItem(new ColumnFilter<GroupModel>(store,
+                ModelDataPropertyNames.CODE, "code")));
         toolBar.add(new SeparatorToolItem());
-        toolBar.add(new AdapterToolItem(addPersonButton));
+        toolBar.add(new AdapterToolItem(addGroupButton));
         cp.setBottomComponent(toolBar);
 
         add(cp);
@@ -162,42 +176,20 @@ public class PersonsView extends LayoutContainer
 
     }
 
-    List<PersonModel> getPersonModels(final List<Person> persons)
+    List<GroupModel> getGroupModels(final List<Group> groups)
     {
-        final List<PersonModel> pms = new ArrayList<PersonModel>();
-        for (final Person p : persons)
+        final List<GroupModel> gms = new ArrayList<GroupModel>();
+        for (final Group g : groups)
         {
-            pms.add(new PersonModel(p));
+            gms.add(new GroupModel(g));
         }
-        return pms;
+        return gms;
     }
 
     public void refresh()
     {
         removeAll();
         add(new Text("data loading..."));
-        viewContext.getService().listPersons(new ListPersonsCallback(viewContext));
-    }
-
-    //
-    // Helper classes
-    //
-
-    final class ListPersonsCallback extends AbstractAsyncCallback<List<Person>>
-    {
-        private ListPersonsCallback(final GenericViewContext viewContext)
-        {
-            super(viewContext);
-        }
-
-        //
-        // AbstractAsyncCallback
-        //
-
-        @Override
-        public final void process(final List<Person> persons)
-        {
-            display(persons);
-        }
+        viewContext.getService().listGroups(null, new ListGroupsCallback(viewContext));
     }
 }

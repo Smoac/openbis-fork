@@ -26,7 +26,7 @@ class CategoriesBuilder
 
     private final List<MenuCategory> categories;
 
-    public CategoriesBuilder(ComponentProvider provider)
+    public CategoriesBuilder(final ComponentProvider provider)
     {
         this.provider = provider;
         categories = new ArrayList<MenuCategory>();
@@ -36,19 +36,19 @@ class CategoriesBuilder
     private void defineCategories()
     {
         categories.add(createSampleCategory());
-        categories.add(createRolesCategory());
-        categories.add(createGroupsCategory());
-        categories.add(createProjectsTypesCategory());
-        categories.add(createPersonsCategory());
+        categories.add(createExperimentCategory());
+        categories.add(createMaterialCategory());
         categories.add(createPropertyTypesCategory());
         categories.add(createVocabulariesCategory());
-        categories.add(createMaterialCategory());
-        categories.add(createExperimentCategory());
+        categories.add(createProjectsTypesCategory());
+        categories.add(createGroupsCategory());
+        categories.add(createPersonsCategory());
+        categories.add(createRolesCategory());
     }
 
     private MenuCategory createSampleCategory()
     {
-        List<MenuElement> elements = new ArrayList<MenuElement>();
+        final List<MenuElement> elements = new ArrayList<MenuElement>();
         elements.add(new MenuElement("List", provider.getSampleBrowser()));
         elements.add(new MenuElement("List types", provider.getDummyComponent()));
         elements.add(new MenuElement("Register", provider.getDummyComponent()));
@@ -60,24 +60,23 @@ class CategoriesBuilder
 
     private MenuCategory createRolesCategory()
     {
-        List<MenuElement> elements = new ArrayList<MenuElement>();
-        elements.add(new MenuElement("List", provider.getDummyComponent()));
-        elements.add(new MenuElement("Register", provider.getDummyComponent()));
+        final List<MenuElement> elements = new ArrayList<MenuElement>();
+        elements.add(new MenuElement("List", provider.getRolesView()));
         elements.add(new MenuElement("Assign", provider.getDummyComponent()));
         return new MenuCategory("Roles", elements);
     }
 
     private MenuCategory createGroupsCategory()
     {
-        List<MenuElement> elements = new ArrayList<MenuElement>();
-        elements.add(new MenuElement("List", provider.getDummyComponent()));
+        final List<MenuElement> elements = new ArrayList<MenuElement>();
+        elements.add(new MenuElement("List", provider.getGroupsView()));
         elements.add(new MenuElement("Register", provider.getDummyComponent()));
         return new MenuCategory("Groups", elements);
     }
 
     private MenuCategory createProjectsTypesCategory()
     {
-        List<MenuElement> elements = new ArrayList<MenuElement>();
+        final List<MenuElement> elements = new ArrayList<MenuElement>();
         elements.add(new MenuElement("List", provider.getDummyComponent()));
         elements.add(new MenuElement("Register", provider.getDummyComponent()));
         return new MenuCategory("Projects", elements);
@@ -85,8 +84,8 @@ class CategoriesBuilder
 
     private MenuCategory createPersonsCategory()
     {
-        List<MenuElement> elements = new ArrayList<MenuElement>();
-        elements.add(new MenuElement("List", provider.getDummyComponent()));
+        final List<MenuElement> elements = new ArrayList<MenuElement>();
+        elements.add(new MenuElement("List", provider.getPersonsView()));
         elements.add(new MenuElement("Register", provider.getDummyComponent()));
         elements.add(new MenuElement("Add role", provider.getDummyComponent()));
         return new MenuCategory("Persons", elements);
@@ -94,7 +93,7 @@ class CategoriesBuilder
 
     private MenuCategory createPropertyTypesCategory()
     {
-        List<MenuElement> elements = new ArrayList<MenuElement>();
+        final List<MenuElement> elements = new ArrayList<MenuElement>();
         elements.add(new MenuElement("List", provider.getDummyComponent()));
         elements.add(new MenuElement("Register", provider.getDummyComponent()));
         return new MenuCategory("Property types", elements);
@@ -102,7 +101,7 @@ class CategoriesBuilder
 
     private MenuCategory createVocabulariesCategory()
     {
-        List<MenuElement> elements = new ArrayList<MenuElement>();
+        final List<MenuElement> elements = new ArrayList<MenuElement>();
         elements.add(new MenuElement("List", provider.getDummyComponent()));
         elements.add(new MenuElement("Register", provider.getDummyComponent()));
         return new MenuCategory("Vocabularies", elements);
@@ -110,7 +109,7 @@ class CategoriesBuilder
 
     private MenuCategory createMaterialCategory()
     {
-        List<MenuElement> elements = new ArrayList<MenuElement>();
+        final List<MenuElement> elements = new ArrayList<MenuElement>();
         elements.add(new MenuElement("List", provider.getDummyComponent()));
         elements.add(new MenuElement("List types", provider.getDummyComponent()));
         elements.add(new MenuElement("Register", provider.getDummyComponent()));
@@ -120,7 +119,7 @@ class CategoriesBuilder
 
     private MenuCategory createExperimentCategory()
     {
-        List<MenuElement> elements = new ArrayList<MenuElement>();
+        final List<MenuElement> elements = new ArrayList<MenuElement>();
         elements.add(new MenuElement("List", provider.getDummyComponent()));
         elements.add(new MenuElement("List types", provider.getDummyComponent()));
         elements.add(new MenuElement("Register", provider.getDummyComponent()));
