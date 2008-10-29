@@ -25,8 +25,6 @@ public class DataStore extends Code
 {
     private Date registrationDate;
 
-    private DatabaseInstance databaseInstance;
-
     private String downloadUrl;
 
     public Date getRegistrationDate()
@@ -37,16 +35,6 @@ public class DataStore extends Code
     public void setRegistrationDate(Date registrationDate)
     {
         this.registrationDate = registrationDate;
-    }
-
-    public DatabaseInstance getDatabaseInstance()
-    {
-        return databaseInstance;
-    }
-
-    public void setDatabaseInstance(DatabaseInstance databaseInstance)
-    {
-        this.databaseInstance = databaseInstance;
     }
 
     public String getDownloadUrl()
