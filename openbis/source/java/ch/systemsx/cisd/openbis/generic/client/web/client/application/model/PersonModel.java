@@ -40,12 +40,12 @@ public class PersonModel extends BaseModelData
 
     public PersonModel(final Person p)
     {
-        set(DataModelPropertyNames.USER_ID, p.getUserId());
-        set(DataModelPropertyNames.REGISTRATOR, p.getRegistrator());
-        set(DataModelPropertyNames.REGISTRATION_DATE, p.getRegistrationDate());
-        set(DataModelPropertyNames.FIRST_NAME, p.getFirstName());
-        set(DataModelPropertyNames.LAST_NAME, p.getLastName());
-        set(DataModelPropertyNames.EMAIL, p.getEmail());
-        set(DataModelPropertyNames.ROLES, new ArrayList<RoleAssignment>());
+        set(ModelDataPropertyNames.USER_ID, p.getUserId());
+        set(ModelDataPropertyNames.REGISTRATOR, p.getRegistrator());
+        set(ModelDataPropertyNames.REGISTRATION_DATE, p.getRegistrationDate());
+        set(ModelDataPropertyNames.FIRST_NAME, p.getFirstName());
+        set(ModelDataPropertyNames.LAST_NAME, p.getLastName());
+        set(ModelDataPropertyNames.EMAIL, p.getEmail());
+        set(ModelDataPropertyNames.ROLES, new ArrayList<RoleAssignment>());
     }
 }

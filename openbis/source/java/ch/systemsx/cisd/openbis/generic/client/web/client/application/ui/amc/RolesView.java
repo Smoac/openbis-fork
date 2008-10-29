@@ -45,7 +45,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DataModelPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.RoleModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnFilter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
@@ -81,25 +81,25 @@ public class RolesView extends LayoutContainer
         final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
 
         final ColumnConfig userIdColumnConfig = new ColumnConfig();
-        userIdColumnConfig.setId(DataModelPropertyNames.PERSON);
+        userIdColumnConfig.setId(ModelDataPropertyNames.PERSON);
         userIdColumnConfig.setHeader("Person");
         userIdColumnConfig.setWidth(COL_PERSON);
         configs.add(userIdColumnConfig);
 
         final ColumnConfig groupColumnConfig = new ColumnConfig();
-        groupColumnConfig.setId(DataModelPropertyNames.GROUP);
+        groupColumnConfig.setId(ModelDataPropertyNames.GROUP);
         groupColumnConfig.setHeader("Group");
         groupColumnConfig.setWidth(COL_GROUP);
         configs.add(groupColumnConfig);
 
         final ColumnConfig instanceColumnConfig = new ColumnConfig();
-        instanceColumnConfig.setId(DataModelPropertyNames.INSTANCE);
+        instanceColumnConfig.setId(ModelDataPropertyNames.INSTANCE);
         instanceColumnConfig.setHeader("Database Instance");
         instanceColumnConfig.setWidth(COL_DB_INSTANCE);
         configs.add(instanceColumnConfig);
 
         final ColumnConfig roleColumnConfig = new ColumnConfig();
-        roleColumnConfig.setId(DataModelPropertyNames.ROLE);
+        roleColumnConfig.setId(ModelDataPropertyNames.ROLE);
         roleColumnConfig.setHeader("Role");
         roleColumnConfig.setWidth(COL_ROLE);
         configs.add(roleColumnConfig);
@@ -162,31 +162,31 @@ public class RolesView extends LayoutContainer
                                                 roleList.refresh();
                                             }
                                         };
-                            if (StringUtils.isBlank((String) rm.get(DataModelPropertyNames.GROUP)))
+                            if (StringUtils.isBlank((String) rm.get(ModelDataPropertyNames.GROUP)))
                             {
                                 viewContext.getService().deleteInstanceRole(
-                                        (String) rm.get(DataModelPropertyNames.ROLE),
-                                        (String) rm.get(DataModelPropertyNames.PERSON), roleListRefreshCallback);
+                                        (String) rm.get(ModelDataPropertyNames.ROLE),
+                                        (String) rm.get(ModelDataPropertyNames.PERSON), roleListRefreshCallback);
                             } else
                             {
                                 viewContext.getService().deleteGroupRole(
-                                        (String) rm.get(DataModelPropertyNames.ROLE),
-                                        (String) rm.get(DataModelPropertyNames.GROUP),
-                                        (String) rm.get(DataModelPropertyNames.PERSON), roleListRefreshCallback);
+                                        (String) rm.get(ModelDataPropertyNames.ROLE),
+                                        (String) rm.get(ModelDataPropertyNames.GROUP),
+                                        (String) rm.get(ModelDataPropertyNames.PERSON), roleListRefreshCallback);
                             }
                         }
                     });
 
         final ToolBar toolBar = new ToolBar();
         toolBar.add(new LabelToolItem("Filter:"));
-        toolBar.add(new AdapterToolItem(new ColumnFilter<RoleModel>(store, DataModelPropertyNames.PERSON,
+        toolBar.add(new AdapterToolItem(new ColumnFilter<RoleModel>(store, ModelDataPropertyNames.PERSON,
                 "person")));
         toolBar.add(new AdapterToolItem(
-                new ColumnFilter<RoleModel>(store, DataModelPropertyNames.GROUP, "group")));
-        toolBar.add(new AdapterToolItem(new ColumnFilter<RoleModel>(store, DataModelPropertyNames.INSTANCE,
+                new ColumnFilter<RoleModel>(store, ModelDataPropertyNames.GROUP, "group")));
+        toolBar.add(new AdapterToolItem(new ColumnFilter<RoleModel>(store, ModelDataPropertyNames.INSTANCE,
                 "instance")));
         toolBar
-                .add(new AdapterToolItem(new ColumnFilter<RoleModel>(store, DataModelPropertyNames.ROLE, "role")));
+                .add(new AdapterToolItem(new ColumnFilter<RoleModel>(store, ModelDataPropertyNames.ROLE, "role")));
         toolBar.add(new SeparatorToolItem());
         toolBar.add(new AdapterToolItem(addRoleButton));
         toolBar.add(new SeparatorToolItem());

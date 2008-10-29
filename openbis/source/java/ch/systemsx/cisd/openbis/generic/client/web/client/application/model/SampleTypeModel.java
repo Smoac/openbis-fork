@@ -33,8 +33,8 @@ public class SampleTypeModel extends BaseModelData
 
     public SampleTypeModel(SampleType sampleType)
     {
-        set(DataModelPropertyNames.CODE, sampleType.getCode());
-        set(DataModelPropertyNames.OBJECT, sampleType);
+        set(ModelDataPropertyNames.CODE, sampleType.getCode());
+        set(ModelDataPropertyNames.OBJECT, sampleType);
     }
 
 }

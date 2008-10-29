@@ -48,7 +48,7 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DataModelPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.PersonModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnFilter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
@@ -82,37 +82,37 @@ public class PersonsView extends LayoutContainer
         final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
 
         final ColumnConfig codeColumnConfig = new ColumnConfig();
-        codeColumnConfig.setId(DataModelPropertyNames.USER_ID);
+        codeColumnConfig.setId(ModelDataPropertyNames.USER_ID);
         codeColumnConfig.setHeader("User ID");
         codeColumnConfig.setWidth(COL_PERSON_ID);
         configs.add(codeColumnConfig);
 
         final ColumnConfig firstNameColumnConfig = new ColumnConfig();
-        firstNameColumnConfig.setId(DataModelPropertyNames.FIRST_NAME);
+        firstNameColumnConfig.setId(ModelDataPropertyNames.FIRST_NAME);
         firstNameColumnConfig.setHeader("First Name");
         firstNameColumnConfig.setWidth(COL_FIRST_NAME);
         configs.add(firstNameColumnConfig);
 
         final ColumnConfig lastNameColumnConfig = new ColumnConfig();
-        lastNameColumnConfig.setId(DataModelPropertyNames.LAST_NAME);
+        lastNameColumnConfig.setId(ModelDataPropertyNames.LAST_NAME);
         lastNameColumnConfig.setHeader("Last Name");
         lastNameColumnConfig.setWidth(COL_LAST_NAME);
         configs.add(lastNameColumnConfig);
 
         final ColumnConfig emailNameColumnConfig = new ColumnConfig();
-        emailNameColumnConfig.setId(DataModelPropertyNames.EMAIL);
+        emailNameColumnConfig.setId(ModelDataPropertyNames.EMAIL);
         emailNameColumnConfig.setHeader("Email");
         emailNameColumnConfig.setWidth(COL_EMAIL);
         configs.add(emailNameColumnConfig);
 
         final ColumnConfig registratorColumnConfig = new ColumnConfig();
-        registratorColumnConfig.setId(DataModelPropertyNames.REGISTRATOR);
+        registratorColumnConfig.setId(ModelDataPropertyNames.REGISTRATOR);
         registratorColumnConfig.setHeader("Registrator");
         registratorColumnConfig.setWidth(COL_PERSON);
         configs.add(registratorColumnConfig);
 
         final ColumnConfig registrationDateColumnConfig = new ColumnConfig();
-        registrationDateColumnConfig.setId(DataModelPropertyNames.REGISTRATION_DATE);
+        registrationDateColumnConfig.setId(ModelDataPropertyNames.REGISTRATION_DATE);
         registrationDateColumnConfig.setHeader("Registration Date");
         registrationDateColumnConfig.setWidth(COL_DATE);
         registrationDateColumnConfig.setAlignment(HorizontalAlignment.RIGHT);
@@ -151,7 +151,7 @@ public class PersonsView extends LayoutContainer
 
         final ToolBar toolBar = new ToolBar();
         toolBar.add(new LabelToolItem("Filter:"));
-        toolBar.add(new AdapterToolItem(new ColumnFilter<PersonModel>(store, DataModelPropertyNames.USER_ID,
+        toolBar.add(new AdapterToolItem(new ColumnFilter<PersonModel>(store, ModelDataPropertyNames.USER_ID,
                 "user id")));
         toolBar.add(new SeparatorToolItem());
         toolBar.add(new AdapterToolItem(addPersonButton));

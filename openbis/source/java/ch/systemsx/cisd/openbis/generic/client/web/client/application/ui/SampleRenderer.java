@@ -23,7 +23,7 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DataModelPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 
 
 /**
@@ -37,8 +37,8 @@ public class SampleRenderer implements GridCellRenderer<ModelData>
     public String render(ModelData model, String property, ColumnData config, int rowIndex,
             int colIndex, ListStore<ModelData> store)
     {
-        String code = (String) model.get(DataModelPropertyNames.CODE);
-        boolean isInvalid = (Boolean) model.get(DataModelPropertyNames.IS_INVALID);
+        String code = (String) model.get(ModelDataPropertyNames.CODE);
+        boolean isInvalid = (Boolean) model.get(ModelDataPropertyNames.IS_INVALID);
         if (isInvalid)
         {
             Element div = DOM.createDiv();

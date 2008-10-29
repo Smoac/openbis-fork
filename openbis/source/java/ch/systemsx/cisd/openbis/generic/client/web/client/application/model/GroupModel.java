@@ -36,12 +36,12 @@ public class GroupModel extends BaseModelData
 
     public GroupModel(final Group g)
     {
-        set(DataModelPropertyNames.CODE, g.getCode());
-        set(DataModelPropertyNames.DESCRIPTION, g.getDescription());
-        set(DataModelPropertyNames.LEADER, g.getLeader());
-        set(DataModelPropertyNames.REGISTRATOR, g.getRegistrator());
-        set(DataModelPropertyNames.REGISTRATION_DATE, g.getRegistrationDate());
-        set(DataModelPropertyNames.OBJECT, g);
+        set(ModelDataPropertyNames.CODE, g.getCode());
+        set(ModelDataPropertyNames.DESCRIPTION, g.getDescription());
+        set(ModelDataPropertyNames.LEADER, g.getLeader());
+        set(ModelDataPropertyNames.REGISTRATOR, g.getRegistrator());
+        set(ModelDataPropertyNames.REGISTRATION_DATE, g.getRegistrationDate());
+        set(ModelDataPropertyNames.OBJECT, g);
     }
 
 }

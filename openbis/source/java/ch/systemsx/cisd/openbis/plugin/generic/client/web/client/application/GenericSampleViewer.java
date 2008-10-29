@@ -27,6 +27,7 @@ import com.extjs.gxt.ui.client.data.BaseListLoadConfig;
 import com.extjs.gxt.ui.client.data.BaseListLoadResult;
 import com.extjs.gxt.ui.client.data.BaseListLoader;
 import com.extjs.gxt.ui.client.data.ListLoader;
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.Margins;
@@ -110,9 +111,9 @@ public final class GenericSampleViewer extends Dialog
         // External data
         panel = new ContentPanel();
         panel.setLayout(new FitLayout());
-        // externalDataGrid =
-        // new Grid<ExternalDataModel>(new ListStore<ExternalData>(),
-        // createExternalDataColumnModel());
+        externalDataGrid =
+                new Grid<ExternalDataModel>(new ListStore<ExternalDataModel>(),
+                        createExternalDataColumnModel());
         externalDataGrid.setLoadMask(true);
         panel.add(externalDataGrid);
         return verticalPanel;
@@ -148,12 +149,20 @@ public final class GenericSampleViewer extends Dialog
             };
     }
 
-    private final static ListStore<SampleModel> createListStore(final ListLoader<?> loader)
+    private final <T extends ModelData> ListStore<T> createListStore(
+            final ListLoader<BaseListLoadConfig> loader)
     {
-        return new ListStore<SampleModel>(loader);
+        return new ListStore<T>(loader);
     }
 
     private final static ColumnModel createPartOfSamplesColumnModel()
+    {
+        final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
+        configs.add(CommonColumns.createCodeColumn());
+        return new ColumnModel(configs);
+    }
+
+    private final ColumnModel createExternalDataColumnModel()
     {
         final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
         configs.add(CommonColumns.createCodeColumn());
@@ -257,7 +266,8 @@ public final class GenericSampleViewer extends Dialog
         super.show();
         final ListLoader<BaseListLoadConfig> loader =
                 createListLoader(createRpcProxyForPartOfSamples());
-        partOfSamplesGrid.reconfigure(createListStore(loader), createPartOfSamplesColumnModel());
+        final ListStore<SampleModel> sampleListStore = createListStore(loader);
+        partOfSamplesGrid.reconfigure(sampleListStore, createPartOfSamplesColumnModel());
         loader.load();
     }
 

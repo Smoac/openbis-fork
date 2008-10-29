@@ -32,10 +32,10 @@ public class RoleModel extends BaseModelData
 
     public RoleModel(RoleAssignment role)
     {
-        set(DataModelPropertyNames.GROUP, role.getGroup() != null ? role.getGroup().getCode() : "");
-        set(DataModelPropertyNames.PERSON, role.getPerson().getUserId());
-        set(DataModelPropertyNames.ROLE, role.getCode());
-        set(DataModelPropertyNames.INSTANCE, role.getInstance() != null ? role.getInstance().getCode() : "");
+        set(ModelDataPropertyNames.GROUP, role.getGroup() != null ? role.getGroup().getCode() : "");
+        set(ModelDataPropertyNames.PERSON, role.getPerson().getUserId());
+        set(ModelDataPropertyNames.ROLE, role.getCode());
+        set(ModelDataPropertyNames.INSTANCE, role.getInstance() != null ? role.getInstance().getCode() : "");
     }
 
 }

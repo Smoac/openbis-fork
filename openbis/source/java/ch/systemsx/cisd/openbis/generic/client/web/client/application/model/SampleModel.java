@@ -46,16 +46,16 @@ public final class SampleModel extends BaseModelData
 
     public SampleModel(final Sample sample)
     {
-        set(DataModelPropertyNames.CODE, printShortIdentifier(sample));
-        set(DataModelPropertyNames.SAMPLE_TYPE, sample.getSampleType());
-        set(DataModelPropertyNames.OBJECT, sample);
-        set(DataModelPropertyNames.SAMPLE_IDENTIFIER, sample.getIdentifier());
-        set(DataModelPropertyNames.IS_INSTANCE_SAMPLE_COLUMN, (sample.getDatabaseInstance() != null));
-        set(DataModelPropertyNames.REGISTRATOR, PersonRenderer.createPersonAnchor(sample.getRegistrator()));
-        set(DataModelPropertyNames.REGISTRATION_DATE, DateRenderer.renderDate(sample.getRegistrationDate()));
-        set(DataModelPropertyNames.IS_GROUP_SAMPLE, sample.getGroup() != null);
-        set(DataModelPropertyNames.IS_INVALID, sample.getInvalidation() != null);
-        set(DataModelPropertyNames.EXPERIMENT, printExperimentIdentifier(sample));
+        set(ModelDataPropertyNames.CODE, printShortIdentifier(sample));
+        set(ModelDataPropertyNames.SAMPLE_TYPE, sample.getSampleType());
+        set(ModelDataPropertyNames.OBJECT, sample);
+        set(ModelDataPropertyNames.SAMPLE_IDENTIFIER, sample.getIdentifier());
+        set(ModelDataPropertyNames.IS_INSTANCE_SAMPLE_COLUMN, (sample.getDatabaseInstance() != null));
+        set(ModelDataPropertyNames.REGISTRATOR, PersonRenderer.createPersonAnchor(sample.getRegistrator()));
+        set(ModelDataPropertyNames.REGISTRATION_DATE, DateRenderer.renderDate(sample.getRegistrationDate()));
+        set(ModelDataPropertyNames.IS_GROUP_SAMPLE, sample.getGroup() != null);
+        set(ModelDataPropertyNames.IS_INVALID, sample.getInvalidation() != null);
+        set(ModelDataPropertyNames.EXPERIMENT, printExperimentIdentifier(sample));
         setGeneratedFromParents(sample, 1, sample.getSampleType().getGeneratedFromHierarchyDepth());
         setContainerParents(sample, 1, sample.getSampleType().getPartOfHierarchyDepth());
         setProperties(sample);

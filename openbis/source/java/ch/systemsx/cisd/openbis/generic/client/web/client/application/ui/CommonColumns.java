@@ -21,7 +21,7 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DataModelPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 
 /**
  * Defines the common columns of sample grid/table.
@@ -67,7 +67,7 @@ public final class CommonColumns
     public final static ColumnConfig createCodeColumn()
     {
         final ColumnConfig columnConfig = new ColumnConfig();
-        columnConfig.setId(DataModelPropertyNames.CODE);
+        columnConfig.setId(ModelDataPropertyNames.CODE);
         columnConfig.setHeader("Code");
         columnConfig.setWidth(100);
         columnConfig.setRenderer(new SampleRenderer());
@@ -77,7 +77,7 @@ public final class CommonColumns
     public final static ColumnConfig createIdentifierColumn()
     {
         final ColumnConfig columnConfig = new ColumnConfig();
-        columnConfig.setId(DataModelPropertyNames.SAMPLE_IDENTIFIER);
+        columnConfig.setId(ModelDataPropertyNames.SAMPLE_IDENTIFIER);
         columnConfig.setHeader("Identifier");
         columnConfig.setHidden(true);
         columnConfig.setWidth(150);
@@ -87,7 +87,7 @@ public final class CommonColumns
     public final static ColumnConfig createIsSharedColumn()
     {
         final ColumnConfig columnConfig = new ColumnConfig();
-        columnConfig.setId(DataModelPropertyNames.IS_INSTANCE_SAMPLE_COLUMN);
+        columnConfig.setId(ModelDataPropertyNames.IS_INSTANCE_SAMPLE_COLUMN);
         columnConfig.setHeader("Is shared?");
         columnConfig.setHidden(true);
         columnConfig.setWidth(100);
@@ -97,7 +97,7 @@ public final class CommonColumns
     public final static ColumnConfig createRegistratorColumn()
     {
         final ColumnConfig columnConfig = new ColumnConfig();
-        columnConfig.setId(DataModelPropertyNames.REGISTRATOR);
+        columnConfig.setId(ModelDataPropertyNames.REGISTRATOR);
         columnConfig.setHeader("Registrator");
         columnConfig.setWidth(100);
         columnConfig.setHidden(true);
@@ -107,7 +107,7 @@ public final class CommonColumns
     public final static ColumnConfig createRegistionDateColumn()
     {
         final ColumnConfig columnConfig = new ColumnConfig();
-        columnConfig.setId(DataModelPropertyNames.REGISTRATION_DATE);
+        columnConfig.setId(ModelDataPropertyNames.REGISTRATION_DATE);
         columnConfig.setHeader("Registration Date");
         columnConfig.setWidth(100);
         columnConfig.setHidden(true);
@@ -117,7 +117,7 @@ public final class CommonColumns
     public final static ColumnConfig createIsInvalidColumn()
     {
         final ColumnConfig columnConfig = new ColumnConfig();
-        columnConfig.setId(DataModelPropertyNames.IS_INVALID);
+        columnConfig.setId(ModelDataPropertyNames.IS_INVALID);
         columnConfig.setHeader("Is invalid?");
         columnConfig.setWidth(100);
         columnConfig.setHidden(true);
@@ -127,7 +127,7 @@ public final class CommonColumns
     public final static ColumnConfig createExperimentColumn()
     {
         final ColumnConfig columnConfig = new ColumnConfig();
-        columnConfig.setId(DataModelPropertyNames.EXPERIMENT);
+        columnConfig.setId(ModelDataPropertyNames.EXPERIMENT);
         columnConfig.setHeader("Experiment");
         columnConfig.setWidth(100);
         return columnConfig;

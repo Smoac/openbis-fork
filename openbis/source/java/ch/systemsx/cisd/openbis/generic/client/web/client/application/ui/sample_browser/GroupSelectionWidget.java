@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.OpenbisEvents;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DataModelPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.GroupModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 
@@ -75,7 +75,7 @@ class GroupSelectionWidget extends ExtendedComboBox<GroupModel>
         this.viewContext = viewContext;
         setId(ID);
         setEmptyText("- No groups found -");
-        setDisplayField(DataModelPropertyNames.CODE);
+        setDisplayField(ModelDataPropertyNames.CODE);
         setEditable(false);
         setEnabled(false);
         setWidth(150);
@@ -96,7 +96,7 @@ class GroupSelectionWidget extends ExtendedComboBox<GroupModel>
         final List<GroupModel> selection = getSelection();
         if (selection.size() > 0)
         {
-            return selection.get(0).get(DataModelPropertyNames.OBJECT);
+            return selection.get(0).get(ModelDataPropertyNames.OBJECT);
         } else
         {
             return null;

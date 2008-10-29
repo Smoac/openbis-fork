@@ -46,7 +46,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IClientPluginFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DataModelPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.CommonColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoadableColumnConfig;
@@ -152,7 +152,7 @@ public final class SampleBrowserGrid extends LayoutContainer
         List<Sample> samples = new ArrayList<Sample>();
         for (SampleModel model : modelList)
         {
-            samples.add((Sample) model.get(DataModelPropertyNames.OBJECT));
+            samples.add((Sample) model.get(ModelDataPropertyNames.OBJECT));
         }
         return samples;
     }
@@ -163,7 +163,7 @@ public final class SampleBrowserGrid extends LayoutContainer
         while (iterator.hasNext())
         {
             SampleModel next = iterator.next();
-            final Boolean isGroupLevelSample = (Boolean) next.get(DataModelPropertyNames.IS_GROUP_SAMPLE);
+            final Boolean isGroupLevelSample = (Boolean) next.get(ModelDataPropertyNames.IS_GROUP_SAMPLE);
             final boolean isInstanceLevelSample = isGroupLevelSample == false;
             if (isGroupLevelSample && newConfiguration.isIncludeGroup() == false
                     || isInstanceLevelSample && newConfiguration.isIncludeInstance() == false)
@@ -190,9 +190,9 @@ public final class SampleBrowserGrid extends LayoutContainer
                         final SampleModel sampleModel =
                                 (SampleModel) be.grid.getStore().getAt(be.rowIndex);
                         final SampleType sampleType =
-                                (SampleType) sampleModel.get(DataModelPropertyNames.SAMPLE_TYPE);
+                                (SampleType) sampleModel.get(ModelDataPropertyNames.SAMPLE_TYPE);
                         final String sampleIdentifier =
-                                sampleModel.get(DataModelPropertyNames.SAMPLE_IDENTIFIER);
+                                sampleModel.get(ModelDataPropertyNames.SAMPLE_IDENTIFIER);
                         final String code = sampleType.getCode();
                         final IClientPluginFactory pluginFactory =
                                 viewContext.getClientPluginFactoryProvider()

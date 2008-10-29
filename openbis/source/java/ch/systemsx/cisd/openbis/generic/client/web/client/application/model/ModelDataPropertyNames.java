@@ -23,10 +23,10 @@ import com.extjs.gxt.ui.client.data.ModelData;
  * 
  * @author Christian Ribeaud
  */
-public final class DataModelPropertyNames
+public final class ModelDataPropertyNames
 {
 
-    private DataModelPropertyNames()
+    private ModelDataPropertyNames()
     {
         // Can not be instantiated.
     }
