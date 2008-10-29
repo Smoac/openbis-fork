@@ -3,9 +3,10 @@ var common = {
   applicationName: "openBIS",
   
   //
-  // Registration
+  // Labels
   // 
   
+  code: "Code",
   registrator: "Registrator",
   registration_date: "Registration Date",
   

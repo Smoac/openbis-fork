@@ -16,10 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 
 /**
  * {@link ModelData} for {@link ExternalData}.
@@ -31,4 +34,18 @@ public final class ExternalDataModel extends BaseModelData
 
     private static final long serialVersionUID = 1L;
 
+    public ExternalDataModel(final ExternalData externalData)
+    {
+        set(ModelDataPropertyNames.CODE, externalData.getCode());
+    }
+
+    public final static List<ExternalDataModel> asExternalDataModels(final List<ExternalData> result)
+    {
+        final List<ExternalDataModel> models = new ArrayList<ExternalDataModel>(result.size());
+        for (final ExternalData externalData : result)
+        {
+            models.add(new ExternalDataModel(externalData));
+        }
+        return models;
+    }
 }

@@ -34,16 +34,16 @@ public final class ListSampleCriteria implements IsSerializable
 
     private boolean includeInstance;
 
-    private Sample container;
+    private String containerIdentifier;
 
-    public final Sample getContainer()
+    public final String getContainerIdentifier()
     {
-        return container;
+        return containerIdentifier;
     }
 
-    public final void setContainer(final Sample container)
+    public final void setContainerIdentifier(final String containerIdentifier)
     {
-        this.container = container;
+        this.containerIdentifier = containerIdentifier;
     }
 
     public SampleType getSampleType()

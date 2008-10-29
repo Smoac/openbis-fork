@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentif
 /**
  * @author Tomasz Pylak
  */
-public final class SampleTable extends AbstractSampleBusinessObject implements ISampleTable
+public final class SampleTable extends AbstractSampleIdentifierBusinessObject implements ISampleTable
 {
     private List<SamplePE> samples;
 

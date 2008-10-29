@@ -21,6 +21,7 @@ import java.util.Map;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
@@ -93,4 +94,9 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
     public void getSampleInfo(final String sampleIdentifier,
             AsyncCallback<SampleGeneration> asyncCallback);
 
+    /**
+     * @see IGenericClientService#listExternalData(String)
+     */
+    public void listExternalData(final String sampleIdentifier,
+            AsyncCallback<List<ExternalData>> asyncCallback);
 }

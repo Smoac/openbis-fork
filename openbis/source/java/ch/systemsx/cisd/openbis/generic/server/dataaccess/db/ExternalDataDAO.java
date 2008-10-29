@@ -61,7 +61,7 @@ final class ExternalDataDAO extends AbstractDAO implements IExternalDataDAO
 
         final List<ExternalDataPE> list =
                 cast(getHibernateTemplate().find(
-                        String.format("from %s e where e.%s.id = ?", TABLE_NAME, sourceType
+                        String.format("from %s e where e.%s = ?", TABLE_NAME, sourceType
                                 .getFieldName()), toArray(sample)));
         if (operationLog.isDebugEnabled())
         {

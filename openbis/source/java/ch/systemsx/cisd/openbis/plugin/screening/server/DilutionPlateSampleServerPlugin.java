@@ -33,12 +33,12 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
  * 
  * @author Christian Ribeaud
  */
-@Component(ResourceNames.CELL_PLATE_SAMPLE_SERVER_PLUGIN)
-public final class CellPlateSampleServerPlugin extends AbstractSampleServerPlugin
+@Component(ResourceNames.DILUTION_PLATE_SAMPLE_SERVER_PLUGIN)
+public final class DilutionPlateSampleServerPlugin extends AbstractSampleServerPlugin
 {
-    private static final String CELL_PLATE_TYPE_CODE = "CELL_PLATE";
+    private static final String DILUTION_PLATE_TYPE_CODE = "DILUTION_PLATE";
 
-    private CellPlateSampleServerPlugin()
+    private DilutionPlateSampleServerPlugin()
     {
     }
 
@@ -48,7 +48,7 @@ public final class CellPlateSampleServerPlugin extends AbstractSampleServerPlugi
 
     public final String getSampleTypeCode()
     {
-        return CELL_PLATE_TYPE_CODE;
+        return DILUTION_PLATE_TYPE_CODE;
     }
 
     public final ISampleTypeSlaveServerPlugin getSlaveServer()

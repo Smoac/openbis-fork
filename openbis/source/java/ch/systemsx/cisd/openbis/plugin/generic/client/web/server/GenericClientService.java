@@ -29,6 +29,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
@@ -49,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.util.SampleTypeTransla
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -324,11 +326,10 @@ public final class GenericClientService extends AbstractClientService implements
     private static ListSampleCriteriaDTO createCriteriaDTO(final ListSampleCriteria listCriteria)
     {
         final ListSampleCriteriaDTO criteria = new ListSampleCriteriaDTO();
-        final Sample container = listCriteria.getContainer();
-        if (container != null)
+        final String containerIdentifier = listCriteria.getContainerIdentifier();
+        if (containerIdentifier != null)
         {
-            criteria.setContainerIdentifier(SampleIdentifierFactory
-                    .parse(container.getIdentifier()));
+            criteria.setContainerIdentifier(SampleIdentifierFactory.parse(containerIdentifier));
         } else
         {
             criteria.setOwnerIdentifiers(createOwnerIdentifiers(listCriteria));
@@ -406,6 +407,21 @@ public final class GenericClientService extends AbstractClientService implements
                     genericServer.getSampleInfo(getSessionToken(), identifier);
             return BeanUtils.createBean(SampleGeneration.class, sampleGeneration, DtoConverters
                     .getSampleConverter());
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public final List<ExternalData> listExternalData(final String sampleIdentifier)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final SampleIdentifier identifier = SampleIdentifierFactory.parse(sampleIdentifier);
+            final List<ExternalDataPE> externalData =
+                    genericServer.listExternalData(getSessionToken(), identifier);
+            return BeanUtils.createBeanList(ExternalData.class, externalData);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

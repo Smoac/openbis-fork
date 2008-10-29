@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Propert
  * 
  * @author Izabela Adamczyk
  */
-class ColumnChooser extends TextToolItem
+final class ColumnChooser extends TextToolItem
 {
     private static final int START = 1;
 
@@ -51,8 +51,8 @@ class ColumnChooser extends TextToolItem
 
     private final PropertyColumns propertyColumns;
 
-    public ColumnChooser(CommonColumns commonColumns, ParentColumns parentColumns,
-            PropertyColumns propertyColumns)
+    public ColumnChooser(final CommonColumns commonColumns, final ParentColumns parentColumns,
+            final PropertyColumns propertyColumns)
     {
         super("Columns");
         this.commonColumns = commonColumns;
@@ -64,7 +64,7 @@ class ColumnChooser extends TextToolItem
 
     public void reload()
     {
-        Menu menu = new Menu();
+        final Menu menu = new Menu();
         addSubMenu(createCommonMenu(), menu, "Common", false);
         addSubMenu(createParentsMenu(), menu, "Parents", false);
         addSubMenu(createPropertiesMenu(), menu, "Properties", true);
@@ -74,7 +74,7 @@ class ColumnChooser extends TextToolItem
     private List<Item> createCommonMenu()
     {
         final ArrayList<Item> result = new ArrayList<Item>();
-        for (ColumnConfig cc : commonColumns.getColumns())
+        for (final ColumnConfig cc : commonColumns.getColumns())
         {
             result.add(createFromConfig(cc));
         }
@@ -84,7 +84,7 @@ class ColumnChooser extends TextToolItem
     private List<Item> createParentsMenu()
     {
         final ArrayList<Item> result = new ArrayList<Item>();
-        for (ColumnConfig cc : parentColumns.getColumns())
+        for (final ColumnConfig cc : parentColumns.getColumns())
         {
             result.add(createFromConfig(cc));
         }
@@ -94,7 +94,7 @@ class ColumnChooser extends TextToolItem
     private List<Item> createPropertiesMenu()
     {
         final ArrayList<Item> result = new ArrayList<Item>();
-        for (ColumnConfig cc : propertyColumns.getColumns())
+        for (final ColumnConfig cc : propertyColumns.getColumns())
         {
             result.add(createFromConfig(cc));
         }
@@ -110,7 +110,7 @@ class ColumnChooser extends TextToolItem
         result.addSelectionListener(new SelectionListener<ComponentEvent>()
             {
                 @Override
-                public void componentSelected(ComponentEvent ce)
+                public void componentSelected(final ComponentEvent ce)
                 {
                     cc.setHidden(result.isChecked() == false);
                 }
@@ -118,7 +118,8 @@ class ColumnChooser extends TextToolItem
         return result;
     }
 
-    private void addSubMenu(List<Item> columns, Menu menu, String title, boolean isLastSubmenu)
+    private void addSubMenu(final List<Item> columns, final Menu menu, final String title,
+            final boolean isLastSubmenu)
     {
         if (columns.size() > 0)
         {
@@ -130,11 +131,12 @@ class ColumnChooser extends TextToolItem
         }
     }
 
-    private void addItems(Menu columnsMenu, boolean folded, String title, List<Item> columns)
+    private void addItems(final Menu columnsMenu, final boolean folded, final String title,
+            final List<Item> columns)
     {
         Menu subMenu = new Menu();
         int counter = START;
-        for (Item column : columns)
+        for (final Item column : columns)
         {
             if (folded == false)
             {
@@ -143,7 +145,7 @@ class ColumnChooser extends TextToolItem
             {
                 if (counter % MENU_LENGTH - START == 0)
                 {
-                    MenuItem menuItem =
+                    final MenuItem menuItem =
                             new MenuItem(title + " " + counter + " - "
                                     + Math.min(counter + MENU_LENGTH - 1, columns.size()));
                     subMenu = new Menu();

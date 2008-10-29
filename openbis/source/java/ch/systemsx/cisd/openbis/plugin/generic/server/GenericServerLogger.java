@@ -21,6 +21,7 @@ import java.util.List;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -147,9 +148,17 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         return null;
     }
 
-    public final SampleGenerationDTO getSampleInfo(final String sessionToken, final SampleIdentifier identifier)
+    public final SampleGenerationDTO getSampleInfo(final String sessionToken,
+            final SampleIdentifier identifier)
     {
-        logTracking(sessionToken, "get_sample_info", "CODE(%s)", identifier);
+        logTracking(sessionToken, "get_sample_info", "IDENTIFIER(%s)", identifier);
+        return null;
+    }
+
+    public final List<ExternalDataPE> listExternalData(final String sessionToken,
+            final SampleIdentifier identifier)
+    {
+        logTracking(sessionToken, "list_external_data", "IDENTIFIER(%s)", identifier);
         return null;
     }
 }

@@ -33,13 +33,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Propert
 public class SampleBrowser extends LayoutContainer
 {
 
-    public SampleBrowser(GenericViewContext viewContext)
+    public SampleBrowser(final GenericViewContext viewContext)
     {
         setLayout(new RowLayout());
 
-        CommonColumns commonColumns = new CommonColumns();
-        ParentColumns parentColumns = new ParentColumns(viewContext.getMessageProvider());
-        PropertyColumns propertyColumns = new PropertyColumns();
+        final CommonColumns commonColumns = new CommonColumns(viewContext.getMessageProvider());
+        final ParentColumns parentColumns = new ParentColumns(viewContext.getMessageProvider());
+        final PropertyColumns propertyColumns = new PropertyColumns();
 
         final SampleBrowserGrid grid =
                 new SampleBrowserGrid(viewContext, commonColumns, parentColumns, propertyColumns);

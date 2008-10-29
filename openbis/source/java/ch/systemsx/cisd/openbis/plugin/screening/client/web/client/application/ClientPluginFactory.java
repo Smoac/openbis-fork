@@ -75,7 +75,7 @@ public final class ClientPluginFactory extends
 
     public final Set<String> getSampleTypeCodes()
     {
-        return Collections.singleton(SampleTypeCode.CELL_PLATE.getCode());
+        return Collections.singleton(SampleTypeCode.DILUTION_PLATE.getCode());
     }
 
     //

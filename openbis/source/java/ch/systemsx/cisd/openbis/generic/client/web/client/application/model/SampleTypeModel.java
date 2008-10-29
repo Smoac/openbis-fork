@@ -31,7 +31,7 @@ public class SampleTypeModel extends BaseModelData
 
     private static final long serialVersionUID = 1L;
 
-    public SampleTypeModel(SampleType sampleType)
+    public SampleTypeModel(final SampleType sampleType)
     {
         set(ModelDataPropertyNames.CODE, sampleType.getCode());
         set(ModelDataPropertyNames.OBJECT, sampleType);

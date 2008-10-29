@@ -31,6 +31,13 @@ public interface IGenericBusinessObjectFactory
 
     public ISampleTable createSampleTable(final Session session);
 
-    /** Creates a {@link ISampleBO} <i>Business Object</i>. */
+    /**
+     * Creates a {@link ISampleBO} <i>Business Object</i>.
+     */
     public ISampleBO createSampleBO(final Session session);
+
+    /**
+     * Creates a {@link IExternalDataTable} <i>Business Object</i>.
+     */
+    public IExternalDataTable createExternalDataTable(final Session session);
 }

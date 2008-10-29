@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 
@@ -91,6 +94,16 @@ public final class SampleModel extends BaseModelData
             set(CONTAINER_PARENT_PREFIX + depth, printShortIdentifier(sample.getContainer()));
             setContainerParents(sample.getContainer(), depth + 1, maxDepth);
         }
+    }
+
+    public final static List<SampleModel> asSampleModels(final List<Sample> samples)
+    {
+        final List<SampleModel> sampleModels = new ArrayList<SampleModel>(samples.size());
+        for (final Sample sample : samples)
+        {
+            sampleModels.add(new SampleModel(sample));
+        }
+        return sampleModels;
     }
 
     private final static String printExperimentIdentifier(final Sample sample)

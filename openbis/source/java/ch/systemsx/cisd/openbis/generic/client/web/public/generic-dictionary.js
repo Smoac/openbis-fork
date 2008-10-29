@@ -31,6 +31,10 @@ var generic = {
   personsView_heading: "Persons",
   groupsView_heading: "Groups",
   rolesView_heading: "Roles",
+
+  sample_properties_heading: "Sample Properties",
+  part_of_heading: "Components",
+  external_data_heading: "External Data",
   
   //
   // Sample
@@ -41,7 +45,6 @@ var generic = {
   generated_samples: "Generated Samples",
   generated_from: "Parent (gener.) {0}",
   part_of: "Parent (cont.) {0}",
-  sample_properties: "Sample Properties",
     
   //
   // Invalidation

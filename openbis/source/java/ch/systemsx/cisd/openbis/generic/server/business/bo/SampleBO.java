@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  * 
  * @author Christian Ribeaud
  */
-public final class SampleBO extends AbstractSampleBusinessObject implements ISampleBO
+public final class SampleBO extends AbstractSampleIdentifierBusinessObject implements ISampleBO
 {
     private SamplePE sample;
 

@@ -31,6 +31,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGenericBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
@@ -41,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISamplePropertyDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
@@ -315,5 +317,15 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         final ISampleServerPlugin plugin =
                 SampleServerPluginRegistry.getPlugin(this, sample.getSampleType());
         return plugin.getSlaveServer().getSampleInfo(getDAOFactory(), session, sample);
+    }
+
+    public final List<ExternalDataPE> listExternalData(final String sessionToken,
+            final SampleIdentifier identifier)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IExternalDataTable externalDataTable =
+                getBusinessObjectFactory().createExternalDataTable(session);
+        externalDataTable.loadBySampleIdentifier(identifier);
+        return externalDataTable.getExternalData();
     }
 }

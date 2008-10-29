@@ -34,13 +34,16 @@ import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
-import com.extjs.gxt.ui.client.widget.VerticalPanel;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
+import com.extjs.gxt.ui.client.widget.layout.RowData;
+import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
@@ -48,11 +51,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExternalDataModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.CommonColumns;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.SampleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
@@ -69,6 +72,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
  */
 public final class GenericSampleViewer extends Dialog
 {
+    private static final int DIALOG_HEIGHT = 600;
+
+    private static final int COMPONENT_HEIGHT = DIALOG_HEIGHT / 2 - 50;
+
+    private static final int DIALOG_WIDTH = 800;
+
+    private static final int COMPONENT_WIDTH = DIALOG_WIDTH / 2 + 80;
+
     private final SampleGeneration sampleGeneration;
 
     private final IViewContext<IGenericClientServiceAsync> viewContext;
@@ -98,25 +109,40 @@ public final class GenericSampleViewer extends Dialog
 
     private final Component createRightPanel()
     {
-        final VerticalPanel verticalPanel = new VerticalPanel();
-        verticalPanel.setSpacing(20);
+        final LayoutContainer container = new LayoutContainer();
+        container.setLayout(new RowLayout());
         // 'Part of' samples
-        ContentPanel panel = new ContentPanel();
-        panel.setLayout(new FitLayout());
+        ContentPanel panel =
+                createContentPanel(viewContext.getMessageProvider().getMessage("part_of_heading"));
         partOfSamplesGrid =
                 new Grid<SampleModel>(new ListStore<SampleModel>(),
                         createPartOfSamplesColumnModel());
         partOfSamplesGrid.setLoadMask(true);
         panel.add(partOfSamplesGrid);
+        container.add(panel, new RowData(-1, -1, new Margins(0, 0, 5, 0)));
         // External data
-        panel = new ContentPanel();
-        panel.setLayout(new FitLayout());
+        panel =
+                createContentPanel(viewContext.getMessageProvider().getMessage(
+                        "external_data_heading"));
         externalDataGrid =
                 new Grid<ExternalDataModel>(new ListStore<ExternalDataModel>(),
                         createExternalDataColumnModel());
         externalDataGrid.setLoadMask(true);
         panel.add(externalDataGrid);
-        return verticalPanel;
+        container.add(panel, new RowData(-1, -1));
+        return container;
+    }
+
+    private final static ContentPanel createContentPanel(final String heading)
+    {
+        final ContentPanel panel = new ContentPanel();
+        panel.setHeading(heading);
+        panel.setSize(COMPONENT_WIDTH, COMPONENT_HEIGHT);
+        panel.setLayout(new FitLayout());
+        panel.setBodyBorder(true);
+        panel.setBorders(false);
+        panel.setInsetBorder(true);
+        return panel;
     }
 
     private final <T> ListLoader<BaseListLoadConfig> createListLoader(
@@ -141,10 +167,31 @@ public final class GenericSampleViewer extends Dialog
                         final AsyncCallback<BaseListLoadResult<SampleModel>> callback)
                 {
                     final ListSampleCriteria sampleCriteria = new ListSampleCriteria();
-                    sampleCriteria.setContainer(sampleGeneration.getGenerator());
+                    sampleCriteria.setContainerIdentifier(sampleGeneration.getGenerator()
+                            .getIdentifier());
                     viewContext.getService().listSamples(sampleCriteria,
                             new ArrayList<PropertyType>(),
                             new ListSamplesCallback(viewContext, callback));
+                }
+            };
+    }
+
+    private final RpcProxy<BaseListLoadConfig, BaseListLoadResult<ExternalDataModel>> createRpcProxyForExternalData()
+    {
+        return new RpcProxy<BaseListLoadConfig, BaseListLoadResult<ExternalDataModel>>()
+            {
+
+                //
+                // RpcProxy
+                //
+
+                @Override
+                public final void load(final BaseListLoadConfig loadConfig,
+                        final AsyncCallback<BaseListLoadResult<ExternalDataModel>> callback)
+                {
+                    viewContext.getService().listExternalData(
+                            sampleGeneration.getGenerator().getIdentifier(),
+                            new ListExternalDataCallback(viewContext, callback));
                 }
             };
     }
@@ -155,17 +202,17 @@ public final class GenericSampleViewer extends Dialog
         return new ListStore<T>(loader);
     }
 
-    private final static ColumnModel createPartOfSamplesColumnModel()
+    private final ColumnModel createPartOfSamplesColumnModel()
     {
         final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-        configs.add(CommonColumns.createCodeColumn());
+        configs.add(ColumnConfigFactory.createCodeColumnConfig(viewContext.getMessageProvider()));
         return new ColumnModel(configs);
     }
 
     private final ColumnModel createExternalDataColumnModel()
     {
         final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-        configs.add(CommonColumns.createCodeColumn());
+        configs.add(ColumnConfigFactory.createCodeColumnConfig(viewContext.getMessageProvider()));
         return new ColumnModel(configs);
     }
 
@@ -174,8 +221,8 @@ public final class GenericSampleViewer extends Dialog
         setHeading(heading);
         setButtons(OK);
         setScrollMode(Scroll.AUTO);
-        setWidth(800);
-        setHeight(600);
+        setWidth(DIALOG_WIDTH);
+        setHeight(DIALOG_HEIGHT);
         setBodyStyle("backgroundColor: #ffffff;");
         setHideOnButtonClick(true);
         setLayout(new BorderLayout());
@@ -189,7 +236,7 @@ public final class GenericSampleViewer extends Dialog
         data.setMargins(new Margins(0, 5, 0, 0));
         data.setSplit(true);
         data.setCollapsible(true);
-        data.setFloatable(true);
+        data.setFloatable(false);
         return data;
     }
 
@@ -231,8 +278,8 @@ public final class GenericSampleViewer extends Dialog
 
     private final Component createLeftPanel()
     {
-        final ContentPanel panel = new ContentPanel();
-        panel.setHeading(viewContext.getMessageProvider().getMessage("sample_properties"));
+        final ContentPanel panel = new ContentPanel(new FlowLayout());
+        panel.setHeading(viewContext.getMessageProvider().getMessage("sample_properties_heading"));
         panel.add(createPropertyGrid());
         return panel;
     }
@@ -256,19 +303,21 @@ public final class GenericSampleViewer extends Dialog
         return propertyGrid;
     }
 
-    //
-    // Dialog
-    //
-
     @Override
     public final void show()
     {
         super.show();
-        final ListLoader<BaseListLoadConfig> loader =
+        final ListLoader<BaseListLoadConfig> sampleLoader =
                 createListLoader(createRpcProxyForPartOfSamples());
-        final ListStore<SampleModel> sampleListStore = createListStore(loader);
+        final ListStore<SampleModel> sampleListStore = createListStore(sampleLoader);
         partOfSamplesGrid.reconfigure(sampleListStore, createPartOfSamplesColumnModel());
-        loader.load();
+        sampleLoader.load();
+        final ListLoader<BaseListLoadConfig> externalDataLoader =
+                createListLoader(createRpcProxyForExternalData());
+        final ListStore<ExternalDataModel> externalDataListStore =
+                createListStore(externalDataLoader);
+        externalDataGrid.reconfigure(externalDataListStore, createExternalDataColumnModel());
+        externalDataLoader.load();
     }
 
     //
@@ -299,9 +348,41 @@ public final class GenericSampleViewer extends Dialog
         @Override
         protected final void process(final List<Sample> result)
         {
-            final List<SampleModel> sampleModels = SampleBrowserGrid.asSampleModels(result);
+            final List<SampleModel> sampleModels = SampleModel.asSampleModels(result);
             final BaseListLoadResult<SampleModel> baseListLoadResult =
                     new BaseListLoadResult<SampleModel>(sampleModels);
+            delegate.onSuccess(baseListLoadResult);
+        }
+    }
+
+    final class ListExternalDataCallback extends AbstractAsyncCallback<List<ExternalData>>
+    {
+        private final AsyncCallback<BaseListLoadResult<ExternalDataModel>> delegate;
+
+        ListExternalDataCallback(final IViewContext<IGenericClientServiceAsync> viewContext,
+                final AsyncCallback<BaseListLoadResult<ExternalDataModel>> callback)
+        {
+            super(viewContext);
+            this.delegate = callback;
+        }
+
+        //
+        // AbstractAsyncCallback
+        //
+
+        @Override
+        protected void finishOnFailure(final Throwable caught)
+        {
+            delegate.onFailure(caught);
+        }
+
+        @Override
+        protected final void process(final List<ExternalData> result)
+        {
+            final List<ExternalDataModel> externalDataModels =
+                    ExternalDataModel.asExternalDataModels(result);
+            final BaseListLoadResult<ExternalDataModel> baseListLoadResult =
+                    new BaseListLoadResult<ExternalDataModel>(externalDataModels);
             delegate.onSuccess(baseListLoadResult);
         }
     }

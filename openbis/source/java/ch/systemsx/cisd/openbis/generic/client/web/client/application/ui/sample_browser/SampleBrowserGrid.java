@@ -291,7 +291,7 @@ public final class SampleBrowserGrid extends LayoutContainer
         protected final void process(final Map<Long, List<SampleProperty>> result)
         {
             setSampleProperties(currentSamples, result);
-            final List<SampleModel> sampleModels = asSampleModels(currentSamples);
+            final List<SampleModel> sampleModels = SampleModel.asSampleModels(currentSamples);
             oldConfiguration.update(newConfiguration);
             updateLoadedPropertyColumns();
             delegate.onSuccess(sampleModels);
@@ -338,7 +338,7 @@ public final class SampleBrowserGrid extends LayoutContainer
         @Override
         protected final void process(final List<Sample> result)
         {
-            final List<SampleModel> sampleModels = asSampleModels(result);
+            final List<SampleModel> sampleModels = SampleModel.asSampleModels(result);
             oldConfiguration.update(newConfiguration);
             updateLoadedPropertyColumns();
             delegate.onSuccess(sampleModels);
@@ -424,16 +424,6 @@ public final class SampleBrowserGrid extends LayoutContainer
             sublist.add(samples.get(i));
         }
         return new BasePagingLoadResult<T>(sublist, config.getOffset(), samples.size());
-    }
-
-    public final static List<SampleModel> asSampleModels(final List<Sample> samples)
-    {
-        final List<SampleModel> sampleModels = new ArrayList<SampleModel>(samples.size());
-        for (final Sample sample : samples)
-        {
-            sampleModels.add(new SampleModel(sample));
-        }
-        return sampleModels;
     }
 
     private void updateLoadedPropertyColumns()

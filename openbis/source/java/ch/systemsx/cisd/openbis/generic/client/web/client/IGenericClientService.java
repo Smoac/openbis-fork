@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
@@ -106,5 +107,12 @@ public interface IGenericClientService extends IClientService
     /**
      * For given <var>sampleIdentifier</var> returns corresponding {@link Sample}.
      */
-    public SampleGeneration getSampleInfo(final String sampleIdentifier) throws UserFailureException;
+    public SampleGeneration getSampleInfo(final String sampleIdentifier)
+            throws UserFailureException;
+
+    /**
+     * For given <var>sampleIdentifier</var> returns corresponding list of {@link ExternalData}.
+     */
+    public List<ExternalData> listExternalData(final String sampleIdentifier)
+            throws UserFailureException;
 }

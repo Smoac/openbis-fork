@@ -14,24 +14,29 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.shared;
+package ch.systemsx.cisd.openbis.generic.server.business.bo;
+
+import java.util.List;
+
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
- * Resource name used in <i>screening</i> plug-in.
+ * A <i>Business Object</i> to load a list of {@link ExternalDataPE}.
  * 
  * @author Christian Ribeaud
  */
-public final class ResourceNames
+public interface IExternalDataTable
 {
-    private ResourceNames()
-    {
-        // Can not be instantiated.
-    }
 
-    public final static String SCREENING_SERVICE = "screening-service";
+    /**
+     * Loads the internal {@link ExternalDataPE} for given <var>identifier</var>.
+     */
+    void loadBySampleIdentifier(final SampleIdentifier sampleIdentifier);
 
-    public final static String SCREENING_SERVER = "screening-server";
+    /**
+     * Returns the loaded {@link ExternalDataPE}.
+     */
+    List<ExternalDataPE> getExternalData();
 
-    public final static String DILUTION_PLATE_SAMPLE_SERVER_PLUGIN =
-            "dilution-plate-sample-server-plugin";
 }

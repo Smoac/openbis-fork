@@ -22,6 +22,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
  * Defines the common columns of sample grid/table.
@@ -30,16 +31,19 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Mode
  */
 public final class CommonColumns
 {
-    private List<ColumnConfig> columns;
+    private final List<ColumnConfig> columns;
 
-    public CommonColumns()
+    private final IMessageProvider messageProvider;
+
+    public CommonColumns(final IMessageProvider messageProvider)
     {
         columns = new ArrayList<ColumnConfig>();
+        this.messageProvider = messageProvider;
         define();
 
     }
 
-    public List<ColumnConfig> getColumns()
+    public final List<ColumnConfig> getColumns()
     {
         return columns;
     }
@@ -50,33 +54,37 @@ public final class CommonColumns
         columns.add(createIdentifierColumn());
         columns.add(createIsSharedColumn());
         columns.add(createRegistratorColumn());
-        columns.add(createRegistionDateColumn());
+        columns.add(createRegistrationDateColumnConfig());
         columns.add(createIsInvalidColumn());
         columns.add(createExperimentColumn());
-        disableColumnMenu();
     }
 
-    private void disableColumnMenu()
+    private ColumnConfig createRegistrationDateColumnConfig()
     {
-        for (ColumnConfig columnConfig : columns)
-        {
-            columnConfig.setMenuDisabled(true);
-        }
-    }
-
-    public final static ColumnConfig createCodeColumn()
-    {
-        final ColumnConfig columnConfig = new ColumnConfig();
-        columnConfig.setId(ModelDataPropertyNames.CODE);
-        columnConfig.setHeader("Code");
-        columnConfig.setWidth(100);
-        columnConfig.setRenderer(new SampleRenderer());
+        final ColumnConfig columnConfig =
+                ColumnConfigFactory.createRegistrationDateColumnConfig(messageProvider);
+        columnConfig.setHidden(true);
         return columnConfig;
+    }
+
+    private ColumnConfig createCodeColumn()
+    {
+        final ColumnConfig codeColumn = ColumnConfigFactory.createCodeColumnConfig(messageProvider);
+        codeColumn.setRenderer(new SampleRenderer());
+        return codeColumn;
+    }
+
+    private final ColumnConfig createRegistratorColumn()
+    {
+        final ColumnConfig registratorColumn =
+                ColumnConfigFactory.createRegistratorColumnConfig(messageProvider);
+        registratorColumn.setHidden(true);
+        return registratorColumn;
     }
 
     public final static ColumnConfig createIdentifierColumn()
     {
-        final ColumnConfig columnConfig = new ColumnConfig();
+        final ColumnConfig columnConfig = ColumnConfigFactory.createMenuDisableColumnConfig();
         columnConfig.setId(ModelDataPropertyNames.SAMPLE_IDENTIFIER);
         columnConfig.setHeader("Identifier");
         columnConfig.setHidden(true);
@@ -86,7 +94,7 @@ public final class CommonColumns
 
     public final static ColumnConfig createIsSharedColumn()
     {
-        final ColumnConfig columnConfig = new ColumnConfig();
+        final ColumnConfig columnConfig = ColumnConfigFactory.createMenuDisableColumnConfig();
         columnConfig.setId(ModelDataPropertyNames.IS_INSTANCE_SAMPLE_COLUMN);
         columnConfig.setHeader("Is shared?");
         columnConfig.setHidden(true);
@@ -94,29 +102,9 @@ public final class CommonColumns
         return columnConfig;
     }
 
-    public final static ColumnConfig createRegistratorColumn()
-    {
-        final ColumnConfig columnConfig = new ColumnConfig();
-        columnConfig.setId(ModelDataPropertyNames.REGISTRATOR);
-        columnConfig.setHeader("Registrator");
-        columnConfig.setWidth(100);
-        columnConfig.setHidden(true);
-        return columnConfig;
-    }
-
-    public final static ColumnConfig createRegistionDateColumn()
-    {
-        final ColumnConfig columnConfig = new ColumnConfig();
-        columnConfig.setId(ModelDataPropertyNames.REGISTRATION_DATE);
-        columnConfig.setHeader("Registration Date");
-        columnConfig.setWidth(100);
-        columnConfig.setHidden(true);
-        return columnConfig;
-    }
-
     public final static ColumnConfig createIsInvalidColumn()
     {
-        final ColumnConfig columnConfig = new ColumnConfig();
+        final ColumnConfig columnConfig = ColumnConfigFactory.createMenuDisableColumnConfig();
         columnConfig.setId(ModelDataPropertyNames.IS_INVALID);
         columnConfig.setHeader("Is invalid?");
         columnConfig.setWidth(100);
@@ -126,7 +114,7 @@ public final class CommonColumns
 
     public final static ColumnConfig createExperimentColumn()
     {
-        final ColumnConfig columnConfig = new ColumnConfig();
+        final ColumnConfig columnConfig = ColumnConfigFactory.createMenuDisableColumnConfig();
         columnConfig.setId(ModelDataPropertyNames.EXPERIMENT);
         columnConfig.setHeader("Experiment");
         columnConfig.setWidth(100);

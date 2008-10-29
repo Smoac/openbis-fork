@@ -25,15 +25,16 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
- * An <i>abstract</i> {@link AbstractBusinessObject} extension for {@link SamplePE}.
+ * An <i>abstract</i> {@link AbstractBusinessObject} extension for <i>Business Object</i> which
+ * uses {@link SampleIdentifier}.
  * 
  * @author Christian Ribeaud
  */
-abstract class AbstractSampleBusinessObject extends AbstractBusinessObject
+abstract class AbstractSampleIdentifierBusinessObject extends AbstractBusinessObject
 {
     private final SampleOwnerFinder sampleOwnerFinder;
 
-    AbstractSampleBusinessObject(final IDAOFactory daoFactory, final Session session)
+    AbstractSampleIdentifierBusinessObject(final IDAOFactory daoFactory, final Session session)
     {
         super(daoFactory, session);
         sampleOwnerFinder = new SampleOwnerFinder(daoFactory, findRegistrator());
