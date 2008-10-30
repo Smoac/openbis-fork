@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 import java.util.List;
 
 /**
+ * Category in the menu.
+ * 
  * @author Izabela Adamczyk
  */
 public class MenuCategory
@@ -28,7 +30,7 @@ public class MenuCategory
 
     private final List<MenuElement> elements;
 
-    public MenuCategory(String name, List<MenuElement> elements)
+    public MenuCategory(final String name, final List<MenuElement> elements)
     {
         this.name = name;
         this.elements = elements;

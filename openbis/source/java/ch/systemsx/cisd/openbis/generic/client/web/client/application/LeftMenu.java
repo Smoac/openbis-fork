@@ -28,6 +28,11 @@ import com.extjs.gxt.ui.client.widget.tree.Tree;
 import com.extjs.gxt.ui.client.widget.tree.TreeItem;
 import com.google.gwt.user.client.Event;
 
+/**
+ * User menu allowing to get to wanted functionality of application (e.g. sample listing).
+ * 
+ * @author Izabela Adamczyk
+ */
 class LeftMenu extends ContentPanel
 {
 
@@ -74,7 +79,7 @@ class LeftMenu extends ContentPanel
                         {
 
                             final AppEvent<ContentPanel> event =
-                                    new AppEvent<ContentPanel>(AppEvents.MenuEvent);
+                                    new AppEvent<ContentPanel>(AppEvents.NAVI_EVENT);
                             event.setData(GenericConstants.ASSOCIATED_CONTENT_PANEL, tree
                                     .getSelectedItem().getData(
                                             GenericConstants.ASSOCIATED_CONTENT_PANEL));

@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 
 /**
+ * Element of the {@link MenuCategory}.
+ * 
  * @author Izabela Adamczyk
  */
 public class MenuElement
@@ -27,7 +29,7 @@ public class MenuElement
 
     private final ContentPanel associatedComponent;
 
-    public MenuElement(String title, ContentPanel associatedComponent)
+    public MenuElement(final String title, final ContentPanel associatedComponent)
     {
         this.title = title;
         this.associatedComponent = associatedComponent;

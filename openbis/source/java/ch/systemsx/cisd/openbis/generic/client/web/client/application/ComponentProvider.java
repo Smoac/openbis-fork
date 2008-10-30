@@ -18,6 +18,11 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.SampleBrowser;
 
+/**
+ * Creates and provides GUI modules/components (such as sample browser).
+ * 
+ * @author Izabela Adamczyk
+ */
 class ComponentProvider
 {
     private final SampleBrowser sampleBrowser;

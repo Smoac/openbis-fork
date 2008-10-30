@@ -19,6 +19,11 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 
+/**
+ * Component of the gui displayed when some functionality has not been implemented yet.
+ * 
+ * @author Izabela Adamczyk
+ */
 class DummyComponent extends ContentPanel
 {
     private static final String PREFIX = "dummy-component";

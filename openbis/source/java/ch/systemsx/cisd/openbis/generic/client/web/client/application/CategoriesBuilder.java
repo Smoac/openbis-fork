@@ -19,6 +19,11 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Allows to define categories which will be displayed in {@link LeftMenu}.
+ * 
+ * @author Izabela Adamczyk
+ */
 class CategoriesBuilder
 {
 

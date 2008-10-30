@@ -20,6 +20,8 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 
 /**
+ * Main application controller.
+ * 
  * @author Izabela Adamczyk
  */
 public class AppController extends Controller
@@ -31,32 +33,32 @@ public class AppController extends Controller
 
     private final GenericViewContext viewContext;
 
-    public AppController(GenericViewContext viewContext)
+    public AppController(final GenericViewContext viewContext)
     {
         this.viewContext = viewContext;
-        registerEventTypes(AppEvents.Init);
-        registerEventTypes(AppEvents.UserNotLoggedIn);
-        registerEventTypes(AppEvents.MenuEvent);
+        registerEventTypes(AppEvents.INIT);
+        registerEventTypes(AppEvents.USER_NOT_LOGGED_IN);
+        registerEventTypes(AppEvents.NAVI_EVENT);
     }
 
     @Override
-    public void handleEvent(AppEvent<?> event)
+    public void handleEvent(final AppEvent<?> event)
     {
         switch (event.type)
         {
-            case AppEvents.UserNotLoggedIn:
+            case AppEvents.USER_NOT_LOGGED_IN:
                 onLogin(event);
                 break;
-            case AppEvents.Init:
+            case AppEvents.INIT:
                 onInit(event);
                 break;
-            case AppEvents.MenuEvent:
+            case AppEvents.NAVI_EVENT:
                 onLeftMenuSelectionChanged(event);
                 break;
         }
     }
 
-    private void onLeftMenuSelectionChanged(AppEvent<?> event)
+    private void onLeftMenuSelectionChanged(final AppEvent<?> event)
     {
         forwardToView(appView, event);
     }
@@ -68,12 +70,12 @@ public class AppController extends Controller
         loginView = new LoginView(this, viewContext);
     }
 
-    private void onLogin(AppEvent<?> event)
+    private void onLogin(final AppEvent<?> event)
     {
         forwardToView(loginView, event);
     }
 
-    private void onInit(AppEvent<?> event)
+    private void onInit(final AppEvent<?> event)
     {
         forwardToView(appView, event);
     }

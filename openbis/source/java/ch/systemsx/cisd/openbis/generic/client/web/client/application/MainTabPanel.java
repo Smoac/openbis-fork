@@ -22,7 +22,14 @@ import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
 
+/**
+ * Main panel - where the tabs will open.
+ * 
+ * @author Izabela Adamczyk
+ */
 class MainTabPanel extends TabPanel
 {
 
@@ -41,19 +48,22 @@ class MainTabPanel extends TabPanel
         cp.setHeading("&nbsp;");
         cp.setLayout(new CenterLayout());
         cp.setHeaderVisible(false);
-        cp.addText("<div class='intro-tab'>Welcome to OpenBIS</div>");
+        final Element div = DOM.createDiv();
+        div.setClassName("intro-tab");
+        div.setInnerText("Welcome to OpenBIS");
+        cp.addText(div.getString());
         final MainTabItem intro = new MainTabItem(cp);
         intro.setClosable(false);
         return intro;
     }
 
-    private MainTabItem tryGetTab(ContentPanel c)
+    private MainTabItem tryGetTab(final ContentPanel c)
     {
-        for (TabItem tab : getItems())
+        for (final TabItem tab : getItems())
         {
             if (tab instanceof MainTabItem)
             {
-                MainTabItem t = (MainTabItem) tab;
+                final MainTabItem t = (MainTabItem) tab;
                 if (t.getComponent().getId().equals(c.getId()))
                 {
                     return t;

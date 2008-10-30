@@ -24,15 +24,17 @@ import com.google.gwt.user.client.ui.RootPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoginPage;
 
 /**
+ * Responsible for creating login page and displaying it.
+ * 
  * @author Izabela Adamczyk
  */
 public class LoginView extends View
 {
     private LoginPage loginPage;
 
-    private GenericViewContext viewContext;
+    private final GenericViewContext viewContext;
 
-    public LoginView(Controller controller, GenericViewContext viewContext2)
+    public LoginView(final Controller controller, final GenericViewContext viewContext2)
     {
         super(controller);
         viewContext = viewContext2;
@@ -45,11 +47,11 @@ public class LoginView extends View
     }
 
     @Override
-    protected void handleEvent(AppEvent<?> event)
+    protected void handleEvent(final AppEvent<?> event)
     {
         switch (event.type)
         {
-            case AppEvents.UserNotLoggedIn:
+            case AppEvents.USER_NOT_LOGGED_IN:
                 initUI();
                 break;
         }

@@ -39,11 +39,11 @@ public final class SessionContextCallback extends AbstractAsyncCallback<SessionC
     {
         if (sessionContext == null)
         {
-            Dispatcher.get().dispatch(AppEvents.UserNotLoggedIn);
+            Dispatcher.get().dispatch(AppEvents.USER_NOT_LOGGED_IN);
         } else
         {
             viewContext.getModel().setSessionContext(sessionContext);
-            Dispatcher.get().dispatch(AppEvents.Init);
+            Dispatcher.get().dispatch(AppEvents.INIT);
         }
     }
 }

@@ -28,12 +28,14 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.google.gwt.user.client.ui.RootPanel;
 
 /**
+ * Main application view.
+ * 
  * @author Izabela Adamczyk
  */
 public class AppView extends View
 {
 
-    private GenericViewContext viewContext;
+    private final GenericViewContext viewContext;
 
     private Viewport viewport;
 
@@ -47,30 +49,30 @@ public class AppView extends View
 
     private CategoriesBuilder categoriesBuilder;
 
-    public AppView(Controller controller, GenericViewContext viewContext2)
+    public AppView(final Controller controller, final GenericViewContext viewContext2)
     {
         super(controller);
         viewContext = viewContext2;
     }
 
     @Override
-    protected void handleEvent(AppEvent<?> event)
+    protected void handleEvent(final AppEvent<?> event)
     {
         switch (event.type)
         {
-            case AppEvents.Init:
+            case AppEvents.INIT:
                 initUI();
                 break;
 
-            case AppEvents.MenuEvent:
+            case AppEvents.NAVI_EVENT:
                 activateTab(getData(event));
                 break;
         }
     }
 
-    ContentPanel getData(AppEvent<?> event)
+    ContentPanel getData(final AppEvent<?> event)
     {
-        Object data = event.getData(GenericConstants.ASSOCIATED_CONTENT_PANEL);
+        final Object data = event.getData(GenericConstants.ASSOCIATED_CONTENT_PANEL);
         if (data instanceof ContentPanel)
         {
             return (ContentPanel) data;
@@ -80,7 +82,7 @@ public class AppView extends View
         }
     }
 
-    private void activateTab(ContentPanel c)
+    private void activateTab(final ContentPanel c)
     {
         center.openTab(c);
     }
@@ -110,7 +112,7 @@ public class AppView extends View
     {
         north = new TopMenu(viewContext, componentProvider.getDummyComponent());
 
-        BorderLayoutData data = new BorderLayoutData(LayoutRegion.NORTH, 30);
+        final BorderLayoutData data = new BorderLayoutData(LayoutRegion.NORTH, 30);
         data.setMargins(new Margins());
 
         viewport.add(north, data);
@@ -120,7 +122,7 @@ public class AppView extends View
     {
         west = new LeftMenu(categoriesBuilder.getCategories());
 
-        BorderLayoutData data = new BorderLayoutData(LayoutRegion.WEST, 200, 150, 350);
+        final BorderLayoutData data = new BorderLayoutData(LayoutRegion.WEST, 200, 150, 350);
         data.setMargins(new Margins(5, 0, 5, 5));
 
         viewport.add(west, data);
@@ -130,7 +132,7 @@ public class AppView extends View
     {
         center = new MainTabPanel();
 
-        BorderLayoutData data = new BorderLayoutData(LayoutRegion.CENTER);
+        final BorderLayoutData data = new BorderLayoutData(LayoutRegion.CENTER);
         data.setMargins(new Margins(5, 5, 5, 5));
 
         viewport.add(center, data);

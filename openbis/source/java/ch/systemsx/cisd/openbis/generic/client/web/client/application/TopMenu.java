@@ -78,7 +78,7 @@ public class TopMenu extends LayoutContainer
                 public void componentSelected(ComponentEvent ce)
                 {
                     final AppEvent<ContentPanel> event =
-                            new AppEvent<ContentPanel>(AppEvents.MenuEvent);
+                            new AppEvent<ContentPanel>(AppEvents.NAVI_EVENT);
                     event.setData(GenericConstants.ASSOCIATED_CONTENT_PANEL, dummyComponent);
                     Dispatcher.get().dispatch(event);
                 }

@@ -30,7 +30,6 @@ import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
@@ -51,7 +50,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.Add
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 
 /**
- * {@link LayoutContainer} with groups functionality.
+ * Implements groups listing functionality.
  * 
  * @author Izabela Adamczyk
  */
