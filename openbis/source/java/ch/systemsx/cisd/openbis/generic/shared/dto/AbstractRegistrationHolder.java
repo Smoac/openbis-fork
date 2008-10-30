@@ -23,12 +23,9 @@ import java.util.Date;
  * 
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractRegistrationHolder extends Id implements IRegistratorHolder
+public abstract class AbstractRegistrationHolder extends Id implements IRegistrationHolder
 {
     private static final long serialVersionUID = 1L;
-
-    /** Technical ID of the person who registered this entity. */
-    private final Long registratorID;
 
     /**
      * Person who registered this entity.
@@ -45,16 +42,6 @@ public abstract class AbstractRegistrationHolder extends Id implements IRegistra
      * </p>
      */
     private Date registrationDate;
-
-    protected AbstractRegistrationHolder(final Long registratorID)
-    {
-        this.registratorID = registratorID;
-    }
-
-    public final Date getRegistrationDate()
-    {
-        return registrationDate;
-    }
 
     public final void setRegistrationDate(final Date registrationDate)
     {
@@ -81,8 +68,11 @@ public abstract class AbstractRegistrationHolder extends Id implements IRegistra
      */
     public final void setRegistrator(final PersonPE registrator)
     {
-        getAndCheckID(registrator, registratorID);
         this.registrator = registrator;
     }
 
+    public final Date getRegistrationDate()
+    {
+        return registrationDate;
+    }
 }

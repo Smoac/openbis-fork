@@ -38,7 +38,7 @@ import org.hibernate.annotations.GenerationTime;
  * @author Christian Ribeaud
  */
 @MappedSuperclass
-public abstract class HibernateAbstractRegistrationHolder implements IRegistratorHolder,
+public abstract class HibernateAbstractRegistrationHolder implements IRegistrationHolder,
         Serializable
 {
     private static final long serialVersionUID = 1L;

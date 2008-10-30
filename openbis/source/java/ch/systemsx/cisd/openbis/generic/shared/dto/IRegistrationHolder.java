@@ -23,7 +23,7 @@ import java.util.Date;
  * 
  * @author Franz-Josef Elmer
  */
-public interface IRegistratorHolder
+public interface IRegistrationHolder
 {
 
     /**

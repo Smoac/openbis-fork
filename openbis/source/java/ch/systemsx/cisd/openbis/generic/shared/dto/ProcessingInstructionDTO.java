@@ -37,11 +37,6 @@ public class ProcessingInstructionDTO extends AbstractRegistrationHolder
 
     private byte[] parameters;
 
-    public ProcessingInstructionDTO()
-    {
-        super(null);
-    }
-
     public final ExperimentPE getExperiment()
     {
         return experiment;
