@@ -139,8 +139,8 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
 
         operationLog.info(String.format("Authentication service: '%s'", authenticationService
                 .getClass().getName()));
-        operationLog.info(String.format("Session expiration period (ms): %d",
-                sessionExpirationPeriodMillis));
+        operationLog.info(String.format("Session expiration period: %s", DurationFormatUtils
+                .formatDurationHMS(sessionExpirationPeriodMillis)));
         authenticationService.check();
     }
 
