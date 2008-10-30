@@ -162,11 +162,18 @@ public class LoginWidget extends VerticalPanel
         }
     }
 
+    public final void resetFields()
+    {
+        userField.reset();
+        passwordField.reset();
+        button.enable();
+    }
+
     //
     // Helper classes
     //
 
-    public static final class LoginCallback extends AbstractAsyncCallback<SessionContext>
+    public final class LoginCallback extends AbstractAsyncCallback<SessionContext>
     {
         private LoginCallback(final IViewContext<IGenericClientServiceAsync> viewContext)
         {
@@ -176,6 +183,12 @@ public class LoginWidget extends VerticalPanel
         //
         // AbstractAsyncCallback
         //
+
+        @Override
+        protected final void finishOnFailure(final Throwable caught)
+        {
+            resetFields();
+        }
 
         @Override
         public final void process(final SessionContext sessionContext)
@@ -200,6 +213,7 @@ public class LoginWidget extends VerticalPanel
             {
                 viewContext.getPageController().reload();
             }
+            resetFields();
         }
     }
 }

@@ -38,14 +38,14 @@ public final class DummyAuthenticationService implements IAuthenticationService
     }
 
     /**
-     * Always returns <code>true</code>, meaning that the login was successfull.
+     * Always returns <code>true</code>, meaning that the login was successful.
      */
-    public final boolean authenticateUser(String applicationToken, String user, String password)
+    public final boolean authenticateUser(final String applicationToken, final String user, final String password)
     {
         return true;
     }
 
-    public final Principal getPrincipal(String applicationToken, String user)
+    public final Principal getPrincipal(final String applicationToken, final String user)
     {
         return new Principal(user, "John", "Doe", "franz-josef.elmer@systemsx.ch");
     }

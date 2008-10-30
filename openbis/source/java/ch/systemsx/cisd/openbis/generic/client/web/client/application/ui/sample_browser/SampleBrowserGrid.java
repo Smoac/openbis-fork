@@ -390,7 +390,7 @@ public final class SampleBrowserGrid extends LayoutContainer
                             @Override
                             protected final void finishOnFailure(final Throwable caught)
                             {
-                                // callback.onFailure(caught);
+                                callback.onFailure(caught);
                             }
                         };
                 }
