@@ -51,7 +51,7 @@ class MainTabPanel extends TabPanel
     {
         for (TabItem tab : getItems())
         {
-            if (tab instanceof TabItem)
+            if (tab instanceof MainTabItem)
             {
                 MainTabItem t = (MainTabItem) tab;
                 if (t.getComponent().getId().equals(c.getId()))
