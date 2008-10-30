@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.util.Date;
+
 /**
  * Implementations are aware of the registrator.
  * 
@@ -36,4 +38,5 @@ public interface IRegistratorHolder
      */
     public void setRegistrator(final PersonPE registrator);
 
+    public Date getRegistrationDate();
 }
