@@ -3,21 +3,23 @@ body,div,td {
     font-size: 12px;
 }
 
-.header-title {
+/* Login */
+
+.login-welcome-text {
     font-size: 24px;
     font-weight: bold;
     margin-top: 30px;
     vertical-align: middle;
 }
 
+.login-page {
+    background-color: white;
+}
+
 .login-widget {
     border: 1px solid #B5B8C8;
     padding-bottom: 7px;
     padding-right: 7px;
-}
-
-.start-page {
-    background-color: white;
 }
 
 .footer {
@@ -28,9 +30,11 @@ body,div,td {
     background-color: white;
 }
 
-.invalidated-sample {
+.invalid {
     text-decoration: line-through;
 }
+
+/* Property grid */
 
 .property-grid {
     table-layout: auto;
@@ -48,51 +52,40 @@ body,div,td {
     background-color: #dddddd;
 }
 
+/* TopMenu */
+
 #header-user-info {
-	font-weight: lighter;
-	color: black;
+    font-weight: lighter;
+    color: black;
 }
 
 #header-title {
-	font-weight: lighter;
-	font-size: large;
-	/*color: navy;*/
-	margin-left: 1em;
-	margin-right: 1em;
+    font-weight: lighter;
+    font-size: large;
+    margin-left: 1em;
+    margin-right: 1em;
 }
 
-.intro-tab{
-	color: navy;
-	font-size: large;
-	text-align: center;
+/* MainTabPanel */
+
+.intro-tab {
+    color: navy;
+    font-size: large;
+    text-align: center;
 }
 
-.dummy-component{
-	text-align: center;
-}
-/*
-.left-menu-element-icon {
-  background-image: url(../images/favicon.png) !important;
-}
-*/
-
-/* Overwrite GXT styles */
-
-/*.my-tree-item-text{
-	color: navy;
-	text-transform: capitalize;
-	text-decoration: underline;
-}*/
-
-.x-btn-text{
-	color: navy;
-	text-transform: capitalize;
-}
-.x-accordion-hd{
-	text-transform: capitalize;
-	color: navy;
+.dummy-component {
+    text-align: center;
 }
 
-/*
-.x-btn{
-}*/
+/* Overridden GXT stuff */
+
+.x-btn-text {
+    color: navy;
+    text-transform: capitalize;
+}
+
+.x-accordion-hd {
+    text-transform: capitalize;
+    color: navy;
+}

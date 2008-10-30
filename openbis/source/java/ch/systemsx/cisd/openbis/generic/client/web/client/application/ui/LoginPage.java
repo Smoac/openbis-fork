@@ -37,7 +37,7 @@ public class LoginPage extends LayoutContainer
 
     public LoginPage(final GenericViewContext viewContext)
     {
-        setStyleName("start-page");
+        setStyleName("login-page");
         setLayout(new CenterLayout());
         final VerticalPanel verticalPanel = new VerticalPanel();
         verticalPanel.setSpacing(30);
@@ -49,7 +49,7 @@ public class LoginPage extends LayoutContainer
         headerPanel.add(viewContext.getImageBundle().getLogo().createImage());
 
         final Text welcomeLabel = new Text(viewContext.getMessage("welcome", new Date()));
-        welcomeLabel.setStyleName("header-title");
+        welcomeLabel.setStyleName("login-welcome-text");
 
         headerPanel.add(welcomeLabel);
         verticalPanel.add(headerPanel);

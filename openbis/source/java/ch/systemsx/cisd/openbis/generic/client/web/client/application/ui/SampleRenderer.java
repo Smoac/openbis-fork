@@ -25,7 +25,6 @@ import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 
-
 /**
  * Renders sample code and marks if the sample is invalid
  * 
@@ -42,7 +41,7 @@ public class SampleRenderer implements GridCellRenderer<ModelData>
         if (isInvalid)
         {
             Element div = DOM.createDiv();
-            div.setAttribute("class", "invalidated-sample");
+            div.setAttribute("class", "invalid");
             div.setInnerText(code);
             return DOM.toString(div);
         } else
