@@ -33,7 +33,9 @@ import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
+import com.extjs.gxt.ui.client.widget.tree.TreeItem;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.ComplexPanel;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -50,6 +52,33 @@ public class GWTTestUtil
 {
     private GWTTestUtil()
     {
+    }
+
+    /**
+     * Clicks on the menu category with specified id.
+     */
+    public static void selectMenuCategoryWithID(final String menu, final String category)
+    {
+        final String id = menu + "_" + category;
+        final Widget widget = tryToFindByID(id);
+        assertWidgetFound("Menu category", id, widget);
+        Assert.assertTrue("Widget '" + id + "' isn't a ContentPanel (menu category): "
+                + widget.getClass(), widget instanceof ContentPanel);
+        ((ContentPanel) widget).fireEvent(Event.ONCLICK);
+    }
+
+    /**
+     * Clicks on the menu option with specified id.
+     */
+    public static void selectMenuWithID(final String menu, final String category,
+            final String option)
+    {
+        final String id = menu + "_" + category + "_" + option;
+        final Widget widget = tryToFindByID(id);
+        assertWidgetFound("Menu element", id, widget);
+        Assert.assertTrue("Widget '" + id + "' isn't a TreeItem (menu element): "
+                + widget.getClass(), widget instanceof TreeItem);
+        ((TreeItem) widget).fireEvent(Event.ONCLICK);
     }
 
     /**

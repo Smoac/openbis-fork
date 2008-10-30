@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import java.util.Iterator;
+
+import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -61,6 +64,20 @@ public final class Client implements EntryPoint
         return new GenericViewContext(service, messageProvider, imageBundle, pageController);
     }
 
+    void initializeControllers()
+    {
+        final Dispatcher dispatcher = Dispatcher.get();
+        final Iterator<Controller> iterator = dispatcher.getControllers().iterator();
+        while (iterator.hasNext())
+        {
+            iterator.next();
+            iterator.remove();
+        }
+        dispatcher.addController(new LoginController(viewContext));
+        dispatcher.addController(new AppController((GenericViewContext) viewContext));
+
+    }
+
     //
     // EntryPoint
     //
@@ -70,9 +87,7 @@ public final class Client implements EntryPoint
         if (viewContext == null)
         {
             viewContext = createViewContext();
-            final Dispatcher dispatcher = Dispatcher.get();
-            dispatcher.addController(new LoginController(viewContext));
-            dispatcher.addController(new AppController((GenericViewContext) viewContext));
+            initializeControllers();
         }
 
         final IClientServiceAsync service = viewContext.getService();

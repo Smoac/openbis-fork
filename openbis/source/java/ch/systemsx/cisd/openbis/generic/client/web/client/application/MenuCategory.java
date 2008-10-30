@@ -30,8 +30,11 @@ public class MenuCategory
 
     private final List<MenuElement> elements;
 
-    public MenuCategory(final String name, final List<MenuElement> elements)
+    private final String partOfId;
+
+    public MenuCategory(final String partOfId, final String name, final List<MenuElement> elements)
     {
+        this.partOfId = partOfId;
         this.name = name;
         this.elements = elements;
     }
@@ -44,5 +47,10 @@ public class MenuCategory
     public List<MenuElement> getElements()
     {
         return elements;
+    }
+
+    public String getPartOfId()
+    {
+        return partOfId;
     }
 }

@@ -33,15 +33,16 @@ import com.google.gwt.user.client.Event;
  * 
  * @author Izabela Adamczyk
  */
-class LeftMenu extends ContentPanel
+public class LeftMenu extends ContentPanel
 {
+    public static final String ID = GenericConstants.ID_PREFIX + "left-menu";
 
     private final List<MenuCategory> categories;
 
     public LeftMenu(final List<MenuCategory> categories)
     {
         this.categories = categories;
-
+        setId(ID);
         setBodyBorder(true);
         setLayoutOnChange(true);
         setCollapsible(true);
@@ -55,9 +56,12 @@ class LeftMenu extends ContentPanel
         for (final MenuCategory mc : categories)
         {
             final SubMenu subMenu = new SubMenu(mc.getName());
+            final String categoryId = ID + "_" + mc.getPartOfId();
+            subMenu.setId(categoryId);
             for (final MenuElement me : mc.getElements())
             {
-                subMenu.addCommand(me.getTitle(), me.getAssociatedContentPanel());
+                subMenu.addCommand(categoryId + "_" + me.getPartOfId(), me.getTitle(), me
+                        .getAssociatedContentPanel());
             }
             add(subMenu);
         }
@@ -65,6 +69,7 @@ class LeftMenu extends ContentPanel
 
     private class SubMenu extends ContentPanel
     {
+
         private final Tree tree;
 
         public SubMenu(final String title)
@@ -97,9 +102,10 @@ class LeftMenu extends ContentPanel
             add(tree);
         }
 
-        public void addCommand(final String name, final ContentPanel contentPanel)
+        public void addCommand(final String id, final String name, final ContentPanel contentPanel)
         {
             final TreeItem item = new TreeItem(name);
+            item.setId(id);
             item.setData(GenericConstants.ASSOCIATED_CONTENT_PANEL, contentPanel);
             tree.getRootItem().add(item);
         }

@@ -22,6 +22,7 @@ import junit.framework.TestSuite;
 import com.google.gwt.junit.tools.GWTTestSuite;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AuthenticationTest;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AuthorizationManagementConsolTest;
 
 /**
  * @author Franz-Josef Elmer
@@ -30,10 +31,10 @@ public class SystemTestSuite extends GWTTestSuite
 {
     public static Test suite()
     {
-        TestSuite testSuite = new TestSuite("System Tests");
+        final TestSuite testSuite = new TestSuite("System Tests");
         testSuite.addTestSuite(AuthenticationTest.class);
         // testSuite.addTestSuite(SampleBrowserTest.class);
-        // testSuite.addTestSuite(AuthorizationManagementConsolTest.class); FIXME: adjust to new gui
+        testSuite.addTestSuite(AuthorizationManagementConsolTest.class);
 
         return testSuite;
     }

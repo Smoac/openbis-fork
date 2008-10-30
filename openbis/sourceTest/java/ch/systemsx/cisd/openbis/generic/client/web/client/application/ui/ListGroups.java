@@ -16,36 +16,35 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
-import junit.framework.Assert;
-
-import com.extjs.gxt.ui.client.Events;
-import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
-import com.google.gwt.user.client.ui.Widget;
-
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.CategoriesBuilder;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.LeftMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SessionContextCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.TopMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
 /**
- * Command for logout after {@link SessionContextCallback} has finished.
+ * A {@link AbstractDefaultTestCommand} extension for choosing a group menu element.
  * 
- * @author Franz-Josef Elmer
+ * @author Izabela Adamczyk
  */
-public class Logout extends AbstractDefaultTestCommand
+public final class ListGroups extends AbstractDefaultTestCommand
 {
-    public Logout()
+
+    public ListGroups()
     {
         super(SessionContextCallback.class);
     }
 
-    public void execute()
-    {
-        final Widget w = GWTTestUtil.getWidgetWithID(TopMenu.LOGOUT_BUTTON_ID);
-        Assert.assertTrue("Widget '" + TopMenu.LOGOUT_BUTTON_ID + "' is not a TextToolItem",
-                w instanceof TextToolItem);
-        final TextToolItem textToolItem = (TextToolItem) w;
-        textToolItem.fireEvent(Events.Select);
-    }
+    //
+    // AbstractDefaultTestCommand
+    //
 
+    public final void execute()
+    {
+
+        GWTTestUtil.selectMenuCategoryWithID(LeftMenu.ID, CategoriesBuilder.CATEGORIES.GROUPS);
+
+        GWTTestUtil.selectMenuWithID(LeftMenu.ID, CategoriesBuilder.CATEGORIES.GROUPS,
+                CategoriesBuilder.MENU_ELEMENTS.LIST);
+    }
 }

@@ -29,8 +29,13 @@ public class MenuElement
 
     private final ContentPanel associatedComponent;
 
-    public MenuElement(final String title, final ContentPanel associatedComponent)
+    private final String partOfId;
+
+    public MenuElement(final String partOfId, final String title,
+            final ContentPanel associatedComponent)
     {
+
+        this.partOfId = partOfId;
         this.title = title;
         this.associatedComponent = associatedComponent;
     }
@@ -43,6 +48,11 @@ public class MenuElement
     public ContentPanel getAssociatedContentPanel()
     {
         return associatedComponent;
+    }
+
+    public String getPartOfId()
+    {
+        return partOfId;
     }
 
 }

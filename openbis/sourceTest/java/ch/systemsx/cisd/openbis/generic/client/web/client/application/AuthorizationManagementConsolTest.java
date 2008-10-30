@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ListGroups;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CheckGroup;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CheckPerson;
@@ -42,8 +43,10 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
     {
         remoteConsole.prepare(new Login("test", "a"));
         final String groupCode = TEST_GROUP;
+        remoteConsole.prepare(new ListGroups());
         remoteConsole.prepare(new CreateGroup(groupCode));
-        remoteConsole.prepare(new CheckGroup(groupCode.toUpperCase())).finish(10000);
+        remoteConsole.prepare(new CheckGroup(groupCode.toUpperCase()));
+        remoteConsole.finish(10000);
 
         client.onModuleLoad();
     }

@@ -42,8 +42,8 @@ public class AuthenticationTest extends AbstractGWTTestCase
     public void testLogout() throws Exception
     {
         remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new Logout()).finish(10000);
-
+        remoteConsole.prepare(new Logout());
+        remoteConsole.finish(10000);
         client.onModuleLoad();
     }
 
@@ -52,7 +52,6 @@ public class AuthenticationTest extends AbstractGWTTestCase
         remoteConsole.prepare(new Login("u", ""));
         remoteConsole.prepare(new FailureExpectation(LoginWidget.LoginCallback.class))
                 .finish(10000);
-
         client.onModuleLoad();
     }
 
