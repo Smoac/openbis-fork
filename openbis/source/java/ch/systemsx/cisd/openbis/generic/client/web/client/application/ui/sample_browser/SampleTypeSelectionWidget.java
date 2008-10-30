@@ -43,14 +43,15 @@ class SampleTypeSelectionWidget extends ExtendedComboBox<SampleTypeModel>
 
     final class ListSampleTypesCallback extends AbstractAsyncCallback<List<SampleType>>
     {
-        ListSampleTypesCallback(IViewContext<?> viewContext)
+        ListSampleTypesCallback(final IViewContext<?> viewContext)
         {
             super(viewContext);
         }
 
         @Override
-        protected void process(List<SampleType> result)
+        protected void process(final List<SampleType> result)
         {
+            sampleTypeStore.removeAll();
             sampleTypeStore.add(convert(result));
             if (sampleTypeStore.getCount() > 0)
             {
@@ -59,10 +60,10 @@ class SampleTypeSelectionWidget extends ExtendedComboBox<SampleTypeModel>
             }
         }
 
-        List<SampleTypeModel> convert(List<SampleType> sampleTypes)
+        List<SampleTypeModel> convert(final List<SampleType> sampleTypes)
         {
-            List<SampleTypeModel> result = new ArrayList<SampleTypeModel>();
-            for (SampleType st : sampleTypes)
+            final List<SampleTypeModel> result = new ArrayList<SampleTypeModel>();
+            for (final SampleType st : sampleTypes)
             {
                 result.add(new SampleTypeModel(st));
             }
@@ -76,9 +77,9 @@ class SampleTypeSelectionWidget extends ExtendedComboBox<SampleTypeModel>
 
     private final GenericViewContext viewContext;
 
-    private ListStore<SampleTypeModel> sampleTypeStore;
+    private final ListStore<SampleTypeModel> sampleTypeStore;
 
-    public SampleTypeSelectionWidget(GenericViewContext viewContext)
+    public SampleTypeSelectionWidget(final GenericViewContext viewContext)
     {
         this.viewContext = viewContext;
         setId(ID);
@@ -92,7 +93,7 @@ class SampleTypeSelectionWidget extends ExtendedComboBox<SampleTypeModel>
         addListener(Events.OnClick, new Listener<BaseEvent>()
             {
 
-                public void handleEvent(BaseEvent be)
+                public void handleEvent(final BaseEvent be)
                 {
                     expand();
                 }
@@ -110,6 +111,13 @@ class SampleTypeSelectionWidget extends ExtendedComboBox<SampleTypeModel>
         {
             return null;
         }
+    }
+
+    @Override
+    protected void onLoad()
+    {
+        super.onLoad();
+        refresh();
     }
 
     void refresh()

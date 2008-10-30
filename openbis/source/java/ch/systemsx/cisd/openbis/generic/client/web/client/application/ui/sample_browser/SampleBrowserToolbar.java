@@ -105,7 +105,6 @@ class SampleBrowserToolbar extends ToolBar
         addSelectGroupListeners();
         addIncludeInstanceListeners();
         addIncludeGroupListeners();
-        refresh();
     }
 
     private void addIncludeGroupListeners()
@@ -285,11 +284,16 @@ class SampleBrowserToolbar extends ToolBar
         return error;
     }
 
+    @Override
+    protected void onLoad()
+    {
+        super.onLoad();
+        refresh();
+    }
+
     public void refresh()
     {
         display();
-        selectSampleTypeCombo.refresh();
-        selectGroupCombo.refresh();
     }
 
 }

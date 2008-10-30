@@ -43,14 +43,15 @@ class GroupSelectionWidget extends ExtendedComboBox<GroupModel>
 {
     final class ListGroupsCallback extends AbstractAsyncCallback<List<Group>>
     {
-        ListGroupsCallback(IViewContext<?> viewContext)
+        ListGroupsCallback(final IViewContext<?> viewContext)
         {
             super(viewContext);
         }
 
         @Override
-        protected void process(List<Group> result)
+        protected void process(final List<Group> result)
         {
+            groupStore.removeAll();
             groupStore.add(convert(result));
             if (groupStore.getCount() > 0)
             {
@@ -67,9 +68,9 @@ class GroupSelectionWidget extends ExtendedComboBox<GroupModel>
 
     private final GenericViewContext viewContext;
 
-    private ListStore<GroupModel> groupStore;
+    private final ListStore<GroupModel> groupStore;
 
-    public GroupSelectionWidget(GenericViewContext viewContext)
+    public GroupSelectionWidget(final GenericViewContext viewContext)
     {
 
         this.viewContext = viewContext;
@@ -83,7 +84,7 @@ class GroupSelectionWidget extends ExtendedComboBox<GroupModel>
         setStore(groupStore);
         addListener(Events.OnClick, new Listener<BaseEvent>()
             {
-                public void handleEvent(BaseEvent be)
+                public void handleEvent(final BaseEvent be)
                 {
                     expand();
                 }
@@ -103,15 +104,22 @@ class GroupSelectionWidget extends ExtendedComboBox<GroupModel>
         }
     }
 
+    @Override
+    protected void onLoad()
+    {
+        super.onLoad();
+        refresh();
+    }
+
     void refresh()
     {
         viewContext.getService().listGroups(null, new ListGroupsCallback(viewContext));
     }
 
-    List<GroupModel> convert(List<Group> groups)
+    List<GroupModel> convert(final List<Group> groups)
     {
-        List<GroupModel> result = new ArrayList<GroupModel>();
-        for (Group g : groups)
+        final List<GroupModel> result = new ArrayList<GroupModel>();
+        for (final Group g : groups)
         {
             result.add(new GroupModel(g));
         }
