@@ -17,21 +17,25 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Header;
 
 /**
- * A {@link ITabItem} implementation to adapt a {@link ContentPanel}.
+ * A default {@link ITabItem} implementation.
  * 
  * @author Christian Ribeaud
  */
-public final class ContentPanelAdapter implements ITabItem
+final class DefaultTabItem implements ITabItem
 {
-    private final ContentPanel contentPanel;
+    private final String title;
 
-    public ContentPanelAdapter(final ContentPanel contentPanel)
+    private final Component component;
+
+    DefaultTabItem(final String title, final Component component)
     {
-        this.contentPanel = contentPanel;
+        assert title != null : "Unspecified title.";
+        assert component != null : "Unspecified component.";
+        assert component.getId() != null : "Unspecified component id.";
+        this.title = title;
+        this.component = component;
     }
 
     //
@@ -40,17 +44,17 @@ public final class ContentPanelAdapter implements ITabItem
 
     public final Component getComponent()
     {
-        return contentPanel;
+        return component;
     }
 
     public final String getTitle()
     {
-        final Header header = contentPanel.getHeader();
-        return contentPanel.getHeader() != null ? header.getText() : contentPanel.getId();
+        return title;
     }
 
     public final String getId()
     {
-        return contentPanel.getId();
+        return getComponent().getId();
     }
+
 }

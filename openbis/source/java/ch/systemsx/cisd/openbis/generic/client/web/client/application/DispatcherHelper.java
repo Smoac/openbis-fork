@@ -16,41 +16,31 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import com.extjs.gxt.ui.client.mvc.AppEvent;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Header;
 
 /**
- * A {@link ITabItem} implementation to adapt a {@link ContentPanel}.
+ * A helper for using {@link Dispatcher}.
  * 
  * @author Christian Ribeaud
  */
-public final class ContentPanelAdapter implements ITabItem
+public final class DispatcherHelper
 {
-    private final ContentPanel contentPanel;
-
-    public ContentPanelAdapter(final ContentPanel contentPanel)
+    private DispatcherHelper()
     {
-        this.contentPanel = contentPanel;
+        // Can not be instantiated.
     }
 
-    //
-    // ITabItem
-    //
-
-    public final Component getComponent()
+    /**
+     * Create an event of type {@link AppEvents#NAVI_EVENT}.
+     */
+    public final static AppEvent<ITabItem> createNaviEvent(final String title,
+            final Component component)
     {
-        return contentPanel;
-    }
-
-    public final String getTitle()
-    {
-        final Header header = contentPanel.getHeader();
-        return contentPanel.getHeader() != null ? header.getText() : contentPanel.getId();
-    }
-
-    public final String getId()
-    {
-        return contentPanel.getId();
+        final AppEvent<ITabItem> event = new AppEvent<ITabItem>(AppEvents.NAVI_EVENT);
+        event.setData(GenericConstants.ASSOCIATED_CONTENT_PANEL, new DefaultTabItem(title,
+                component));
+        return event;
     }
 }

@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
@@ -64,7 +63,7 @@ class MainTabPanel extends TabPanel
             if (tab instanceof MainTabItem)
             {
                 final MainTabItem mainTabItem = (MainTabItem) tab;
-                if (mainTabItem.getTabItem().getId().equals(tabItem.getComponent().getId()))
+                if (mainTabItem.getTabItem().getId().equals(tabItem.getId()))
                 {
                     return mainTabItem;
                 }
@@ -102,12 +101,12 @@ class MainTabPanel extends TabPanel
             setLayout(new FitLayout());
             setText(tabItem.getTitle());
             addStyleName("pad-text");
-            add(getTabItem());
+            add(tabItem.getComponent());
         }
 
-        final Component getTabItem()
+        final ITabItem getTabItem()
         {
-            return tabItem.getComponent();
+            return tabItem;
         }
     }
 }

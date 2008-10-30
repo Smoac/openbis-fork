@@ -19,11 +19,12 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application;
 import java.util.Collections;
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractClientPluginFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ISampleViewClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -89,32 +90,18 @@ public final class ClientPluginFactory extends
         public final void viewSample(final String sampleIdentifier)
         {
             final IViewContext<IGenericClientServiceAsync> viewContext = getViewContext();
-            if (sampleInfoCallback != null)
-            {
-                sampleInfoCallback.destroy();
-            }
-            sampleInfoCallback = new SampleGenerationInfoCallback(viewContext);
-            viewContext.getService().getSampleInfo(sampleIdentifier, sampleInfoCallback);
+            viewContext.getService().getSampleInfo(sampleIdentifier,
+                    new SampleGenerationInfoCallback(viewContext));
         }
     }
 
     private final static class SampleGenerationInfoCallback extends
             AbstractAsyncCallback<SampleGeneration>
     {
-        private Dialog dialog;
-
         private SampleGenerationInfoCallback(
                 final IViewContext<IGenericClientServiceAsync> viewContext)
         {
             super(viewContext);
-        }
-
-        final void destroy()
-        {
-            if (dialog != null)
-            {
-                dialog.close();
-            }
         }
 
         //
@@ -126,10 +113,11 @@ public final class ClientPluginFactory extends
         protected final void process(final SampleGeneration result)
         {
             final String title = result.getGenerator().getCode();
-            dialog =
-                    new GenericSampleViewer(title,
-                            (IViewContext<IGenericClientServiceAsync>) viewContext, result);
-            dialog.show();
+            final GenericSampleViewer sampleViewer =
+                    new GenericSampleViewer((IViewContext<IGenericClientServiceAsync>) viewContext,
+                            result);
+            Dispatcher.get().dispatch(DispatcherHelper.createNaviEvent(title, sampleViewer));
+            sampleViewer.reconfigureGrids();
         }
     }
 }

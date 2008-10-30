@@ -32,18 +32,18 @@ public class AppEvents
 {
 
     /**
-     * Usefull links: <a
+     * Useful links: <a
      * href="http://google-web-toolkit.googlecode.com/svn/javadoc/1.5/index.html?overview-summary.html">GWT
      * event constants</a>, <a href="http://extjs.com/deploy/gxtdocs/constant-values.html">GXT
      * event constants</a>
      */
     private final static int STARTING_VALUE = 1000000;
 
-    public final static int CALLBACK_FINNISHED = STARTING_VALUE + 10;
+    public final static int CALLBACK_FINISHED = STARTING_VALUE + 10;
 
     public final static int INIT = STARTING_VALUE + 20;
 
     public final static int LOGIN = STARTING_VALUE + 30;
 
-    protected static final int NAVI_EVENT = STARTING_VALUE + 40;
+    public static final int NAVI_EVENT = STARTING_VALUE + 40;
 }

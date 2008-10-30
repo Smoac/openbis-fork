@@ -54,7 +54,7 @@ final class AppView extends View
         this.viewContext = viewContext;
     }
 
-    ITabItem getData(final AppEvent<?> event)
+    private final ITabItem getData(final AppEvent<?> event)
     {
         final Object data = event.getData(GenericConstants.ASSOCIATED_CONTENT_PANEL);
         if (data instanceof ContentPanel)

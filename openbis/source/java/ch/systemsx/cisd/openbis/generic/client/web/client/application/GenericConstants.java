@@ -28,12 +28,6 @@ public class GenericConstants
      */
     public static final String ID_PREFIX = "openbis_";
 
-    /** URL parameter name which specifies the start page. */
-    public static final String VIEW_KEY = "view";
-
-    /** View of authorization management console. */
-    public static final String AUTHORIZATION_MANAGEMENT_CONSOLE_VIEW = "amc";
-
     private static final String APPLICATION_NAME = "genericopenbis";
 
     public static final String GENERIC_SERVER_NAME = createServicePath("generic");

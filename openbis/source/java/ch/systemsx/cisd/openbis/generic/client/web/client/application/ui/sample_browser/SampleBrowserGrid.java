@@ -45,7 +45,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.CommonColumns;
@@ -197,11 +196,8 @@ public final class SampleBrowserGrid extends LayoutContainer
                         final String sampleIdentifier =
                                 sampleModel.get(ModelDataPropertyNames.SAMPLE_IDENTIFIER);
                         final String code = sampleType.getCode();
-                        final IClientPluginFactory pluginFactory =
-                                viewContext.getClientPluginFactoryProvider()
-                                        .getClientPluginFactory(code);
-                        pluginFactory.createViewClientForSampleType(code).viewSample(
-                                sampleIdentifier);
+                        viewContext.getClientPluginFactoryProvider().getClientPluginFactory(code)
+                                .createViewClientForSampleType(code).viewSample(sampleIdentifier);
                     }
                 });
             toolBar = new PagingToolBar(PAGE_SIZE);

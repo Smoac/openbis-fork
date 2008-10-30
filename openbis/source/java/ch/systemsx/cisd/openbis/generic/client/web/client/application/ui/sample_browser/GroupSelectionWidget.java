@@ -59,7 +59,7 @@ class GroupSelectionWidget extends ExtendedComboBox<GroupModel>
                 setEnabled(true);
                 setValue(groupStore.getAt(0));
             }
-            fireEvent(AppEvents.CALLBACK_FINNISHED);
+            fireEvent(AppEvents.CALLBACK_FINISHED);
         }
     }
 

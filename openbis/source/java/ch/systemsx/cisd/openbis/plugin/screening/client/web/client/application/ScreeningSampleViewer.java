@@ -19,10 +19,10 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AbstractDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
@@ -33,23 +33,22 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
 /**
- * The <i>generic</i> sample viewer.
+ * The <i>screening</i> sample viewer.
  * 
  * @author Christian Ribeaud
  */
-public final class ScreeningSampleViewer extends AbstractDialog
+public final class ScreeningSampleViewer extends LayoutContainer
 {
     private final SampleGeneration sampleGeneration;
 
     private final IMessageProvider messageProvider;
 
-    public ScreeningSampleViewer(final String heading, final IMessageProvider messageProvider,
+    public ScreeningSampleViewer(final IMessageProvider messageProvider,
             final SampleGeneration sampleGeneration)
     {
-        super(heading);
         this.sampleGeneration = sampleGeneration;
         this.messageProvider = messageProvider;
-        addWidget();
+        add(createUI());
     }
 
     private final static Map<String, Object> createProperties(
@@ -88,12 +87,7 @@ public final class ScreeningSampleViewer extends AbstractDialog
         return properties;
     }
 
-    //
-    // AbstractDialog
-    //
-
-    @Override
-    public final Widget getWidget()
+    private final Widget createUI()
     {
         final Map<String, Object> properties = createProperties(messageProvider, sampleGeneration);
         final PropertyGrid propertyGrid = new PropertyGrid(messageProvider, properties.size());

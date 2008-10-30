@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
-import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.BaseListLoadConfig;
 import com.extjs.gxt.ui.client.data.BaseListLoadResult;
 import com.extjs.gxt.ui.client.data.BaseListLoader;
@@ -33,7 +32,6 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -71,16 +69,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
  * 
  * @author Christian Ribeaud
  */
-public final class GenericSampleViewer extends Dialog
+public final class GenericSampleViewer extends LayoutContainer
 {
-    private static final int DIALOG_HEIGHT = 600;
-
-    private static final int COMPONENT_HEIGHT = DIALOG_HEIGHT / 2 - 50;
-
-    private static final int DIALOG_WIDTH = 800;
-
-    private static final int COMPONENT_WIDTH = DIALOG_WIDTH / 2 + 80;
-
     private final SampleGeneration sampleGeneration;
 
     private final IViewContext<IGenericClientServiceAsync> viewContext;
@@ -89,13 +79,12 @@ public final class GenericSampleViewer extends Dialog
 
     private Grid<ExternalDataModel> externalDataGrid;
 
-    public GenericSampleViewer(final String heading,
-            final IViewContext<IGenericClientServiceAsync> viewContext,
+    public GenericSampleViewer(final IViewContext<IGenericClientServiceAsync> viewContext,
             final SampleGeneration sampleGeneration)
     {
+        setLayout(new BorderLayout());
         this.sampleGeneration = sampleGeneration;
         this.viewContext = viewContext;
-        init(heading);
         // Left panel
         add(createLeftPanel(), createLeftBorderLayoutData());
         // Right panel
@@ -120,7 +109,7 @@ public final class GenericSampleViewer extends Dialog
                         createPartOfSamplesColumnModel());
         partOfSamplesGrid.setLoadMask(true);
         panel.add(partOfSamplesGrid);
-        container.add(panel, new RowData(-1, -1, new Margins(0, 0, 5, 0)));
+        container.add(panel, new RowData(1, 0.5, new Margins(0, 5, 5, 0)));
         // External data
         panel =
                 createContentPanel(viewContext.getMessageProvider().getMessage(
@@ -130,7 +119,7 @@ public final class GenericSampleViewer extends Dialog
                         createExternalDataColumnModel());
         externalDataGrid.setLoadMask(true);
         panel.add(externalDataGrid);
-        container.add(panel, new RowData(-1, -1));
+        container.add(panel, new RowData(1, 0.5, new Margins(0, 5, 0, 0)));
         return container;
     }
 
@@ -138,7 +127,6 @@ public final class GenericSampleViewer extends Dialog
     {
         final ContentPanel panel = new ContentPanel();
         panel.setHeading(heading);
-        panel.setSize(COMPONENT_WIDTH, COMPONENT_HEIGHT);
         panel.setLayout(new FitLayout());
         panel.setBodyBorder(true);
         panel.setBorders(false);
@@ -243,20 +231,6 @@ public final class GenericSampleViewer extends Dialog
         return columnConfig;
     }
 
-    private final void init(final String heading)
-    {
-        setHeading(heading);
-        setButtons(OK);
-        setScrollMode(Scroll.AUTO);
-        setWidth(DIALOG_WIDTH);
-        setHeight(DIALOG_HEIGHT);
-        setBodyStyle("backgroundColor: #ffffff;");
-        setHideOnButtonClick(true);
-        setLayout(new BorderLayout());
-        setBodyBorder(false);
-        setInsetBorder(false);
-    }
-
     private final static BorderLayoutData createLeftBorderLayoutData()
     {
         final BorderLayoutData data = new BorderLayoutData(LayoutRegion.WEST, 300, 100, 500);
@@ -330,10 +304,8 @@ public final class GenericSampleViewer extends Dialog
         return propertyGrid;
     }
 
-    @Override
-    public final void show()
+    public final void reconfigureGrids()
     {
-        super.show();
         final ListLoader<BaseListLoadConfig> sampleLoader =
                 createListLoader(createRpcProxyForPartOfSamples());
         final ListStore<SampleModel> sampleListStore = createListStore(sampleLoader);

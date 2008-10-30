@@ -144,7 +144,7 @@ class SampleBrowserToolbar extends ToolBar
                 }
             });
 
-        selectGroupCombo.addListener(AppEvents.CALLBACK_FINNISHED, new Listener<BaseEvent>()
+        selectGroupCombo.addListener(AppEvents.CALLBACK_FINISHED, new Listener<BaseEvent>()
             {
 
                 public void handleEvent(final BaseEvent be)

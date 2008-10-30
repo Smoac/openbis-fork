@@ -39,4 +39,9 @@ public interface ITabItem
      * Returns the {@link Component} which composes this tab item.
      */
     public Component getComponent();
+
+    /**
+     * Returns the unique identifier of this tab item.
+     */
+    public String getId();
 }

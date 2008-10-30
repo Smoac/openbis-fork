@@ -19,11 +19,12 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application;
 import java.util.Collections;
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractClientPluginFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ISampleViewClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -84,8 +85,6 @@ public final class ClientPluginFactory extends
 
     private final class SampleViewClientPlugin implements ISampleViewClientPlugin
     {
-        SampleInfoCallback sampleInfoCallback;
-
         //
         // ISampleViewClientPlugin
         //
@@ -93,44 +92,30 @@ public final class ClientPluginFactory extends
         public final void viewSample(final String sampleIdentifier)
         {
             final IViewContext<IScreeningClientServiceAsync> viewContext = getViewContext();
-            if (sampleInfoCallback != null)
-            {
-                sampleInfoCallback.destroy();
-            }
-            sampleInfoCallback = new SampleInfoCallback(viewContext);
-            viewContext.getService().getSampleInfo(sampleIdentifier, sampleInfoCallback);
+            viewContext.getService().getSampleInfo(sampleIdentifier,
+                    new SampleInfoCallback(viewContext));
         }
 
     }
 
     private final static class SampleInfoCallback extends AbstractAsyncCallback<SampleGeneration>
     {
-        private Dialog dialog;
-
         private SampleInfoCallback(final IViewContext<IScreeningClientServiceAsync> viewContext)
         {
             super(viewContext);
-        }
-
-        final void destroy()
-        {
-            if (dialog != null)
-            {
-                dialog.close();
-            }
         }
 
         //
         // AbstractAsyncCallback
         //
 
-        @SuppressWarnings("unchecked")
         @Override
         protected final void process(final SampleGeneration result)
         {
             final String title = result.getGenerator().getCode();
-            dialog = new ScreeningSampleViewer(title, viewContext.getMessageProvider(), result);
-            dialog.show();
+            final ScreeningSampleViewer sampleViewer =
+                    new ScreeningSampleViewer(viewContext.getMessageProvider(), result);
+            Dispatcher.get().dispatch(DispatcherHelper.createNaviEvent(title, sampleViewer));
         }
     }
 }
