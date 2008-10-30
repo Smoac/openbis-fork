@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.MenuCategory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.MenuElement;
 
 /**
  * Allows to define categories which will be displayed in {@link LeftMenu}.
@@ -71,7 +74,7 @@ public class CategoriesBuilder
 
     public final List<MenuCategory> categories;
 
-    public CategoriesBuilder(final ComponentProvider provider)
+    CategoriesBuilder(final ComponentProvider provider)
     {
         this.provider = provider;
         categories = new ArrayList<MenuCategory>();

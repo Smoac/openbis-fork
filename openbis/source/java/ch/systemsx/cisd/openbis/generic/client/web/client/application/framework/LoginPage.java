@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
 import java.util.Date;
 
@@ -27,16 +27,17 @@ import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoginWidget;
 
 /**
  * The login page.
  * 
  * @author Christian Ribeaud
  */
-public class LoginPage extends LayoutContainer
+final class LoginPage extends LayoutContainer
 {
 
-    public LoginPage(final IViewContext<IGenericClientServiceAsync> viewContext)
+    LoginPage(final IViewContext<IGenericClientServiceAsync> viewContext)
     {
         setStyleName("login-page");
         setLayout(new CenterLayout());

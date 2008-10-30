@@ -24,10 +24,10 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractClientPluginFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ISampleViewClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 
 /**

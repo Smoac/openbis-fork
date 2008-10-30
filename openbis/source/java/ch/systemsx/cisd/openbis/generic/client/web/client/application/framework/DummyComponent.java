@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 
 /**
  * Component of the gui displayed when some functionality has not been implemented yet.
  * 
  * @author Izabela Adamczyk
  */
-class DummyComponent extends ContentPanel
+public final class DummyComponent extends ContentPanel
 {
     private static final String PREFIX = "dummy-component";
 

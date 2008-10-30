@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.Component;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 
 /**
  * A helper for using {@link Dispatcher}.

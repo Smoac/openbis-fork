@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
 import java.util.List;
 
@@ -28,6 +28,10 @@ import com.extjs.gxt.ui.client.widget.tree.Tree;
 import com.extjs.gxt.ui.client.widget.tree.TreeItem;
 import com.google.gwt.user.client.Event;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.MenuCategory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.MenuElement;
+
 /**
  * User menu allowing to get to wanted functionality of application (e.g. sample listing).
  * 
@@ -39,7 +43,7 @@ public class LeftMenu extends ContentPanel
 
     private final List<MenuCategory> categories;
 
-    public LeftMenu(final List<MenuCategory> categories)
+    LeftMenu(final List<MenuCategory> categories)
     {
         this.categories = categories;
         setId(ID);

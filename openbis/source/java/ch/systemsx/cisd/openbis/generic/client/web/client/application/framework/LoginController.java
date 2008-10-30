@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 
 /**
  * The {@link Controller} extension for logging events.
@@ -30,7 +31,7 @@ public final class LoginController extends Controller
 {
     private final LoginView loginView;
 
-    LoginController(final IViewContext<IGenericClientServiceAsync> viewContext)
+    public LoginController(final IViewContext<IGenericClientServiceAsync> viewContext)
     {
         registerEventTypes(AppEvents.LOGIN);
         loginView = new LoginView(this, viewContext);

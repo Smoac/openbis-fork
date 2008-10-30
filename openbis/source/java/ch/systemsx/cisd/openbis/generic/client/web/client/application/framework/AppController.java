@@ -14,23 +14,25 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 
 /**
  * Main application controller.
  * 
  * @author Izabela Adamczyk
  */
-final class AppController extends Controller
+public final class AppController extends Controller
 {
     private AppView appView;
 
     private final GenericViewContext viewContext;
 
-    AppController(final GenericViewContext viewContext)
+    public AppController(final GenericViewContext viewContext)
     {
         this.viewContext = viewContext;
         registerEventTypes(AppEvents.INIT);

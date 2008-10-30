@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 
 /**

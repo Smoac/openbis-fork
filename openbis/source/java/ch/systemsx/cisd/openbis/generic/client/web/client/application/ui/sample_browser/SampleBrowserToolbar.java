@@ -34,9 +34,9 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.CommonColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ParentColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyColumns;

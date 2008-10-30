@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
@@ -22,7 +22,7 @@ import com.extjs.gxt.ui.client.mvc.View;
 import com.google.gwt.user.client.ui.RootPanel;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoginPage;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 
 /**
  * The {@link View} extension for logging.

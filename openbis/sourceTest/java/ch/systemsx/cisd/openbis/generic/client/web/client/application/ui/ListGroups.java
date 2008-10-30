@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.CategoriesBuilder;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.LeftMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SessionContextCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.LeftMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 

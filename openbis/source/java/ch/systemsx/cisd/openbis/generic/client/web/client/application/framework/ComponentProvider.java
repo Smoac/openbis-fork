@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GroupsView;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.PersonsView;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.RolesView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.SampleBrowser;
 
 /**
@@ -23,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_
  * 
  * @author Izabela Adamczyk
  */
-class ComponentProvider
+final class ComponentProvider
 {
     private final SampleBrowser sampleBrowser;
 
@@ -35,6 +39,15 @@ class ComponentProvider
 
     private final PersonsView personsView;
 
+    ComponentProvider(final GenericViewContext viewContext)
+    {
+        sampleBrowser = new SampleBrowser(viewContext);
+        dummyComponent = new DummyComponent();
+        groupsView = new GroupsView(viewContext);
+        rolesView = new RolesView(viewContext);
+        personsView = new PersonsView(viewContext);
+    }
+
     public SampleBrowser getSampleBrowser()
     {
         return sampleBrowser;
@@ -43,15 +56,6 @@ class ComponentProvider
     public DummyComponent getDummyComponent()
     {
         return dummyComponent;
-    }
-
-    public ComponentProvider(final GenericViewContext viewContext)
-    {
-        sampleBrowser = new SampleBrowser(viewContext);
-        dummyComponent = new DummyComponent();
-        groupsView = new GroupsView(viewContext);
-        rolesView = new RolesView(viewContext);
-        personsView = new PersonsView(viewContext);
     }
 
     public GroupsView getGroupsView()
