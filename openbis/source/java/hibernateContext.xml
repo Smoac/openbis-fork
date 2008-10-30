@@ -80,7 +80,7 @@
                 <prop key="hibernate.search.default.directory_provider">
                     org.hibernate.search.store.FSDirectoryProvider
                 </prop>
-                <prop key="hibernate.search.default.indexBase">./indexes</prop>
+                <prop key="hibernate.search.default.indexBase">${hibernate.search.index.base}</prop>
                 <!--   
                     <prop key="hibernate.show_sql">true</prop>
                     <prop key="hibernate.format_sql">true</prop>
