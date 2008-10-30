@@ -19,54 +19,38 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
+
 /**
- * Main application controller.
+ * The {@link Controller} extension for logging events.
  * 
- * @author Izabela Adamczyk
+ * @author Christian Ribeaud
  */
-public class AppController extends Controller
+public final class LoginController extends Controller
 {
-    private AppView appView;
+    private final LoginView loginView;
 
-    private final GenericViewContext viewContext;
-
-    public AppController(final GenericViewContext viewContext)
+    LoginController(final IViewContext<IGenericClientServiceAsync> viewContext)
     {
-        this.viewContext = viewContext;
-        registerEventTypes(AppEvents.INIT);
-        registerEventTypes(AppEvents.NAVI_EVENT);
+        registerEventTypes(AppEvents.LOGIN);
+        loginView = new LoginView(this, viewContext);
     }
 
+    //
+    // Controller
+    //
+
     @Override
-    public void handleEvent(final AppEvent<?> event)
+    public final void handleEvent(final AppEvent<?> event)
     {
-        switch (event.type)
+        final int type = event.type;
+        switch (type)
         {
-            case AppEvents.INIT:
-                onInit(event);
-                break;
-            case AppEvents.NAVI_EVENT:
-                onLeftMenuSelectionChanged(event);
+            case AppEvents.LOGIN:
+                forwardToView(loginView, event);
                 break;
             default:
                 throw new IllegalArgumentException("Unknow event '" + event + "'.");
         }
     }
-
-    private void onLeftMenuSelectionChanged(final AppEvent<?> event)
-    {
-        forwardToView(appView, event);
-    }
-
-    @Override
-    public void initialize()
-    {
-        appView = new AppView(this, viewContext);
-    }
-
-    private void onInit(final AppEvent<?> event)
-    {
-        forwardToView(appView, event);
-    }
-
 }

@@ -19,9 +19,10 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 import com.google.gwt.junit.client.GWTTestCase;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Client;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 
 /**
@@ -53,7 +54,7 @@ public abstract class AbstractGWTTestCase extends GWTTestCase
      * Delays test termination until the specified timeout (in milliseconds). Wrapper of
      * {@link #delayTestFinish(int)}. Will be used in {@link RemoteConsole}.
      */
-    void delayTestTermination(int timeoutMillis)
+    void delayTestTermination(final int timeoutMillis)
     {
         delayTestFinish(timeoutMillis);
     }
@@ -77,16 +78,16 @@ public abstract class AbstractGWTTestCase extends GWTTestCase
     {
         remoteConsole.cancelTimer();
         AbstractAsyncCallback.setAllCallbackObjectsSilent();
-        GenericViewContext viewContext = client.tryToGetViewContext();
+        final IViewContext<IGenericClientServiceAsync> viewContext = client.tryToGetViewContext();
         if (viewContext != null)
         {
             viewContext.getService().logout(new AsyncCallback<Void>()
                 {
-                    public void onSuccess(Void result)
+                    public void onSuccess(final Void result)
                     {
                     }
 
-                    public void onFailure(Throwable caught)
+                    public void onFailure(final Throwable caught)
                     {
                         System.out.println("LOGOUT FAILED: " + caught);
                     }

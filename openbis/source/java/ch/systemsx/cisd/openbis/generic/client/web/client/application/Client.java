@@ -21,6 +21,7 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
@@ -28,19 +29,21 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 
 /**
+ * The {@link EntryPoint} implementation.
+ * 
  * @author Franz-Josef Elmer
  * @author Izabela Adamczyk
  */
-public class Client implements EntryPoint
+public final class Client implements EntryPoint
 {
-    private GenericViewContext viewContext;
+    private IViewContext<IGenericClientServiceAsync> viewContext;
 
-    public final GenericViewContext tryToGetViewContext()
+    public final IViewContext<IGenericClientServiceAsync> tryToGetViewContext()
     {
         return viewContext;
     }
 
-    private GenericViewContext createViewContext()
+    private final IViewContext<IGenericClientServiceAsync> createViewContext()
     {
         final IGenericClientServiceAsync service = GWT.create(IGenericClientService.class);
         final ServiceDefTarget endpoint = (ServiceDefTarget) service;
@@ -67,16 +70,21 @@ public class Client implements EntryPoint
         if (viewContext == null)
         {
             viewContext = createViewContext();
+            final Dispatcher dispatcher = Dispatcher.get();
+            dispatcher.addController(new LoginController(viewContext));
+            dispatcher.addController(new AppController((GenericViewContext) viewContext));
         }
 
-        Dispatcher dispatcher = Dispatcher.get();
-        dispatcher.addController(new AppController(viewContext));
-
-        final IGenericClientServiceAsync service = viewContext.getService();
+        final IClientServiceAsync service = viewContext.getService();
         service.getApplicationInfo(new AbstractAsyncCallback<ApplicationInfo>(viewContext)
             {
+
+                //
+                // AbstractAsyncCallback
+                //
+
                 @Override
-                public void process(final ApplicationInfo info)
+                public final void process(final ApplicationInfo info)
                 {
                     viewContext.getModel().setApplicationInfo(info);
                     service.tryToGetCurrentSessionContext(new SessionContextCallback(

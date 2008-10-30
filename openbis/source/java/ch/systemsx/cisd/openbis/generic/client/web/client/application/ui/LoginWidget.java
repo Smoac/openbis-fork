@@ -29,9 +29,10 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
@@ -62,10 +63,10 @@ public class LoginWidget extends VerticalPanel
 
     private final FormPanel formPanel;
 
-    public LoginWidget(final GenericViewContext viewContext)
+    public LoginWidget(final IViewContext<IGenericClientServiceAsync> viewContext)
     {
         setSpacing(10);
-        add(new Text(viewContext.getMessage(PREFIX + "invitation")));
+        add(new Text(viewContext.getMessageProvider().getMessage(PREFIX + "invitation")));
         formPanel = createFormPanel();
         userField = createUserField(viewContext);
         formPanel.add(userField);
@@ -88,10 +89,11 @@ public class LoginWidget extends VerticalPanel
         return formPanel;
     }
 
-    private final TextField<String> createUserField(final GenericViewContext viewContext)
+    private final TextField<String> createUserField(
+            final IViewContext<IGenericClientServiceAsync> viewContext)
     {
         final TextField<String> field = new TextField<String>();
-        field.setFieldLabel(viewContext.getMessage(PREFIX + "userLabel"));
+        field.setFieldLabel(viewContext.getMessageProvider().getMessage(PREFIX + "userLabel"));
         field.setSelectOnFocus(true);
         field.setAllowBlank(false);
         field.setValidateOnBlur(true);
@@ -102,7 +104,7 @@ public class LoginWidget extends VerticalPanel
     }
 
     private final void addEnterKeyListener(final Field<String> field,
-            final GenericViewContext viewContext)
+            final IViewContext<IGenericClientServiceAsync> viewContext)
     {
         field.addKeyListener(new EnterKeyListener()
             {
@@ -115,21 +117,23 @@ public class LoginWidget extends VerticalPanel
             });
     }
 
-    private final TextField<String> createPasswordField(final GenericViewContext viewContext)
+    private final TextField<String> createPasswordField(
+            final IViewContext<IGenericClientServiceAsync> viewContext)
     {
         final TextField<String> field = new TextField<String>();
         field.setPassword(true);
         field.setAllowBlank(false);
-        field.setFieldLabel(viewContext.getMessage(PREFIX + "passwordLabel"));
+        field.setFieldLabel(viewContext.getMessageProvider().getMessage(PREFIX + "passwordLabel"));
         field.setId(PASSWORD_FIELD_ID);
         field.setValidateOnBlur(true);
         addEnterKeyListener(field, viewContext);
         return field;
     }
 
-    private final Button createButton(final GenericViewContext viewContext)
+    private final Button createButton(final IViewContext<IGenericClientServiceAsync> viewContext)
     {
-        final Button b = new Button(viewContext.getMessage(PREFIX + "buttonLabel"));
+        final Button b =
+                new Button(viewContext.getMessageProvider().getMessage(PREFIX + "buttonLabel"));
         b.setId(BUTTON_ID);
         b.addSelectionListener(new SelectionListener<ComponentEvent>()
             {
@@ -147,7 +151,7 @@ public class LoginWidget extends VerticalPanel
         return b;
     }
 
-    private final void doLogin(final GenericViewContext viewContext)
+    private final void doLogin(final IViewContext<IGenericClientServiceAsync> viewContext)
     {
         if (GWTUtils.isTesting() || formPanel.isValid())
         {
@@ -164,7 +168,7 @@ public class LoginWidget extends VerticalPanel
 
     public static final class LoginCallback extends AbstractAsyncCallback<SessionContext>
     {
-        private LoginCallback(final GenericViewContext viewContext)
+        private LoginCallback(final IViewContext<IGenericClientServiceAsync> viewContext)
         {
             super(viewContext);
         }

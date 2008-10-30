@@ -34,16 +34,21 @@ public final class SessionContextCallback extends AbstractAsyncCallback<SessionC
         super(viewContext);
     }
 
+    //
+    // AbstractAsyncCallback
+    //
+
     @Override
-    public void process(final SessionContext sessionContext)
+    public final void process(final SessionContext sessionContext)
     {
+        final Dispatcher dispatcher = Dispatcher.get();
         if (sessionContext == null)
         {
-            Dispatcher.get().dispatch(AppEvents.USER_NOT_LOGGED_IN);
+            dispatcher.dispatch(AppEvents.LOGIN);
         } else
         {
             viewContext.getModel().setSessionContext(sessionContext);
-            Dispatcher.get().dispatch(AppEvents.INIT);
+            dispatcher.dispatch(AppEvents.INIT);
         }
     }
 }

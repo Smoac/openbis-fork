@@ -155,13 +155,28 @@ public abstract class AbstractClientService implements IClientService
             }
             final HttpSession httpSession = creatHttpSession();
             // Expiration time of httpSession is 10 seconds less than of session
-            httpSession.setMaxInactiveInterval(session.getSessionExpirationTime() / 1000 - 10);
+            final int sessionExpirationTimeInMillis = session.getSessionExpirationTime();
+            final int sessionExpirationTimeInSeconds = sessionExpirationTimeInMillis / 1000;
+            if (sessionExpirationTimeInMillis < 0)
+            {
+                httpSession.setMaxInactiveInterval(-1);
+            } else if (sessionExpirationTimeInMillis < 1000 || sessionExpirationTimeInSeconds < 10)
+            {
+                httpSession.setMaxInactiveInterval(0);
+            } else
+            {
+                httpSession.setMaxInactiveInterval(sessionExpirationTimeInSeconds - 10);
+            }
             httpSession.setAttribute(SessionConstants.OPENBIS_SESSION_ATTRIBUTE_KEY, session);
             httpSession.setAttribute(SessionConstants.OPENBIS_SERVER_ATTRIBUTE_KEY, getServer());
             return createSessionContext(session);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
+        } catch (final IllegalStateException e)
+        {
+            operationLog.error("Session already invalidated.", e);
+            return null;
         }
     }
 

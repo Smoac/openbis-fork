@@ -25,7 +25,8 @@ import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.VerticalPanel;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 
 /**
  * The login page.
@@ -35,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericVie
 public class LoginPage extends LayoutContainer
 {
 
-    public LoginPage(final GenericViewContext viewContext)
+    public LoginPage(final IViewContext<IGenericClientServiceAsync> viewContext)
     {
         setStyleName("login-page");
         setLayout(new CenterLayout());
@@ -48,7 +49,8 @@ public class LoginPage extends LayoutContainer
         headerPanel.setSpacing(10);
         headerPanel.add(viewContext.getImageBundle().getLogo().createImage());
 
-        final Text welcomeLabel = new Text(viewContext.getMessage("welcome", new Date()));
+        final Text welcomeLabel =
+                new Text(viewContext.getMessageProvider().getMessage("welcome", new Date()));
         welcomeLabel.setStyleName("login-welcome-text");
 
         headerPanel.add(welcomeLabel);

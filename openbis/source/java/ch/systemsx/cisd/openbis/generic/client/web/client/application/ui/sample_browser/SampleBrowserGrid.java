@@ -89,8 +89,9 @@ public final class SampleBrowserGrid extends LayoutContainer
 
     private final PagingLoader<?> loader;
 
-    public SampleBrowserGrid(final GenericViewContext viewContext, CommonColumns commonColumns,
-            ParentColumns parentColumns, PropertyColumns propertyColumns)
+    public SampleBrowserGrid(final GenericViewContext viewContext,
+            final CommonColumns commonColumns, final ParentColumns parentColumns,
+            final PropertyColumns propertyColumns)
     {
         this.viewContext = viewContext;
         this.commonColumns = commonColumns;
@@ -134,7 +135,7 @@ public final class SampleBrowserGrid extends LayoutContainer
 
         if (propertyColumns.isDirty())
         {
-            List<Sample> currentSamples = extractSamplesFromModel(previousModelsOrNull);
+            final List<Sample> currentSamples = extractSamplesFromModel(previousModelsOrNull);
             if (currentSamples.size() > 0)
             {
                 viewContext.getService().listSamplesProperties(newConfiguration.getCriterias(),
@@ -149,20 +150,20 @@ public final class SampleBrowserGrid extends LayoutContainer
 
     private List<Sample> extractSamplesFromModel(final List<SampleModel> modelList)
     {
-        List<Sample> samples = new ArrayList<Sample>();
-        for (SampleModel model : modelList)
+        final List<Sample> samples = new ArrayList<Sample>();
+        for (final SampleModel model : modelList)
         {
             samples.add((Sample) model.get(ModelDataPropertyNames.OBJECT));
         }
         return samples;
     }
 
-    protected void removeUnnecessarySamples(List<SampleModel> models)
+    protected void removeUnnecessarySamples(final List<SampleModel> models)
     {
-        Iterator<SampleModel> iterator = models.iterator();
+        final Iterator<SampleModel> iterator = models.iterator();
         while (iterator.hasNext())
         {
-            SampleModel next = iterator.next();
+            final SampleModel next = iterator.next();
             final Boolean isGroupLevelSample =
                     (Boolean) next.get(ModelDataPropertyNames.IS_GROUP_SAMPLE);
             final boolean isInstanceLevelSample = isGroupLevelSample == false;
@@ -301,7 +302,7 @@ public final class SampleBrowserGrid extends LayoutContainer
         {
             for (final Sample sample : samples)
             {
-                long sampleId = sample.getId();
+                final long sampleId = sample.getId();
                 List<SampleProperty> props = sample.getProperties();
                 if (props == null)
                 {
@@ -328,8 +329,12 @@ public final class SampleBrowserGrid extends LayoutContainer
             this.delegate = delegate;
         }
 
+        //
+        // AbstractAsyncCallback
+        //
+
         @Override
-        protected void finishOnFailure(final Throwable caught)
+        protected final void finishOnFailure(final Throwable caught)
         {
             delegate.onFailure(caught);
         }
@@ -350,8 +355,12 @@ public final class SampleBrowserGrid extends LayoutContainer
             {
                 private List<SampleModel> samples = null;
 
+                //
+                // RpcProxy
+                //
+
                 @Override
-                public void load(final PagingLoadConfig loadConfig,
+                public final void load(final PagingLoadConfig loadConfig,
                         final AsyncCallback<PagingLoadResult<SampleModel>> callback)
                 {
                     loadSamples(samples, createPageCallbackDelegator(loadConfig, callback));
@@ -361,20 +370,27 @@ public final class SampleBrowserGrid extends LayoutContainer
                         final PagingLoadConfig loadConfig,
                         final AsyncCallback<PagingLoadResult<SampleModel>> callback)
                 {
-                    return new AsyncCallback<List<SampleModel>>()
+                    return new AbstractAsyncCallback<List<SampleModel>>(viewContext)
                         {
-                            public void onFailure(Throwable caught)
-                            {
-                                callback.onFailure(caught);
-                            }
 
-                            public void onSuccess(List<SampleModel> result)
+                            //
+                            // AbstractAsyncCallback
+                            //
+
+                            @Override
+                            protected final void process(final List<SampleModel> result)
                             {
                                 samples = result;
                                 sort(samples, loadConfig);
-                                PagingLoadResult<SampleModel> pagingLoadResult =
+                                final PagingLoadResult<SampleModel> pagingLoadResult =
                                         getSublist(samples, loadConfig);
                                 callback.onSuccess(pagingLoadResult);
+                            }
+
+                            @Override
+                            protected final void finishOnFailure(final Throwable caught)
+                            {
+                                // callback.onFailure(caught);
                             }
                         };
                 }
@@ -383,14 +399,14 @@ public final class SampleBrowserGrid extends LayoutContainer
 
     private PagingLoader<?> createSampleLoader()
     {
-        RpcProxy<PagingLoadConfig, PagingLoadResult<SampleModel>> proxy = createSampleProxy();
-        BasePagingLoader<PagingLoadConfig, PagingLoadResult<SampleModel>> pagingLoader =
+        final RpcProxy<PagingLoadConfig, PagingLoadResult<SampleModel>> proxy = createSampleProxy();
+        final BasePagingLoader<PagingLoadConfig, PagingLoadResult<SampleModel>> pagingLoader =
                 new BasePagingLoader<PagingLoadConfig, PagingLoadResult<SampleModel>>(proxy);
         pagingLoader.setRemoteSort(true);
         return pagingLoader;
     }
 
-    private static void sort(List<SampleModel> samples, final PagingLoadConfig config)
+    private static void sort(final List<SampleModel> samples, final PagingLoadConfig config)
     {
         if (config.getSortInfo().getSortField() != null)
         {
@@ -400,7 +416,7 @@ public final class SampleBrowserGrid extends LayoutContainer
                 Collections.sort(samples, config.getSortInfo().getSortDir().comparator(
                         new Comparator<SampleModel>()
                             {
-                                public int compare(SampleModel p1, SampleModel p2)
+                                public int compare(final SampleModel p1, final SampleModel p2)
                                 {
                                     return p1.get(sortField, "").compareTo(p2.get(sortField, ""));
                                 }
@@ -409,10 +425,11 @@ public final class SampleBrowserGrid extends LayoutContainer
         }
     }
 
-    private static <T> PagingLoadResult<T> getSublist(List<T> samples, final PagingLoadConfig config)
+    private static <T> PagingLoadResult<T> getSublist(final List<T> samples,
+            final PagingLoadConfig config)
     {
-        ArrayList<T> sublist = new ArrayList<T>();
-        int start = config.getOffset();
+        final ArrayList<T> sublist = new ArrayList<T>();
+        final int start = config.getOffset();
         int limit = samples.size();
         if (config.getLimit() > 0)
         {
@@ -427,7 +444,7 @@ public final class SampleBrowserGrid extends LayoutContainer
 
     private void updateLoadedPropertyColumns()
     {
-        for (LoadableColumnConfig cc : propertyColumns.getColumns())
+        for (final LoadableColumnConfig cc : propertyColumns.getColumns())
         {
             if (cc.isDirty())
             {

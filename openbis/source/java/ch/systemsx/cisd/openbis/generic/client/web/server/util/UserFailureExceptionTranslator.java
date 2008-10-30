@@ -50,7 +50,7 @@ public class UserFailureExceptionTranslator
             ch.systemsx.cisd.common.exceptions.UserFailureException exception)
     {
         final String className =
-                WEB_CLIENT_EXCEPTIONS_PACKAGE + exception.getClass().getSimpleName();
+                WEB_CLIENT_EXCEPTIONS_PACKAGE + "." + exception.getClass().getSimpleName();
         String message = exception.getMessage();
         try
         {

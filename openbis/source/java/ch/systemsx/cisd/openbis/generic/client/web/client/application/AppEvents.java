@@ -43,7 +43,7 @@ public class AppEvents
 
     public final static int INIT = STARTING_VALUE + 20;
 
-    public final static int USER_NOT_LOGGED_IN = STARTING_VALUE + 30;
+    public final static int LOGIN = STARTING_VALUE + 30;
 
     protected static final int NAVI_EVENT = STARTING_VALUE + 40;
 }

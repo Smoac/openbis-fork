@@ -21,10 +21,11 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.google.gwt.user.client.ui.RootPanel;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoginPage;
 
 /**
- * Responsible for creating login page and displaying it.
+ * The {@link View} extension for logging.
  * 
  * @author Izabela Adamczyk
  */
@@ -32,35 +33,40 @@ public class LoginView extends View
 {
     private LoginPage loginPage;
 
-    private final GenericViewContext viewContext;
+    private final IViewContext<IGenericClientServiceAsync> viewContext;
 
-    public LoginView(final Controller controller, final GenericViewContext viewContext2)
+    public LoginView(final Controller controller,
+            final IViewContext<IGenericClientServiceAsync> viewContext)
     {
         super(controller);
-        viewContext = viewContext2;
-    }
-
-    @Override
-    protected void initialize()
-    {
-        loginPage = new LoginPage(viewContext);
-    }
-
-    @Override
-    protected void handleEvent(final AppEvent<?> event)
-    {
-        switch (event.type)
-        {
-            case AppEvents.USER_NOT_LOGGED_IN:
-                initUI();
-                break;
-        }
+        this.viewContext = viewContext;
     }
 
     private void initUI()
     {
         RootPanel.get().clear();
         RootPanel.get().add(loginPage);
+    }
+
+    //
+    // View
+    //
+
+    @Override
+    protected final void initialize()
+    {
+        loginPage = new LoginPage(viewContext);
+    }
+
+    @Override
+    protected final void handleEvent(final AppEvent<?> event)
+    {
+        switch (event.type)
+        {
+            case AppEvents.LOGIN:
+                initUI();
+                break;
+        }
     }
 
 }
