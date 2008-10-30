@@ -42,6 +42,11 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.search.annotations.DocumentId;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
@@ -60,6 +65,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 @Table(name = TableNames.EXPERIMENTS_TABLE, uniqueConstraints =
     { @UniqueConstraint(columnNames =
         { ColumnNames.CODE_COLUMN, ColumnNames.PROJECT_COLUMN }) })
+@Indexed
 public class ExperimentPE extends HibernateAbstractRegistrationHolder implements
         IEntityPropertiesHolder<ExperimentPropertyPE>, IIdAndCodeHolder, Comparable<ExperimentPE>
 {
@@ -103,6 +109,7 @@ public class ExperimentPE extends HibernateAbstractRegistrationHolder implements
     @Id
     @SequenceGenerator(name = SequenceNames.EXPERIMENT_SEQUENCE, sequenceName = SequenceNames.EXPERIMENT_SEQUENCE, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.EXPERIMENT_SEQUENCE)
+    @DocumentId
     public Long getId()
     {
         return id;
@@ -117,6 +124,7 @@ public class ExperimentPE extends HibernateAbstractRegistrationHolder implements
     @Length(min = 1, max = 40, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
     @Pattern(regex = AbstractIdAndCodeHolder.CODE_PATTERN, flags = java.util.regex.Pattern.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
+    @Field(index = Index.UN_TOKENIZED, store = Store.YES)
     public String getCode()
     {
         return code;
@@ -218,7 +226,7 @@ public class ExperimentPE extends HibernateAbstractRegistrationHolder implements
         property.setEntity(this);
         getExperimentProperties().add(property);
     }
-    
+
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "parent")
     @Private
     public List<AttachmentPE> getExperimentAttachments()

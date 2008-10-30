@@ -6,11 +6,11 @@
 			http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
 			http://www.springframework.org/schema/tx
 			http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
-    
+
     <!--
         // Hibernate
     -->
-    
+
     <bean id="hibernate-session-factory"
         class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean"
         depends-on="sql-script-provider">
@@ -77,10 +77,11 @@
                 <prop key="hibernate.cache.provider_class">
                     org.hibernate.cache.EhCacheProvider
                 </prop>
+                <prop key="hibernate.search.default.directory_provider">
+                    org.hibernate.search.store.FSDirectoryProvider
+                </prop>
+                <prop key="hibernate.search.default.indexBase">./indexes</prop>
                 <!--   
-                    <prop key="hibernate.search.default.indexBase">./indexes</prop> 
-                    <prop key="hibernate.search.default.directory_provider">org.hibernate.search.store.FSDirectoryProvider</prop>
-                    
                     <prop key="hibernate.show_sql">true</prop>
                     <prop key="hibernate.format_sql">true</prop>
                     <prop key="hibernate.use_sql_comments">true</prop>

@@ -267,9 +267,6 @@
             <lib dir="${gwt.lib}">
                 <include name="gwt-servlet.jar" />
             </lib>
-            <lib dir="${lib}/hibernate-search">
-                <include name="jms.jar" />
-            </lib>
             <!-- Database -->
             <lib dir="${lib}/postgresql">
                 <include name="postgresql.jar" />
@@ -320,6 +317,10 @@
             <lib dir="${lib}/slf4j/log4j12">
                 <include name="*.jar" />
                 <exclude name="src.jar" />
+            </lib>
+            <!-- Hibernate Search -->
+            <lib dir="${lib}/hibernate-search">
+                <include name="*.jar" />
             </lib>
         </war>
         <!-- Does some cleaning. -->

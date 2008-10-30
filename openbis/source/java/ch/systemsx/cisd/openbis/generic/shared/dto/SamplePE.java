@@ -42,6 +42,11 @@ import org.hibernate.Hibernate;
 import org.hibernate.annotations.Check;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.hibernate.search.annotations.DocumentId;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
@@ -62,6 +67,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 @Check(constraints = "(" + ColumnNames.DATABASE_INSTANCE_COLUMN + " IS NOT NULL AND "
         + ColumnNames.GROUP_COLUMN + " IS NULL) OR (" + ColumnNames.DATABASE_INSTANCE_COLUMN
         + " IS NULL AND " + ColumnNames.GROUP_COLUMN + " IS NOT NULL)")
+@Indexed
 public class SamplePE extends HibernateAbstractRegistrationHolder implements IIdAndCodeHolder,
         Comparable<SamplePE>, IEntityPropertiesHolder<SamplePropertyPE>
 {
@@ -293,6 +299,7 @@ public class SamplePE extends HibernateAbstractRegistrationHolder implements IId
     @SequenceGenerator(name = SequenceNames.SAMPLE_SEQUENCE, sequenceName = SequenceNames.SAMPLE_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.SAMPLE_SEQUENCE)
+    @DocumentId
     public final Long getId()
     {
         return id;
@@ -301,6 +308,7 @@ public class SamplePE extends HibernateAbstractRegistrationHolder implements IId
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
     @Length(min = 1, max = 40, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @Pattern(regex = AbstractIdAndCodeHolder.CODE_PATTERN, flags = java.util.regex.Pattern.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
+    @Field(index = Index.UN_TOKENIZED, store = Store.YES)
     public String getCode()
     {
         return code;
