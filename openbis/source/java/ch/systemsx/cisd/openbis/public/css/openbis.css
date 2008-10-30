@@ -54,12 +54,12 @@ body,div,td {
 
 /* TopMenu */
 
-#header-user-info {
+.header-user-info {
     font-weight: lighter;
     color: black;
 }
 
-#header-title {
+.header-title {
     font-weight: lighter;
     font-size: large;
     margin-left: 1em;
