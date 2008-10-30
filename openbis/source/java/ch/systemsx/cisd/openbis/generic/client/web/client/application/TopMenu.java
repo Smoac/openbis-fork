@@ -32,6 +32,8 @@ import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.User;
@@ -48,24 +50,68 @@ public class TopMenu extends LayoutContainer
 
     private final DummyComponent dummyComponent;
 
-    public TopMenu(final GenericViewContext viewContext, DummyComponent dummyComponent)
+    private final ToolBar toolBar;
+
+    private final GenericViewContext viewContext;
+
+    public TopMenu(final GenericViewContext viewContext, final DummyComponent dummyComponent)
     {
+        this.viewContext = viewContext;
         this.dummyComponent = dummyComponent;
         setLayout(new FlowLayout());
         setBorders(true);
-        final ToolBar toolBar = new ToolBar();
-        toolBar.add(new AdapterToolItem(new Html("<div id=header-title>OpenBIS</div>")));
+        toolBar = new ToolBar();
+        add(toolBar);
+    }
+
+    void refresh()
+    {
+        toolBar.removeAll();
+        toolBar.add(new AdapterToolItem(createTitleHeader()));
 
         toolBar.add(new AdapterToolItem(new DomainChooser()));
         toolBar.add(new AdapterToolItem(createSearchQueryField()));
         toolBar.add(new AdapterToolItem(createSearchButton()));
 
         toolBar.add(new FillToolItem());
-        toolBar.add(new AdapterToolItem(new Html("<div id=header-user-info>"
-                + createUserInfo(viewContext) + "</div>")));
+        toolBar.add(new AdapterToolItem(userInfo()));
         toolBar.add(new SeparatorToolItem());
         toolBar.add(new LogoutButton(viewContext));
-        add(toolBar);
+    }
+
+    @Override
+    protected void onRender(final Element parent, final int pos)
+    {
+        super.onRender(parent, pos);
+        refresh();
+    }
+
+    private Html userInfo()
+    {
+        final SessionContext sessionContext = viewContext.getModel().getSessionContext();
+        final User user = sessionContext.getUser();
+        final String userName = user.getUserName();
+        final String homeGroup = user.getHomeGroupCode();
+        String fullInfo;
+        if (homeGroup == null)
+        {
+            fullInfo = viewContext.getMessage("header_userWithoutHomegroup", userName);
+        } else
+        {
+            fullInfo = viewContext.getMessage("header_userWithHomegroup", userName, homeGroup);
+        }
+        final Element div = DOM.createDiv();
+        div.setClassName("header-user-info");
+        div.setInnerText(fullInfo);
+        return new Html(div.getString());
+    }
+
+    private Html createTitleHeader()
+    {
+        final Element titleHeader = DOM.createDiv();
+        titleHeader.setClassName("header-title");
+        titleHeader.setInnerText("OpenBIS");
+        return new Html(titleHeader.getString());
     }
 
     private Button createSearchButton()
@@ -75,7 +121,7 @@ public class TopMenu extends LayoutContainer
             {
 
                 @Override
-                public void componentSelected(ComponentEvent ce)
+                public void componentSelected(final ComponentEvent ce)
                 {
                     final AppEvent<ContentPanel> event =
                             new AppEvent<ContentPanel>(AppEvents.NAVI_EVENT);
@@ -105,19 +151,6 @@ public class TopMenu extends LayoutContainer
             setEditable(false);
             setValue(getStore().getAt(0));
         }
-    }
-
-    private String createUserInfo(final GenericViewContext viewContext)
-    {
-        final SessionContext sessionContext = viewContext.getModel().getSessionContext();
-        final User user = sessionContext.getUser();
-        final String userName = user.getUserName();
-        final String homeGroup = user.getHomeGroupCode();
-        if (homeGroup == null)
-        {
-            return viewContext.getMessage("header_userWithoutHomegroup", userName);
-        }
-        return viewContext.getMessage("header_userWithHomegroup", userName, homeGroup);
     }
 
     //

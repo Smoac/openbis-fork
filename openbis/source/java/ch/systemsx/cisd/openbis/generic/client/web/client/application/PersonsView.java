@@ -43,6 +43,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.PersonModel;
@@ -75,9 +76,9 @@ public class PersonsView extends ContentPanel
     }
 
     @Override
-    protected void onLoad()
+    protected void onRender(final Element parent, final int pos)
     {
-        super.onLoad();
+        super.onRender(parent, pos);
         refresh();
     }
 

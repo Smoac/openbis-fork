@@ -24,6 +24,7 @@ import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -114,9 +115,9 @@ class SampleTypeSelectionWidget extends ExtendedComboBox<SampleTypeModel>
     }
 
     @Override
-    protected void onLoad()
+    protected void onRender(final Element parent, final int pos)
     {
-        super.onLoad();
+        super.onRender(parent, pos);
         refresh();
     }
 

@@ -31,6 +31,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AppEvents;
@@ -285,9 +286,9 @@ class SampleBrowserToolbar extends ToolBar
     }
 
     @Override
-    protected void onLoad()
+    protected void onRender(final Element parent, final int pos)
     {
-        super.onLoad();
+        super.onRender(parent, pos);
         refresh();
     }
 

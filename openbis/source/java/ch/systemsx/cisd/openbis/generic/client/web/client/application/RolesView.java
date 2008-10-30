@@ -29,7 +29,6 @@ import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -40,6 +39,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.RoleModel;
@@ -74,9 +74,9 @@ public class RolesView extends ContentPanel
     }
 
     @Override
-    protected void onLoad()
+    protected void onRender(final Element parent, final int pos)
     {
-        super.onLoad();
+        super.onRender(parent, pos);
         refresh();
     }
 
@@ -216,8 +216,6 @@ public class RolesView extends ContentPanel
 
     public void refresh()
     {
-        removeAll();
-        add(new Text("data loading..."));
         viewContext.getService().listRoles(new ListRolesCallback(viewContext));
     }
 
