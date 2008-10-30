@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
@@ -44,67 +44,70 @@ class MainTabPanel extends TabPanel
     // child
     private MainTabItem createIntro()
     {
-        final ContentPanel cp = new ContentPanel();
-        cp.setHeading("&nbsp;");
-        cp.setLayout(new CenterLayout());
-        cp.setHeaderVisible(false);
+        final ContentPanel contentPanel = new ContentPanel();
+        contentPanel.setHeading("&nbsp;");
+        contentPanel.setLayout(new CenterLayout());
+        contentPanel.setHeaderVisible(false);
         final Element div = DOM.createDiv();
         div.setClassName("intro-tab");
         div.setInnerText("Welcome to OpenBIS");
-        cp.addText(div.getString());
-        final MainTabItem intro = new MainTabItem(cp);
+        contentPanel.addText(div.getString());
+        final MainTabItem intro = new MainTabItem(new ContentPanelAdapter(contentPanel));
         intro.setClosable(false);
         return intro;
     }
 
-    private MainTabItem tryGetTab(final ContentPanel c)
+    private final MainTabItem tryGetTab(final ITabItem tabItem)
     {
         for (final TabItem tab : getItems())
         {
             if (tab instanceof MainTabItem)
             {
-                final MainTabItem t = (MainTabItem) tab;
-                if (t.getComponent().getId().equals(c.getId()))
+                final MainTabItem mainTabItem = (MainTabItem) tab;
+                if (mainTabItem.getTabItem().getId().equals(tabItem.getComponent().getId()))
                 {
-                    return t;
+                    return mainTabItem;
                 }
             }
         }
         return null;
     }
 
-    public void openTab(final ContentPanel lc)
+    public final void openTab(final ITabItem tabItem)
     {
-        final MainTabItem tab = tryGetTab(lc);
+        final MainTabItem tab = tryGetTab(tabItem);
         if (tab != null)
         {
             setSelection(tab);
         } else
         {
-            final MainTabItem newTab = new MainTabItem(lc);
+            final MainTabItem newTab = new MainTabItem(tabItem);
             add(newTab);
             setSelection(newTab);
         }
     }
 
-    class MainTabItem extends TabItem
-    {
-        private final ContentPanel component;
+    //
+    // Helper classes
+    //
 
-        public MainTabItem(final ContentPanel component)
+    private final static class MainTabItem extends TabItem
+    {
+        private final ITabItem tabItem;
+
+        public MainTabItem(final ITabItem tabItem)
         {
-            this.component = component;
+            this.tabItem = tabItem;
             setClosable(true);
             setLayout(new FitLayout());
-            setText(component.getHeader() != null ? component.getHeader().getText() : component
-                    .getId());
+            setText(tabItem.getTitle());
             addStyleName("pad-text");
-            add(component);
+            add(getTabItem());
         }
 
-        LayoutContainer getComponent()
+        final Component getTabItem()
         {
-            return component;
+            return tabItem.getComponent();
         }
     }
 }

@@ -24,49 +24,41 @@ import com.extjs.gxt.ui.client.mvc.Controller;
  * 
  * @author Izabela Adamczyk
  */
-public class AppController extends Controller
+final class AppController extends Controller
 {
     private AppView appView;
 
     private final GenericViewContext viewContext;
 
-    public AppController(final GenericViewContext viewContext)
+    AppController(final GenericViewContext viewContext)
     {
         this.viewContext = viewContext;
         registerEventTypes(AppEvents.INIT);
         registerEventTypes(AppEvents.NAVI_EVENT);
     }
 
-    @Override
-    public void handleEvent(final AppEvent<?> event)
-    {
-        switch (event.type)
-        {
-            case AppEvents.INIT:
-                onInit(event);
-                break;
-            case AppEvents.NAVI_EVENT:
-                onLeftMenuSelectionChanged(event);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknow event '" + event + "'.");
-        }
-    }
-
-    private void onLeftMenuSelectionChanged(final AppEvent<?> event)
-    {
-        forwardToView(appView, event);
-    }
+    //
+    // Controller
+    //
 
     @Override
-    public void initialize()
+    public final void initialize()
     {
         appView = new AppView(this, viewContext);
     }
 
-    private void onInit(final AppEvent<?> event)
+    @Override
+    public final void handleEvent(final AppEvent<?> event)
     {
-        forwardToView(appView, event);
+        switch (event.type)
+        {
+            case AppEvents.INIT:
+            case AppEvents.NAVI_EVENT:
+                forwardToView(appView, event);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknow event '" + event + "'.");
+        }
     }
 
 }

@@ -32,9 +32,8 @@ import com.google.gwt.user.client.ui.RootPanel;
  * 
  * @author Izabela Adamczyk
  */
-public class AppView extends View
+final class AppView extends View
 {
-
     private final GenericViewContext viewContext;
 
     private Viewport viewport;
@@ -49,14 +48,75 @@ public class AppView extends View
 
     private CategoriesBuilder categoriesBuilder;
 
-    public AppView(final Controller controller, final GenericViewContext viewContext2)
+    public AppView(final Controller controller, final GenericViewContext viewContext)
     {
         super(controller);
-        viewContext = viewContext2;
+        this.viewContext = viewContext;
+    }
+
+    ITabItem getData(final AppEvent<?> event)
+    {
+        final Object data = event.getData(GenericConstants.ASSOCIATED_CONTENT_PANEL);
+        if (data instanceof ContentPanel)
+        {
+            return new ContentPanelAdapter((ContentPanel) data);
+        }
+        return (ITabItem) data;
+    }
+
+    private final void activateTab(final ITabItem tabItem)
+    {
+        center.openTab(tabItem);
+    }
+
+    private final void initUI()
+    {
+        viewport = new Viewport();
+        viewport.setLayout(new BorderLayout());
+        createNorth();
+        createWest();
+        createCenter();
+        RootPanel.get().clear();
+        RootPanel.get().add(viewport);
+    }
+
+    private final void createNorth()
+    {
+        north = new TopMenu(viewContext, componentProvider.getDummyComponent());
+        final BorderLayoutData data = new BorderLayoutData(LayoutRegion.NORTH, 30);
+        data.setMargins(new Margins());
+        viewport.add(north, data);
+    }
+
+    private final void createWest()
+    {
+        west = new LeftMenu(categoriesBuilder.getCategories());
+        final BorderLayoutData data = new BorderLayoutData(LayoutRegion.WEST, 200, 150, 350);
+        data.setMargins(new Margins(5, 0, 5, 5));
+        viewport.add(west, data);
+    }
+
+    private final void createCenter()
+    {
+        center = new MainTabPanel();
+        final BorderLayoutData data = new BorderLayoutData(LayoutRegion.CENTER);
+        data.setMargins(new Margins(5, 5, 5, 5));
+        viewport.add(center, data);
+    }
+
+    //
+    // View
+    //
+
+    @Override
+    protected final void initialize()
+    {
+        componentProvider = new ComponentProvider(viewContext);
+        categoriesBuilder = new CategoriesBuilder(componentProvider);
     }
 
     @Override
-    protected void handleEvent(final AppEvent<?> event)
+    protected final void handleEvent(final AppEvent<?> event)
     {
         switch (event.type)
         {
@@ -69,73 +129,4 @@ public class AppView extends View
                 break;
         }
     }
-
-    ContentPanel getData(final AppEvent<?> event)
-    {
-        final Object data = event.getData(GenericConstants.ASSOCIATED_CONTENT_PANEL);
-        if (data instanceof ContentPanel)
-        {
-            return (ContentPanel) data;
-        } else
-        {
-            throw new IllegalArgumentException("Incorrect event data");
-        }
-    }
-
-    private void activateTab(final ContentPanel c)
-    {
-        center.openTab(c);
-    }
-
-    @Override
-    protected void initialize()
-    {
-        componentProvider = new ComponentProvider(viewContext);
-        categoriesBuilder = new CategoriesBuilder(componentProvider);
-    }
-
-    private void initUI()
-    {
-
-        viewport = new Viewport();
-        viewport.setLayout(new BorderLayout());
-
-        createNorth();
-        createWest();
-        createCenter();
-
-        RootPanel.get().clear();
-        RootPanel.get().add(viewport);
-    }
-
-    private void createNorth()
-    {
-        north = new TopMenu(viewContext, componentProvider.getDummyComponent());
-
-        final BorderLayoutData data = new BorderLayoutData(LayoutRegion.NORTH, 30);
-        data.setMargins(new Margins());
-
-        viewport.add(north, data);
-    }
-
-    private void createWest()
-    {
-        west = new LeftMenu(categoriesBuilder.getCategories());
-
-        final BorderLayoutData data = new BorderLayoutData(LayoutRegion.WEST, 200, 150, 350);
-        data.setMargins(new Margins(5, 0, 5, 5));
-
-        viewport.add(west, data);
-    }
-
-    private void createCenter()
-    {
-        center = new MainTabPanel();
-
-        final BorderLayoutData data = new BorderLayoutData(LayoutRegion.CENTER);
-        data.setMargins(new Margins(5, 5, 5, 5));
-
-        viewport.add(center, data);
-    }
-
 }
