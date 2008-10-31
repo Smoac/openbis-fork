@@ -19,16 +19,13 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application;
 import java.util.Collections;
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ISampleViewClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.SampleTypeCode;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 
@@ -89,33 +86,24 @@ public final class ClientPluginFactory extends
         // ISampleViewClientPlugin
         //
 
-        public final void viewSample(final String sampleIdentifier)
+        public final ITabItem createSampleViewer(final String sampleIdentifier)
         {
             final IViewContext<IScreeningClientServiceAsync> viewContext = getViewContext();
-            viewContext.getService().getSampleInfo(sampleIdentifier,
-                    new SampleInfoCallback(viewContext));
-        }
+            final ScreeningSampleViewer sampleViewer = new ScreeningSampleViewer(viewContext,
+                    sampleIdentifier);
+            return new DefaultTabItem(sampleIdentifier, sampleViewer)
+                {
 
-    }
+                    //
+                    // DefaultTabItem
+                    //
 
-    private final static class SampleInfoCallback extends AbstractAsyncCallback<SampleGeneration>
-    {
-        private SampleInfoCallback(final IViewContext<IScreeningClientServiceAsync> viewContext)
-        {
-            super(viewContext);
-        }
-
-        //
-        // AbstractAsyncCallback
-        //
-
-        @Override
-        protected final void process(final SampleGeneration result)
-        {
-            final String title = result.getGenerator().getCode();
-            final ScreeningSampleViewer sampleViewer =
-                    new ScreeningSampleViewer(viewContext.getMessageProvider(), result);
-            Dispatcher.get().dispatch(DispatcherHelper.createNaviEvent(title, sampleViewer));
+                    @Override
+                    public final void initialize()
+                    {
+                        sampleViewer.loadSampleInfo();
+                    }
+                };
         }
     }
 }

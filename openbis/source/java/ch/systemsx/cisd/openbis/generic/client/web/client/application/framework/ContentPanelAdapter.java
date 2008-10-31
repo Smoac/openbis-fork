@@ -54,7 +54,7 @@ public final class ContentPanelAdapter implements ITabItem
         return contentPanel.getId();
     }
 
-    public final void afterAddTabItem()
+    public final void initialize()
     {
         // Does nothing.
     }

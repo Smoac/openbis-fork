@@ -80,6 +80,13 @@ class MainTabPanel extends TabPanel
         return null;
     }
 
+    /**
+     * Set the currently selected tab to the given <i>tabItem</i>.
+     * <p>
+     * If the tab could not be found (meaning that it has not been created yet), then a new tab will
+     * be generated out of given {@link ITabItem}.
+     * </p>
+     */
     public final void openTab(final ITabItem tabItem)
     {
         final MainTabItem tab = tryGetTab(tabItem);
@@ -88,10 +95,10 @@ class MainTabPanel extends TabPanel
             setSelection(tab);
         } else
         {
+            tabItem.initialize();
             final MainTabItem newTab = new MainTabItem(tabItem);
             add(newTab);
             setSelection(newTab);
-            tabItem.afterAddTabItem();
         }
     }
 

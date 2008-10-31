@@ -61,7 +61,7 @@ public class DefaultTabItem implements ITabItem
         return getComponent().getId();
     }
 
-    public void afterAddTabItem()
+    public void initialize()
     {
         // Does nothing.
     }

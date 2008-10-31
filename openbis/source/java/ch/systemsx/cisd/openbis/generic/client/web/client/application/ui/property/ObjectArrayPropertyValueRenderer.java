@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  * 
  * @author Christian Ribeaud
  */
-public class ObjectArrayPropertyValueRenderer<T> extends AbstractPropertyValueRenderer<T[]>
+public final class ObjectArrayPropertyValueRenderer<T> extends AbstractPropertyValueRenderer<T[]>
 {
     private final IPropertyValueRenderer<T> propertyValueRenderer;
 

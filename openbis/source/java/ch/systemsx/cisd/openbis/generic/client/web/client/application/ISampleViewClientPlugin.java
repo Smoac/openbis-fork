@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
+
 /**
  * The sample view plugin.
  * 
@@ -26,6 +28,7 @@ public interface ISampleViewClientPlugin
 
     /**
      * Shows a detailed view of the sample identifier by given <var>sampleIdentifier</var>.
+     * @return TODO
      */
-    public void viewSample(final String sampleIdentifier);
+    public ITabItem createSampleViewer(final String sampleIdentifier);
 }

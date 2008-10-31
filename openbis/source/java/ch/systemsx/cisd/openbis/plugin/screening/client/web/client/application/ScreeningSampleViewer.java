@@ -22,8 +22,11 @@ import java.util.Map;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.ObjectArrayPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
@@ -32,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 
 /**
  * The <i>screening</i> sample viewer.
@@ -44,17 +48,16 @@ public final class ScreeningSampleViewer extends LayoutContainer
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
-    private final SampleGeneration sampleGeneration;
+    private final IViewContext<IScreeningClientServiceAsync> viewContext;
 
-    private final IMessageProvider messageProvider;
+    private final String sampleIdentifier;
 
-    public ScreeningSampleViewer(final IMessageProvider messageProvider,
-            final SampleGeneration sampleGeneration)
+    public ScreeningSampleViewer(final IViewContext<IScreeningClientServiceAsync> viewContext,
+            final String sampleIdentifier)
     {
-        setId(ID_PREFIX + sampleGeneration.getGenerator().getIdentifier());
-        this.sampleGeneration = sampleGeneration;
-        this.messageProvider = messageProvider;
-        add(createUI());
+        setId(ID_PREFIX + sampleIdentifier);
+        this.viewContext = viewContext;
+        this.sampleIdentifier = sampleIdentifier;
     }
 
     private final static Map<String, Object> createProperties(
@@ -65,7 +68,7 @@ public final class ScreeningSampleViewer extends LayoutContainer
         final SampleType sampleType = sample.getSampleType();
         final Invalidation invalidation = sample.getInvalidation();
         final Sample[] generated = sampleGeneration.getGenerated();
-        properties.put(messageProvider.getMessage("sample"), sample.getCode());
+        properties.put(messageProvider.getMessage("sample"), sample);
         properties.put(messageProvider.getMessage("sample_type"), sampleType);
         properties.put(messageProvider.getMessage("registrator"), sample.getRegistrator());
         properties.put(messageProvider.getMessage("registration_date"), sample
@@ -78,11 +81,11 @@ public final class ScreeningSampleViewer extends LayoutContainer
         {
             properties.put(messageProvider.getMessage("invalidation"), invalidation);
         }
-        Sample generatedFrom = sample;
+        Sample generatedFrom = sample.getGeneratedFrom();
         for (int i = 0; i < sampleType.getGeneratedFromHierarchyDepth() && generatedFrom != null; i++)
         {
+            properties.put(generatedFrom.getSampleType().getDescription(), generatedFrom);
             generatedFrom = generatedFrom.getGeneratedFrom();
-            properties.put(messageProvider.getMessage("generated_from", i + 1), generatedFrom);
         }
         for (final SampleProperty property : sample.getProperties())
         {
@@ -93,21 +96,70 @@ public final class ScreeningSampleViewer extends LayoutContainer
         return properties;
     }
 
-    private final Widget createUI()
+    private final Widget createUI(final SampleGeneration sampleGeneration)
     {
+        final IMessageProvider messageProvider = viewContext.getMessageProvider();
         final Map<String, Object> properties = createProperties(messageProvider, sampleGeneration);
         final PropertyGrid propertyGrid = new PropertyGrid(messageProvider, properties.size());
         propertyGrid.registerPropertyValueRenderer(Person.class, PropertyValueRenderers
                 .createPersonPropertyValueRenderer(messageProvider));
         propertyGrid.registerPropertyValueRenderer(SampleType.class, PropertyValueRenderers
                 .createSampleTypePropertyValueRenderer(messageProvider));
+        propertyGrid.registerPropertyValueRenderer(Sample[].class,
+                new ObjectArrayPropertyValueRenderer<Sample>(messageProvider,
+                        PropertyValueRenderers.createSamplePropertyValueRenderer(messageProvider,
+                                true)));
         propertyGrid.registerPropertyValueRenderer(Sample.class, PropertyValueRenderers
-                .createSamplePropertyValueRenderer(messageProvider, true));
+                .createSamplePropertyValueRenderer(messageProvider, false));
         propertyGrid.registerPropertyValueRenderer(Invalidation.class, PropertyValueRenderers
                 .createInvalidationPropertyValueRenderer(messageProvider));
         propertyGrid.registerPropertyValueRenderer(SampleProperty.class, PropertyValueRenderers
                 .createSamplePropertyPropertyValueRenderer(messageProvider));
         propertyGrid.setProperties(properties);
         return propertyGrid;
+    }
+
+    /**
+     * Load the sample information.
+     */
+    public final void loadSampleInfo()
+    {
+        viewContext.getService().getSampleInfo(sampleIdentifier,
+                new SampleInfoCallback(viewContext));
+    }
+
+    /**
+     * Sets the {@link SampleGeneration} for this <var>generic</var> sample viewer.
+     * <p>
+     * This method triggers the whole <i>GUI</i> construction.
+     * </p>
+     */
+    public final void setSampleGeneration(final SampleGeneration sampleGeneration)
+    {
+        removeAll();
+        add(createUI(sampleGeneration));
+        layout();
+    }
+
+    //
+    // Helper classes
+    //
+
+    private final class SampleInfoCallback extends AbstractAsyncCallback<SampleGeneration>
+    {
+        private SampleInfoCallback(final IViewContext<IScreeningClientServiceAsync> viewContext)
+        {
+            super(viewContext);
+        }
+
+        //
+        // AbstractAsyncCallback
+        //
+
+        @Override
+        protected final void process(final SampleGeneration result)
+        {
+            setSampleGeneration(result);
+        }
     }
 }

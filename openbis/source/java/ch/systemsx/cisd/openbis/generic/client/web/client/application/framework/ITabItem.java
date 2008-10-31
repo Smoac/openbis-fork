@@ -28,6 +28,11 @@ public interface ITabItem
 {
 
     /**
+     * Performs some initialization steps before creating a new tab item out of this.
+     */
+    public void initialize();
+
+    /**
      * Returns the title of this tab item.
      * <p>
      * Is typically used in {@link TabItem#setText(String)}.
@@ -48,9 +53,4 @@ public interface ITabItem
      * </p>
      */
     public String getId();
-
-    /**
-     * Some action that should be performed after this tab item has been added.
-     */
-    public void afterAddTabItem();
 }

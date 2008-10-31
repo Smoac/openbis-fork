@@ -80,6 +80,8 @@ body,div,td {
 /* Overridden GXT stuff */
 
 .x-accordion-hd {
+    color: #15428B;
+    font-weight: bold;
+    font-size-adjust: none;
     text-transform: capitalize;
-    color: navy;
 }

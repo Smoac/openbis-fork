@@ -32,6 +32,7 @@ import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -45,6 +46,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.CommonColumns;
@@ -195,8 +198,13 @@ public final class SampleBrowserGrid extends LayoutContainer
                         final String sampleIdentifier =
                                 sampleModel.get(ModelDataPropertyNames.SAMPLE_IDENTIFIER);
                         final String code = sampleType.getCode();
-                        viewContext.getClientPluginFactoryProvider().getClientPluginFactory(code)
-                                .createViewClientForSampleType(code).viewSample(sampleIdentifier);
+                        final ITabItem tabView =
+                                viewContext.getClientPluginFactoryProvider()
+                                        .getClientPluginFactory(code)
+                                        .createViewClientForSampleType(code).createSampleViewer(
+                                                sampleIdentifier);
+                        Dispatcher.get().dispatch(DispatcherHelper.createNaviEvent(tabView));
+
                     }
                 });
             toolBar = new PagingToolBar(PAGE_SIZE);

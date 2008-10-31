@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Mode
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.ObjectArrayPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
@@ -76,25 +77,20 @@ public final class GenericSampleViewer extends LayoutContainer
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
-    private final SampleGeneration sampleGeneration;
-
     private final IViewContext<IGenericClientServiceAsync> viewContext;
 
     private Grid<SampleModel> partOfSamplesGrid;
 
     private Grid<ExternalDataModel> externalDataGrid;
 
+    private final String sampleIdentifier;
+
     public GenericSampleViewer(final IViewContext<IGenericClientServiceAsync> viewContext,
-            final SampleGeneration sampleGeneration)
+            final String sampleIdentifier)
     {
-        setId(ID_PREFIX + sampleGeneration.getGenerator().getIdentifier());
-        setLayout(new BorderLayout());
-        this.sampleGeneration = sampleGeneration;
+        setId(ID_PREFIX + sampleIdentifier);
+        this.sampleIdentifier = sampleIdentifier;
         this.viewContext = viewContext;
-        // Left panel
-        add(createLeftPanel(), createLeftBorderLayoutData());
-        // Right panel
-        add(createRightPanel(), createRightBorderLayoutData());
     }
 
     private final static BorderLayoutData createRightBorderLayoutData()
@@ -167,8 +163,7 @@ public final class GenericSampleViewer extends LayoutContainer
                         final AsyncCallback<BaseListLoadResult<SampleModel>> callback)
                 {
                     final ListSampleCriteria sampleCriteria = new ListSampleCriteria();
-                    sampleCriteria.setContainerIdentifier(sampleGeneration.getGenerator()
-                            .getIdentifier());
+                    sampleCriteria.setContainerIdentifier(sampleIdentifier);
                     viewContext.getService().listSamples(sampleCriteria,
                             new ArrayList<PropertyType>(),
                             new ListSamplesCallback(viewContext, callback));
@@ -189,8 +184,7 @@ public final class GenericSampleViewer extends LayoutContainer
                 public final void load(final BaseListLoadConfig loadConfig,
                         final AsyncCallback<BaseListLoadResult<ExternalDataModel>> callback)
                 {
-                    viewContext.getService().listExternalData(
-                            sampleGeneration.getGenerator().getIdentifier(),
+                    viewContext.getService().listExternalData(sampleIdentifier,
                             new ListExternalDataCallback(viewContext, callback));
                 }
             };
@@ -273,11 +267,11 @@ public final class GenericSampleViewer extends LayoutContainer
         {
             properties.put(messageProvider.getMessage("invalidation"), invalidation);
         }
-        Sample generatedFrom = sample;
+        Sample generatedFrom = sample.getGeneratedFrom();
         for (int i = 0; i < sampleType.getGeneratedFromHierarchyDepth() && generatedFrom != null; i++)
         {
+            properties.put(generatedFrom.getSampleType().getDescription(), generatedFrom);
             generatedFrom = generatedFrom.getGeneratedFrom();
-            properties.put(messageProvider.getMessage("generated_from", i + 1), generatedFrom);
         }
         for (final SampleProperty property : sample.getProperties())
         {
@@ -288,15 +282,15 @@ public final class GenericSampleViewer extends LayoutContainer
         return properties;
     }
 
-    private final Component createLeftPanel()
+    private final Component createLeftPanel(final SampleGeneration sampleGeneration)
     {
         final ContentPanel panel = new ContentPanel(new FlowLayout());
         panel.setHeading(viewContext.getMessageProvider().getMessage("sample_properties_heading"));
-        panel.add(createPropertyGrid());
+        panel.add(createPropertyGrid(sampleGeneration));
         return panel;
     }
 
-    private final PropertyGrid createPropertyGrid()
+    private final PropertyGrid createPropertyGrid(final SampleGeneration sampleGeneration)
     {
         final IMessageProvider messageProvider = viewContext.getMessageProvider();
         final Map<String, Object> properties = createProperties(messageProvider, sampleGeneration);
@@ -305,8 +299,12 @@ public final class GenericSampleViewer extends LayoutContainer
                 .createPersonPropertyValueRenderer(messageProvider));
         propertyGrid.registerPropertyValueRenderer(SampleType.class, PropertyValueRenderers
                 .createSampleTypePropertyValueRenderer(messageProvider));
+        propertyGrid.registerPropertyValueRenderer(Sample[].class,
+                new ObjectArrayPropertyValueRenderer<Sample>(messageProvider,
+                        PropertyValueRenderers.createSamplePropertyValueRenderer(messageProvider,
+                                true)));
         propertyGrid.registerPropertyValueRenderer(Sample.class, PropertyValueRenderers
-                .createSamplePropertyValueRenderer(messageProvider, true));
+                .createSamplePropertyValueRenderer(messageProvider, false));
         propertyGrid.registerPropertyValueRenderer(Invalidation.class, PropertyValueRenderers
                 .createInvalidationPropertyValueRenderer(messageProvider));
         propertyGrid.registerPropertyValueRenderer(SampleProperty.class, PropertyValueRenderers
@@ -315,13 +313,37 @@ public final class GenericSampleViewer extends LayoutContainer
         return propertyGrid;
     }
 
-    /**
-     * Load the stores.
-     */
-    public final void loadStores()
+    private final void loadStores()
     {
         externalDataGrid.getStore().getLoader().load();
         partOfSamplesGrid.getStore().getLoader().load();
+    }
+
+    /**
+     * Load the sample information.
+     */
+    public final void loadSampleInfo()
+    {
+        viewContext.getService().getSampleInfo(sampleIdentifier,
+                new SampleGenerationInfoCallback(viewContext));
+    }
+
+    /**
+     * Sets the {@link SampleGeneration} for this <var>generic</var> sample viewer.
+     * <p>
+     * This method triggers the whole <i>GUI</i> construction.
+     * </p>
+     */
+    public final void setSampleGeneration(final SampleGeneration sampleGeneration)
+    {
+        removeAll();
+        setLayout(new BorderLayout());
+        // Left panel
+        add(createLeftPanel(sampleGeneration), createLeftBorderLayoutData());
+        // Right panel
+        add(createRightPanel(), createRightBorderLayoutData());
+        layout();
+        loadStores();
     }
 
     //
@@ -388,6 +410,27 @@ public final class GenericSampleViewer extends LayoutContainer
             final BaseListLoadResult<ExternalDataModel> baseListLoadResult =
                     new BaseListLoadResult<ExternalDataModel>(externalDataModels);
             delegate.onSuccess(baseListLoadResult);
+        }
+    }
+
+    private final class SampleGenerationInfoCallback extends
+            AbstractAsyncCallback<SampleGeneration>
+    {
+        private SampleGenerationInfoCallback(
+                final IViewContext<IGenericClientServiceAsync> viewContext)
+        {
+            super(viewContext);
+        }
+
+        //
+        // AbstractAsyncCallback
+        //
+
+        @SuppressWarnings("unchecked")
+        @Override
+        protected final void process(final SampleGeneration result)
+        {
+            setSampleGeneration(result);
         }
     }
 }
