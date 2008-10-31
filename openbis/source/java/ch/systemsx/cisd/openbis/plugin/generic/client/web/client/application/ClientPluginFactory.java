@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractCl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ISampleViewClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 
@@ -116,8 +117,20 @@ public final class ClientPluginFactory extends
             final GenericSampleViewer sampleViewer =
                     new GenericSampleViewer((IViewContext<IGenericClientServiceAsync>) viewContext,
                             result);
-            Dispatcher.get().dispatch(DispatcherHelper.createNaviEvent(title, sampleViewer));
-            sampleViewer.reconfigureGrids();
+            Dispatcher.get().dispatch(
+                    DispatcherHelper.createNaviEvent(new DefaultTabItem(title, sampleViewer)
+                        {
+
+                            //
+                            // DefaultTabItem
+                            //
+
+                            @Override
+                            public final void afterAddTabItem()
+                            {
+                                sampleViewer.loadStores();
+                            }
+                        }));
         }
     }
 }

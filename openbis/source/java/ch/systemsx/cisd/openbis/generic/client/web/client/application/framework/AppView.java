@@ -52,7 +52,7 @@ final class AppView extends View
 
     private CategoriesBuilder categoriesBuilder;
 
-    public AppView(final Controller controller, final GenericViewContext viewContext)
+    AppView(final Controller controller, final GenericViewContext viewContext)
     {
         super(controller);
         this.viewContext = viewContext;
@@ -102,7 +102,7 @@ final class AppView extends View
 
     private final void createCenter()
     {
-        center = new MainTabPanel();
+        center = new MainTabPanel(viewContext);
         final BorderLayoutData data = new BorderLayoutData(LayoutRegion.CENTER);
         data.setMargins(new Margins(5, 5, 5, 5));
         viewport.add(center, data);

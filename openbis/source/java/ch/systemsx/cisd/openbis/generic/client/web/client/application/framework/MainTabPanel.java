@@ -16,14 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
-import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Element;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 
 /**
  * Main panel - where the tabs will open.
@@ -32,29 +34,34 @@ import com.google.gwt.user.client.Element;
  */
 class MainTabPanel extends TabPanel
 {
+    private static final String PREFIX = "main-tab-panel_";
 
-    public MainTabPanel()
+    private final GenericViewContext viewContext;
+
+    MainTabPanel(final GenericViewContext viewContext)
     {
+        this.viewContext = viewContext;
         setLayout(new FitLayout());
         setTabScroll(true);
-        add(createIntro());
+        add(createWelcomePanel());
     }
 
-    // TODO 2008-10-29, IA: Find out how to make tab panel calculate correctly the size of first
-    // child
-    private MainTabItem createIntro()
+    private final MainTabItem createWelcomePanel()
     {
-        final ContentPanel contentPanel = new ContentPanel();
-        contentPanel.setHeading("&nbsp;");
-        contentPanel.setLayout(new CenterLayout());
-        contentPanel.setHeaderVisible(false);
-        final Element div = DOM.createDiv();
-        div.setClassName("intro-tab");
-        div.setInnerText("Welcome to OpenBIS");
-        contentPanel.addText(div.getString());
-        final MainTabItem intro = new MainTabItem(new ContentPanelAdapter(contentPanel));
+        final LayoutContainer layoutContainer = new LayoutContainer(new CenterLayout());
+        layoutContainer.setId(GenericConstants.ID_PREFIX + PREFIX + "welcome");
+        layoutContainer.addText(createWelcomeText());
+        final MainTabItem intro = new MainTabItem(new DefaultTabItem("&nbsp;", layoutContainer));
         intro.setClosable(false);
         return intro;
+    }
+
+    private final String createWelcomeText()
+    {
+        final Element div = DOM.createDiv();
+        div.setClassName("intro-tab");
+        div.setInnerText(viewContext.getMessage("welcome"));
+        return div.getString();
     }
 
     private final MainTabItem tryGetTab(final ITabItem tabItem)
@@ -84,6 +91,7 @@ class MainTabPanel extends TabPanel
             final MainTabItem newTab = new MainTabItem(tabItem);
             add(newTab);
             setSelection(newTab);
+            tabItem.afterAddTabItem();
         }
     }
 

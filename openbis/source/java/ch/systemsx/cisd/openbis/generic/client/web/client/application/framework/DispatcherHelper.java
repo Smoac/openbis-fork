@@ -40,9 +40,16 @@ public final class DispatcherHelper
     public final static AppEvent<ITabItem> createNaviEvent(final String title,
             final Component component)
     {
+        return createNaviEvent(new DefaultTabItem(title, component));
+    }
+
+    /**
+     * Create an event of type {@link AppEvents#NAVI_EVENT}.
+     */
+    public final static AppEvent<ITabItem> createNaviEvent(final ITabItem tabItem)
+    {
         final AppEvent<ITabItem> event = new AppEvent<ITabItem>(AppEvents.NAVI_EVENT);
-        event.setData(GenericConstants.ASSOCIATED_CONTENT_PANEL, new DefaultTabItem(title,
-                component));
+        event.setData(GenericConstants.ASSOCIATED_CONTENT_PANEL, tabItem);
         return event;
     }
 }

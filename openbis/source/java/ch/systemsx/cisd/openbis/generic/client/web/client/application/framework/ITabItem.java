@@ -42,6 +42,15 @@ public interface ITabItem
 
     /**
      * Returns the unique identifier of this tab item.
+     * <p>
+     * The framework ensures that no two components with the same id will be displayed. Instead the
+     * one already created will get the focus.
+     * </p>
      */
     public String getId();
+
+    /**
+     * Some action that should be performed after this tab item has been added.
+     */
+    public void afterAddTabItem();
 }

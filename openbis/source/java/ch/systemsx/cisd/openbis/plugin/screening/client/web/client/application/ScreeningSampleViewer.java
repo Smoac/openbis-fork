@@ -22,6 +22,7 @@ import java.util.Map;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
@@ -39,6 +40,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
  */
 public final class ScreeningSampleViewer extends LayoutContainer
 {
+    private static final String PREFIX = "screening-sample-viewer_";
+
+    public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
+
     private final SampleGeneration sampleGeneration;
 
     private final IMessageProvider messageProvider;
@@ -46,6 +51,7 @@ public final class ScreeningSampleViewer extends LayoutContainer
     public ScreeningSampleViewer(final IMessageProvider messageProvider,
             final SampleGeneration sampleGeneration)
     {
+        setId(ID_PREFIX + sampleGeneration.getGenerator().getIdentifier());
         this.sampleGeneration = sampleGeneration;
         this.messageProvider = messageProvider;
         add(createUI());

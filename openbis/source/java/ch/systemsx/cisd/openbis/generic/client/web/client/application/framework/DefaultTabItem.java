@@ -18,22 +18,26 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework
 
 import com.extjs.gxt.ui.client.widget.Component;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+
 /**
  * A default {@link ITabItem} implementation.
  * 
  * @author Christian Ribeaud
  */
-final class DefaultTabItem implements ITabItem
+public class DefaultTabItem implements ITabItem
 {
     private final String title;
 
     private final Component component;
 
-    DefaultTabItem(final String title, final Component component)
+    public DefaultTabItem(final String title, final Component component)
     {
         assert title != null : "Unspecified title.";
         assert component != null : "Unspecified component.";
-        assert component.getId() != null : "Unspecified component id.";
+        // Note that if not set, is then automatically generated. So this is why we test for
+        // 'ID_PREFIX'. We want the user to set an unique id.
+        assert component.getId().startsWith(GenericConstants.ID_PREFIX) : "Unspecified component id.";
         this.title = title;
         this.component = component;
     }
@@ -57,4 +61,8 @@ final class DefaultTabItem implements ITabItem
         return getComponent().getId();
     }
 
+    public void afterAddTabItem()
+    {
+        // Does nothing.
+    }
 }

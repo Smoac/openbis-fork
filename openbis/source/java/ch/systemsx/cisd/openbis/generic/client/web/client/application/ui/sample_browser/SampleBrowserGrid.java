@@ -109,7 +109,6 @@ public final class SampleBrowserGrid extends LayoutContainer
         final ColumnModel columnModel = createColumnModel(sampleType);
         final String header = createHeader(sampleType, selectedGroupCode, showGroup, showInstance);
         getContentPanel().setHeading(header);
-
         createOrReconfigureGrid(columnModel);
         layout();
     }
@@ -217,6 +216,9 @@ public final class SampleBrowserGrid extends LayoutContainer
         if (contentPanel == null)
         {
             contentPanel = new ContentPanel();
+            contentPanel.setBorders(false);
+            contentPanel.setBodyBorder(false);
+            contentPanel.setInsetBorder(false);
             contentPanel.setLayout(new FitLayout());
             add(contentPanel);
         }

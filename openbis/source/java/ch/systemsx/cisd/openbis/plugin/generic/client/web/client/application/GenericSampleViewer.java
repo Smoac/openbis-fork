@@ -46,6 +46,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExternalDataModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
@@ -71,6 +72,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
  */
 public final class GenericSampleViewer extends LayoutContainer
 {
+    private static final String PREFIX = "generic-sample-viewer_";
+
+    public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
+
     private final SampleGeneration sampleGeneration;
 
     private final IViewContext<IGenericClientServiceAsync> viewContext;
@@ -82,6 +87,7 @@ public final class GenericSampleViewer extends LayoutContainer
     public GenericSampleViewer(final IViewContext<IGenericClientServiceAsync> viewContext,
             final SampleGeneration sampleGeneration)
     {
+        setId(ID_PREFIX + sampleGeneration.getGenerator().getIdentifier());
         setLayout(new BorderLayout());
         this.sampleGeneration = sampleGeneration;
         this.viewContext = viewContext;
@@ -104,9 +110,11 @@ public final class GenericSampleViewer extends LayoutContainer
         // 'Part of' samples
         ContentPanel panel =
                 createContentPanel(viewContext.getMessageProvider().getMessage("part_of_heading"));
+        final ListLoader<BaseListLoadConfig> sampleLoader =
+                createListLoader(createRpcProxyForPartOfSamples());
+        final ListStore<SampleModel> sampleListStore = createListStore(sampleLoader);
         partOfSamplesGrid =
-                new Grid<SampleModel>(new ListStore<SampleModel>(),
-                        createPartOfSamplesColumnModel());
+                new Grid<SampleModel>(sampleListStore, createPartOfSamplesColumnModel());
         partOfSamplesGrid.setLoadMask(true);
         panel.add(partOfSamplesGrid);
         container.add(panel, new RowData(1, 0.5, new Margins(0, 5, 5, 0)));
@@ -114,9 +122,12 @@ public final class GenericSampleViewer extends LayoutContainer
         panel =
                 createContentPanel(viewContext.getMessageProvider().getMessage(
                         "external_data_heading"));
+        final ListLoader<BaseListLoadConfig> externalDataLoader =
+                createListLoader(createRpcProxyForExternalData());
+        final ListStore<ExternalDataModel> externalDataListStore =
+                createListStore(externalDataLoader);
         externalDataGrid =
-                new Grid<ExternalDataModel>(new ListStore<ExternalDataModel>(),
-                        createExternalDataColumnModel());
+                new Grid<ExternalDataModel>(externalDataListStore, createExternalDataColumnModel());
         externalDataGrid.setLoadMask(true);
         panel.add(externalDataGrid);
         container.add(panel, new RowData(1, 0.5, new Margins(0, 5, 0, 0)));
@@ -304,19 +315,13 @@ public final class GenericSampleViewer extends LayoutContainer
         return propertyGrid;
     }
 
-    public final void reconfigureGrids()
+    /**
+     * Load the stores.
+     */
+    public final void loadStores()
     {
-        final ListLoader<BaseListLoadConfig> sampleLoader =
-                createListLoader(createRpcProxyForPartOfSamples());
-        final ListStore<SampleModel> sampleListStore = createListStore(sampleLoader);
-        partOfSamplesGrid.reconfigure(sampleListStore, createPartOfSamplesColumnModel());
-        sampleLoader.load();
-        final ListLoader<BaseListLoadConfig> externalDataLoader =
-                createListLoader(createRpcProxyForExternalData());
-        final ListStore<ExternalDataModel> externalDataListStore =
-                createListStore(externalDataLoader);
-        externalDataGrid.reconfigure(externalDataListStore, createExternalDataColumnModel());
-        externalDataLoader.load();
+        externalDataGrid.getStore().getLoader().load();
+        partOfSamplesGrid.getStore().getLoader().load();
     }
 
     //
