@@ -170,6 +170,17 @@ public class LoginWidget extends VerticalPanel
     }
 
     //
+    // VerticalPanel
+    //
+
+    @Override
+    protected final void onLoad()
+    {
+        super.onLoad();
+        resetFields();
+    }
+
+    //
     // Helper classes
     //
 
@@ -213,7 +224,6 @@ public class LoginWidget extends VerticalPanel
             {
                 viewContext.getPageController().reload();
             }
-            resetFields();
         }
     }
 }

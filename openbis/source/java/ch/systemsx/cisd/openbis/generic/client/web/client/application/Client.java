@@ -66,7 +66,7 @@ public final class Client implements EntryPoint
         return new GenericViewContext(service, messageProvider, imageBundle, pageController);
     }
 
-    void initializeControllers()
+    private final void initializeControllers()
     {
         final Dispatcher dispatcher = Dispatcher.get();
         final Iterator<Controller> iterator = dispatcher.getControllers().iterator();
@@ -84,7 +84,7 @@ public final class Client implements EntryPoint
     // EntryPoint
     //
 
-    public void onModuleLoad()
+    public final void onModuleLoad()
     {
         if (viewContext == null)
         {
