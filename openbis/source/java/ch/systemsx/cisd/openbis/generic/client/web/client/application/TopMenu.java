@@ -187,7 +187,7 @@ public class TopMenu extends LayoutContainer
                                                 @Override
                                                 public final void process(final Void result)
                                                 {
-                                                    viewContext.getPageController().reload();
+                                                    viewContext.getPageController().reload(true);
                                                 }
                                             });
                             }

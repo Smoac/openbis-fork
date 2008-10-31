@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
+import java.util.Iterator;
+
 import com.extjs.gxt.ui.client.mvc.AppEvent;
+import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.Component;
 
@@ -51,5 +54,19 @@ public final class DispatcherHelper
         final AppEvent<ITabItem> event = new AppEvent<ITabItem>(AppEvents.NAVI_EVENT);
         event.setData(GenericConstants.ASSOCIATED_CONTENT_PANEL, tabItem);
         return event;
+    }
+
+    /**
+     * Removes all the {@link Controller}s that have been added to the {@link Dispatcher}.
+     */
+    public final static void clearControllers()
+    {
+        final Dispatcher dispatcher = Dispatcher.get();
+        final Iterator<Controller> iterator = dispatcher.getControllers().iterator();
+        while (iterator.hasNext())
+        {
+            iterator.next();
+            iterator.remove();
+        }
     }
 }

@@ -217,12 +217,12 @@ public class LoginWidget extends VerticalPanel
 
                         public void handleEvent(final WindowEvent be)
                         {
-                            viewContext.getPageController().reload();
+                            viewContext.getPageController().reload(false);
                         }
                     });
             } else
             {
-                viewContext.getPageController().reload();
+                viewContext.getPageController().reload(false);
             }
         }
     }

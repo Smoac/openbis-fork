@@ -230,7 +230,6 @@ class SampleBrowserToolbar extends ToolBar
                 }
             });
         refreshButton.setId(REFRESH_BUTTON_ID);
-        refreshButton.setBorders(true);
         return refreshButton;
     }
 
@@ -248,7 +247,6 @@ class SampleBrowserToolbar extends ToolBar
                     MessageBox.alert("Warning", "Not yet implemented!", null);
                 }
             });
-        button.setBorders(true);
         return button;
     }
 

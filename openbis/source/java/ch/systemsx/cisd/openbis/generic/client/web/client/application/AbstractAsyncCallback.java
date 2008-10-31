@@ -139,7 +139,7 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
         final IPageController pageController = viewContext.getPageController();
         if (caught instanceof InvalidSessionException)
         {
-            pageController.reload();
+            pageController.reload(true);
         }
         finishOnFailure(caught);
     }

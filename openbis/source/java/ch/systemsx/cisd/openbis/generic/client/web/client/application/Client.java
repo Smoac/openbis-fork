@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import java.util.Iterator;
-
-import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -28,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppController;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.LoginController;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
@@ -58,8 +56,16 @@ public final class Client implements EntryPoint
         final IMessageProvider messageProvider = new DictonaryBasedMessageProvider("common");
         final IPageController pageController = new IPageController()
             {
-                public void reload()
+                //
+                // IPageController
+                //
+
+                public final void reload(final boolean logout)
                 {
+                    if (logout)
+                    {
+                        initializeControllers();
+                    }
                     onModuleLoad();
                 }
             };
@@ -68,21 +74,12 @@ public final class Client implements EntryPoint
 
     private final void initializeControllers()
     {
+        DispatcherHelper.clearControllers();
         final Dispatcher dispatcher = Dispatcher.get();
-        final Iterator<Controller> iterator = dispatcher.getControllers().iterator();
-        while (iterator.hasNext())
-        {
-            iterator.next();
-            iterator.remove();
-        }
         dispatcher.addController(new LoginController(viewContext));
         dispatcher.addController(new AppController((GenericViewContext) viewContext));
 
     }
-
-    //
-    // EntryPoint
-    //
 
     public final void onModuleLoad()
     {
