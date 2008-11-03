@@ -271,7 +271,6 @@ public class ExperimentPE extends HibernateAbstractRegistrationHolder implements
     @Transient
     public List<ProcedurePE> getProcedures()
     {
-        // Hibernate.initialize(getExperimentProcedures());
         return new UnmodifiableListDecorator<ProcedurePE>(getExperimentProcedures());
     }
 
