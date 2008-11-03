@@ -319,13 +319,7 @@ public class GWTTestUtil
                 {
                     return true;
                 }
-                for (final TreeItem ti : i.getItems())
-                {
-                    if (handler.handle(ti))
-                    {
-                        return true;
-                    }
-                }
+
             }
             return false;
         }
