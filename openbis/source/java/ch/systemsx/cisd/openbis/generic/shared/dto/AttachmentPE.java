@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -40,7 +40,7 @@ public class AttachmentPE extends AbstractAttachmentPE
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
-    public static final List<AttachmentPE> EMPTY_LIST = new ArrayList<AttachmentPE>();
+    public static final List<AttachmentPE> EMPTY_LIST = Collections.emptyList();
 
     public static final AttachmentPE[] EMPTY_ARRAY = new AttachmentPE[0];
 
