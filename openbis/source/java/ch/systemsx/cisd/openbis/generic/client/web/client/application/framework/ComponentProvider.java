@@ -20,6 +20,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericVie
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GroupsView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.PersonsView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.RolesView;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SampleBatchRegistrationMock;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SampleRegistrationMock;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.SampleBrowser;
 
 /**
@@ -39,6 +41,10 @@ final class ComponentProvider
 
     private final PersonsView personsView;
 
+    private final SampleRegistrationMock sampleRegistration;
+
+    private final SampleBatchRegistrationMock sampleBatchRegistration;
+
     ComponentProvider(final GenericViewContext viewContext)
     {
         sampleBrowser = new SampleBrowser(viewContext);
@@ -46,6 +52,8 @@ final class ComponentProvider
         groupsView = new GroupsView(viewContext);
         rolesView = new RolesView(viewContext);
         personsView = new PersonsView(viewContext);
+        sampleRegistration = new SampleRegistrationMock(viewContext);
+        sampleBatchRegistration = new SampleBatchRegistrationMock(viewContext);
     }
 
     public SampleBrowser getSampleBrowser()
@@ -71,5 +79,15 @@ final class ComponentProvider
     public PersonsView getPersonsView()
     {
         return personsView;
+    }
+
+    public SampleRegistrationMock getSampleRegistration()
+    {
+        return sampleRegistration;
+    }
+
+    public SampleBatchRegistrationMock getSampleBatchRegistration()
+    {
+        return sampleBatchRegistration;
     }
 }

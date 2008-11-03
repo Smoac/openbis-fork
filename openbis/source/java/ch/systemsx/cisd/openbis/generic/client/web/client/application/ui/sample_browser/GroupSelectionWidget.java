@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
  * 
  * @author Izabela Adamczyk
  */
-class GroupSelectionWidget extends ExtendedComboBox<GroupModel>
+public class GroupSelectionWidget extends ExtendedComboBox<GroupModel>
 {
     final class ListGroupsCallback extends AbstractAsyncCallback<List<Group>>
     {
@@ -81,6 +81,7 @@ class GroupSelectionWidget extends ExtendedComboBox<GroupModel>
         setEditable(false);
         setEnabled(false);
         setWidth(150);
+        setFieldLabel("Group");
         groupStore = new ListStore<GroupModel>();
         setStore(groupStore);
         addListener(Events.OnClick, new Listener<BaseEvent>()

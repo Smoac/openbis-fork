@@ -67,6 +67,8 @@ public class CategoriesBuilder
 
         public static final String REGISTER = "REGISTER";
 
+        public static final String REGISTER_FROM_FILE = "REGISTER_FROM_FILE";
+
         public static final String LIST = "LIST";
     }
 
@@ -101,7 +103,9 @@ public class CategoriesBuilder
         elements.add(new MenuElement(MENU_ELEMENTS.LIST_TYPES, "List types", provider
                 .getDummyComponent()));
         elements.add(new MenuElement(MENU_ELEMENTS.REGISTER, "Register", provider
-                .getDummyComponent()));
+                .getSampleRegistration()));
+        elements.add(new MenuElement(MENU_ELEMENTS.REGISTER_FROM_FILE, "Register from file",
+                provider.getSampleBatchRegistration()));
         elements.add(new MenuElement(MENU_ELEMENTS.INVALIDATE, "Invalidate", provider
                 .getDummyComponent()));
         elements.add(new MenuElement(MENU_ELEMENTS.ASSIGN_PROPERTIES, "Assign properties", provider

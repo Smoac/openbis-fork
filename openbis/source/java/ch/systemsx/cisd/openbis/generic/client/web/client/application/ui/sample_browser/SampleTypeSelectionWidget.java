@@ -39,14 +39,17 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
  * 
  * @author Izabela Adamczyk
  */
-class SampleTypeSelectionWidget extends ExtendedComboBox<SampleTypeModel>
+public class SampleTypeSelectionWidget extends ExtendedComboBox<SampleTypeModel>
 {
 
     final class ListSampleTypesCallback extends AbstractAsyncCallback<List<SampleType>>
     {
-        ListSampleTypesCallback(final IViewContext<?> viewContext)
+        private final boolean allowEmptyCall;
+
+        ListSampleTypesCallback(final IViewContext<?> viewContext, final boolean allowEmpty)
         {
             super(viewContext);
+            allowEmptyCall = allowEmpty;
         }
 
         @Override
@@ -57,7 +60,10 @@ class SampleTypeSelectionWidget extends ExtendedComboBox<SampleTypeModel>
             if (sampleTypeStore.getCount() > 0)
             {
                 setEnabled(true);
-                setValue(sampleTypeStore.getAt(0));
+                if (allowEmptyCall == false)
+                {
+                    setValue(sampleTypeStore.getAt(0));
+                }
             }
         }
 
@@ -80,15 +86,24 @@ class SampleTypeSelectionWidget extends ExtendedComboBox<SampleTypeModel>
 
     private final ListStore<SampleTypeModel> sampleTypeStore;
 
+    private final boolean allowEmpty;
+
     public SampleTypeSelectionWidget(final GenericViewContext viewContext)
     {
+        this(viewContext, false);
+    }
+
+    public SampleTypeSelectionWidget(final GenericViewContext viewContext, final boolean allowEmpty)
+    {
         this.viewContext = viewContext;
+        this.allowEmpty = allowEmpty;
         setId(ID);
-        setEmptyText("- No sample types found -");
+        setEmptyText(allowEmpty ? "Choose sample type..." : "- No sample types found -");
         setEnabled(false);
         setDisplayField(ModelDataPropertyNames.CODE);
         setEditable(false);
         setWidth(150);
+        setFieldLabel("Sample type");
         sampleTypeStore = new ListStore<SampleTypeModel>();
         setStore(sampleTypeStore);
         addListener(Events.OnClick, new Listener<BaseEvent>()
@@ -123,6 +138,7 @@ class SampleTypeSelectionWidget extends ExtendedComboBox<SampleTypeModel>
 
     void refresh()
     {
-        viewContext.getService().listSampleTypes(new ListSampleTypesCallback(viewContext));
+        viewContext.getService().listSampleTypes(
+                new ListSampleTypesCallback(viewContext, allowEmpty));
     }
 }
