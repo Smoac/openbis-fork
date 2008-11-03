@@ -32,11 +32,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericVie
  * 
  * @author Izabela Adamczyk
  */
-class MainTabPanel extends TabPanel
+public class MainTabPanel extends TabPanel
 {
     private static final String PREFIX = "main-tab-panel_";
 
+    public static final String TAB_SUFFIX = "_tab";
+
     private final GenericViewContext viewContext;
+
+    public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
 
     MainTabPanel(final GenericViewContext viewContext)
     {
@@ -44,12 +48,13 @@ class MainTabPanel extends TabPanel
         setLayout(new FitLayout());
         setTabScroll(true);
         add(createWelcomePanel());
+        setId(ID);
     }
 
     private final MainTabItem createWelcomePanel()
     {
         final LayoutContainer layoutContainer = new LayoutContainer(new CenterLayout());
-        layoutContainer.setId(GenericConstants.ID_PREFIX + PREFIX + "welcome");
+        layoutContainer.setId(ID + "welcome");
         layoutContainer.addText(createWelcomeText());
         final MainTabItem intro = new MainTabItem(new DefaultTabItem("&nbsp;", layoutContainer));
         intro.setClosable(false);
@@ -108,11 +113,13 @@ class MainTabPanel extends TabPanel
 
     private final static class MainTabItem extends TabItem
     {
+
         private final ITabItem tabItem;
 
         public MainTabItem(final ITabItem tabItem)
         {
             this.tabItem = tabItem;
+            setId(ID + tabItem.getId() + TAB_SUFFIX);
             setClosable(true);
             setLayout(new FitLayout());
             setText(tabItem.getTitle());

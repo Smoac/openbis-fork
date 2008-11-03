@@ -32,9 +32,8 @@ public class SystemTestSuite extends GWTTestSuite
     public static Test suite()
     {
         final TestSuite testSuite = new TestSuite("System Tests");
-        testSuite.addTestSuite(AuthenticationTest.class);
-        // testSuite.addTestSuite(SampleBrowserTest.class);
         testSuite.addTestSuite(AuthorizationManagementConsolTest.class);
+        testSuite.addTestSuite(AuthenticationTest.class);
 
         return testSuite;
     }

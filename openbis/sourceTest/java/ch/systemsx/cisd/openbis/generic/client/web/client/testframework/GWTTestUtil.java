@@ -33,6 +33,7 @@ import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
+import com.extjs.gxt.ui.client.widget.tree.Tree;
 import com.extjs.gxt.ui.client.widget.tree.TreeItem;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
@@ -42,6 +43,7 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.LeftMenu;
 
 /**
  * Useful static methods for testing.
@@ -64,7 +66,7 @@ public class GWTTestUtil
         assertWidgetFound("Menu category", id, widget);
         Assert.assertTrue("Widget '" + id + "' isn't a ContentPanel (menu category): "
                 + widget.getClass(), widget instanceof ContentPanel);
-        ((ContentPanel) widget).fireEvent(Event.ONCLICK);
+        ((ContentPanel) widget).fireEvent(Events.Select);
     }
 
     /**
@@ -74,11 +76,13 @@ public class GWTTestUtil
             final String option)
     {
         final String id = menu + "_" + category + "_" + option;
-        final Widget widget = tryToFindByID(id);
-        assertWidgetFound("Menu element", id, widget);
-        Assert.assertTrue("Widget '" + id + "' isn't a TreeItem (menu element): "
-                + widget.getClass(), widget instanceof TreeItem);
-        ((TreeItem) widget).fireEvent(Event.ONCLICK);
+        final Widget item = tryToFindByID(id);
+        assertWidgetFound("Menu element", id, item);
+        final Widget tree = tryToFindByID(menu + "_" + category + LeftMenu.TREE_SUFFIX);
+        assertWidgetFound("Menu element tree", id + LeftMenu.TREE_SUFFIX, tree);
+        ((Tree) tree).setSelectedItem((TreeItem) item);
+        ((Tree) tree).fireEvent(Event.ONCLICK);
+
     }
 
     /**
@@ -281,6 +285,9 @@ public class GWTTestUtil
             if (widget instanceof ComplexPanel)
             {
                 return new ComplexPanelHandler(this).handle((ComplexPanel) widget);
+            } else if (widget instanceof Tree)
+            {
+                return new TreeHandler(this).handle((Tree) widget);
             } else if (widget instanceof Container)
             {
                 return new ContainerHandler(this).handle((Container<Component>) widget);
@@ -288,6 +295,39 @@ public class GWTTestUtil
             {
                 return false;
             }
+        }
+    }
+
+    private static final class TreeHandler implements IWidgetHandler<Tree>
+    {
+        private final IWidgetHandler<Widget> handler;
+
+        TreeHandler(final IWidgetHandler<Widget> handler)
+        {
+            this.handler = handler;
+        }
+
+        //
+        // IWidgetHandler
+        //
+
+        public final boolean handle(final Tree tree)
+        {
+            for (final TreeItem i : tree.getAllItems())
+            {
+                if (handler.handle(i))
+                {
+                    return true;
+                }
+                for (final TreeItem ti : i.getItems())
+                {
+                    if (handler.handle(ti))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
     }
 

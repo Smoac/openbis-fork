@@ -58,11 +58,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
  */
 public class PersonsView extends ContentPanel
 {
-    private static final String PREFIX = "persons-view_";
+    public static final String ID = GenericConstants.ID_PREFIX + "persons-view";
 
-    public static final String ADD_BUTTON_ID = GenericConstants.ID_PREFIX + PREFIX + "add-button";
+    public static final String ADD_BUTTON_ID = ID + "_add-button";
 
-    public static final String TABLE_ID = GenericConstants.ID_PREFIX + PREFIX + "table";
+    public static final String TABLE_ID = ID + "_table";
 
     private final GenericViewContext viewContext;
 
@@ -72,7 +72,7 @@ public class PersonsView extends ContentPanel
         setLayout(new FitLayout());
         setHeaderVisible(false);
         setHeading("List persons");
-
+        setId(ID);
     }
 
     @Override

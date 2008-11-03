@@ -41,6 +41,8 @@ public class LeftMenu extends ContentPanel
 {
     public static final String ID = GenericConstants.ID_PREFIX + "left-menu";
 
+    public static final String TREE_SUFFIX = "_tree";
+
     private final List<MenuCategory> categories;
 
     LeftMenu(final List<MenuCategory> categories)
@@ -59,9 +61,8 @@ public class LeftMenu extends ContentPanel
     {
         for (final MenuCategory mc : categories)
         {
-            final SubMenu subMenu = new SubMenu(mc.getName());
             final String categoryId = ID + "_" + mc.getPartOfId();
-            subMenu.setId(categoryId);
+            final SubMenu subMenu = new SubMenu(mc.getName(), categoryId);
             for (final MenuElement me : mc.getElements())
             {
                 subMenu.addCommand(categoryId + "_" + me.getPartOfId(), me.getTitle(), me
@@ -76,10 +77,12 @@ public class LeftMenu extends ContentPanel
 
         private final Tree tree;
 
-        public SubMenu(final String title)
+        public SubMenu(final String title, final String id)
         {
             setHeading(title);
+            setId(id);
             tree = new Tree();
+            tree.setId(id + TREE_SUFFIX);
             tree.addListener(Event.ONCLICK, new Listener<BaseEvent>()
                 {
                     public void handleEvent(final BaseEvent be)

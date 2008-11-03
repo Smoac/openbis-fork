@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GroupsView;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.MainTabPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
@@ -41,7 +42,8 @@ public final class CreateGroup extends AbstractDefaultTestCommand
 
     public final void execute()
     {
-        GWTTestUtil.selectTabItemWithId(AMC.ID, AMC.GROUPS_TAB);
+        GWTTestUtil.selectTabItemWithId(MainTabPanel.ID, MainTabPanel.ID + GroupsView.ID
+                + MainTabPanel.TAB_SUFFIX);
         GWTTestUtil.clickButtonWithID(GroupsView.ADD_BUTTON_ID);
         GWTTestUtil.getTextFieldWithID(AddGroupDialog.CODE_FIELD_ID).setValue(groupCode);
         GWTTestUtil.clickButtonWithID(AddGroupDialog.SAVE_BUTTON_ID);

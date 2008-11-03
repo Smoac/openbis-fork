@@ -57,11 +57,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
  */
 public class GroupsView extends ContentPanel
 {
-    private static final String PREFIX = "groups-view_";
 
-    public static final String TABLE_ID = GenericConstants.ID_PREFIX + PREFIX + "table";
+    public static final String ID = GenericConstants.ID_PREFIX + "groups-view";
 
-    public static final String ADD_BUTTON_ID = GenericConstants.ID_PREFIX + PREFIX + "add-button";
+    public static final String TABLE_ID = ID + "_table";
+
+    public static final String ADD_BUTTON_ID = ID + "_add-button";
 
     public final class ListGroupsCallback extends AbstractAsyncCallback<List<Group>>
     {
@@ -92,6 +93,7 @@ public class GroupsView extends ContentPanel
         setLayout(new FitLayout());
         setHeaderVisible(false);
         setHeading("List groups");
+        setId(ID);
     }
 
     private void display(final List<Group> groups)

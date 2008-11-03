@@ -23,9 +23,9 @@ import java.util.Set;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
- * Abstract super class of all test commands which are executed if the set of classes of 
- * recent callback objects includes all classes specified in the constructor.
- *
+ * Abstract super class of all test commands which are executed if the set of classes of recent
+ * callback objects includes all classes specified in the constructor.
+ * 
  * @author Franz-Josef Elmer
  */
 public abstract class AbstractDefaultTestCommand implements ITestCommand
@@ -34,51 +34,52 @@ public abstract class AbstractDefaultTestCommand implements ITestCommand
             new HashSet<Class<? extends AsyncCallback<?>>>();
 
     /**
-     * Creates an instance with initially no expected callback class. 
+     * Creates an instance with initially no expected callback class.
      */
     public AbstractDefaultTestCommand()
     {
     }
-    
+
     /**
-     * Creates an instance for the specified callback class. 
+     * Creates an instance for the specified callback class.
      */
-    public AbstractDefaultTestCommand(Class<? extends AsyncCallback<?>> callbackClass)
+    public AbstractDefaultTestCommand(final Class<? extends AsyncCallback<?>> callbackClass)
     {
         callbackClasses.add(callbackClass);
     }
 
     /**
-     * Adds the specified callback classes. 
+     * Adds the specified callback classes.
      */
-    public void addCallbackClass(Class<? extends AsyncCallback<?>> callbackClass)
+    public void addCallbackClass(final Class<? extends AsyncCallback<?>> callbackClass)
     {
         this.callbackClasses.add(callbackClass);
     }
-    
-    public boolean validOnFailure(List<AsyncCallback<Object>> callbackObjects,
-            String failureMessage, Throwable throwable)
+
+    public boolean validOnFailure(final List<AsyncCallback<Object>> callbackObjects,
+            final String failureMessage, final Throwable throwable)
     {
         return false;
     }
 
-    public boolean validOnSucess(List<AsyncCallback<Object>> callbackObjects, Object result)
+    public boolean validOnSucess(final List<AsyncCallback<Object>> callbackObjects,
+            final Object result)
     {
         return containsExpectedCallbacks(callbackObjects);
     }
 
     /**
-     * Returns <code>true</code> if the specified list of callback objects contain
-     * all of expected types. 
+     * Returns <code>true</code> if the specified list of callback objects contain all of expected
+     * types.
      */
-    protected boolean containsExpectedCallbacks(List<AsyncCallback<Object>> callbackObjects)
+    protected boolean containsExpectedCallbacks(final List<AsyncCallback<Object>> callbackObjects)
     {
-        Set<Class<?>> classesOfCallbackObjects = new HashSet<Class<?>>();
-        for (AsyncCallback<Object> asyncCallback : callbackObjects)
+        final Set<Class<?>> classesOfCallbackObjects = new HashSet<Class<?>>();
+        for (final AsyncCallback<Object> asyncCallback : callbackObjects)
         {
             classesOfCallbackObjects.add(asyncCallback.getClass());
         }
-        for (Class<?> clazz : callbackClasses)
+        for (final Class<?> clazz : callbackClasses)
         {
             if (classesOfCallbackObjects.contains(clazz) == false)
             {

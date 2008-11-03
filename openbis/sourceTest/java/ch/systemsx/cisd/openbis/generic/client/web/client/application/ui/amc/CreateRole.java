@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.RolesView;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.MainTabPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
@@ -39,8 +40,8 @@ public final class CreateRole extends AbstractDefaultTestCommand
             final String roleNameOrNull)
     {
         super(RolesView.ListRolesCallback.class);
-        assert (groupNameOrNull == null && roleNameOrNull == null)
-                || (groupNameOrNull != null && roleNameOrNull != null);
+        assert groupNameOrNull == null && roleNameOrNull == null || groupNameOrNull != null
+                && roleNameOrNull != null;
         this.groupNameOrNull = groupNameOrNull;
         this.personName = personName;
         this.roleNameOrNull = roleNameOrNull;
@@ -52,7 +53,8 @@ public final class CreateRole extends AbstractDefaultTestCommand
 
     public final void execute()
     {
-        GWTTestUtil.selectTabItemWithId(AMC.ID, AMC.ROLES_TAB);
+        GWTTestUtil.selectTabItemWithId(MainTabPanel.ID, MainTabPanel.ID + RolesView.ID
+                + MainTabPanel.TAB_SUFFIX);
         GWTTestUtil.clickButtonWithID(RolesView.ADD_BUTTON_ID);
         final RoleListBox listBox =
                 (RoleListBox) GWTTestUtil.getListBoxWithID(AddRoleDialog.ROLE_FIELD_ID);

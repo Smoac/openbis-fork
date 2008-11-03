@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ListGroups;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ListPersons;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ListRoles;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CheckGroup;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CheckPerson;
@@ -56,6 +58,7 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
         remoteConsole.prepare(new Login("test", "a"));
         // This userId must be one of the ones located on 'etc/passwd' (file based authentication).
         final String userId = USER_ID;
+        remoteConsole.prepare(new ListPersons());
         remoteConsole.prepare(new CreatePerson(userId));
         remoteConsole.prepare(new CheckPerson(userId)).finish(10000);
 
@@ -65,6 +68,7 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
     public final void testCreateRole()
     {
         remoteConsole.prepare(new Login("test", "a"));
+        remoteConsole.prepare(new ListRoles());
         remoteConsole.prepare(new CreateRole(TEST_GROUP.toUpperCase(), USER_ID,
                 RoleListBox.OBSERVER));
         remoteConsole.prepare(

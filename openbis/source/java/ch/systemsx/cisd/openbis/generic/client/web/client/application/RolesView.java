@@ -56,11 +56,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 public class RolesView extends ContentPanel
 {
 
-    private static final String PREFIX = "roles-view_";
+    public static final String ID = GenericConstants.ID_PREFIX + "roles-view";
 
-    public static final String ADD_BUTTON_ID = GenericConstants.ID_PREFIX + PREFIX + "add-button";
+    public static final String ADD_BUTTON_ID = ID + "_add-button";
 
-    public static final String TABLE_ID = GenericConstants.ID_PREFIX + PREFIX + "table";
+    public static final String TABLE_ID = ID + "_table";
 
     private final GenericViewContext viewContext;
 
@@ -70,6 +70,7 @@ public class RolesView extends ContentPanel
         setLayout(new FitLayout());
         setHeaderVisible(false);
         setHeading("List roles");
+        setId(ID);
 
     }
 
