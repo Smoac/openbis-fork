@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -99,7 +100,7 @@ public class ExperimentPE extends HibernateAbstractRegistrationHolder implements
 
     private List<AttachmentPE> attachments = AttachmentPE.EMPTY_LIST;
 
-    private List<ProcedurePE> procedures = ProcedurePE.EMPTY_LIST;
+    private List<ProcedurePE> procedures = new ArrayList<ProcedurePE>();
 
     private ProcessingInstructionDTO[] processingInstructions =
             ProcessingInstructionDTO.EMPTY_ARRAY;
@@ -267,16 +268,45 @@ public class ExperimentPE extends HibernateAbstractRegistrationHolder implements
         setExperimentAttachments(attachments);
     }
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN, updatable = false)
+    @Transient
     public List<ProcedurePE> getProcedures()
+    {
+        // Hibernate.initialize(getExperimentProcedures());
+        return new UnmodifiableListDecorator<ProcedurePE>(getExperimentProcedures());
+    }
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "experimentInternal")
+    @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN, updatable = false)
+    private List<ProcedurePE> getExperimentProcedures()
     {
         return procedures;
     }
 
-    public void setProcedures(final List<ProcedurePE> procedures)
+    // Required by Hibernate.
+    @SuppressWarnings("unused")
+    private void setExperimentProcedures(final List<ProcedurePE> procedures)
     {
         this.procedures = procedures;
+    }
+
+    public final void setProcedures(final List<ProcedurePE> procedures)
+    {
+        getExperimentProcedures().clear();
+        for (final ProcedurePE child : procedures)
+        {
+            addProcedure(child);
+        }
+    }
+
+    public void addProcedure(ProcedurePE child)
+    {
+        final ExperimentPE parent = child.getExperiment();
+        if (parent != null)
+        {
+            parent.getExperimentProcedures().remove(child);
+        }
+        child.setExperimentInternal(this);
+        getExperimentProcedures().add(child);
     }
 
     @Transient

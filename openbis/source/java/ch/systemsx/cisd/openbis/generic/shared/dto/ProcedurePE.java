@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -56,8 +55,6 @@ public class ProcedurePE implements IIdHolder, Serializable
     public final static ProcedurePE[] EMPTY_ARRAY = new ProcedurePE[0];
 
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
-
-    public static final List<ProcedurePE> EMPTY_LIST = new ArrayList<ProcedurePE>();
 
     private ProcedureTypePE procedureType;
 
@@ -121,13 +118,24 @@ public class ProcedurePE implements IIdHolder, Serializable
 
     public void setExperiment(final ExperimentPE experiment)
     {
+        experiment.addProcedure(this);
+    }
+
+    @Transient
+    public ExperimentPE getExperiment()
+    {
+        return getExperimentInternal();
+    }
+
+    void setExperimentInternal(ExperimentPE experiment)
+    {
         this.experiment = experiment;
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
     @NotNull(message = ValidationMessages.EXPERIMENT_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN, updatable = false)
-    public ExperimentPE getExperiment()
+    private ExperimentPE getExperimentInternal()
     {
         return experiment;
     }

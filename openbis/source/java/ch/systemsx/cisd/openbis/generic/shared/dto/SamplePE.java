@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -97,7 +98,7 @@ public class SamplePE extends HibernateAbstractRegistrationHolder implements IId
 
     private SamplePE generatedFrom;
 
-    private List<ProcedurePE> procedures = ProcedurePE.EMPTY_LIST;
+    private List<ProcedurePE> procedures = new ArrayList<ProcedurePE>();
 
     private ProcedurePE validProcedure;
 
