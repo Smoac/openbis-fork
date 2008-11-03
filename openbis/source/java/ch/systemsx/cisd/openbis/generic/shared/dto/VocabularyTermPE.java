@@ -29,6 +29,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -101,14 +102,25 @@ public class VocabularyTermPE extends HibernateAbstractRegistrationHolder implem
     @NotNull(message = ValidationMessages.VOCABULARY_NOT_NULL_MESSAGE)
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.CONTROLLED_VOCABULARY_COLUMN, updatable = false)
-    public VocabularyPE getVocabulary()
+    private VocabularyPE getVocabularyInternal()
     {
         return vocabulary;
     }
 
-    public void setVocabulary(final VocabularyPE vocabulary)
+    void setVocabularyInternal(final VocabularyPE vocabulary)
     {
         this.vocabulary = vocabulary;
+    }
+
+    public void setVocabulary(final VocabularyPE vocabulary)
+    {
+        vocabulary.addTerm(this);
+    }
+
+    @Transient
+    public VocabularyPE getVocabulary()
+    {
+        return getVocabularyInternal();
     }
 
     //

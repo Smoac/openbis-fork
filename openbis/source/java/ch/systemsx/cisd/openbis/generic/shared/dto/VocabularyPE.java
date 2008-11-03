@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -41,6 +42,7 @@ import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
+import ch.systemsx.cisd.common.collections.UnmodifiableListDecorator;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 
@@ -55,8 +57,8 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
     { @UniqueConstraint(columnNames =
         { ColumnNames.CODE_COLUMN, ColumnNames.IS_INTERNAL_NAMESPACE,
                 ColumnNames.DATABASE_INSTANCE_COLUMN }) })
-public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
-        IIdAndCodeHolder, Comparable<VocabularyPE>, Serializable
+public class VocabularyPE extends HibernateAbstractRegistrationHolder implements IIdAndCodeHolder,
+        Comparable<VocabularyPE>, Serializable
 {
 
     public final static VocabularyPE[] EMPTY_ARRAY = new VocabularyPE[0];
@@ -69,7 +71,7 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
 
     private String description;
 
-    private List<VocabularyTermPE> terms = VocabularyTermPE.EMPTY_LIST;
+    private List<VocabularyTermPE> terms = new ArrayList<VocabularyTermPE>();
 
     private boolean managedInternally;
 
@@ -124,10 +126,43 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
         this.databaseInstance = databaseInstance;
     }
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "vocabulary")
-    public List<VocabularyTermPE> getTerms()
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "vocabularyInternal")
+    private List<VocabularyTermPE> getVocabularyTerms()
     {
         return terms;
+    }
+
+    // Required by Hibernate.
+    @SuppressWarnings("unused")
+    private void setVocabularyTerms(final List<VocabularyTermPE> terms)
+    {
+        this.terms = terms;
+    }
+
+    @Transient
+    public List<VocabularyTermPE> getTerms()
+    {
+        return new UnmodifiableListDecorator<VocabularyTermPE>(getVocabularyTerms());
+    }
+
+    public final void setTerms(final List<VocabularyTermPE> terms)
+    {
+        getVocabularyTerms().clear();
+        for (final VocabularyTermPE child : terms)
+        {
+            addTerm(child);
+        }
+    }
+
+    public void addTerm(VocabularyTermPE child)
+    {
+        final VocabularyPE parent = child.getVocabulary();
+        if (parent != null)
+        {
+            parent.getVocabularyTerms().remove(child);
+        }
+        child.setVocabularyInternal(this);
+        getVocabularyTerms().add(child);
     }
 
     @SequenceGenerator(name = SequenceNames.CONTROLLED_VOCABULARY_SEQUENCE, sequenceName = SequenceNames.CONTROLLED_VOCABULARY_SEQUENCE, allocationSize = 1)
@@ -136,15 +171,6 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
     public final Long getId()
     {
         return id;
-    }
-
-    public void setTerms(final List<VocabularyTermPE> terms)
-    {
-        for (final VocabularyTermPE term : terms)
-        {
-            term.setVocabulary(this);
-        }
-        this.terms = terms;
     }
 
     @Column(name = ColumnNames.IS_MANAGED_INTERNALLY, nullable = false)
