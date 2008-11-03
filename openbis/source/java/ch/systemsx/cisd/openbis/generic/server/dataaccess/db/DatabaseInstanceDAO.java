@@ -150,8 +150,8 @@ final class DatabaseInstanceDAO extends AbstractDAO implements IDatabaseInstance
                 (DatabaseInstancePE) getHibernateTemplate().load(ENTITY_CLASS, databaseInstanceId);
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug("getDatabaseInstanceById(" + databaseInstanceId + "): '" + databaseInstance
-                    + "'.");
+            operationLog.debug("getDatabaseInstanceById(" + databaseInstanceId + "): '"
+                    + databaseInstance + "'.");
         }
         return databaseInstance;
     }
@@ -164,6 +164,6 @@ final class DatabaseInstanceDAO extends AbstractDAO implements IDatabaseInstance
         final HibernateTemplate template = getHibernateTemplate();
         template.save(databaseInstance);
         template.flush();
-        
+
     }
 }

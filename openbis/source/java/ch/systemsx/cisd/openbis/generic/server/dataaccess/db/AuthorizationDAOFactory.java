@@ -119,28 +119,31 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
         }
     }
 
-    // TODO 2008-07-10, Franz-Josef Elmer: Remove method if no longer needed
-    public DatabaseInstancePE getHomeDatabaseInstance()
+    //
+    // IAuthorizationDAOFactory
+    //
+
+    public final DatabaseInstancePE getHomeDatabaseInstance()
     {
         return homeDatabaseInstance;
     }
 
-    public IDatabaseInstanceDAO getDatabaseInstanceDAO()
+    public final IDatabaseInstanceDAO getDatabaseInstanceDAO()
     {
         return databaseInstancesDAO;
     }
 
-    public IGroupDAO getGroupDAO()
+    public final IGroupDAO getGroupDAO()
     {
         return groupDAO;
     }
 
-    public IPersonDAO getPersonDAO()
+    public final IPersonDAO getPersonDAO()
     {
         return personDAO;
     }
 
-    public IRoleAssignmentDAO getRoleAssignmentDAO()
+    public final IRoleAssignmentDAO getRoleAssignmentDAO()
     {
         return roleAssignmentDAO;
     }

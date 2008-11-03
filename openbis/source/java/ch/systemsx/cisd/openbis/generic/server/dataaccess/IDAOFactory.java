@@ -24,11 +24,28 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 public interface IDAOFactory extends IAuthorizationDAOFactory
 {
 
-    ISampleDAO getSampleDAO();
+    /**
+     * Returns the {@link ISampleDAO} implementation.
+     */
+    public ISampleDAO getSampleDAO();
 
-    ISampleTypeDAO getSampleTypeDAO();
+    /**
+     * Returns the {@link ISampleTypeDAO} implementation.
+     */
+    public ISampleTypeDAO getSampleTypeDAO();
 
-    ISamplePropertyDAO getSamplePropertyDAO();
+    /**
+     * Returns the {@link ISamplePropertyDAO} implementation.
+     */
+    public ISamplePropertyDAO getSamplePropertyDAO();
 
-    IExternalDataDAO getExternalDataDAO();
+    /**
+     * Returns the {@link IExternalDataDAO} implementation.
+     */
+    public IExternalDataDAO getExternalDataDAO();
+
+    /**
+     * Returns the {@link IHibernateSearchDAO} implementation.
+     */
+    public IHibernateSearchDAO getHibernateSearchDAO();
 }

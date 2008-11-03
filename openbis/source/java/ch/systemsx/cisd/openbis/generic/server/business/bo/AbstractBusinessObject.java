@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
@@ -112,5 +113,10 @@ abstract class AbstractBusinessObject implements IDAOFactory
     public final IExternalDataDAO getExternalDataDAO()
     {
         return daoFactory.getExternalDataDAO();
+    }
+
+    public final IHibernateSearchDAO getHibernateSearchDAO()
+    {
+        return daoFactory.getHibernateSearchDAO();
     }
 }

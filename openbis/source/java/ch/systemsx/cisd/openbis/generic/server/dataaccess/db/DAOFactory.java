@@ -21,6 +21,7 @@ import org.hibernate.SessionFactory;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISamplePropertyDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
@@ -39,6 +40,8 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
 
     private final IExternalDataDAO externalDataDAO;
 
+    private final IHibernateSearchDAO hibernateSearchDAO;
+
     public DAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory)
     {
@@ -48,6 +51,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         sampleTypeDAO = new SampleTypeDAO(sessionFactory, databaseInstance);
         samplePropertyDAO = new SamplePropertyDAO(sessionFactory, databaseInstance);
         externalDataDAO = new ExternalDataDAO(sessionFactory, databaseInstance);
+        hibernateSearchDAO = new HibernateSearchDAO(sessionFactory);
     }
 
     //
@@ -72,5 +76,10 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     public final IExternalDataDAO getExternalDataDAO()
     {
         return externalDataDAO;
+    }
+
+    public final IHibernateSearchDAO getHibernateSearchDAO()
+    {
+        return hibernateSearchDAO;
     }
 }

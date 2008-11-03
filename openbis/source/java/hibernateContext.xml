@@ -13,7 +13,7 @@
 
     <bean id="hibernate-session-factory"
         class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean"
-        depends-on="sql-script-provider">
+        depends-on="sql-script-provider, hibernate-search-context">
         <property name="dataSource">
             <ref bean="data-source" />
         </property>
@@ -80,7 +80,11 @@
                 <prop key="hibernate.search.default.directory_provider">
                     org.hibernate.search.store.FSDirectoryProvider
                 </prop>
-                <prop key="hibernate.search.default.indexBase">${hibernate.search.index.base}</prop>
+                <prop key="hibernate.search.default.indexBase">${hibernate.search.index-base}</prop>
+                <!-- Automatic optimization -->
+                <prop key="hibernate.search.default.optimizer.operation_limit.max">1000</prop>
+                <prop key="hibernate.search.default.optimizer.transaction_limit.max">100</prop>
+                <prop key="hibernate.search.worker.batch_size">${hibernate.search.batch-size}</prop>
                 <!--   
                     <prop key="hibernate.show_sql">true</prop>
                     <prop key="hibernate.format_sql">true</prop>
@@ -89,4 +93,34 @@
             </props>
         </property>
     </bean>
+
+    <!--
+        // Hibernate Search
+    -->
+
+    <bean id="hibernate-search-context"
+        class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.HibernateSearchContext">
+        <property name="indexBase" value="${hibernate.search.index-base}" />
+        <property name="indexMode" value="${hibernate.search.index-mode}" />
+        <property name="batchSize" value="${hibernate.search.batch-size}" />
+    </bean>
+
+    <bean id="full-text-indexer"
+        class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.FullTextIndexerRunnable">
+        <constructor-arg ref="hibernate-session-factory" />
+        <constructor-arg ref="hibernate-search-context" />
+    </bean>
+
+    <bean class="org.springframework.scheduling.timer.TimerFactoryBean">
+        <property name="scheduledTimerTasks">
+            <list>
+                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask">
+                    <property name="delay" value="0" />
+                    <property name="runnable" ref="full-text-indexer" />
+                </bean>
+            </list>
+        </property>
+        <property name="daemon" value="true" />
+    </bean>
+
 </beans>

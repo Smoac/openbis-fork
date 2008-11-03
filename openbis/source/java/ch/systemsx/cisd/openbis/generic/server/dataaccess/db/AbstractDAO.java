@@ -66,7 +66,7 @@ public abstract class AbstractDAO extends HibernateDaoSupport
      * Validates given <i>Persistence Entity</i> using an appropriate {@link ClassValidator}.
      */
     @SuppressWarnings("unchecked")
-    protected final <E> void validatePE(final E pe) throws DataIntegrityViolationException
+    protected final static <E> void validatePE(final E pe) throws DataIntegrityViolationException
     {
         final ClassValidator<E> validator = new ClassValidator(pe.getClass());
         final InvalidValue[] validationMessages = validator.getInvalidValues(pe);
@@ -123,7 +123,7 @@ public abstract class AbstractDAO extends HibernateDaoSupport
      *             {@link List}.
      */
     @SuppressWarnings("unchecked")
-    protected final <T> T getEntity(final List<T> entities) throws DataAccessException
+    protected final static <T> T getEntity(final List<T> entities) throws DataAccessException
     {
         return (T) DataAccessUtils.requiredSingleResult(entities);
     }
@@ -134,7 +134,8 @@ public abstract class AbstractDAO extends HibernateDaoSupport
      * @throws EmptyResultDataAccessException if given <var>entity</var> is <code>null</code>.
      */
     @SuppressWarnings("unchecked")
-    protected final <T> T getEntity(final Object entity) throws EmptyResultDataAccessException
+    protected final static <T> T getEntity(final Object entity)
+            throws EmptyResultDataAccessException
     {
         if (entity == null)
         {
@@ -149,7 +150,7 @@ public abstract class AbstractDAO extends HibernateDaoSupport
      * 
      * @return <code>null</code> or the entity found at index <code>0</code>.
      */
-    protected final <T> T tryFindEntity(final List<T> entities, final String entitiesName,
+    protected final static <T> T tryFindEntity(final List<T> entities, final String entitiesName,
             final Object... parameters) throws IncorrectResultSizeDataAccessException
     {
         final int size = entities.size();
