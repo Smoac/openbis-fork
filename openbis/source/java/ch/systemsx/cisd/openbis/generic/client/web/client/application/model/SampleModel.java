@@ -24,8 +24,11 @@ import com.extjs.gxt.ui.client.data.ModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Procedure;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
@@ -49,7 +52,9 @@ public final class SampleModel extends BaseModelData
 
     public SampleModel(final Sample sample)
     {
-        set(ModelDataPropertyNames.CODE, printShortIdentifier(sample));
+        set(ModelDataPropertyNames.INSTANCE, printInstance(sample));
+        set(ModelDataPropertyNames.GROUP, printGroup(sample));
+        set(ModelDataPropertyNames.CODE, sample.getCode());
         set(ModelDataPropertyNames.SAMPLE_TYPE, sample.getSampleType());
         set(ModelDataPropertyNames.OBJECT, sample);
         set(ModelDataPropertyNames.SAMPLE_IDENTIFIER, sample.getIdentifier());
@@ -58,7 +63,13 @@ public final class SampleModel extends BaseModelData
         set(ModelDataPropertyNames.REGISTRATION_DATE, DateRenderer.renderDate(sample.getRegistrationDate()));
         set(ModelDataPropertyNames.IS_GROUP_SAMPLE, sample.getGroup() != null);
         set(ModelDataPropertyNames.IS_INVALID, sample.getInvalidation() != null);
-        set(ModelDataPropertyNames.EXPERIMENT, printExperimentIdentifier(sample));
+        Experiment experiment = tryToGetExperiment(sample);
+        if (experiment != null)
+        {
+            set(ModelDataPropertyNames.PROJECT, experiment.getProject().getCode());
+            set(ModelDataPropertyNames.EXPERIMENT, experiment.getCode());
+            set(ModelDataPropertyNames.EXPERIMENT_IDENTIFIER, printExperimentIdentifier(experiment));
+        }
         setGeneratedFromParents(sample, 1, sample.getSampleType().getGeneratedFromHierarchyDepth());
         setContainerParents(sample, 1, sample.getSampleType().getPartOfHierarchyDepth());
         setProperties(sample);
@@ -105,24 +116,40 @@ public final class SampleModel extends BaseModelData
         }
         return sampleModels;
     }
-
-    private final static String printExperimentIdentifier(final Sample sample)
+    
+    private final static Experiment tryToGetExperiment(final Sample sample)
     {
         final Procedure procedure = sample.getValidProcedure();
         if (procedure != null)
         {
-            final Experiment experiment = procedure.getExperiment();
-            if (experiment != null)
-            {
-                return printExperimentidentifier(experiment);
-            }
+            return procedure.getExperiment();
         }
         return null;
     }
-
-    private final static String printExperimentidentifier(final Experiment experiment)
+    
+    private final static String printGroup(final Sample sample)
     {
-        return experiment.getProject().getCode() + SEPARATOR + experiment.getCode();
+        Group group = sample.getGroup();
+        return group == null ? "" : group.getCode();
+    }
+
+    private final static String printExperimentIdentifier(final Experiment experiment)
+    {
+        Project project = experiment.getProject();
+        Group group = project.getGroup();
+        DatabaseInstance instance = group.getInstance();
+        return instance.getCode() + ":/" + group.getCode() + SEPARATOR + project.getCode()
+                + SEPARATOR + experiment.getCode();
+    }
+
+    private final static String printInstance(final Sample sample)
+    {
+        DatabaseInstance databaseInstance = sample.getDatabaseInstance();
+        if (databaseInstance == null)
+        {
+            databaseInstance = sample.getGroup().getInstance();
+        }
+        return databaseInstance.getCode();
     }
 
     private final static String printShortIdentifier(final Sample sample)

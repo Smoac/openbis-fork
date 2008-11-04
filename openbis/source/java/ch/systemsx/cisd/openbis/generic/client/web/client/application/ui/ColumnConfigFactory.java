@@ -53,19 +53,21 @@ public final class ColumnConfigFactory
 
     public final static ColumnConfig createCodeColumnConfig(final IMessageProvider messageProvider)
     {
-        final ColumnConfig columnConfig = createMenuDisableColumnConfig();
-        columnConfig.setId(ModelDataPropertyNames.CODE);
-        columnConfig.setHeader(messageProvider.getMessage("code"));
-        columnConfig.setWidth(100);
-        return columnConfig;
+        return createDefaultConfig(messageProvider, ModelDataPropertyNames.CODE);
     }
-
+    
     public final static ColumnConfig createRegistrationDateColumnConfig(
             final IMessageProvider messageProvider)
     {
+        return createDefaultConfig(messageProvider, ModelDataPropertyNames.REGISTRATION_DATE);
+    }
+
+    public final static ColumnConfig createDefaultConfig(final IMessageProvider messageProvider,
+            final String id)
+    {
         final ColumnConfig columnConfig = createMenuDisableColumnConfig();
-        columnConfig.setId(ModelDataPropertyNames.REGISTRATION_DATE);
-        columnConfig.setHeader(messageProvider.getMessage("registration_date"));
+        columnConfig.setId(id);
+        columnConfig.setHeader(messageProvider.getMessage(id));
         columnConfig.setWidth(100);
         return columnConfig;
     }

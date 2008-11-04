@@ -50,7 +50,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.CommonColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoadableColumnConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ParentColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyColumns;
@@ -422,9 +421,17 @@ public final class SampleBrowserGrid extends LayoutContainer
                 Collections.sort(samples, config.getSortInfo().getSortDir().comparator(
                         new Comparator<SampleModel>()
                             {
+                                @SuppressWarnings(value="unchecked")
                                 public int compare(final SampleModel p1, final SampleModel p2)
                                 {
-                                    return p1.get(sortField, "").compareTo(p2.get(sortField, ""));
+                                    return getValue(p1).compareTo(getValue(p2));
+                                }
+                                
+                                @SuppressWarnings(value="unchecked")
+                                private Comparable getValue(SampleModel model)
+                                {
+                                    Object object = model.get(sortField);
+                                    return object instanceof Comparable ? (Comparable) object : "";
                                 }
                             }));
             }

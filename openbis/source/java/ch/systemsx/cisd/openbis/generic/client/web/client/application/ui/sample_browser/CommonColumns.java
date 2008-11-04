@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +22,9 @@ import java.util.List;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.YesNoRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SampleRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
@@ -31,6 +34,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  */
 public final class CommonColumns
 {
+    private static final String KEY_PREFIX = "sample_";
+
     private final List<ColumnConfig> columns;
 
     private final IMessageProvider messageProvider;
@@ -50,13 +55,17 @@ public final class CommonColumns
 
     private void define()
     {
+        columns.add(createHiddenColumn(ModelDataPropertyNames.INSTANCE));
+        columns.add(createDefaultConfig(ModelDataPropertyNames.GROUP));
         columns.add(createCodeColumn());
         columns.add(createIdentifierColumn());
-        columns.add(createIsSharedColumn());
+        columns.add(createHiddenBooleanColumn(ModelDataPropertyNames.IS_INSTANCE_SAMPLE_COLUMN));
         columns.add(createRegistratorColumn());
         columns.add(createRegistrationDateColumnConfig());
-        columns.add(createIsInvalidColumn());
-        columns.add(createExperimentColumn());
+        columns.add(createHiddenBooleanColumn(ModelDataPropertyNames.IS_INVALID));
+        columns.add(createDefaultConfig(ModelDataPropertyNames.PROJECT));
+        columns.add(createDefaultConfig(ModelDataPropertyNames.EXPERIMENT));
+        columns.add(createExperimentIdentifierColumn());
     }
 
     private ColumnConfig createRegistrationDateColumnConfig()
@@ -82,42 +91,40 @@ public final class CommonColumns
         return registratorColumn;
     }
 
-    public final static ColumnConfig createIdentifierColumn()
+    public final ColumnConfig createIdentifierColumn()
     {
-        final ColumnConfig columnConfig = ColumnConfigFactory.createMenuDisableColumnConfig();
-        columnConfig.setId(ModelDataPropertyNames.SAMPLE_IDENTIFIER);
-        columnConfig.setHeader("Identifier");
+        final ColumnConfig columnConfig = createDefaultConfig(ModelDataPropertyNames.SAMPLE_IDENTIFIER);
         columnConfig.setHidden(true);
         columnConfig.setWidth(150);
         return columnConfig;
     }
 
-    public final static ColumnConfig createIsSharedColumn()
+    public final ColumnConfig createExperimentIdentifierColumn()
     {
-        final ColumnConfig columnConfig = ColumnConfigFactory.createMenuDisableColumnConfig();
-        columnConfig.setId(ModelDataPropertyNames.IS_INSTANCE_SAMPLE_COLUMN);
-        columnConfig.setHeader("Is shared?");
+        final ColumnConfig columnConfig = createDefaultConfig(ModelDataPropertyNames.EXPERIMENT_IDENTIFIER);
         columnConfig.setHidden(true);
-        columnConfig.setWidth(100);
+        columnConfig.setWidth(200);
         return columnConfig;
     }
-
-    public final static ColumnConfig createIsInvalidColumn()
+    
+    private ColumnConfig createHiddenBooleanColumn(String id)
     {
-        final ColumnConfig columnConfig = ColumnConfigFactory.createMenuDisableColumnConfig();
-        columnConfig.setId(ModelDataPropertyNames.IS_INVALID);
-        columnConfig.setHeader("Is invalid?");
-        columnConfig.setWidth(100);
-        columnConfig.setHidden(true);
-        return columnConfig;
+        ColumnConfig config = createHiddenColumn(id);
+        config.setRenderer(new YesNoRenderer());
+        return config;
     }
-
-    public final static ColumnConfig createExperimentColumn()
+    
+    private ColumnConfig createHiddenColumn(String id)
     {
-        final ColumnConfig columnConfig = ColumnConfigFactory.createMenuDisableColumnConfig();
-        columnConfig.setId(ModelDataPropertyNames.EXPERIMENT);
-        columnConfig.setHeader("Experiment");
-        columnConfig.setWidth(100);
+        ColumnConfig config = createDefaultConfig(id);
+        config.setHidden(true);
+        return config;
+    }
+    
+    private ColumnConfig createDefaultConfig(String id)
+    {
+        final ColumnConfig columnConfig = ColumnConfigFactory.createDefaultConfig(messageProvider, id);
+        columnConfig.setHeader(messageProvider.getMessage(KEY_PREFIX + id));
         return columnConfig;
     }
 }

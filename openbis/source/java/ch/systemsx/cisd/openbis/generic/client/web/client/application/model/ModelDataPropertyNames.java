@@ -32,8 +32,12 @@ public final class ModelDataPropertyNames
 
     public static final String EMAIL = "email";
 
-    public static final String EXPERIMENT = "experiment";
+    public static final String PROJECT = "project";
 
+    public static final String EXPERIMENT = "experiment";
+    
+    public static final String EXPERIMENT_IDENTIFIER = "experimentIdentifier";
+    
     public static final String FILE_FORMAT_TYPE = "fileFormatType";
 
     public static final String FIRST_NAME = "firstName";
