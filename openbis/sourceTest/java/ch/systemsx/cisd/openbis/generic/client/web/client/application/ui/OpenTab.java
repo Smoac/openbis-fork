@@ -17,22 +17,27 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SessionContextCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.LeftMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
 /**
- * A {@link AbstractDefaultTestCommand} extension for choosing a persons menu element.
+ * A {@link AbstractDefaultTestCommand} extension for choosing a roles menu element.
  * 
  * @author Izabela Adamczyk
  */
-public final class ListPersons extends AbstractDefaultTestCommand
+public final class OpenTab extends AbstractDefaultTestCommand
 {
 
-    public ListPersons()
+    private final String category;
+
+    private final String option;
+
+    public OpenTab(final String category, final String option)
     {
         super(SessionContextCallback.class);
+        this.category = category;
+        this.option = option;
     }
 
     //
@@ -42,9 +47,7 @@ public final class ListPersons extends AbstractDefaultTestCommand
     public final void execute()
     {
 
-        GWTTestUtil.selectMenuCategoryWithID(LeftMenu.ID, CategoriesBuilder.CATEGORIES.PERSONS);
-
-        GWTTestUtil.selectMenuWithID(LeftMenu.ID, CategoriesBuilder.CATEGORIES.PERSONS,
-                CategoriesBuilder.MENU_ELEMENTS.LIST);
+        GWTTestUtil.selectMenuCategoryWithID(LeftMenu.ID, category);
+        GWTTestUtil.selectMenuWithID(LeftMenu.ID, category, option);
     }
 }

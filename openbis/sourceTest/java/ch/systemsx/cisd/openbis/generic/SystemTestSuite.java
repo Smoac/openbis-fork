@@ -23,6 +23,7 @@ import com.google.gwt.junit.tools.GWTTestSuite;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AuthenticationTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AuthorizationManagementConsolTest;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.SampleBrowserTest;
 
 /**
  * @author Franz-Josef Elmer
@@ -33,6 +34,7 @@ public class SystemTestSuite extends GWTTestSuite
     {
         final TestSuite testSuite = new TestSuite("System Tests");
         testSuite.addTestSuite(AuthorizationManagementConsolTest.class);
+        testSuite.addTestSuite(SampleBrowserTest.class);
         testSuite.addTestSuite(AuthenticationTest.class);
 
         return testSuite;

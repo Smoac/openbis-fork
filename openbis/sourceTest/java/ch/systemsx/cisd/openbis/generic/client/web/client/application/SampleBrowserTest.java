@@ -16,12 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import java.util.ArrayList;
-
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.CheckListSamples;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.CheckSamplesAndListWithoutServerCall;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.ListSamples;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 
 /**
@@ -35,8 +34,11 @@ public class SampleBrowserTest extends AbstractGWTTestCase
     public final void testListSamples()
     {
         remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new ListSamples("MASTER_PLATE", "3V", true, true));
-        remoteConsole.prepare(new CheckListSamples(new ArrayList<Sample>())).finish(10000);
+        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.SAMPLES,
+                CategoriesBuilder.MENU_ELEMENTS.LIST));
+        remoteConsole.prepare(new ListSamples(true, true, "3V", "MASTER_PLATE"));
+        remoteConsole.prepare(new CheckSamplesAndListWithoutServerCall(50));
+
         remoteConsole.finish(10000);
         client.onModuleLoad();
     }

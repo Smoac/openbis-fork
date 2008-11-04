@@ -29,6 +29,7 @@ import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.menu.SeparatorMenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.CommonColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ParentColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyColumns;
@@ -51,10 +52,13 @@ final class ColumnChooser extends TextToolItem
 
     private final PropertyColumns propertyColumns;
 
+    public static final String ID = GenericConstants.ID_PREFIX + "column_chooser";
+
     public ColumnChooser(final CommonColumns commonColumns, final ParentColumns parentColumns,
             final PropertyColumns propertyColumns)
     {
         super("Columns");
+        setId(ID);
         this.commonColumns = commonColumns;
         this.parentColumns = parentColumns;
         this.propertyColumns = propertyColumns;

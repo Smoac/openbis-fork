@@ -36,22 +36,22 @@ public final class ListSamples extends AbstractDefaultTestCommand
 
     private final String sampleTypeNameOrNull;
 
-    private final String groupNameOrNull;
+    private final boolean includeShared;
 
     private final boolean includeGroup;
 
-    private final boolean includeShared;
+    private final String groupNameOrNull;
 
-    public ListSamples(final String sampleTypeNameOrNull, final String groupNameOrNull,
-            final boolean includeGroup, final boolean includeShared)
+    public ListSamples(final boolean includeShared, final boolean includeGroup,
+            final String groupNameOrNull, final String sampleTypeNameOrNull)
     {
+        this.includeShared = includeShared;
+        this.includeGroup = includeGroup;
+        this.groupNameOrNull = groupNameOrNull;
+        this.sampleTypeNameOrNull = sampleTypeNameOrNull;
         addCallbackClass(GroupSelectionWidget.ListGroupsCallback.class);
         addCallbackClass(SampleTypeSelectionWidget.ListSampleTypesCallback.class);
-        assert sampleTypeNameOrNull != null && groupNameOrNull != null;
-        this.sampleTypeNameOrNull = sampleTypeNameOrNull;
-        this.groupNameOrNull = groupNameOrNull;
-        this.includeGroup = includeGroup;
-        this.includeShared = includeShared;
+
     }
 
     //
@@ -60,7 +60,12 @@ public final class ListSamples extends AbstractDefaultTestCommand
 
     public final void execute()
     {
+        listSamplesRequest(includeShared, includeGroup, groupNameOrNull, sampleTypeNameOrNull);
+    }
 
+    public static void listSamplesRequest(final boolean includeShared, final boolean includeGroup,
+            final String groupNameOrNull, final String sampleTypeNameOrNull)
+    {
         final GroupSelectionWidget groupSelector =
                 (GroupSelectionWidget) GWTTestUtil.getWidgetWithID(GroupSelectionWidget.ID);
 
@@ -73,16 +78,16 @@ public final class ListSamples extends AbstractDefaultTestCommand
                         .getWidgetWithID(SampleBrowserToolbar.INCLUDE_GROUP_CHECKBOX_ID);
         final CheckBox includeSharedCheckbox =
                 (CheckBox) GWTTestUtil
-                        .getWidgetWithID(SampleBrowserToolbar.INCLUDE_GROUP_CHECKBOX_ID);
+                        .getWidgetWithID(SampleBrowserToolbar.INCLUDE_SHARED_CHECKBOX_ID);
 
         GWTUtils.setSelectedItem(sampleTypeSelector, ModelDataPropertyNames.CODE,
                 sampleTypeNameOrNull);
-        includeGroupCheckbox.setValue(includeShared);
+        includeSharedCheckbox.setValue(includeShared);
+        includeGroupCheckbox.setValue(includeGroup);
         if (includeGroup)
         {
             GWTUtils.setSelectedItem(groupSelector, ModelDataPropertyNames.CODE, groupNameOrNull);
         }
-        includeSharedCheckbox.setValue(includeShared);
 
         final Button refresh =
                 (Button) GWTTestUtil.getWidgetWithID(SampleBrowserToolbar.REFRESH_BUTTON_ID);
