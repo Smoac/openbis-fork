@@ -51,7 +51,7 @@ public final class CheckSamplesAndListWithoutServerCall extends AbstractDefaultT
     {
         checkSamples(expectedNumberOfSamples);
 
-        ListSamples.listSamplesRequest(false, true, "3V", "MASTER_PLATE");
+        new ListSamples(false, true, "3V", "MASTER_PLATE").execute();
         checkSamples(0);
 
     }
@@ -66,7 +66,7 @@ public final class CheckSamplesAndListWithoutServerCall extends AbstractDefaultT
         Assert.assertEquals(expectedNumberOfSamples, store.getCount());
         for (int i = 0; i < store.getCount(); i++)
         {
-            Assert.assertEquals("/MP" + toInteger(i + 1, 3) + "-1", store.getAt(i).get(
+            Assert.assertEquals("MP" + toInteger(i + 1, 3) + "-1", store.getAt(i).get(
                     ModelDataPropertyNames.CODE));
         }
     }

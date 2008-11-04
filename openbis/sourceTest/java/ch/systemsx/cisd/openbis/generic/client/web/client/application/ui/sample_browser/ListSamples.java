@@ -60,12 +60,6 @@ public final class ListSamples extends AbstractDefaultTestCommand
 
     public final void execute()
     {
-        listSamplesRequest(includeShared, includeGroup, groupNameOrNull, sampleTypeNameOrNull);
-    }
-
-    public static void listSamplesRequest(final boolean includeShared, final boolean includeGroup,
-            final String groupNameOrNull, final String sampleTypeNameOrNull)
-    {
         final GroupSelectionWidget groupSelector =
                 (GroupSelectionWidget) GWTTestUtil.getWidgetWithID(GroupSelectionWidget.ID);
 

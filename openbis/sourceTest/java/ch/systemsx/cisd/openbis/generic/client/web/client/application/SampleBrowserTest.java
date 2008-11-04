@@ -39,7 +39,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ListSamples(true, true, "3V", "MASTER_PLATE"));
         remoteConsole.prepare(new CheckSamplesAndListWithoutServerCall(50));
 
-        remoteConsole.finish(10000);
+        remoteConsole.finish(20000);
         client.onModuleLoad();
     }
 }
