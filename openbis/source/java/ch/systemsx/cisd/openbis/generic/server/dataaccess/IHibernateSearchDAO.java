@@ -30,10 +30,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.IMatchingEntity;
 public interface IHibernateSearchDAO
 {
     /**
-     * @param fields TODO
-     * 
+     * Searches in entities of type <var>entityClass</var> for given <var>searchTerm</var> in the
+     * specified <var>fields</var>.
      */
-    public <T extends IMatchingEntity> List<T> searchEntitiesByTerm(
-            final Class<T> entityClass, String[] fields, final String searchTerm)
-            throws DataAccessException;
+    public <T extends IMatchingEntity> List<T> searchEntitiesByTerm(final Class<T> entityClass,
+            final String[] fields, final String searchTerm) throws DataAccessException;
 }

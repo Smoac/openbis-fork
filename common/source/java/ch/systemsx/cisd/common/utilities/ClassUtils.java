@@ -23,15 +23,19 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.JarURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -353,6 +357,8 @@ public final class ClassUtils
             final IClassFilter classFilterOrNull)
     {
         assert packageName != null : "Unspecified package name.";
+        assert packageName.endsWith(".") == false : "Remove the last dot from package name.";
+
         final IClassFilter classFilter =
                 classFilterOrNull == null ? ClassFilterUtils.createTrueClassFilter()
                         : classFilterOrNull;
@@ -370,9 +376,14 @@ public final class ClassUtils
                             packageName + "." + FilenameUtils.getBaseName(classFile.getName());
                     classNames.add(className);
                 }
+            } else if ("jar".equals(protocol))
+            {
+                classNames.addAll(listEntries(toJarFile(url), packageName));
+            } else
+            {
+                throw new UnsupportedOperationException(String.format("Protocol '%s' unsupported.",
+                        protocol));
             }
-            // FIXME 2008-11-04, Christian Ribeaud: Implement the same for protocol 'jar'. Have a
-            // look at PackageUtils to see how to do it.
         }
         final List<Class<?>> classes = new ArrayList<Class<?>>();
         for (final String className : classNames)
@@ -400,6 +411,34 @@ public final class ClassUtils
             { "class" }, false);
     }
 
+    private final static List<String> listEntries(final JarFile jarFile, final String packageName)
+    {
+        final List<String> classNames = new ArrayList<String>();
+        final String packageNamePath = packageName.replace('.', '/');
+        final String classExtension = ".class";
+        final Enumeration<JarEntry> entries = jarFile.entries();
+        while (entries.hasMoreElements())
+        {
+            final JarEntry entry = entries.nextElement();
+            String name = entry.getName();
+            if (name.charAt(0) == '/')
+            {
+                name = name.substring(1);
+            }
+            if (name.startsWith(packageNamePath))
+            {
+                if (name.endsWith(classExtension))
+                {
+                    final String className =
+                            name.substring(packageName.length() + 1, name.length()
+                                    - classExtension.length());
+                    classNames.add(packageName + "." + className);
+                }
+            }
+        }
+        return classNames;
+    }
+
     private final static List<URL> getUrls(final String packageName)
     {
         try
@@ -414,6 +453,19 @@ public final class ClassUtils
                         "Given package '%s' does not exist.", packageName));
             }
             return urls;
+        } catch (final IOException ex)
+        {
+            throw new CheckedExceptionTunnel(ex);
+        }
+    }
+
+    private final static JarFile toJarFile(final URL url)
+    {
+        assert url != null : "Unspecified URL.";
+        assert "jar".equals(url.getProtocol()) : "Wrong protocol.";
+        try
+        {
+            return ((JarURLConnection) url.openConnection()).getJarFile();
         } catch (final IOException ex)
         {
             throw new CheckedExceptionTunnel(ex);

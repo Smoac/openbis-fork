@@ -34,6 +34,9 @@ import java.util.Properties;
 
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.TimingParameters;
+import ch.systemsx.cisd.common.TimingParametersTest;
+
 /**
  * Test cases for the {@link ClassUtils} class.
  * 
@@ -45,9 +48,10 @@ public final class ClassUtilsTest
     @Test
     public void testGatherAllCastableClassesAndInterfacesFor()
     {
-        ExtendingExtendingA object = new ExtendingExtendingA();
-        Collection<Class<?>> classes = ClassUtils.gatherAllCastableClassesAndInterfacesFor(object);
-        Iterator<Class<?>> iterator = classes.iterator();
+        final ExtendingExtendingA object = new ExtendingExtendingA();
+        final Collection<Class<?>> classes =
+                ClassUtils.gatherAllCastableClassesAndInterfacesFor(object);
+        final Iterator<Class<?>> iterator = classes.iterator();
         assertSame(ExtendingExtendingA.class, iterator.next());
         assertSame(ExtendingA.class, iterator.next());
         assertSame(A.class, iterator.next());
@@ -166,6 +170,56 @@ public final class ClassUtilsTest
         final Method method = Object.class.getMethods()[0];
         final String methodDescription = ClassUtils.describeMethod(method);
         assertEquals("Object.hashCode", methodDescription);
+    }
+
+    @Test
+    public final void testListClassesFailed()
+    {
+        boolean fail = true;
+        try
+        {
+            ClassUtils.listClasses(null, null);
+        } catch (final AssertionError e)
+        {
+            fail = false;
+        }
+        assertFalse(fail);
+        try
+        {
+            ClassUtils.listClasses("does.not.exist", null);
+            fail("'" + IllegalArgumentException.class.getName() + "' expected.");
+        } catch (final IllegalArgumentException e)
+        {
+            // Nothing to do here.
+        }
+    }
+
+    @Test
+    public final void testListClasses()
+    {
+        // With 'file' protocol
+        List<Class<?>> classes = ClassUtils.listClasses("ch.systemsx.cisd.common", null);
+        assertTrue(classes.size() > 0);
+        assertTrue(classes.contains(TimingParameters.class));
+        assertTrue(classes.contains(TimingParametersTest.class));
+        // With 'jar' protocol
+        classes = ClassUtils.listClasses("org.testng.annotations", null);
+        assertTrue(classes.size() > 0);
+        assertTrue(classes.contains(Test.class));
+        classes = ClassUtils.listClasses("org.testng.annotations", new IClassFilter()
+            {
+
+                //
+                // IClassFilter
+                //
+
+                public final boolean accept(final Class<?> clazz)
+                {
+                    return clazz.equals(Test.class) == false;
+                }
+            });
+        assertTrue(classes.size() > 0);
+        assertFalse(classes.contains(Test.class));
     }
 
     //

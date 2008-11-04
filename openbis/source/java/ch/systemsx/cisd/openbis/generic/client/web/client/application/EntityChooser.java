@@ -55,7 +55,6 @@ final class EntityChooser extends ComboBox<SearchableEntityModel>
         {
             return null;
         }
-
     }
 
     //
