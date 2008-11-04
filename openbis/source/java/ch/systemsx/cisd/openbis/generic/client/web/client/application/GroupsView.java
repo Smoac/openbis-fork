@@ -138,7 +138,7 @@ public class GroupsView extends ContentPanel
         final ColumnModel cm = new ColumnModel(configs);
 
         final ListStore<GroupModel> store = new ListStore<GroupModel>();
-        store.add(getGroupModels(groups));
+        store.add(GroupModel.convert(groups));
 
         final ContentPanel cp = new ContentPanel();
         cp.setBodyBorder(false);
@@ -176,16 +176,6 @@ public class GroupsView extends ContentPanel
         add(cp);
         layout();
 
-    }
-
-    List<GroupModel> getGroupModels(final List<Group> groups)
-    {
-        final List<GroupModel> gms = new ArrayList<GroupModel>();
-        for (final Group g : groups)
-        {
-            gms.add(new GroupModel(g));
-        }
-        return gms;
     }
 
     public void refresh()

@@ -343,10 +343,12 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         {
             final List<T> entities =
                     (List<T>) getDAOFactory().getHibernateSearchDAO().searchEntitiesByTerm(
-                            searchableEntity.getMatchingEntityClass(), searchableEntity.getFields(),
-                            queryText);
+                            searchableEntity.getMatchingEntityClass(),
+                            searchableEntity.getFields(), queryText);
             list.addAll(entities);
         }
-        return list;
+        // TODO 2008-11-04, Christian Ribeaud: Remove this by implementing paging on the server
+        // side.
+        return list.subList(0, Math.min(100, list.size()));
     }
 }

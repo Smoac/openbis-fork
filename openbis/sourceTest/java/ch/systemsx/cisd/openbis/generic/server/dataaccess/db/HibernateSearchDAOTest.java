@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
  */
 @Test(groups =
     { "db", "hibernateSearch", "broken" })
-// TODO 2008-10-04, Christian Ribeaud: Put this test in the broken till we have a good strategy how
+// TODO 2008-11-04, Christian Ribeaud: Put this test in the broken till we have a good strategy how
 // to include the Hibernate Search tests.
 public final class HibernateSearchDAOTest extends AbstractDAOTest
 {
@@ -47,7 +47,6 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         {
             assertEquals(code, samplePE.getCode());
             assertEquals(lastName, samplePE.getRegistrator().getLastName());
-            System.out.println(samplePE);
         }
     }
 

@@ -16,13 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 /**
  * An entity that matches the <i>Hibernate Search</i> query and which has been returned by the
  * server.
  * 
  * @author Christian Ribeaud
  */
-public class MatchingEntity
+public final class MatchingEntity implements IsSerializable
 {
     private String identifier;
 
@@ -34,5 +36,15 @@ public class MatchingEntity
     public final void setIdentifier(final String identifier)
     {
         this.identifier = identifier;
+    }
+
+    //
+    // Object
+    //
+
+    @Override
+    public final String toString()
+    {
+        return getIdentifier();
     }
 }

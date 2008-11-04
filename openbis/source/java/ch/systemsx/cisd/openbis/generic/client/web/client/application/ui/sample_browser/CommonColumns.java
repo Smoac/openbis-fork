@@ -34,8 +34,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  */
 public final class CommonColumns
 {
-    private static final String KEY_PREFIX = "sample_";
-
     private final List<ColumnConfig> columns;
 
     private final IMessageProvider messageProvider;
@@ -93,7 +91,8 @@ public final class CommonColumns
 
     public final ColumnConfig createIdentifierColumn()
     {
-        final ColumnConfig columnConfig = createDefaultConfig(ModelDataPropertyNames.SAMPLE_IDENTIFIER);
+        final ColumnConfig columnConfig =
+                createDefaultConfig(ModelDataPropertyNames.SAMPLE_IDENTIFIER);
         columnConfig.setHidden(true);
         columnConfig.setWidth(150);
         return columnConfig;
@@ -101,30 +100,31 @@ public final class CommonColumns
 
     public final ColumnConfig createExperimentIdentifierColumn()
     {
-        final ColumnConfig columnConfig = createDefaultConfig(ModelDataPropertyNames.EXPERIMENT_IDENTIFIER);
+        final ColumnConfig columnConfig =
+                createDefaultConfig(ModelDataPropertyNames.EXPERIMENT_IDENTIFIER);
         columnConfig.setHidden(true);
         columnConfig.setWidth(200);
         return columnConfig;
     }
-    
-    private ColumnConfig createHiddenBooleanColumn(String id)
+
+    private ColumnConfig createHiddenBooleanColumn(final String id)
     {
-        ColumnConfig config = createHiddenColumn(id);
+        final ColumnConfig config = createHiddenColumn(id);
         config.setRenderer(new YesNoRenderer());
         return config;
     }
-    
-    private ColumnConfig createHiddenColumn(String id)
+
+    private ColumnConfig createHiddenColumn(final String id)
     {
-        ColumnConfig config = createDefaultConfig(id);
+        final ColumnConfig config = createDefaultConfig(id);
         config.setHidden(true);
         return config;
     }
-    
-    private ColumnConfig createDefaultConfig(String id)
+
+    private ColumnConfig createDefaultConfig(final String id)
     {
-        final ColumnConfig columnConfig = ColumnConfigFactory.createDefaultConfig(messageProvider, id);
-        columnConfig.setHeader(messageProvider.getMessage(KEY_PREFIX + id));
+        final ColumnConfig columnConfig =
+                ColumnConfigFactory.createDefaultConfig(messageProvider, id);
         return columnConfig;
     }
 }

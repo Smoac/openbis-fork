@@ -68,6 +68,14 @@ var generic = {
   location: "Location",
   file_format_type: "File Format",
   
+  //
+  // Search
+  //
+  
+  global_search: "Search: '{0}'",
+  identifier: "Identifier",
+  no_match: "No results found for '{0}'",
+  
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma
 };
