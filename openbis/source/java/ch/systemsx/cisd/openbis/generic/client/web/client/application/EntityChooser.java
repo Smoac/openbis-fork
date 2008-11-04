@@ -18,9 +18,14 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SearchableEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 
 /**
@@ -28,13 +33,39 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
  * 
  * @author Christian Ribeaud
  */
-final class EntityChooser extends SimpleComboBox<SearchableEntity>
+final class EntityChooser extends ComboBox<SearchableEntityModel>
 {
-    static final String ALL_SEARCHABLE_ENTITIES = "- All -";
+    private final IViewContext<IGenericClientServiceAsync> genericContext;
 
     EntityChooser(final IViewContext<IGenericClientServiceAsync> genericContext)
     {
-        add(createAllSearchableEntityItems());
+        this.genericContext = genericContext;
+        setEditable(false);
+        setDisplayField(ModelDataPropertyNames.DESCRIPTION);
+        setStore(new ListStore<SearchableEntityModel>());
+    }
+
+    public final SearchableEntity tryGetSelectedSearchableEntity()
+    {
+        final List<SearchableEntityModel> selection = getSelection();
+        if (selection.size() > 0)
+        {
+            return selection.get(0).get(ModelDataPropertyNames.OBJECT);
+        } else
+        {
+            return null;
+        }
+
+    }
+
+    //
+    // ComboBox
+    //
+
+    @Override
+    protected final void onRender(final Element parent, final int index)
+    {
+        super.onRender(parent, index);
         genericContext.getService().listSearchableEntities(
                 new AbstractAsyncCallback<List<SearchableEntity>>(genericContext)
                     {
@@ -46,20 +77,14 @@ final class EntityChooser extends SimpleComboBox<SearchableEntity>
                         @Override
                         protected void process(final List<SearchableEntity> result)
                         {
-                            for (final SearchableEntity searchableEntity : result)
-                            {
-                                add(searchableEntity);
-                            }
+                            final ListStore<SearchableEntityModel> searchableEntityStore =
+                                    getStore();
+                            searchableEntityStore.removeAll();
+                            searchableEntityStore
+                                    .add(SearchableEntityModel.NULL_SEARCHABLE_ENTITY_MODEL);
+                            searchableEntityStore.add(SearchableEntityModel.convert(result));
+                            setValue(searchableEntityStore.getAt(0));
                         }
                     });
-        setEditable(false);
-        setValue(getStore().getAt(0));
-    }
-
-    private final static SearchableEntity createAllSearchableEntityItems()
-    {
-        final SearchableEntity searchableEntity = new SearchableEntity();
-        searchableEntity.setDescription(ALL_SEARCHABLE_ENTITIES);
-        return searchableEntity;
     }
 }

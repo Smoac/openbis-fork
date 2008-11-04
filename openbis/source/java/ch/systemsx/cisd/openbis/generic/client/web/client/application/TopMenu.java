@@ -126,12 +126,8 @@ public class TopMenu extends LayoutContainer
                 @Override
                 public void componentSelected(final ComponentEvent ce)
                 {
-                    SearchableEntity selectedSearchableEntity =
-                            entityChooser.getSelection().get(0).getValue();
-                    if (selectedSearchableEntity.getName() == null)
-                    {
-                        selectedSearchableEntity = null;
-                    }
+                    final SearchableEntity selectedSearchableEntity =
+                            entityChooser.tryGetSelectedSearchableEntity();
                     final String queryText = searchQueryTextField.getValue();
                     if (StringUtils.isBlank(queryText) == false)
                     {

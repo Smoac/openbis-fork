@@ -18,8 +18,11 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleTypeModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
@@ -58,29 +61,30 @@ public final class ListSamples extends AbstractDefaultTestCommand
     public final void execute()
     {
 
-        GroupSelectionWidget groupSelector =
+        final GroupSelectionWidget groupSelector =
                 (GroupSelectionWidget) GWTTestUtil.getWidgetWithID(GroupSelectionWidget.ID);
 
-        SampleTypeSelectionWidget sampleTypeSelector =
+        final ComboBox<SampleTypeModel> sampleTypeSelector =
                 (SampleTypeSelectionWidget) GWTTestUtil
                         .getWidgetWithID(SampleTypeSelectionWidget.ID);
 
-        CheckBox includeGroupCheckbox =
+        final CheckBox includeGroupCheckbox =
                 (CheckBox) GWTTestUtil
                         .getWidgetWithID(SampleBrowserToolbar.INCLUDE_GROUP_CHECKBOX_ID);
-        CheckBox includeSharedCheckbox =
+        final CheckBox includeSharedCheckbox =
                 (CheckBox) GWTTestUtil
                         .getWidgetWithID(SampleBrowserToolbar.INCLUDE_GROUP_CHECKBOX_ID);
 
-        sampleTypeSelector.setSelectedItem(ModelDataPropertyNames.CODE, sampleTypeNameOrNull);
+        GWTUtils.setSelectedItem(sampleTypeSelector, ModelDataPropertyNames.CODE,
+                sampleTypeNameOrNull);
         includeGroupCheckbox.setValue(includeShared);
         if (includeGroup)
         {
-            groupSelector.setSelectedItem(ModelDataPropertyNames.CODE, groupNameOrNull);
+            GWTUtils.setSelectedItem(groupSelector, ModelDataPropertyNames.CODE, groupNameOrNull);
         }
         includeSharedCheckbox.setValue(includeShared);
 
-        Button refresh =
+        final Button refresh =
                 (Button) GWTTestUtil.getWidgetWithID(SampleBrowserToolbar.REFRESH_BUTTON_ID);
         assert refresh.isEnabled();
         GWTTestUtil.clickButtonWithID(SampleBrowserToolbar.REFRESH_BUTTON_ID);

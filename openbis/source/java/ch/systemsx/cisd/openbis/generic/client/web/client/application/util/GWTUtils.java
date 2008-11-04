@@ -16,6 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.google.gwt.user.client.ui.ListBox;
 
 /**
@@ -67,4 +72,25 @@ public final class GWTUtils
         throw new IllegalArgumentException("Given value '" + value
                 + "' not found in given list box.");
     }
+
+    /**
+     * Selects given <var>value</var> of given <var>comboBox</var>.
+     */
+    public final static <T extends ModelData> void setSelectedItem(final ComboBox<T> comboBox,
+            final String property, final String value)
+    {
+        assert comboBox != null : "Unspecified combo box.";
+        assert property != null : "Unspecified model property.";
+        assert value != null : "Unspecified model property value.";
+        final List<T> list = comboBox.getStore().findModels(property, value);
+        if (list.size() == 0)
+        {
+            throw new IllegalArgumentException("Given value '" + value + "' for property '"
+                    + property + "' not found in the combo box.");
+        }
+        final List<T> selection = new ArrayList<T>();
+        selection.add(list.get(0));
+        comboBox.setSelection(selection);
+    }
+
 }

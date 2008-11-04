@@ -31,7 +31,7 @@ public enum SearchableEntity
         //
 
         @Override
-        public final <T> Class<T> getEntityClass()
+        public final <T extends IMatchingEntity> Class<T> getMatchingEntityClass()
         {
             return cast(SamplePE.class);
         }
@@ -50,7 +50,7 @@ public enum SearchableEntity
         //
 
         @Override
-        public final <T> Class<T> getEntityClass()
+        public final <T extends IMatchingEntity> Class<T> getMatchingEntityClass()
         {
             return cast(ExperimentPE.class);
         }
@@ -81,6 +81,9 @@ public enum SearchableEntity
         return description;
     }
 
+    /**
+     * For <i>bean</i> conversion.
+     */
     public final String getName()
     {
         return name();
@@ -94,7 +97,7 @@ public enum SearchableEntity
     /**
      * Returns the <code>class</code> of this searchable entity.
      */
-    public abstract <T> Class<T> getEntityClass();
+    public abstract <T extends IMatchingEntity> Class<T> getMatchingEntityClass();
 
     //
     // Object

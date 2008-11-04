@@ -14,22 +14,18 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search;
+package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
+
+import org.testng.annotations.Test;
 
 /**
- * The mode in which the indexing is working:
- * <ul>
- * <li><b>NO_INDEX</b>: no manual index will be performed.</li>
- * <li><b>SKIP_IF_MARKER_FOUND</b>: skips the indexing if
- * {@link FullTextIndexerRunnable#FULL_TEXT_INDEX_MARKER_FILENAME} marker file is found (meaning
- * that a manual index has already been performed).</li>
- * <li><b>INDEX_FROM_SCRATCH</b>: performs a manual index from the scratch, deleting the whole
- * <code>index-base</code> directory.</li>
- * </ul>
+ * Test cases for corresponding {@link HibernateSearchDAO} class.
  * 
  * @author Christian Ribeaud
  */
-public enum IndexMode
+@Test(groups =
+    { "db", "hibernateSearch" })
+public final class HibernateSearchDAOTest extends AbstractDAOTest
 {
-    NO_INDEX, SKIP_IF_MARKER_FOUND, INDEX_FROM_SCRATCH;
+
 }

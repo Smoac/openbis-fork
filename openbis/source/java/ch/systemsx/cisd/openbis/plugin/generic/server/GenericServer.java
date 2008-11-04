@@ -332,15 +332,18 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         return externalDataTable.getExternalData();
     }
 
-    public final List<IMatchingEntity> listMatchingEntities(final String sessionToken,
-            final SearchableEntity[] searchableEntities, final String queryText)
+    @SuppressWarnings("unchecked")
+    public final <T extends IMatchingEntity> List<T> listMatchingEntities(
+            final String sessionToken, final SearchableEntity[] searchableEntities,
+            final String queryText)
     {
         getSessionManager().getSession(sessionToken);
-        final List<IMatchingEntity> list = new ArrayList<IMatchingEntity>();
+        final List<T> list = new ArrayList<T>();
         for (final SearchableEntity searchableEntity : searchableEntities)
         {
-            final List<IMatchingEntity> entities =
-                    getDAOFactory().getHibernateSearchDAO().searchEntity(searchableEntity,
+            final List<T> entities =
+                    (List<T>) getDAOFactory().getHibernateSearchDAO().searchEntitiesByTerm(
+                            searchableEntity.getMatchingEntityClass(), searchableEntity.getFields(),
                             queryText);
             list.addAll(entities);
         }

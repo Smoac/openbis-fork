@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Events;
@@ -40,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
  * 
  * @author Izabela Adamczyk
  */
-public class GroupSelectionWidget extends ExtendedComboBox<GroupModel>
+public class GroupSelectionWidget extends ComboBox<GroupModel>
 {
     final class ListGroupsCallback extends AbstractAsyncCallback<List<Group>>
     {
@@ -53,7 +52,7 @@ public class GroupSelectionWidget extends ExtendedComboBox<GroupModel>
         protected void process(final List<Group> result)
         {
             groupStore.removeAll();
-            groupStore.add(convert(result));
+            groupStore.add(GroupModel.convert(result));
             if (groupStore.getCount() > 0)
             {
                 setEnabled(true);
@@ -95,7 +94,6 @@ public class GroupSelectionWidget extends ExtendedComboBox<GroupModel>
 
     public Group tryGetSelected()
     {
-
         final List<GroupModel> selection = getSelection();
         if (selection.size() > 0)
         {
@@ -116,16 +114,6 @@ public class GroupSelectionWidget extends ExtendedComboBox<GroupModel>
     void refresh()
     {
         viewContext.getService().listGroups(null, new ListGroupsCallback(viewContext));
-    }
-
-    List<GroupModel> convert(final List<Group> groups)
-    {
-        final List<GroupModel> result = new ArrayList<GroupModel>();
-        for (final Group g : groups)
-        {
-            result.add(new GroupModel(g));
-        }
-        return result;
     }
 
 }

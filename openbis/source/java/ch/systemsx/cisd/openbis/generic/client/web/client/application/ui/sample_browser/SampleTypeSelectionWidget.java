@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
  * 
  * @author Izabela Adamczyk
  */
-public class SampleTypeSelectionWidget extends ExtendedComboBox<SampleTypeModel>
+public class SampleTypeSelectionWidget extends ComboBox<SampleTypeModel>
 {
 
     final class ListSampleTypesCallback extends AbstractAsyncCallback<List<SampleType>>

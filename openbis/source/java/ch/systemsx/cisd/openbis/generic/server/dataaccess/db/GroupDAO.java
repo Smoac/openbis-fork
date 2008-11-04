@@ -107,6 +107,8 @@ final class GroupDAO extends AbstractDAO implements IGroupDAO
 
     public List<GroupPE> listGroups(DatabaseInstancePE databaseInstance) throws DataAccessException
     {
+        assert databaseInstance != null : "Unspecified database instance.";
+
         DetachedCriteria criteria = DetachedCriteria.forClass(GroupPE.class);
         criteria = criteria.add(Restrictions.eq("databaseInstance", databaseInstance));
         List<GroupPE> list = cast(getHibernateTemplate().findByCriteria(criteria));

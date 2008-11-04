@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryParser.MultiFieldQueryParser;
 import org.apache.lucene.queryParser.ParseException;
@@ -29,12 +30,14 @@ import org.hibernate.SessionFactory;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.support.JdbcAccessor;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IMatchingEntity;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 
 /**
  * Implementation of {@link IHibernateSearchDAO} for databases.
@@ -43,6 +46,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
  */
 final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernateSearchDAO
 {
+    /**
+     * The <code>Logger</code> of this class.
+     * <p>
+     * This logger does not output any SQL statement. If you want to do so, you had better set an
+     * appropriate debugging level for class {@link JdbcAccessor}.
+     * </p>
+     */
+    private final static Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, HibernateSearchDAO.class);
 
     HibernateSearchDAO(final SessionFactory sessionFactory)
     {
@@ -54,37 +66,48 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
     // IHibernateSearchDAO
     //
 
-    public final <T extends IMatchingEntity> List<T> searchEntity(
-            final SearchableEntity searchableEntity, final String searchTerm)
+    public final <T extends IMatchingEntity> List<T> searchEntitiesByTerm(
+            final Class<T> entityClass, final String[] fields, final String searchTerm)
             throws DataAccessException
     {
-        return AbstractDAO.cast((List<?>) getHibernateTemplate().execute(new HibernateCallback()
-            {
+        assert entityClass != null : "Unspecified entity class";
+        assert fields != null && fields.length > 0 : "Unspecified search fields.";
+        assert searchTerm != null : "Unspecified search term.";
 
-                //
-                // HibernateCallback
-                //
+        final List<T> list =
+                AbstractDAO.cast((List<?>) getHibernateTemplate().execute(new HibernateCallback()
+                    {
 
-                public final Object doInHibernate(final Session session) throws HibernateException,
-                        SQLException
-                {
-                    final FullTextSession fullTextSession = Search.createFullTextSession(session);
-                    final MultiFieldQueryParser parser =
-                            new MultiFieldQueryParser(searchableEntity.getFields(),
-                                    new StandardAnalyzer());
-                    try
-                    {
-                        final Query query = parser.parse(searchTerm);
-                        final org.hibernate.Query hibernateQuery =
-                                fullTextSession.createFullTextQuery(query, searchableEntity
-                                        .getEntityClass());
-                        return hibernateQuery.list();
-                    } catch (final ParseException ex)
-                    {
-                        throw new HibernateException(String.format(
-                                "Search term '%s' could not be parsed.", searchTerm), ex);
-                    }
-                }
-            }));
+                        //
+                        // HibernateCallback
+                        //
+
+                        public final Object doInHibernate(final Session session)
+                                throws HibernateException, SQLException
+                        {
+                            final FullTextSession fullTextSession =
+                                    Search.createFullTextSession(session);
+                            final MultiFieldQueryParser parser =
+                                    new MultiFieldQueryParser(fields, new StandardAnalyzer());
+                            try
+                            {
+                                final Query query = parser.parse(searchTerm);
+                                final org.hibernate.Query hibernateQuery =
+                                        fullTextSession.createFullTextQuery(query, entityClass);
+                                return hibernateQuery.list();
+                            } catch (final ParseException ex)
+                            {
+                                throw new HibernateException(String.format(
+                                        "Search term '%s' could not be parsed.", searchTerm), ex);
+                            }
+                        }
+                    }));
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format(
+                    "%d matching entities of type '%s' have been found for search term '%s'.", list
+                            .size(), entityClass, searchTerm));
+        }
+        return list;
     }
 }

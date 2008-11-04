@@ -56,6 +56,8 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.UnmodifiableListDecorator;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 
 /**
  * Persistence Entity representing experiment.
@@ -68,7 +70,8 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
         { ColumnNames.CODE_COLUMN, ColumnNames.PROJECT_COLUMN }) })
 @Indexed
 public class ExperimentPE extends HibernateAbstractRegistrationHolder implements
-        IEntityPropertiesHolder<ExperimentPropertyPE>, IIdAndCodeHolder, Comparable<ExperimentPE>
+        IEntityPropertiesHolder<ExperimentPropertyPE>, IIdAndCodeHolder, Comparable<ExperimentPE>,
+        IMatchingEntity
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
@@ -106,6 +109,8 @@ public class ExperimentPE extends HibernateAbstractRegistrationHolder implements
             ProcessingInstructionDTO.EMPTY_ARRAY;
 
     private Date lastDataSetDate;
+
+    private ExperimentIdentifier experimentIdentifier;
 
     @Id
     @SequenceGenerator(name = SequenceNames.EXPERIMENT_SEQUENCE, sequenceName = SequenceNames.EXPERIMENT_SEQUENCE, allocationSize = 1)
@@ -427,4 +432,17 @@ public class ExperimentPE extends HibernateAbstractRegistrationHolder implements
         Hibernate.initialize(getExperimentProperties());
     }
 
+    //
+    // IMatchingEntity
+    //
+
+    @Transient
+    public final String getIdentifier()
+    {
+        if (experimentIdentifier == null)
+        {
+            experimentIdentifier = IdentifierHelper.createIdentifier(this);
+        }
+        return experimentIdentifier.toString();
+    }
 }

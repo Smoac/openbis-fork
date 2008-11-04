@@ -28,19 +28,20 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 
 /**
+ * Test cases for corresponding {@link GroupDAO} class.
  * 
- *
  * @author Franz-Josef Elmer
  */
-@Test(groups = "db")
-public class GroupDAOTest extends AbstractDAOTest
+@Test(groups =
+    { "db", "group" })
+public final class GroupDAOTest extends AbstractDAOTest
 {
     @Test
     public void testCreateGroup()
     {
         String groupCode = "test-group";
         GroupPE group = createGroup(groupCode);
-        
+
         DatabaseInstancePE databaseInstance = daoFactory.getHomeDatabaseInstance();
         GroupPE retrievedGroup =
                 daoFactory.getGroupDAO().tryFindGroupByCodeAndDatabaseInstanceId(groupCode,
@@ -48,7 +49,7 @@ public class GroupDAOTest extends AbstractDAOTest
         AssertJUnit.assertNotNull(retrievedGroup);
         assertEquals(group.getRegistrator(), retrievedGroup.getRegistrator());
     }
-    
+
     @Test
     public void testListGroups()
     {
@@ -59,18 +60,19 @@ public class GroupDAOTest extends AbstractDAOTest
         assertEquals("IMSB", groups.get(2).getCode());
         assertEquals(3, groups.size());
     }
-    
+
     @Test
     public void testListGroupsOfHomeDatabaseInstance()
     {
-        List<GroupPE> groups = daoFactory.getGroupDAO().listGroups(daoFactory.getHomeDatabaseInstance());
+        List<GroupPE> groups =
+                daoFactory.getGroupDAO().listGroups(daoFactory.getHomeDatabaseInstance());
         Collections.sort(groups);
         assertEquals("3V", groups.get(0).getCode());
         assertEquals("DEFAULT", groups.get(1).getCode());
         assertEquals("IMSB", groups.get(2).getCode());
         assertEquals(3, groups.size());
     }
-    
+
     @Test
     public void testListGroupsOfAnotherDatabaseInstance()
     {

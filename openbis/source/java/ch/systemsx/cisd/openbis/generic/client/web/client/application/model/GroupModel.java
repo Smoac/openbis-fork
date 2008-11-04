@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 
@@ -34,14 +37,24 @@ public class GroupModel extends BaseModelData
     {
     }
 
-    public GroupModel(final Group g)
+    public GroupModel(final Group group)
     {
-        set(ModelDataPropertyNames.CODE, g.getCode());
-        set(ModelDataPropertyNames.DESCRIPTION, g.getDescription());
-        set(ModelDataPropertyNames.LEADER, g.getLeader());
-        set(ModelDataPropertyNames.REGISTRATOR, g.getRegistrator());
-        set(ModelDataPropertyNames.REGISTRATION_DATE, g.getRegistrationDate());
-        set(ModelDataPropertyNames.OBJECT, g);
+        set(ModelDataPropertyNames.CODE, group.getCode());
+        set(ModelDataPropertyNames.DESCRIPTION, group.getDescription());
+        set(ModelDataPropertyNames.LEADER, group.getLeader());
+        set(ModelDataPropertyNames.REGISTRATOR, group.getRegistrator());
+        set(ModelDataPropertyNames.REGISTRATION_DATE, group.getRegistrationDate());
+        set(ModelDataPropertyNames.OBJECT, group);
+    }
+
+    public final static List<GroupModel> convert(final List<Group> groups)
+    {
+        final List<GroupModel> result = new ArrayList<GroupModel>();
+        for (final Group g : groups)
+        {
+            result.add(new GroupModel(g));
+        }
+        return result;
     }
 
 }
