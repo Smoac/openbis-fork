@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -77,7 +78,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
         + " IS NULL AND " + ColumnNames.GROUP_COLUMN + " IS NOT NULL)")
 @Indexed
 public class SamplePE implements IIdAndCodeHolder, Comparable<SamplePE>,
-        IEntityPropertiesHolder<SamplePropertyPE>, IMatchingEntity
+        IEntityPropertiesHolder<SamplePropertyPE>, IMatchingEntity, Serializable
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 

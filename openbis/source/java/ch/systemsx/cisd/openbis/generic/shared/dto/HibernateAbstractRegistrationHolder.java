@@ -28,6 +28,8 @@ import javax.persistence.MappedSuperclass;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
 
+import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+
 /**
  * Super class of <i>Persistent Entities</i> which hold registration data.
  * <p>
@@ -40,7 +42,7 @@ import org.hibernate.annotations.GenerationTime;
 @MappedSuperclass
 public abstract class HibernateAbstractRegistrationHolder implements Serializable
 {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
     /**
      * Person who registered this entity.
@@ -87,10 +89,6 @@ public abstract class HibernateAbstractRegistrationHolder implements Serializabl
     {
         this.registrationDate = registrationDate;
     }
-
-    //
-    // IRegistratorHolder
-    //
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.PERSON_REGISTERER_COLUMN, updatable = false)

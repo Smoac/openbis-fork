@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -43,10 +44,13 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Generated;
+import org.hibernate.annotations.GenerationTime;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
@@ -69,9 +73,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
     { @UniqueConstraint(columnNames =
         { ColumnNames.CODE_COLUMN, ColumnNames.PROJECT_COLUMN }) })
 @Indexed
-public class ExperimentPE extends HibernateAbstractRegistrationHolder implements
-        IEntityPropertiesHolder<ExperimentPropertyPE>, IIdAndCodeHolder, Comparable<ExperimentPE>,
-        IMatchingEntity
+public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyPE>,
+        IIdAndCodeHolder, Comparable<ExperimentPE>, IMatchingEntity, Serializable
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
@@ -111,6 +114,47 @@ public class ExperimentPE extends HibernateAbstractRegistrationHolder implements
     private Date lastDataSetDate;
 
     private ExperimentIdentifier experimentIdentifier;
+
+    /**
+     * Person who registered this entity.
+     * <p>
+     * This is specified at insert time.
+     * </p>
+     */
+    private PersonPE registrator;
+
+    /**
+     * Registration date of this entity.
+     * <p>
+     * This is specified at insert time.
+     * </p>
+     */
+    private Date registrationDate;
+
+    @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false, updatable = false)
+    @Generated(GenerationTime.INSERT)
+    public Date getRegistrationDate()
+    {
+        return HibernateAbstractRegistrationHolder.getDate(registrationDate);
+    }
+
+    public void setRegistrationDate(final Date registrationDate)
+    {
+        this.registrationDate = registrationDate;
+    }
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = ColumnNames.PERSON_REGISTERER_COLUMN, updatable = false)
+    @IndexedEmbedded
+    public PersonPE getRegistrator()
+    {
+        return registrator;
+    }
+
+    public void setRegistrator(final PersonPE registrator)
+    {
+        this.registrator = registrator;
+    }
 
     @Id
     @SequenceGenerator(name = SequenceNames.EXPERIMENT_SEQUENCE, sequenceName = SequenceNames.EXPERIMENT_SEQUENCE, allocationSize = 1)
