@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -44,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IMatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -54,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
@@ -290,16 +293,16 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             final ListSampleCriteriaDTO criteria, final List<PropertyTypePE> propertyCodes)
     {
         getSessionManager().getSession(sessionToken);
-        List<SamplePropertyPE> result = new LinkedList<SamplePropertyPE>();
+        final List<SamplePropertyPE> result = new LinkedList<SamplePropertyPE>();
         if (propertyCodes.isEmpty())
         {
             return result;
         }
-        ISamplePropertyDAO samplePropertyDAO = getDAOFactory().getSamplePropertyDAO();
-        List<SampleOwnerIdentifier> owners = criteria.getOwnerIdentifiers();
-        for (SampleOwnerIdentifier owner : owners)
+        final ISamplePropertyDAO samplePropertyDAO = getDAOFactory().getSamplePropertyDAO();
+        final List<SampleOwnerIdentifier> owners = criteria.getOwnerIdentifiers();
+        for (final SampleOwnerIdentifier owner : owners)
         {
-            List<SamplePropertyPE> props =
+            final List<SamplePropertyPE> props =
                     samplePropertyDAO.listSampleProperties(owner, criteria.getSampleType(),
                             propertyCodes);
             result.addAll(props);
@@ -327,5 +330,20 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 getBusinessObjectFactory().createExternalDataTable(session);
         externalDataTable.loadBySampleIdentifier(identifier);
         return externalDataTable.getExternalData();
+    }
+
+    public final List<IMatchingEntity> listMatchingEntities(final String sessionToken,
+            final SearchableEntity[] searchableEntities, final String queryText)
+    {
+        getSessionManager().getSession(sessionToken);
+        final List<IMatchingEntity> list = new ArrayList<IMatchingEntity>();
+        for (final SearchableEntity searchableEntity : searchableEntities)
+        {
+            final List<IMatchingEntity> entities =
+                    getDAOFactory().getHibernateSearchDAO().searchEntity(searchableEntity,
+                            queryText);
+            list.addAll(entities);
+        }
+        return list;
     }
 }

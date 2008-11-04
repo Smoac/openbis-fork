@@ -16,17 +16,25 @@
 
 package ch.systemsx.cisd.common.utilities;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
@@ -323,11 +331,105 @@ public final class ClassUtils
         return method.getDeclaringClass().getSimpleName() + "." + method.getName();
     }
 
+    /**
+     * Creates an array of given {@link Class} type and of given <var>len</var>.
+     */
     @SuppressWarnings("unchecked")
-    public final static <T> T[] createArray(final Class<T> clazz, int len)
+    public final static <T> T[] createArray(final Class<T> clazz, final int len)
     {
         assert clazz != null : "Unspecified class.";
         assert len > -1 : "Negative array length.";
         return (T[]) Array.newInstance(clazz, len);
+    }
+
+    /**
+     * Lists all the classes in the given <var>packageName</var> that passes the given
+     * {@link IClassFilter}.
+     * <p>
+     * This method does not work recursively.
+     * </p>
+     */
+    public final static List<Class<?>> listClasses(final String packageName,
+            final IClassFilter classFilterOrNull)
+    {
+        assert packageName != null : "Unspecified package name.";
+        final IClassFilter classFilter =
+                classFilterOrNull == null ? ClassFilterUtils.createTrueClassFilter()
+                        : classFilterOrNull;
+        final List<URL> urls = getUrls(packageName);
+        final List<String> classNames = new ArrayList<String>();
+        for (final URL url : urls)
+        {
+            final String protocol = url.getProtocol();
+            if ("file".equals(protocol))
+            {
+                final List<File> classFiles = listClasses(toPackageFile(url));
+                for (final File classFile : classFiles)
+                {
+                    final String className =
+                            packageName + "." + FilenameUtils.getBaseName(classFile.getName());
+                    classNames.add(className);
+                }
+            }
+            // FIXME 2008-11-04, Christian Ribeaud: Implement the same for protocol 'jar'. Have a
+            // look at PackageUtils to see how to do it.
+        }
+        final List<Class<?>> classes = new ArrayList<Class<?>>();
+        for (final String className : classNames)
+        {
+            try
+            {
+                final Class<?> clazz =
+                        org.apache.commons.lang.ClassUtils.getClass(className, false);
+                if (classFilter.accept(clazz))
+                {
+                    classes.add(clazz);
+                }
+            } catch (final ClassNotFoundException ex)
+            {
+                throw new CheckedExceptionTunnel(ex);
+            }
+        }
+        return classes;
+    }
+
+    @SuppressWarnings("unchecked")
+    private final static List<File> listClasses(final File packageFile)
+    {
+        return (List<File>) FileUtils.listFiles(packageFile, new String[]
+            { "class" }, false);
+    }
+
+    private final static List<URL> getUrls(final String packageName)
+    {
+        try
+        {
+            final List<URL> urls =
+                    Collections.list(Thread.currentThread().getContextClassLoader().getResources(
+                            packageName.replace(".", "/")));
+            final int size = urls.size();
+            if (size == 0)
+            {
+                throw new IllegalArgumentException(String.format(
+                        "Given package '%s' does not exist.", packageName));
+            }
+            return urls;
+        } catch (final IOException ex)
+        {
+            throw new CheckedExceptionTunnel(ex);
+        }
+    }
+
+    private final static File toPackageFile(final URL url)
+    {
+        assert url != null : "Unspecified URL.";
+        assert "file".equals(url.getProtocol()) : "Wrong protocol.";
+        try
+        {
+            return new File(url.toURI());
+        } catch (final URISyntaxException ex)
+        {
+            throw new CheckedExceptionTunnel(ex);
+        }
     }
 }

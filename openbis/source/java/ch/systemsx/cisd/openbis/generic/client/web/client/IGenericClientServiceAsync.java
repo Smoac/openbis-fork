@@ -24,6 +24,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
@@ -31,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 
 /**
  * Asynchronous version of {@link IGenericClientService}.
@@ -98,4 +100,15 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
      */
     public void listExternalData(final String sampleIdentifier,
             AsyncCallback<List<ExternalData>> asyncCallback);
+
+    /**
+     * @see IGenericClientService#listSearchableEntities()
+     */
+    public void listSearchableEntities(final AsyncCallback<List<SearchableEntity>> asyncCallback);
+
+    /**
+     * @see IGenericClientService#listMatchingEntities(SearchableEntity, String)
+     */
+    public void listMatchingEntities(final SearchableEntity searchableEntity,
+            final String queryText, final AsyncCallback<List<MatchingEntity>> asyncCallback);
 }

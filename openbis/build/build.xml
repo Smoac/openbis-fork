@@ -322,6 +322,9 @@
             <lib dir="${lib}/hibernate-search">
                 <include name="*.jar" />
             </lib>
+            <lib dir="${lib}/lucene">
+                <include name="*.jar" />
+            </lib>
         </war>
         <!-- Does some cleaning. -->
         <delete file="${jar.file}" failonerror="true" />

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.server;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
@@ -39,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.GroupTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.PersonTranslator;
@@ -77,6 +80,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 public final class GenericClientService extends AbstractClientService implements
         IGenericClientService
 {
+
     @Resource(name = ResourceNames.GENERIC_SERVER)
     private IGenericServer genericServer;
 
@@ -422,6 +426,45 @@ public final class GenericClientService extends AbstractClientService implements
             final List<ExternalDataPE> externalData =
                     genericServer.listExternalData(getSessionToken(), identifier);
             return BeanUtils.createBeanList(ExternalData.class, externalData);
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public final List<SearchableEntity> listSearchableEntities()
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            return BeanUtils.createBeanList(SearchableEntity.class, Arrays
+                    .asList(ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity.values()));
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public final List<MatchingEntity> listMatchingEntities(
+            final SearchableEntity searchableEntityOrNull, final String queryText)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity[] searchableEntities;
+            if (searchableEntityOrNull == null)
+            {
+                searchableEntities =
+                        ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity.values();
+            } else
+            {
+                searchableEntities =
+                        new ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity[]
+                            { ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity
+                                    .valueOf(searchableEntityOrNull.getName()) };
+            }
+            return BeanUtils.createBeanList(MatchingEntity.class, genericServer
+                    .listMatchingEntities(getSessionToken(), searchableEntities, queryText));
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

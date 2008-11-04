@@ -22,6 +22,7 @@ import java.util.Map;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
@@ -29,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
 /**
@@ -115,4 +117,15 @@ public interface IGenericClientService extends IClientService
      */
     public List<ExternalData> listExternalData(final String sampleIdentifier)
             throws UserFailureException;
+
+    /**
+     * Lists the searchable entities.
+     */
+    public List<SearchableEntity> listSearchableEntities() throws UserFailureException;
+
+    /**
+     * Lists the entities matching the search.
+     */
+    public List<MatchingEntity> listMatchingEntities(final SearchableEntity searchableEntityOrNull,
+            final String queryText) throws UserFailureException;
 }

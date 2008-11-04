@@ -40,7 +40,7 @@ public interface IServer extends ISessionProvider
      * @return <code>null</code> if authentication failed.
      */
     @Transactional
-    public Session tryToAuthenticate(String user, String password);
+    public Session tryToAuthenticate(final String user, final String password);
 
     /**
      * Logout the session with the specified session token.

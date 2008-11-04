@@ -14,26 +14,17 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dataaccess;
-
-import java.util.List;
-
-import org.springframework.dao.DataAccessException;
-
-import ch.systemsx.cisd.openbis.generic.shared.dto.IMatchingEntity;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
+package ch.systemsx.cisd.common.utilities;
 
 /**
- * <i>Data Access Object</i> for accessing <i>Hibernate Search</i>.
+ * A filter for {@link Class}.
  * 
  * @author Christian Ribeaud
  */
-public interface IHibernateSearchDAO
+public interface IClassFilter
 {
     /**
-     * 
+     * Tests whether or not the specified <var>clazz</var> should be included.
      */
-    public <T extends IMatchingEntity> List<T> searchEntity(
-            final SearchableEntity searchableEntity, final String searchTerm)
-            throws DataAccessException;
+    public boolean accept(final Class<?> clazz);
 }

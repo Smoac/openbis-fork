@@ -86,7 +86,7 @@ final class AppView extends View
 
     private final void createNorth()
     {
-        north = new TopMenu(viewContext, componentProvider.getDummyComponent());
+        north = new TopMenu(viewContext);
         final BorderLayoutData data = new BorderLayoutData(LayoutRegion.NORTH, 30);
         data.setMargins(new Margins());
         viewport.add(north, data);

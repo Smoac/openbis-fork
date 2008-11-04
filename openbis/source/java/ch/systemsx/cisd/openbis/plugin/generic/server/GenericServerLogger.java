@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
+import java.util.Arrays;
 import java.util.List;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
@@ -23,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IMatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
@@ -32,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
@@ -159,6 +162,15 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
             final SampleIdentifier identifier)
     {
         logTracking(sessionToken, "list_external_data", "IDENTIFIER(%s)", identifier);
+        return null;
+    }
+
+    public final List<IMatchingEntity> listMatchingEntities(final String sessionToken,
+            final SearchableEntity[] searchableEntities, final String queryText)
+    {
+        logTracking(sessionToken, "list_matching_entities",
+                "SEARCHABLE-ENTITIES(%s) QUERY-TEXT(%s)", Arrays.toString(searchableEntities),
+                queryText);
         return null;
     }
 }

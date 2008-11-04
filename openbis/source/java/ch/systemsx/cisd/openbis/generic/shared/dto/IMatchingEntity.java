@@ -14,26 +14,18 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dataaccess;
-
-import java.util.List;
-
-import org.springframework.dao.DataAccessException;
-
-import ch.systemsx.cisd.openbis.generic.shared.dto.IMatchingEntity;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
+package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 /**
- * <i>Data Access Object</i> for accessing <i>Hibernate Search</i>.
+ * A entity that matches the <i>Hibernate Search</i> request.
  * 
  * @author Christian Ribeaud
  */
-public interface IHibernateSearchDAO
+public interface IMatchingEntity
 {
+
     /**
-     * 
+     * Returns an identifier which uniquely identifies the matching entity.
      */
-    public <T extends IMatchingEntity> List<T> searchEntity(
-            final SearchableEntity searchableEntity, final String searchTerm)
-            throws DataAccessException;
+    public String getIdentifier();
 }

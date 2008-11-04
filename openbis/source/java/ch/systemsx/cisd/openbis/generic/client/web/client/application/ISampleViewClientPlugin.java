@@ -28,7 +28,6 @@ public interface ISampleViewClientPlugin
 
     /**
      * Shows a detailed view of the sample identifier by given <var>sampleIdentifier</var>.
-     * @return TODO
      */
     public ITabItem createSampleViewer(final String sampleIdentifier);
 }

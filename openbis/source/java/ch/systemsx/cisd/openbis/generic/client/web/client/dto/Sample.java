@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.common.annotation.CollectionMapping;
@@ -27,7 +26,7 @@ import ch.systemsx.cisd.common.annotation.CollectionMapping;
  * 
  * @author Izabela Adamczyk
  */
-public class Sample extends Code
+public class Sample extends CodeWithRegistration
 {
     public static final Sample[] EMPTY_ARRAY = new Sample[0];
 
@@ -41,10 +40,6 @@ public class Sample extends Code
     private DatabaseInstance databaseInstance;
 
     private String identifier;
-
-    private Person registrator;
-
-    private Date registrationDate;
 
     private Sample container;
 
@@ -95,26 +90,6 @@ public class Sample extends Code
     public void setIdentifier(final String identifier)
     {
         this.identifier = identifier;
-    }
-
-    public Person getRegistrator()
-    {
-        return registrator;
-    }
-
-    public void setRegistrator(final Person registrator)
-    {
-        this.registrator = registrator;
-    }
-
-    public Date getRegistrationDate()
-    {
-        return registrationDate;
-    }
-
-    public void setRegistrationDate(final Date registrationDate)
-    {
-        this.registrationDate = registrationDate;
     }
 
     public Sample getContainer()

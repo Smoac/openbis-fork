@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search;
 
+import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
@@ -65,7 +66,7 @@ public final class PackageBasedIndexedEntityFinderTest
         final PackageBasedIndexedEntityFinder entityFinder =
                 new PackageBasedIndexedEntityFinder("ch.systemsx.cisd.openbis.generic.shared.dto");
         final Set<Class<?>> entities = entityFinder.getIndexedEntities();
-        assertTrue(entities.size() > 0);
+        assertEquals(2, entities.size());
         assertTrue(entities.contains(SamplePE.class));
         assertTrue(entities.contains(ExperimentPE.class));
     }

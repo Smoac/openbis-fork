@@ -40,8 +40,8 @@
 	<classpathentry kind="lib" path="/libraries/junit/junit.jar"/>
 	<classpathentry kind="lib" path="/libraries/hibernate-search/hibernate-search.jar" sourcepath="/libraries/hibernate-search/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/hibernate-search/jms.jar"/>
-	<classpathentry kind="lib" path="/libraries/hibernate-search/lucene-core-2.3.0.jar"/>
 	<classpathentry kind="lib" path="/libraries/ehcache/ehcache.jar" sourcepath="/libraries/ehcache/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/javassist/javassist.jar" sourcepath="/libraries/javassist/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/lucene/lucene-core.jar" sourcepath="/libraries/lucene/src.zip"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

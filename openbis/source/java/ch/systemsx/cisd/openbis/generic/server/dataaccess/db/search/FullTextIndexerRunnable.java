@@ -57,7 +57,8 @@ public final class FullTextIndexerRunnable extends HibernateDaoSupport implement
         this.context = context;
         operationLog.debug(String.format("Hibernate search context: %s.", context));
         fullTextIndexer = new DefaultFullTextIndexer(context.getBatchSize());
-        indexedEntityFinder = new PackageBasedIndexedEntityFinder("");
+        indexedEntityFinder =
+                new PackageBasedIndexedEntityFinder("ch.systemsx.cisd.openbis.generic.shared.dto");
     }
 
     //
@@ -92,6 +93,7 @@ public final class FullTextIndexerRunnable extends HibernateDaoSupport implement
             final StopWatch stopWatch = new StopWatch();
             for (final Class<?> indexedEntity : indexedEntities)
             {
+                stopWatch.reset();
                 stopWatch.start();
                 fullTextIndexer.doFullTextIndex(session, indexedEntity);
                 stopWatch.stop();

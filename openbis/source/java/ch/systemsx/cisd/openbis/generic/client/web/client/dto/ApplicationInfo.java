@@ -19,11 +19,11 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
+ * A bean that contains information about the application.
  * 
- *
  * @author Franz-Josef Elmer
  */
-public class ApplicationInfo implements IsSerializable
+public final class ApplicationInfo implements IsSerializable
 {
     private String version;
 
@@ -32,9 +32,9 @@ public class ApplicationInfo implements IsSerializable
         return version;
     }
 
-    public final void setVersion(String version)
+    public final void setVersion(final String version)
     {
         this.version = version;
     }
-    
+
 }

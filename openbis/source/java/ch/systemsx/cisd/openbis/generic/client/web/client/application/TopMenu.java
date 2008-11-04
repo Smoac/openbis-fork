@@ -16,15 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import java.util.List;
+
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.mvc.AppEvent;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
@@ -35,8 +33,9 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DummyComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.User;
 
@@ -50,16 +49,17 @@ public class TopMenu extends LayoutContainer
 {
     public static final String LOGOUT_BUTTON_ID = GenericConstants.ID_PREFIX + "logout-button";
 
-    private final DummyComponent dummyComponent;
-
     private final ToolBar toolBar;
+
+    private EntityChooser entityChooser;
+
+    private TextField<String> searchQueryTextField;
 
     private final GenericViewContext viewContext;
 
-    public TopMenu(final GenericViewContext viewContext, final DummyComponent dummyComponent)
+    public TopMenu(final GenericViewContext viewContext)
     {
         this.viewContext = viewContext;
-        this.dummyComponent = dummyComponent;
         setLayout(new FlowLayout());
         setBorders(true);
         toolBar = new ToolBar();
@@ -71,8 +71,9 @@ public class TopMenu extends LayoutContainer
         toolBar.removeAll();
         toolBar.add(new AdapterToolItem(createTitleHeader()));
 
-        toolBar.add(new AdapterToolItem(new DomainChooser()));
-        toolBar.add(new AdapterToolItem(createSearchQueryField()));
+        entityChooser = new EntityChooser(viewContext);
+        toolBar.add(new AdapterToolItem(entityChooser));
+        toolBar.add(new AdapterToolItem(searchQueryTextField = createSearchQueryField()));
         toolBar.add(new AdapterToolItem(createSearchButton()));
 
         toolBar.add(new FillToolItem());
@@ -111,7 +112,7 @@ public class TopMenu extends LayoutContainer
     private Html createTitleHeader()
     {
         final Element titleHeader = DOM.createDiv();
-        titleHeader.setClassName("header-title");
+        titleHeader.setAttribute("class", "header-title");
         titleHeader.setInnerText("OpenBIS");
         return new Html(titleHeader.getString());
     }
@@ -125,34 +126,48 @@ public class TopMenu extends LayoutContainer
                 @Override
                 public void componentSelected(final ComponentEvent ce)
                 {
-                    final AppEvent<ContentPanel> event =
-                            new AppEvent<ContentPanel>(AppEvents.NAVI_EVENT);
-                    event.setData(GenericConstants.ASSOCIATED_CONTENT_PANEL, dummyComponent);
-                    Dispatcher.get().dispatch(event);
+                    SearchableEntity selectedSearchableEntity =
+                            entityChooser.getSelection().get(0).getValue();
+                    if (selectedSearchableEntity.getName() == null)
+                    {
+                        selectedSearchableEntity = null;
+                    }
+                    final String queryText = searchQueryTextField.getValue();
+                    if (StringUtils.isBlank(queryText) == false)
+                    {
+                        viewContext.getService().listMatchingEntities(selectedSearchableEntity,
+                                queryText,
+                                new AbstractAsyncCallback<List<MatchingEntity>>(viewContext)
+                                    {
+
+                                        //
+                                        // AbstractAsyncCallback
+                                        //
+
+                                        @Override
+                                        protected final void process(
+                                                final List<MatchingEntity> result)
+                                        {
+                                            System.out.println(result);
+                                            // final AppEvent<ContentPanel> event =
+                                            // new AppEvent<ContentPanel>(AppEvents.NAVI_EVENT);
+                                            // event.setData(
+                                            // GenericConstants.ASSOCIATED_CONTENT_PANEL,
+                                            // dummyComponent);
+                                            // Dispatcher.get().dispatch(event);
+                                        }
+                                    });
+                    }
                 }
             });
         return button;
     }
 
-    private TextField<String> createSearchQueryField()
+    private final static TextField<String> createSearchQueryField()
     {
         final TextField<String> field = new TextField<String>();
         field.setWidth(200);
         return field;
-    }
-
-    class DomainChooser extends SimpleComboBox<String>
-    {
-        public DomainChooser()
-        {
-            setWidth(100);
-            add("- All -");
-            add("Samples");
-            add("Experiments");
-            add("Materials");
-            setEditable(false);
-            setValue(getStore().getAt(0));
-        }
     }
 
     //
@@ -196,5 +211,4 @@ public class TopMenu extends LayoutContainer
             setId(LOGOUT_BUTTON_ID);
         }
     }
-
 }

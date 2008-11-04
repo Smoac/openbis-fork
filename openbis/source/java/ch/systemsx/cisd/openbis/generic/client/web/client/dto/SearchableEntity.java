@@ -16,37 +16,46 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * The <i>GWT</i> equivalent to {@link ExperimentPE}.
+ * A searchable entity
  * 
- * @author Tomasz Pylak
+ * @author Christian Ribeaud
  */
-public class Experiment extends CodeWithRegistration
+public final class SearchableEntity implements IsSerializable
 {
-    private Project project;
+    private String name;
 
-    private ExperimentType experimentType;
+    private String description;
 
-    public Project getProject()
+    public final String getDescription()
     {
-        return project;
+        return description;
     }
 
-    public void setProject(final Project project)
+    public final void setDescription(final String description)
     {
-        this.project = project;
+        this.description = description;
     }
 
-    public ExperimentType getExperimentType()
+    public final String getName()
     {
-        return experimentType;
+        return name;
     }
 
-    public void setExperimentType(final ExperimentType experimentType)
+    public final void setName(final String name)
     {
-        this.experimentType = experimentType;
+        this.name = name;
     }
 
+    //
+    // Object
+    //
+
+    @Override
+    public final String toString()
+    {
+        return getDescription();
+    }
 }

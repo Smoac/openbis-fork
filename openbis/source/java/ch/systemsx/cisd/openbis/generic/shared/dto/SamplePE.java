@@ -70,7 +70,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
         + " IS NULL AND " + ColumnNames.GROUP_COLUMN + " IS NOT NULL)")
 @Indexed
 public class SamplePE extends HibernateAbstractRegistrationHolder implements IIdAndCodeHolder,
-        Comparable<SamplePE>, IEntityPropertiesHolder<SamplePropertyPE>
+        Comparable<SamplePE>, IEntityPropertiesHolder<SamplePropertyPE>, IMatchingEntity
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
@@ -401,4 +401,13 @@ public class SamplePE extends HibernateAbstractRegistrationHolder implements IId
         Hibernate.initialize(getSampleProperties());
     }
 
+    //
+    // IMatchingEntity
+    //
+
+    @Transient
+    public final String getIdentifier()
+    {
+        return getSampleIdentifier().toString();
+    }
 }
