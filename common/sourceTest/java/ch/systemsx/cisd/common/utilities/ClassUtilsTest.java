@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.testng.annotations.Test;
+import org.testng.remote.SuiteSlave;
 
 import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.TimingParametersTest;
@@ -206,7 +207,7 @@ public final class ClassUtilsTest
         classes = ClassUtils.listClasses("org.testng.annotations", null);
         assertTrue(classes.size() > 0);
         assertTrue(classes.contains(Test.class));
-        classes = ClassUtils.listClasses("org.testng.annotations", new IClassFilter()
+        classes = ClassUtils.listClasses("org.testng.remote", new IClassFilter()
             {
 
                 //
@@ -215,7 +216,7 @@ public final class ClassUtilsTest
 
                 public final boolean accept(final Class<?> clazz)
                 {
-                    return clazz.equals(Test.class) == false;
+                    return clazz.equals(SuiteSlave.class) == false;
                 }
             });
         assertTrue(classes.size() > 0);

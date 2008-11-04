@@ -11,7 +11,7 @@ var generic = {
   login_userLabel: "User",
   login_passwordLabel: "Password",
   login_buttonLabel: "login",
-  login_failed: "Sorry, you entered an invalid username or password.<br>Please try again.",
+  login_failed: "Sorry, you entered an invalid username or password. Please try again.",
   
   //
   // AbstractAsyncCallback

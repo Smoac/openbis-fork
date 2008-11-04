@@ -23,6 +23,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.authentication.IAuthenticationService;
@@ -339,13 +340,19 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     {
         getSessionManager().getSession(sessionToken);
         final List<T> list = new ArrayList<T>();
-        for (final SearchableEntity searchableEntity : searchableEntities)
+        try
         {
-            final List<T> entities =
-                    (List<T>) getDAOFactory().getHibernateSearchDAO().searchEntitiesByTerm(
-                            searchableEntity.getMatchingEntityClass(),
-                            searchableEntity.getFields(), queryText);
-            list.addAll(entities);
+            for (final SearchableEntity searchableEntity : searchableEntities)
+            {
+                final List<T> entities =
+                        (List<T>) getDAOFactory().getHibernateSearchDAO().searchEntitiesByTerm(
+                                searchableEntity.getMatchingEntityClass(),
+                                searchableEntity.getFields(), queryText);
+                list.addAll(entities);
+            }
+        } catch (final DataAccessException ex)
+        {
+            throw new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
         }
         // TODO 2008-11-04, Christian Ribeaud: Remove this by implementing paging on the server
         // side.

@@ -414,26 +414,21 @@ public final class ClassUtils
     private final static List<String> listEntries(final JarFile jarFile, final String packageName)
     {
         final List<String> classNames = new ArrayList<String>();
-        final String packageNamePath = packageName.replace('.', '/');
+        final String packageNamePath = packageName.replace('.', '/') + "/";
         final String classExtension = ".class";
         final Enumeration<JarEntry> entries = jarFile.entries();
         while (entries.hasMoreElements())
         {
             final JarEntry entry = entries.nextElement();
             String name = entry.getName();
-            if (name.charAt(0) == '/')
+            if (name.startsWith(packageNamePath)
+                    && name.lastIndexOf('/') == packageNamePath.length() - 1
+                    && name.endsWith(classExtension))
             {
-                name = name.substring(1);
-            }
-            if (name.startsWith(packageNamePath))
-            {
-                if (name.endsWith(classExtension))
-                {
-                    final String className =
-                            name.substring(packageName.length() + 1, name.length()
-                                    - classExtension.length());
-                    classNames.add(packageName + "." + className);
-                }
+                final String className =
+                        name.substring(packageName.length() + 1, name.length()
+                                - classExtension.length());
+                classNames.add(packageName + "." + className);
             }
         }
         return classNames;
