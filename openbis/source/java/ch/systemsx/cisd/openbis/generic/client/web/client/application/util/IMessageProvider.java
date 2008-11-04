@@ -24,6 +24,11 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
 public interface IMessageProvider
 {
     /**
+     * Returns the name of the message provider.
+     */
+    public String getName();
+    
+    /**
      * Returns the message specified by a key. Optional parameters are used to render the message by
      * replacing <code>{0}</code> by the first parameter, <code>{1}</code> by the second one
      * etc.
@@ -35,4 +40,5 @@ public interface IMessageProvider
 
     /** Whether this implementation contains given <var>key</var>. */
     public boolean containsKey(String key);
+    
 }

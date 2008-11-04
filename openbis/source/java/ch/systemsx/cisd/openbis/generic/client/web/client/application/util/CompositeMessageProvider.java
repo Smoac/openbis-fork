@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
 
-import java.util.MissingResourceException;
 
 /**
  * A {@link IMessageProvider} implementation based on <i>Composite</i> pattern.
@@ -26,18 +25,35 @@ import java.util.MissingResourceException;
 public final class CompositeMessageProvider implements IMessageProvider
 {
     private final IMessageProvider[] messageProviders;
+    private final String name;
 
     public CompositeMessageProvider(final IMessageProvider... messageProviders)
     {
         assert messageProviders != null : "Unspecified message providers.";
         assert messageProviders.length > 0 : "No message provider has been specified.";
         this.messageProviders = messageProviders;
+        StringBuffer buffer = new StringBuffer("[");
+        for (int i = 0; i < messageProviders.length; i++)
+        {
+            buffer.append(messageProviders[i].getName());
+            if (i < messageProviders.length - 1)
+            {
+                buffer.append(", ");
+            }
+        }
+        buffer.append("]");
+        name = buffer.toString();
     }
 
     //
     // IMessageProvider
     //
 
+    public String getName()
+    {
+        return name;
+    }
+    
     public final boolean containsKey(final String key)
     {
         for (final IMessageProvider messageProvider : messageProviders)
@@ -59,7 +75,7 @@ public final class CompositeMessageProvider implements IMessageProvider
                 return messageProvider.getMessage(key, parameters);
             }
         }
-        throw new MissingResourceException("Can not find key '" + key + "' in any dictionary.",
-                null, key);
+        return "Unknown key '" + key + "' in dictonaries " + name + ".";
     }
+
 }

@@ -30,9 +30,11 @@ import com.google.gwt.i18n.client.Dictionary;
 public final class DictonaryBasedMessageProvider implements IMessageProvider
 {
     private final Dictionary dictionary;
+    private final String dictionaryName;
 
     public DictonaryBasedMessageProvider(final String dictionaryName)
     {
+        this.dictionaryName = dictionaryName;
         this.dictionary = Dictionary.getDictionary(dictionaryName);
     }
 
@@ -40,6 +42,11 @@ public final class DictonaryBasedMessageProvider implements IMessageProvider
     // IMessageProvider
     //
 
+    public String getName()
+    {
+        return dictionaryName;
+    }
+    
     public final boolean containsKey(final String key)
     {
         return dictionary.keySet().contains(key);
@@ -53,7 +60,7 @@ public final class DictonaryBasedMessageProvider implements IMessageProvider
             message = dictionary.get(key);
         } catch (final MissingResourceException ex)
         {
-            return "Unknown key '" + key + "' in '" + dictionary + "' dictionary.";
+            return "Unknown key '" + key + "' in dictionary '" + dictionaryName + "'.";
         }
         if (parameters.length == 0)
         {
