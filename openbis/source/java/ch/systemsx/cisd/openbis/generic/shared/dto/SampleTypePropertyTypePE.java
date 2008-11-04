@@ -26,6 +26,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.validator.NotNull;
@@ -67,9 +68,23 @@ public class SampleTypePropertyTypePE extends EntityTypePropertyTypePE
     @NotNull(message = ValidationMessages.SAMPLE_TYPE_NOT_NULL_MESSAGE)
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = SampleTypePE.class)
     @JoinColumn(name = ColumnNames.SAMPLE_TYPE_COLUMN)
-    public EntityTypePE getEntityType()
+    private EntityTypePE getEntityTypeInternal()
     {
         return entityType;
+    }
+
+    @Transient
+    public EntityTypePE getEntityType()
+    {
+        return getEntityTypeInternal();
+    }
+
+    @Override
+    // This setter sets the bidirectional connection. That's why we must have an another internal
+    // plain setter for Hibernate.
+    public void setEntityType(EntityTypePE entityType)
+    {
+        ((SampleTypePE) entityType).addSampleTypePropertyType(this);
     }
 
     @SequenceGenerator(name = SequenceNames.SAMPLE_TYPE_PROPERTY_TYPE_SEQUENCE, sequenceName = SequenceNames.SAMPLE_TYPE_PROPERTY_TYPE_SEQUENCE, allocationSize = 1)

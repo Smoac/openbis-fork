@@ -26,6 +26,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.validator.NotNull;
@@ -59,9 +60,15 @@ public class MaterialTypePropertyTypePE extends EntityTypePropertyTypePE
     @NotNull(message = ValidationMessages.MATERIAL_TYPE_NOT_NULL_MESSAGE)
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = MaterialTypePE.class)
     @JoinColumn(name = ColumnNames.MATERIAL_TYPE_COLUMN)
-    public EntityTypePE getEntityType()
+    private EntityTypePE getEntityTypeInternal()
     {
         return entityType;
+    }
+
+    @Transient
+    public EntityTypePE getEntityType()
+    {
+        return getEntityTypeInternal();
     }
 
     @SequenceGenerator(name = SequenceNames.MATERIAL_TYPE_PROPERTY_TYPE_SEQUENCE, sequenceName = SequenceNames.MATERIAL_TYPE_PROPERTY_TYPE_SEQUENCE, allocationSize = 1)

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -35,6 +36,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
+import ch.systemsx.cisd.common.collections.UnmodifiableListDecorator;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
 
@@ -52,7 +54,8 @@ public final class SampleTypePE extends EntityTypePE
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
-    private List<SampleTypePropertyTypePE> sampleTypePropertyTypes;
+    private List<SampleTypePropertyTypePE> sampleTypePropertyTypes =
+            new ArrayList<SampleTypePropertyTypePE>();
 
     //
     // NOTE: Should be objects in order to allow Hibernate to find SampleType by example.
@@ -64,18 +67,48 @@ public final class SampleTypePE extends EntityTypePE
 
     private Integer containerHierarchyDepth;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "entityTypeInternal")
     @JoinColumn(name = ColumnNames.SAMPLE_TYPE_COLUMN, updatable = false)
     @Fetch(FetchMode.SUBSELECT)
-    public List<SampleTypePropertyTypePE> getSampleTypePropertyTypes()
+    private List<SampleTypePropertyTypePE> getSampleTypePropertyTypesInternal()
     {
         return sampleTypePropertyTypes;
     }
 
-    public void setSampleTypePropertyTypes(
+    // Required by Hibernate.
+    @SuppressWarnings("unused")
+    private void setSampleTypePropertyTypesInternal(
             final List<SampleTypePropertyTypePE> sampleTypePropertyTypes)
     {
         this.sampleTypePropertyTypes = sampleTypePropertyTypes;
+    }
+
+    @Transient
+    public List<SampleTypePropertyTypePE> getSampleTypePropertyTypes()
+    {
+        return new UnmodifiableListDecorator<SampleTypePropertyTypePE>(
+                getSampleTypePropertyTypesInternal());
+    }
+
+    public final void setSampleTypePropertyTypes(
+            final List<SampleTypePropertyTypePE> sampleTypePropertyTypes)
+    {
+        getSampleTypePropertyTypesInternal().clear();
+        for (final SampleTypePropertyTypePE child : sampleTypePropertyTypes)
+        {
+            addSampleTypePropertyType(child);
+        }
+    }
+
+    public void addSampleTypePropertyType(SampleTypePropertyTypePE child)
+    {
+        final SampleTypePE parent = (SampleTypePE) child.getEntityType();
+        if (parent != null)
+        {
+            parent.getSampleTypePropertyTypesInternal().remove(child);
+        }
+        child.setEntityTypeInternal(this);
+        getSampleTypePropertyTypesInternal().add(child);
     }
 
     @Column(name = ColumnNames.IS_LISTABLE)

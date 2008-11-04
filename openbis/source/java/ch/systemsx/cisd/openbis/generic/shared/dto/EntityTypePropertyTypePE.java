@@ -101,9 +101,15 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
         this.managedInternally = managedInternally;
     }
 
-    public void setEntityType(final EntityTypePE entityType)
+    // needed by Hibernate, must match the mapped getter name
+    void setEntityTypeInternal(EntityTypePE entityType)
     {
         this.entityType = entityType;
+    }
+
+    public void setEntityType(final EntityTypePE entityType)
+    {
+        setEntityTypeInternal(entityType);
     }
 
     public void setId(final Long id)

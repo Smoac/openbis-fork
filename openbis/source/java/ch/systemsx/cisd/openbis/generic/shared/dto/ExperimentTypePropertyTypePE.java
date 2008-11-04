@@ -25,6 +25,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.validator.NotNull;
@@ -55,9 +56,15 @@ public class ExperimentTypePropertyTypePE extends EntityTypePropertyTypePE
     @NotNull(message = ValidationMessages.EXPERIMENT_TYPE_NOT_NULL_MESSAGE)
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = ExperimentTypePE.class)
     @JoinColumn(name = ColumnNames.EXPERIMENT_TYPE_COLUMN)
-    public EntityTypePE getEntityType()
+    private EntityTypePE getEntityTypeInternal()
     {
         return entityType;
+    }
+
+    @Transient
+    public EntityTypePE getEntityType()
+    {
+        return getEntityTypeInternal();
     }
 
     @SequenceGenerator(name = SequenceNames.EXPERIMENT_TYPE_PROPERTY_TYPE_SEQUENCE, sequenceName = SequenceNames.EXPERIMENT_TYPE_PROPERTY_TYPE_SEQUENCE, allocationSize = 1)
@@ -67,5 +74,4 @@ public class ExperimentTypePropertyTypePE extends EntityTypePropertyTypePE
     {
         return id;
     }
-
 }
