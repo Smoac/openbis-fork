@@ -40,7 +40,7 @@ public enum SearchableEntity
         public final String[] getFields()
         {
             return new String[]
-                { "code" };
+                { "code", "registrator.firstName", "registrator.lastName" };
         }
     },
     EXPERIMENT("Experiment")
@@ -59,7 +59,7 @@ public enum SearchableEntity
         public final String[] getFields()
         {
             return new String[]
-                { "code" };
+                { "code", "registrator.firstName", "registrator.lastName" };
         }
     };
 

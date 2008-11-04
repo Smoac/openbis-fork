@@ -18,10 +18,12 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -39,14 +41,19 @@ import javax.persistence.Transient;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.lucene.analysis.KeywordAnalyzer;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.Check;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.Generated;
+import org.hibernate.annotations.GenerationTime;
+import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
@@ -69,8 +76,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
         + ColumnNames.GROUP_COLUMN + " IS NULL) OR (" + ColumnNames.DATABASE_INSTANCE_COLUMN
         + " IS NULL AND " + ColumnNames.GROUP_COLUMN + " IS NOT NULL)")
 @Indexed
-public class SamplePE extends HibernateAbstractRegistrationHolder implements IIdAndCodeHolder,
-        Comparable<SamplePE>, IEntityPropertiesHolder<SamplePropertyPE>, IMatchingEntity
+public class SamplePE implements IIdAndCodeHolder, Comparable<SamplePE>,
+        IEntityPropertiesHolder<SamplePropertyPE>, IMatchingEntity
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
@@ -115,6 +122,22 @@ public class SamplePE extends HibernateAbstractRegistrationHolder implements IId
     private InvalidationPE invalidation;
 
     private List<SamplePropertyPE> properties = new LinkedList<SamplePropertyPE>();
+
+    /**
+     * Person who registered this entity.
+     * <p>
+     * This is specified at insert time.
+     * </p>
+     */
+    private PersonPE registrator;
+
+    /**
+     * Registration date of this entity.
+     * <p>
+     * This is specified at insert time.
+     * </p>
+     */
+    private Date registrationDate;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.INVALIDATION_COLUMN)
@@ -309,10 +332,39 @@ public class SamplePE extends HibernateAbstractRegistrationHolder implements IId
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
     @Length(min = 1, max = 40, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @Pattern(regex = AbstractIdAndCodeHolder.CODE_PATTERN, flags = java.util.regex.Pattern.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
-    @Field(index = Index.UN_TOKENIZED, store = Store.YES)
+    @Field(index = Index.UN_TOKENIZED, store = Store.YES, analyzer = @Analyzer(impl = KeywordAnalyzer.class))
     public String getCode()
     {
         return code;
+    }
+
+    @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false, updatable = false)
+    @Generated(GenerationTime.INSERT)
+    public Date getRegistrationDate()
+    {
+        return HibernateAbstractRegistrationHolder.getDate(registrationDate);
+    }
+
+    public void setRegistrationDate(final Date registrationDate)
+    {
+        this.registrationDate = registrationDate;
+    }
+
+    //
+    // IRegistratorHolder
+    //
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = ColumnNames.PERSON_REGISTERER_COLUMN, updatable = false)
+    @IndexedEmbedded
+    public PersonPE getRegistrator()
+    {
+        return registrator;
+    }
+
+    public void setRegistrator(final PersonPE registrator)
+    {
+        this.registrator = registrator;
     }
 
     //

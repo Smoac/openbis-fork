@@ -23,7 +23,7 @@ import java.util.Date;
  * 
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractRegistrationHolder extends Id implements IRegistrationHolder
+public abstract class AbstractRegistrationHolder extends Id
 {
     private static final long serialVersionUID = 1L;
 

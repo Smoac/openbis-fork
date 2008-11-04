@@ -101,6 +101,7 @@ public final class FullTextIndexerRunnable extends HibernateDaoSupport implement
                         .getName(), stopWatch));
             }
             FileUtils.touch(markerFile);
+            releaseSession(session);
         } catch (final Throwable th)
         {
             operationLog.error("Unexpected exception or error, thread is still running.", th);

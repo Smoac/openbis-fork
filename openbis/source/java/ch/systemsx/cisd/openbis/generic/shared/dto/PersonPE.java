@@ -37,6 +37,8 @@ import javax.persistence.UniqueConstraint;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
 import org.hibernate.validator.Email;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
@@ -88,6 +90,7 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
 
     @Column(name = ColumnNames.FIRST_NAME_COLUMN)
     @Length(max = 30, message = ValidationMessages.FIRST_NAME_LENGTH_MESSAGE)
+    @Field(index = Index.TOKENIZED)
     public final String getFirstName()
     {
         return firstName;
@@ -100,6 +103,7 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
 
     @Column(name = ColumnNames.LAST_NAME_COLUMN)
     @Length(max = 30, message = ValidationMessages.LAST_NAME_LENGTH_MESSAGE)
+    @Field(index = Index.TOKENIZED)
     public final String getLastName()
     {
         return lastName;

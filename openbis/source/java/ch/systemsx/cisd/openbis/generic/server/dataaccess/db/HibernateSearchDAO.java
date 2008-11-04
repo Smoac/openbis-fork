@@ -20,6 +20,9 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.KeywordAnalyzer;
+import org.apache.lucene.analysis.PerFieldAnalyzerWrapper;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryParser.MultiFieldQueryParser;
 import org.apache.lucene.queryParser.ParseException;
@@ -62,6 +65,14 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         setSessionFactory(sessionFactory);
     }
 
+    private final Analyzer createAnalyzer(final String[] fields)
+    {
+        final PerFieldAnalyzerWrapper analyzer =
+                new PerFieldAnalyzerWrapper(new StandardAnalyzer());
+        analyzer.addAnalyzer("code", new KeywordAnalyzer());
+        return analyzer;
+    }
+
     //
     // IHibernateSearchDAO
     //
@@ -88,7 +99,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                             final FullTextSession fullTextSession =
                                     Search.createFullTextSession(session);
                             final MultiFieldQueryParser parser =
-                                    new MultiFieldQueryParser(fields, new StandardAnalyzer());
+                                    new MultiFieldQueryParser(fields, createAnalyzer(fields));
                             try
                             {
                                 final Query query = parser.parse(searchTerm);

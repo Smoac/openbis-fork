@@ -32,6 +32,7 @@ import org.testng.annotations.BeforeMethod;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.HibernateSearchContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -57,6 +58,7 @@ public abstract class AbstractDAOTest extends AbstractTransactionalTestNGSpringC
         System.setProperty("database.create-from-scratch", "true");
         System.setProperty("database.kind", "test");
         System.setProperty("script-folder", "sourceTest");
+        System.setProperty("hibernate.search.index-mode", "NO_INDEX");
         System.setProperty("mass-upload-folder", "sourceTest/sql/postgresql");
     }
 
@@ -65,6 +67,8 @@ public abstract class AbstractDAOTest extends AbstractTransactionalTestNGSpringC
     protected IDAOFactory daoFactory;
 
     protected SessionFactory sessionFactory;
+
+    protected HibernateSearchContext hibernateSearchContext;
 
     private Long origDatabaseInstanceId;
 
@@ -107,6 +111,18 @@ public abstract class AbstractDAOTest extends AbstractTransactionalTestNGSpringC
     public final void setHibernateSessionFactory(final SessionFactory sessionFactory)
     {
         this.sessionFactory = sessionFactory;
+    }
+
+    /**
+     * Sets <code>hibernate search context</code>.
+     * <p>
+     * Will be automatically dependency injected by type.
+     * </p>
+     */
+    @Autowired
+    public final void setHibernateSearchContext(final HibernateSearchContext hibernateSearchContext)
+    {
+        this.hibernateSearchContext = hibernateSearchContext;
     }
 
     /**

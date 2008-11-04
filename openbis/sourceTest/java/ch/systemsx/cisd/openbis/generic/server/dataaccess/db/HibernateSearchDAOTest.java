@@ -16,7 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+
+import java.util.List;
+
 import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * Test cases for corresponding {@link HibernateSearchDAO} class.
@@ -24,8 +32,45 @@ import org.testng.annotations.Test;
  * @author Christian Ribeaud
  */
 @Test(groups =
-    { "db", "hibernateSearch" })
+    { "db", "hibernateSearch", "broken" })
+// TODO 2008-10-04, Christian Ribeaud: Put this test in the broken till we have a good strategy how
+// to include the Hibernate Search tests.
 public final class HibernateSearchDAOTest extends AbstractDAOTest
 {
+
+    private final static void checkSamples(final List<SamplePE> samples, final int size,
+            final String code, final String lastName)
+    {
+        assertTrue(samples.size() > 0);
+        assertEquals(size, samples.size());
+        for (final SamplePE samplePE : samples)
+        {
+            assertEquals(code, samplePE.getCode());
+            assertEquals(lastName, samplePE.getRegistrator().getLastName());
+            System.out.println(samplePE);
+        }
+    }
+
+    @Test
+    public final void testSearchEntitiesByTermForC11()
+    {
+        final IHibernateSearchDAO hibernateSearchDAO = daoFactory.getHibernateSearchDAO();
+        final String code = "C11";
+        final String lastName = "System User";
+        final int size = 69;
+        List<SamplePE> samples =
+                hibernateSearchDAO.searchEntitiesByTerm(SamplePE.class, new String[]
+                    { "code" }, "C11");
+        checkSamples(samples, size, code, lastName);
+        samples = hibernateSearchDAO.searchEntitiesByTerm(SamplePE.class, new String[]
+            { "code" }, "code:C11");
+        checkSamples(samples, size, code, lastName);
+        samples = hibernateSearchDAO.searchEntitiesByTerm(SamplePE.class, new String[]
+            { "code", "registrator.lastName" }, "code:C11 AND registrator.lastName:System User");
+        checkSamples(samples, size, code, lastName);
+        samples = hibernateSearchDAO.searchEntitiesByTerm(SamplePE.class, new String[]
+            { "code", "registrator.lastName" }, "code:C11 AND registrator.lastName:System*");
+        checkSamples(samples, size, code, lastName);
+    }
 
 }
