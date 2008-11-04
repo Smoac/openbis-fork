@@ -34,7 +34,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestU
  */
 public final class CheckSamplesAndListWithoutServerCall extends AbstractDefaultTestCommand
 {
-
+    private static final String PLATE_GEOMETRY_KEY =
+            SampleModel.PROPERTY_PREFIX + Boolean.TRUE + "PLATE_GEOMETRY";
+    
     private final int expectedNumberOfSamples;
 
     public CheckSamplesAndListWithoutServerCall(final int expectedNumberOfSamples)
@@ -66,8 +68,16 @@ public final class CheckSamplesAndListWithoutServerCall extends AbstractDefaultT
         Assert.assertEquals(expectedNumberOfSamples, store.getCount());
         for (int i = 0; i < store.getCount(); i++)
         {
-            Assert.assertEquals("MP" + toInteger(i + 1, 3) + "-1", store.getAt(i).get(
-                    ModelDataPropertyNames.CODE));
+            SampleModel row = store.getAt(i);
+            String expectedCode = "MP" + toInteger(i + 1, 3) + "-1";
+            Assert.assertEquals(expectedCode, row.get(ModelDataPropertyNames.CODE));
+            Assert.assertEquals("CISD:/" + expectedCode, row.get(ModelDataPropertyNames.SAMPLE_IDENTIFIER));
+            Assert.assertEquals("CISD", row.get(ModelDataPropertyNames.INSTANCE));
+            Assert.assertEquals("", row.get(ModelDataPropertyNames.GROUP));
+            Assert.assertEquals(false, row.get(ModelDataPropertyNames.IS_INVALID));
+            Assert.assertEquals(true, row.get(ModelDataPropertyNames.IS_INSTANCE_SAMPLE_COLUMN));
+            Assert.assertEquals("384_WELLS_16X24", row.get(PLATE_GEOMETRY_KEY));
+            
         }
     }
 
@@ -81,6 +91,6 @@ public final class CheckSamplesAndListWithoutServerCall extends AbstractDefaultT
             buffer.append("0");
             mult /= 10;
         }
-        return buffer.toString() + x;
+        return buffer.append(x).toString();
     }
 }
