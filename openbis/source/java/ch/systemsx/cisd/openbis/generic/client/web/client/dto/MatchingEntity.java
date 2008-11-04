@@ -28,6 +28,22 @@ public final class MatchingEntity implements IsSerializable
 {
     private String identifier;
 
+    private Person registrator;
+
+    private EntityType entityType;
+
+    private EntityKind entityKind;
+
+    public final EntityKind getEntityKind()
+    {
+        return entityKind;
+    }
+
+    public final void setEntityKind(final EntityKind entityKind)
+    {
+        this.entityKind = entityKind;
+    }
+
     public final String getIdentifier()
     {
         return identifier;
@@ -36,6 +52,26 @@ public final class MatchingEntity implements IsSerializable
     public final void setIdentifier(final String identifier)
     {
         this.identifier = identifier;
+    }
+
+    public final Person getRegistrator()
+    {
+        return registrator;
+    }
+
+    public final void setRegistrator(final Person registrator)
+    {
+        this.registrator = registrator;
+    }
+
+    public final EntityType getEntityType()
+    {
+        return entityType;
+    }
+
+    public final void setEntityType(final EntityType entityType)
+    {
+        this.entityType = entityType;
     }
 
     //

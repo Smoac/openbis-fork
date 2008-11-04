@@ -21,7 +21,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
  * 
  * @author Christian Ribeaud
  */
-public abstract class EntityType extends AbstractType
+public class EntityType extends AbstractType
 {
     private DatabaseInstance databaseInstance;
 

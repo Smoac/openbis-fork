@@ -62,6 +62,7 @@ import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * Persistence Entity representing experiment.
@@ -488,5 +489,17 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
             experimentIdentifier = IdentifierHelper.createIdentifier(this);
         }
         return experimentIdentifier.toString();
+    }
+
+    @Transient
+    public final EntityTypePE getEntityType()
+    {
+        return getExperimentType();
+    }
+
+    @Transient
+    public final EntityKind getEntityKind()
+    {
+        return EntityKind.EXPERIMENT;
     }
 }

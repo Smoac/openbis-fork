@@ -22,6 +22,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
 
 /**
@@ -39,7 +40,12 @@ public final class MatchingEntityModel extends BaseModelData
 
     public MatchingEntityModel(final MatchingEntity matchingEntity)
     {
+        set(ModelDataPropertyNames.OBJECT, matchingEntity);
         set(ModelDataPropertyNames.IDENTIFIER, matchingEntity.getIdentifier());
+        set(ModelDataPropertyNames.ENTITY_KIND, matchingEntity.getEntityKind().getDescription());
+        set(ModelDataPropertyNames.ENTITY_TYPE, matchingEntity.getEntityType().getCode());
+        set(ModelDataPropertyNames.REGISTRATOR, PersonRenderer.createPersonAnchor(matchingEntity
+                .getRegistrator()));
     }
 
     public final static List<MatchingEntityModel> convert(

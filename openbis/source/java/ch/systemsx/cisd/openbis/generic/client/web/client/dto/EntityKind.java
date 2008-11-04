@@ -16,14 +16,28 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * The <i>GWT</i> equivalent to {@link ExperimentTypePE}.
+ * The <i>GWT</i> counterpart to
+ * {@link ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind}.
  * 
- * @author Tomasz Pylak
+ * @author Christian Ribeaud
  */
-public class ExperimentType extends EntityType
+public enum EntityKind implements IsSerializable
 {
+    MATERIAL("Material"), EXPERIMENT("Experiment"), SAMPLE("Sample");
+
+    private final String description;
+
+    private EntityKind(final String description)
+    {
+        this.description = description;
+    }
+
+    public final String getDescription()
+    {
+        return description;
+    }
 
 }

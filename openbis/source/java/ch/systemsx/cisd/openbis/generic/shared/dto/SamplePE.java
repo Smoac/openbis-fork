@@ -65,6 +65,7 @@ import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * <i>Persistent Entity</i> object of an entity 'sample'.
@@ -462,5 +463,17 @@ public class SamplePE implements IIdAndCodeHolder, Comparable<SamplePE>,
     public final String getIdentifier()
     {
         return getSampleIdentifier().toString();
+    }
+
+    @Transient
+    public final EntityTypePE getEntityType()
+    {
+        return getSampleType();
+    }
+
+    @Transient
+    public final EntityKind getEntityKind()
+    {
+        return EntityKind.SAMPLE;
     }
 }

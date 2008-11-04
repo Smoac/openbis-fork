@@ -464,7 +464,8 @@ public final class GenericClientService extends AbstractClientService implements
                                     .valueOf(searchableEntityOrNull.getName()) };
             }
             return BeanUtils.createBeanList(MatchingEntity.class, genericServer
-                    .listMatchingEntities(getSessionToken(), searchableEntities, queryText));
+                    .listMatchingEntities(getSessionToken(), searchableEntities, queryText),
+                    DtoConverters.getMatchingEntityConverter());
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

@@ -19,7 +19,11 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.XDOM;
+import com.extjs.gxt.ui.client.event.GridEvent;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
@@ -27,9 +31,12 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.MatchingEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
 
 /**
@@ -57,19 +64,68 @@ public class MatchingEntitiesPanel extends LayoutContainer
     private final Grid<MatchingEntityModel> createGrid(final List<MatchingEntity> matchingEntities)
     {
         final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-
-        final ColumnConfig columnConfig =
-                ColumnConfigFactory.createDefaultConfig(viewContext.getMessageProvider(),
-                        ModelDataPropertyNames.IDENTIFIER);
-        columnConfig.setWidth(120);
-
-        configs.add(columnConfig);
-
+        configs.add(createEntityKindColumnConfig());
+        configs.add(createEntityTypeColumnConfig());
+        configs.add(createIdentifierColumnConfig());
+        configs.add(ColumnConfigFactory.createRegistratorColumnConfig(viewContext
+                .getMessageProvider()));
         final ColumnModel columnModel = new ColumnModel(configs);
 
         final ListStore<MatchingEntityModel> store = new ListStore<MatchingEntityModel>();
         store.add(MatchingEntityModel.convert(matchingEntities));
         final Grid<MatchingEntityModel> grid = new Grid<MatchingEntityModel>(store, columnModel);
+        grid.addListener(Events.CellClick, new Listener<GridEvent>()
+            {
+
+                //
+                // Listener
+                //
+
+                public final void handleEvent(final GridEvent be)
+                {
+                    final MatchingEntityModel matchingEntityModel =
+                            (MatchingEntityModel) be.grid.getStore().getAt(be.rowIndex);
+                    final MatchingEntity matchingEntity =
+                            (MatchingEntity) matchingEntityModel.get(ModelDataPropertyNames.OBJECT);
+                    final String identifier =
+                            matchingEntityModel.get(ModelDataPropertyNames.IDENTIFIER);
+                    final String typeCode = matchingEntity.getEntityType().getCode();
+                    if (matchingEntity.getEntityKind() == EntityKind.SAMPLE)
+                    {
+                        final ITabItem tabView =
+                                viewContext.getClientPluginFactoryProvider()
+                                        .getClientPluginFactory(typeCode)
+                                        .createViewClientForSampleType(typeCode)
+                                        .createSampleViewer(identifier);
+                        Dispatcher.get().dispatch(DispatcherHelper.createNaviEvent(tabView));
+                    }
+                }
+            });
         return grid;
+    }
+
+    private final ColumnConfig createEntityKindColumnConfig()
+    {
+        final ColumnConfig columnConfig =
+                ColumnConfigFactory.createDefaultConfig(viewContext.getMessageProvider(),
+                        ModelDataPropertyNames.ENTITY_KIND);
+        return columnConfig;
+    }
+
+    private final ColumnConfig createEntityTypeColumnConfig()
+    {
+        final ColumnConfig columnConfig =
+                ColumnConfigFactory.createDefaultConfig(viewContext.getMessageProvider(),
+                        ModelDataPropertyNames.ENTITY_TYPE);
+        return columnConfig;
+    }
+
+    private final ColumnConfig createIdentifierColumnConfig()
+    {
+        final ColumnConfig columnConfig =
+                ColumnConfigFactory.createDefaultConfig(viewContext.getMessageProvider(),
+                        ModelDataPropertyNames.IDENTIFIER);
+        columnConfig.setWidth(120);
+        return columnConfig;
     }
 }

@@ -203,7 +203,6 @@ public final class SampleBrowserGrid extends LayoutContainer
                                         .createViewClientForSampleType(code).createSampleViewer(
                                                 sampleIdentifier);
                         Dispatcher.get().dispatch(DispatcherHelper.createNaviEvent(tabView));
-
                     }
                 });
             toolBar = new PagingToolBar(PAGE_SIZE);
@@ -421,13 +420,13 @@ public final class SampleBrowserGrid extends LayoutContainer
                 Collections.sort(samples, config.getSortInfo().getSortDir().comparator(
                         new Comparator<SampleModel>()
                             {
-                                @SuppressWarnings(value="unchecked")
+                                @SuppressWarnings(value = "unchecked")
                                 public int compare(final SampleModel p1, final SampleModel p2)
                                 {
                                     return getValue(p1).compareTo(getValue(p2));
                                 }
-                                
-                                @SuppressWarnings(value="unchecked")
+
+                                @SuppressWarnings(value = "unchecked")
                                 private Comparable getValue(SampleModel model)
                                 {
                                     Object object = model.get(sortField);

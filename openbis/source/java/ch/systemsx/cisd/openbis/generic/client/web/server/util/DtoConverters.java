@@ -23,15 +23,18 @@ import org.hibernate.Hibernate;
 
 import ch.systemsx.cisd.common.collections.UnmodifiableListDecorator;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IMatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
@@ -56,6 +59,14 @@ public class DtoConverters
     public final static BeanUtils.Converter getSampleConverter()
     {
         return SampleConverter.INSTANCE;
+    }
+
+    /**
+     * Returns the {@link IMatchingEntity} converter.
+     */
+    public final static BeanUtils.Converter getMatchingEntityConverter()
+    {
+        return MatchingEntityConverter.INSTANCE;
     }
 
     //
@@ -211,4 +222,31 @@ public class DtoConverters
             return entityProperties;
         }
     }
+
+    /**
+     * A {@link BeanUtils.Converter} for converting {@link IMatchingEntity} into
+     * {@link MatchingEntity}.
+     * 
+     * @author Christian Ribeaud
+     */
+    private final static class MatchingEntityConverter implements BeanUtils.Converter
+    {
+
+        static final MatchingEntityConverter INSTANCE = new MatchingEntityConverter();
+
+        private MatchingEntityConverter()
+        {
+        }
+
+        //
+        // BeanUtils.Converter
+        //
+
+        public final EntityKind convertToEntityKind(final IMatchingEntity matchingEntity)
+        {
+            return EntityKind.valueOf(matchingEntity.getEntityKind().name());
+        }
+
+    }
+
 }

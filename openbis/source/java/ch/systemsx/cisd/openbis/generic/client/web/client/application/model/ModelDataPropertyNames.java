@@ -32,6 +32,10 @@ public final class ModelDataPropertyNames
 
     public static final String EMAIL = "email";
 
+    public static final String ENTITY_KIND = "entityKind";
+
+    public static final String ENTITY_TYPE = "entityType";
+
     public static final String EXPERIMENT = "experiment";
 
     public static final String EXPERIMENT_IDENTIFIER = "experimentIdentifier";
