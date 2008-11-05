@@ -72,7 +72,7 @@ public final class RoleAssignmentDAO extends AbstractDAO implements IRoleAssignm
 
     public final List<RoleAssignmentPE> listRoleAssignmentsByPerson(final PersonPE person)
     {
-        final Criterion granteeEq = Restrictions.eq("person", person);
+        final Criterion granteeEq = Restrictions.eq("personInternal", person);
         final DetachedCriteria criteria = DetachedCriteria.forClass(ENTITY_CLASS);
         criteria.add(granteeEq);
         final List<RoleAssignmentPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
@@ -112,8 +112,10 @@ public final class RoleAssignmentDAO extends AbstractDAO implements IRoleAssignm
         List<RoleAssignmentPE> roles;
         roles =
                 cast(getHibernateTemplate().find(
-                        String.format("from %s r where r.person.userId = ? and group.code = ? "
-                                + "and r.role = ?", ENTITY_CLASS.getSimpleName()), new Object[]
+                        String.format(
+                                "from %s r where r.personInternal.userId = ? and group.code = ? "
+                                        + "and r.role = ?", ENTITY_CLASS.getSimpleName()),
+                        new Object[]
                             { person, group, role }));
         final RoleAssignmentPE roleAssignment =
                 tryFindEntity(roles, "role_assignments", role, group, person);
@@ -130,7 +132,7 @@ public final class RoleAssignmentDAO extends AbstractDAO implements IRoleAssignm
         List<RoleAssignmentPE> roles;
         roles =
                 cast(getHibernateTemplate().find(
-                        String.format("from %s r where r.person.userId = ? "
+                        String.format("from %s r where r.personInternal.userId = ? "
                                 + "and r.role = ? and r.databaseInstance = ?", ENTITY_CLASS
                                 .getSimpleName()), new Object[]
                             { person, role, getDatabaseInstance() }));

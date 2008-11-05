@@ -32,6 +32,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -92,14 +93,25 @@ public final class RoleAssignmentPE extends HibernateAbstractRegistrationHolder 
     @NotNull(message = ValidationMessages.PERSON_NOT_NULL_MESSAGE)
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.PERSON_GRANTEE_COLUMN, updatable = false)
-    public final PersonPE getPerson()
+    private final PersonPE getPersonInternal()
     {
         return person;
     }
 
-    public final void setPerson(final PersonPE person)
+    final void setPersonInternal(final PersonPE person)
     {
         this.person = person;
+    }
+
+    public final void setPerson(final PersonPE person)
+    {
+        person.addRoleAssignment(this);
+    }
+
+    @Transient
+    public final PersonPE getPerson()
+    {
+        return getPersonInternal();
     }
 
     public final void setId(final Long id)
