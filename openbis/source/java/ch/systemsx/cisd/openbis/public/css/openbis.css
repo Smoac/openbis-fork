@@ -52,20 +52,6 @@ body,div,td {
     background-color: #dddddd;
 }
 
-/* TopMenu */
-
-.header-user-info {
-    font-weight: lighter;
-    color: black;
-}
-
-.header-title {
-    font-weight: lighter;
-    font-size: large;
-    margin-left: 1em;
-    margin-right: 1em;
-}
-
 /* MainTabPanel */
 
 .intro-tab {

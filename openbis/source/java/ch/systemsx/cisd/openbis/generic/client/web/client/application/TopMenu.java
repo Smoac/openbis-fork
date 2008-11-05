@@ -34,12 +34,12 @@ import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EnterKeyListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
@@ -97,7 +97,7 @@ public class TopMenu extends LayoutContainer
         refresh();
     }
 
-    private Html userInfo()
+    private final Html userInfo()
     {
         final SessionContext sessionContext = viewContext.getModel().getSessionContext();
         final User user = sessionContext.getUser();
@@ -111,18 +111,14 @@ public class TopMenu extends LayoutContainer
         {
             fullInfo = viewContext.getMessage("header_userWithHomegroup", userName, homeGroup);
         }
-        final Element div = DOM.createDiv();
-        div.setClassName("header-user-info");
-        div.setInnerText(fullInfo);
-        return new Html(div.getString());
+        return new Html(fullInfo);
     }
 
-    private Html createTitleHeader()
+    private final Html createTitleHeader()
     {
-        final Element titleHeader = DOM.createDiv();
-        titleHeader.setAttribute("class", "header-title");
-        titleHeader.setInnerText("OpenBIS");
-        return new Html(titleHeader.getString());
+        final Html titleHeader = new Html(viewContext.getMessage("applicationName"));
+        titleHeader.setStyleAttribute("margin", "0 1em 0 1em");
+        return titleHeader;
     }
 
     private Button createSearchButton()
@@ -131,35 +127,57 @@ public class TopMenu extends LayoutContainer
         button.addSelectionListener(new SelectionListener<ComponentEvent>()
             {
 
+                //
+                // SelectionListener
+                //
+
                 @Override
-                public void componentSelected(final ComponentEvent ce)
+                public final void componentSelected(final ComponentEvent ce)
                 {
-                    final SearchableEntity selectedSearchableEntity =
-                            entityChooser.tryGetSelectedSearchableEntity();
-                    final String queryText = searchQueryTextField.getValue();
-                    if (StringUtils.isBlank(queryText) == false)
-                    {
-                        viewContext.getService().listMatchingEntities(selectedSearchableEntity,
-                                queryText,
-                                new ListMatchingEntitiesAsyncCallback(viewContext, queryText));
-                    }
+                    doSearch();
                 }
+
             });
         return button;
     }
 
-    private final static TextField<String> createSearchQueryField()
+    private final TextField<String> createSearchQueryField()
     {
         final TextField<String> field = new TextField<String>();
         field.setWidth(200);
+        field.addKeyListener(new EnterKeyListener()
+            {
+
+                //
+                // EnterKeyListener
+                //
+
+                @Override
+                protected final void onEnterKey()
+                {
+                    doSearch();
+                }
+            });
         return field;
+    }
+
+    private final void doSearch()
+    {
+        final SearchableEntity selectedSearchableEntity =
+                entityChooser.tryGetSelectedSearchableEntity();
+        final String queryText = searchQueryTextField.getValue();
+        if (StringUtils.isBlank(queryText) == false)
+        {
+            viewContext.getService().listMatchingEntities(selectedSearchableEntity, queryText,
+                    new ListMatchingEntitiesAsyncCallback(viewContext, queryText));
+        }
     }
 
     //
     // Helper classes
     //
 
-    private final static class ListMatchingEntitiesAsyncCallback extends
+    private final class ListMatchingEntitiesAsyncCallback extends
             AbstractAsyncCallback<List<MatchingEntity>>
     {
         private final String queryText;
@@ -185,6 +203,7 @@ public class TopMenu extends LayoutContainer
                         .getMessage("no_match", queryText), null);
                 return;
             }
+            searchQueryTextField.reset();
             final AppEvent<ContentPanel> event = new AppEvent<ContentPanel>(AppEvents.NAVI_EVENT);
             event.setData(GenericConstants.ASSOCIATED_CONTENT_PANEL, new DefaultTabItem(viewContext
                     .getMessageProvider().getMessage("global_search", queryText),
