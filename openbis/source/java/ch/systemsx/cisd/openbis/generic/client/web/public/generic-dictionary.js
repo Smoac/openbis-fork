@@ -42,14 +42,14 @@ var generic = {
   
   sample: "Sample",
   sample_type: "Sample Type",
-  sample_instance: "Instance",
-  sample_sampleIdentifier: "Identifier",
-  sample_isShared: "shared?",
-  sample_isInvalid: "invalid?",
-  sample_group: "Group",
-  sample_project: "Project",
-  sample_experiment: "Experiment",
-  sample_experimentIdentifier: "Experiment Identifier",
+  instance: "Instance",
+  sample_identifier: "Identifier",
+  is_instance_sample: "Shared?",
+  is_invalid: "Invalid?",
+  group: "Group",
+  project: "Project",
+  experiment: "Experiment",
+  experiment_identifier: "Experiment Identifier",
   generated_samples: "Generated Samples",
   generated_from: "Parent (gener.) {0}",
   part_of: "Parent (cont.) {0}",
@@ -75,6 +75,8 @@ var generic = {
   global_search: "Search: '{0}'",
   identifier: "Identifier",
   no_match: "No results found for '{0}'",
+  entity_type: "Entity Type",
+  entity_kind: "Entity Kind",
   
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

@@ -58,7 +58,7 @@ public final class SampleModel extends BaseModelData
         set(ModelDataPropertyNames.SAMPLE_TYPE, sample.getSampleType());
         set(ModelDataPropertyNames.OBJECT, sample);
         set(ModelDataPropertyNames.SAMPLE_IDENTIFIER, sample.getIdentifier());
-        set(ModelDataPropertyNames.IS_INSTANCE_SAMPLE_COLUMN, (sample.getDatabaseInstance() != null));
+        set(ModelDataPropertyNames.IS_INSTANCE_SAMPLE, (sample.getDatabaseInstance() != null));
         set(ModelDataPropertyNames.REGISTRATOR, PersonRenderer.createPersonAnchor(sample.getRegistrator()));
         set(ModelDataPropertyNames.REGISTRATION_DATE, DateRenderer.renderDate(sample.getRegistrationDate()));
         set(ModelDataPropertyNames.IS_GROUP_SAMPLE, sample.getGroup() != null);

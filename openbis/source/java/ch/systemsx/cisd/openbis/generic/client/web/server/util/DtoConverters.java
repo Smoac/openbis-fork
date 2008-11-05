@@ -19,8 +19,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.Hibernate;
-
 import ch.systemsx.cisd.common.collections.UnmodifiableListDecorator;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
@@ -69,6 +67,14 @@ public class DtoConverters
         return MatchingEntityConverter.INSTANCE;
     }
 
+    /**
+     * Does not really create an unmodifiable empty list but this works with <i>GWT</i>.
+     */
+    static final <T> List<T> createUnmodifiableEmptyList()
+    {
+        return new ArrayList<T>();
+    }
+
     //
     // Helper classes
     //
@@ -104,7 +110,7 @@ public class DtoConverters
 
         private final Sample convertToSample(final SamplePE sample)
         {
-            if (Hibernate.isInitialized(sample) == false)
+            if (HibernateUtils.isInitialized(sample) == false)
             {
                 return null;
             }
@@ -168,9 +174,9 @@ public class DtoConverters
         {
             final List<SampleTypePropertyTypePE> sampleTypePropertyTypes =
                     sampleTypePE.getSampleTypePropertyTypes();
-            if (Hibernate.isInitialized(sampleTypePropertyTypes) == false)
+            if (HibernateUtils.isInitialized(sampleTypePropertyTypes) == false)
             {
-                return new ArrayList<SampleTypePropertyType>();
+                return createUnmodifiableEmptyList();
             }
             return BeanUtils.createBeanList(SampleTypePropertyType.class, sampleTypePropertyTypes);
         }
@@ -210,9 +216,9 @@ public class DtoConverters
             {
                 properties = ((UnmodifiableListDecorator<T>) properties).getDecorated();
             }
-            if (Hibernate.isInitialized(properties) == false)
+            if (HibernateUtils.isInitialized(properties) == false)
             {
-                return new ArrayList<P>();
+                return createUnmodifiableEmptyList();
             }
             final List<P> entityProperties = new ArrayList<P>();
             for (final T property : properties)

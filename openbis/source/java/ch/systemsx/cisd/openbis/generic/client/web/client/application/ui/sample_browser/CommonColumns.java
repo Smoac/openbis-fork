@@ -34,8 +34,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  */
 public final class CommonColumns
 {
-    private static final String KEY_PREFIX = "sample_";
-
     private final List<ColumnConfig> columns;
 
     private final IMessageProvider messageProvider;
@@ -55,20 +53,25 @@ public final class CommonColumns
 
     private void define()
     {
-        columns.add(createHiddenColumn(ModelDataPropertyNames.INSTANCE));
-        columns.add(createDefaultConfig(ModelDataPropertyNames.GROUP));
-        columns.add(createCodeColumn());
-        columns.add(createIdentifierColumn());
-        columns.add(createHiddenBooleanColumn(ModelDataPropertyNames.IS_INSTANCE_SAMPLE_COLUMN));
-        columns.add(createRegistratorColumn());
-        columns.add(createRegistrationDateColumnConfig());
-        columns.add(createHiddenBooleanColumn(ModelDataPropertyNames.IS_INVALID));
-        columns.add(createDefaultConfig(ModelDataPropertyNames.PROJECT));
-        columns.add(createDefaultConfig(ModelDataPropertyNames.EXPERIMENT));
-        columns.add(createExperimentIdentifierColumn());
+        columns.add(createHiddenColumn(ModelDataPropertyNames.INSTANCE,
+                ModelDataPropertyNames.INSTANCE));
+        columns.add(ColumnConfigFactory.createDefaultConfig(messageProvider,
+                ModelDataPropertyNames.GROUP));
+        columns.add(createSampleCodeColumnConfig());
+        columns.add(createSampleIdentifierColumn());
+        columns.add(createHiddenBooleanColumn(ModelDataPropertyNames.IS_INSTANCE_SAMPLE,
+                "is_instance_sample"));
+        columns.add(createHiddenRegistratorColumn());
+        columns.add(createHiddenRegistrationDateColumnConfig());
+        columns.add(createHiddenBooleanColumn(ModelDataPropertyNames.IS_INVALID, "is_invalid"));
+        columns.add(ColumnConfigFactory.createDefaultConfig(messageProvider,
+                ModelDataPropertyNames.PROJECT));
+        columns.add(ColumnConfigFactory.createDefaultConfig(messageProvider,
+                ModelDataPropertyNames.EXPERIMENT));
+        columns.add(createHiddenExperimentIdentifierColumn());
     }
 
-    private ColumnConfig createRegistrationDateColumnConfig()
+    private final ColumnConfig createHiddenRegistrationDateColumnConfig()
     {
         final ColumnConfig columnConfig =
                 ColumnConfigFactory.createRegistrationDateColumnConfig(messageProvider);
@@ -76,14 +79,14 @@ public final class CommonColumns
         return columnConfig;
     }
 
-    private ColumnConfig createCodeColumn()
+    private final ColumnConfig createSampleCodeColumnConfig()
     {
         final ColumnConfig codeColumn = ColumnConfigFactory.createCodeColumnConfig(messageProvider);
         codeColumn.setRenderer(new SampleRenderer());
         return codeColumn;
     }
 
-    private final ColumnConfig createRegistratorColumn()
+    private final ColumnConfig createHiddenRegistratorColumn()
     {
         final ColumnConfig registratorColumn =
                 ColumnConfigFactory.createRegistratorColumnConfig(messageProvider);
@@ -91,40 +94,37 @@ public final class CommonColumns
         return registratorColumn;
     }
 
-    public final ColumnConfig createIdentifierColumn()
+    public final ColumnConfig createSampleIdentifierColumn()
     {
-        final ColumnConfig columnConfig = createDefaultConfig(ModelDataPropertyNames.SAMPLE_IDENTIFIER);
-        columnConfig.setHidden(true);
+        final ColumnConfig columnConfig =
+                ColumnConfigFactory.createDefaultConfig(messageProvider,
+                        ModelDataPropertyNames.SAMPLE_IDENTIFIER, "sample_identifier");
         columnConfig.setWidth(150);
         return columnConfig;
     }
 
-    public final ColumnConfig createExperimentIdentifierColumn()
+    public final ColumnConfig createHiddenExperimentIdentifierColumn()
     {
-        final ColumnConfig columnConfig = createDefaultConfig(ModelDataPropertyNames.EXPERIMENT_IDENTIFIER);
+        final ColumnConfig columnConfig =
+                ColumnConfigFactory.createDefaultConfig(messageProvider,
+                        ModelDataPropertyNames.EXPERIMENT_IDENTIFIER, "experiment_identifier");
         columnConfig.setHidden(true);
         columnConfig.setWidth(200);
         return columnConfig;
     }
-    
-    private ColumnConfig createHiddenBooleanColumn(String id)
+
+    private final ColumnConfig createHiddenBooleanColumn(final String id, final String header)
     {
-        ColumnConfig config = createHiddenColumn(id);
+        final ColumnConfig config = createHiddenColumn(id, header);
         config.setRenderer(new YesNoRenderer());
         return config;
     }
-    
-    private ColumnConfig createHiddenColumn(String id)
+
+    private final ColumnConfig createHiddenColumn(final String id, final String header)
     {
-        ColumnConfig config = createDefaultConfig(id);
+        final ColumnConfig config =
+                ColumnConfigFactory.createDefaultConfig(messageProvider, id, header);
         config.setHidden(true);
         return config;
-    }
-    
-    private ColumnConfig createDefaultConfig(String id)
-    {
-        final ColumnConfig columnConfig = ColumnConfigFactory.createDefaultConfig(messageProvider, id);
-        columnConfig.setHeader(messageProvider.getMessage(KEY_PREFIX + id));
-        return columnConfig;
     }
 }

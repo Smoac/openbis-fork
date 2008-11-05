@@ -75,7 +75,7 @@ public final class CheckSamplesAndListWithoutServerCall extends AbstractDefaultT
             Assert.assertEquals("CISD", row.get(ModelDataPropertyNames.INSTANCE));
             Assert.assertEquals("", row.get(ModelDataPropertyNames.GROUP));
             Assert.assertEquals(false, row.get(ModelDataPropertyNames.IS_INVALID));
-            Assert.assertEquals(true, row.get(ModelDataPropertyNames.IS_INSTANCE_SAMPLE_COLUMN));
+            Assert.assertEquals(true, row.get(ModelDataPropertyNames.IS_INSTANCE_SAMPLE));
             Assert.assertEquals("384_WELLS_16X24", row.get(PLATE_GEOMETRY_KEY));
             
         }

@@ -52,7 +52,7 @@ public final class ModelDataPropertyNames
 
     public static final String IS_GROUP_SAMPLE = "isGroupSample";
 
-    public static final String IS_INSTANCE_SAMPLE_COLUMN = "isShared";
+    public static final String IS_INSTANCE_SAMPLE = "isInstanceSample";
 
     public static final String IS_INVALID = "isInvalid";
 
