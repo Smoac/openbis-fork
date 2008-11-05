@@ -40,19 +40,17 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 public enum EntityKind
 {
     MATERIAL("material", MaterialPE.class, MaterialTypePE.class, MaterialTypePropertyTypePE.class,
-            MaterialPropertyPE.class, true),
+            MaterialPropertyPE.class),
 
     EXPERIMENT("experiment", ExperimentPE.class, ExperimentTypePE.class,
-            ExperimentTypePropertyTypePE.class, ExperimentPropertyPE.class, true),
+            ExperimentTypePropertyTypePE.class, ExperimentPropertyPE.class),
 
     SAMPLE("sample", SamplePE.class, SampleTypePE.class, SampleTypePropertyTypePE.class,
-            SamplePropertyPE.class, false);
+            SamplePropertyPE.class);
 
     private final String entityLabel;
 
     private transient final Class<?> entityClass;
-
-    private final boolean cachedProperties;
 
     private transient final Class<?> typeClass;
 
@@ -61,15 +59,13 @@ public enum EntityKind
     private transient final Class<?> propertyClass;
 
     private EntityKind(final String entityLabel, final Class<?> entityClass,
-            final Class<?> typeClass, final Class<?> assignmentClass, Class<?> propertyClass,
-            final boolean cachedProperties)
+            final Class<?> typeClass, final Class<?> assignmentClass, Class<?> propertyClass)
     {
         this.entityLabel = entityLabel;
         this.entityClass = entityClass;
         this.typeClass = typeClass;
         this.assignmentClass = assignmentClass;
         this.propertyClass = propertyClass;
-        this.cachedProperties = cachedProperties;
     }
 
     @SuppressWarnings("unchecked")
@@ -101,10 +97,5 @@ public enum EntityKind
     public final <T> Class<T> getEntityClass()
     {
         return cast(entityClass);
-    }
-
-    public final boolean hasCachedProperties()
-    {
-        return cachedProperties;
     }
 }

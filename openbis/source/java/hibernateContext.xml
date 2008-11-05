@@ -92,21 +92,12 @@
                 -->
             </props>
         </property>
-        <property name="eventListeners">
-            <map>
-                <entry key="post-update" value-ref="searchListener" />
-                <entry key="post-insert" value-ref="searchListener" />
-                <entry key="post-delete" value-ref="searchListener" />
-            </map>
-        </property>
     </bean>
 
     <!--
         // Hibernate Search
     -->
-
-    <bean id="searchListener" class="org.hibernate.search.event.FullTextIndexEventListener" />
-
+    
     <bean id="hibernate-search-context"
         class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.HibernateSearchContext">
         <property name="indexBase" value="${hibernate.search.index-base}" />
