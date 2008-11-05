@@ -26,6 +26,7 @@ import java.util.Map;
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
+import com.extjs.gxt.ui.client.data.LoadEvent;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
@@ -205,7 +206,7 @@ public final class SampleBrowserGrid extends LayoutContainer
                         Dispatcher.get().dispatch(DispatcherHelper.createNaviEvent(tabView));
                     }
                 });
-            toolBar = new PagingToolBar(PAGE_SIZE);
+            toolBar = createPagingToolBar();
             toolBar.bind(loader);
 
             getContentPanel().add(grid);
@@ -215,6 +216,26 @@ public final class SampleBrowserGrid extends LayoutContainer
             grid.reconfigure(sampleStore, columnModel);
         }
         toolBar.first();
+    }
+
+    // returns paging tool bar which has no refresh button. The grid is refreshed only from
+    // outside.
+    private static PagingToolBar createPagingToolBar()
+    {
+        return new PagingToolBar(PAGE_SIZE)
+            {
+                @SuppressWarnings("unchecked")
+                @Override
+                protected void onLoad(LoadEvent<PagingLoadConfig, PagingLoadResult> event)
+                {
+                    // it's ugly, but it seems to be the only way to hide the refresh button
+                    if (toolBar.indexOf(refresh) > -1)
+                    {
+                        toolBar.remove(refresh);
+                    }
+                    super.onLoad(event);
+                }
+            };
     }
 
     private final ContentPanel getContentPanel()
