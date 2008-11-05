@@ -1,4 +1,4 @@
-#show allResults
+show allResults
 
 {project} = ch.systemsx.cisd.openbis
 {generic} = ${project}.generic
@@ -65,67 +65,67 @@ check layeringOf generic.server.1 generic.server.2 generic.server.3 generic.serv
 # Plugins
 ##########################################
 
-{plugin.generic} = ${plugin}.generic
-{plugin.screening} = ${plugin}.screening
-
-[plugin.generic] = ${plugin.generic}.*
-[plugin.screening] = ${plugin.screening}.*
-
+[plugin.generic] = ${plugin}.generic.*
+[plugin.screening] = ${plugin}.screening.*
 check sets [plugin.generic] [plugin.screening]
 
-#ÊA technology can have dependencies to the 'generic' technology but not the other way around.
-check [plugin.generic] independentOf [plugin.screening]
+#A technology can have dependencies to the 'generic' technology but not the other way around.
+layer plugin-layer1 = [plugin.generic]
+layer plugin-layer2 = [plugin.screening]
+
+check layeringOf plugin-layer1 plugin-layer2
 
 ###########################################
 # Generic plugin
 
+{pn} = generic
+
 # Dependencies between 'client', 'server' and 'shared' packages
-[plugin.generic.client] = ${plugin.generic}.client.*
-[plugin.generic.server] = ${plugin.generic}.server.*
-[plugin.generic.shared] = ${plugin.generic}.shared.*
+[plugin.${pn}.client] = ${plugin}.${pn}.client.*
+[plugin.${pn}.server] = ${plugin}.${pn}.server.*
+[plugin.${pn}.shared] = ${plugin}.${pn}.shared.*
 
-check sets [plugin.generic.client] [plugin.generic.server] [plugin.generic.shared]
+check sets [plugin.${pn}.client] [plugin.${pn}.server] [plugin.${pn}.shared]
 
-layer plugin.generic.client-server = [plugin.generic.client] [plugin.generic.server]
-layer plugin.generic.shared = [plugin.generic.shared]
+layer plugin.${pn}.client-server = [plugin.${pn}.client] [plugin.${pn}.server]
+layer plugin.${pn}.shared = [plugin.${pn}.shared]
 
-check layeringOf plugin.generic.shared plugin.generic.client-server
+check layeringOf plugin.${pn}.shared plugin.${pn}.client-server
 
 # Dependencies between 'web.client' and 'web.server' packages
-{plugin.generic.web} = ${plugin.generic}.client.web
+[plugin.${pn}.web.client] = ${plugin}.${pn}.client.web.client.application.*
+[plugin.${pn}.web.server] = ${plugin}.${pn}.client.web.server.*
 
-[plugin.generic.web.client] = ${plugin.generic.web}.client.application.*
-[plugin.generic.web.server] = ${plugin.generic.web}.server.*
+check sets [plugin.${pn}.web.client] [plugin.${pn}.web.server]
 
-check sets [plugin.generic.web.client] [plugin.generic.web.server]
+layer plugin.${pn}.web.client-server = [plugin.${pn}.web.client] [plugin.${pn}.web.server]
 
-layer plugin.generic.web.client-server = [plugin.generic.web.client] [plugin.generic.web.server]
-
-check layeringOf plugin.generic.web.client-server
+check layeringOf plugin.${pn}.web.client-server
 
 ###########################################
 # Screening plugin
 
+{pn} = screening
+
 # Dependencies between 'client', 'server' and 'shared' packages
-[plugin.screening.client] = ${plugin.screening}.client.*
-[plugin.screening.server] = ${plugin.screening}.server.*
-[plugin.screening.shared] = ${plugin.screening}.shared.*
+[plugin.${pn}.client] = ${plugin}.${pn}.client.*
+[plugin.${pn}.server] = ${plugin}.${pn}.server.*
+[plugin.${pn}.shared] = ${plugin}.${pn}.shared.*
 
-check sets [plugin.screening.client] [plugin.screening.server] [plugin.screening.shared]
+check sets [plugin.${pn}.client] [plugin.${pn}.server] [plugin.${pn}.shared]
 
-layer plugin.screening.client-server = [plugin.screening.client] [plugin.screening.server]
-layer plugin.screening.shared = [plugin.screening.shared]
+layer plugin.${pn}.client-server = [plugin.${pn}.client] [plugin.${pn}.server]
+layer plugin.${pn}.shared = [plugin.${pn}.shared]
 
-check layeringOf plugin.screening.shared plugin.screening.client-server
+check layeringOf plugin.${pn}.shared plugin.${pn}.client-server
 
 # Dependencies between 'web.client' and 'web.server' packages
-{plugin.screening.web} = ${plugin.screening}.client.web
+[plugin.${pn}.web.client] = ${plugin}.${pn}.client.web.client.application.*
+[plugin.${pn}.web.server] = ${plugin}.${pn}.client.web.server.*
 
-[plugin.screening.web.client] = ${plugin.screening.web}.client.application.*
-[plugin.screening.web.server] = ${plugin.screening.web}.server.*
+check sets [plugin.${pn}.web.client] [plugin.${pn}.web.server]
 
-check sets [plugin.screening.web.client] [plugin.screening.web.server]
+layer plugin.${pn}.web.client-server = [plugin.${pn}.web.client] [plugin.${pn}.web.server]
 
-layer plugin.screening.web.client-server = [plugin.screening.web.client] [plugin.screening.web.server]
+check layeringOf plugin.${pn}.web.client-server
 
-check layeringOf plugin.screening.web.client-server
