@@ -186,7 +186,7 @@ public final class SampleBrowserGrid extends LayoutContainer
             grid.setId(GRID_ID);
             grid.setLoadMask(true);
             grid.setDeferHeight(true);
-            grid.addListener(Events.CellClick, new Listener<GridEvent>()
+            grid.addListener(Events.CellDoubleClick, new Listener<GridEvent>()
                 {
                     public final void handleEvent(final GridEvent be)
                     {

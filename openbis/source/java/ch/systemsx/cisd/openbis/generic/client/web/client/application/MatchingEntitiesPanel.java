@@ -74,7 +74,7 @@ public class MatchingEntitiesPanel extends LayoutContainer
         final ListStore<MatchingEntityModel> store = new ListStore<MatchingEntityModel>();
         store.add(MatchingEntityModel.convert(matchingEntities));
         final Grid<MatchingEntityModel> grid = new Grid<MatchingEntityModel>(store, columnModel);
-        grid.addListener(Events.CellClick, new Listener<GridEvent>()
+        grid.addListener(Events.CellDoubleClick, new Listener<GridEvent>()
             {
 
                 //
