@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.io.Serializable;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -40,6 +42,14 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Generated;
+import org.hibernate.annotations.GenerationTime;
+import org.hibernate.search.annotations.DocumentId;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
+import org.hibernate.search.annotations.Store;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
@@ -47,6 +57,7 @@ import org.hibernate.validator.Pattern;
 import ch.systemsx.cisd.common.collections.UnmodifiableListDecorator;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * A <i>Persistent Entity</i> which is a material.
@@ -57,8 +68,9 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 @Table(name = TableNames.MATERIALS_TABLE, uniqueConstraints = @UniqueConstraint(columnNames =
     { ColumnNames.CODE_COLUMN, ColumnNames.MATERIAL_TYPE_COLUMN,
             ColumnNames.DATABASE_INSTANCE_COLUMN }))
-public class MaterialPE extends HibernateAbstractRegistrationHolder implements IIdAndCodeHolder,
-        Comparable<MaterialPE>, IEntityPropertiesHolder<MaterialPropertyPE>
+@Indexed
+public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
+        IEntityPropertiesHolder<MaterialPropertyPE>, Serializable, IMatchingEntity
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
@@ -80,9 +92,51 @@ public class MaterialPE extends HibernateAbstractRegistrationHolder implements I
     {
     }
 
+    /**
+     * Person who registered this entity.
+     * <p>
+     * This is specified at insert time.
+     * </p>
+     */
+    private PersonPE registrator;
+
+    /**
+     * Registration date of this entity.
+     * <p>
+     * This is specified at insert time.
+     * </p>
+     */
+    private Date registrationDate;
+
+    @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false, updatable = false)
+    @Generated(GenerationTime.INSERT)
+    public Date getRegistrationDate()
+    {
+        return HibernateAbstractRegistrationHolder.getDate(registrationDate);
+    }
+
+    public void setRegistrationDate(final Date registrationDate)
+    {
+        this.registrationDate = registrationDate;
+    }
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = ColumnNames.PERSON_REGISTERER_COLUMN, updatable = false)
+    @IndexedEmbedded
+    public PersonPE getRegistrator()
+    {
+        return registrator;
+    }
+
+    public void setRegistrator(final PersonPE registrator)
+    {
+        this.registrator = registrator;
+    }
+
     @Id
     @SequenceGenerator(name = SequenceNames.MATERIAL_SEQUENCE, sequenceName = SequenceNames.MATERIAL_SEQUENCE, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.MATERIAL_SEQUENCE)
+    @DocumentId
     public Long getId()
     {
         return id;
@@ -110,6 +164,7 @@ public class MaterialPE extends HibernateAbstractRegistrationHolder implements I
     @Length(min = 1, max = 40, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
     @Pattern(regex = AbstractIdAndCodeHolder.CODE_PATTERN, flags = java.util.regex.Pattern.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
+    @Field(index = Index.TOKENIZED, store = Store.YES)
     public String getCode()
     {
         return code;
@@ -243,6 +298,28 @@ public class MaterialPE extends HibernateAbstractRegistrationHolder implements I
     public void ensurePropertiesAreLoaded()
     {
         Hibernate.initialize(getMaterialProperties());
+    }
+
+    //
+    // IMatchingEntity
+    //
+
+    @Transient
+    public final String getIdentifier()
+    {
+        return getCode();
+    }
+
+    @Transient
+    public final EntityTypePE getEntityType()
+    {
+        return getMaterialType();
+    }
+
+    @Transient
+    public final EntityKind getEntityKind()
+    {
+        return EntityKind.MATERIAL;
     }
 
 }

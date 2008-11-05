@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.server;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -437,8 +438,12 @@ public final class GenericClientService extends AbstractClientService implements
     {
         try
         {
-            return BeanUtils.createBeanList(SearchableEntity.class, Arrays
-                    .asList(ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity.values()));
+            final List<SearchableEntity> searchableEntities =
+                    BeanUtils.createBeanList(SearchableEntity.class, Arrays
+                            .asList(ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity
+                                    .values()));
+            Collections.sort(searchableEntities);
+            return searchableEntities;
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -451,20 +456,20 @@ public final class GenericClientService extends AbstractClientService implements
     {
         try
         {
-            final ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity[] searchableEntities;
+            final ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity[] matchingEntities;
             if (searchableEntityOrNull == null)
             {
-                searchableEntities =
+                matchingEntities =
                         ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity.values();
             } else
             {
-                searchableEntities =
+                matchingEntities =
                         new ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity[]
                             { ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity
                                     .valueOf(searchableEntityOrNull.getName()) };
             }
             return BeanUtils.createBeanList(MatchingEntity.class, genericServer
-                    .listMatchingEntities(getSessionToken(), searchableEntities, queryText),
+                    .listMatchingEntities(getSessionToken(), matchingEntities, queryText),
                     DtoConverters.getMatchingEntityConverter());
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {

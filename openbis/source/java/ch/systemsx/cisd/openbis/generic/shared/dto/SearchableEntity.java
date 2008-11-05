@@ -39,8 +39,7 @@ public enum SearchableEntity
         @Override
         public final String[] getFields()
         {
-            return new String[]
-                { "code", "registrator.firstName", "registrator.lastName" };
+            return getStandardFields();
         }
     },
     EXPERIMENT("Experiment")
@@ -58,8 +57,25 @@ public enum SearchableEntity
         @Override
         public final String[] getFields()
         {
-            return new String[]
-                { "code", "registrator.firstName", "registrator.lastName" };
+            return getStandardFields();
+        }
+    },
+    MATERIAL("Material")
+    {
+        //
+        // SearchableEntity
+        //
+
+        @Override
+        public final <T extends IMatchingEntity> Class<T> getMatchingEntityClass()
+        {
+            return cast(MaterialPE.class);
+        }
+
+        @Override
+        public final String[] getFields()
+        {
+            return getStandardFields();
         }
     };
 
@@ -70,12 +86,21 @@ public enum SearchableEntity
         this.description = description;
     }
 
+    static final String[] getStandardFields()
+    {
+        return new String[]
+            { "code", "registrator.firstName", "registrator.lastName" };
+    }
+
     @SuppressWarnings("unchecked")
-    private final static <T> Class<T> cast(final Class<?> clazz)
+    final static <T> Class<T> cast(final Class<?> clazz)
     {
         return (Class<T>) clazz;
     }
 
+    /**
+     * Returns a description for this searchable entity.
+     */
     public final String getDescription()
     {
         return description;

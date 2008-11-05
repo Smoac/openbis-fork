@@ -23,7 +23,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Christian Ribeaud
  */
-public final class SearchableEntity implements IsSerializable
+public final class SearchableEntity implements IsSerializable, Comparable<SearchableEntity>
 {
     private String name;
 
@@ -57,5 +57,11 @@ public final class SearchableEntity implements IsSerializable
     public final String toString()
     {
         return getDescription();
+    }
+
+    public final int compareTo(final SearchableEntity o)
+    {
+        assert o != null : "Unspecified searchable entity";
+        return getDescription().compareTo(o.getDescription());
     }
 }

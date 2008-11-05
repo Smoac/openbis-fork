@@ -108,7 +108,7 @@ public class MatchingEntitiesPanel extends LayoutContainer
     {
         final ColumnConfig columnConfig =
                 ColumnConfigFactory.createDefaultConfig(viewContext.getMessageProvider(),
-                        ModelDataPropertyNames.ENTITY_KIND);
+                        ModelDataPropertyNames.ENTITY_KIND, "entity_kind");
         return columnConfig;
     }
 
@@ -116,7 +116,7 @@ public class MatchingEntitiesPanel extends LayoutContainer
     {
         final ColumnConfig columnConfig =
                 ColumnConfigFactory.createDefaultConfig(viewContext.getMessageProvider(),
-                        ModelDataPropertyNames.ENTITY_TYPE);
+                        ModelDataPropertyNames.ENTITY_TYPE, "entity_type");
         return columnConfig;
     }
 
