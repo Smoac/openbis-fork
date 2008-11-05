@@ -26,7 +26,6 @@ import org.springframework.jdbc.support.JdbcAccessor;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -54,24 +53,6 @@ abstract class AbstractTypeDAO<T extends AbstractTypePE> extends AbstractDAO
             final DatabaseInstancePE databaseInstance)
     {
         super(sessionFactory, databaseInstance);
-    }
-
-    final List<T> listTypes() throws DataAccessException
-    {
-        final List<T> list;
-
-        list =
-                cast(getHibernateTemplate().find(
-                        String.format("from %s st where st.databaseInstance = ?", getEntityClass()
-                                .getSimpleName()), new Object[]
-                            { getDatabaseInstance() }));
-
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug("list" + getTypeDescription() + "s: " + list.size()
-                    + " type(s) have been found.");
-        }
-        return list;
     }
 
     final T tryFindTypeByCode(final String code) throws DataAccessException
@@ -113,47 +94,9 @@ abstract class AbstractTypeDAO<T extends AbstractTypePE> extends AbstractDAO
         return entity;
     }
 
-    final long getTypeIdByCode(final String code) throws DataAccessException
-    {
-        return getTypeIdByCode(code, true);
-    }
-
-    final long getTypeIdByCode(final String code, final boolean appendDatabaseInstance)
-            throws DataAccessException
-    {
-        assert code != null : "Given code can not be null.";
-
-        final List<Long> ids;
-        final String convertedCode = CodeConverter.tryToDatabase(code);
-        if (appendDatabaseInstance)
-        {
-            ids =
-                    cast(getHibernateTemplate().find(
-                            String.format("select et.id from %s et where et.code = ? "
-                                    + "and et.databaseInstance = ?", getEntityClass()
-                                    .getSimpleName()), new Object[]
-                                { convertedCode, getDatabaseInstance() }));
-        } else
-        {
-            ids =
-                    cast(getHibernateTemplate().find(
-                            String.format("select et.id from %s et where et.code = ? ",
-                                    getEntityClass().getSimpleName()), new Object[]
-                                { convertedCode }));
-        }
-        final Long id = getEntity(ids);
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug("get" + getTypeDescription() + "IdByCode(" + convertedCode + "): '"
-                    + id + "'.");
-        }
-        return id;
-
-    }
-
     abstract Class<?> getEntityClass();
 
-    String getTypeDescription()
+    final String getTypeDescription()
     {
         final String className = getEntityClass().getSimpleName();
         return StringUtils.substring(className, 0, className.length() - 2);

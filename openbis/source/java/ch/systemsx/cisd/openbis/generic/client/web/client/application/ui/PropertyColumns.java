@@ -98,18 +98,4 @@ public final class PropertyColumns
         }
         return result;
     }
-
-    public List<PropertyType> getChosenColumns()
-    {
-        final ArrayList<PropertyType> result = new ArrayList<PropertyType>();
-        for (LoadableColumnConfig cc : columns)
-        {
-            if (cc.isHidden() == false)
-            {
-                result.add(cc.getPropertyType());
-            }
-        }
-        return result;
-    }
-
 }

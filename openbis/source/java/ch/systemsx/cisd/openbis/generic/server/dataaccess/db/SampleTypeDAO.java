@@ -44,6 +44,14 @@ final class SampleTypeDAO extends AbstractTypeDAO<SampleTypePE> implements ISamp
         super(sessionFactory, databaseInstance);
     }
 
+    private void fetchPropertyTypes(final List<SampleTypePE> list)
+    {
+        for (final SampleTypePE sampleTypePE : list)
+        {
+            Hibernate.initialize(sampleTypePE.getSampleTypePropertyTypes());
+        }
+    }
+
     //
     // ISampleTypeDAO
     //
@@ -71,15 +79,7 @@ final class SampleTypeDAO extends AbstractTypeDAO<SampleTypePE> implements ISamp
         return list;
     }
 
-    private void fetchPropertyTypes(final List<SampleTypePE> list)
-    {
-        for (final SampleTypePE sampleTypePE : list)
-        {
-            Hibernate.initialize(sampleTypePE.getSampleTypePropertyTypes());
-        }
-    }
-
-    public SampleTypePE tryFindByExample(final SampleTypePE sampleType)
+    public final SampleTypePE tryFindByExample(final SampleTypePE sampleType)
     {
         final List<SampleTypePE> result = cast(getHibernateTemplate().findByExample(sampleType));
         return tryFindEntity(result, "sample type");
@@ -91,7 +91,7 @@ final class SampleTypeDAO extends AbstractTypeDAO<SampleTypePE> implements ISamp
     }
 
     @Override
-    Class<SampleTypePE> getEntityClass()
+    final Class<SampleTypePE> getEntityClass()
     {
         return SampleTypePE.class;
     }

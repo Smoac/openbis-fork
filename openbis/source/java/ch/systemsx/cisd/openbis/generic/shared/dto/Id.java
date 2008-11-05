@@ -34,16 +34,6 @@ public class Id implements Serializable, IIdHolder
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
-    public final static Long getAndCheckID(final IIdHolder objectWithID, final Long id)
-    {
-        if (objectWithID == null)
-        {
-            return id;
-        }
-        assert id == null || id.equals(objectWithID.getId());
-        return objectWithID.getId();
-    }
-
     transient private Long id;
 
     /**
