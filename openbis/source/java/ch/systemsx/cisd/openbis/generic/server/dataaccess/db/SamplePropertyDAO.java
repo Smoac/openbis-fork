@@ -58,7 +58,7 @@ final class SamplePropertyDAO extends AbstractDAO implements ISamplePropertyDAO
             query =
                     "from %s sp "
                             + joinClouse
-                            + " where sp.entityTypePropertyType.entityType.code = ? and sp.entity.databaseInstance.code = ?"
+                            + " where sp.entityTypePropertyType.entityTypeInternal.code = ? and sp.entity.databaseInstance.code = ?"
                             + " and  %s";
             args =
                     new Object[]
@@ -71,7 +71,7 @@ final class SamplePropertyDAO extends AbstractDAO implements ISamplePropertyDAO
             query =
                     "from %s sp "
                             + joinClouse
-                            + " where sp.entityTypePropertyType.entityType.code = ? and sp.entity.group.code = ?"
+                            + " where sp.entityTypePropertyType.entityTypeInternal.code = ? and sp.entity.group.code = ?"
                             + " and sp.entity.group.databaseInstance.code = ? and %s";
             args =
                     new Object[]

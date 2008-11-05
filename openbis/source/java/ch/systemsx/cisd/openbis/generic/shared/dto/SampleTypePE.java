@@ -36,7 +36,6 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
-import ch.systemsx.cisd.common.collections.UnmodifiableListDecorator;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
 
@@ -86,8 +85,7 @@ public final class SampleTypePE extends EntityTypePE
     @Transient
     public List<SampleTypePropertyTypePE> getSampleTypePropertyTypes()
     {
-        return new UnmodifiableListDecorator<SampleTypePropertyTypePE>(
-                getSampleTypePropertyTypesInternal());
+        return getSampleTypePropertyTypesInternal();
     }
 
     public final void setSampleTypePropertyTypes(
