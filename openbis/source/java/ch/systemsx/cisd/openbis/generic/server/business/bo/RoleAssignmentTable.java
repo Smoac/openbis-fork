@@ -81,7 +81,6 @@ public final class RoleAssignmentTable extends AbstractBusinessObject implements
             roleAssignments = new ArrayList<RoleAssignmentPE>();
         }
         final RoleAssignmentPE roleAssignment = new RoleAssignmentPE();
-        roleAssignment.setPerson(getPerson(newRoleAssignment.getUserId()));
         final DatabaseInstanceIdentifier databaseInstanceIdentifier =
                 newRoleAssignment.getDatabaseInstanceIdentifier();
         if (databaseInstanceIdentifier != null)
@@ -104,6 +103,7 @@ public final class RoleAssignmentTable extends AbstractBusinessObject implements
         }
         roleAssignment.setRegistrator(findRegistrator());
         roleAssignment.setRole(newRoleAssignment.getRole());
+        roleAssignment.setPerson(getPerson(newRoleAssignment.getUserId()));
         roleAssignments.add(roleAssignment);
     }
 
