@@ -66,8 +66,7 @@ public final class PropertyColumns
         final LoadableColumnConfig columnConfig = new LoadableColumnConfig();
         columnConfig.setMenuDisabled(true);
         PropertyType propertyType = stpt.getPropertyType();
-        columnConfig.setId(SampleModel.PROPERTY_PREFIX + propertyType.isInternalNamespace()
-                + propertyType.getSimpleCode());
+        columnConfig.setId(SampleModel.createID(propertyType));
         columnConfig.setHeader(propertyType.getLabel());
         columnConfig.setWidth(80);
         columnConfig.setHidden(stpt.isDisplayed() == false);

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser;
 
+import java.util.Collection;
+
 import junit.framework.Assert;
 
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -24,6 +26,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
@@ -34,9 +37,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestU
  */
 public final class CheckSamplesAndListWithoutServerCall extends AbstractDefaultTestCommand
 {
-    private static final String PLATE_GEOMETRY_KEY =
-            SampleModel.PROPERTY_PREFIX + Boolean.TRUE + "PLATE_GEOMETRY";
-    
     private final int expectedNumberOfSamples;
 
     public CheckSamplesAndListWithoutServerCall(final int expectedNumberOfSamples)
@@ -59,29 +59,40 @@ public final class CheckSamplesAndListWithoutServerCall extends AbstractDefaultT
     }
 
     @SuppressWarnings("unchecked")
-    public static void checkSamples(final int expectedNumberOfSamples)
+    private void checkSamples(final int expectedNumber)
     {
         final Widget widget = GWTTestUtil.getWidgetWithID(SampleBrowserGrid.GRID_ID);
         Assert.assertTrue(widget instanceof Grid);
         final Grid<SampleModel> table = (Grid<SampleModel>) widget;
         final ListStore<SampleModel> store = table.getStore();
-        Assert.assertEquals(expectedNumberOfSamples, store.getCount());
+        Assert.assertEquals(expectedNumber, store.getCount());
         for (int i = 0; i < store.getCount(); i++)
         {
             SampleModel row = store.getAt(i);
             String expectedCode = "MP" + toInteger(i + 1, 3) + "-1";
-            Assert.assertEquals(expectedCode, row.get(ModelDataPropertyNames.CODE));
-            Assert.assertEquals("CISD:/" + expectedCode, row.get(ModelDataPropertyNames.SAMPLE_IDENTIFIER));
-            Assert.assertEquals("CISD", row.get(ModelDataPropertyNames.INSTANCE));
-            Assert.assertEquals("", row.get(ModelDataPropertyNames.GROUP));
-            Assert.assertEquals(false, row.get(ModelDataPropertyNames.IS_INVALID));
-            Assert.assertEquals(true, row.get(ModelDataPropertyNames.IS_INSTANCE_SAMPLE));
-            Assert.assertEquals("384_WELLS_16X24", row.get(PLATE_GEOMETRY_KEY));
-            
+            assertCell(expectedCode, row, ModelDataPropertyNames.CODE);
+            assertCell("CISD:/" + expectedCode, row, ModelDataPropertyNames.SAMPLE_IDENTIFIER);
+            assertCell("CISD", row, ModelDataPropertyNames.INSTANCE);
+            assertCell("", row, ModelDataPropertyNames.GROUP);
+            assertCell(false, row, ModelDataPropertyNames.IS_INVALID);
+            assertCell(true, row, ModelDataPropertyNames.IS_INSTANCE_SAMPLE);
+            PropertyType propertyType = new PropertyType();
+            propertyType.setInternalNamespace(true);
+            propertyType.setSimpleCode("PLATE_GEOMETRY");
+            assertCell("384_WELLS_16X24", row, SampleModel.createID(propertyType));
         }
     }
+    
+    private void assertCell(Object expectedValue, SampleModel row, String id)
+    {
+        Collection<String> propertyNames = row.getPropertyNames();
+        Assert
+                .assertTrue("ID '" + id + "' missing in " + propertyNames, propertyNames
+                        .contains(id));
+        Assert.assertEquals("Value for ID '" + id + "'", expectedValue, row.get(id));
+    }
 
-    static private String toInteger(final int x, final int positions)
+    private String toInteger(final int x, final int positions)
     {
 
         double mult = Math.pow(10, positions - 1);

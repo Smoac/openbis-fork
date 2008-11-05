@@ -44,11 +44,16 @@ public final class SampleModel extends BaseModelData
 
     private static final String SEPARATOR = "/";
 
-    public static final String PROPERTY_PREFIX = "property";
+    private static final String PROPERTY_PREFIX = "property";
 
     public static final String CONTAINER_PARENT_PREFIX = "containerParent";
 
     public static final String GENERATED_FROM_PARENT_PREFIX = "generatedFromParent";
+
+    public static String createID(final PropertyType propertyType)
+    {
+        return PROPERTY_PREFIX + propertyType.isInternalNamespace() + propertyType.getSimpleCode();
+    }
 
     public SampleModel(final Sample sample)
     {
@@ -80,9 +85,7 @@ public final class SampleModel extends BaseModelData
         for (final SampleProperty p : sample.getProperties())
         {
             final PropertyType propertyType = p.getEntityTypePropertyType().getPropertyType();
-            set(
-                    PROPERTY_PREFIX + propertyType.isInternalNamespace()
-                            + propertyType.getSimpleCode(), p.getValue());
+            set(createID(propertyType), p.getValue());
         }
 
     }
