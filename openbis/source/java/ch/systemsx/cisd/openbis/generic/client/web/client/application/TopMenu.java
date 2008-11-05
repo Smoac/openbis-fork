@@ -16,18 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import java.util.List;
-
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.mvc.AppEvent;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
@@ -36,14 +28,6 @@ import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EnterKeyListener;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.User;
 
@@ -59,10 +43,6 @@ public class TopMenu extends LayoutContainer
 
     private final ToolBar toolBar;
 
-    private EntityChooser entityChooser;
-
-    private TextField<String> searchQueryTextField;
-
     private final GenericViewContext viewContext;
 
     public TopMenu(final GenericViewContext viewContext)
@@ -74,16 +54,11 @@ public class TopMenu extends LayoutContainer
         add(toolBar);
     }
 
-    void refresh()
+    final void refresh()
     {
         toolBar.removeAll();
         toolBar.add(new AdapterToolItem(createTitleHeader()));
-
-        entityChooser = new EntityChooser(viewContext);
-        toolBar.add(new AdapterToolItem(entityChooser));
-        toolBar.add(new AdapterToolItem(searchQueryTextField = createSearchQueryField()));
-        toolBar.add(new AdapterToolItem(createSearchButton()));
-
+        toolBar.add(new AdapterToolItem(new SearchWidget(viewContext)));
         toolBar.add(new FillToolItem());
         toolBar.add(new AdapterToolItem(userInfo()));
         toolBar.add(new SeparatorToolItem());
@@ -103,7 +78,7 @@ public class TopMenu extends LayoutContainer
         final User user = sessionContext.getUser();
         final String userName = user.getUserName();
         final String homeGroup = user.getHomeGroupCode();
-        String fullInfo;
+        final String fullInfo;
         if (homeGroup == null)
         {
             fullInfo = viewContext.getMessage("header_userWithoutHomegroup", userName);
@@ -111,7 +86,9 @@ public class TopMenu extends LayoutContainer
         {
             fullInfo = viewContext.getMessage("header_userWithHomegroup", userName, homeGroup);
         }
-        return new Html(fullInfo);
+        final Html html = new Html(fullInfo);
+        html.setStyleAttribute("marginRight", "7px");
+        return html;
     }
 
     private final Html createTitleHeader()
@@ -121,96 +98,9 @@ public class TopMenu extends LayoutContainer
         return titleHeader;
     }
 
-    private Button createSearchButton()
-    {
-        final Button button = new Button("Search");
-        button.addSelectionListener(new SelectionListener<ComponentEvent>()
-            {
-
-                //
-                // SelectionListener
-                //
-
-                @Override
-                public final void componentSelected(final ComponentEvent ce)
-                {
-                    doSearch();
-                }
-
-            });
-        return button;
-    }
-
-    private final TextField<String> createSearchQueryField()
-    {
-        final TextField<String> field = new TextField<String>();
-        field.setWidth(200);
-        field.addKeyListener(new EnterKeyListener()
-            {
-
-                //
-                // EnterKeyListener
-                //
-
-                @Override
-                protected final void onEnterKey()
-                {
-                    doSearch();
-                }
-            });
-        return field;
-    }
-
-    private final void doSearch()
-    {
-        final SearchableEntity selectedSearchableEntity =
-                entityChooser.tryGetSelectedSearchableEntity();
-        final String queryText = searchQueryTextField.getValue();
-        if (StringUtils.isBlank(queryText) == false)
-        {
-            viewContext.getService().listMatchingEntities(selectedSearchableEntity, queryText,
-                    new ListMatchingEntitiesAsyncCallback(viewContext, queryText));
-        }
-    }
-
     //
     // Helper classes
     //
-
-    private final class ListMatchingEntitiesAsyncCallback extends
-            AbstractAsyncCallback<List<MatchingEntity>>
-    {
-        private final String queryText;
-
-        private ListMatchingEntitiesAsyncCallback(
-                final IViewContext<IGenericClientServiceAsync> viewContext, final String queryText)
-        {
-            super(viewContext);
-            this.queryText = queryText;
-        }
-
-        //
-        // AbstractAsyncCallback
-        //
-
-        @Override
-        protected final void process(final List<MatchingEntity> result)
-        {
-            if (result.size() == 0)
-            {
-                final IMessageProvider messageProvider = viewContext.getMessageProvider();
-                MessageBox.alert(messageProvider.getMessage("messagebox_warning"), messageProvider
-                        .getMessage("no_match", queryText), null);
-                return;
-            }
-            searchQueryTextField.reset();
-            final AppEvent<ContentPanel> event = new AppEvent<ContentPanel>(AppEvents.NAVI_EVENT);
-            event.setData(GenericConstants.ASSOCIATED_CONTENT_PANEL, new DefaultTabItem(viewContext
-                    .getMessageProvider().getMessage("global_search", queryText),
-                    new MatchingEntitiesPanel(viewContext, result)));
-            Dispatcher.get().dispatch(event);
-        }
-    }
 
     private final class LogoutButton extends TextToolItem
     {

@@ -55,7 +55,10 @@ public final class ColumnConfigFactory
     public final static ColumnConfig createRegistrationDateColumnConfig(
             final IMessageProvider messageProvider)
     {
-        return createDefaultConfig(messageProvider, ModelDataPropertyNames.REGISTRATION_DATE);
+        final ColumnConfig registrationDateColumnConfig =
+                createDefaultConfig(messageProvider, ModelDataPropertyNames.REGISTRATION_DATE);
+        registrationDateColumnConfig.setWidth(200);
+        return registrationDateColumnConfig;
     }
 
     public final static ColumnConfig createDefaultConfig(final IMessageProvider messageProvider,

@@ -42,6 +42,7 @@ final class EntityChooser extends ComboBox<SearchableEntityModel>
         this.genericContext = genericContext;
         setEditable(false);
         setDisplayField(ModelDataPropertyNames.DESCRIPTION);
+        setWidth(100);
         setStore(new ListStore<SearchableEntityModel>());
     }
 

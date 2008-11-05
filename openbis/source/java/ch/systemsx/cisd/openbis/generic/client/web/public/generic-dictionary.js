@@ -72,6 +72,7 @@ var generic = {
   // Search
   //
   
+  search_button: "Search",
   global_search: "Search: '{0}'",
   identifier: "Identifier",
   no_match: "No results found for '{0}'",
