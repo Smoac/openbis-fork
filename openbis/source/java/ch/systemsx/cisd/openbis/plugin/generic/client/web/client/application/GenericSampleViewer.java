@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application;
 
 import static ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames.REGISTRATION_DATE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames.REGISTRATOR;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames.SAMPLE_TYPE;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -81,7 +80,8 @@ public final class GenericSampleViewer extends LayoutContainer
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
-    public static final String PROPERTIES_ID_PREFIX = GenericConstants.ID_PREFIX + "generic-sample-properties-viewer_";
+    public static final String PROPERTIES_ID_PREFIX =
+            GenericConstants.ID_PREFIX + "generic-sample-properties-viewer_";
 
     private final IViewContext<IGenericClientServiceAsync> viewContext;
 
@@ -338,7 +338,7 @@ public final class GenericSampleViewer extends LayoutContainer
     // Helper classes
     //
 
-    final class ListSamplesCallback extends AbstractAsyncCallback<List<Sample>>
+    private final static class ListSamplesCallback extends AbstractAsyncCallback<List<Sample>>
     {
         private final AsyncCallback<BaseListLoadResult<SampleModel>> delegate;
 
@@ -369,7 +369,8 @@ public final class GenericSampleViewer extends LayoutContainer
         }
     }
 
-    final class ListExternalDataCallback extends AbstractAsyncCallback<List<ExternalData>>
+    private final static class ListExternalDataCallback extends
+            AbstractAsyncCallback<List<ExternalData>>
     {
         private final AsyncCallback<BaseListLoadResult<ExternalDataModel>> delegate;
 
