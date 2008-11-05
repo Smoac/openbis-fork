@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.BaseListLoadConfig;
 import com.extjs.gxt.ui.client.data.BaseListLoadResult;
 import com.extjs.gxt.ui.client.data.BaseListLoader;
@@ -42,7 +43,6 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -289,7 +289,8 @@ public final class GenericSampleViewer extends LayoutContainer
 
     private final Component createLeftPanel(final SampleGeneration sampleGeneration)
     {
-        final ContentPanel panel = new ContentPanel(new FlowLayout());
+        final ContentPanel panel = new ContentPanel();
+        panel.setScrollMode(Scroll.AUTO);
         panel.setHeading(viewContext.getMessageProvider().getMessage("sample_properties_heading"));
         panel.add(createPropertyGrid(sampleGeneration));
         return panel;
