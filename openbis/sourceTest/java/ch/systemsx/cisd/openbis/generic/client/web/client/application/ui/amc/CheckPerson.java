@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
 
-import junit.framework.Assert;
-
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.Widget;
@@ -51,7 +49,7 @@ public final class CheckPerson extends AbstractDefaultTestCommand
     public final void execute()
     {
         final Widget widget = GWTTestUtil.getWidgetWithID(PersonsView.TABLE_ID);
-        Assert.assertTrue(widget instanceof Grid);
+        assertTrue(widget instanceof Grid);
         final Grid<PersonModel> table = (Grid<PersonModel>) widget;
         final ListStore<PersonModel> store = table.getStore();
         for (int i = 0, n = store.getCount(); i < n; i++)
@@ -63,7 +61,7 @@ public final class CheckPerson extends AbstractDefaultTestCommand
                 return;
             }
         }
-        Assert.fail("No person with code '" + personCode + "' found.");
+        fail("No person with code '" + personCode + "' found.");
     }
 
 }

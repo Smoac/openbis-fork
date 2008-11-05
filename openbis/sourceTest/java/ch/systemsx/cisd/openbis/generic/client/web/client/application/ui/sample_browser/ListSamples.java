@@ -85,7 +85,7 @@ public final class ListSamples extends AbstractDefaultTestCommand
 
         final Button refresh =
                 (Button) GWTTestUtil.getWidgetWithID(SampleBrowserToolbar.REFRESH_BUTTON_ID);
-        assert refresh.isEnabled();
+        assertTrue(refresh.isEnabled());
         GWTTestUtil.clickButtonWithID(SampleBrowserToolbar.REFRESH_BUTTON_ID);
     }
 }

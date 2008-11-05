@@ -20,6 +20,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import junit.framework.Assert;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
@@ -28,7 +30,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  * 
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractDefaultTestCommand implements ITestCommand
+public abstract class AbstractDefaultTestCommand extends Assert implements ITestCommand
 {
     protected final Set<Class<? extends AsyncCallback<?>>> callbackClasses =
             new HashSet<Class<? extends AsyncCallback<?>>>();

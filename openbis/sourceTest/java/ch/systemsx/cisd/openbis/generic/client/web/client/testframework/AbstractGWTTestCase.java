@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 
+import java.util.Date;
+
 import com.google.gwt.junit.client.GWTTestCase;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -62,7 +64,7 @@ public abstract class AbstractGWTTestCase extends GWTTestCase
     @Override
     protected final void gwtSetUp() throws Exception
     {
-        System.out.println("TEST: " + getName());
+        System.out.println("TEST: " + getName() + " (started at " + new Date() + ")");
         remoteConsole = new RemoteConsole(this);
         client = new Client();
         GWTUtils.testing();

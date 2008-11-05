@@ -18,8 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 
 import java.util.Collection;
 
-import junit.framework.Assert;
-
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.Widget;
@@ -62,10 +60,10 @@ public final class CheckSamplesAndListWithoutServerCall extends AbstractDefaultT
     private void checkSamples(final int expectedNumber)
     {
         final Widget widget = GWTTestUtil.getWidgetWithID(SampleBrowserGrid.GRID_ID);
-        Assert.assertTrue(widget instanceof Grid);
+        assertTrue(widget instanceof Grid);
         final Grid<SampleModel> table = (Grid<SampleModel>) widget;
         final ListStore<SampleModel> store = table.getStore();
-        Assert.assertEquals(expectedNumber, store.getCount());
+        assertEquals(expectedNumber, store.getCount());
         for (int i = 0; i < store.getCount(); i++)
         {
             SampleModel row = store.getAt(i);
@@ -86,10 +84,8 @@ public final class CheckSamplesAndListWithoutServerCall extends AbstractDefaultT
     private void assertCell(Object expectedValue, SampleModel row, String id)
     {
         Collection<String> propertyNames = row.getPropertyNames();
-        Assert
-                .assertTrue("ID '" + id + "' missing in " + propertyNames, propertyNames
-                        .contains(id));
-        Assert.assertEquals("Value for ID '" + id + "'", expectedValue, row.get(id));
+        assertTrue("ID '" + id + "' missing in " + propertyNames, propertyNames.contains(id));
+        assertEquals("Value for ID '" + id + "'", expectedValue, row.get(id));
     }
 
     private String toInteger(final int x, final int positions)
