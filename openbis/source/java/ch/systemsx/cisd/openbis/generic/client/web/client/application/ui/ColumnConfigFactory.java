@@ -55,8 +55,7 @@ public final class ColumnConfigFactory
     public final static ColumnConfig createRegistrationDateColumnConfig(
             final IMessageProvider messageProvider)
     {
-        return createDefaultConfig(messageProvider, ModelDataPropertyNames.REGISTRATION_DATE,
-                "registration_date");
+        return createDefaultConfig(messageProvider, ModelDataPropertyNames.REGISTRATION_DATE);
     }
 
     public final static ColumnConfig createDefaultConfig(final IMessageProvider messageProvider,

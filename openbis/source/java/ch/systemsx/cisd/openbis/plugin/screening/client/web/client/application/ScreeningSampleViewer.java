@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application;
 
+import static ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames.REGISTRATION_DATE;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames.REGISTRATOR;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -70,8 +73,8 @@ public final class ScreeningSampleViewer extends LayoutContainer
         final Sample[] generated = sampleGeneration.getGenerated();
         properties.put(messageProvider.getMessage("sample"), sample);
         properties.put(messageProvider.getMessage("sample_type"), sampleType);
-        properties.put(messageProvider.getMessage("registrator"), sample.getRegistrator());
-        properties.put(messageProvider.getMessage("registration_date"), sample
+        properties.put(messageProvider.getMessage(REGISTRATOR), sample.getRegistrator());
+        properties.put(messageProvider.getMessage(REGISTRATION_DATE), sample
                 .getRegistrationDate());
         if (generated.length > 0)
         {
@@ -124,42 +127,41 @@ public final class ScreeningSampleViewer extends LayoutContainer
      */
     public final void loadSampleInfo()
     {
-        viewContext.getService().getSampleInfo(sampleIdentifier,
-                new SampleInfoCallback(viewContext));
-    }
-
-    /**
-     * Sets the {@link SampleGeneration} for this <var>generic</var> sample viewer.
-     * <p>
-     * This method triggers the whole <i>GUI</i> construction.
-     * </p>
-     */
-    public final void setSampleGeneration(final SampleGeneration sampleGeneration)
-    {
-        removeAll();
-        add(createUI(sampleGeneration));
-        layout();
+        SampleInfoCallback callback = new SampleInfoCallback(viewContext, this);
+        viewContext.getService().getSampleInfo(sampleIdentifier, callback);
     }
 
     //
     // Helper classes
     //
 
-    private final class SampleInfoCallback extends AbstractAsyncCallback<SampleGeneration>
+    public final static class SampleInfoCallback extends AbstractAsyncCallback<SampleGeneration>
     {
-        private SampleInfoCallback(final IViewContext<IScreeningClientServiceAsync> viewContext)
+        private final ScreeningSampleViewer screeningSampleViewer;
+
+        private SampleInfoCallback(final IViewContext<IScreeningClientServiceAsync> viewContext,
+                ScreeningSampleViewer screeningSampleViewer)
         {
             super(viewContext);
+            this.screeningSampleViewer = screeningSampleViewer;
         }
 
         //
         // AbstractAsyncCallback
         //
 
+        /**
+         * Sets the {@link SampleGeneration} for this <var>generic</var> sample viewer.
+         * <p>
+         * This method triggers the whole <i>GUI</i> construction.
+         * </p>
+         */
         @Override
         protected final void process(final SampleGeneration result)
         {
-            setSampleGeneration(result);
+            screeningSampleViewer.removeAll();
+            screeningSampleViewer.add(screeningSampleViewer.createUI(result));
+            screeningSampleViewer.layout();
         }
     }
 }

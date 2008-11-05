@@ -8,7 +8,7 @@ var common = {
   
   code: "Code",
   registrator: "Registrator",
-  registration_date: "Registration Date",
+  registrationDate: "Registration Date",
   
   //
   // MessageBox

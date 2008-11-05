@@ -2,13 +2,6 @@
 var screening = {
 
   //
-  // Registration
-  // 
-
-  registrator: common["registrator"],
-  registration_date: common["registration_date"],
-
-  //
   // Sample
   //
   

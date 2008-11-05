@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application;
 
+import static ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames.REGISTRATION_DATE;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames.REGISTRATOR;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames.SAMPLE_TYPE;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -76,6 +80,8 @@ public final class GenericSampleViewer extends LayoutContainer
     private static final String PREFIX = "generic-sample-viewer_";
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
+
+    public static final String PROPERTIES_ID_PREFIX = GenericConstants.ID_PREFIX + "generic-sample-properties-viewer_";
 
     private final IViewContext<IGenericClientServiceAsync> viewContext;
 
@@ -256,9 +262,8 @@ public final class GenericSampleViewer extends LayoutContainer
         final Sample[] generated = sampleGeneration.getGenerated();
         properties.put(messageProvider.getMessage("sample"), sample.getCode());
         properties.put(messageProvider.getMessage("sample_type"), sampleType);
-        properties.put(messageProvider.getMessage("registrator"), sample.getRegistrator());
-        properties.put(messageProvider.getMessage("registration_date"), sample
-                .getRegistrationDate());
+        properties.put(messageProvider.getMessage(REGISTRATOR), sample.getRegistrator());
+        properties.put(messageProvider.getMessage(REGISTRATION_DATE), sample.getRegistrationDate());
         if (generated.length > 0)
         {
             properties.put(messageProvider.getMessage("generated_samples"), generated);
@@ -295,6 +300,7 @@ public final class GenericSampleViewer extends LayoutContainer
         final IMessageProvider messageProvider = viewContext.getMessageProvider();
         final Map<String, Object> properties = createProperties(messageProvider, sampleGeneration);
         final PropertyGrid propertyGrid = new PropertyGrid(messageProvider, properties.size());
+        propertyGrid.getElement().setId(PROPERTIES_ID_PREFIX + sampleIdentifier);
         propertyGrid.registerPropertyValueRenderer(Person.class, PropertyValueRenderers
                 .createPersonPropertyValueRenderer(messageProvider));
         propertyGrid.registerPropertyValueRenderer(SampleType.class, PropertyValueRenderers
@@ -325,25 +331,7 @@ public final class GenericSampleViewer extends LayoutContainer
     public final void loadSampleInfo()
     {
         viewContext.getService().getSampleInfo(sampleIdentifier,
-                new SampleGenerationInfoCallback(viewContext));
-    }
-
-    /**
-     * Sets the {@link SampleGeneration} for this <var>generic</var> sample viewer.
-     * <p>
-     * This method triggers the whole <i>GUI</i> construction.
-     * </p>
-     */
-    public final void setSampleGeneration(final SampleGeneration sampleGeneration)
-    {
-        removeAll();
-        setLayout(new BorderLayout());
-        // Left panel
-        add(createLeftPanel(sampleGeneration), createLeftBorderLayoutData());
-        // Right panel
-        add(createRightPanel(), createRightBorderLayoutData());
-        layout();
-        loadStores();
+                new SampleGenerationInfoCallback(viewContext, this));
     }
 
     //
@@ -413,24 +401,43 @@ public final class GenericSampleViewer extends LayoutContainer
         }
     }
 
-    private final class SampleGenerationInfoCallback extends
+    public static final class SampleGenerationInfoCallback extends
             AbstractAsyncCallback<SampleGeneration>
     {
+        private final GenericSampleViewer genericSampleViewer;
+
         private SampleGenerationInfoCallback(
-                final IViewContext<IGenericClientServiceAsync> viewContext)
+                final IViewContext<IGenericClientServiceAsync> viewContext,
+                GenericSampleViewer genericSampleViewer)
         {
             super(viewContext);
+            this.genericSampleViewer = genericSampleViewer;
         }
 
         //
         // AbstractAsyncCallback
         //
 
+        /**
+         * Sets the {@link SampleGeneration} for this <var>generic</var> sample viewer.
+         * <p>
+         * This method triggers the whole <i>GUI</i> construction.
+         * </p>
+         */
         @SuppressWarnings("unchecked")
         @Override
         protected final void process(final SampleGeneration result)
         {
-            setSampleGeneration(result);
+            genericSampleViewer.removeAll();
+            genericSampleViewer.setLayout(new BorderLayout());
+            // Left panel
+            Component leftPanel = genericSampleViewer.createLeftPanel(result);
+            genericSampleViewer.add(leftPanel, GenericSampleViewer.createLeftBorderLayoutData());
+            // Right panel
+            Component rightPanel = genericSampleViewer.createRightPanel();
+            genericSampleViewer.add(rightPanel, GenericSampleViewer.createRightBorderLayoutData());
+            genericSampleViewer.layout();
+            genericSampleViewer.loadStores();
         }
     }
 }
