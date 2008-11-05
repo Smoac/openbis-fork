@@ -1,4 +1,4 @@
-show allResults
+#show allResults
 
 {project} = ch.systemsx.cisd.openbis
 {generic} = ${project}.generic
