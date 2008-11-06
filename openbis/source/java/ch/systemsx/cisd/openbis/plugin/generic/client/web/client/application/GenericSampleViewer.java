@@ -290,7 +290,7 @@ public final class GenericSampleViewer extends LayoutContainer
     private final Component createLeftPanel(final SampleGeneration sampleGeneration)
     {
         final ContentPanel panel = new ContentPanel();
-        panel.setScrollMode(Scroll.AUTO);
+        panel.setScrollMode(Scroll.AUTOY);
         panel.setHeading(viewContext.getMessageProvider().getMessage("sample_properties_heading"));
         panel.add(createPropertyGrid(sampleGeneration));
         return panel;
