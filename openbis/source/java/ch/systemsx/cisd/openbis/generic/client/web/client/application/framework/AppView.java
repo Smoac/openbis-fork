@@ -30,6 +30,7 @@ import com.google.gwt.user.client.ui.RootPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TopMenu;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Footer;
 
 /**
  * Main application view.
@@ -80,6 +81,7 @@ final class AppView extends View
         createNorth();
         createWest();
         createCenter();
+        createSouth();
         RootPanel.get().clear();
         RootPanel.get().add(viewport);
     }
@@ -88,7 +90,6 @@ final class AppView extends View
     {
         north = new TopMenu(viewContext);
         final BorderLayoutData data = new BorderLayoutData(LayoutRegion.NORTH, 30);
-        data.setMargins(new Margins());
         viewport.add(north, data);
     }
 
@@ -104,8 +105,15 @@ final class AppView extends View
     {
         center = new MainTabPanel(viewContext);
         final BorderLayoutData data = new BorderLayoutData(LayoutRegion.CENTER);
-        data.setMargins(new Margins(5, 5, 5, 5));
+        data.setMargins(new Margins(5));
         viewport.add(center, data);
+    }
+
+    private final void createSouth()
+    {
+        final Footer footer = new Footer(viewContext);
+        final BorderLayoutData data = new BorderLayoutData(LayoutRegion.SOUTH, 20);
+        viewport.add(footer, data);
     }
 
     //
