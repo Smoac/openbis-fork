@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
 import org.springframework.dao.DataAccessException;
 
@@ -28,6 +27,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * Data access object for {@link SampleTypePE}. <br>
@@ -48,7 +48,7 @@ final class SampleTypeDAO extends AbstractTypeDAO<SampleTypePE> implements ISamp
     {
         for (final SampleTypePE sampleTypePE : list)
         {
-            Hibernate.initialize(sampleTypePE.getSampleTypePropertyTypes());
+            HibernateUtils.initialize(sampleTypePE.getSampleTypePropertyTypes());
         }
     }
 

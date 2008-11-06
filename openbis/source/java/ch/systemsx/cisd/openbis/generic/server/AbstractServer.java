@@ -21,7 +21,6 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.hibernate.Hibernate;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.factory.FactoryBean;
 
@@ -37,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
 /**
@@ -171,7 +171,7 @@ public abstract class AbstractServer<T extends IServer> implements IServer,
             personPE = createPerson(session.getPrincipal(), registrator);
         } else
         {
-            Hibernate.initialize(personPE.getRoleAssignments());
+            HibernateUtils.initialize(personPE.getRoleAssignments());
         }
         if (session.tryGetPerson() == null)
         {

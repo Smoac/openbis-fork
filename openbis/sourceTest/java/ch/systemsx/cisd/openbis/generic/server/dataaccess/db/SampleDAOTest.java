@@ -24,7 +24,6 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.List;
 
-import org.hibernate.Hibernate;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
@@ -34,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * Test cases for corresponding {@link SampleDAO} class.
@@ -78,13 +78,13 @@ public final class SampleDAOTest extends AbstractDAOTest
         sessionFactory.getCurrentSession().clear();
         final List<SamplePE> samples = listSamplesFromHomeDatabase(type3);
         final SamplePE foundWell = findSample(well, samples);
-        assertTrue(Hibernate.isInitialized(foundWell.getContainer()));
+        assertTrue(HibernateUtils.isInitialized(foundWell.getContainer()));
         final SamplePE foundContainer = foundWell.getContainer();
-        assertFalse(Hibernate.isInitialized(foundContainer.getContainer()));
+        assertFalse(HibernateUtils.isInitialized(foundContainer.getContainer()));
         sampleC = findSample(sampleC, samples);
-        assertTrue(Hibernate.isInitialized(sampleC.getGeneratedFrom()));
+        assertTrue(HibernateUtils.isInitialized(sampleC.getGeneratedFrom()));
         final SamplePE parent = sampleC.getGeneratedFrom();
-        assertFalse(Hibernate.isInitialized(parent.getGeneratedFrom()));
+        assertFalse(HibernateUtils.isInitialized(parent.getGeneratedFrom()));
     }
 
     @Test

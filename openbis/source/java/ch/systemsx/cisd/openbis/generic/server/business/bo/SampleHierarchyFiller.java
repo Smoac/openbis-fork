@@ -16,9 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-import org.hibernate.Hibernate;
-
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * A {@link SamplePE} enricher.
@@ -82,7 +81,7 @@ public final class SampleHierarchyFiller
     {
         if (sample != null)
         {
-            Hibernate.initialize(sample);
+            HibernateUtils.initialize(sample);
         }
     }
 }

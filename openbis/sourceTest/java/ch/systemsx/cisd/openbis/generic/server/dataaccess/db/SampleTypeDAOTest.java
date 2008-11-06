@@ -24,12 +24,12 @@ import static org.testng.AssertJUnit.fail;
 
 import java.util.List;
 
-import org.hibernate.Hibernate;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * Test cases for corresponding {@link SampleTypeDAO} class.
@@ -74,7 +74,7 @@ public final class SampleTypeDAOTest extends AbstractDAOTest
         assert samples.size() > 0;
         for (SampleTypePE sampleTypePE : samples)
         {
-            assertTrue(Hibernate.isInitialized(sampleTypePE));
+            assertTrue(HibernateUtils.isInitialized(sampleTypePE));
         }
         // Change database instance id.
         changeDatabaseInstanceId(sampleTypeDAO);

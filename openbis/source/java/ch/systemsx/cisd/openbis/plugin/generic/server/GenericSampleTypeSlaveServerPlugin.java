@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 import ch.systemsx.cisd.openbis.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
@@ -45,7 +46,7 @@ public final class GenericSampleTypeSlaveServerPlugin implements ISampleTypeSlav
             final Session session, final SamplePE sample)
     {
         assert sample != null : "Unspecified sample.";
-        sample.ensurePropertiesAreLoaded();
+        HibernateUtils.initialize(sample.getProperties());
         SampleHierarchyFiller.enrichWithParentAndContainerHierarchy(sample);
         final List<SamplePE> generated =
                 daoFactory.getSampleDAO().listSamplesByGeneratedFrom(sample);

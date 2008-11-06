@@ -42,7 +42,6 @@ import javax.persistence.Transient;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.hibernate.Hibernate;
 import org.hibernate.annotations.Check;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -447,15 +446,6 @@ public class SamplePE implements IIdAndCodeHolder, Comparable<SamplePE>,
         property.setEntity(this);
         getSampleProperties().add(property);
     }
-
-    public void ensurePropertiesAreLoaded()
-    {
-        Hibernate.initialize(getSampleProperties());
-    }
-
-    //
-    // IMatchingEntity
-    //
 
     @Transient
     public final String getIdentifier()

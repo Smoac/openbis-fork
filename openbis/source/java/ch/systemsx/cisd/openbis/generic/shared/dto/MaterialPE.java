@@ -39,7 +39,6 @@ import javax.persistence.UniqueConstraint;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.hibernate.Hibernate;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Generated;
@@ -294,15 +293,6 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
     {
         return AbstractIdAndCodeHolder.compare(this, o);
     }
-
-    public void ensurePropertiesAreLoaded()
-    {
-        Hibernate.initialize(getMaterialProperties());
-    }
-
-    //
-    // IMatchingEntity
-    //
 
     @Transient
     public final String getIdentifier()

@@ -41,12 +41,4 @@ public interface IEntityPropertiesHolder<T extends EntityPropertyPE>
      * Adds the <var>property</var> to the list of properties of this property holder.
      */
     public void addProperty(T property);
-
-    /**
-     * Ensure the properties are loaded from the database.
-     * <p>
-     * <i>Only call this on the server side within a hibernate session.</i>
-     */
-    public void ensurePropertiesAreLoaded();
-
 }

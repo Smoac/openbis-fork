@@ -22,6 +22,7 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * @author Franz-Josef Elmer
