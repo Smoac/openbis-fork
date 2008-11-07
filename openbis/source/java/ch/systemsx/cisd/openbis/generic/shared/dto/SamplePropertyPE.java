@@ -31,9 +31,6 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
-import org.hibernate.search.annotations.ContainedIn;
-import org.hibernate.search.annotations.DocumentId;
-import org.hibernate.search.annotations.Indexed;
 import org.hibernate.validator.NotNull;
 
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
@@ -48,7 +45,6 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
     { @UniqueConstraint(columnNames =
         { ColumnNames.SAMPLE_COLUMN, ColumnNames.SAMPLE_TYPE_PROPERTY_TYPE_COLUMN }) })
 // @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-@Indexed
 public class SamplePropertyPE extends EntityPropertyPE
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
@@ -84,7 +80,6 @@ public class SamplePropertyPE extends EntityPropertyPE
     @SequenceGenerator(name = SequenceNames.SAMPLE_PROPERTY_SEQUENCE, sequenceName = SequenceNames.SAMPLE_PROPERTY_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.SAMPLE_PROPERTY_SEQUENCE)
-    @DocumentId
     public Long getId()
     {
         return id;
@@ -92,7 +87,6 @@ public class SamplePropertyPE extends EntityPropertyPE
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = SamplePE.class)
     @JoinColumn(name = ColumnNames.SAMPLE_COLUMN, updatable = false)
-    @ContainedIn
     public IIdAndCodeHolder getEntity()
     {
         return getSample();

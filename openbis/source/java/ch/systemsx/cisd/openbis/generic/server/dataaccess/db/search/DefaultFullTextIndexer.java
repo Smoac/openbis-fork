@@ -47,10 +47,11 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
      * It is critical that <code>batchSize</code> matches
      * <code>hibernate.search.worker.batch_size</code>.
      */
-    // private final int batchSize;
+    private final int batchSize;
+
     DefaultFullTextIndexer(final int batchSize)
     {
-        // this.batchSize = batchSize;
+        this.batchSize = batchSize;
     }
 
     //
@@ -76,16 +77,13 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
                 operationLog.debug(String.format("Indexing entity '%s'."));
             }
             fullTextSession.index(object);
-            // TODO 2008-11-07, Christian Ribeaud: try to reactivate batch when connection
-            // between sample and sample property has been correctly implemented. We got an
-            // exception when the transaction is commited.
-            // if (index % batchSize == 0)
-            // {
-            // hibernateSession.clear();
-            // }
+            if (index % batchSize == 0)
+            {
+                hibernateSession.clear();
+            }
         }
+        transaction.commit();
         operationLog
                 .info(String.format("%d '%s' have been indexed.", index, clazz.getSimpleName()));
-        transaction.commit();
     }
 }
