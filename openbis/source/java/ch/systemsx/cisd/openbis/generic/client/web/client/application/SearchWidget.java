@@ -19,7 +19,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.event.WindowEvent;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -61,11 +63,26 @@ final class SearchWidget extends LayoutContainer
 
     private final Button searchButton;
 
+    private final EnterKeyListener enterKeyListener;
+
     SearchWidget(final IViewContext<IGenericClientServiceAsync> viewContext)
     {
         final TableRowLayout tableRowLayout = createLayout();
         setLayout(tableRowLayout);
         this.viewContext = viewContext;
+        enterKeyListener = new EnterKeyListener()
+            {
+
+                //
+                // EnterKeyListener
+                //
+
+                @Override
+                protected final void onEnterKey()
+                {
+                    doSearch();
+                }
+            };
         textField = createTextField();
         entityChooser = new EntityChooser(viewContext);
         entityChooser.setStyleAttribute("marginRight", "5px");
@@ -89,19 +106,7 @@ final class SearchWidget extends LayoutContainer
     {
         final TextField<String> field = new TextField<String>();
         field.setWidth(200);
-        field.addKeyListener(new EnterKeyListener()
-            {
-
-                //
-                // EnterKeyListener
-                //
-
-                @Override
-                protected final void onEnterKey()
-                {
-                    doSearch();
-                }
-            });
+        field.addKeyListener(enterKeyListener);
         return field;
     }
 
@@ -112,6 +117,7 @@ final class SearchWidget extends LayoutContainer
         final String queryText = textField.getValue();
         if (StringUtils.isBlank(queryText) == false)
         {
+            searchButton.setEnabled(false);
             viewContext.getService().listMatchingEntities(selectedSearchableEntity, queryText,
                     new ListMatchingEntitiesAsyncCallback(viewContext));
         }
@@ -156,21 +162,40 @@ final class SearchWidget extends LayoutContainer
         //
 
         @Override
+        protected final void finishOnFailure(final Throwable caught)
+        {
+            searchButton.enable();
+        }
+
+        @Override
         protected final void process(final List<MatchingEntity> result)
         {
+            searchButton.enable();
             final String queryText = textField.getValue();
             if (result.size() == 0)
             {
                 final IMessageProvider messageProvider = viewContext.getMessageProvider();
                 MessageBox.alert(messageProvider.getMessage("messagebox_warning"), messageProvider
-                        .getMessage("no_match", queryText), null);
-                textField.focus();
+                        .getMessage("no_match", queryText), new Listener<WindowEvent>()
+                    {
+
+                        //
+                        // Listener
+                        //
+
+                        public final void handleEvent(final WindowEvent be)
+                        {
+                            textField.focus();
+                        }
+                    });
                 return;
             }
             textField.reset();
             final AppEvent<ContentPanel> event = new AppEvent<ContentPanel>(AppEvents.NAVI_EVENT);
+            final String selectedText = entityChooser.getSelectedText();
             event.setData(GenericConstants.ASSOCIATED_CONTENT_PANEL, new DefaultTabItem(viewContext
-                    .getMessageProvider().getMessage("global_search", queryText),
+                    .getMessageProvider().getMessage("global_search",
+                            StringUtils.isBlank(selectedText) ? "All" : selectedText, queryText),
                     new MatchingEntitiesPanel(viewContext, result)));
             Dispatcher.get().dispatch(event);
         }

@@ -22,6 +22,7 @@ public abstract class EnterKeyListener extends KeyListener
         if (event.getKeyCode() == 13)
         {
             onEnterKey();
+            event.stopEvent();
         }
     }
 }

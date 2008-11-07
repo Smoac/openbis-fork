@@ -73,7 +73,7 @@ var generic = {
   //
   
   search_button: "Search",
-  global_search: "Search: '{0}'",
+  global_search: "[{0}]: '{1}'",
   identifier: "Identifier",
   no_match: "No results found for '{0}'",
   entity_type: "Entity Type",
