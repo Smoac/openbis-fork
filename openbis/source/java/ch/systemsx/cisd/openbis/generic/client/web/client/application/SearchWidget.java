@@ -34,6 +34,7 @@ import com.extjs.gxt.ui.client.widget.layout.TableRowLayout;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EnterKeyListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
@@ -192,10 +193,10 @@ final class SearchWidget extends LayoutContainer
             }
             textField.reset();
             final AppEvent<ContentPanel> event = new AppEvent<ContentPanel>(AppEvents.NAVI_EVENT);
-            final String selectedText = entityChooser.getSelectedText();
+            final String selectedText =
+                    entityChooser.getValue().get(ModelDataPropertyNames.DESCRIPTION);
             event.setData(GenericConstants.ASSOCIATED_CONTENT_PANEL, new DefaultTabItem(viewContext
-                    .getMessageProvider().getMessage("global_search",
-                            StringUtils.isBlank(selectedText) ? "All" : selectedText, queryText),
+                    .getMessageProvider().getMessage("global_search", selectedText, queryText),
                     new MatchingEntitiesPanel(viewContext, result)));
             Dispatcher.get().dispatch(event);
         }

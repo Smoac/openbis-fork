@@ -23,6 +23,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.validator.Length;
 
 import ch.systemsx.cisd.common.utilities.ClassUtils;
@@ -89,6 +92,7 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
 
     @Column(name = ColumnNames.VALUE)
     @Length(max = 1024, message = ValidationMessages.VALUE_LENGTH_MESSAGE)
+    @Field(index = Index.TOKENIZED)
     public String getValue()
     {
         return value;
@@ -102,6 +106,7 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.VOCABULARY_TERM_COLUMN)
+    @IndexedEmbedded
     public VocabularyTermPE getVocabularyTerm()
     {
         return vocabularyTerm;

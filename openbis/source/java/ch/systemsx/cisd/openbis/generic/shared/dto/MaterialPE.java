@@ -201,6 +201,7 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entity")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @IndexedEmbedded
     private List<MaterialPropertyPE> getMaterialProperties()
     {
         return properties;

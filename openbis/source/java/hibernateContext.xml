@@ -84,7 +84,11 @@
                 <!-- Automatic optimization -->
                 <prop key="hibernate.search.default.optimizer.operation_limit.max">1000</prop>
                 <prop key="hibernate.search.default.optimizer.transaction_limit.max">100</prop>
-                <prop key="hibernate.search.worker.batch_size">${hibernate.search.batch-size}</prop>
+                <!--
+                    TODO 2008-11-07, Christian Ribeaud: try to reactivate batch when connection
+                    between sample and sample property has been correctly implemented.
+                    <prop key="hibernate.search.worker.batch_size">${hibernate.search.batch-size}</prop>
+                -->
                 <!--   
                     <prop key="hibernate.show_sql">true</prop>
                     <prop key="hibernate.format_sql">true</prop>
@@ -97,7 +101,7 @@
     <!--
         // Hibernate Search
     -->
-    
+
     <bean id="hibernate-search-context"
         class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.HibernateSearchContext">
         <property name="indexBase" value="${hibernate.search.index-base}" />

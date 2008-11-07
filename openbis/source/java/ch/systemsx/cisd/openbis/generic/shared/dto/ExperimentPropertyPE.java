@@ -33,6 +33,9 @@ import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.search.annotations.ContainedIn;
+import org.hibernate.search.annotations.DocumentId;
+import org.hibernate.search.annotations.Indexed;
 import org.hibernate.validator.NotNull;
 
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
@@ -46,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 @Table(name = TableNames.EXPERIMENT_PROPERTIES_TABLE, uniqueConstraints = @UniqueConstraint(columnNames =
     { ColumnNames.EXPERIMENT_COLUMN, ColumnNames.EXPERIMENT_TYPE_PROPERTY_TYPE_COLUMN }))
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@Indexed
 public class ExperimentPropertyPE extends EntityPropertyPE
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
@@ -80,6 +84,7 @@ public class ExperimentPropertyPE extends EntityPropertyPE
     @SequenceGenerator(name = SequenceNames.EXPERIMENT_PROPERTY_SEQUENCE, sequenceName = SequenceNames.EXPERIMENT_PROPERTY_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.EXPERIMENT_PROPERTY_SEQUENCE)
+    @DocumentId
     public Long getId()
     {
         return id;
@@ -87,6 +92,7 @@ public class ExperimentPropertyPE extends EntityPropertyPE
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = ExperimentPE.class)
     @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN, updatable = false)
+    @ContainedIn
     public IIdAndCodeHolder getEntity()
     {
         return getExperiment();
@@ -98,13 +104,13 @@ public class ExperimentPropertyPE extends EntityPropertyPE
      * <i>Do not use directly, instead, call {@link MaterialPE#addProperty(MaterialPropertyPE)} with
      * <code>this</code> object!</i>
      */
-    void setEntity(IIdAndCodeHolder entity)
+    void setEntity(final IIdAndCodeHolder entity)
     {
         this.experiment = (ExperimentPE) entity;
     }
 
     @Override
-    public void setHolder(IIdAndCodeHolder entity)
+    public void setHolder(final IIdAndCodeHolder entity)
     {
         ((ExperimentPE) entity).addProperty(this);
     }

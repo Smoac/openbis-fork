@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search;
 
+import org.apache.log4j.Logger;
 import org.hibernate.CacheMode;
 import org.hibernate.FlushMode;
 import org.hibernate.ScrollMode;
@@ -25,6 +26,9 @@ import org.hibernate.Transaction;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.springframework.dao.DataAccessException;
+
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
  * A default {@link IFullTextIndexer} which knows how to perform an efficient full text index.
@@ -36,15 +40,17 @@ import org.springframework.dao.DataAccessException;
  */
 final class DefaultFullTextIndexer implements IFullTextIndexer
 {
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, DefaultFullTextIndexer.class);
+
     /**
      * It is critical that <code>batchSize</code> matches
      * <code>hibernate.search.worker.batch_size</code>.
      */
-    private final int batchSize;
-
+    // private final int batchSize;
     DefaultFullTextIndexer(final int batchSize)
     {
-        this.batchSize = batchSize;
+        // this.batchSize = batchSize;
     }
 
     //
@@ -60,14 +66,26 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
         final Transaction transaction = hibernateSession.beginTransaction();
         final ScrollableResults results =
                 fullTextSession.createCriteria(clazz).scroll(ScrollMode.FORWARD_ONLY);
-        for (int i = 0; results.next(); i++)
+        int index = 0;
+        while (results.next())
         {
-            fullTextSession.index(results.get(0));
-            if (i % batchSize == 0)
+            index++;
+            final Object object = results.get(0);
+            if (operationLog.isDebugEnabled())
             {
-                hibernateSession.clear();
+                operationLog.debug(String.format("Indexing entity '%s'."));
             }
+            fullTextSession.index(object);
+            // TODO 2008-11-07, Christian Ribeaud: try to reactivate batch when connection
+            // between sample and sample property has been correctly implemented. We got an
+            // exception when the transaction is commited.
+            // if (index % batchSize == 0)
+            // {
+            // hibernateSession.clear();
+            // }
         }
+        operationLog
+                .info(String.format("%d '%s' have been indexed.", index, clazz.getSimpleName()));
         transaction.commit();
     }
 }

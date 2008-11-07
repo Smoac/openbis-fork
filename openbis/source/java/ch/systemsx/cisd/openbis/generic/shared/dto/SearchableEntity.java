@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import org.apache.commons.lang.ArrayUtils;
+
 /**
  * An entity that is searchable by <i>Hibernate Search</i>.
  * 
@@ -39,7 +41,8 @@ public enum SearchableEntity
         @Override
         public final String[] getFields()
         {
-            return getStandardFields();
+            return (String[]) ArrayUtils.addAll(getStandardFields(), getPropertyFields(name()
+                    .toLowerCase()));
         }
     },
     EXPERIMENT("Experiment")
@@ -57,7 +60,8 @@ public enum SearchableEntity
         @Override
         public final String[] getFields()
         {
-            return getStandardFields();
+            return (String[]) ArrayUtils.addAll(getStandardFields(), getPropertyFields(name()
+                    .toLowerCase()));
         }
     },
     MATERIAL("Material")
@@ -75,7 +79,8 @@ public enum SearchableEntity
         @Override
         public final String[] getFields()
         {
-            return getStandardFields();
+            return (String[]) ArrayUtils.addAll(getStandardFields(), getPropertyFields(name()
+                    .toLowerCase()));
         }
     };
 
@@ -90,6 +95,14 @@ public enum SearchableEntity
     {
         return new String[]
             { "code", "registrator.firstName", "registrator.lastName" };
+    }
+
+    static final String[] getPropertyFields(final String entityName)
+    {
+        return new String[]
+
+            { String.format("%sProperties.value", entityName),
+                    String.format("%sProperties.vocabularyTerm.code", entityName) };
     }
 
     @SuppressWarnings("unchecked")

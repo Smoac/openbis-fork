@@ -33,6 +33,9 @@ import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.search.annotations.ContainedIn;
+import org.hibernate.search.annotations.DocumentId;
+import org.hibernate.search.annotations.Indexed;
 import org.hibernate.validator.NotNull;
 
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
@@ -46,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 @Table(name = TableNames.MATERIAL_PROPERTIES_TABLE, uniqueConstraints = @UniqueConstraint(columnNames =
     { ColumnNames.MATERIAL_COLUMN, ColumnNames.MATERIAL_TYPE_PROPERTY_TYPE_COLUMN }))
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@Indexed
 public class MaterialPropertyPE extends EntityPropertyPE
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
@@ -81,6 +85,7 @@ public class MaterialPropertyPE extends EntityPropertyPE
     @SequenceGenerator(name = SequenceNames.MATERIAL_PROPERTY_SEQUENCE, sequenceName = SequenceNames.MATERIAL_PROPERTY_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.MATERIAL_PROPERTY_SEQUENCE)
+    @DocumentId
     public Long getId()
     {
         return id;
@@ -88,6 +93,7 @@ public class MaterialPropertyPE extends EntityPropertyPE
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = MaterialPE.class)
     @JoinColumn(name = ColumnNames.MATERIAL_COLUMN, updatable = false)
+    @ContainedIn
     public IIdAndCodeHolder getEntity()
     {
         return getMaterial();
@@ -99,13 +105,13 @@ public class MaterialPropertyPE extends EntityPropertyPE
      * <i>Do not use directly, instead, call {@link MaterialPE#addProperty(MaterialPropertyPE)} with
      * <code>this</code> object!</i>
      */
-    void setEntity(IIdAndCodeHolder entity)
+    void setEntity(final IIdAndCodeHolder entity)
     {
         this.material = (MaterialPE) entity;
     }
 
     @Override
-    public void setHolder(IIdAndCodeHolder entity)
+    public void setHolder(final IIdAndCodeHolder entity)
     {
         ((MaterialPE) entity).addProperty(this);
     }

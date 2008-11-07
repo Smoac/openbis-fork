@@ -210,6 +210,7 @@ public class SamplePE implements IIdAndCodeHolder, Comparable<SamplePE>,
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entity")
     @Fetch(FetchMode.SUBSELECT)
     // @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @IndexedEmbedded
     private List<SamplePropertyPE> getSampleProperties()
     {
         return properties;

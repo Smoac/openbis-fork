@@ -239,6 +239,7 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entity")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @IndexedEmbedded
     private List<ExperimentPropertyPE> getExperimentProperties()
     {
         return properties;
@@ -246,7 +247,7 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
 
     // Required by Hibernate.
     @SuppressWarnings("unused")
-    private void setExperimentProperties(List<ExperimentPropertyPE> properties)
+    private void setExperimentProperties(final List<ExperimentPropertyPE> properties)
     {
         this.properties = properties;
     }
@@ -271,7 +272,7 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
         }
     }
 
-    public void addProperty(ExperimentPropertyPE property)
+    public void addProperty(final ExperimentPropertyPE property)
     {
         property.setEntity(this);
         getExperimentProperties().add(property);
@@ -310,7 +311,7 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
     // Package visibility to avoid bean conversion which will call an uninitialized field.
     final void setAttachments(final List<AttachmentPE> attachments)
     {
-        for (AttachmentPE experimentAttachment : attachments)
+        for (final AttachmentPE experimentAttachment : attachments)
         {
             experimentAttachment.setParent(this);
         }
@@ -346,7 +347,7 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
         }
     }
 
-    public void addProcedure(ProcedurePE child)
+    public void addProcedure(final ProcedurePE child)
     {
         final ExperimentPE parent = child.getExperiment();
         if (parent != null)

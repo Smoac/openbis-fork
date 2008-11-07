@@ -43,7 +43,7 @@ public final class SearchableEntityModel extends BaseModelData
     private final static SearchableEntityModel createNullSearchableEntityModel()
     {
         final SearchableEntityModel model = new SearchableEntityModel();
-        model.set(ModelDataPropertyNames.DESCRIPTION, "- All -");
+        model.set(ModelDataPropertyNames.DESCRIPTION, "All");
         model.set(ModelDataPropertyNames.OBJECT, null);
         return model;
     }

@@ -43,6 +43,9 @@ public final class FullTextIndexerRunnable extends HibernateDaoSupport implement
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, FullTextIndexerRunnable.class);
 
+    private static final Logger notificationLog =
+            LogFactory.getLogger(LogCategory.NOTIFY, FullTextIndexerRunnable.class);
+
     private final HibernateSearchContext context;
 
     private final IFullTextIndexer fullTextIndexer;
@@ -79,6 +82,7 @@ public final class FullTextIndexerRunnable extends HibernateDaoSupport implement
                     Indexed.class.getSimpleName()));
             return;
         }
+        Class<?> currentEntity = null;
         try
         {
             final File indexBase = new File(context.getIndexBase());
@@ -93,6 +97,7 @@ public final class FullTextIndexerRunnable extends HibernateDaoSupport implement
             final StopWatch stopWatch = new StopWatch();
             for (final Class<?> indexedEntity : indexedEntities)
             {
+                currentEntity = indexedEntity;
                 stopWatch.reset();
                 stopWatch.start();
                 fullTextIndexer.doFullTextIndex(session, indexedEntity);
@@ -104,7 +109,8 @@ public final class FullTextIndexerRunnable extends HibernateDaoSupport implement
             releaseSession(session);
         } catch (final Throwable th)
         {
-            operationLog.error("Unexpected exception or error, thread is still running.", th);
+            notificationLog.error(String.format(
+                    "A problem has occurred while indexing entity '%s'.", currentEntity), th);
         }
     }
 }
