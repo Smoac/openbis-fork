@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.core.XTemplate;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -149,6 +150,7 @@ public class GroupsView extends ContentPanel
         cp.setSize(FIT_SIZE, FIT_SIZE);
 
         final Grid<GroupModel> grid = new Grid<GroupModel>(store, cm);
+        grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         grid.addPlugin(expander);
         grid.setBorders(true);
         grid.setId(TABLE_ID);

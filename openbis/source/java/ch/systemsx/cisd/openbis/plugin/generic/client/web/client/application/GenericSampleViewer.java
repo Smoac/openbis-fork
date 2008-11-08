@@ -26,6 +26,7 @@ import java.util.Map;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BaseListLoadConfig;
 import com.extjs.gxt.ui.client.data.BaseListLoadResult;
 import com.extjs.gxt.ui.client.data.BaseListLoader;
@@ -117,6 +118,7 @@ public final class GenericSampleViewer extends LayoutContainer
         final ListStore<SampleModel> sampleListStore = createListStore(sampleLoader);
         partOfSamplesGrid =
                 new Grid<SampleModel>(sampleListStore, createPartOfSamplesColumnModel());
+        partOfSamplesGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         partOfSamplesGrid.setLoadMask(true);
         panel.add(partOfSamplesGrid);
         container.add(panel, new RowData(1, 0.5, new Margins(0, 5, 5, 0)));
@@ -130,6 +132,7 @@ public final class GenericSampleViewer extends LayoutContainer
                 createListStore(externalDataLoader);
         externalDataGrid =
                 new Grid<ExternalDataModel>(externalDataListStore, createExternalDataColumnModel());
+        externalDataGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         externalDataGrid.setLoadMask(true);
         panel.add(externalDataGrid);
         container.add(panel, new RowData(1, 0.5, new Margins(0, 5, 0, 0)));

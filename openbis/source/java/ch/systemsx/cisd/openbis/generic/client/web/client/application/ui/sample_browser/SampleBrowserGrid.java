@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.data.LoadEvent;
@@ -187,6 +188,7 @@ public final class SampleBrowserGrid extends LayoutContainer
             grid.setId(GRID_ID);
             grid.setLoadMask(true);
             grid.setDeferHeight(true);
+            grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
             grid.addListener(Events.CellDoubleClick, new Listener<GridEvent>()
                 {
                     public final void handleEvent(final GridEvent be)

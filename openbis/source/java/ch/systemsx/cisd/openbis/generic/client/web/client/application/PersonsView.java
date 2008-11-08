@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -141,6 +142,7 @@ public class PersonsView extends ContentPanel
         cp.setSize(FIT_SIZE, FIT_SIZE);
 
         final Grid<PersonModel> grid = new Grid<PersonModel>(store, cm);
+        grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         grid.setId(TABLE_ID);
         grid.setBorders(true);
         cp.add(grid);

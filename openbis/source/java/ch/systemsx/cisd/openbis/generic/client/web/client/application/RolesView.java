@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -126,6 +127,7 @@ public class RolesView extends ContentPanel
         cp.setSize("90%", "90%");
 
         final Grid<RoleModel> grid = new Grid<RoleModel>(store, cm);
+        grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         grid.setBorders(true);
         grid.setId(TABLE_ID);
 

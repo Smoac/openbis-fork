@@ -21,6 +21,7 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.XDOM;
+import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
@@ -74,6 +75,7 @@ public class MatchingEntitiesPanel extends LayoutContainer
         final ListStore<MatchingEntityModel> store = new ListStore<MatchingEntityModel>();
         store.add(MatchingEntityModel.convert(matchingEntities));
         final Grid<MatchingEntityModel> grid = new Grid<MatchingEntityModel>(store, columnModel);
+        grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         grid.addListener(Events.CellDoubleClick, new Listener<GridEvent>()
             {
 
