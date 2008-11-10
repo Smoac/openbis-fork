@@ -99,6 +99,7 @@ public final class CommonColumns
         final ColumnConfig columnConfig =
                 ColumnConfigFactory.createDefaultConfig(messageProvider,
                         ModelDataPropertyNames.SAMPLE_IDENTIFIER, "sample_identifier");
+        columnConfig.setHidden(true);
         columnConfig.setWidth(150);
         return columnConfig;
     }
