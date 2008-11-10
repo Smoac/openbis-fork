@@ -27,10 +27,9 @@ CREATE DOMAIN user_id AS character varying(20);
 CREATE FUNCTION controlled_vocabulary_check() RETURNS "trigger"
     AS $$
 DECLARE
-   cnt     INTEGER;
    v_code  CODE;
 BEGIN
-   select code into v_code from data_types where id  = NEW.daty_id;
+   select code into v_code from data_types where id = NEW.daty_id;
    -- Check if the data is of type "CONTROLLEDVOCABULARY"
    if v_code = 'CONTROLLEDVOCABULARY' then
       if NEW.covo_id IS NULL then
@@ -50,43 +49,12 @@ BEGIN
    select code into v_covo_code from controlled_vocabularies
       where is_internal_namespace = true and 
          id = (select covo_id from controlled_vocabulary_terms where id = NEW.cvte_id_stor_fmt);
+   -- Check if the data storage format is a term of the controlled vocabulary "STORAGE_FORMAT"
    if v_covo_code != 'STORAGE_FORMAT' then
       select code into data_code from data where id = NEW.data_id; 
       RAISE EXCEPTION 'Insert/Update of Data (Code: %) failed, as its Storage Format is %, but is required to be STORAGE_FORMAT.', data_code, v_covo_code;
    end if;
    RETURN NEW;
-END;
-$$
-    LANGUAGE plpgsql;
-CREATE FUNCTION move_exp_samples_to_group() RETURNS integer
-    AS $$
-DECLARE
-    sample RECORD;
-    groupId Integer;
-BEGIN
-  FOR sample IN 
-    (SELECT * FROM samples s inner join sample_types t on s.saty_id = t.id 
-	where t.code in ('CELL_PLATE', 'REINFECT_PLATE'))
-  LOOP
-	if (sample.dbin_id is not NULL) THEN
-		select proj.grou_id into groupId from
-			samples sa
-			left outer join sample_inputs si on sa.id = si.samp_id 
-			left outer join procedures proc on proc.id = si.proc_id  
-			left outer join experiments ex on ex.id = proc.expe_id
-			left outer join projects proj on proj.id = ex.proj_id
-		where sa.id = sample.id;
-		if (groupId is NULL) THEN
-			select id into groupId from groups limit 1;
-		END IF;
-		if (groupId is NULL) THEN
-			RAISE EXCEPTION 'There is no group in the database - internal error!';
-		END IF;
-		update samples set grou_id = groupId, dbin_id = NULL
-		  where id = sample.id;
-	END IF;
-  END LOOP;
-  RETURN 1;
 END;
 $$
     LANGUAGE plpgsql;
@@ -107,34 +75,34 @@ CREATE FUNCTION sample_code_uniqueness_check() RETURNS "trigger"
 DECLARE
    counter  INTEGER;
 BEGIN
-    IF (NEW.samp_id_part_of is NULL) THEN
-        IF (NEW.dbin_id is not NULL) THEN
-            SELECT count(*) into counter FROM samples 
-                where id != NEW.id and code = NEW.code and samp_id_part_of is NULL and dbin_id = NEW.dbin_id;
-            IF (counter > 0) THEN
-                RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because database instance sample with the same code already exists.', NEW.code;
-            END IF;
-        ELSIF (NEW.grou_id is not NULL) THEN
-            SELECT count(*) into counter FROM samples 
-                where id != NEW.id and code = NEW.code and samp_id_part_of is NULL and grou_id = NEW.grou_id;
-            IF (counter > 0) THEN
-                RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because group sample with the same code already exists.', NEW.code;
-            END IF;
-        END IF;
+	IF (NEW.samp_id_part_of is NULL) THEN
+		IF (NEW.dbin_id is not NULL) THEN
+			SELECT count(*) into counter FROM samples 
+				where id != NEW.id and code = NEW.code and samp_id_part_of is NULL and dbin_id = NEW.dbin_id;
+			IF (counter > 0) THEN
+				RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because database instance sample with the same code already exists.', NEW.code;
+			END IF;
+		ELSIF (NEW.grou_id is not NULL) THEN
+			SELECT count(*) into counter FROM samples 
+				where id != NEW.id and code = NEW.code and samp_id_part_of is NULL and grou_id = NEW.grou_id;
+			IF (counter > 0) THEN
+				RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because group sample with the same code already exists.', NEW.code;
+			END IF;
+		END IF;
         ELSE
-        IF (NEW.dbin_id is not NULL) THEN
-            SELECT count(*) into counter FROM samples 
-                where id != NEW.id and code = NEW.code and samp_id_part_of = NEW.samp_id_part_of and dbin_id = NEW.dbin_id;
-            IF (counter > 0) THEN
-                RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because database instance sample with the same code and being the part of the same parent already exists.', NEW.code;
-            END IF;
-        ELSIF (NEW.grou_id is not NULL) THEN
-            SELECT count(*) into counter FROM samples 
-                where id != NEW.id and code = NEW.code and samp_id_part_of = NEW.samp_id_part_of and grou_id = NEW.grou_id;
-            IF (counter > 0) THEN
-                RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because group sample with the same code and being the part of the same parent already exists.', NEW.code;
-            END IF;
-        END IF;
+		IF (NEW.dbin_id is not NULL) THEN
+			SELECT count(*) into counter FROM samples 
+				where id != NEW.id and code = NEW.code and samp_id_part_of = NEW.samp_id_part_of and dbin_id = NEW.dbin_id;
+			IF (counter > 0) THEN
+				RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because database instance sample with the same code and being the part of the same parent already exists.', NEW.code;
+			END IF;
+		ELSIF (NEW.grou_id is not NULL) THEN
+			SELECT count(*) into counter FROM samples 
+				where id != NEW.id and code = NEW.code and samp_id_part_of = NEW.samp_id_part_of and grou_id = NEW.grou_id;
+			IF (counter > 0) THEN
+				RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because group sample with the same code and being the part of the same parent already exists.', NEW.code;
+			END IF;
+		END IF;
         END IF;   
    RETURN NEW;
 END;
@@ -146,7 +114,7 @@ CREATE TABLE controlled_vocabularies (
     id tech_id NOT NULL,
     code code NOT NULL,
     description description_80,
-    registration_timestamp time_stamp_dfl,
+    registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     pers_id_registerer tech_id NOT NULL,
     is_managed_internally boolean_char DEFAULT false NOT NULL,
     is_internal_namespace boolean_char DEFAULT false NOT NULL,
@@ -157,11 +125,11 @@ CREATE SEQUENCE controlled_vocabulary_id_seq
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('controlled_vocabulary_id_seq', 2, true);
+SELECT pg_catalog.setval('controlled_vocabulary_id_seq', 5, true);
 CREATE TABLE controlled_vocabulary_terms (
     id tech_id NOT NULL,
     code object_name NOT NULL,
-    registration_timestamp time_stamp_dfl,
+    registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     covo_id tech_id NOT NULL,
     pers_id_registerer tech_id NOT NULL
 );
@@ -170,29 +138,35 @@ CREATE SEQUENCE cvte_id_seq
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('cvte_id_seq', 5, true);
+SELECT pg_catalog.setval('cvte_id_seq', 16, true);
 CREATE TABLE data (
     id tech_id NOT NULL,
-    registration_timestamp time_stamp_dfl,
+    code code,
     dsty_id tech_id NOT NULL,
     proc_id_produced_by tech_id NOT NULL,
-    samp_id_acquired_from tech_id,
-    samp_id_derived_from tech_id,
-    is_placeholder boolean_char NOT NULL,
-    code code NOT NULL,
     data_producer_code code,
     production_timestamp time_stamp,
+    samp_id_acquired_from tech_id,
+    samp_id_derived_from tech_id,
+    registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
+    is_placeholder boolean_char DEFAULT false,
     is_deleted boolean_char DEFAULT false,
     is_valid boolean_char DEFAULT true,
     CONSTRAINT data_samp_arc_ck CHECK ((((samp_id_acquired_from IS NOT NULL) AND (samp_id_derived_from IS NULL)) OR ((samp_id_acquired_from IS NULL) AND (samp_id_derived_from IS NOT NULL))))
 );
 CREATE SEQUENCE data_id_seq
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+SELECT pg_catalog.setval('data_id_seq', 5, true);
+CREATE SEQUENCE data_set_relationship_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('data_id_seq', 1, false);
+SELECT pg_catalog.setval('data_set_relationship_id_seq', 1, false);
 CREATE TABLE data_set_relationships (
     data_id_parent tech_id NOT NULL,
     data_id_child tech_id NOT NULL
@@ -242,9 +216,9 @@ SELECT pg_catalog.setval('database_instance_id_seq', 1, true);
 CREATE TABLE database_instances (
     id tech_id NOT NULL,
     code code NOT NULL,
+    uuid code NOT NULL,
     is_original_source boolean_char DEFAULT false NOT NULL,
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
-    uuid code NOT NULL,
     dast_id tech_id
 );
 CREATE TABLE database_version_logs (
@@ -260,7 +234,7 @@ CREATE SEQUENCE etpt_id_seq
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('etpt_id_seq', 2, true);
+SELECT pg_catalog.setval('etpt_id_seq', 5, true);
 CREATE SEQUENCE event_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -271,8 +245,8 @@ SELECT pg_catalog.setval('event_id_seq', 1, false);
 CREATE TABLE events (
     id tech_id NOT NULL,
     event_type event_type NOT NULL,
-    data_id tech_id,
     description description_250,
+    data_id tech_id,
     reason description_250,
     pers_id_registerer tech_id NOT NULL,
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL
@@ -288,35 +262,33 @@ CREATE TABLE experiment_attachments (
     id tech_id NOT NULL,
     expe_id tech_id NOT NULL,
     file_name file_name NOT NULL,
-    registration_timestamp time_stamp_dfl,
+    registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     value file NOT NULL,
     version integer NOT NULL,
     pers_id_registerer tech_id NOT NULL
 );
 CREATE SEQUENCE experiment_id_seq
-    START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('experiment_id_seq', 1, false);
+SELECT pg_catalog.setval('experiment_id_seq', 9, true);
 CREATE TABLE experiment_properties (
     id tech_id NOT NULL,
-    value generic_value,
-    registration_timestamp time_stamp_dfl,
     expe_id tech_id NOT NULL,
     etpt_id tech_id NOT NULL,
+    value generic_value,
     cvte_id tech_id,
     pers_id_registerer tech_id NOT NULL,
+    registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     CONSTRAINT expr_ck CHECK ((((value IS NOT NULL) AND (cvte_id IS NULL)) OR ((value IS NULL) AND (cvte_id IS NOT NULL))))
 );
 CREATE SEQUENCE experiment_property_id_seq
-    START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('experiment_property_id_seq', 1, false);
+SELECT pg_catalog.setval('experiment_property_id_seq', 12, true);
 CREATE SEQUENCE experiment_type_id_seq
     INCREMENT BY 1
     NO MAXVALUE
@@ -330,7 +302,7 @@ CREATE TABLE experiment_type_property_types (
     is_mandatory boolean_char DEFAULT false NOT NULL,
     is_managed_internally boolean_char DEFAULT false NOT NULL,
     pers_id_registerer tech_id NOT NULL,
-    registration_timestamp time_stamp_dfl
+    registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL
 );
 CREATE TABLE experiment_types (
     id tech_id NOT NULL,
@@ -344,7 +316,7 @@ CREATE TABLE experiments (
     exty_id tech_id NOT NULL,
     mate_id_study_object tech_id,
     pers_id_registerer tech_id NOT NULL,
-    registration_timestamp time_stamp_dfl,
+    registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     proj_id tech_id NOT NULL,
     inva_id tech_id,
     is_public boolean_char DEFAULT false NOT NULL,
@@ -353,8 +325,8 @@ CREATE TABLE experiments (
 CREATE TABLE external_data (
     data_id tech_id NOT NULL,
     "location" character varying(1024) NOT NULL,
-    loty_id tech_id NOT NULL,
     ffty_id tech_id NOT NULL,
+    loty_id tech_id NOT NULL,
     cvte_id_stor_fmt tech_id NOT NULL,
     is_complete boolean_char_or_unknown DEFAULT 'U'::bpchar NOT NULL,
     cvte_id_store tech_id
@@ -372,12 +344,11 @@ CREATE TABLE file_format_types (
     dbin_id tech_id NOT NULL
 );
 CREATE SEQUENCE group_id_seq
-    START WITH 4
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('group_id_seq', 4, false);
+SELECT pg_catalog.setval('group_id_seq', 2, true);
 CREATE TABLE groups (
     id tech_id NOT NULL,
     code code NOT NULL,
@@ -390,16 +361,15 @@ CREATE TABLE groups (
     dast_id tech_id
 );
 CREATE SEQUENCE invalidation_id_seq
-    START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('invalidation_id_seq', 1, false);
+SELECT pg_catalog.setval('invalidation_id_seq', 4, true);
 CREATE TABLE invalidations (
     id tech_id NOT NULL,
     pers_id_registerer tech_id NOT NULL,
-    registration_timestamp time_stamp_dfl,
+    registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     reason description_250
 );
 CREATE SEQUENCE locator_type_id_seq
@@ -418,14 +388,14 @@ CREATE SEQUENCE material_batch_id_seq
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('material_batch_id_seq', 20821, true);
+SELECT pg_catalog.setval('material_batch_id_seq', 656, true);
 CREATE TABLE material_batches (
     id tech_id NOT NULL,
     code code NOT NULL,
     amount real_value,
     mate_id tech_id NOT NULL,
     proc_id tech_id,
-    registration_timestamp time_stamp_dfl,
+    registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     pers_id_registerer tech_id NOT NULL
 );
 CREATE SEQUENCE material_id_seq
@@ -433,13 +403,13 @@ CREATE SEQUENCE material_id_seq
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('material_id_seq', 27819, true);
+SELECT pg_catalog.setval('material_id_seq', 3736, true);
 CREATE TABLE material_properties (
     id tech_id NOT NULL,
     mate_id tech_id NOT NULL,
-    value generic_value,
     mtpt_id tech_id NOT NULL,
-    registration_timestamp time_stamp_dfl,
+    value generic_value,
+    registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     pers_id_registerer tech_id NOT NULL,
     cvte_id tech_id,
     CONSTRAINT mapr_ck CHECK ((((value IS NOT NULL) AND (cvte_id IS NULL)) OR ((value IS NULL) AND (cvte_id IS NOT NULL))))
@@ -449,21 +419,21 @@ CREATE SEQUENCE material_property_id_seq
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('material_property_id_seq', 27817, true);
+SELECT pg_catalog.setval('material_property_id_seq', 9329, true);
 CREATE SEQUENCE material_type_id_seq
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('material_type_id_seq', 8, true);
+SELECT pg_catalog.setval('material_type_id_seq', 7, true);
 CREATE TABLE material_type_property_types (
     id tech_id NOT NULL,
     maty_id tech_id NOT NULL,
     prty_id tech_id NOT NULL,
     is_mandatory boolean_char DEFAULT false NOT NULL,
-    registration_timestamp time_stamp_dfl,
-    pers_id_registerer tech_id NOT NULL,
-    is_managed_internally boolean_char DEFAULT false NOT NULL
+    is_managed_internally boolean_char DEFAULT false NOT NULL,
+    registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
+    pers_id_registerer tech_id NOT NULL
 );
 CREATE TABLE material_types (
     id tech_id NOT NULL,
@@ -475,9 +445,9 @@ CREATE TABLE materials (
     id tech_id NOT NULL,
     code code NOT NULL,
     maty_id tech_id NOT NULL,
-    registration_timestamp time_stamp_dfl,
     pers_id_registerer tech_id NOT NULL,
     mate_id_inhibitor_of tech_id,
+    registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     dbin_id tech_id NOT NULL
 );
 CREATE SEQUENCE mtpt_id_seq
@@ -485,13 +455,13 @@ CREATE SEQUENCE mtpt_id_seq
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('mtpt_id_seq', 10, true);
+SELECT pg_catalog.setval('mtpt_id_seq', 22, true);
 CREATE SEQUENCE person_id_seq
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('person_id_seq', 1, true);
+SELECT pg_catalog.setval('person_id_seq', 2, true);
 CREATE TABLE persons (
     id tech_id NOT NULL,
     first_name character varying(30),
@@ -499,17 +469,16 @@ CREATE TABLE persons (
     user_id user_id NOT NULL,
     email object_name,
     dbin_id tech_id NOT NULL,
-    pers_id_registerer tech_id,
+    grou_id tech_id,
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
-    grou_id tech_id
+    pers_id_registerer tech_id
 );
 CREATE SEQUENCE procedure_id_seq
-    START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('procedure_id_seq', 1, false);
+SELECT pg_catalog.setval('procedure_id_seq', 10, true);
 CREATE SEQUENCE procedure_type_id_seq
     INCREMENT BY 1
     NO MAXVALUE
@@ -525,7 +494,7 @@ CREATE TABLE procedure_types (
 );
 CREATE TABLE procedures (
     id tech_id NOT NULL,
-    registration_timestamp time_stamp_dfl,
+    registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     expe_id tech_id NOT NULL,
     pcty_id tech_id NOT NULL
 );
@@ -534,15 +503,15 @@ CREATE SEQUENCE project_id_seq
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('project_id_seq', 1, true);
+SELECT pg_catalog.setval('project_id_seq', 4, true);
 CREATE TABLE projects (
     id tech_id NOT NULL,
     code code NOT NULL,
     grou_id tech_id NOT NULL,
     pers_id_leader tech_id,
+    description description_1000,
     pers_id_registerer tech_id NOT NULL,
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
-    description description_1000,
     dast_id tech_id
 );
 CREATE SEQUENCE property_type_id_seq
@@ -550,14 +519,14 @@ CREATE SEQUENCE property_type_id_seq
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('property_type_id_seq', 6, true);
+SELECT pg_catalog.setval('property_type_id_seq', 15, true);
 CREATE TABLE property_types (
     id tech_id NOT NULL,
     code code NOT NULL,
     description description_80 NOT NULL,
     label column_label NOT NULL,
     daty_id tech_id NOT NULL,
-    registration_timestamp time_stamp_dfl,
+    registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     pers_id_registerer tech_id NOT NULL,
     covo_id tech_id,
     is_managed_internally boolean_char DEFAULT false NOT NULL,
@@ -565,12 +534,11 @@ CREATE TABLE property_types (
     dbin_id tech_id NOT NULL
 );
 CREATE SEQUENCE role_assignment_id_seq
-    START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('role_assignment_id_seq', 1, false);
+SELECT pg_catalog.setval('role_assignment_id_seq', 5, true);
 CREATE TABLE role_assignments (
     id tech_id NOT NULL,
     role_code authorization_role NOT NULL,
@@ -586,7 +554,7 @@ CREATE SEQUENCE sample_id_seq
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('sample_id_seq', 21005, true);
+SELECT pg_catalog.setval('sample_id_seq', 1032, true);
 CREATE TABLE sample_inputs (
     samp_id tech_id NOT NULL,
     proc_id tech_id NOT NULL
@@ -602,7 +570,7 @@ CREATE TABLE sample_properties (
     value generic_value,
     cvte_id tech_id,
     pers_id_registerer tech_id NOT NULL,
-    registration_timestamp time_stamp_dfl,
+    registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     CONSTRAINT sapr_ck CHECK ((((value IS NOT NULL) AND (cvte_id IS NULL)) OR ((value IS NULL) AND (cvte_id IS NOT NULL))))
 );
 CREATE SEQUENCE sample_property_id_seq
@@ -610,7 +578,7 @@ CREATE SEQUENCE sample_property_id_seq
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('sample_property_id_seq', 70, true);
+SELECT pg_catalog.setval('sample_property_id_seq', 25, true);
 CREATE SEQUENCE sample_type_id_seq
     INCREMENT BY 1
     NO MAXVALUE
@@ -624,7 +592,7 @@ CREATE TABLE sample_type_property_types (
     is_mandatory boolean_char DEFAULT false NOT NULL,
     is_managed_internally boolean_char DEFAULT false NOT NULL,
     pers_id_registerer tech_id NOT NULL,
-    registration_timestamp time_stamp_dfl,
+    registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     is_displayed boolean_char DEFAULT true NOT NULL
 );
 CREATE TABLE sample_types (
@@ -642,7 +610,7 @@ CREATE TABLE samples (
     samp_id_top tech_id,
     samp_id_generated_from tech_id,
     saty_id tech_id NOT NULL,
-    registration_timestamp time_stamp_dfl,
+    registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     pers_id_registerer tech_id NOT NULL,
     inva_id tech_id,
     samp_id_control_layout tech_id,
@@ -656,5 +624,5 @@ CREATE SEQUENCE stpt_id_seq
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('stpt_id_seq', 2, true);
+SELECT pg_catalog.setval('stpt_id_seq', 5, true);
 

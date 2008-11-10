@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import static org.testng.AssertJUnit.assertNotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,7 +50,8 @@ public final class SamplePropertyDAOTest extends AbstractDAOTest
                 daoFactory.getSampleTypeDAO().tryFindSampleTypeByCode(
                         SampleTypeCode.MASTER_PLATE.getCode());
         DatabaseInstancePE instance = daoFactory.getDatabaseInstanceDAO().getHomeInstance();
-        GroupPE group = getSystemPerson().getHomeGroup();
+        GroupPE group = getTestPerson().getHomeGroup();
+        assertNotNull(group);
 
         SamplePE instanceSample = createInstanceSample(type, instance);
         SamplePE groupSample = createGroupSample(type, group);
@@ -60,6 +63,7 @@ public final class SamplePropertyDAOTest extends AbstractDAOTest
         identifiers.add(instanceSample.getSampleIdentifier());
         identifiers.add(groupSample.getSampleIdentifier());
 
+        // TODO 2008-11-11, Franz-Josef Elmer: Incomplete test.
         // daoFactory.getSamplePropertyDAO().listSampleProperties(identifiers, propertyCodes);
     }
 

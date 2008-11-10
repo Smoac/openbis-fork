@@ -25,7 +25,7 @@ ALTER TABLE ONLY database_instances
 ALTER TABLE ONLY database_instances
     ADD CONSTRAINT dbin_uuid_uk UNIQUE (uuid);
 ALTER TABLE ONLY data_set_relationships
-    ADD CONSTRAINT dsre_pk PRIMARY KEY (data_id_parent, data_id_child);
+    ADD CONSTRAINT dsre_bk_uk UNIQUE (data_id_child, data_id_parent);
 ALTER TABLE ONLY experiment_type_property_types
     ADD CONSTRAINT etpt_bk_uk UNIQUE (exty_id, prty_id);
 ALTER TABLE ONLY experiment_type_property_types
@@ -73,6 +73,8 @@ ALTER TABLE ONLY material_batches
 ALTER TABLE ONLY material_batches
     ADD CONSTRAINT maba_pk PRIMARY KEY (id);
 ALTER TABLE ONLY material_properties
+    ADD CONSTRAINT mapr_bk_uk UNIQUE (mate_id, mtpt_id);
+ALTER TABLE ONLY material_properties
     ADD CONSTRAINT mapr_pk PRIMARY KEY (id);
 ALTER TABLE ONLY materials
     ADD CONSTRAINT mate_bk_uk UNIQUE (code, maty_id, dbin_id);
@@ -82,8 +84,6 @@ ALTER TABLE ONLY material_types
     ADD CONSTRAINT maty_bk_uk UNIQUE (code, dbin_id);
 ALTER TABLE ONLY material_types
     ADD CONSTRAINT maty_pk PRIMARY KEY (id);
-ALTER TABLE ONLY material_types
-    ADD CONSTRAINT maty_uk UNIQUE (code);
 ALTER TABLE ONLY material_type_property_types
     ADD CONSTRAINT mtpt_bk_uk UNIQUE (maty_id, prty_id);
 ALTER TABLE ONLY material_type_property_types
@@ -119,7 +119,9 @@ ALTER TABLE ONLY role_assignments
 ALTER TABLE ONLY sample_inputs
     ADD CONSTRAINT sain_bk_uk UNIQUE (samp_id, proc_id);
 ALTER TABLE ONLY sample_inputs
-    ADD CONSTRAINT sain_pk PRIMARY KEY (samp_id, proc_id);
+    ADD CONSTRAINT sain_pk PRIMARY KEY (proc_id, samp_id);
+ALTER TABLE ONLY sample_material_batches
+    ADD CONSTRAINT samb_bk_uk UNIQUE (maba_id, samp_id);
 ALTER TABLE ONLY sample_material_batches
     ADD CONSTRAINT samb_pk PRIMARY KEY (samp_id, maba_id);
 ALTER TABLE ONLY samples
@@ -199,6 +201,8 @@ CREATE INDEX roas_pers_fk_i_grantee ON role_assignments USING btree (pers_id_gra
 CREATE INDEX roas_pers_fk_i_registerer ON role_assignments USING btree (pers_id_registerer);
 CREATE INDEX sain_proc_fk_i ON sample_inputs USING btree (proc_id);
 CREATE INDEX sain_samp_fk_i ON sample_inputs USING btree (samp_id);
+CREATE INDEX samb_maba_fk_i ON sample_material_batches USING btree (maba_id);
+CREATE INDEX samb_samp_fk_i ON sample_material_batches USING btree (samp_id);
 CREATE INDEX samp_code_i ON samples USING btree (code);
 CREATE INDEX samp_inva_fk_i ON samples USING btree (inva_id);
 CREATE INDEX samp_pers_fk_i ON samples USING btree (pers_id_registerer);
@@ -239,11 +243,11 @@ ALTER TABLE ONLY data_stores
 ALTER TABLE ONLY data
     ADD CONSTRAINT data_obty_fk FOREIGN KEY (dsty_id) REFERENCES data_set_types(id);
 ALTER TABLE ONLY data
-    ADD CONSTRAINT data_proc_fk FOREIGN KEY (proc_id_produced_by) REFERENCES procedures(id);
+    ADD CONSTRAINT data_proc_produced_by_fk FOREIGN KEY (proc_id_produced_by) REFERENCES procedures(id);
 ALTER TABLE ONLY data
-    ADD CONSTRAINT data_samp_derived_from_fk FOREIGN KEY (samp_id_derived_from) REFERENCES samples(id);
+    ADD CONSTRAINT data_samp_fk_acquired_from FOREIGN KEY (samp_id_acquired_from) REFERENCES samples(id);
 ALTER TABLE ONLY data
-    ADD CONSTRAINT data_samp_fk FOREIGN KEY (samp_id_acquired_from) REFERENCES samples(id);
+    ADD CONSTRAINT data_samp_fk_derived_from FOREIGN KEY (samp_id_derived_from) REFERENCES samples(id);
 ALTER TABLE ONLY database_instances
     ADD CONSTRAINT dbin_dast_fk FOREIGN KEY (dast_id) REFERENCES data_stores(id);
 ALTER TABLE ONLY data_set_relationships
@@ -348,6 +352,8 @@ ALTER TABLE ONLY persons
     ADD CONSTRAINT pers_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
 ALTER TABLE ONLY persons
     ADD CONSTRAINT pers_grou_fk FOREIGN KEY (grou_id) REFERENCES groups(id);
+ALTER TABLE ONLY persons
+    ADD CONSTRAINT pers_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
 ALTER TABLE ONLY procedures
     ADD CONSTRAINT proc_expe_fk FOREIGN KEY (expe_id) REFERENCES experiments(id);
 ALTER TABLE ONLY procedures
@@ -380,6 +386,10 @@ ALTER TABLE ONLY sample_inputs
     ADD CONSTRAINT sain_proc_fk FOREIGN KEY (proc_id) REFERENCES procedures(id);
 ALTER TABLE ONLY sample_inputs
     ADD CONSTRAINT sain_samp_fk FOREIGN KEY (samp_id) REFERENCES samples(id);
+ALTER TABLE ONLY sample_material_batches
+    ADD CONSTRAINT samb_maba_fk FOREIGN KEY (maba_id) REFERENCES material_batches(id);
+ALTER TABLE ONLY sample_material_batches
+    ADD CONSTRAINT samb_samp_fk FOREIGN KEY (samp_id) REFERENCES samples(id);
 ALTER TABLE ONLY samples
     ADD CONSTRAINT samp_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
 ALTER TABLE ONLY samples

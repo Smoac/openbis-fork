@@ -55,10 +55,9 @@ public final class GroupDAOTest extends AbstractDAOTest
     {
         List<GroupPE> groups = daoFactory.getGroupDAO().listGroups();
         Collections.sort(groups);
-        assertEquals("3V", groups.get(0).getCode());
-        assertEquals("DEFAULT", groups.get(1).getCode());
-        assertEquals("IMSB", groups.get(2).getCode());
-        assertEquals(3, groups.size());
+        assertEquals("CISD", groups.get(0).getCode());
+        assertEquals("TESTGROUP", groups.get(1).getCode());
+        assertEquals(2, groups.size());
     }
 
     @Test
@@ -67,10 +66,9 @@ public final class GroupDAOTest extends AbstractDAOTest
         List<GroupPE> groups =
                 daoFactory.getGroupDAO().listGroups(daoFactory.getHomeDatabaseInstance());
         Collections.sort(groups);
-        assertEquals("3V", groups.get(0).getCode());
-        assertEquals("DEFAULT", groups.get(1).getCode());
-        assertEquals("IMSB", groups.get(2).getCode());
-        assertEquals(3, groups.size());
+        assertEquals("CISD", groups.get(0).getCode());
+        assertEquals("TESTGROUP", groups.get(1).getCode());
+        assertEquals(2, groups.size());
     }
 
     @Test

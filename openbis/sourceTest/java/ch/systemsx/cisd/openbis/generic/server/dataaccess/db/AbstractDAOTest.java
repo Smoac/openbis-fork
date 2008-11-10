@@ -180,8 +180,18 @@ public abstract class AbstractDAOTest extends AbstractTransactionalTestNGSpringC
 
     protected PersonPE getSystemPerson()
     {
-        PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId("system");
-        assertNotNull("Person 'system' does not exists.", person);
+        return getPerson("system");
+    }
+
+    protected PersonPE getTestPerson()
+    {
+        return getPerson("test");
+    }
+    
+    protected PersonPE getPerson(String userID)
+    {
+        PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(userID);
+        assertNotNull("Person '" + userID + "' does not exists.", person);
         return person;
     }
 

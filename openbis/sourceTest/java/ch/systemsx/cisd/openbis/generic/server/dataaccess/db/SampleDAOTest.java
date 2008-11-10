@@ -21,6 +21,7 @@ import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 
 import java.util.List;
 
@@ -131,22 +132,21 @@ public final class SampleDAOTest extends AbstractDAOTest
     public final void testListSamplesByContainer()
     {
         final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
-        boolean fail = true;
         try
         {
             sampleDAO.listSamplesByContainer(null);
+            fail("AssertionError expected");
         } catch (final AssertionError e)
         {
-            fail = false;
+            assertEquals("Unspecified container.", e.getMessage());
         }
-        assertFalse(fail);
-        final String masterPlateCode = "MP070-1";
+        final String masterPlateCode = "MP";
+        DatabaseInstancePE homeInstance = daoFactory.getHomeDatabaseInstance();
         final SamplePE sample =
-                sampleDAO.tryFindByCodeAndDatabaseInstance(masterPlateCode, daoFactory
-                        .getHomeDatabaseInstance());
+                sampleDAO.tryFindByCodeAndDatabaseInstance(masterPlateCode, homeInstance);
         assertNotNull(sample);
         final List<SamplePE> samples = sampleDAO.listSamplesByContainer(sample);
-        assertEquals(56, samples.size());
+        assertEquals(320, samples.size());
     }
 
     //
