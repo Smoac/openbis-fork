@@ -98,7 +98,7 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
     {
         for (Map.Entry<String, Object> entry : expectedRow.getColumnIDValuesMap().entrySet())
         {
-            if (isEqual(row.get(entry.getKey()), entry.getValue()) == false)
+            if (TestUtil.isEqual(row.get(entry.getKey()), entry.getValue()) == false)
             {
                 return false;
             }
@@ -106,16 +106,11 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
         return true;
     }
     
-    private boolean isEqual(Object object1, Object object2)
-    {
-        return object1 == null ? object1 == object2 : object1.equals(object2);
-    }
-
     @SuppressWarnings("unchecked")
     private ListStore<ModelData> getTableStore()
     {
         final Widget widget = GWTTestUtil.getWidgetWithID(tableID);
-        assertTrue(widget instanceof Grid);
+        assertTrue("Not a Widget of type Grid: " + widget.getClass(), widget instanceof Grid);
         return ((Grid<ModelData>) widget).getStore();
     }
 

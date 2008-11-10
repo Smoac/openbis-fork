@@ -39,6 +39,7 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
             public void onFailureOf(AsyncCallback<Object> callback, String failureMessage,
                     Throwable throwable)
             {
+                MessageBox.alert("Error", failureMessage, null);
             }
 
             public void finishOnSuccessOf(AsyncCallback<Object> callback, Object result)
@@ -135,7 +136,6 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
             }
         }
         callbackListener.onFailureOf(getThis(), msg, caught);
-        MessageBox.alert("Error", msg, null);
         final IPageController pageController = viewContext.getPageController();
         if (caught instanceof InvalidSessionException)
         {

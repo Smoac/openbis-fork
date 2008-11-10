@@ -137,6 +137,11 @@ public final class PropertyGrid extends Grid
         this.properties = properties;
         fillTable();
     }
+    
+    public Map<String, ?> getProperties()
+    {
+        return properties;
+    }
 
     private final <T> String renderValue(final T value)
     {

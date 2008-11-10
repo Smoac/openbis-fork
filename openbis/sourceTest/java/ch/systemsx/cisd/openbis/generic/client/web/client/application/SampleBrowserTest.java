@@ -19,11 +19,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.CheckSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.CheckSampleTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.ListSamples;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.SampleRow;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.ShowSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 
 /**
@@ -83,17 +81,4 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         client.onModuleLoad();
     }
     
-    public final void testShowSampleView()
-    {
-        remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.SAMPLES,
-                CategoriesBuilder.MENU_ELEMENTS.LIST));
-        remoteConsole.prepare(new ListSamples(true, true, "CISD", "MASTER_PLATE"));
-        remoteConsole.prepare(new ShowSample("MP1-MIXED"));
-        remoteConsole.prepare(new CheckSample("CISD:/CISD", "MP1-MIXED"));
-
-        remoteConsole.finish(60000);
-        client.onModuleLoad();
-        
-    }
 }
