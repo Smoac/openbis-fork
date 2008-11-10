@@ -20,8 +20,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.CheckSample;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.CheckSamplesAndListWithoutServerCall;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.CheckSampleTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.ListSamples;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.SampleRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.ShowSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 
@@ -33,14 +34,51 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Abstract
 public class SampleBrowserTest extends AbstractGWTTestCase
 {
 
-    public final void testListSamples()
+    public final void testListMasterPlates()
     {
         remoteConsole.prepare(new Login("test", "a"));
         remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.SAMPLES,
                 CategoriesBuilder.MENU_ELEMENTS.LIST));
-        remoteConsole.prepare(new ListSamples(true, true, "3V", "MASTER_PLATE"));
-        remoteConsole.prepare(new CheckSamplesAndListWithoutServerCall(50));
+        remoteConsole.prepare(new ListSamples(true, true, "CISD", "MASTER_PLATE"));
+        CheckSampleTable table = new CheckSampleTable();
+        table.expectedRow(new SampleRow("MP001-1").identifier("CISD", "CISD").invalid()
+                .noExperiment().property("PLATE_GEOMETRY", "384_WELLS_16X24"));
+        table.expectedRow(new SampleRow("MP002-1").identifier("CISD", "CISD").valid()
+                .noExperiment().property("PLATE_GEOMETRY", "384_WELLS_16X24"));
+        table.expectedRow(new SampleRow("MP").identifier("CISD").valid().noExperiment().property(
+                "PLATE_GEOMETRY", "384_WELLS_16X24"));
+        remoteConsole.prepare(table.expectedSize(6));
 
+        remoteConsole.finish(20000);
+        client.onModuleLoad();
+    }
+    
+    public final void testListOnlySharedMasterPlates()
+    {
+        remoteConsole.prepare(new Login("test", "a"));
+        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.SAMPLES,
+                CategoriesBuilder.MENU_ELEMENTS.LIST));
+        remoteConsole.prepare(new ListSamples(true, false, null, "MASTER_PLATE"));
+        CheckSampleTable table = new CheckSampleTable();
+        table.expectedRow(new SampleRow("MP").identifier("CISD").valid().noExperiment().property(
+                "PLATE_GEOMETRY", "384_WELLS_16X24"));
+        remoteConsole.prepare(table.expectedSize(1));
+        
+        remoteConsole.finish(20000);
+        client.onModuleLoad();
+    }
+    
+    public final void testListCellPlates()
+    {
+        remoteConsole.prepare(new Login("test", "a"));
+        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.SAMPLES,
+                CategoriesBuilder.MENU_ELEMENTS.LIST));
+        remoteConsole.prepare(new ListSamples(true, true, "CISD", "CELL_PLATE"));
+        CheckSampleTable table = new CheckSampleTable();
+        table.expectedRow(new SampleRow("3VCP1").identifier("CISD", "CISD").invalid().experiment(
+                "NEMO", "EXP1").derivedFromAncestor("3V-123", 1).derivedFromAncestor("MP001-1", 2));
+        remoteConsole.prepare(table.expectedSize(16));
+        
         remoteConsole.finish(20000);
         client.onModuleLoad();
     }
@@ -50,9 +88,9 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         remoteConsole.prepare(new Login("test", "a"));
         remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.SAMPLES,
                 CategoriesBuilder.MENU_ELEMENTS.LIST));
-        remoteConsole.prepare(new ListSamples(true, true, "3V", "MASTER_PLATE"));
-        remoteConsole.prepare(new ShowSample("MP001-1"));
-        remoteConsole.prepare(new CheckSample("CISD:/", "MP001-1"));
+        remoteConsole.prepare(new ListSamples(true, true, "CISD", "MASTER_PLATE"));
+        remoteConsole.prepare(new ShowSample("MP1-MIXED"));
+        remoteConsole.prepare(new CheckSample("CISD:/CISD", "MP1-MIXED"));
 
         remoteConsole.finish(60000);
         client.onModuleLoad();

@@ -39,7 +39,7 @@ public class CheckSample extends AbstractDefaultTestCommand
     public CheckSample(String identifierPrefix, String code)
     {
         this.code = code;
-        this.identifier = identifierPrefix + code;
+        this.identifier = identifierPrefix + "/" + code;
         addCallbackClass(SampleGenerationInfoCallback.class);
     }
 
@@ -51,10 +51,12 @@ public class CheckSample extends AbstractDefaultTestCommand
         PropertyGrid grid = (PropertyGrid) ((WidgetComponent) widget).getWidget();
         assertEquals(code, grid.getText(0, 1));
         assertEquals("MASTER_PLATE", grid.getText(1, 1));
-        assertEquals("System User", grid.getText(2, 1));
-        assertEquals("Plate Geometry", grid.getText(4, 0));
-        assertEquals("384_WELLS_16X24", grid.getText(4, 1));
-        assertEquals(5, grid.getRowCount());
+        assertEquals("Doe, John", grid.getText(2, 1));
+        assertEquals("DP1-A [DILUTION_PLATE]\nDP1-B [DILUTION_PLATE]", grid.getText(4, 1)
+                .replaceAll("\r\n", "\n"));
+        assertEquals("Plate Geometry", grid.getText(5, 0));
+        assertEquals("384_WELLS_16X24", grid.getText(5, 1));
+        assertEquals(6, grid.getRowCount());
     }
 
 }
