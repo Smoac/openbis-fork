@@ -16,33 +16,42 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Procedure;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ProcedureType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedureTypePE;
 
 /**
+ * A {@link Person} &lt;---&gt; {@link PersonPE} translator.
+ * 
  * @author Tomasz Pylak
  */
-public class ProcedureTranslator
+public final class ProcedureTranslator
 {
 
-    public static Procedure translate(ProcedurePE procedure)
+    private ProcedureTranslator()
+    {
+        // Can not be instantiated.
+    }
+
+    public final static Procedure translate(final ProcedurePE procedure)
     {
         if (procedure == null)
         {
             return null;
         }
-        Procedure result = new Procedure();
+        final Procedure result = new Procedure();
         result.setExperiment(ExperimentTranslator.translate(procedure.getExperiment()));
         result.setProcedureType(translate(procedure.getProcedureType()));
         result.setRegistrationDate(procedure.getRegistrationDate());
         return result;
     }
 
-    private static ProcedureType translate(ProcedureTypePE procedureType)
+    private final static ProcedureType translate(final ProcedureTypePE procedureType)
     {
-        ProcedureType result = new ProcedureType();
+        final ProcedureType result = new ProcedureType();
         result.setCode(procedureType.getCode());
         result.setDataAcquisition(procedureType.isDataAcquisition());
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(procedureType

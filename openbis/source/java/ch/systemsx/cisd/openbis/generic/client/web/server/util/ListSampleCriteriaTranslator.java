@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
 /**
- * A {@link ListSampleCriteria} &lt;--&gt; {@link ListSampleCriteriaDTO} translator.
+ * A {@link ListSampleCriteria} &lt;---&gt; {@link ListSampleCriteriaDTO} translator.
  * 
  * @author Christian Ribeaud
  */

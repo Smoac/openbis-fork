@@ -32,15 +32,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
  */
 public final class ResultSet<T> implements IsSerializable
 {
-    private List<T> result;
+    private List<T> list;
 
     private int totalLength;
 
     private String resultSetKey;
 
-    public final void setResult(final List<T> result)
+    public final void setList(final List<T> result)
     {
-        this.result = result;
+        this.list = result;
     }
 
     public final void setTotalLength(final int totalLength)
@@ -66,7 +66,7 @@ public final class ResultSet<T> implements IsSerializable
      */
     public List<T> getList()
     {
-        return result;
+        return list;
     }
 
     /**

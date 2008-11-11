@@ -23,12 +23,19 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 
 /**
+ * A {@link PropertyType} &lt;---&gt; {@link PropertyTypePE} translator.
+ * 
  * @author Izabela Adamczyk
  */
-public class PropertyTypeTranslator
+public final class PropertyTypeTranslator
 {
 
-    public static PropertyType translate(PropertyTypePE propertyType)
+    private PropertyTypeTranslator()
+    {
+        // Can not be instantiated.
+    }
+
+    public final static PropertyType translate(final PropertyTypePE propertyType)
     {
         final PropertyType result = new PropertyType();
         result.setSimpleCode(propertyType.getSimpleCode());
@@ -37,7 +44,7 @@ public class PropertyTypeTranslator
         return result;
     }
 
-    public static PropertyTypePE translate(final PropertyType propertyType)
+    public final static PropertyTypePE translate(final PropertyType propertyType)
     {
         final PropertyTypePE result = new PropertyTypePE();
         result.setSimpleCode(propertyType.getSimpleCode());
@@ -46,10 +53,10 @@ public class PropertyTypeTranslator
         return result;
     }
 
-    public static List<PropertyTypePE> translate(List<PropertyType> propertyCodes)
+    public final static List<PropertyTypePE> translate(final List<PropertyType> propertyCodes)
     {
-        List<PropertyTypePE> result = new ArrayList<PropertyTypePE>();
-        for (PropertyType s : propertyCodes)
+        final List<PropertyTypePE> result = new ArrayList<PropertyTypePE>();
+        for (final PropertyType s : propertyCodes)
         {
             result.add(translate(s));
         }

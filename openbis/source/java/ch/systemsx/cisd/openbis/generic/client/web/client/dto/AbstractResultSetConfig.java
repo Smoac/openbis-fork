@@ -25,10 +25,16 @@ public abstract class AbstractResultSetConfig<K> implements IResultSetConfig<K>
 {
     private int limit = -1;
 
-    private int offset;
+    private int offset = 0;
 
-    private SortInfo sortInfo;
+    private SortInfo sortInfo = new SortInfo();
 
+    /**
+     * The result set key.
+     * <p>
+     * Could be <code>null</code> if unknown.
+     * </p>
+     */
     private K resultSetKey;
 
     public final void setLimit(final int limit)

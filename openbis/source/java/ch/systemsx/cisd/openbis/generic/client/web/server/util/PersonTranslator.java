@@ -20,26 +20,29 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
+ * A {@link Person} &lt;---&gt; {@link PersonPE} translator.
+ * 
  * @author Franz-Josef Elmer
  */
 public class PersonTranslator
 {
     private PersonTranslator()
     {
+        // Can not be instantiated.
     }
 
-    public static Person translate(PersonPE person)
+    public final static Person translate(final PersonPE person)
     {
         return translate(person, true);
     }
 
-    private static Person translate(PersonPE person, boolean recursively)
+    private final static Person translate(final PersonPE person, final boolean recursively)
     {
         if (person == null)
         {
             return null;
         }
-        Person result = new Person();
+        final Person result = new Person();
         result.setFirstName(person.getFirstName());
         result.setLastName(person.getLastName());
         result.setEmail(person.getEmail());

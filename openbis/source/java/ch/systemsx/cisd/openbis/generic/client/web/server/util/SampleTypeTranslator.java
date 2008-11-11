@@ -20,12 +20,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 
 /**
+ * A {@link SampleType} &lt;---&gt; {@link SampleTypePE} translator.
+ * 
  * @author Franz-Josef Elmer
  */
 public class SampleTypeTranslator
 {
     private SampleTypeTranslator()
     {
+        // Can not be instantiated.
     }
 
     public static SampleType translate(final SampleTypePE sampleTypePE)

@@ -21,31 +21,38 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 
 /**
+ * A {@link DatabaseInstance} &lt;---&gt; {@link DatabaseInstancePE} translator.
+ * 
  * @author Izabela Adamczyk
  */
-public class DatabaseInstanceTranslator
+public final class DatabaseInstanceTranslator
 {
 
-    public static DatabaseInstance translate(DatabaseInstancePE databaseInstance)
+    private DatabaseInstanceTranslator()
+    {
+        // Can not be instantiated.
+    }
+
+    public final static DatabaseInstance translate(final DatabaseInstancePE databaseInstance)
     {
         if (databaseInstance == null)
         {
             return null;
         }
-        DatabaseInstance result = new DatabaseInstance();
+        final DatabaseInstance result = new DatabaseInstance();
         result.setCode(databaseInstance.getCode());
         result.setUuid(databaseInstance.getUuid());
         result.setIdentifier(IdentifierHelper.createIdentifier(databaseInstance).toString());
         return result;
     }
 
-    public static DatabaseInstancePE translate(DatabaseInstance databaseInstance)
+    public final static DatabaseInstancePE translate(final DatabaseInstance databaseInstance)
     {
         if (databaseInstance == null)
         {
             return null;
         }
-        DatabaseInstancePE result = new DatabaseInstancePE();
+        final DatabaseInstancePE result = new DatabaseInstancePE();
         result.setCode(databaseInstance.getCode());
         result.setUuid(databaseInstance.getUuid());
         return result;

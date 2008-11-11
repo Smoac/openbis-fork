@@ -16,22 +16,31 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**
+ * A {@link Person} &lt;---&gt; {@link PersonPE} translator.
+ * 
  * @author Tomasz Pylak
  */
-public class ProjectTranslator
+public final class ProjectTranslator
 {
 
-    public static Project translate(ProjectPE project)
+    private ProjectTranslator()
+    {
+        // Can not be instantiated.
+    }
+
+    public final static Project translate(final ProjectPE project)
     {
         if (project == null)
         {
             return null;
         }
-        Project result = new Project();
+        final Project result = new Project();
         result.setCode(project.getCode());
         result.setDescription(project.getDescription());
         result.setGroup(GroupTranslator.translate(project.getGroup()));

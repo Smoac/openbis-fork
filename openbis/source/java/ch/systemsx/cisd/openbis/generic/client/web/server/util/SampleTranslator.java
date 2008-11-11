@@ -20,16 +20,19 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
+ * A {@link Sample} &lt;---&gt; {@link SamplePE} translator.
+ * 
  * @author Franz-Josef Elmer
  */
-public class SampleTranslator
+public final class SampleTranslator
 {
     private SampleTranslator()
     {
+        // Can not be instantiated.
     }
 
     /** NOTE: ignores sample properties */
-    public static Sample translate(final SamplePE samplePE)
+    public final static Sample translate(final SamplePE samplePE)
     {
         if (samplePE == null)
         {
@@ -41,8 +44,8 @@ public class SampleTranslator
 
     }
 
-    private static Sample translate(final SamplePE samplePE, final int containerDep, final int generatedFromDep,
-            final boolean withDetails)
+    private final static Sample translate(final SamplePE samplePE, final int containerDep,
+            final int generatedFromDep, final boolean withDetails)
     {
         final Sample result = new Sample();
         result.setCode(samplePE.getCode());

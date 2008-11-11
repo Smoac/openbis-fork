@@ -24,15 +24,18 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 
 /**
+ * A {@link SampleProperty} &lt;---&gt; {@link SamplePropertyPE} translator.
+ * 
  * @author Franz-Josef Elmer
  */
-public class SamplePropertyTranslator
+public final class SamplePropertyTranslator
 {
     private SamplePropertyTranslator()
     {
+        // Can not be instantiated.
     }
 
-    public static SampleProperty translate(final SamplePropertyPE samplePropertyPE)
+    public final static SampleProperty translate(final SamplePropertyPE samplePropertyPE)
     {
         final SampleProperty result = new SampleProperty();
         result.setValue(samplePropertyPE.getValue() == null ? samplePropertyPE.getVocabularyTerm()
@@ -45,7 +48,7 @@ public class SamplePropertyTranslator
 
     }
 
-    public static List<SampleProperty> translate(final List<SamplePropertyPE> list)
+    public final static List<SampleProperty> translate(final List<SamplePropertyPE> list)
     {
         if (list == null)
         {

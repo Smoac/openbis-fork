@@ -25,12 +25,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
+ * A {@link SampleTypePropertyType} &lt;---&gt; {@link SampleTypePropertyTypePE} translator.
+ * 
  * @author Franz-Josef Elmer
  */
-public class SampleTypePropertyTypeTranslator
+public final class SampleTypePropertyTypeTranslator
 {
     private SampleTypePropertyTypeTranslator()
     {
+        // Can not be instantiated.
     }
 
     public static SampleTypePropertyType translate(final SampleTypePropertyTypePE s)

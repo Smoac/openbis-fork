@@ -21,21 +21,24 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 
 /**
+ * A {@link Group} &lt;---&gt; {@link GroupPE} translator.
+ * 
  * @author Franz-Josef Elmer
  */
-public class GroupTranslator
+public final class GroupTranslator
 {
     private GroupTranslator()
     {
+        // Can not be instantiated.
     }
 
-    public static Group translate(GroupPE group)
+    public static Group translate(final GroupPE group)
     {
         if (group == null)
         {
             return null;
         }
-        Group result = new Group();
+        final Group result = new Group();
         result.setCode(group.getCode());
         result.setDescription(group.getDescription());
         result.setInstance(DatabaseInstanceTranslator.translate(group.getDatabaseInstance()));

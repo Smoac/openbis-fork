@@ -22,27 +22,34 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 
 /**
+ * A {@link Experiment} &lt;---&gt; {@link ExperimentPE} translator.
+ * 
  * @author Tomasz Pylak
  */
-public class ExperimentTranslator
+public final class ExperimentTranslator
 {
 
-    public static Experiment translate(ExperimentPE experiment)
+    private ExperimentTranslator()
+    {
+        // Can not be instantiated.
+    }
+
+    public final static Experiment translate(final ExperimentPE experiment)
     {
         if (experiment == null)
         {
             return null;
         }
-        Experiment result = new Experiment();
+        final Experiment result = new Experiment();
         result.setCode(experiment.getCode());
         result.setExperimentType(translate(experiment.getExperimentType()));
         result.setProject(ProjectTranslator.translate(experiment.getProject()));
         return result;
     }
 
-    private static ExperimentType translate(ExperimentTypePE experimentType)
+    private final static ExperimentType translate(final ExperimentTypePE experimentType)
     {
-        ExperimentType result = new ExperimentType();
+        final ExperimentType result = new ExperimentType();
         result.setCode(experimentType.getCode());
         result.setDescription(experimentType.getDescription());
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(experimentType

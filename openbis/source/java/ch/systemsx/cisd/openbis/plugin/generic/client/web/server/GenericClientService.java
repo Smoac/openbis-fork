@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.util.GroupTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.ListSampleCriteriaTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.PersonTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.PropertyTypeTranslator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.util.ResultSetTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.RoleAssignmentTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.SamplePropertyTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.SampleTranslator;
@@ -365,12 +366,7 @@ public final class GenericClientService extends AbstractClientService implements
                                 return list;
                             }
                         });
-            // TODO: Use BeanUtils
-            final ResultSet<Sample> resultSet = new ResultSet<Sample>();
-            resultSet.setResult(result.getList());
-            resultSet.setResultSetKey(result.getResultSetKey());
-            resultSet.setTotalLength(result.getTotalLength());
-            return resultSet;
+            return ResultSetTranslator.translate(result);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -463,4 +459,6 @@ public final class GenericClientService extends AbstractClientService implements
             throw UserFailureExceptionTranslator.translate(e);
         }
     }
+
+    // TODO: Add tab removing...
 }

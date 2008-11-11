@@ -62,11 +62,8 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     @SuppressWarnings("unchecked")
     private final <T> void sortData(final List<T> data, final SortInfo sortInfo)
     {
-        // TODO: Remove null check.
-        if (sortInfo == null)
-        {
-            return;
-        }
+        assert data != null : "Unspecified data.";
+        assert sortInfo != null : "Unspecified sort information.";
         final SortDir sortDir = sortInfo.getSortDir();
         if (sortDir == SortDir.NONE)
         {
@@ -99,6 +96,16 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         return Math.min(size - 1, Math.max(offset, 0));
     }
 
+    /**
+     * Encapsulates list returned by {@link List#subList(int, int)} in a new <code>List</code> as
+     * <i>GWT</i> complains because of a serialization concern.
+     */
+    private final static <T> List<T> subList(final List<T> data, final int offset, final int limit)
+    {
+        final int toIndex = offset + limit;
+        return new ArrayList<T>(data.subList(offset, toIndex));
+    }
+
     //
     // IDataManager
     //
@@ -127,17 +134,6 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         sortData(data, sortInfo);
         final List<T> list = subList(data, offset, limit);
         return new DefaultResultSet<K, T>(dataKey, list, size);
-    }
-
-    // TODO: Put doc here.
-    private final static <T> List<T> subList(final List<T> data, final int offset, final int limit)
-    {
-        final List<T> list = new ArrayList<T>();
-        for (int i = offset; i < offset + limit; i++)
-        {
-            list.add(data.get(i));
-        }
-        return list;
     }
 
     public final synchronized void removeData(final IResultSetKeyHolder<K> dataKeyHolder)

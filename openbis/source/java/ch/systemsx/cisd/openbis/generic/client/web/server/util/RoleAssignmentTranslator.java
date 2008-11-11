@@ -19,19 +19,25 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 
-public class RoleAssignmentTranslator
+/**
+ * A {@link RoleAssignment} &lt;---&gt; {@link RoleAssignmentPE} translator.
+ * 
+ * @author Christian Ribeaud
+ */
+public final class RoleAssignmentTranslator
 {
     private RoleAssignmentTranslator()
     {
+        // Can not be instantiated.
     }
 
-    public static RoleAssignment translate(RoleAssignmentPE role)
+    public final static RoleAssignment translate(final RoleAssignmentPE role)
     {
         if (role == null)
         {
             return null;
         }
-        RoleAssignment result = new RoleAssignment();
+        final RoleAssignment result = new RoleAssignment();
         result.setGroup(GroupTranslator.translate(role.getGroup()));
         result.setInstance(DatabaseInstanceTranslator.translate(role.getDatabaseInstance()));
         result.setPerson(PersonTranslator.translate(role.getPerson()));
@@ -39,7 +45,7 @@ public class RoleAssignmentTranslator
         return result;
     }
 
-    private static String getRoleCode(RoleAssignmentPE role)
+    private final static String getRoleCode(final RoleAssignmentPE role)
     {
         String code;
         switch (role.getRole())

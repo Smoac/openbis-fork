@@ -33,6 +33,9 @@ final class DefaultResultSet<K, T> implements IResultSet<K, T>
 
     DefaultResultSet(final K resultSetKey, final List<T> list, final int totalLength)
     {
+        assert resultSetKey != null : "Unspecified result set key";
+        assert list != null : "Unspecified list.";
+        assert totalLength > -1 : "Total length must be >= 0.";
         this.resultSetKey = resultSetKey;
         this.list = list;
         this.totalLength = totalLength;
