@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -56,6 +58,8 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
 
     protected EntityTypePE entityType;
 
+    protected List<EntityPropertyPE> propertyValues;
+
     private PropertyTypePE propertyType;
 
     final public static <T extends EntityTypePropertyTypePE> T createEntityTypePropertyType(
@@ -75,6 +79,13 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
     public void setPropertyType(final PropertyTypePE propertyType)
     {
         this.propertyType = propertyType;
+    }
+
+    @SuppressWarnings("unused")
+    // for Hibernate only
+    private void setPropertyValues(List<EntityPropertyPE> propertyValues)
+    {
+        this.propertyValues = propertyValues;
     }
 
     @NotNull
