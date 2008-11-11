@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
@@ -80,7 +81,7 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
      * @see IGenericClientService#listSamples(ListSampleCriteria, List)
      */
     public void listSamples(ListSampleCriteria criteria, List<PropertyType> propertyCodes,
-            AsyncCallback<List<Sample>> asyncCallback);
+            AsyncCallback<ResultSet<Sample>> asyncCallback);
 
     /**
      * @see IGenericClientService#listSamplesProperties(ListSampleCriteria, List)

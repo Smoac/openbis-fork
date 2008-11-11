@@ -14,23 +14,29 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server;
+package ch.systemsx.cisd.common.utilities;
+
+import java.util.Comparator;
 
 /**
- * Some session constants.
- * 
  * @author Christian Ribeaud
  */
-public final class SessionConstants
+public class FieldComparator implements Comparator<Object>
 {
+    private final String fieldName;
 
-    private SessionConstants()
+    public FieldComparator(final String fieldName)
     {
+        this.fieldName = fieldName;
     }
 
-    public static final String OPENBIS_SESSION_ATTRIBUTE_KEY = "openbis-session";
+    //
+    // Comparator
+    //
 
-    public static final String OPENBIS_SERVER_ATTRIBUTE_KEY = "openbis-server";
-
-    public static final String OPENBIS_RESULT_SET_MANAGER = "openbis-result-set-manager";
+    public final int compare(final Object o1, final Object o2)
+    {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 }

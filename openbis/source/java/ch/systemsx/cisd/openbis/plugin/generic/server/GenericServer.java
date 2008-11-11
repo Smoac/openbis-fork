@@ -287,8 +287,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         final ISampleTable sampleTable = getBusinessObjectFactory().createSampleTable(session);
         sampleTable.loadSamplesByCriteria(criteria);
         sampleTable.enrichWithValidProcedure();
-        final List<SamplePE> samples = sampleTable.getSamples();
-        return samples;
+        return sampleTable.getSamples();
     }
 
     public List<SamplePropertyPE> listSamplesProperties(final String sessionToken,

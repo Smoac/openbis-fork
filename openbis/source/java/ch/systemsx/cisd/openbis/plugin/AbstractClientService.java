@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.User;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CachedResultSetManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
@@ -104,7 +105,7 @@ public abstract class AbstractClientService implements IClientService
         return session;
     }
 
-    private final HttpSession getHttpSession()
+    protected final HttpSession getHttpSession()
     {
         return getOrCreateHttpSession(false);
     }
@@ -169,6 +170,9 @@ public abstract class AbstractClientService implements IClientService
             }
             httpSession.setAttribute(SessionConstants.OPENBIS_SESSION_ATTRIBUTE_KEY, session);
             httpSession.setAttribute(SessionConstants.OPENBIS_SERVER_ATTRIBUTE_KEY, getServer());
+            httpSession.setAttribute(SessionConstants.OPENBIS_RESULT_SET_MANAGER,
+                    new CachedResultSetManager<String>(
+                            new CachedResultSetManager.TokenBasedResultSetKeyProvider()));
             return createSessionContext(session);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
@@ -188,6 +192,7 @@ public abstract class AbstractClientService implements IClientService
             final Session session = getSession(httpSession);
             httpSession.removeAttribute(SessionConstants.OPENBIS_SESSION_ATTRIBUTE_KEY);
             httpSession.removeAttribute(SessionConstants.OPENBIS_SERVER_ATTRIBUTE_KEY);
+            httpSession.removeAttribute(SessionConstants.OPENBIS_RESULT_SET_MANAGER);
             httpSession.invalidate();
             getServer().logout(session.getSessionToken());
         }

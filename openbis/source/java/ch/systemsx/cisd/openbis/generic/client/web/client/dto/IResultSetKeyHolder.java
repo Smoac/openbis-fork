@@ -14,23 +14,17 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server;
+package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 /**
- * Some session constants.
+ * A result set key holder.
  * 
  * @author Christian Ribeaud
  */
-public final class SessionConstants
+public interface IResultSetKeyHolder<K>
 {
-
-    private SessionConstants()
-    {
-    }
-
-    public static final String OPENBIS_SESSION_ATTRIBUTE_KEY = "openbis-session";
-
-    public static final String OPENBIS_SERVER_ATTRIBUTE_KEY = "openbis-server";
-
-    public static final String OPENBIS_RESULT_SET_MANAGER = "openbis-result-set-manager";
+    /**
+     * Uniquely identifies a result set on the server side.
+     */
+    public K getResultSetKey();
 }

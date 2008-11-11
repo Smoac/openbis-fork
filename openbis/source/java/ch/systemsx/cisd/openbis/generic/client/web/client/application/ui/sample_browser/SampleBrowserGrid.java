@@ -55,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Samp
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoadableColumnConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ParentColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyColumns;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
@@ -345,7 +346,7 @@ public final class SampleBrowserGrid extends LayoutContainer
         }
     }
 
-    final class ListSamplesCallback extends AbstractAsyncCallback<List<Sample>>
+    final class ListSamplesCallback extends AbstractAsyncCallback<ResultSet<Sample>>
     {
         private final AsyncCallback<List<SampleModel>> delegate;
 
@@ -367,9 +368,9 @@ public final class SampleBrowserGrid extends LayoutContainer
         }
 
         @Override
-        protected final void process(final List<Sample> result)
+        protected final void process(final ResultSet<Sample> result)
         {
-            final List<SampleModel> sampleModels = SampleModel.asSampleModels(result);
+            final List<SampleModel> sampleModels = SampleModel.asSampleModels(result.getList());
             oldConfiguration.update(newConfiguration);
             updateLoadedPropertyColumns();
             delegate.onSuccess(sampleModels);

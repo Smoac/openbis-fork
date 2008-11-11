@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * A searchable entity
+ * A searchable entity.
  * 
  * @author Christian Ribeaud
  */

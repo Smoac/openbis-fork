@@ -14,23 +14,20 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server;
+package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
+
+import java.util.List;
 
 /**
- * Some session constants.
+ * Each implementation knows how to retrieve the data used to produce a {@link IResultSet}.
  * 
  * @author Christian Ribeaud
  */
-public final class SessionConstants
+public interface IResultSetRetriever<T>
 {
 
-    private SessionConstants()
-    {
-    }
-
-    public static final String OPENBIS_SESSION_ATTRIBUTE_KEY = "openbis-session";
-
-    public static final String OPENBIS_SERVER_ATTRIBUTE_KEY = "openbis-server";
-
-    public static final String OPENBIS_RESULT_SET_MANAGER = "openbis-result-set-manager";
+    /**
+     * Returns the original data.
+     */
+    public List<T> getData();
 }

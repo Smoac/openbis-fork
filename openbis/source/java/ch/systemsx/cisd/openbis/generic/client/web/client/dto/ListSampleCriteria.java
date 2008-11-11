@@ -24,8 +24,11 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * @author Izabela Adamczyk
  * @author Tomasz Pylak
  */
-public final class ListSampleCriteria implements IsSerializable
+public final class ListSampleCriteria extends AbstractResultSetConfig<String> implements
+        IsSerializable
 {
+    private static final long serialVersionUID = 1L;
+
     private SampleType sampleType;
 
     private String groupCode;

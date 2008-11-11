@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
+package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application;
 
 import static ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames.REGISTRATION_DATE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames.REGISTRATOR;
@@ -85,10 +85,6 @@ public final class GenericSampleViewer extends LayoutContainer
     public static final String PROPERTIES_ID_PREFIX =
             GenericConstants.ID_PREFIX + "generic-sample-properties-viewer_";
 
-    public static final String COMPONENTS_POSTFIX = "-components";
-
-    public static final String DATA_POSTFIX = "-data";
-
     private final IViewContext<IGenericClientServiceAsync> viewContext;
 
     private Grid<SampleModel> partOfSamplesGrid;
@@ -116,27 +112,27 @@ public final class GenericSampleViewer extends LayoutContainer
         final LayoutContainer container = new LayoutContainer();
         container.setLayout(new RowLayout());
         // 'Part of' samples
-        IMessageProvider messageProvider = viewContext.getMessageProvider();
-        ContentPanel panel = createContentPanel(messageProvider.getMessage("part_of_heading"));
+        ContentPanel panel =
+                createContentPanel(viewContext.getMessageProvider().getMessage("part_of_heading"));
         final ListLoader<BaseListLoadConfig> sampleLoader =
                 createListLoader(createRpcProxyForPartOfSamples());
         final ListStore<SampleModel> sampleListStore = createListStore(sampleLoader);
         partOfSamplesGrid =
                 new Grid<SampleModel>(sampleListStore, createPartOfSamplesColumnModel());
-        partOfSamplesGrid.setId(getId() + COMPONENTS_POSTFIX);
         partOfSamplesGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         partOfSamplesGrid.setLoadMask(true);
         panel.add(partOfSamplesGrid);
         container.add(panel, new RowData(1, 0.5, new Margins(0, 5, 5, 0)));
         // External data
-        panel = createContentPanel(messageProvider.getMessage("external_data_heading"));
+        panel =
+                createContentPanel(viewContext.getMessageProvider().getMessage(
+                        "external_data_heading"));
         final ListLoader<BaseListLoadConfig> externalDataLoader =
                 createListLoader(createRpcProxyForExternalData());
         final ListStore<ExternalDataModel> externalDataListStore =
                 createListStore(externalDataLoader);
         externalDataGrid =
                 new Grid<ExternalDataModel>(externalDataListStore, createExternalDataColumnModel());
-        externalDataGrid.setId(getId() + DATA_POSTFIX);
         externalDataGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         externalDataGrid.setLoadMask(true);
         panel.add(externalDataGrid);
@@ -347,7 +343,7 @@ public final class GenericSampleViewer extends LayoutContainer
     // Helper classes
     //
 
-    final static class ListSamplesCallback extends AbstractAsyncCallback<ResultSet<Sample>>
+    private final static class ListSamplesCallback extends AbstractAsyncCallback<ResultSet<Sample>>
     {
         private final AsyncCallback<BaseListLoadResult<SampleModel>> delegate;
 
@@ -378,7 +374,8 @@ public final class GenericSampleViewer extends LayoutContainer
         }
     }
 
-    final static class ListExternalDataCallback extends AbstractAsyncCallback<List<ExternalData>>
+    private final static class ListExternalDataCallback extends
+            AbstractAsyncCallback<List<ExternalData>>
     {
         private final AsyncCallback<BaseListLoadResult<ExternalDataModel>> delegate;
 

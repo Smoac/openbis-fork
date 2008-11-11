@@ -14,23 +14,20 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server;
+package ch.systemsx.cisd.common.utilities;
+
+import org.testng.annotations.Test;
 
 /**
- * Some session constants.
+ * Test cases for the {@link FieldComparator} class.
  * 
  * @author Christian Ribeaud
  */
-public final class SessionConstants
+public final class FieldComparatorTest
 {
 
-    private SessionConstants()
+    @Test
+    public final void testConstructor()
     {
     }
-
-    public static final String OPENBIS_SESSION_ATTRIBUTE_KEY = "openbis-session";
-
-    public static final String OPENBIS_SERVER_ATTRIBUTE_KEY = "openbis-server";
-
-    public static final String OPENBIS_RESULT_SET_MANAGER = "openbis-result-set-manager";
 }
