@@ -21,17 +21,11 @@ import static ch.systemsx.cisd.openbis.plugin.generic.client.web.client.applicat
 import static ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer.ID_PREFIX;
 import static ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer.PROPERTIES_ID_PREFIX;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import com.extjs.gxt.ui.client.widget.WidgetComponent;
-import com.google.gwt.user.client.ui.Widget;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
-import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IPropertyChecker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IValueAssertion;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.PropertyCheckingManager;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer.SampleGenerationInfoCallback;
 
 /**
@@ -39,20 +33,19 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sam
  *
  * @author Franz-Josef Elmer
  */
-public class CheckSample extends AbstractDefaultTestCommand
+public class CheckSample extends AbstractDefaultTestCommand implements IPropertyChecker<CheckSample>
 {
 
     private final String identifier;
-
-    @SuppressWarnings("unchecked")
-    private Map<String, IValueAssertion> expectedProperties =
-            new HashMap<String, IValueAssertion>();
+    private final PropertyCheckingManager propertyCheckingManager;
+    
     private CheckTableCommand componentsTableCheck;
     private CheckTableCommand dataTableCheck;
 
     public CheckSample(String identifierPrefix, String code)
     {
         this.identifier = identifierPrefix + "/" + code;
+        propertyCheckingManager = new PropertyCheckingManager();
         addCallbackClass(SampleGenerationInfoCallback.class);
         addCallbackClass(GenericSampleViewer.ListSamplesCallback.class);
         addCallbackClass(GenericSampleViewer.ListExternalDataCallback.class);
@@ -63,10 +56,9 @@ public class CheckSample extends AbstractDefaultTestCommand
         return new Property(name, this);
     }
     
-    @SuppressWarnings("unchecked")
-    public CheckSample property(String name, IValueAssertion valueAssertion)
+    public CheckSample property(String name, IValueAssertion<?> valueAssertion)
     {
-        expectedProperties.put(name, valueAssertion);
+        propertyCheckingManager.addExcpectedProperty(name, valueAssertion);
         return this;
     }
     
@@ -84,7 +76,7 @@ public class CheckSample extends AbstractDefaultTestCommand
 
     public void execute()
     {
-        checkProperties();
+        propertyCheckingManager.assertPropertiesOf(PROPERTIES_ID_PREFIX + identifier);
         if (componentsTableCheck != null)
         {
             componentsTableCheck.execute();
@@ -92,22 +84,6 @@ public class CheckSample extends AbstractDefaultTestCommand
         if (dataTableCheck != null)
         {
             dataTableCheck.execute();
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private void checkProperties()
-    {
-        Widget widget = GWTTestUtil.getWidgetWithID(PROPERTIES_ID_PREFIX + identifier);
-        assertEquals(true, widget instanceof WidgetComponent);
-        PropertyGrid grid = (PropertyGrid) ((WidgetComponent) widget).getWidget();
-        Map<String, ?> actualProperties = grid.getProperties();
-        for (Map.Entry<String, IValueAssertion> expectedProperty : expectedProperties.entrySet())
-        {
-            String key = expectedProperty.getKey();
-            assertTrue("Expected property not found: " + key, actualProperties.containsKey(key));
-            Object value = actualProperties.get(key);
-            expectedProperty.getValue().assertValue(value);
         }
     }
 

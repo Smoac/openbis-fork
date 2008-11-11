@@ -16,31 +16,18 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 
-import junit.framework.Assert;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityProperty;
 
 /**
- * 
+ * Interface of an assertion preparation for a property checked by a
+ * {@link IPropertyChecker} of type <code>C</code>.
+ * It uses a fluent API approach for its methods to prepare expectations.
  *
  * @author Franz-Josef Elmer
  */
-public class EntityPropertyAssertion<T, P> implements IValueAssertion<EntityProperty<T, P>>
+public interface IProperty<C extends IPropertyChecker<?>>
 {
-
-    private final String failureMessagePrefix;
-    private final String expectedValue;
-
-    public EntityPropertyAssertion(String failureMessagePrefix, String expectedValue)
-    {
-        this.failureMessagePrefix = failureMessagePrefix;
-        this.expectedValue = expectedValue;
-    }
-
-    @SuppressWarnings("unchecked")
-    public void assertValue(EntityProperty value)
-    {
-        Assert.assertEquals(failureMessagePrefix, expectedValue, value.getValue());
-    }
-
+    /**
+     * Prepares this property with the specified value assertion and returns the checker.
+     */
+    public C by(IValueAssertion<?> valueAssertion);
 }

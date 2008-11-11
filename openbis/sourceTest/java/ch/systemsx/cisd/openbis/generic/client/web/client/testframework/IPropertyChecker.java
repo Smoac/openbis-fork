@@ -16,24 +16,24 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 
-import junit.framework.Assert;
-
 /**
- * 
+ * Interface for preparing expectation on a property checking class.
+ * It uses a fluent API approach for its methods to prepare expectations.
  *
  * @author Franz-Josef Elmer
  */
-public class AsStringAssertion<T> extends AbstractValueAssertion<T>
+public interface IPropertyChecker<C extends IPropertyChecker<?>>
 {
-
-    public AsStringAssertion(String failureMessagePrefix, T expectedValue)
-    {
-        super(failureMessagePrefix, expectedValue);
-    }
+    /**
+     * Creates an expectation for the property of specified name.
+     */
+    public IProperty<C> property(String name);
     
-    public void assertValue(T value)
-    {
-        Assert.assertEquals(failureMessagePrefix, String.valueOf(expectedValue), String.valueOf(value));
-    }
-
+    /**
+     * Adds an expectation of a property with specified name and specified
+     * assertion object which checks the property value.
+     * 
+     * @return this checker.
+     */
+    public C property(String name, IValueAssertion<?> valueAssertion);
 }

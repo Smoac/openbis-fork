@@ -14,25 +14,16 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
-
-import junit.framework.Assert;
+package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class EqualsAssertion<T> extends AbstractValueAssertion<T>
+public interface ICodeProvider
 {
-    public EqualsAssertion(String failureMessagePrefix, T expectedValue)
-    {
-        super(failureMessagePrefix, expectedValue);
-    }
 
-    public void assertValue(T value)
-    {
-        Assert.assertEquals(failureMessagePrefix, expectedValue, value);
-    }
+    public String getCode();
 
 }

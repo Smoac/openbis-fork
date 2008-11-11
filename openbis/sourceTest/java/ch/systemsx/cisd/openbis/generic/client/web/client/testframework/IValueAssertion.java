@@ -17,11 +17,16 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 
 /**
- * 
+ * Interface checking a value of type <code>T</code>.
  *
  * @author Franz-Josef Elmer
  */
 public interface IValueAssertion<T>
 {
+    /**
+     * Asserts that the specified value is as expected.
+     * 
+     * @throws AssertionError if assertion isn't fulfilled.
+     */
     public void assertValue(T value);
 }

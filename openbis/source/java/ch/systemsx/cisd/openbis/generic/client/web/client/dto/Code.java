@@ -23,7 +23,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Christian Ribeaud
  */
-public class Code implements IsSerializable
+public class Code implements IsSerializable, ICodeProvider
 {
     private String code;
 

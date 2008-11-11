@@ -16,52 +16,54 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AsStringAssertion;
-import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CodeAssertion;
-import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.EntityPropertyAssertion;
-import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.EqualsAssertion;
+import junit.framework.Assert;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractProperty;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IValueAssertion;
 
 /**
+ * Extends {@link AbstractProperty} with methods for {@link Person} and arrays of generated
+ * {@link Sample}.
  * 
- *
  * @author Franz-Josef Elmer
  */
-public class Property
+public class Property extends AbstractProperty<CheckSample> 
 {
-    private final String key;
-    private final CheckSample checker;
-    private final String message;
-
     public Property(String key, CheckSample checker)
     {
-        this.key = key;
-        this.checker = checker;
-        message = "Property '" + key + "':";
+        super(key, checker);
     }
     
-    public CheckSample asString(Object value)
+    public CheckSample asPerson(final String personAsString)
     {
-        checker.property(key, new AsStringAssertion<Object>(message, value));
-        return checker;
-    }
-
-    public CheckSample asObject(Object value)
-    {
-        checker.property(key, new EqualsAssertion<Object>(message, value));
-        return checker;
-    }
-    
-    public CheckSample asCode(String code)
-    {
-        checker.property(key, new CodeAssertion(message, code));
-        return checker;
+        return by(new IValueAssertion<Person>()
+            {
+                public void assertValue(Person value)
+                {
+                    String actualName = value.getLastName() + ", " + value.getFirstName();
+                    Assert.assertEquals(message, personAsString, actualName);
+                }
+            });
     }
     
-    @SuppressWarnings("unchecked")
-    public CheckSample asProperty(String value)
+    public CheckSample asGeneratedSamples(final String... samples)
     {
-        checker.property(key, new EntityPropertyAssertion(message, value));
-        return checker;
+        return by(new IValueAssertion<Sample[]>()
+            {
+                public void assertValue(Sample[] actualSamples)
+                {
+                    for (int i = 0, n = Math.min(samples.length, actualSamples.length); i < n; i++)
+                    {
+                        Sample actualSample = actualSamples[i];
+                        String code = actualSample.getCode();
+                        String type = actualSample.getSampleType().getCode();
+                        Assert.assertEquals(message + (i + 1) + ". sample", samples[i], code + " [" + type
+                                + "]");
+                    }
+                }
+            });
     }
     
 }

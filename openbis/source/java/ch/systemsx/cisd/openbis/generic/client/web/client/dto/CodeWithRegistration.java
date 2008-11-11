@@ -21,7 +21,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
  * 
  * @author Christian Ribeaud
  */
-public class CodeWithRegistration extends AbstractRegistrationHolder
+public class CodeWithRegistration extends AbstractRegistrationHolder implements ICodeProvider
 {
     private String code;
 

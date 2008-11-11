@@ -20,7 +20,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 
+ * Class which contains all expected cell values to be checked by {@link CheckTableCommand}.
+ * It uses a fluent API approach for its methods to prepare expectations.
  *
  * @author Franz-Josef Elmer
  */
@@ -28,6 +29,12 @@ public class Row
 {
     private final Map<String, Object> columnIDValuesMap = new HashMap<String, Object>();
     
+    /**
+     * Prepares this with an expected cell value.
+     * 
+     * @param columnID ID of the column to which the cell belongs.
+     * @param value Expected value.
+     */
     public Row withCell(String columnID, Object value)
     {
         columnIDValuesMap.put(columnID, value);

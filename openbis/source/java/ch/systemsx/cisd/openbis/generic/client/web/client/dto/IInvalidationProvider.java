@@ -14,31 +14,15 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
-
-import junit.framework.Assert;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Code;
+package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class CodeAssertion implements IValueAssertion<Code>
+public interface IInvalidationProvider
 {
-    private final String failureMessagePrefix;
-    private final String expectedCode;
-
-    public CodeAssertion(String failureMessagePrefix, String expectedCode)
-    {
-        this.failureMessagePrefix = failureMessagePrefix;
-        this.expectedCode = expectedCode;
-    }
-
-    public void assertValue(Code code)
-    {
-        Assert.assertEquals(failureMessagePrefix, expectedCode, code.getCode());
-    }
+    public Invalidation getInvalidation();
 
 }

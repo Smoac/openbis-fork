@@ -26,7 +26,7 @@ import ch.systemsx.cisd.common.annotation.CollectionMapping;
  * 
  * @author Izabela Adamczyk
  */
-public class Sample extends CodeWithRegistration
+public class Sample extends CodeWithRegistration implements IInvalidationProvider
 {
     public static final Sample[] EMPTY_ARRAY = new Sample[0];
 

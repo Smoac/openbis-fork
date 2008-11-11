@@ -27,7 +27,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
- * 
+ * Command for checking the content (i.e. <code>ListStore</code>) of a table (i.e. <code>Grid</code>).
+ * It uses a fluent API approach for its methods to prepare expectations.
  *
  * @author Franz-Josef Elmer
  */
@@ -38,24 +39,37 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
     private int expectedNumberOfRows = -1;
     private List<Row> expectedRows = new ArrayList<Row>();
 
+    /**
+     * Creates an instance for the specified table or grid ID.
+     */
     public CheckTableCommand(String tableID)
     {
         super();
         this.tableID = tableID;
     }
 
+    /**
+     * Creates an instance for the specified table or grid ID and the specified class
+     * of the triggering call-back object.
+     */
     public CheckTableCommand(String tableID, Class<? extends AsyncCallback<?>> callbackClass)
     {
         super(callbackClass);
         this.tableID = tableID;
     }
     
+    /**
+     * Prepares this with the expectation upon the number of table rows.
+     */
     public CheckTableCommand expectedSize(int numberOfRows)
     {
         this.expectedNumberOfRows = numberOfRows;
         return this;
     }
     
+    /**
+     * Prepares this with the expectation upon a certain row to be appear in the table.
+     */
     public CheckTableCommand expectedRow(Row row)
     {
         expectedRows.add(row);
