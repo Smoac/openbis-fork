@@ -27,7 +27,7 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 
 /**
- * 
+ * Manager for checking properties based on {@link IValueAssertion} objects.
  *
  * @author Franz-Josef Elmer
  */
@@ -37,11 +37,17 @@ public class PropertyCheckingManager extends Assert
     private Map<String, IValueAssertion> expectedProperties =
             new HashMap<String, IValueAssertion>();
 
+    /**
+     * Adds for the property with specified name the specified value assertion.
+     */
     public void addExcpectedProperty(String name, IValueAssertion<?> valueAssertion)
     {
         expectedProperties.put(name, valueAssertion);
     }
     
+    /**
+     * Checks the assertion for the properties of a {@link PropertyGrid} with specified widget ID.
+     */
     public void assertPropertiesOf(String widgetID)
     {
         Widget widget = GWTTestUtil.getWidgetWithID(widgetID);
@@ -54,6 +60,9 @@ public class PropertyCheckingManager extends Assert
     }
 
     @SuppressWarnings("unchecked")
+    /**
+     * Checks the assertion for the specified properties.
+     */
     public void assertProperties(Map<String, ?> actualProperties)
     {
         for (Map.Entry<String, IValueAssertion> expectedProperty : expectedProperties.entrySet())
