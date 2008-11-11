@@ -113,6 +113,7 @@ public final class SampleBrowserGrid extends LayoutContainer
         newConfiguration.update(sampleType, selectedGroupCode, showGroup, showInstance);
         final ColumnModel columnModel = createColumnModel(sampleType);
         final String header = createHeader(sampleType, selectedGroupCode, showGroup, showInstance);
+
         getContentPanel().setHeading(header);
         createOrReconfigureGrid(columnModel);
         layout();
@@ -161,7 +162,7 @@ public final class SampleBrowserGrid extends LayoutContainer
         return samples;
     }
 
-    protected void removeUnnecessarySamples(final List<SampleModel> models)
+    private final void removeUnnecessarySamples(final List<SampleModel> models)
     {
         final Iterator<SampleModel> iterator = models.iterator();
         while (iterator.hasNext())
@@ -294,137 +295,6 @@ public final class SampleBrowserGrid extends LayoutContainer
         return new ColumnModel(configs);
     }
 
-    final class UpdateSamplesCallback extends
-            AbstractAsyncCallback<Map<Long, List<SampleProperty>>>
-    {
-        private final AsyncCallback<List<SampleModel>> delegate;
-
-        private final List<Sample> currentSamples;
-
-        UpdateSamplesCallback(final GenericViewContext viewContext,
-                final List<Sample> currentSamples, final AsyncCallback<List<SampleModel>> delegate)
-        {
-            super(viewContext);
-            this.delegate = delegate;
-            this.currentSamples = currentSamples;
-        }
-
-        @Override
-        protected void finishOnFailure(final Throwable caught)
-        {
-            delegate.onFailure(caught);
-        }
-
-        @Override
-        protected final void process(final Map<Long, List<SampleProperty>> result)
-        {
-            setSampleProperties(currentSamples, result);
-            final List<SampleModel> sampleModels = SampleModel.asSampleModels(currentSamples);
-            oldConfiguration.update(newConfiguration);
-            updateLoadedPropertyColumns();
-            delegate.onSuccess(sampleModels);
-        }
-
-        private void setSampleProperties(final List<Sample> samples,
-                final Map<Long, List<SampleProperty>> propertiesMap)
-        {
-            for (final Sample sample : samples)
-            {
-                final long sampleId = sample.getId();
-                List<SampleProperty> props = sample.getProperties();
-                if (props == null)
-                {
-                    props = new ArrayList<SampleProperty>();
-                }
-                final List<SampleProperty> list = propertiesMap.get(sampleId);
-                if (list != null)
-                {
-                    props.addAll(list);
-                }
-                sample.setProperties(props);
-            }
-        }
-    }
-
-    final class ListSamplesCallback extends AbstractAsyncCallback<ResultSet<Sample>>
-    {
-        private final AsyncCallback<List<SampleModel>> delegate;
-
-        ListSamplesCallback(final GenericViewContext viewContext,
-                final AsyncCallback<List<SampleModel>> delegate)
-        {
-            super(viewContext);
-            this.delegate = delegate;
-        }
-
-        //
-        // AbstractAsyncCallback
-        //
-
-        @Override
-        protected final void finishOnFailure(final Throwable caught)
-        {
-            delegate.onFailure(caught);
-        }
-
-        @Override
-        protected final void process(final ResultSet<Sample> result)
-        {
-            final List<SampleModel> sampleModels = SampleModel.asSampleModels(result.getList());
-            oldConfiguration.update(newConfiguration);
-            updateLoadedPropertyColumns();
-            delegate.onSuccess(sampleModels);
-        }
-    }
-
-    private RpcProxy<PagingLoadConfig, PagingLoadResult<SampleModel>> createSampleProxy()
-    {
-        return new RpcProxy<PagingLoadConfig, PagingLoadResult<SampleModel>>()
-            {
-                private List<SampleModel> samples = null;
-
-                //
-                // RpcProxy
-                //
-
-                @Override
-                public final void load(final PagingLoadConfig loadConfig,
-                        final AsyncCallback<PagingLoadResult<SampleModel>> callback)
-                {
-                    loadSamples(samples, createPageCallbackDelegator(loadConfig, callback));
-                }
-
-                private AsyncCallback<List<SampleModel>> createPageCallbackDelegator(
-                        final PagingLoadConfig loadConfig,
-                        final AsyncCallback<PagingLoadResult<SampleModel>> callback)
-                {
-                    return new AbstractAsyncCallback<List<SampleModel>>(viewContext)
-                        {
-
-                            //
-                            // AbstractAsyncCallback
-                            //
-
-                            @Override
-                            protected final void process(final List<SampleModel> result)
-                            {
-                                samples = result;
-                                sort(samples, loadConfig);
-                                final PagingLoadResult<SampleModel> pagingLoadResult =
-                                        getSublist(samples, loadConfig);
-                                callback.onSuccess(pagingLoadResult);
-                            }
-
-                            @Override
-                            protected final void finishOnFailure(final Throwable caught)
-                            {
-                                callback.onFailure(caught);
-                            }
-                        };
-                }
-            };
-    }
-
     private PagingLoader<?> createSampleLoader()
     {
         final RpcProxy<PagingLoadConfig, PagingLoadResult<SampleModel>> proxy = createSampleProxy();
@@ -486,6 +356,145 @@ public final class SampleBrowserGrid extends LayoutContainer
             {
                 cc.setLoaded(true);
             }
+        }
+    }
+
+    private RpcProxy<PagingLoadConfig, PagingLoadResult<SampleModel>> createSampleProxy()
+    {
+        return new RpcProxy<PagingLoadConfig, PagingLoadResult<SampleModel>>()
+            {
+                private List<SampleModel> samples = null;
+
+                //
+                // RpcProxy
+                //
+
+                @Override
+                public final void load(final PagingLoadConfig loadConfig,
+                        final AsyncCallback<PagingLoadResult<SampleModel>> callback)
+                {
+                    loadSamples(samples, createPageCallbackDelegator(loadConfig, callback));
+                }
+
+                private AsyncCallback<List<SampleModel>> createPageCallbackDelegator(
+                        final PagingLoadConfig loadConfig,
+                        final AsyncCallback<PagingLoadResult<SampleModel>> callback)
+                {
+                    return new AbstractAsyncCallback<List<SampleModel>>(viewContext)
+                        {
+
+                            //
+                            // AbstractAsyncCallback
+                            //
+
+                            @Override
+                            protected final void process(final List<SampleModel> result)
+                            {
+                                samples = result;
+                                sort(samples, loadConfig);
+                                final PagingLoadResult<SampleModel> pagingLoadResult =
+                                        getSublist(samples, loadConfig);
+                                callback.onSuccess(pagingLoadResult);
+                            }
+
+                            @Override
+                            protected final void finishOnFailure(final Throwable caught)
+                            {
+                                callback.onFailure(caught);
+                            }
+                        };
+                }
+            };
+    }
+
+    //
+    // Helper classes
+    //
+
+    private final class UpdateSamplesCallback extends
+            AbstractAsyncCallback<Map<Long, List<SampleProperty>>>
+    {
+        private final AsyncCallback<List<SampleModel>> delegate;
+
+        private final List<Sample> currentSamples;
+
+        UpdateSamplesCallback(final GenericViewContext viewContext,
+                final List<Sample> currentSamples, final AsyncCallback<List<SampleModel>> delegate)
+        {
+            super(viewContext);
+            this.delegate = delegate;
+            this.currentSamples = currentSamples;
+        }
+
+        private void setSampleProperties(final List<Sample> samples,
+                final Map<Long, List<SampleProperty>> propertiesMap)
+        {
+            for (final Sample sample : samples)
+            {
+                final long sampleId = sample.getId();
+                List<SampleProperty> props = sample.getProperties();
+                if (props == null)
+                {
+                    props = new ArrayList<SampleProperty>();
+                }
+                final List<SampleProperty> list = propertiesMap.get(sampleId);
+                if (list != null)
+                {
+                    props.addAll(list);
+                }
+                sample.setProperties(props);
+            }
+        }
+
+        //
+        // AbstractAsyncCallback
+        //
+
+        @Override
+        protected final void finishOnFailure(final Throwable caught)
+        {
+            delegate.onFailure(caught);
+        }
+
+        @Override
+        protected final void process(final Map<Long, List<SampleProperty>> result)
+        {
+            setSampleProperties(currentSamples, result);
+            final List<SampleModel> sampleModels = SampleModel.asSampleModels(currentSamples);
+            oldConfiguration.update(newConfiguration);
+            updateLoadedPropertyColumns();
+            delegate.onSuccess(sampleModels);
+        }
+    }
+
+    final class ListSamplesCallback extends AbstractAsyncCallback<ResultSet<Sample>>
+    {
+        private final AsyncCallback<List<SampleModel>> delegate;
+
+        ListSamplesCallback(final GenericViewContext viewContext,
+                final AsyncCallback<List<SampleModel>> delegate)
+        {
+            super(viewContext);
+            this.delegate = delegate;
+        }
+
+        //
+        // AbstractAsyncCallback
+        //
+
+        @Override
+        protected final void finishOnFailure(final Throwable caught)
+        {
+            delegate.onFailure(caught);
+        }
+
+        @Override
+        protected final void process(final ResultSet<Sample> result)
+        {
+            final List<SampleModel> sampleModels = SampleModel.asSampleModels(result.getList());
+            oldConfiguration.update(newConfiguration);
+            updateLoadedPropertyColumns();
+            delegate.onSuccess(sampleModels);
         }
     }
 
