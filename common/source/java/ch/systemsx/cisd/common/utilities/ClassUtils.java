@@ -85,6 +85,27 @@ public final class ClassUtils
     }
 
     /**
+     * Asserts that the specified class is an interface which has only methods with no return value.
+     * 
+     * @throws AssertionError if it isn't an interface or at least one method has a return value.
+     */
+    public static void assertInterfaceWithOnlyVoidMethods(Class<?> clazz)
+    {
+        assert clazz != null : "Unspecified class.";
+        assert clazz.isInterface() : "Is not an interface: " + clazz.getName();
+        Method[] methods = clazz.getMethods();
+        for (Method method : methods)
+        {
+            Class<?> returnType = method.getReturnType();
+            if (Void.TYPE.equals(returnType) == false)
+            {
+                throw new AssertionError("Method " + clazz.getName() + "." + method.getName()
+                        + " has non-void return type: " + returnType.getName());
+            }
+        }
+    }
+    
+    /**
      * Creates a new instance of a class specified by its fully-qualified name.
      * 
      * @param superClazz Super class <code>className</code> has to be implemented or extended.
@@ -479,4 +500,5 @@ public final class ClassUtils
             throw new CheckedExceptionTunnel(ex);
         }
     }
+
 }

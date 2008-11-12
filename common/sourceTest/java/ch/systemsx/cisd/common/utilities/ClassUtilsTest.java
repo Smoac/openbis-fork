@@ -123,7 +123,52 @@ public final class ClassUtilsTest
                 ClassUtils.create(Appendable.class, MyClass.class.getName(), list);
         assertSame(list, ((MyClass) appendable).iterable);
     }
+    
+    private static interface AnInterfaceWithOnlyVoidMethods
+    {
+        public void exec();
+        public void print(String message);
+    }
+    
+    private static interface AnInterfaceWithNotOnlyVoidMethods
+    {
+        public int exec();
+        public void print(String message);
+    }
+    
+    @Test
+    public void testAssertInterfaceWithOnlyVoidMethodsWithAnInterfaceWithOnlyVoidMethods()
+    {
+        ClassUtils.assertInterfaceWithOnlyVoidMethods(AnInterfaceWithOnlyVoidMethods.class);
+    }
 
+    @Test
+    public void testAssertInterfaceWithOnlyVoidMethodsWithAnInterfaceWithNotOnlyVoidMethods()
+    {
+        try
+        {
+            ClassUtils.assertInterfaceWithOnlyVoidMethods(AnInterfaceWithNotOnlyVoidMethods.class);
+            fail("AssertionError expected");
+        } catch (AssertionError e)
+        {
+            assertEquals("Method " + AnInterfaceWithNotOnlyVoidMethods.class.getName()
+                    + ".exec has non-void return type: int", e.getMessage());
+        }
+    }
+    
+    @Test
+    public void testAssertInterfaceWithOnlyVoidMethodsWithAClass()
+    {
+        try
+        {
+            ClassUtils.assertInterfaceWithOnlyVoidMethods(String.class);
+            fail("AssertionError expected");
+        } catch (AssertionError e)
+        {
+            assertEquals("Is not an interface: java.lang.String", e.getMessage());
+        }
+    }
+    
     @Test
     public final void testSetFieldValueWithExpectedThrowable()
     {
