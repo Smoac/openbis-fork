@@ -93,7 +93,6 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
 
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
         hibernateTemplate.save(sample);
-        hibernateTemplate.flush();
 
         if (operationLog.isInfoEnabled())
         {

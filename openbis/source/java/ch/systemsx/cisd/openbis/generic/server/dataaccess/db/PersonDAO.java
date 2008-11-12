@@ -68,7 +68,6 @@ public final class PersonDAO extends AbstractDAO implements IPersonDAO
 
         final HibernateTemplate template = getHibernateTemplate();
         template.save(person);
-        template.flush();
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format("ADD: person '%s'.", person));
@@ -82,7 +81,6 @@ public final class PersonDAO extends AbstractDAO implements IPersonDAO
         validatePE(person);
         final HibernateTemplate template = getHibernateTemplate();
         template.update(person);
-        template.flush();
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format("UPDATE: person '%s'.", person));

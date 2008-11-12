@@ -25,6 +25,7 @@ import static org.testng.AssertJUnit.fail;
 
 import java.util.List;
 
+import org.hibernate.classic.Session;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
@@ -74,9 +75,13 @@ public final class SampleDAOTest extends AbstractDAOTest
         final SamplePE superContainer = createSample(type2, "superContainer", null);
         well.setContainer(container);
         container.setContainer(superContainer);
-        save(superContainer, container, well); // clear session to avoid using samples from first
-        // level cache
-        sessionFactory.getCurrentSession().clear();
+        save(superContainer, container, well);
+
+        // clear session to avoid using samples from first level cache
+        Session currentSession = sessionFactory.getCurrentSession();
+        currentSession.flush();
+        currentSession.clear();
+
         final List<SamplePE> samples = listSamplesFromHomeDatabase(type3);
         final SamplePE foundWell = findSample(well, samples);
         assertTrue(HibernateUtils.isInitialized(foundWell.getContainer()));

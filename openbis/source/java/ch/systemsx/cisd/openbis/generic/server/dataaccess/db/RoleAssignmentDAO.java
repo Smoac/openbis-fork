@@ -91,7 +91,6 @@ public final class RoleAssignmentDAO extends AbstractDAO implements IRoleAssignm
 
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
         hibernateTemplate.save(roleAssignment);
-        hibernateTemplate.flush();
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format("ADD: role assignment '%s'.", roleAssignment));

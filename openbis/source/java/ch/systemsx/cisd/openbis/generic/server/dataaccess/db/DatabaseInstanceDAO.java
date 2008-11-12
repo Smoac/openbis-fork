@@ -124,7 +124,6 @@ final class DatabaseInstanceDAO extends AbstractDAO implements IDatabaseInstance
         databaseInstancePE.setUuid(CodeConverter.tryToDatabase(databaseInstancePE.getUuid()));
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
         hibernateTemplate.update(databaseInstancePE);
-        hibernateTemplate.flush();
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format("UPDATE: database instance '%s'.", databaseInstancePE));
@@ -163,7 +162,5 @@ final class DatabaseInstanceDAO extends AbstractDAO implements IDatabaseInstance
         databaseInstance.setUuid(UuidUtil.generateUUID());
         final HibernateTemplate template = getHibernateTemplate();
         template.save(databaseInstance);
-        template.flush();
-
     }
 }
