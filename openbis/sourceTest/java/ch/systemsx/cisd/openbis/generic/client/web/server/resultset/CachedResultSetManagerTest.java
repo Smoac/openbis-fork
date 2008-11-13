@@ -197,7 +197,7 @@ public final class CachedResultSetManagerTest
         boolean fail = true;
         try
         {
-            resultSetManager.removeData(null);
+            resultSetManager.removeResultSet(null);
         } catch (final AssertionError e)
         {
             fail = false;

@@ -49,11 +49,11 @@ public class ToolbarController
 
     private final Button exportButton;
 
-    public ToolbarController(SampleTypeSelectionWidget sampleTypeSelectionWidget,
-            GroupSelectionWidget groupSelectionWidget, CheckBox instanceCheckbox,
-            CheckBox groupCheckbox, Button submitButton, Button exportButton,
-            ColumnChooser columnChooser, ParentColumns parentColumns,
-            PropertyColumns propertyColumns)
+    public ToolbarController(final SampleTypeSelectionWidget sampleTypeSelectionWidget,
+            final GroupSelectionWidget groupSelectionWidget, final CheckBox instanceCheckbox,
+            final CheckBox groupCheckbox, final Button submitButton, final Button exportButton,
+            final ColumnChooser columnChooser, final ParentColumns parentColumns,
+            final PropertyColumns propertyColumns)
     {
         this.sampleTypeSelectionWidget = sampleTypeSelectionWidget;
         this.groupSelectionWidget = groupSelectionWidget;
@@ -106,7 +106,7 @@ public class ToolbarController
         }
     }
 
-    public void resetPropertyCache(boolean reset)
+    public void resetPropertyCache(final boolean reset)
     {
         if (reset)
         {

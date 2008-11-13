@@ -122,7 +122,7 @@ public class DtoConverters
         // BeanUtils.Converter
         //
 
-        public final String convertToIdentifier(final SamplePE samplePE)
+        public final String convertToSampleIdentifier(final SamplePE samplePE)
         {
             return samplePE.getSampleIdentifier().toString();
         }

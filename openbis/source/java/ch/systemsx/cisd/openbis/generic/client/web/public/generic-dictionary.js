@@ -42,7 +42,7 @@ var generic = {
   
   sample: "Sample",
   sample_type: "Sample Type",
-  instance: "Instance",
+  database_instance: "Instance",
   sample_identifier: "Identifier",
   is_instance_sample: "Shared?",
   is_invalid: "Invalid?",

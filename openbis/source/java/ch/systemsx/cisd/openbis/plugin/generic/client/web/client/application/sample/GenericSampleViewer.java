@@ -151,7 +151,6 @@ public final class GenericSampleViewer extends LayoutContainer
         panel.setLayout(new FitLayout());
         panel.setBodyBorder(true);
         panel.setBorders(false);
-        panel.setInsetBorder(true);
         return panel;
     }
 

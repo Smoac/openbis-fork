@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.TabPanelEvent;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Header;
@@ -25,13 +27,23 @@ import com.extjs.gxt.ui.client.widget.Header;
  * 
  * @author Christian Ribeaud
  */
+// TODO 2008-11-12, Christian Ribeaud: Remove this when each component is a ITabItem.
 public final class ContentPanelAdapter implements ITabItem
 {
     private final ContentPanel contentPanel;
 
+    private final Listener<TabPanelEvent> tabPanelEventListener;
+
     public ContentPanelAdapter(final ContentPanel contentPanel)
     {
+        this(contentPanel, null);
+    }
+
+    public ContentPanelAdapter(final ContentPanel contentPanel,
+            final Listener<TabPanelEvent> tabPanelEventListener)
+    {
         this.contentPanel = contentPanel;
+        this.tabPanelEventListener = tabPanelEventListener;
     }
 
     //
@@ -57,5 +69,10 @@ public final class ContentPanelAdapter implements ITabItem
     public final void initialize()
     {
         // Does nothing.
+    }
+
+    public final Listener<TabPanelEvent> getTabPanelEventListener()
+    {
+        return tabPanelEventListener;
     }
 }

@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client;
 
 import java.util.List;
-import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
@@ -29,7 +28,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
@@ -97,14 +95,7 @@ public interface IGenericClientService extends IClientService
     /**
      * Returns a list of samples for given sample type.
      */
-    public ResultSet<Sample> listSamples(ListSampleCriteria criteria, List<PropertyType> propertyCodes)
-            throws UserFailureException;
-
-    /**
-     * Returns a list of sample properties for each sample fulfilling the specified criteria. The
-     * key is the sample technical id.
-     */
-    public Map<Long, List<SampleProperty>> listSamplesProperties(ListSampleCriteria criteria,
+    public ResultSet<Sample> listSamples(ListSampleCriteria criteria,
             List<PropertyType> propertyCodes) throws UserFailureException;
 
     /**
@@ -129,4 +120,9 @@ public interface IGenericClientService extends IClientService
      */
     public List<MatchingEntity> listMatchingEntities(final SearchableEntity searchableEntityOrNull,
             final String queryText) throws UserFailureException;
+
+    /**
+     * Removes the session result set associated with given key.
+     */
+    public void removeResultSet(final String resultSetKey) throws UserFailureException;
 }

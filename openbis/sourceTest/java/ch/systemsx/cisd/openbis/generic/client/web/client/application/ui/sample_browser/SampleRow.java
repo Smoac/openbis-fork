@@ -44,7 +44,7 @@ public class SampleRow extends Row
 
     public SampleRow identifier(String instanceCode, String groupCodeOrNull)
     {
-        withCell(ModelDataPropertyNames.INSTANCE, instanceCode);
+        withCell(ModelDataPropertyNames.DATABASE_INSTANCE, instanceCode);
         if (groupCodeOrNull == null)
         {
             withCell(ModelDataPropertyNames.GROUP, "");

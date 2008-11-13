@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_
  * 
  * @author Izabela Adamczyk
  */
+// TODO 2008-11-12, Christian Ribeaud: Each component should be a ITabItem.
 final class ComponentProvider
 {
     private final SampleBrowser sampleBrowser;

@@ -31,7 +31,6 @@ public final class SampleTranslator
         // Can not be instantiated.
     }
 
-    /** NOTE: ignores sample properties */
     public final static Sample translate(final SamplePE samplePE)
     {
         if (samplePE == null)
@@ -49,7 +48,7 @@ public final class SampleTranslator
     {
         final Sample result = new Sample();
         result.setCode(samplePE.getCode());
-        result.setIdentifier(samplePE.getSampleIdentifier().toString());
+        result.setSampleIdentifier(samplePE.getSampleIdentifier().toString());
         if (withDetails)
         {
             result.setSampleType(SampleTypeTranslator.translate(samplePE.getSampleType()));
@@ -58,6 +57,7 @@ public final class SampleTranslator
                     .getDatabaseInstance()));
             result.setRegistrator(PersonTranslator.translate(samplePE.getRegistrator()));
             result.setRegistrationDate(samplePE.getRegistrationDate());
+            result.setProperties(SamplePropertyTranslator.translate(samplePE.getProperties()));
             result.setValidProcedure(ProcedureTranslator.translate(samplePE.getValidProcedure()));
         }
         if (containerDep > 0 && samplePE.getContainer() != null)
@@ -71,7 +71,6 @@ public final class SampleTranslator
                     generatedFromDep - 1, false));
         }
         result.setInvalidation(InvalidationTranslator.translate(samplePE.getInvalidation()));
-        result.setId(samplePE.getId());
         return result;
     }
 

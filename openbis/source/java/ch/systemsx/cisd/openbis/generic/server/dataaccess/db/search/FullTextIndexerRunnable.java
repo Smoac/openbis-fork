@@ -90,7 +90,7 @@ public final class FullTextIndexerRunnable extends HibernateDaoSupport implement
             if (indexMode == IndexMode.SKIP_IF_MARKER_FOUND && markerFile.exists())
             {
                 operationLog.debug(String.format("Skipping indexing process as "
-                        + " marker file '%s' already exists.", markerFile.getAbsolutePath()));
+                        + "marker file '%s' already exists.", markerFile.getAbsolutePath()));
                 return;
             }
             final Session session = getSession();

@@ -14,28 +14,35 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser;
+
+import com.extjs.gxt.ui.client.widget.PagingToolBar;
 
 /**
- * An {@link AbstractRegistrationHolder} extension which holds a code.
+ * A small {@link PagingToolBar} extension which does not contain the <i>Refresh</i> button.
  * 
  * @author Christian Ribeaud
  */
-public class CodeWithRegistration extends AbstractRegistrationHolder implements ICodeProvider
+public final class PagingToolBarWithoutRefresh extends PagingToolBar
 {
-    private String code;
 
-    public final void setCode(final String code)
+    public PagingToolBarWithoutRefresh(int pageSize)
     {
-        this.code = code;
+        super(pageSize);
     }
 
     //
-    // ICodeProvider
+    // PagingToolBar
     //
 
-    public final String getCode()
+    @Override
+    protected final void afterRender()
     {
-        return code;
+        final int refreshIndex = toolBar.indexOf(refresh);
+        if (refreshIndex > -1)
+        {
+            toolBar.remove(refresh);
+        }
+        super.afterRender();
     }
 }

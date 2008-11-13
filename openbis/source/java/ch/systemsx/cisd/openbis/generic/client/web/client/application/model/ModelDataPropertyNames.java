@@ -48,7 +48,7 @@ public final class ModelDataPropertyNames
 
     public static final String IDENTIFIER = "identifier";
 
-    public static final String INSTANCE = "instance";
+    public static final String DATABASE_INSTANCE = "databaseInstance";
 
     public static final String IS_GROUP_SAMPLE = "isGroupSample";
 

@@ -16,12 +16,17 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser;
 
+import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.TabPanelEvent;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ParentColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyColumns;
 
@@ -30,15 +35,19 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Propert
  * 
  * @author Izabela Adamczyk
  */
-public class SampleBrowser extends ContentPanel
+public final class SampleBrowser extends ContentPanel implements Listener<TabPanelEvent>
 {
-
     private static final String PREFIX = "sample-browser";
 
     public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
 
-    public SampleBrowser(final GenericViewContext viewContext)
+    private SampleBrowserGrid sampleBrowserGrid;
+
+    private final IViewContext<IGenericClientServiceAsync> viewContext;
+
+    public SampleBrowser(final IViewContext<IGenericClientServiceAsync> viewContext)
     {
+        this.viewContext = viewContext;
         setId(ID);
         setLayout(new RowLayout());
         setHeaderVisible(false);
@@ -48,13 +57,27 @@ public class SampleBrowser extends ContentPanel
         final ParentColumns parentColumns = new ParentColumns(viewContext.getMessageProvider());
         final PropertyColumns propertyColumns = new PropertyColumns();
 
-        final SampleBrowserGrid grid =
+        sampleBrowserGrid =
                 new SampleBrowserGrid(viewContext, commonColumns, parentColumns, propertyColumns);
         final SampleBrowserToolbar toolbar =
-                new SampleBrowserToolbar(viewContext, grid, commonColumns, parentColumns,
-                        propertyColumns);
+                new SampleBrowserToolbar(viewContext, sampleBrowserGrid, commonColumns,
+                        parentColumns, propertyColumns);
 
         add(toolbar);
-        add(grid, new RowData(1, 1));
+        add(sampleBrowserGrid, new RowData(1, 1));
+    }
+
+    //
+    // Listener
+    //
+
+    public final void handleEvent(final TabPanelEvent be)
+    {
+        final String resultSetKey = sampleBrowserGrid.getResultSetKey();
+        if (be.type == Events.Close && resultSetKey != null)
+        {
+            viewContext.getService().removeResultSet(resultSetKey,
+                    new VoidAsyncCallback<Void>(viewContext));
+        }
     }
 }

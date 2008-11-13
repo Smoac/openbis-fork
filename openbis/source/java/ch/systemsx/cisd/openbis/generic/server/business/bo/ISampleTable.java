@@ -44,4 +44,9 @@ public interface ISampleTable
      * Returns the loaded {@link SamplePE}s.
      */
     List<SamplePE> getSamples();
+
+    /**
+     * Enriches the samples loaded with their properties.
+     */
+    void enrichWithProperties();
 }

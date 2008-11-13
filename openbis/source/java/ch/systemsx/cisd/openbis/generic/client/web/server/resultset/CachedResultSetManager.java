@@ -19,17 +19,19 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.comparators.ReverseComparator;
+import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.utilities.FieldComparator;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.TokenGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetKeyHolder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo.SortDir;
 
@@ -44,6 +46,9 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     private static final long serialVersionUID = 1L;
 
     private final IResultSetKeyProvider<K> resultSetKeyProvider;
+
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, CachedResultSetManager.class);
 
     @Private
     final Map<K, List<?>> results = new HashMap<K, List<?>>();
@@ -64,12 +69,18 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     {
         assert data != null : "Unspecified data.";
         assert sortInfo != null : "Unspecified sort information.";
-        final SortDir sortDir = sortInfo.getSortDir();
-        if (sortDir == SortDir.NONE)
+        if (data.size() == 0)
         {
             return;
         }
-        final FieldComparator fieldComparator = new FieldComparator(sortInfo.getSortField());
+        final SortDir sortDir = sortInfo.getSortDir();
+        final String sortField = sortInfo.getSortField();
+        if (sortDir == SortDir.NONE || sortField == null)
+        {
+            return;
+        }
+        final Comparator<T> fieldComparator =
+                ComparatorRegistry.getComparator((Class<T>) data.get(0).getClass(), sortField);
         Collections.sort(data, sortDir == SortDir.ASC ? fieldComparator : new ReverseComparator(
                 fieldComparator));
     }
@@ -119,11 +130,14 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         K dataKey = resultConfig.getResultSetKey();
         if (dataKey == null)
         {
+            operationLog.debug("Unknown result set key: retrieving the data.");
             dataKey = resultSetKeyProvider.getKey();
             data = dataRetriever.getData();
             results.put(dataKey, data);
         } else
         {
+            operationLog.debug(String.format("Data for result set key '%s' already cached.",
+                    dataKey));
             data = cast(results.get(dataKey));
         }
         assert data != null : "Unspecified data";
@@ -136,10 +150,18 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         return new DefaultResultSet<K, T>(dataKey, list, size);
     }
 
-    public final synchronized void removeData(final IResultSetKeyHolder<K> dataKeyHolder)
+    public final synchronized void removeResultSet(final K resultSetKey)
     {
-        assert dataKeyHolder != null : "Unspecified data key holder.";
-        results.remove(dataKeyHolder.getResultSetKey());
+        assert resultSetKey != null : "Unspecified data key holder.";
+        if (results.remove(resultSetKey) != null)
+        {
+            operationLog.debug(String.format("Result set for key '%s' has been removed.",
+                    resultSetKey));
+        } else
+        {
+            operationLog.debug(String.format("No result set for key '%s' could be found.",
+                    resultSetKey));
+        }
     }
 
     //

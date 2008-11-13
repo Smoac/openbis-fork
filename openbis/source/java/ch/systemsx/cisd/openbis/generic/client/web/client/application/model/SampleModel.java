@@ -57,18 +57,20 @@ public final class SampleModel extends BaseModelData
 
     public SampleModel(final Sample sample)
     {
-        set(ModelDataPropertyNames.INSTANCE, printInstance(sample));
+        set(ModelDataPropertyNames.DATABASE_INSTANCE, printDatabaseInstance(sample));
         set(ModelDataPropertyNames.GROUP, printGroup(sample));
         set(ModelDataPropertyNames.CODE, sample.getCode());
         set(ModelDataPropertyNames.SAMPLE_TYPE, sample.getSampleType());
         set(ModelDataPropertyNames.OBJECT, sample);
-        set(ModelDataPropertyNames.SAMPLE_IDENTIFIER, sample.getIdentifier());
+        set(ModelDataPropertyNames.SAMPLE_IDENTIFIER, sample.getSampleIdentifier());
         set(ModelDataPropertyNames.IS_INSTANCE_SAMPLE, (sample.getDatabaseInstance() != null));
-        set(ModelDataPropertyNames.REGISTRATOR, PersonRenderer.createPersonAnchor(sample.getRegistrator()));
-        set(ModelDataPropertyNames.REGISTRATION_DATE, DateRenderer.renderDate(sample.getRegistrationDate()));
+        set(ModelDataPropertyNames.REGISTRATOR, PersonRenderer.createPersonAnchor(sample
+                .getRegistrator()));
+        set(ModelDataPropertyNames.REGISTRATION_DATE, DateRenderer.renderDate(sample
+                .getRegistrationDate()));
         set(ModelDataPropertyNames.IS_GROUP_SAMPLE, sample.getGroup() != null);
         set(ModelDataPropertyNames.IS_INVALID, sample.getInvalidation() != null);
-        Experiment experiment = tryToGetExperiment(sample);
+        final Experiment experiment = tryToGetExperiment(sample);
         if (experiment != null)
         {
             set(ModelDataPropertyNames.PROJECT, experiment.getProject().getCode());
@@ -82,10 +84,11 @@ public final class SampleModel extends BaseModelData
 
     private final void setProperties(final Sample sample)
     {
-        for (final SampleProperty p : sample.getProperties())
+        for (final SampleProperty sampleProperty : sample.getProperties())
         {
-            final PropertyType propertyType = p.getEntityTypePropertyType().getPropertyType();
-            set(createID(propertyType), p.getValue());
+            final PropertyType propertyType =
+                    sampleProperty.getEntityTypePropertyType().getPropertyType();
+            set(createID(propertyType), sampleProperty.getValue());
         }
 
     }
@@ -119,7 +122,7 @@ public final class SampleModel extends BaseModelData
         }
         return sampleModels;
     }
-    
+
     private final static Experiment tryToGetExperiment(final Sample sample)
     {
         final Procedure procedure = sample.getValidProcedure();
@@ -129,23 +132,23 @@ public final class SampleModel extends BaseModelData
         }
         return null;
     }
-    
+
     private final static String printGroup(final Sample sample)
     {
-        Group group = sample.getGroup();
+        final Group group = sample.getGroup();
         return group == null ? "" : group.getCode();
     }
 
     private final static String printExperimentIdentifier(final Experiment experiment)
     {
-        Project project = experiment.getProject();
-        Group group = project.getGroup();
-        DatabaseInstance instance = group.getInstance();
+        final Project project = experiment.getProject();
+        final Group group = project.getGroup();
+        final DatabaseInstance instance = group.getInstance();
         return instance.getCode() + ":/" + group.getCode() + SEPARATOR + project.getCode()
                 + SEPARATOR + experiment.getCode();
     }
 
-    private final static String printInstance(final Sample sample)
+    private final static String printDatabaseInstance(final Sample sample)
     {
         DatabaseInstance databaseInstance = sample.getDatabaseInstance();
         if (databaseInstance == null)

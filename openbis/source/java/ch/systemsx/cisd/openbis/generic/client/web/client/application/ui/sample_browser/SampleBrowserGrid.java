@@ -17,17 +17,12 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
-import com.extjs.gxt.ui.client.data.LoadEvent;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
@@ -45,27 +40,30 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoadableColumnConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ParentColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyColumns;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo.SortDir;
 
 /**
- * The grid part of samples browser.
+ * A {@link LayoutContainer} which contains the grid where the samples are displayed.
  * 
  * @author Christian Ribeaud
  */
-public final class SampleBrowserGrid extends LayoutContainer
+final class SampleBrowserGrid extends LayoutContainer
 {
     private static final int PAGE_SIZE = 50;
 
@@ -73,17 +71,7 @@ public final class SampleBrowserGrid extends LayoutContainer
 
     static final String GRID_ID = GenericConstants.ID_PREFIX + PREFIX + "grid";
 
-    private final GenericViewContext viewContext;
-
-    private ContentPanel contentPanel;
-
-    private Grid<SampleModel> grid;
-
-    private PagingToolBar toolBar;
-
-    private final GridConfiguration oldConfiguration;
-
-    private final GridConfiguration newConfiguration;
+    private final IViewContext<IGenericClientServiceAsync> viewContext;
 
     private final CommonColumns commonColumns;
 
@@ -91,9 +79,17 @@ public final class SampleBrowserGrid extends LayoutContainer
 
     private final PropertyColumns propertyColumns;
 
-    private final PagingLoader<?> loader;
+    private ContentPanel contentPanel;
 
-    public SampleBrowserGrid(final GenericViewContext viewContext,
+    private Grid<SampleModel> grid;
+
+    private final PagingLoader<PagingLoadConfig> sampleLoader;
+
+    private ListSampleCriteria criteria;
+
+    private String resultSetKey;
+
+    SampleBrowserGrid(final IViewContext<IGenericClientServiceAsync> viewContext,
             final CommonColumns commonColumns, final ParentColumns parentColumns,
             final PropertyColumns propertyColumns)
     {
@@ -101,201 +97,23 @@ public final class SampleBrowserGrid extends LayoutContainer
         this.commonColumns = commonColumns;
         this.parentColumns = parentColumns;
         this.propertyColumns = propertyColumns;
-        oldConfiguration = new GridConfiguration(); // Already loaded
-        newConfiguration = new GridConfiguration(); // Requested
-        loader = createSampleLoader();
+        sampleLoader = createSampleLoader();
+        createUI();
+    }
+
+    private final void createUI()
+    {
         setLayout(new FitLayout());
+        contentPanel = createContentPanel();
+        grid = createGrid();
+        contentPanel.add(grid);
+        final PagingToolBar toolBar = createPagingToolBar();
+        toolBar.bind(sampleLoader);
+        contentPanel.setBottomComponent(toolBar);
+        add(contentPanel);
     }
 
-    private void display(final SampleType sampleType, final String selectedGroupCode,
-            final boolean showGroup, final boolean showInstance)
-    {
-        newConfiguration.update(sampleType, selectedGroupCode, showGroup, showInstance);
-        final ColumnModel columnModel = createColumnModel(sampleType);
-        final String header = createHeader(sampleType, selectedGroupCode, showGroup, showInstance);
-
-        getContentPanel().setHeading(header);
-        createOrReconfigureGrid(columnModel);
-        layout();
-    }
-
-    // loads samples using previous result. Calls a callback with the full new result when finished.
-    private void loadSamples(final List<SampleModel> previousModelsOrNull,
-            final AsyncCallback<List<SampleModel>> callback)
-    {
-        if (oldConfiguration.majorChange(newConfiguration))
-        {
-            viewContext.getService().listSamples(newConfiguration.getCriterias(),
-                    propertyColumns.getDirtyColumns(),
-                    new ListSamplesCallback(viewContext, callback));
-            return;
-        }
-        assert previousModelsOrNull != null : "some samples should be already loaded";
-
-        if (oldConfiguration.minorChange(newConfiguration))
-        {
-            removeUnnecessarySamples(previousModelsOrNull);
-        }
-
-        if (propertyColumns.isDirty())
-        {
-            final List<Sample> currentSamples = extractSamplesFromModel(previousModelsOrNull);
-            if (currentSamples.size() > 0)
-            {
-                viewContext.getService().listSamplesProperties(newConfiguration.getCriterias(),
-                        propertyColumns.getDirtyColumns(),
-                        new UpdateSamplesCallback(viewContext, currentSamples, callback));
-                return;
-            }
-        }
-
-        callback.onSuccess(previousModelsOrNull);
-    }
-
-    private List<Sample> extractSamplesFromModel(final List<SampleModel> modelList)
-    {
-        final List<Sample> samples = new ArrayList<Sample>();
-        for (final SampleModel model : modelList)
-        {
-            samples.add((Sample) model.get(ModelDataPropertyNames.OBJECT));
-        }
-        return samples;
-    }
-
-    private final void removeUnnecessarySamples(final List<SampleModel> models)
-    {
-        final Iterator<SampleModel> iterator = models.iterator();
-        while (iterator.hasNext())
-        {
-            final SampleModel next = iterator.next();
-            final Boolean isGroupLevelSample =
-                    (Boolean) next.get(ModelDataPropertyNames.IS_GROUP_SAMPLE);
-            final boolean isInstanceLevelSample = isGroupLevelSample == false;
-            if (isGroupLevelSample && newConfiguration.isIncludeGroup() == false
-                    || isInstanceLevelSample && newConfiguration.isIncludeInstance() == false)
-            {
-                iterator.remove();
-            }
-        }
-        oldConfiguration.update(newConfiguration);
-    }
-
-    private final void createOrReconfigureGrid(final ColumnModel columnModel)
-    {
-        final ListStore<SampleModel> sampleStore = new ListStore<SampleModel>(loader);
-
-        if (grid == null)
-        {
-            grid = new Grid<SampleModel>(sampleStore, columnModel);
-            grid.setId(GRID_ID);
-            grid.setLoadMask(true);
-            grid.setDeferHeight(true);
-            grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-            grid.addListener(Events.CellDoubleClick, new Listener<GridEvent>()
-                {
-                    public final void handleEvent(final GridEvent be)
-                    {
-                        final SampleModel sampleModel =
-                                (SampleModel) be.grid.getStore().getAt(be.rowIndex);
-                        final SampleType sampleType =
-                                (SampleType) sampleModel.get(ModelDataPropertyNames.SAMPLE_TYPE);
-                        final String sampleIdentifier =
-                                sampleModel.get(ModelDataPropertyNames.SAMPLE_IDENTIFIER);
-                        final String code = sampleType.getCode();
-                        final ITabItem tabView =
-                                viewContext.getClientPluginFactoryProvider()
-                                        .getClientPluginFactory(code)
-                                        .createViewClientForSampleType(code).createSampleViewer(
-                                                sampleIdentifier);
-                        Dispatcher.get().dispatch(DispatcherHelper.createNaviEvent(tabView));
-                    }
-                });
-            toolBar = createPagingToolBar();
-            toolBar.bind(loader);
-
-            getContentPanel().add(grid);
-            getContentPanel().setBottomComponent(toolBar);
-        } else
-        {
-            grid.reconfigure(sampleStore, columnModel);
-        }
-        toolBar.first();
-    }
-
-    // returns paging tool bar which has no refresh button. The grid is refreshed only from
-    // outside.
-    private static PagingToolBar createPagingToolBar()
-    {
-        return new PagingToolBar(PAGE_SIZE)
-            {
-                @SuppressWarnings("unchecked")
-                @Override
-                protected void onLoad(LoadEvent<PagingLoadConfig, PagingLoadResult> event)
-                {
-                    // it's ugly, but it seems to be the only way to hide the refresh button
-                    if (toolBar.indexOf(refresh) > -1)
-                    {
-                        toolBar.remove(refresh);
-                    }
-                    super.onLoad(event);
-                }
-            };
-    }
-
-    private final ContentPanel getContentPanel()
-    {
-        if (contentPanel == null)
-        {
-            contentPanel = new ContentPanel();
-            contentPanel.setBorders(false);
-            contentPanel.setBodyBorder(false);
-            contentPanel.setInsetBorder(false);
-            contentPanel.setLayout(new FitLayout());
-            add(contentPanel);
-        }
-        return contentPanel;
-    }
-
-    private String createHeader(final SampleType sampleType, final String selectedGroupCode,
-            final boolean showGroup, final boolean showInstance)
-    {
-        final StringBuilder sb = new StringBuilder("Samples");
-        sb.append(" of type ");
-        sb.append(sampleType.getCode());
-        if (showGroup)
-        {
-            sb.append(" belonging to the group ");
-            sb.append(selectedGroupCode);
-        }
-        if (showInstance)
-        {
-            if (showGroup)
-            {
-                sb.append(" or shared");
-            } else
-            {
-                sb.append(" which are shared among all the groups");
-            }
-        }
-        return sb.toString();
-    }
-
-    public final void refresh(final SampleType sampleType, final String selectedGroupCode,
-            final boolean showGroup, final boolean showInstance)
-    {
-        display(sampleType, selectedGroupCode, showGroup, showInstance);
-    }
-
-    private final ColumnModel createColumnModel(final SampleType type)
-    {
-        final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-        configs.addAll(commonColumns.getColumns());
-        configs.addAll(parentColumns.getColumns());
-        configs.addAll(propertyColumns.getColumns());
-        return new ColumnModel(configs);
-    }
-
-    private PagingLoader<?> createSampleLoader()
+    private final PagingLoader<PagingLoadConfig> createSampleLoader()
     {
         final RpcProxy<PagingLoadConfig, PagingLoadResult<SampleModel>> proxy = createSampleProxy();
         final BasePagingLoader<PagingLoadConfig, PagingLoadResult<SampleModel>> pagingLoader =
@@ -304,66 +122,19 @@ public final class SampleBrowserGrid extends LayoutContainer
         return pagingLoader;
     }
 
-    private static void sort(final List<SampleModel> samples, final PagingLoadConfig config)
-    {
-        if (config.getSortInfo().getSortField() != null)
-        {
-            final String sortField = config.getSortInfo().getSortField();
-            if (sortField != null)
-            {
-                Collections.sort(samples, config.getSortInfo().getSortDir().comparator(
-                        new Comparator<SampleModel>()
-                            {
-                                @SuppressWarnings(value = "unchecked")
-                                public int compare(final SampleModel p1, final SampleModel p2)
-                                {
-                                    return getValue(p1).compareTo(getValue(p2));
-                                }
-
-                                @SuppressWarnings(value = "unchecked")
-                                private Comparable getValue(SampleModel model)
-                                {
-                                    Object object = model.get(sortField);
-                                    return object instanceof Comparable ? (Comparable) object : "";
-                                }
-                            }));
-            }
-        }
-    }
-
-    private static <T> PagingLoadResult<T> getSublist(final List<T> samples,
-            final PagingLoadConfig config)
-    {
-        final ArrayList<T> sublist = new ArrayList<T>();
-        final int start = config.getOffset();
-        int limit = samples.size();
-        if (config.getLimit() > 0)
-        {
-            limit = Math.min(start + config.getLimit(), limit);
-        }
-        for (int i = config.getOffset(); i < limit; i++)
-        {
-            sublist.add(samples.get(i));
-        }
-        return new BasePagingLoadResult<T>(sublist, config.getOffset(), samples.size());
-    }
-
-    private void updateLoadedPropertyColumns()
-    {
-        for (final LoadableColumnConfig cc : propertyColumns.getColumns())
-        {
-            if (cc.isDirty())
-            {
-                cc.setLoaded(true);
-            }
-        }
-    }
-
-    private RpcProxy<PagingLoadConfig, PagingLoadResult<SampleModel>> createSampleProxy()
+    private final RpcProxy<PagingLoadConfig, PagingLoadResult<SampleModel>> createSampleProxy()
     {
         return new RpcProxy<PagingLoadConfig, PagingLoadResult<SampleModel>>()
             {
-                private List<SampleModel> samples = null;
+
+                private final SortInfo translate(
+                        final com.extjs.gxt.ui.client.data.SortInfo sortInfo)
+                {
+                    final SortInfo result = new SortInfo();
+                    result.setSortField(sortInfo.getSortField());
+                    result.setSortDir(SortDir.valueOf(sortInfo.getSortDir().name()));
+                    return result;
+                }
 
                 //
                 // RpcProxy
@@ -373,109 +144,161 @@ public final class SampleBrowserGrid extends LayoutContainer
                 public final void load(final PagingLoadConfig loadConfig,
                         final AsyncCallback<PagingLoadResult<SampleModel>> callback)
                 {
-                    loadSamples(samples, createPageCallbackDelegator(loadConfig, callback));
+                    final int offset = loadConfig.getOffset();
+                    criteria.setLimit(loadConfig.getLimit());
+                    criteria.setOffset(offset);
+                    criteria.setSortInfo(translate(loadConfig.getSortInfo()));
+                    criteria.setResultSetKey(resultSetKey);
+                    viewContext.getService().listSamples(criteria,
+                            propertyColumns.getDirtyColumns(),
+                            new ListSamplesCallback(viewContext, callback, offset));
                 }
 
-                private AsyncCallback<List<SampleModel>> createPageCallbackDelegator(
-                        final PagingLoadConfig loadConfig,
-                        final AsyncCallback<PagingLoadResult<SampleModel>> callback)
-                {
-                    return new AbstractAsyncCallback<List<SampleModel>>(viewContext)
-                        {
-
-                            //
-                            // AbstractAsyncCallback
-                            //
-
-                            @Override
-                            protected final void process(final List<SampleModel> result)
-                            {
-                                samples = result;
-                                sort(samples, loadConfig);
-                                final PagingLoadResult<SampleModel> pagingLoadResult =
-                                        getSublist(samples, loadConfig);
-                                callback.onSuccess(pagingLoadResult);
-                            }
-
-                            @Override
-                            protected final void finishOnFailure(final Throwable caught)
-                            {
-                                callback.onFailure(caught);
-                            }
-                        };
-                }
             };
+    }
+
+    private final static ContentPanel createContentPanel()
+    {
+        final ContentPanel contentPanel = new ContentPanel();
+        contentPanel.setBorders(false);
+        contentPanel.setBodyBorder(false);
+        contentPanel.setLayout(new FitLayout());
+        return contentPanel;
+    }
+
+    private final Grid<SampleModel> createGrid()
+    {
+        final Grid<SampleModel> sampleGrid =
+                new Grid<SampleModel>(new ListStore<SampleModel>(sampleLoader), createColumnModel());
+        sampleGrid.setId(GRID_ID);
+        sampleGrid.setLoadMask(true);
+        sampleGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        sampleGrid.addListener(Events.CellDoubleClick, new Listener<GridEvent>()
+            {
+
+                //
+                // Listener
+                //
+
+                public final void handleEvent(final GridEvent be)
+                {
+                    final SampleModel sampleModel =
+                            (SampleModel) be.grid.getStore().getAt(be.rowIndex);
+                    final SampleType sampleType =
+                            (SampleType) sampleModel.get(ModelDataPropertyNames.SAMPLE_TYPE);
+                    final String sampleIdentifier =
+                            sampleModel.get(ModelDataPropertyNames.SAMPLE_IDENTIFIER);
+                    final String code = sampleType.getCode();
+                    final ITabItem tabView =
+                            viewContext.getClientPluginFactoryProvider().getClientPluginFactory(
+                                    code).createViewClientForSampleType(code).createSampleViewer(
+                                    sampleIdentifier);
+                    Dispatcher.get().dispatch(DispatcherHelper.createNaviEvent(tabView));
+                }
+            });
+        return sampleGrid;
+    }
+
+    private final static PagingToolBar createPagingToolBar()
+    {
+        return new PagingToolBarWithoutRefresh(PAGE_SIZE);
+    }
+
+    private final ColumnModel createColumnModel()
+    {
+        final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
+        configs.addAll(commonColumns.getColumns());
+        configs.addAll(parentColumns.getColumns());
+        configs.addAll(propertyColumns.getColumns());
+        return new ColumnModel(configs);
+    }
+
+    private final String createHeader(final SampleType sampleType, final String selectedGroupCode,
+            final boolean showGroup, final boolean showInstance)
+    {
+        final StringBuilder builder = new StringBuilder("Samples");
+        builder.append(" of type ");
+        builder.append(sampleType.getCode());
+        if (showGroup)
+        {
+            builder.append(" belonging to the group ");
+            builder.append(selectedGroupCode);
+        }
+        if (showInstance)
+        {
+            if (showGroup)
+            {
+                builder.append(" or shared");
+            } else
+            {
+                builder.append(" which are shared among all the groups");
+            }
+        }
+        return builder.toString();
+    }
+
+    /**
+     * Refreshes the sample browser grid up to given parameters.
+     * <p>
+     * Note that, doing so, the result set associated with this <code>resultSetKey</code> on the
+     * server side will be refreshed as well.
+     * </p>
+     */
+    final void refresh(final SampleType selectedType, final String selectedGroupCode,
+            final Boolean includeGroup, final Boolean includeInstance)
+    {
+        if (resultSetKey != null)
+        {
+            viewContext.getService().removeResultSet(resultSetKey,
+                    new VoidAsyncCallback<Void>(viewContext));
+            resultSetKey = null;
+        }
+        criteria = new ListSampleCriteria();
+        criteria.setSampleType(selectedType);
+        criteria.setGroupCode(selectedGroupCode);
+        criteria.setIncludeGroup(includeGroup);
+        criteria.setIncludeInstance(includeInstance);
+        contentPanel.setHeading(createHeader(selectedType, selectedGroupCode, includeGroup,
+                includeInstance));
+        grid.reconfigure(grid.getStore(), createColumnModel());
+        sampleLoader.load(0, PAGE_SIZE);
+    }
+
+    /**
+     * Returns the result set key.
+     */
+    final String getResultSetKey()
+    {
+        return resultSetKey;
     }
 
     //
     // Helper classes
     //
 
-    private final class UpdateSamplesCallback extends
-            AbstractAsyncCallback<Map<Long, List<SampleProperty>>>
-    {
-        private final AsyncCallback<List<SampleModel>> delegate;
-
-        private final List<Sample> currentSamples;
-
-        UpdateSamplesCallback(final GenericViewContext viewContext,
-                final List<Sample> currentSamples, final AsyncCallback<List<SampleModel>> delegate)
-        {
-            super(viewContext);
-            this.delegate = delegate;
-            this.currentSamples = currentSamples;
-        }
-
-        private void setSampleProperties(final List<Sample> samples,
-                final Map<Long, List<SampleProperty>> propertiesMap)
-        {
-            for (final Sample sample : samples)
-            {
-                final long sampleId = sample.getId();
-                List<SampleProperty> props = sample.getProperties();
-                if (props == null)
-                {
-                    props = new ArrayList<SampleProperty>();
-                }
-                final List<SampleProperty> list = propertiesMap.get(sampleId);
-                if (list != null)
-                {
-                    props.addAll(list);
-                }
-                sample.setProperties(props);
-            }
-        }
-
-        //
-        // AbstractAsyncCallback
-        //
-
-        @Override
-        protected final void finishOnFailure(final Throwable caught)
-        {
-            delegate.onFailure(caught);
-        }
-
-        @Override
-        protected final void process(final Map<Long, List<SampleProperty>> result)
-        {
-            setSampleProperties(currentSamples, result);
-            final List<SampleModel> sampleModels = SampleModel.asSampleModels(currentSamples);
-            oldConfiguration.update(newConfiguration);
-            updateLoadedPropertyColumns();
-            delegate.onSuccess(sampleModels);
-        }
-    }
-
     final class ListSamplesCallback extends AbstractAsyncCallback<ResultSet<Sample>>
     {
-        private final AsyncCallback<List<SampleModel>> delegate;
+        private final AsyncCallback<PagingLoadResult<SampleModel>> delegate;
 
-        ListSamplesCallback(final GenericViewContext viewContext,
-                final AsyncCallback<List<SampleModel>> delegate)
+        private final int offset;
+
+        ListSamplesCallback(final IViewContext<IGenericClientServiceAsync> viewContext,
+                final AsyncCallback<PagingLoadResult<SampleModel>> delegate, final int offset)
         {
             super(viewContext);
             this.delegate = delegate;
+            this.offset = offset;
+        }
+
+        private void setResultSetKey(final String resultSetKey)
+        {
+            if (SampleBrowserGrid.this.resultSetKey == null)
+            {
+                SampleBrowserGrid.this.resultSetKey = resultSetKey;
+            } else
+            {
+                assert SampleBrowserGrid.this.resultSetKey.equals(resultSetKey) : "Result set keys not the same.";
+            }
         }
 
         //
@@ -491,10 +314,12 @@ public final class SampleBrowserGrid extends LayoutContainer
         @Override
         protected final void process(final ResultSet<Sample> result)
         {
+            setResultSetKey(result.getResultSetKey());
             final List<SampleModel> sampleModels = SampleModel.asSampleModels(result.getList());
-            oldConfiguration.update(newConfiguration);
-            updateLoadedPropertyColumns();
-            delegate.onSuccess(sampleModels);
+            final PagingLoadResult<SampleModel> loadResult =
+                    new BasePagingLoadResult<SampleModel>(sampleModels, offset, result
+                            .getTotalLength());
+            delegate.onSuccess(loadResult);
         }
     }
 

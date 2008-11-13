@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client;
 
 import java.util.List;
-import java.util.Map;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -31,7 +30,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 
@@ -84,13 +82,6 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
             AsyncCallback<ResultSet<Sample>> asyncCallback);
 
     /**
-     * @see IGenericClientService#listSamplesProperties(ListSampleCriteria, List)
-     */
-    public void listSamplesProperties(ListSampleCriteria criteria,
-            List<PropertyType> propertyCodes,
-            AsyncCallback<Map<Long, List<SampleProperty>>> asyncCallback);
-
-    /**
      * @see IGenericClientService#getSampleInfo(String)
      */
     public void getSampleInfo(final String sampleIdentifier,
@@ -112,4 +103,9 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
      */
     public void listMatchingEntities(final SearchableEntity searchableEntity,
             final String queryText, final AsyncCallback<List<MatchingEntity>> asyncCallback);
+
+    /**
+     * @see IGenericClientService#removeResultSet(String)
+     */
+    public void removeResultSet(final String resultSetKey, final AsyncCallback<Void> asyncCallback);
 }

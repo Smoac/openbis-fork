@@ -14,22 +14,29 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
-
-import java.util.List;
-
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 /**
- * Each implementation knows how to retrieve the data used to produce a {@link IResultSet}.
+ * A {@link AbstractAsyncCallback} which are not interested in the result.
  * 
  * @author Christian Ribeaud
  */
-public interface IResultSetRetriever<T>
+public final class VoidAsyncCallback<T> extends AbstractAsyncCallback<T>
 {
 
-    /**
-     * Returns the original data.
-     */
-    public List<T> getData() throws UserFailureException;
+    public VoidAsyncCallback(final IViewContext<?> viewContext)
+    {
+        super(viewContext);
+    }
+
+    //
+    // AbstractAsyncCallback
+    //
+
+    @Override
+    protected final void process(final T result)
+    {
+
+    }
+
 }

@@ -31,12 +31,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IMatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
@@ -131,15 +129,8 @@ public interface IGenericServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<SamplePE> listSamples(String sessionToken, ListSampleCriteriaDTO criteria);
-
-    /**
-     * Lists chosen properties for given samples.
-     */
-    @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
-    public List<SamplePropertyPE> listSamplesProperties(String sessionToken,
-            ListSampleCriteriaDTO criteria, List<PropertyTypePE> propertyCodes);
+    public List<SamplePE> listSamples(final String sessionToken,
+            final ListSampleCriteriaDTO criteria);
 
     /**
      * For given {@link SampleIdentifier} returns the corresponding {@link SamplePE}.

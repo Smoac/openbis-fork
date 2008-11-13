@@ -18,6 +18,7 @@ package ch.systemsx.cisd.common.utilities;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.fail;
 
 import java.util.ArrayList;
@@ -40,6 +41,7 @@ public final class FieldComparatorTest
         list.add(new Bean(new Object(), "c"));
         list.add(new Bean(new Object(), "b"));
         list.add(new Bean(new Object(), "a"));
+        list.add(null);
         return list;
     }
 
@@ -60,11 +62,20 @@ public final class FieldComparatorTest
     @Test
     public final void testCompare()
     {
-        final FieldComparator<Bean> fieldComparator = new FieldComparator<Bean>("value");
-        final List<Bean> beans = createBeanList();
+        // value
+        FieldComparator<Bean> fieldComparator = new FieldComparator<Bean>("value");
+        List<Bean> beans = createBeanList();
         assertEquals("c", beans.get(0).value);
         Collections.sort(beans, fieldComparator);
-        assertEquals("a", beans.get(0).value);
+        assertNull(beans.get(0));
+        assertEquals("a", beans.get(1).value);
+        // exception.detailMessage
+        fieldComparator = new FieldComparator<Bean>("exception.detailMessage");
+        beans = createBeanList();
+        assertEquals("c", beans.get(0).value);
+        Collections.sort(beans, fieldComparator);
+        assertNull(beans.get(0));
+        assertEquals("a", beans.get(1).value);
     }
 
     @Test
@@ -95,17 +106,20 @@ public final class FieldComparatorTest
     // Helper classes
     //
 
+    @SuppressWarnings("unused")
     private static final class Bean
     {
         private final String value;
 
-        @SuppressWarnings("unused")
         private final Object object;
+
+        private final Throwable exception;
 
         Bean(final Object object, final String value)
         {
             this.object = object;
             this.value = value;
+            this.exception = new Throwable(value);
         }
     }
 }

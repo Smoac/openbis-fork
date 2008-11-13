@@ -17,13 +17,14 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 /**
+ * A code provider.
  * 
- *
  * @author Franz-Josef Elmer
  */
 public interface ICodeProvider
 {
 
+    /** Returns the code. */
     public String getCode();
 
 }

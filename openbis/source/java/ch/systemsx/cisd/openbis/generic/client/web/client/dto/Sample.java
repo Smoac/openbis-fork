@@ -30,16 +30,13 @@ public class Sample extends CodeWithRegistration implements IInvalidationProvide
 {
     public static final Sample[] EMPTY_ARRAY = new Sample[0];
 
-    // TODO 2008-10-29, Christian Ribeaud: Since when we allow to have the id here!!!
-    private long id;
-
     private SampleType sampleType;
 
     private Group group;
 
     private DatabaseInstance databaseInstance;
 
-    private String identifier;
+    private String sampleIdentifier;
 
     private Sample container;
 
@@ -82,14 +79,14 @@ public class Sample extends CodeWithRegistration implements IInvalidationProvide
         this.databaseInstance = databaseInstance;
     }
 
-    public String getIdentifier()
+    public String getSampleIdentifier()
     {
-        return identifier;
+        return sampleIdentifier;
     }
 
-    public void setIdentifier(final String identifier)
+    public void setSampleIdentifier(final String sampleIdentifer)
     {
-        this.identifier = identifier;
+        this.sampleIdentifier = sampleIdentifer;
     }
 
     public Sample getContainer()
@@ -141,15 +138,5 @@ public class Sample extends CodeWithRegistration implements IInvalidationProvide
     public void setValidProcedure(final Procedure validProcedure)
     {
         this.validProcedure = validProcedure;
-    }
-
-    public long getId()
-    {
-        return id;
-    }
-
-    public void setId(long id)
-    {
-        this.id = id;
     }
 }

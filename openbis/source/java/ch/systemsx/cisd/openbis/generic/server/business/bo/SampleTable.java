@@ -31,11 +31,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * @author Tomasz Pylak
  */
-public final class SampleTable extends AbstractSampleIdentifierBusinessObject implements ISampleTable
+public final class SampleTable extends AbstractSampleIdentifierBusinessObject implements
+        ISampleTable
 {
     private List<SamplePE> samples;
 
@@ -131,6 +133,14 @@ public final class SampleTable extends AbstractSampleIdentifierBusinessObject im
         for (final SamplePE sample : samples)
         {
             enrichWithProcedure(sample);
+        }
+    }
+
+    public final void enrichWithProperties()
+    {
+        for (final SamplePE sample : samples)
+        {
+            HibernateUtils.initialize(sample.getProperties());
         }
     }
 

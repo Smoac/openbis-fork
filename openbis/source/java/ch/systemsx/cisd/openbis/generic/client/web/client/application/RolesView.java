@@ -101,7 +101,7 @@ public class RolesView extends ContentPanel
         configs.add(groupColumnConfig);
 
         final ColumnConfig instanceColumnConfig = new ColumnConfig();
-        instanceColumnConfig.setId(ModelDataPropertyNames.INSTANCE);
+        instanceColumnConfig.setId(ModelDataPropertyNames.DATABASE_INSTANCE);
         instanceColumnConfig.setHeader("Database Instance");
         instanceColumnConfig.setWidth(COL_DB_INSTANCE);
         configs.add(instanceColumnConfig);
@@ -195,7 +195,7 @@ public class RolesView extends ContentPanel
         toolBar.add(new AdapterToolItem(new ColumnFilter<RoleModel>(store,
                 ModelDataPropertyNames.GROUP, "group")));
         toolBar.add(new AdapterToolItem(new ColumnFilter<RoleModel>(store,
-                ModelDataPropertyNames.INSTANCE, "instance")));
+                ModelDataPropertyNames.DATABASE_INSTANCE, "instance")));
         toolBar.add(new AdapterToolItem(new ColumnFilter<RoleModel>(store,
                 ModelDataPropertyNames.ROLE, "role")));
         toolBar.add(new SeparatorToolItem());

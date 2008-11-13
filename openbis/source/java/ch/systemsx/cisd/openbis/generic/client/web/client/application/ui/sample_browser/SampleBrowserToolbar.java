@@ -34,8 +34,9 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ParentColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyColumns;
@@ -49,7 +50,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
  */
 class SampleBrowserToolbar extends ToolBar
 {
-
     private static final String PREFIX = "sample-browser-toolbar_";
 
     static final String REFRESH_BUTTON_ID = GenericConstants.ID_PREFIX + PREFIX + "refresh-button";
@@ -78,7 +78,7 @@ class SampleBrowserToolbar extends ToolBar
 
     private final ColumnChooser columnChooser;
 
-    public SampleBrowserToolbar(final GenericViewContext viewContext,
+    public SampleBrowserToolbar(final IViewContext<IGenericClientServiceAsync> viewContext,
             final SampleBrowserGrid rightPanel, final CommonColumns commonColumns,
             final ParentColumns parentColumns, final PropertyColumns propertyColumns)
     {

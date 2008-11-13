@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.TabPanelEvent;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.View;
@@ -59,12 +61,19 @@ final class AppView extends View
         this.viewContext = viewContext;
     }
 
+    @SuppressWarnings("unchecked")
     private final ITabItem getData(final AppEvent<?> event)
     {
         final Object data = event.getData(GenericConstants.ASSOCIATED_CONTENT_PANEL);
         if (data instanceof ContentPanel)
         {
-            return new ContentPanelAdapter((ContentPanel) data);
+            // TODO 2008-11-12, Christian Ribeaud: Remove this when each component is a ITabItem.
+            Listener<TabPanelEvent> tabPanelEventListener = null;
+            if (data instanceof Listener)
+            {
+                tabPanelEventListener = (Listener<TabPanelEvent>) data;
+            }
+            return new ContentPanelAdapter((ContentPanel) data, tabPanelEventListener);
         }
         return (ITabItem) data;
     }

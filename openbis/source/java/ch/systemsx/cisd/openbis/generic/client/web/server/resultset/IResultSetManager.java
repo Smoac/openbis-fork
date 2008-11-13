@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetKeyHolder;
 
 /**
  * A result set manager.
@@ -36,10 +36,10 @@ public interface IResultSetManager<K>
      * </p>
      */
     public <T> IResultSet<K, T> getResultSet(final IResultSetConfig<K> resultConfig,
-            final IResultSetRetriever<T> dataRetriever);
+            final IResultSetRetriever<T> dataRetriever) throws UserFailureException;
 
     /**
-     * Remove the data mapped to given <var>dataKeyHolder</var>.
+     * Remove the data mapped to given <var>resultSetKey</var>.
      */
-    public void removeData(final IResultSetKeyHolder<K> dataKeyHolder);
+    public void removeResultSet(final K resultSetKey) throws UserFailureException;
 }

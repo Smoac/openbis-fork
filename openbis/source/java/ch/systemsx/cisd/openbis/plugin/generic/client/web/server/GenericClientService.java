@@ -19,9 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.server;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -40,7 +38,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
@@ -50,10 +47,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.util.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.GroupTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.ListSampleCriteriaTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.PersonTranslator;
-import ch.systemsx.cisd.openbis.generic.client.web.server.util.PropertyTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.ResultSetTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.RoleAssignmentTranslator;
-import ch.systemsx.cisd.openbis.generic.client.web.server.util.SamplePropertyTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.UserFailureExceptionTranslator;
@@ -68,7 +63,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
@@ -108,47 +102,6 @@ public final class GenericClientService extends AbstractClientService implements
         {
             throw new IllegalArgumentException("Unknown role set");
         }
-    }
-
-    private final static void setSampleProperties(final List<Sample> samples,
-            final List<SamplePropertyPE> properties)
-    {
-        final Map<Long, List<SampleProperty>> propertiesMap = splitForSamples(properties);
-        for (final Sample sample : samples)
-        {
-            final long sampleId = sample.getId();
-            List<SampleProperty> props = sample.getProperties();
-            if (props == null)
-            {
-                props = new ArrayList<SampleProperty>();
-            }
-            final List<SampleProperty> list = propertiesMap.get(sampleId);
-            if (list != null)
-            {
-                props.addAll(list);
-            }
-            sample.setProperties(props);
-        }
-    }
-
-    private final static Map<Long, List<SampleProperty>> splitForSamples(
-            final List<SamplePropertyPE> properties)
-    {
-        final Map<Long, List<SampleProperty>> propertiesMap =
-                new HashMap<Long, List<SampleProperty>>();
-
-        for (final SamplePropertyPE prop : properties)
-        {
-            final long sampleId = prop.getSample().getId();
-            List<SampleProperty> sampleProps = propertiesMap.get(sampleId);
-            if (sampleProps == null)
-            {
-                sampleProps = new ArrayList<SampleProperty>();
-            }
-            sampleProps.add(SamplePropertyTranslator.translate(prop));
-            propertiesMap.put(sampleId, sampleProps);
-        }
-        return propertiesMap;
     }
 
     //
@@ -338,11 +291,11 @@ public final class GenericClientService extends AbstractClientService implements
         {
             final ListSampleCriteriaDTO criteria =
                     ListSampleCriteriaTranslator.translate(listCriteria);
-            final IResultSetManager resultProducer =
+            final IResultSetManager resultSetManager =
                     (IResultSetManager) getHttpSession().getAttribute(
                             SessionConstants.OPENBIS_RESULT_SET_MANAGER);
             final IResultSet<String, Sample> result =
-                    resultProducer.getResultSet(listCriteria, new IResultSetRetriever<Sample>()
+                    resultSetManager.getResultSet(listCriteria, new IResultSetRetriever<Sample>()
                         {
 
                             //
@@ -353,16 +306,11 @@ public final class GenericClientService extends AbstractClientService implements
                             {
                                 final List<SamplePE> samplePEs =
                                         genericServer.listSamples(getSessionToken(), criteria);
-                                final List<SamplePropertyPE> propertiesMap =
-                                        genericServer.listSamplesProperties(getSessionToken(),
-                                                criteria, PropertyTypeTranslator
-                                                        .translate(propertyCodes));
-                                final List<Sample> list = new ArrayList<Sample>();
+                                final List<Sample> list = new ArrayList<Sample>(samplePEs.size());
                                 for (final SamplePE sample : samplePEs)
                                 {
                                     list.add(SampleTranslator.translate(sample));
                                 }
-                                setSampleProperties(list, propertiesMap);
                                 return list;
                             }
                         });
@@ -371,18 +319,6 @@ public final class GenericClientService extends AbstractClientService implements
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
-    }
-
-    public Map<Long, List<SampleProperty>> listSamplesProperties(
-            final ListSampleCriteria listCriteria, final List<PropertyType> propertyCodes)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
-    {
-        final List<SamplePropertyPE> allProperties =
-                genericServer.listSamplesProperties(getSessionToken(), ListSampleCriteriaTranslator
-                        .translate(listCriteria), PropertyTypeTranslator.translate(propertyCodes));
-
-        final Map<Long, List<SampleProperty>> propertiesMap = splitForSamples(allProperties);
-        return propertiesMap;
     }
 
     public final SampleGeneration getSampleInfo(final String sampleIdentifier)
@@ -460,5 +396,19 @@ public final class GenericClientService extends AbstractClientService implements
         }
     }
 
-    // TODO: Add tab removing...
+    @SuppressWarnings("unchecked")
+    public final void removeResultSet(final String resultSetKey)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final IResultSetManager<String> resultSetManager =
+                    (IResultSetManager<String>) getHttpSession().getAttribute(
+                            SessionConstants.OPENBIS_RESULT_SET_MANAGER);
+            resultSetManager.removeResultSet(resultSetKey);
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
 }

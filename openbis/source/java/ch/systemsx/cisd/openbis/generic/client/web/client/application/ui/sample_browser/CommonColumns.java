@@ -53,8 +53,8 @@ public final class CommonColumns
 
     private void define()
     {
-        columns.add(createHiddenColumn(ModelDataPropertyNames.INSTANCE,
-                ModelDataPropertyNames.INSTANCE));
+        columns.add(createHiddenColumn(ModelDataPropertyNames.DATABASE_INSTANCE,
+                "database_instance"));
         columns.add(ColumnConfigFactory.createDefaultConfig(messageProvider,
                 ModelDataPropertyNames.GROUP));
         columns.add(createSampleCodeColumnConfig());

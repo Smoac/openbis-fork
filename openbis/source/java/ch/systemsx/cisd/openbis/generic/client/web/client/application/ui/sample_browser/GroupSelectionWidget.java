@@ -25,9 +25,9 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.google.gwt.user.client.Element;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.GroupModel;
@@ -66,13 +66,12 @@ public class GroupSelectionWidget extends ComboBox<GroupModel>
 
     static final String ID = GenericConstants.ID_PREFIX + PREFIX;
 
-    private final GenericViewContext viewContext;
+    private final IViewContext<IGenericClientServiceAsync> viewContext;
 
     private final ListStore<GroupModel> groupStore;
 
-    public GroupSelectionWidget(final GenericViewContext viewContext)
+    public GroupSelectionWidget(final IViewContext<IGenericClientServiceAsync> viewContext)
     {
-
         this.viewContext = viewContext;
         setId(ID);
         setEmptyText("- No groups found -");

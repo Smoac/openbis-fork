@@ -31,25 +31,25 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypeProperty
  */
 public final class PropertyColumns
 {
-    private List<LoadableColumnConfig> columns;
+    private final List<LoadableColumnConfig> columns;
 
     public PropertyColumns()
     {
         columns = new ArrayList<LoadableColumnConfig>();
     }
 
-    public void define(SampleType type)
+    public final void define(final SampleType sampleType)
     {
         columns.clear();
-        for (final SampleTypePropertyType stpt : type.getSampleTypePropertyTypes())
+        for (final SampleTypePropertyType sampleTypePropertyType : sampleType.getSampleTypePropertyTypes())
         {
-            columns.add(createPropertyColumn(stpt));
+            columns.add(createPropertyColumn(sampleTypePropertyType));
         }
     }
 
-    public void resetLoaded()
+    public final void resetLoaded()
     {
-        for (LoadableColumnConfig cc : columns)
+        for (final LoadableColumnConfig cc : columns)
         {
             cc.setLoaded(false);
         }
@@ -61,22 +61,23 @@ public final class PropertyColumns
         return columns;
     }
 
-    private final LoadableColumnConfig createPropertyColumn(final SampleTypePropertyType stpt)
+    private final LoadableColumnConfig createPropertyColumn(
+            final SampleTypePropertyType sampleTypePropertyType)
     {
         final LoadableColumnConfig columnConfig = new LoadableColumnConfig();
         columnConfig.setMenuDisabled(true);
-        PropertyType propertyType = stpt.getPropertyType();
+        final PropertyType propertyType = sampleTypePropertyType.getPropertyType();
         columnConfig.setId(SampleModel.createID(propertyType));
         columnConfig.setHeader(propertyType.getLabel());
         columnConfig.setWidth(80);
-        columnConfig.setHidden(stpt.isDisplayed() == false);
+        columnConfig.setHidden(sampleTypePropertyType.isDisplayed() == false);
         columnConfig.setPropertyType(propertyType);
         return columnConfig;
     }
 
     public boolean isDirty()
     {
-        for (LoadableColumnConfig cc : columns)
+        for (final LoadableColumnConfig cc : columns)
         {
             if (cc.isDirty())
             {
@@ -89,7 +90,7 @@ public final class PropertyColumns
     public List<PropertyType> getDirtyColumns()
     {
         final ArrayList<PropertyType> result = new ArrayList<PropertyType>();
-        for (LoadableColumnConfig cc : columns)
+        for (final LoadableColumnConfig cc : columns)
         {
             if (cc.isDirty())
             {

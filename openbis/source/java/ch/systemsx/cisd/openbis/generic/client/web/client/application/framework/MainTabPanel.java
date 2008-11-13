@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
+import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.TabPanelEvent;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
@@ -24,8 +27,9 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.DOM;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 
 /**
  * Main panel - where the tabs will open.
@@ -38,11 +42,11 @@ public class MainTabPanel extends TabPanel
 
     public static final String TAB_SUFFIX = "_tab";
 
-    private final GenericViewContext viewContext;
+    private final IViewContext<IGenericClientServiceAsync> viewContext;
 
     public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
 
-    MainTabPanel(final GenericViewContext viewContext)
+    MainTabPanel(final IViewContext<IGenericClientServiceAsync> viewContext)
     {
         this.viewContext = viewContext;
         setLayout(new FitLayout());
@@ -65,7 +69,7 @@ public class MainTabPanel extends TabPanel
     {
         final Element div = DOM.createDiv();
         div.setClassName("intro-tab");
-        div.setInnerText(viewContext.getMessage("welcome"));
+        div.setInnerText(viewContext.getMessageProvider().getMessage("welcome"));
         return div.getString();
     }
 
@@ -113,7 +117,6 @@ public class MainTabPanel extends TabPanel
 
     private final static class MainTabItem extends TabItem
     {
-
         private final ITabItem tabItem;
 
         public MainTabItem(final ITabItem tabItem)
@@ -125,6 +128,12 @@ public class MainTabPanel extends TabPanel
             setText(tabItem.getTitle());
             addStyleName("pad-text");
             add(tabItem.getComponent());
+            final Listener<TabPanelEvent> tabPanelEventListener =
+                    tabItem.getTabPanelEventListener();
+            if (tabPanelEventListener != null)
+            {
+                addListener(Events.Close, tabPanelEventListener);
+            }
         }
 
         final ITabItem getTabItem()

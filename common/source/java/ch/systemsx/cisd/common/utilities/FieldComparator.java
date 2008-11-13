@@ -21,6 +21,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 
 /**
@@ -31,24 +33,23 @@ import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
  * 
  * @author Christian Ribeaud
  */
-// TODO: With fieldName.fieldName
-public final class FieldComparator<T> implements Comparator<T>
+public class FieldComparator<T> implements Comparator<T>
 {
-    private final String fieldName;
+    private final String classFieldName;
 
-    private final Map<MapEntry, Field> cache = new HashMap<MapEntry, Field>();
+    private final Map<MapKey, Field> cache = new HashMap<MapKey, Field>();
 
-    public FieldComparator(final String fieldName)
+    public FieldComparator(final String classFieldName)
     {
-        assert fieldName != null : "Unspecified field name.";
-        this.fieldName = fieldName;
+        assert classFieldName != null : "Unspecified field name.";
+        this.classFieldName = classFieldName;
     }
 
-    private final Comparable<Object> getComparable(final T t)
+    private final Object getField(final Object object, final String fieldName)
     {
-        final Class<?> clazz = t.getClass();
-        final MapEntry mapEntry = new MapEntry(clazz, fieldName);
-        Field field = cache.get(mapEntry);
+        final Class<?> clazz = object.getClass();
+        final MapKey mapKey = new MapKey(clazz, fieldName);
+        Field field = cache.get(mapKey);
         if (field == null)
         {
             field = ClassUtils.tryGetDeclaredField(clazz, fieldName);
@@ -58,21 +59,31 @@ public final class FieldComparator<T> implements Comparator<T>
                         "Field name '%s' could not be found in class '%s'.", fieldName, clazz
                                 .getName()));
             }
-            cache.put(mapEntry, field);
+            cache.put(mapKey, field);
         }
         try
         {
-            final Object object = field.get(t);
-            if (object instanceof Comparable == false)
-            {
-                throw new IllegalArgumentException(String.format(
-                        "Object '%s' does not implement the Comparable interface.", object));
-            }
-            return cast(object);
+            return field.get(object);
         } catch (final Exception ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
+    }
+
+    private final Comparable<Object> getComparable(final T t)
+    {
+        final String[] fieldNames = StringUtils.split(classFieldName, '.');
+        Object fieldValue = t;
+        for (int i = 0; i < fieldNames.length; i++)
+        {
+            fieldValue = getField(fieldValue, fieldNames[i]);
+        }
+        if (fieldValue instanceof Comparable == false)
+        {
+            throw new IllegalArgumentException(String.format(
+                    "Object '%s' does not implement the Comparable interface.", fieldValue));
+        }
+        return cast(fieldValue);
     }
 
     @SuppressWarnings("unchecked")
@@ -87,6 +98,14 @@ public final class FieldComparator<T> implements Comparator<T>
 
     public final int compare(final T o1, final T o2)
     {
+        if (o1 == null)
+        {
+            return o2 == null ? 0 : -1;
+        }
+        if (o2 == null)
+        {
+            return 1;
+        }
         final Comparable<Object> comparable1 = getComparable(o1);
         final Comparable<Object> comparable2 = getComparable(o2);
         return comparable1.compareTo(comparable2);
@@ -96,13 +115,13 @@ public final class FieldComparator<T> implements Comparator<T>
     // Helper classes
     //
 
-    private final static class MapEntry extends AbstractHashable
+    private final static class MapKey extends AbstractHashable
     {
         final Class<?> clazz;
 
         final String fieldName;
 
-        MapEntry(final Class<?> clazz, final String fieldName)
+        MapKey(final Class<?> clazz, final String fieldName)
         {
             this.clazz = clazz;
             this.fieldName = fieldName;

@@ -16,12 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 /**
  * Aggregates sort field and sort direction.
  * 
  * @author Christian Ribeaud
  */
-public final class SortInfo
+public final class SortInfo implements IsSerializable
 {
     private String sortField;
 
@@ -56,7 +58,7 @@ public final class SortInfo
      * 
      * @author Christian Ribeaud
      */
-    public static enum SortDir
+    public static enum SortDir implements IsSerializable
     {
         NONE, ASC, DESC;
     }

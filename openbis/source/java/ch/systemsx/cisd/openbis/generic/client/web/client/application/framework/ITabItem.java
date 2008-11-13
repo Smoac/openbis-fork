@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.TabPanelEvent;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.TabItem;
 
@@ -53,4 +55,9 @@ public interface ITabItem
      * </p>
      */
     public String getId();
+
+    /**
+     * Returns a {@link Listener} that should be registered to the tab item.
+     */
+    public Listener<TabPanelEvent> getTabPanelEventListener();
 }

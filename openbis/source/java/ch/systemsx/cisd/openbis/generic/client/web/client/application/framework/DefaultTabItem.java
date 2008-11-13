@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.TabPanelEvent;
 import com.extjs.gxt.ui.client.widget.Component;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -31,7 +33,15 @@ public class DefaultTabItem implements ITabItem
 
     private final Component component;
 
+    private final Listener<TabPanelEvent> tabPanelEventListener;
+
     public DefaultTabItem(final String title, final Component component)
+    {
+        this(title, component, null);
+    }
+
+    public DefaultTabItem(final String title, final Component component,
+            final Listener<TabPanelEvent> tabPanelEventListener)
     {
         assert title != null : "Unspecified title.";
         assert component != null : "Unspecified component.";
@@ -40,6 +50,7 @@ public class DefaultTabItem implements ITabItem
         assert component.getId().startsWith(GenericConstants.ID_PREFIX) : "Unspecified component id.";
         this.title = title;
         this.component = component;
+        this.tabPanelEventListener = tabPanelEventListener;
     }
 
     //
@@ -64,5 +75,10 @@ public class DefaultTabItem implements ITabItem
     public void initialize()
     {
         // Does nothing.
+    }
+
+    public final Listener<TabPanelEvent> getTabPanelEventListener()
+    {
+        return tabPanelEventListener;
     }
 }
