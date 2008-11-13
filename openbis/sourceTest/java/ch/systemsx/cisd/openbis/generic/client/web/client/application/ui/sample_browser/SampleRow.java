@@ -61,18 +61,18 @@ public class SampleRow extends Row
 
     public SampleRow experiment(String projectCode, String experimentCode)
     {
-        withCell(ModelDataPropertyNames.PROJECT, projectCode);
-        withCell(ModelDataPropertyNames.EXPERIMENT, experimentCode);
+        withCell(ModelDataPropertyNames.PROJECT_FOR_SAMPLE, projectCode);
+        withCell(ModelDataPropertyNames.EXPERIMENT_FOR_SAMPLE, experimentCode);
         String experimentIdentifier = groupIdentifier + projectCode + "/" + experimentCode;
-        withCell(ModelDataPropertyNames.EXPERIMENT_IDENTIFIER, experimentIdentifier);
+        withCell(ModelDataPropertyNames.EXPERIMENT_IDENTIFIER_FOR_SAMPLE, experimentIdentifier);
         return this;
     }
     
     public SampleRow noExperiment()
     {
-        withCell(ModelDataPropertyNames.PROJECT, null);
-        withCell(ModelDataPropertyNames.EXPERIMENT, null);
-        withCell(ModelDataPropertyNames.EXPERIMENT_IDENTIFIER, null);
+        withCell(ModelDataPropertyNames.PROJECT_FOR_SAMPLE, null);
+        withCell(ModelDataPropertyNames.EXPERIMENT_FOR_SAMPLE, null);
+        withCell(ModelDataPropertyNames.EXPERIMENT_IDENTIFIER_FOR_SAMPLE, null);
         return this;
     }
         

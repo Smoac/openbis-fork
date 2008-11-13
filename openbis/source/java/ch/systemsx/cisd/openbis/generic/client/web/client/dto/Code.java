@@ -23,17 +23,39 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Christian Ribeaud
  */
-public class Code implements IsSerializable, ICodeProvider
+public class Code<T extends Code<T>> implements IsSerializable, ICodeProvider, Comparable<T>
 {
     private String code;
+
+    public final void setCode(final String code)
+    {
+        this.code = code;
+    }
+
+    //
+    // ICodeProvider
+    //
 
     public final String getCode()
     {
         return code;
     }
 
-    public final void setCode(final String code)
+    //
+    // Comparable
+    //
+
+    public int compareTo(final T o)
     {
-        this.code = code;
+        final String thatCode = o.code;
+        if (code == null)
+        {
+            return thatCode == null ? 0 : -1;
+        }
+        if (thatCode == null)
+        {
+            return 1;
+        }
+        return code.compareTo(thatCode);
     }
 }

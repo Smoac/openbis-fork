@@ -21,7 +21,7 @@ import java.util.Date;
 /**
  * @author Izabela Adamczyk
  */
-public class DataStore extends Code
+public class DataStore extends Code<DataStore>
 {
     private Date registrationDate;
 

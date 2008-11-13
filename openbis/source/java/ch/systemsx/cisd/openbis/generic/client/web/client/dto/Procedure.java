@@ -20,7 +20,11 @@ import java.util.Date;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
+
 /**
+ * The <i>GWT</i> equivalent to {@link ProcedurePE}.
+ * 
  * @author Tomasz Pylak
  */
 public class Procedure implements IsSerializable

@@ -46,7 +46,7 @@ final class ComparatorRegistry
 
     private final static <T> Comparator<T> getDefaultComparator(final String fieldName)
     {
-        return new FieldComparator<T>(fieldName);
+        return new FieldComparator<T>(fieldName, '_');
     }
 
     @SuppressWarnings("unchecked")
@@ -102,7 +102,7 @@ final class ComparatorRegistry
         {
             assert fieldName != null : "Unspecified field name.";
             this.fieldName = fieldName;
-            fieldComparator = new FieldComparator<Sample>(fieldName);
+            fieldComparator = new FieldComparator<Sample>(fieldName, '_');
         }
 
         public final int compare(final Sample o1, final Sample o2)

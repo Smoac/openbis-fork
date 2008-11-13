@@ -35,18 +35,30 @@ import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
  */
 public class FieldComparator<T> implements Comparator<T>
 {
+
+    private final static char DEFAULT_SEPARATOR = '.';
+
     private final String classFieldName;
 
     private final Map<MapKey, Field> cache = new HashMap<MapKey, Field>();
 
+    private final char separator;
+
     public FieldComparator(final String classFieldName)
+    {
+        this(classFieldName, DEFAULT_SEPARATOR);
+    }
+
+    public FieldComparator(final String classFieldName, final char separator)
     {
         assert classFieldName != null : "Unspecified field name.";
         this.classFieldName = classFieldName;
+        this.separator = separator;
     }
 
     private final Object getField(final Object object, final String fieldName)
     {
+        assert object != null : "Unspecified object.";
         final Class<?> clazz = object.getClass();
         final MapKey mapKey = new MapKey(clazz, fieldName);
         Field field = cache.get(mapKey);
@@ -70,18 +82,23 @@ public class FieldComparator<T> implements Comparator<T>
         }
     }
 
-    private final Comparable<Object> getComparable(final T t)
+    private final Comparable<Object> tryGetComparable(final T t)
     {
-        final String[] fieldNames = StringUtils.split(classFieldName, '.');
+        final String[] fieldNames = StringUtils.split(classFieldName, separator);
         Object fieldValue = t;
-        for (int i = 0; i < fieldNames.length; i++)
+        for (int i = 0; i < fieldNames.length && fieldValue != null; i++)
         {
             fieldValue = getField(fieldValue, fieldNames[i]);
+        }
+        if (fieldValue == null)
+        {
+            return null;
         }
         if (fieldValue instanceof Comparable == false)
         {
             throw new IllegalArgumentException(String.format(
-                    "Object '%s' does not implement the Comparable interface.", fieldValue));
+                    "Class '%s' does not implement the Comparable interface.", fieldValue
+                            .getClass().getName()));
         }
         return cast(fieldValue);
     }
@@ -106,8 +123,16 @@ public class FieldComparator<T> implements Comparator<T>
         {
             return 1;
         }
-        final Comparable<Object> comparable1 = getComparable(o1);
-        final Comparable<Object> comparable2 = getComparable(o2);
+        final Comparable<Object> comparable1 = tryGetComparable(o1);
+        final Comparable<Object> comparable2 = tryGetComparable(o2);
+        if (comparable1 == null)
+        {
+            return comparable2 == null ? 0 : -1;
+        }
+        if (comparable2 == null)
+        {
+            return 1;
+        }
         return comparable1.compareTo(comparable2);
     }
 

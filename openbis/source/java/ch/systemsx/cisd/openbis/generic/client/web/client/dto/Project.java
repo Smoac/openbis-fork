@@ -16,10 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+
 /**
+ * The <i>GWT</i> equivalent to {@link ProjectPE}.
+ * 
  * @author Tomasz Pylak
  */
-public class Project extends Code
+public class Project extends Code<Project>
 {
     private Group group;
 

@@ -28,7 +28,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Procedure;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
@@ -42,7 +41,7 @@ public final class SampleModel extends BaseModelData
 {
     private static final long serialVersionUID = 1L;
 
-    private static final String SEPARATOR = "/";
+    private static final String IDENTIFIER_SEPARATOR = "/";
 
     private static final String PROPERTY_PREFIX = "property";
 
@@ -63,7 +62,7 @@ public final class SampleModel extends BaseModelData
         set(ModelDataPropertyNames.SAMPLE_TYPE, sample.getSampleType());
         set(ModelDataPropertyNames.OBJECT, sample);
         set(ModelDataPropertyNames.SAMPLE_IDENTIFIER, sample.getSampleIdentifier());
-        set(ModelDataPropertyNames.IS_INSTANCE_SAMPLE, (sample.getDatabaseInstance() != null));
+        set(ModelDataPropertyNames.IS_INSTANCE_SAMPLE, sample.getDatabaseInstance() != null);
         set(ModelDataPropertyNames.REGISTRATOR, PersonRenderer.createPersonAnchor(sample
                 .getRegistrator()));
         set(ModelDataPropertyNames.REGISTRATION_DATE, DateRenderer.renderDate(sample
@@ -73,9 +72,10 @@ public final class SampleModel extends BaseModelData
         final Experiment experiment = tryToGetExperiment(sample);
         if (experiment != null)
         {
-            set(ModelDataPropertyNames.PROJECT, experiment.getProject().getCode());
-            set(ModelDataPropertyNames.EXPERIMENT, experiment.getCode());
-            set(ModelDataPropertyNames.EXPERIMENT_IDENTIFIER, printExperimentIdentifier(experiment));
+            set(ModelDataPropertyNames.PROJECT_FOR_SAMPLE, experiment.getProject().getCode());
+            set(ModelDataPropertyNames.EXPERIMENT_FOR_SAMPLE, experiment.getCode());
+            set(ModelDataPropertyNames.EXPERIMENT_IDENTIFIER_FOR_SAMPLE, experiment
+                    .getExperimentIdentifier());
         }
         setGeneratedFromParents(sample, 1, sample.getSampleType().getGeneratedFromHierarchyDepth());
         setContainerParents(sample, 1, sample.getSampleType().getPartOfHierarchyDepth());
@@ -139,15 +139,6 @@ public final class SampleModel extends BaseModelData
         return group == null ? "" : group.getCode();
     }
 
-    private final static String printExperimentIdentifier(final Experiment experiment)
-    {
-        final Project project = experiment.getProject();
-        final Group group = project.getGroup();
-        final DatabaseInstance instance = group.getInstance();
-        return instance.getCode() + ":/" + group.getCode() + SEPARATOR + project.getCode()
-                + SEPARATOR + experiment.getCode();
-    }
-
     private final static String printDatabaseInstance(final Sample sample)
     {
         DatabaseInstance databaseInstance = sample.getDatabaseInstance();
@@ -162,7 +153,7 @@ public final class SampleModel extends BaseModelData
     {
         if (sample.getDatabaseInstance() != null)
         {
-            return SEPARATOR + sample.getCode();
+            return IDENTIFIER_SEPARATOR + sample.getCode();
         } else
         {
             return sample.getCode();

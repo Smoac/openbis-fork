@@ -16,12 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+
 /**
+ * The <i>GWT</i> equivalent to {@link ProjectPE}.
+ * 
  * @author Izabela Adamczyk
  */
-public class RoleAssignment extends Code
+public final class RoleAssignment extends Code<RoleAssignment>
 {
-
     private Person person;
 
     private Group group;
@@ -37,7 +40,7 @@ public class RoleAssignment extends Code
         return group;
     }
 
-    public void setGroup(Group group)
+    public void setGroup(final Group group)
     {
         this.group = group;
     }
@@ -47,7 +50,7 @@ public class RoleAssignment extends Code
         return person;
     }
 
-    public void setPerson(Person person)
+    public void setPerson(final Person person)
     {
         this.person = person;
     }
@@ -57,7 +60,7 @@ public class RoleAssignment extends Code
         return instance;
     }
 
-    public void setInstance(DatabaseInstance instance)
+    public void setInstance(final DatabaseInstance instance)
     {
         this.instance = instance;
     }

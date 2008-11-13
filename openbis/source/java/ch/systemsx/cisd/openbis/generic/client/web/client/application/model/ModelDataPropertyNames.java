@@ -18,13 +18,21 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
+
 /**
  * Some constants used in {@link ModelData} implementations.
+ * <p>
+ * <b>Important note</b>: Do not put a <code>_</code> in the property name except for specifying
+ * a field path.
+ * </p>
  * 
  * @author Christian Ribeaud
  */
 public final class ModelDataPropertyNames
 {
+    /** Because <i>Javascript</i> can not handle 'dot' in the property name. */
+    private static final String FIELD_PATH_SEPARATOR = "_";
 
     public static final String CODE = "code";
 
@@ -36,9 +44,23 @@ public final class ModelDataPropertyNames
 
     public static final String ENTITY_TYPE = "entityType";
 
-    public static final String EXPERIMENT = "experiment";
+    /**
+     * This is the path to the experiment field starting from {@link Sample}.
+     * <p>
+     * Changing this may mean that sorting no longer works on the server side if result set is used.
+     * </p>
+     */
+    public static final String EXPERIMENT_FOR_SAMPLE =
+            "validProcedure" + FIELD_PATH_SEPARATOR + "experiment";
 
-    public static final String EXPERIMENT_IDENTIFIER = "experimentIdentifier";
+    /**
+     * This is the path to the experiment identifier field starting from {@link Sample}.
+     * <p>
+     * Changing this may mean that sorting no longer works on the server side if result set is used.
+     * </p>
+     */
+    public static final String EXPERIMENT_IDENTIFIER_FOR_SAMPLE =
+            EXPERIMENT_FOR_SAMPLE + FIELD_PATH_SEPARATOR + "experimentIdentifier";
 
     public static final String FILE_FORMAT_TYPE = "fileFormatType";
 
@@ -66,7 +88,14 @@ public final class ModelDataPropertyNames
 
     public static final String PERSON = "person";
 
-    public static final String PROJECT = "project";
+    /**
+     * This is the path to the project field starting from {@link Sample}.
+     * <p>
+     * Changing this may mean that sorting no longer works on the server side if result set is used.
+     * </p>
+     */
+    public static final String PROJECT_FOR_SAMPLE =
+            EXPERIMENT_FOR_SAMPLE + FIELD_PATH_SEPARATOR + "project";
 
     public static final String REGISTRATION_DATE = "registrationDate";
 

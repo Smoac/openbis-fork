@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 /**
  * @author Franz-Josef Elmer
  */
-public class DatabaseInstance extends Code
+public class DatabaseInstance extends Code<DatabaseInstance>
 {
     private String uuid;
 

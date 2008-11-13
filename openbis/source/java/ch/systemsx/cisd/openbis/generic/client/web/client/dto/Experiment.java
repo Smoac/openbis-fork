@@ -23,11 +23,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
  * 
  * @author Tomasz Pylak
  */
-public class Experiment extends CodeWithRegistration
+public class Experiment extends CodeWithRegistration implements Comparable<Experiment>
 {
     private Project project;
 
     private ExperimentType experimentType;
+
+    private String experimentIdentifier;
 
     public Project getProject()
     {
@@ -49,4 +51,22 @@ public class Experiment extends CodeWithRegistration
         this.experimentType = experimentType;
     }
 
+    public final String getExperimentIdentifier()
+    {
+        return experimentIdentifier;
+    }
+
+    public final void setExperimentIdentifier(final String experimentIdentifier)
+    {
+        this.experimentIdentifier = experimentIdentifier;
+    }
+
+    //
+    // Comparable
+    //
+
+    public final int compareTo(final Experiment o)
+    {
+        return getExperimentIdentifier().compareTo(o.getExperimentIdentifier());
+    }
 }

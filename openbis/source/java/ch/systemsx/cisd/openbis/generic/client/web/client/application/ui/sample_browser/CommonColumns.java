@@ -65,9 +65,9 @@ public final class CommonColumns
         columns.add(createHiddenRegistrationDateColumnConfig());
         columns.add(createHiddenBooleanColumn(ModelDataPropertyNames.IS_INVALID, "is_invalid"));
         columns.add(ColumnConfigFactory.createDefaultConfig(messageProvider,
-                ModelDataPropertyNames.PROJECT));
+                ModelDataPropertyNames.PROJECT_FOR_SAMPLE, "project"));
         columns.add(ColumnConfigFactory.createDefaultConfig(messageProvider,
-                ModelDataPropertyNames.EXPERIMENT));
+                ModelDataPropertyNames.EXPERIMENT_FOR_SAMPLE, "experiment"));
         columns.add(createHiddenExperimentIdentifierColumn());
     }
 
@@ -108,7 +108,8 @@ public final class CommonColumns
     {
         final ColumnConfig columnConfig =
                 ColumnConfigFactory.createDefaultConfig(messageProvider,
-                        ModelDataPropertyNames.EXPERIMENT_IDENTIFIER, "experiment_identifier");
+                        ModelDataPropertyNames.EXPERIMENT_IDENTIFIER_FOR_SAMPLE,
+                        "experiment_identifier");
         columnConfig.setHidden(true);
         columnConfig.setWidth(200);
         return columnConfig;

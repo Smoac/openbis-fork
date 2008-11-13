@@ -21,7 +21,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
  * 
  * @author Christian Ribeaud
  */
-public abstract class AbstractType extends Code
+public abstract class AbstractType extends Code<AbstractType>
 {
     private String description;
 

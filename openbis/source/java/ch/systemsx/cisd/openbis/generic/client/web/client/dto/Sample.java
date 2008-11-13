@@ -26,7 +26,8 @@ import ch.systemsx.cisd.common.annotation.CollectionMapping;
  * 
  * @author Izabela Adamczyk
  */
-public class Sample extends CodeWithRegistration implements IInvalidationProvider
+public final class Sample extends CodeWithRegistration implements IInvalidationProvider,
+        Comparable<Sample>
 {
     public static final Sample[] EMPTY_ARRAY = new Sample[0];
 
@@ -138,5 +139,14 @@ public class Sample extends CodeWithRegistration implements IInvalidationProvide
     public void setValidProcedure(final Procedure validProcedure)
     {
         this.validProcedure = validProcedure;
+    }
+
+    //
+    // Comparable
+    //
+
+    public final int compareTo(final Sample o)
+    {
+        return getSampleIdentifier().compareTo(o.getSampleIdentifier());
     }
 }
