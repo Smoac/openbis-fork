@@ -33,7 +33,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
@@ -283,8 +282,7 @@ public final class GenericClientService extends AbstractClientService implements
     }
 
     @SuppressWarnings("unchecked")
-    public final ResultSet<Sample> listSamples(final ListSampleCriteria listCriteria,
-            final List<PropertyType> propertyCodes)
+    public final ResultSet<Sample> listSamples(final ListSampleCriteria listCriteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try

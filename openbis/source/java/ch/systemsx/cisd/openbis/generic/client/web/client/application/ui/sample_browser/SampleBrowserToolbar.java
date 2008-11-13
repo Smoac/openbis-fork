@@ -60,7 +60,7 @@ class SampleBrowserToolbar extends ToolBar
     public static final String INCLUDE_SHARED_CHECKBOX_ID =
             GenericConstants.ID_PREFIX + PREFIX + "include-shared-checkbox";
 
-    private final SampleBrowserGrid grid;
+    private final SampleBrowserGrid sampleBrowserGrid;
 
     private final SampleTypeSelectionWidget selectSampleTypeCombo;
 
@@ -79,10 +79,10 @@ class SampleBrowserToolbar extends ToolBar
     private final ColumnChooser columnChooser;
 
     public SampleBrowserToolbar(final IViewContext<IGenericClientServiceAsync> viewContext,
-            final SampleBrowserGrid rightPanel, final CommonColumns commonColumns,
+            final SampleBrowserGrid sampleBrowserGrid, final CommonColumns commonColumns,
             final ParentColumns parentColumns, final PropertyColumns propertyColumns)
     {
-        this.grid = rightPanel;
+        this.sampleBrowserGrid = sampleBrowserGrid;
         selectSampleTypeCombo = new SampleTypeSelectionWidget(viewContext);
         selectGroupCombo = new GroupSelectionWidget(viewContext);
         includeInstanceCheckbox = new CheckBox();
@@ -98,7 +98,7 @@ class SampleBrowserToolbar extends ToolBar
         exportButton = createExportButton();
         exportButton.setEnabled(false);
         controller =
-                new ToolbarController(selectSampleTypeCombo, selectGroupCombo,
+                new ToolbarController(sampleBrowserGrid, selectSampleTypeCombo, selectGroupCombo,
                         includeInstanceCheckbox, includeGroupCheckbox, submitButton, exportButton,
                         columnChooser, parentColumns, propertyColumns);
         addSelectSampleTypeListeners();
@@ -126,7 +126,6 @@ class SampleBrowserToolbar extends ToolBar
                 public void handleEvent(final BaseEvent be)
                 {
                     controller.refreshButtons();
-                    controller.includeInstanceHasChanged();
                 }
             });
     }
@@ -135,10 +134,14 @@ class SampleBrowserToolbar extends ToolBar
     {
         selectGroupCombo.addSelectionChangedListener(new SelectionChangedListener<ModelData>()
             {
+
+                //
+                // SelectionChangedListener
+                //
+
                 @Override
-                public void selectionChanged(final SelectionChangedEvent<ModelData> se)
+                public final void selectionChanged(final SelectionChangedEvent<ModelData> se)
                 {
-                    controller.resetPropertyCache(true);
                     controller.refreshButtons();
                 }
             });
@@ -146,7 +149,11 @@ class SampleBrowserToolbar extends ToolBar
         selectGroupCombo.addListener(AppEvents.CALLBACK_FINISHED, new Listener<BaseEvent>()
             {
 
-                public void handleEvent(final BaseEvent be)
+                //
+                // Listener
+                //
+
+                public final void handleEvent(final BaseEvent be)
                 {
                     controller.refreshGroupCheckbox();
                 }
@@ -157,10 +164,13 @@ class SampleBrowserToolbar extends ToolBar
     {
         selectSampleTypeCombo.addSelectionChangedListener(new SelectionChangedListener<ModelData>()
             {
+                //
+                // SelectionChangedListener
+                //
+
                 @Override
-                public void selectionChanged(final SelectionChangedEvent<ModelData> se)
+                public final void selectionChanged(final SelectionChangedEvent<ModelData> se)
                 {
-                    controller.rebuildColumnChooser();
                     controller.refreshButtons();
                 }
             });
@@ -202,8 +212,12 @@ class SampleBrowserToolbar extends ToolBar
     {
         final Button refreshButton = new Button("Refresh", new SelectionListener<ComponentEvent>()
             {
+                //
+                // SelectionListener
+                //
+
                 @Override
-                public void componentSelected(ComponentEvent ce)
+                public final void componentSelected(final ComponentEvent ce)
                 {
                     final SampleType selectedType = selectSampleTypeCombo.tryGetSelected();
                     final String selectedGroupCode =
@@ -213,19 +227,9 @@ class SampleBrowserToolbar extends ToolBar
                     final Boolean includeGroup = includeGroupCheckbox.getValue();
                     final Boolean includeInstance = includeInstanceCheckbox.getValue();
 
-                    StringBuilder errorReport = new StringBuilder();
-                    boolean error =
-                            checkForMissingInformation(selectedType, selectedGroupCode,
-                                    includeGroup, includeInstance, errorReport);
-                    if (error)
-                    {
-                        MessageBox.alert("Missing information", errorReport.toString(), null);
-                    } else
-                    {
-                        grid
-                                .refresh(selectedType, selectedGroupCode, includeGroup,
-                                        includeInstance);
-                    }
+                    controller.rebuildColumnChooser();
+                    sampleBrowserGrid.refresh(selectedType, selectedGroupCode, includeGroup,
+                            includeInstance);
                 }
             });
         refreshButton.setId(REFRESH_BUTTON_ID);
@@ -249,48 +253,14 @@ class SampleBrowserToolbar extends ToolBar
         return button;
     }
 
-    private boolean checkForMissingInformation(final SampleType selectedType,
-            final String selectedGroupCode, final Boolean includeGroup,
-            final Boolean includeInstance, final StringBuilder sb)
-    {
-        boolean error = false;
-        if (includeGroup && selectedGroupCode == null)
-        {
-            sb.append("Group code ");
-            error = true;
-        }
-        if (selectedType == null)
-        {
-            if (error)
-            {
-                sb.append("and sample type ");
-            } else
-            {
-                sb.append("Sample type ");
-                error = true;
-            }
-        }
-        if (error)
-        {
-            sb.append("not selected. ");
-        }
-        if (includeGroup == false && includeInstance == false)
-        {
-            sb.append("Neither group nor shared samples checkbox was selected.");
-            error = true;
-        }
-        return error;
-    }
+    //
+    // ToolBar
+    //
 
     @Override
-    protected void onRender(final Element parent, final int pos)
+    protected final void onRender(final Element parent, final int pos)
     {
         super.onRender(parent, pos);
-        refresh();
-    }
-
-    public void refresh()
-    {
         display();
     }
 

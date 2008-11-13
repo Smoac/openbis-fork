@@ -64,7 +64,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
@@ -178,7 +177,6 @@ public final class GenericSampleViewer extends LayoutContainer
                     final ListSampleCriteria sampleCriteria = new ListSampleCriteria();
                     sampleCriteria.setContainerIdentifier(sampleIdentifier);
                     viewContext.getService().listSamples(sampleCriteria,
-                            new ArrayList<PropertyType>(),
                             new ListSamplesCallback(viewContext, callback));
                 }
             };

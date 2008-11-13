@@ -33,7 +33,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ParentColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyColumns;
 
-
 /**
  * Class which allows to change manipulate {@link CommonColumns}, {@link ParentColumns} and
  * {@link PropertyColumns}.
@@ -42,6 +41,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Propert
  */
 final class ColumnChooser extends TextToolItem
 {
+    public static final String ID = GenericConstants.ID_PREFIX + "column_chooser";
+
     private static final int START = 1;
 
     private static final int MENU_LENGTH = 15;
@@ -52,9 +53,9 @@ final class ColumnChooser extends TextToolItem
 
     private final PropertyColumns propertyColumns;
 
-    public static final String ID = GenericConstants.ID_PREFIX + "column_chooser";
+    private ToolbarController toolbarController;
 
-    public ColumnChooser(final CommonColumns commonColumns, final ParentColumns parentColumns,
+    ColumnChooser(final CommonColumns commonColumns, final ParentColumns parentColumns,
             final PropertyColumns propertyColumns)
     {
         super("Columns");
@@ -66,7 +67,7 @@ final class ColumnChooser extends TextToolItem
         reload();
     }
 
-    public void reload()
+    final void reload()
     {
         final Menu menu = new Menu();
         addSubMenu(createCommonMenu(), menu, "Common", false);
@@ -75,7 +76,12 @@ final class ColumnChooser extends TextToolItem
         setMenu(menu);
     }
 
-    private List<Item> createCommonMenu()
+    final void setToolbarController(final ToolbarController toolbarController)
+    {
+        this.toolbarController = toolbarController;
+    }
+
+    private final List<Item> createCommonMenu()
     {
         final ArrayList<Item> result = new ArrayList<Item>();
         for (final ColumnConfig cc : commonColumns.getColumns())
@@ -85,44 +91,51 @@ final class ColumnChooser extends TextToolItem
         return result;
     }
 
-    private List<Item> createParentsMenu()
+    private final List<Item> createParentsMenu()
     {
         final ArrayList<Item> result = new ArrayList<Item>();
-        for (final ColumnConfig cc : parentColumns.getColumns())
+        for (final ColumnConfig columnConfig : parentColumns.getColumns())
         {
-            result.add(createFromConfig(cc));
+            result.add(createFromConfig(columnConfig));
         }
         return result;
     }
 
-    private List<Item> createPropertiesMenu()
+    private final List<Item> createPropertiesMenu()
     {
         final ArrayList<Item> result = new ArrayList<Item>();
-        for (final ColumnConfig cc : propertyColumns.getColumns())
+        for (final ColumnConfig columnConfig : propertyColumns.getColumns())
         {
-            result.add(createFromConfig(cc));
+            result.add(createFromConfig(columnConfig));
         }
         return result;
 
     }
 
-    private Item createFromConfig(final ColumnConfig cc)
+    private final Item createFromConfig(final ColumnConfig columnConfig)
     {
-        final CheckMenuItem result = new CheckMenuItem(cc.getHeader());
-        result.setChecked(cc.isHidden() == false);
+        final CheckMenuItem result = new CheckMenuItem(columnConfig.getHeader());
+        result.setChecked(columnConfig.isHidden() == false);
         result.setHideOnClick(false);
         result.addSelectionListener(new SelectionListener<ComponentEvent>()
             {
+
+                //
+                // SelectionListener
+                //
+
                 @Override
-                public void componentSelected(final ComponentEvent ce)
+                public final void componentSelected(final ComponentEvent ce)
                 {
-                    cc.setHidden(result.isChecked() == false);
+                    assert toolbarController != null : "Unspecified toolbar controller.";
+                    toolbarController.setColumnConfigHidden(columnConfig,
+                            result.isChecked() == false);
                 }
             });
         return result;
     }
 
-    private void addSubMenu(final List<Item> columns, final Menu menu, final String title,
+    private final void addSubMenu(final List<Item> columns, final Menu menu, final String title,
             final boolean isLastSubmenu)
     {
         if (columns.size() > 0)
@@ -135,7 +148,7 @@ final class ColumnChooser extends TextToolItem
         }
     }
 
-    private void addItems(final Menu columnsMenu, final boolean folded, final String title,
+    private final void addItems(final Menu columnsMenu, final boolean folded, final String title,
             final List<Item> columns)
     {
         Menu subMenu = new Menu();
@@ -161,5 +174,4 @@ final class ColumnChooser extends TextToolItem
             }
         }
     }
-
 }

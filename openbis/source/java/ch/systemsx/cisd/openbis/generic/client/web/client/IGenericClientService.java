@@ -23,7 +23,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
@@ -95,8 +94,8 @@ public interface IGenericClientService extends IClientService
     /**
      * Returns a list of samples for given sample type.
      */
-    public ResultSet<Sample> listSamples(ListSampleCriteria criteria,
-            List<PropertyType> propertyCodes) throws UserFailureException;
+    public ResultSet<Sample> listSamples(final ListSampleCriteria criteria)
+            throws UserFailureException;
 
     /**
      * For given <var>sampleIdentifier</var> returns corresponding {@link Sample}.

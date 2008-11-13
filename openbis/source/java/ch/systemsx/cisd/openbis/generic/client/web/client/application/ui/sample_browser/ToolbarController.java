@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ParentColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyColumns;
@@ -28,9 +30,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
  * 
  * @author Izabela Adamczyk
  */
-public class ToolbarController
+final class ToolbarController
 {
-
     private final SampleTypeSelectionWidget sampleTypeSelectionWidget;
 
     private final GroupSelectionWidget groupSelectionWidget;
@@ -49,12 +50,16 @@ public class ToolbarController
 
     private final Button exportButton;
 
-    public ToolbarController(final SampleTypeSelectionWidget sampleTypeSelectionWidget,
+    private final SampleBrowserGrid sampleBrowserGrid;
+
+    ToolbarController(final SampleBrowserGrid sampleBrowserGrid,
+            final SampleTypeSelectionWidget sampleTypeSelectionWidget,
             final GroupSelectionWidget groupSelectionWidget, final CheckBox instanceCheckbox,
             final CheckBox groupCheckbox, final Button submitButton, final Button exportButton,
             final ColumnChooser columnChooser, final ParentColumns parentColumns,
             final PropertyColumns propertyColumns)
     {
+        this.sampleBrowserGrid = sampleBrowserGrid;
         this.sampleTypeSelectionWidget = sampleTypeSelectionWidget;
         this.groupSelectionWidget = groupSelectionWidget;
         this.instanceCheckbox = instanceCheckbox;
@@ -62,11 +67,15 @@ public class ToolbarController
         this.submitButton = submitButton;
         this.exportButton = exportButton;
         this.columnChooser = columnChooser;
+        columnChooser.setToolbarController(this);
         this.parentColumns = parentColumns;
         this.propertyColumns = propertyColumns;
     }
 
-    public void refreshButtons()
+    /**
+     * Refreshes the <i>refresh</i> resp. <i>export</i> button.
+     */
+    final void refreshButtons()
     {
         final boolean sampleTypeSelected = sampleTypeSelectionWidget.tryGetSelected() != null;
         final boolean showGroupSamples = groupCheckbox.getValue();
@@ -89,34 +98,22 @@ public class ToolbarController
 
     }
 
-    public void showOrHideGroupList()
+    final void showOrHideGroupList()
     {
         groupSelectionWidget.setVisible(groupCheckbox.getValue());
     }
 
-    public void rebuildColumnChooser()
+    final void rebuildColumnChooser()
     {
         final SampleType type = sampleTypeSelectionWidget.tryGetSelected();
-        if (type != null)
-        {
-            propertyColumns.define(type);
-            parentColumns.define(type);
-            columnChooser.reload();
-            columnChooser.setEnabled(true);
-        }
+        assert type != null : "Should not be null.";
+        propertyColumns.define(type);
+        parentColumns.define(type);
+        columnChooser.reload();
+        columnChooser.setEnabled(true);
     }
 
-    public void resetPropertyCache(final boolean reset)
-    {
-        if (reset)
-        {
-            propertyColumns.resetLoaded();
-            columnChooser.reload();
-            columnChooser.setEnabled(true);
-        }
-    }
-
-    public void refreshGroupCheckbox()
+    final void refreshGroupCheckbox()
     {
         final boolean atLeastOneGroupExists = groupSelectionWidget.getStore().getCount() > 0;
         groupCheckbox.setEnabled(atLeastOneGroupExists);
@@ -124,11 +121,9 @@ public class ToolbarController
         instanceCheckbox.setValue(atLeastOneGroupExists == false);
     }
 
-    public void includeInstanceHasChanged()
+    final void setColumnConfigHidden(final ColumnConfig columnConfig, final boolean hidden)
     {
-        if (instanceCheckbox.getValue())
-        {
-            propertyColumns.resetLoaded();
-        }
+        final ColumnModel columnModel = sampleBrowserGrid.getColumnModel();
+        columnModel.setHidden(columnModel.findColumnIndex(columnConfig.getDataIndex()), hidden);
     }
 }

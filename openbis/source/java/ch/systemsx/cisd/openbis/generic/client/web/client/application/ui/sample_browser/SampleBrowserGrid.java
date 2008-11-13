@@ -150,7 +150,6 @@ final class SampleBrowserGrid extends LayoutContainer
                     criteria.setSortInfo(translate(loadConfig.getSortInfo()));
                     criteria.setResultSetKey(resultSetKey);
                     viewContext.getService().listSamples(criteria,
-                            propertyColumns.getDirtyColumns(),
                             new ListSamplesCallback(viewContext, callback, offset));
                 }
 
@@ -270,6 +269,14 @@ final class SampleBrowserGrid extends LayoutContainer
     final String getResultSetKey()
     {
         return resultSetKey;
+    }
+
+    /**
+     * Returns the current grid column model.
+     */
+    final ColumnModel getColumnModel()
+    {
+        return grid.getColumnModel();
     }
 
     //

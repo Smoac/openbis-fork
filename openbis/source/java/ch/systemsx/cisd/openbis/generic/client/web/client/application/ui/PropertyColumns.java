@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
@@ -31,72 +33,38 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypeProperty
  */
 public final class PropertyColumns
 {
-    private final List<LoadableColumnConfig> columns;
+    private final List<ColumnConfig> columns;
 
     public PropertyColumns()
     {
-        columns = new ArrayList<LoadableColumnConfig>();
+        columns = new ArrayList<ColumnConfig>();
     }
 
     public final void define(final SampleType sampleType)
     {
         columns.clear();
-        for (final SampleTypePropertyType sampleTypePropertyType : sampleType.getSampleTypePropertyTypes())
+        for (final SampleTypePropertyType sampleTypePropertyType : sampleType
+                .getSampleTypePropertyTypes())
         {
             columns.add(createPropertyColumn(sampleTypePropertyType));
         }
     }
 
-    public final void resetLoaded()
-    {
-        for (final LoadableColumnConfig cc : columns)
-        {
-            cc.setLoaded(false);
-        }
-
-    }
-
-    public List<LoadableColumnConfig> getColumns()
+    public final List<ColumnConfig> getColumns()
     {
         return columns;
     }
 
-    private final LoadableColumnConfig createPropertyColumn(
+    private final ColumnConfig createPropertyColumn(
             final SampleTypePropertyType sampleTypePropertyType)
     {
-        final LoadableColumnConfig columnConfig = new LoadableColumnConfig();
+        final ColumnConfig columnConfig = new ColumnConfig();
         columnConfig.setMenuDisabled(true);
         final PropertyType propertyType = sampleTypePropertyType.getPropertyType();
         columnConfig.setId(SampleModel.createID(propertyType));
         columnConfig.setHeader(propertyType.getLabel());
         columnConfig.setWidth(80);
         columnConfig.setHidden(sampleTypePropertyType.isDisplayed() == false);
-        columnConfig.setPropertyType(propertyType);
         return columnConfig;
-    }
-
-    public boolean isDirty()
-    {
-        for (final LoadableColumnConfig cc : columns)
-        {
-            if (cc.isDirty())
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public List<PropertyType> getDirtyColumns()
-    {
-        final ArrayList<PropertyType> result = new ArrayList<PropertyType>();
-        for (final LoadableColumnConfig cc : columns)
-        {
-            if (cc.isDirty())
-            {
-                result.add(cc.getPropertyType());
-            }
-        }
-        return result;
     }
 }
