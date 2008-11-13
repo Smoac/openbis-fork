@@ -25,6 +25,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
 /**
  * An <i>abstract</i> implementation of {@link IIdAndCodeHolder}
@@ -41,7 +42,7 @@ public abstract class AbstractIdAndCodeHolder<T extends IIdAndCodeHolder> implem
     /**
      * A static method for comparing two {@link IIdAndCodeHolder}s.
      */
-    public final static int compare(final IIdAndCodeHolder o1, IIdAndCodeHolder o2)
+    public final static int compare(final IIdAndCodeHolder o1, final IIdAndCodeHolder o2)
     {
         return IdAndCodeHolderComparator.INSTANCE.compare(o1, o2);
     }
@@ -62,6 +63,7 @@ public abstract class AbstractIdAndCodeHolder<T extends IIdAndCodeHolder> implem
     @Override
     public final boolean equals(final Object obj)
     {
+        EqualsHashUtils.assertDefined(getCode(), "code");
         if (obj == this)
         {
             return true;

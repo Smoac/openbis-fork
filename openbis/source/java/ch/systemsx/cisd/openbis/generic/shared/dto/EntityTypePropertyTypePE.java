@@ -83,7 +83,7 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
 
     @SuppressWarnings("unused")
     // for Hibernate only
-    private void setPropertyValues(List<EntityPropertyPE> propertyValues)
+    private void setPropertyValues(final List<EntityPropertyPE> propertyValues)
     {
         this.propertyValues = propertyValues;
     }
@@ -113,7 +113,7 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
     }
 
     // needed by Hibernate, must match the mapped getter name
-    void setEntityTypeInternal(EntityTypePE entityType)
+    void setEntityTypeInternal(final EntityTypePE entityType)
     {
         this.entityType = entityType;
     }
@@ -146,14 +146,29 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
     }
 
     @Override
-    public final boolean equals(final Object obj)
+    public boolean equals(final Object obj)
     {
-        return EqualsBuilder.reflectionEquals(this, obj);
+        if (obj == this)
+        {
+            return true;
+        }
+        if (obj instanceof EntityTypePropertyTypePE == false)
+        {
+            return false;
+        }
+        final EntityTypePropertyTypePE that = (EntityTypePropertyTypePE) obj;
+        final EqualsBuilder builder = new EqualsBuilder();
+        builder.append(getPropertyType(), that.getPropertyType());
+        builder.append(getEntityType(), that.getEntityType());
+        return builder.isEquals();
     }
 
     @Override
-    public final int hashCode()
+    public int hashCode()
     {
-        return HashCodeBuilder.reflectionHashCode(this);
+        final HashCodeBuilder builder = new HashCodeBuilder();
+        builder.append(getPropertyType());
+        builder.append(getEntityType());
+        return builder.toHashCode();
     }
 }

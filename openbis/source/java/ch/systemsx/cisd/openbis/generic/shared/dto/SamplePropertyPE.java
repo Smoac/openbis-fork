@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import java.util.Collections;
-import java.util.List;
-
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -50,9 +47,6 @@ public class SamplePropertyPE extends EntityPropertyPE
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
     public static final SamplePropertyPE[] EMPTY_ARRAY = new SamplePropertyPE[0];
-
-    public static final List<SamplePropertyPE> EMPTY_LIST =
-            Collections.<SamplePropertyPE> emptyList();
 
     private SamplePE sample;
 

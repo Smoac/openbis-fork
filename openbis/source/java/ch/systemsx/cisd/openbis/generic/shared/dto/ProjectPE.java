@@ -40,6 +40,7 @@ import org.hibernate.validator.Pattern;
 
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
 /**
  * A <i>Persistence Entity</i> which represents a project.
@@ -155,6 +156,8 @@ public final class ProjectPE extends HibernateAbstractRegistrationHolder impleme
     @Override
     public final boolean equals(final Object obj)
     {
+        EqualsHashUtils.assertDefined(getCode(), "code");
+        EqualsHashUtils.assertDefined(getGroup(), "group");
         if (obj == this)
         {
             return true;
@@ -166,6 +169,7 @@ public final class ProjectPE extends HibernateAbstractRegistrationHolder impleme
         final ProjectPE that = (ProjectPE) obj;
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(getCode(), that.getCode());
+        builder.append(getGroup(), that.getGroup());
         return builder.isEquals();
     }
 
@@ -174,6 +178,7 @@ public final class ProjectPE extends HibernateAbstractRegistrationHolder impleme
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(getCode());
+        builder.append(getGroup());
         return builder.toHashCode();
     }
 

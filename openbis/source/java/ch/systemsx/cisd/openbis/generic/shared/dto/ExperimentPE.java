@@ -19,9 +19,10 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -57,11 +58,13 @@ import org.hibernate.validator.Pattern;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.UnmodifiableListDecorator;
+import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
 /**
  * Persistence Entity representing experiment.
@@ -100,11 +103,11 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
 
     private InvalidationPE invalidation;
 
-    private List<ExperimentPropertyPE> properties = new LinkedList<ExperimentPropertyPE>();
+    private Set<ExperimentPropertyPE> properties = new HashSet<ExperimentPropertyPE>();
 
     private DataStorePE dataStore;
 
-    private List<AttachmentPE> attachments = AttachmentPE.EMPTY_LIST;
+    private Set<AttachmentPE> attachments = new HashSet<AttachmentPE>();
 
     private List<ProcedurePE> procedures = new ArrayList<ProcedurePE>();
 
@@ -240,25 +243,25 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entity")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @IndexedEmbedded
-    private List<ExperimentPropertyPE> getExperimentProperties()
+    private Set<ExperimentPropertyPE> getExperimentProperties()
     {
         return properties;
     }
 
     // Required by Hibernate.
     @SuppressWarnings("unused")
-    private void setExperimentProperties(final List<ExperimentPropertyPE> properties)
+    private void setExperimentProperties(final Set<ExperimentPropertyPE> properties)
     {
         this.properties = properties;
     }
 
     @Transient
-    public List<ExperimentPropertyPE> getProperties()
+    public Set<ExperimentPropertyPE> getProperties()
     {
-        return new UnmodifiableListDecorator<ExperimentPropertyPE>(getExperimentProperties());
+        return new UnmodifiableSetDecorator<ExperimentPropertyPE>(getExperimentProperties());
     }
 
-    public void setProperties(final List<ExperimentPropertyPE> properties)
+    public void setProperties(final Set<ExperimentPropertyPE> properties)
     {
         getExperimentProperties().clear();
         for (final ExperimentPropertyPE experimentProperty : properties)
@@ -280,22 +283,22 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "parent")
     @Private
-    public List<AttachmentPE> getExperimentAttachments()
+    public Set<AttachmentPE> getExperimentAttachments()
     {
         return attachments;
     }
 
     @Private
-    public void setExperimentAttachments(final List<AttachmentPE> attachments)
+    public void setExperimentAttachments(final Set<AttachmentPE> attachments)
     {
         this.attachments = attachments;
     }
 
     @Transient
-    public final List<AttachmentPE> getAttachments()
+    public final Set<AttachmentPE> getAttachments()
     {
-        final List<AttachmentPE> list = getExperimentAttachments();
-        for (final Iterator<AttachmentPE> iter = list.iterator(); iter.hasNext(); /**/)
+        final Set<AttachmentPE> set = new HashSet<AttachmentPE>(getExperimentAttachments());
+        for (final Iterator<AttachmentPE> iter = set.iterator(); iter.hasNext(); /**/)
         {
             final AttachmentPE property = iter.next();
             final boolean isHiddenFile = isHiddenFile(property.getFileName());
@@ -305,11 +308,11 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
             }
             unescapeFileName(property);
         }
-        return list;
+        return set;
     }
 
     // Package visibility to avoid bean conversion which will call an uninitialized field.
-    final void setAttachments(final List<AttachmentPE> attachments)
+    final void setAttachments(final Set<AttachmentPE> attachments)
     {
         for (final AttachmentPE experimentAttachment : attachments)
         {
@@ -408,6 +411,8 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
     @Override
     public final boolean equals(final Object obj)
     {
+        EqualsHashUtils.assertDefined(getCode(), "code");
+        EqualsHashUtils.assertDefined(getProject(), "project");
         if (obj == this)
         {
             return true;

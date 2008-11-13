@@ -18,8 +18,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
-import ch.systemsx.cisd.common.collections.UnmodifiableListDecorator;
+import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityProperty;
@@ -173,7 +174,7 @@ public class DtoConverters
         public final List<SampleTypePropertyType> convertToSampleTypePropertyTypes(
                 final SampleTypePE sampleTypePE)
         {
-            final List<SampleTypePropertyTypePE> sampleTypePropertyTypes =
+            final Set<SampleTypePropertyTypePE> sampleTypePropertyTypes =
                     sampleTypePE.getSampleTypePropertyTypes();
             if (HibernateUtils.isInitialized(sampleTypePropertyTypes) == false)
             {
@@ -212,10 +213,10 @@ public class DtoConverters
 
         public final List<P> convertToProperties(final IEntityPropertiesHolder<T> entity)
         {
-            List<T> properties = entity.getProperties();
-            if (properties instanceof UnmodifiableListDecorator)
+            Set<T> properties = entity.getProperties();
+            if (properties instanceof UnmodifiableSetDecorator)
             {
-                properties = ((UnmodifiableListDecorator<T>) properties).getDecorated();
+                properties = ((UnmodifiableSetDecorator<T>) properties).getDecorated();
             }
             if (HibernateUtils.isInitialized(properties) == false)
             {

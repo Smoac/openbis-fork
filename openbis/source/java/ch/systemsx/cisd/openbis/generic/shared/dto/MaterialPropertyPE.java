@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import java.util.Collections;
-import java.util.List;
-
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -51,9 +48,6 @@ public class MaterialPropertyPE extends EntityPropertyPE
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
     public final static MaterialPropertyPE[] EMPTY_ARRAY = new MaterialPropertyPE[0];
-
-    public static final List<MaterialPropertyPE> EMPTY_LIST =
-            Collections.<MaterialPropertyPE> emptyList();
 
     private MaterialPE material;
 

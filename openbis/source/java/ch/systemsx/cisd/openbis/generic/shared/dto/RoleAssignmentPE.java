@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -43,6 +41,7 @@ import org.hibernate.validator.NotNull;
 
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
 /**
  * Persistent Entity corresponding containing informations about role assignment.
@@ -63,9 +62,6 @@ public final class RoleAssignmentPE extends HibernateAbstractRegistrationHolder 
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
     public static final RoleAssignmentPE[] EMPTY_ARRAY = new RoleAssignmentPE[0];
-
-    public static final List<RoleAssignmentPE> EMPTY_LIST =
-            Collections.<RoleAssignmentPE> emptyList();
 
     private transient Long id;
 
@@ -162,6 +158,12 @@ public final class RoleAssignmentPE extends HibernateAbstractRegistrationHolder 
     @Override
     public final boolean equals(final Object obj)
     {
+        EqualsHashUtils.assertDefined(getRole(), "role");
+        EqualsHashUtils.assertDefined(getPerson(), "person");
+        if (getGroup() == null)
+        {
+            EqualsHashUtils.assertDefined(getDatabaseInstance(), "db");
+        }
         if (obj == this)
         {
             return true;
@@ -172,10 +174,10 @@ public final class RoleAssignmentPE extends HibernateAbstractRegistrationHolder 
         }
         final RoleAssignmentPE that = (RoleAssignmentPE) obj;
         final EqualsBuilder builder = new EqualsBuilder();
-        builder.append(role, that.role);
-        builder.append(person, that.person);
-        builder.append(databaseInstance, that.databaseInstance);
-        builder.append(group, that.group);
+        builder.append(getRole(), that.getRole());
+        builder.append(getPerson(), that.getPerson());
+        builder.append(getDatabaseInstance(), that.getDatabaseInstance());
+        builder.append(getGroup(), that.getGroup());
         return builder.isEquals();
     }
 
@@ -183,10 +185,10 @@ public final class RoleAssignmentPE extends HibernateAbstractRegistrationHolder 
     public final int hashCode()
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
-        builder.append(role);
-        builder.append(person);
-        builder.append(databaseInstance);
-        builder.append(group);
+        builder.append(getRole());
+        builder.append(getPerson());
+        builder.append(getDatabaseInstance());
+        builder.append(getGroup());
         return builder.toHashCode();
     }
 

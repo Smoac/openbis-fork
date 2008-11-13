@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.authorization.validator;
 
-import java.util.List;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -37,7 +37,7 @@ public final class DatabaseInstanceValidator extends AbstractValidator<DatabaseI
     @Override
     public final boolean doValidation(final PersonPE person, final DatabaseInstancePE value)
     {
-        final List<RoleAssignmentPE> roleAssignments = person.getRoleAssignments();
+        final Set<RoleAssignmentPE> roleAssignments = person.getRoleAssignments();
         for (final RoleAssignmentPE roleAssignment : roleAssignments)
         {
             final DatabaseInstancePE databaseInstance = roleAssignment.getDatabaseInstance();

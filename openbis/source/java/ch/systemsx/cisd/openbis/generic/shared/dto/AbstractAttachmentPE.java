@@ -36,6 +36,7 @@ import org.hibernate.validator.NotNull;
 
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
 /**
  * Superclass to store attachment. Does not contain attachment content.
@@ -121,6 +122,8 @@ public class AbstractAttachmentPE extends HibernateAbstractRegistrationHolder im
     @Override
     public boolean equals(final Object obj)
     {
+        EqualsHashUtils.assertDefined(getFileName(), "name");
+        EqualsHashUtils.assertDefined(getVersion(), "version");
         if (obj == this)
         {
             return true;
@@ -131,9 +134,9 @@ public class AbstractAttachmentPE extends HibernateAbstractRegistrationHolder im
         }
         final AbstractAttachmentPE that = (AbstractAttachmentPE) obj;
         final EqualsBuilder builder = new EqualsBuilder();
-        builder.append(fileName, that.fileName);
-        builder.append(version, that.version);
-        builder.append(parent, that.parent);
+        builder.append(getFileName(), that.getFileName());
+        builder.append(getVersion(), that.getVersion());
+        builder.append(getParent(), that.getParent());
         return builder.isEquals();
     }
 
@@ -141,9 +144,9 @@ public class AbstractAttachmentPE extends HibernateAbstractRegistrationHolder im
     public int hashCode()
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
-        builder.append(fileName);
-        builder.append(version);
-        builder.append(parent);
+        builder.append(getFileName());
+        builder.append(getVersion());
+        builder.append(getParent());
         return builder.toHashCode();
     }
 

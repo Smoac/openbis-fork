@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -25,7 +26,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
@@ -118,7 +119,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         final Session s = createServer().tryToAuthenticate(user, password);
 
         assertEquals(person, s.tryGetPerson());
-        assertEquals(roleAssignment, s.tryGetPerson().getRoleAssignments().get(0));
+        assertEquals(roleAssignment, s.tryGetPerson().getRoleAssignments().iterator().next());
 
         context.assertIsSatisfied();
     }
@@ -195,10 +196,10 @@ public final class GenericServerTest extends AbstractServerTestCase
     public void testListGroups()
     {
         final PersonPE person = createPersonFromPrincipal(PRINCIPAL);
-        DatabaseInstanceIdentifier identifier = DatabaseInstanceIdentifier.createHome();
+        final DatabaseInstanceIdentifier identifier = DatabaseInstanceIdentifier.createHome();
         final GroupPE g1 = createGroup("g1", homeDatabaseInstance);
         final GroupPE g2 = createGroup("g2", homeDatabaseInstance);
-        Session session = prepareGetSession();
+        final Session session = prepareGetSession();
         session.setPerson(person);
         person.setHomeGroup(g1);
         g1.setId(42L);
@@ -210,7 +211,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                 }
             });
 
-        List<GroupPE> groups = createServer().listGroups(SESSION_TOKEN, identifier);
+        final List<GroupPE> groups = createServer().listGroups(SESSION_TOKEN, identifier);
 
         assertSame(g1, groups.get(0));
         assertSame(g2, groups.get(1));
@@ -257,7 +258,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                 }
             });
 
-        List<PersonPE> persons = createServer().listPersons(SESSION_TOKEN);
+        final List<PersonPE> persons = createServer().listPersons(SESSION_TOKEN);
 
         assertSame(person, persons.get(0));
         assertEquals(1, persons.size());
@@ -275,14 +276,14 @@ public final class GenericServerTest extends AbstractServerTestCase
                     one(personDAO).tryFindPersonByUserId(USER_ID);
                     will(returnValue(null));
 
-                    String applicationToken = "application-token";
+                    final String applicationToken = "application-token";
                     one(authenticationService).authenticateApplication();
                     will(returnValue(applicationToken));
 
                     one(authenticationService).getPrincipal(applicationToken, USER_ID);
                     will(returnValue(PRINCIPAL));
 
-                    PersonPE person = createPersonFromPrincipal(PRINCIPAL);
+                    final PersonPE person = createPersonFromPrincipal(PRINCIPAL);
                     one(personDAO).createPerson(person);
                 }
             });
@@ -308,7 +309,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         {
             createServer().registerPerson(SESSION_TOKEN, USER_ID);
             fail("UserFailureException expected");
-        } catch (UserFailureException e)
+        } catch (final UserFailureException e)
         {
             assertEquals("Person '" + USER_ID + "' already exists.", e.getMessage());
         }
@@ -326,7 +327,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                     one(personDAO).tryFindPersonByUserId(USER_ID);
                     will(returnValue(null));
 
-                    String applicationToken = "application-token";
+                    final String applicationToken = "application-token";
                     one(authenticationService).authenticateApplication();
                     will(returnValue(applicationToken));
 
@@ -339,7 +340,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         {
             createServer().registerPerson(SESSION_TOKEN, USER_ID);
             fail("UserFailureException expected");
-        } catch (UserFailureException e)
+        } catch (final UserFailureException e)
         {
             assertEquals("Person '" + USER_ID + "' unknown by the authentication service.", e
                     .getMessage());
@@ -361,7 +362,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                 }
             });
 
-        List<RoleAssignmentPE> roles = createServer().listRoles(SESSION_TOKEN);
+        final List<RoleAssignmentPE> roles = createServer().listRoles(SESSION_TOKEN);
 
         assertSame(role, roles.get(0));
         assertEquals(1, roles.size());
@@ -415,7 +416,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                     one(externalDataTable).loadBySampleIdentifier(sampleIdentifier);
 
                     one(externalDataTable).getExternalData();
-                    will(returnValue(ExternalDataPE.EMPTY_LIST));
+                    will(returnValue(new ArrayList<DataPE>()));
                 }
             });
         createServer().listExternalData(SESSION_TOKEN, sampleIdentifier);

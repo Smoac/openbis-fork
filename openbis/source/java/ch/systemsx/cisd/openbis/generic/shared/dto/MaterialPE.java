@@ -18,8 +18,8 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -53,10 +53,11 @@ import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
-import ch.systemsx.cisd.common.collections.UnmodifiableListDecorator;
+import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
 /**
  * A <i>Persistent Entity</i> which is a material.
@@ -81,7 +82,7 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
 
     private DatabaseInstancePE databaseInstance;
 
-    private List<MaterialPropertyPE> properties = new LinkedList<MaterialPropertyPE>();
+    private Set<MaterialPropertyPE> properties = new HashSet<MaterialPropertyPE>();
 
     public static final MaterialPE[] EMPTY_ARRAY = new MaterialPE[0];
 
@@ -202,14 +203,14 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entity")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @IndexedEmbedded
-    private List<MaterialPropertyPE> getMaterialProperties()
+    private Set<MaterialPropertyPE> getMaterialProperties()
     {
         return properties;
     }
 
     // Required by Hibernate.
     @SuppressWarnings("unused")
-    private void setMaterialProperties(List<MaterialPropertyPE> properties)
+    private void setMaterialProperties(final Set<MaterialPropertyPE> properties)
     {
         this.properties = properties;
     }
@@ -219,12 +220,13 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
     //
 
     @Transient
-    public List<MaterialPropertyPE> getProperties()
+    public Set<MaterialPropertyPE> getProperties()
     {
-        return new UnmodifiableListDecorator<MaterialPropertyPE>(getMaterialProperties());
+
+        return new UnmodifiableSetDecorator<MaterialPropertyPE>(getMaterialProperties());
     }
 
-    public void setProperties(final List<MaterialPropertyPE> properties)
+    public void setProperties(final Set<MaterialPropertyPE> properties)
     {
         getMaterialProperties().clear();
         for (final MaterialPropertyPE materialProperty : properties)
@@ -238,7 +240,7 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
         }
     }
 
-    public void addProperty(MaterialPropertyPE property)
+    public void addProperty(final MaterialPropertyPE property)
     {
         property.setEntity(this);
         getMaterialProperties().add(property);
@@ -251,6 +253,8 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
     @Override
     public final boolean equals(final Object obj)
     {
+        EqualsHashUtils.assertDefined(getCode(), "code");
+        EqualsHashUtils.assertDefined(getMaterialType(), "type");
         if (obj == this)
         {
             return true;

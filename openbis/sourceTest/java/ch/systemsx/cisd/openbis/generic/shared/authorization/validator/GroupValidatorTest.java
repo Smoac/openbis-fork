@@ -24,7 +24,6 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.GroupValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -75,15 +74,15 @@ public final class GroupValidatorTest
             final List<RoleAssignmentPE> list = new ArrayList<RoleAssignmentPE>();
             // Database assignment
             RoleAssignmentPE assignment = new RoleAssignmentPE();
+            assignment.setRole(RoleCode.ADMIN);
             assignment.setPerson(person);
             assignment.setDatabaseInstance(createDatabaseInstance());
-            assignment.setRole(RoleCode.ADMIN);
             list.add(assignment);
             // Group assignment
             assignment = new RoleAssignmentPE();
+            assignment.setRole(RoleCode.USER);
             assignment.setPerson(person);
             assignment.setGroup(createAnotherGroup());
-            assignment.setRole(RoleCode.USER);
             list.add(assignment);
             person.setRoleAssignments(list);
         }

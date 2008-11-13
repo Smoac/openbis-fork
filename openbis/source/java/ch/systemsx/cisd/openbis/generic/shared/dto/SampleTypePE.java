@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -53,8 +53,8 @@ public final class SampleTypePE extends EntityTypePE
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
-    private List<SampleTypePropertyTypePE> sampleTypePropertyTypes =
-            new ArrayList<SampleTypePropertyTypePE>();
+    private Set<SampleTypePropertyTypePE> sampleTypePropertyTypes =
+            new HashSet<SampleTypePropertyTypePE>();
 
     //
     // NOTE: Should be objects in order to allow Hibernate to find SampleType by example.
@@ -69,7 +69,7 @@ public final class SampleTypePE extends EntityTypePE
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "entityTypeInternal")
     @JoinColumn(name = ColumnNames.SAMPLE_TYPE_COLUMN, updatable = false)
     @Fetch(FetchMode.SUBSELECT)
-    private List<SampleTypePropertyTypePE> getSampleTypePropertyTypesInternal()
+    private Set<SampleTypePropertyTypePE> getSampleTypePropertyTypesInternal()
     {
         return sampleTypePropertyTypes;
     }
@@ -77,19 +77,19 @@ public final class SampleTypePE extends EntityTypePE
     // Required by Hibernate.
     @SuppressWarnings("unused")
     private void setSampleTypePropertyTypesInternal(
-            final List<SampleTypePropertyTypePE> sampleTypePropertyTypes)
+            final Set<SampleTypePropertyTypePE> sampleTypePropertyTypes)
     {
         this.sampleTypePropertyTypes = sampleTypePropertyTypes;
     }
 
     @Transient
-    public List<SampleTypePropertyTypePE> getSampleTypePropertyTypes()
+    public Set<SampleTypePropertyTypePE> getSampleTypePropertyTypes()
     {
         return getSampleTypePropertyTypesInternal();
     }
 
     public final void setSampleTypePropertyTypes(
-            final List<SampleTypePropertyTypePE> sampleTypePropertyTypes)
+            final Set<SampleTypePropertyTypePE> sampleTypePropertyTypes)
     {
         getSampleTypePropertyTypesInternal().clear();
         for (final SampleTypePropertyTypePE child : sampleTypePropertyTypes)
@@ -98,7 +98,7 @@ public final class SampleTypePE extends EntityTypePE
         }
     }
 
-    public void addSampleTypePropertyType(SampleTypePropertyTypePE child)
+    public void addSampleTypePropertyType(final SampleTypePropertyTypePE child)
     {
         final SampleTypePE parent = (SampleTypePE) child.getEntityType();
         if (parent != null)

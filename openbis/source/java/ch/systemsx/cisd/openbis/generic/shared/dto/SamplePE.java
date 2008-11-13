@@ -20,8 +20,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.LinkedList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -57,12 +58,13 @@ import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
-import ch.systemsx.cisd.common.collections.UnmodifiableListDecorator;
+import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
 /**
  * <i>Persistent Entity</i> object of an entity 'sample'.
@@ -120,7 +122,7 @@ public class SamplePE implements IIdAndCodeHolder, Comparable<SamplePE>,
      */
     private InvalidationPE invalidation;
 
-    private List<SamplePropertyPE> properties = new LinkedList<SamplePropertyPE>();
+    private Set<SamplePropertyPE> properties = new HashSet<SamplePropertyPE>();
 
     /**
      * Person who registered this entity.
@@ -211,14 +213,14 @@ public class SamplePE implements IIdAndCodeHolder, Comparable<SamplePE>,
     @Fetch(FetchMode.SUBSELECT)
     // @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @IndexedEmbedded
-    private List<SamplePropertyPE> getSampleProperties()
+    private Set<SamplePropertyPE> getSampleProperties()
     {
         return properties;
     }
 
     // Required by Hibernate.
     @SuppressWarnings("unused")
-    private void setSampleProperties(final List<SamplePropertyPE> properties)
+    private void setSampleProperties(final Set<SamplePropertyPE> properties)
     {
         this.properties = properties;
     }
@@ -374,6 +376,7 @@ public class SamplePE implements IIdAndCodeHolder, Comparable<SamplePE>,
     @Override
     public final boolean equals(final Object obj)
     {
+        EqualsHashUtils.assertDefined(getCode(), "code");
         if (obj == this)
         {
             return true;
@@ -385,7 +388,8 @@ public class SamplePE implements IIdAndCodeHolder, Comparable<SamplePE>,
         final SamplePE that = (SamplePE) obj;
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(getCode(), that.getCode());
-        builder.append(getSampleType(), that.getSampleType());
+        builder.append(getDatabaseInstance(), that.getDatabaseInstance());
+        builder.append(getGroup(), that.getGroup());
         return builder.isEquals();
     }
 
@@ -394,7 +398,8 @@ public class SamplePE implements IIdAndCodeHolder, Comparable<SamplePE>,
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(getCode());
-        builder.append(getSampleType());
+        builder.append(getDatabaseInstance());
+        builder.append(getGroup());
         return builder.toHashCode();
     }
 
@@ -423,12 +428,12 @@ public class SamplePE implements IIdAndCodeHolder, Comparable<SamplePE>,
     //
 
     @Transient
-    public List<SamplePropertyPE> getProperties()
+    public Set<SamplePropertyPE> getProperties()
     {
-        return new UnmodifiableListDecorator<SamplePropertyPE>(getSampleProperties());
+        return new UnmodifiableSetDecorator<SamplePropertyPE>(getSampleProperties());
     }
 
-    public void setProperties(final List<SamplePropertyPE> properties)
+    public void setProperties(final Set<SamplePropertyPE> properties)
     {
         getSampleProperties().clear();
         for (final SamplePropertyPE sampleProperty : properties)

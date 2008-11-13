@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypePropertyType;
@@ -47,8 +48,8 @@ public final class SampleTypePropertyTypeTranslator
 
     }
 
-    public static List<SampleTypePropertyType> translate(final List<SampleTypePropertyTypePE> list,
-            SampleType sampleType)
+    public static List<SampleTypePropertyType> translate(final Set<SampleTypePropertyTypePE> list,
+            final SampleType sampleType)
     {
         final List<SampleTypePropertyType> result = new ArrayList<SampleTypePropertyType>();
         if (HibernateUtils.isInitialized(list) == false)
@@ -57,7 +58,7 @@ public final class SampleTypePropertyTypeTranslator
         }
         for (final SampleTypePropertyTypePE st : list)
         {
-            SampleTypePropertyType etpt = translate(st);
+            final SampleTypePropertyType etpt = translate(st);
             etpt.setEntityType(sampleType);
             result.add(etpt);
         }

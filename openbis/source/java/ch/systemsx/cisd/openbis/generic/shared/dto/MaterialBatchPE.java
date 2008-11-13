@@ -17,7 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -66,7 +67,7 @@ public final class MaterialBatchPE extends HibernateAbstractRegistrationHolder i
 
     private Double amount;
 
-    private transient List<SamplePE> samples;
+    private transient Set<SamplePE> samples = new HashSet<SamplePE>();
 
     private MaterialPE material;
 
@@ -98,12 +99,12 @@ public final class MaterialBatchPE extends HibernateAbstractRegistrationHolder i
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = TableNames.SAMPLE_MATERIAL_BATCHES_TABLE, joinColumns = @JoinColumn(name = ColumnNames.MATERIAL_BATCH_COLUMN), inverseJoinColumns = @JoinColumn(name = ColumnNames.SAMPLE_COLUMN))
-    public List<SamplePE> getSamples()
+    public Set<SamplePE> getSamples()
     {
         return samples;
     }
 
-    public void setSamples(final List<SamplePE> samples)
+    public void setSamples(final Set<SamplePE> samples)
     {
         this.samples = samples;
     }

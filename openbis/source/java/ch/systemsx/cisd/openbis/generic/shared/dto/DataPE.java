@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import java.util.Collections;
 import java.util.Date;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -68,8 +68,6 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE>
 
     public static final DataPE[] EMPTY_ARRAY = new DataPE[0];
 
-    public static final List<DataPE> EMPTY_LIST = Collections.emptyList();
-
     private transient Long id;
 
     private String code;
@@ -91,7 +89,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE>
 
     private SamplePE sampleDerivedFrom;
 
-    private List<DataPE> parents = EMPTY_LIST;
+    private Set<DataPE> parents = new HashSet<DataPE>();
 
     @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false)
     @Generated(GenerationTime.ALWAYS)
@@ -227,12 +225,12 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE>
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = TableNames.DATA_SET_RELATIONSHIPS_TABLE, joinColumns = @JoinColumn(name = ColumnNames.DATA_CHILD_COLUMN), inverseJoinColumns = @JoinColumn(name = ColumnNames.DATA_PARENT_COLUMN))
-    public List<DataPE> getParents()
+    public Set<DataPE> getParents()
     {
         return parents;
     }
 
-    public void setParents(final List<DataPE> parents)
+    public void setParents(final Set<DataPE> parents)
     {
         this.parents = parents;
     }
@@ -272,4 +270,5 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE>
     {
         this.procedure = procedure;
     }
+
 }

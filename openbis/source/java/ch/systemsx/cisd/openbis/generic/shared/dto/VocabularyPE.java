@@ -17,8 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -42,7 +43,7 @@ import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
-import ch.systemsx.cisd.common.collections.UnmodifiableListDecorator;
+import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 
@@ -71,7 +72,7 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
 
     private String description;
 
-    private List<VocabularyTermPE> terms = new ArrayList<VocabularyTermPE>();
+    private Set<VocabularyTermPE> terms = new HashSet<VocabularyTermPE>();
 
     private boolean managedInternally;
 
@@ -127,22 +128,22 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
     }
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "vocabularyInternal")
-    private List<VocabularyTermPE> getVocabularyTerms()
+    private Set<VocabularyTermPE> getVocabularyTerms()
     {
         return terms;
     }
 
     // Required by Hibernate.
     @SuppressWarnings("unused")
-    private void setVocabularyTerms(final List<VocabularyTermPE> terms)
+    private void setVocabularyTerms(final Set<VocabularyTermPE> terms)
     {
         this.terms = terms;
     }
 
     @Transient
-    public List<VocabularyTermPE> getTerms()
+    public Set<VocabularyTermPE> getTerms()
     {
-        return new UnmodifiableListDecorator<VocabularyTermPE>(getVocabularyTerms());
+        return new UnmodifiableSetDecorator<VocabularyTermPE>(getVocabularyTerms());
     }
 
     public final void setTerms(final List<VocabularyTermPE> terms)
@@ -154,7 +155,7 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
         }
     }
 
-    public void addTerm(VocabularyTermPE child)
+    public void addTerm(final VocabularyTermPE child)
     {
         final VocabularyPE parent = child.getVocabulary();
         if (parent != null)

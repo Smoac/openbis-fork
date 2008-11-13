@@ -17,8 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -82,7 +83,7 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
 
     private DatabaseInstancePE databaseInstance;
 
-    private List<RoleAssignmentPE> roleAssignments = new ArrayList<RoleAssignmentPE>();
+    private Set<RoleAssignmentPE> roleAssignments = new HashSet<RoleAssignmentPE>();
 
     private final void setSystemUser(final boolean systemUser)
     {
@@ -178,14 +179,14 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
     }
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "personInternal", cascade = CascadeType.ALL)
-    private final List<RoleAssignmentPE> getRoleAssignmentsInternal()
+    private final Set<RoleAssignmentPE> getRoleAssignmentsInternal()
     {
         return roleAssignments;
     }
 
     // Required by Hibernate.
     @SuppressWarnings("unused")
-    private final void setRoleAssignmentsInternal(final List<RoleAssignmentPE> rolesAssignments)
+    private final void setRoleAssignmentsInternal(final Set<RoleAssignmentPE> rolesAssignments)
     {
         this.roleAssignments = rolesAssignments;
     }
@@ -200,7 +201,7 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
     }
 
     @Transient
-    public final List<RoleAssignmentPE> getRoleAssignments()
+    public final Set<RoleAssignmentPE> getRoleAssignments()
     {
         // The returned assignments cannot be wrapped as immutable, because they are lazily loaded
         // and wrapping them in decorator class will make both checking if collection is initialized
@@ -208,15 +209,15 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
         return getRoleAssignmentsInternal();
     }
 
-    public void addRoleAssignment(RoleAssignmentPE child)
+    public void addRoleAssignment(final RoleAssignmentPE roleAssignment)
     {
-        final PersonPE parent = child.getPerson();
-        if (parent != null)
+        final PersonPE personFromRoleAssignment = roleAssignment.getPerson();
+        if (personFromRoleAssignment != null)
         {
-            parent.getRoleAssignmentsInternal().remove(child);
+            personFromRoleAssignment.getRoleAssignmentsInternal().remove(roleAssignment);
         }
-        child.setPersonInternal(this);
-        getRoleAssignmentsInternal().add(child);
+        roleAssignment.setPersonInternal(this);
+        getRoleAssignmentsInternal().add(roleAssignment);
     }
 
     //

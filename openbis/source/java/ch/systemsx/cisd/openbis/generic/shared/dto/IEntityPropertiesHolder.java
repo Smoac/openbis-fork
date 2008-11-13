@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * Interface of classes having entity properties.
@@ -28,14 +28,14 @@ public interface IEntityPropertiesHolder<T extends EntityPropertyPE>
     /**
      * Gets a copy of the entity properties. Note that this method returns an immutable collection
      * that will throw {@link UnsupportedOperationException} on any method that would change it. Use
-     * {@link #setProperties(List)} or {@link #addProperty(EntityPropertyPE)} instead.
+     * {@link #setProperties(Set)} or {@link #addProperty(EntityPropertyPE)} instead.
      */
-    public List<T> getProperties();
+    public Set<T> getProperties();
 
     /**
      * Sets the entity properties.
      */
-    public void setProperties(final List<T> properties);
+    public void setProperties(final Set<T> properties);
 
     /**
      * Adds the <var>property</var> to the list of properties of this property holder.

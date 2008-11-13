@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -44,6 +42,7 @@ import org.hibernate.validator.Pattern;
 
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
 /**
  * Persistence entity representing vocabulary term.
@@ -60,8 +59,6 @@ public class VocabularyTermPE extends HibernateAbstractRegistrationHolder implem
 {
 
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
-
-    public static final List<VocabularyTermPE> EMPTY_LIST = Collections.emptyList();
 
     public static final VocabularyTermPE[] EMPTY_ARRAY = new VocabularyTermPE[0];
 
@@ -134,6 +131,8 @@ public class VocabularyTermPE extends HibernateAbstractRegistrationHolder implem
     @Override
     public final boolean equals(final Object obj)
     {
+        EqualsHashUtils.assertDefined(getCode(), "code");
+        EqualsHashUtils.assertDefined(getVocabulary(), "vocabulary");
         if (obj == this)
         {
             return true;
@@ -145,6 +144,7 @@ public class VocabularyTermPE extends HibernateAbstractRegistrationHolder implem
         final VocabularyTermPE that = (VocabularyTermPE) obj;
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(getCode(), that.getCode());
+        builder.append(getVocabulary(), that.getVocabulary());
         return builder.isEquals();
     }
 
@@ -153,6 +153,7 @@ public class VocabularyTermPE extends HibernateAbstractRegistrationHolder implem
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(getCode());
+        builder.append(getVocabulary());
         return builder.toHashCode();
     }
 

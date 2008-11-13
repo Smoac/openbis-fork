@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.authorization.validator;
 
-import java.util.List;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -44,7 +44,7 @@ public final class GroupValidator extends AbstractValidator<GroupPE>
     @Override
     public final boolean doValidation(final PersonPE person, final GroupPE value)
     {
-        final List<RoleAssignmentPE> roleAssignments = person.getRoleAssignments();
+        final Set<RoleAssignmentPE> roleAssignments = person.getRoleAssignments();
         for (final RoleAssignmentPE roleAssignment : roleAssignments)
         {
             final GroupPE group = roleAssignment.getGroup();

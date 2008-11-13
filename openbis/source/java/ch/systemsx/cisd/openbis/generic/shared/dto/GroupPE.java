@@ -50,8 +50,8 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 @Table(name = TableNames.GROUPS_TABLE, uniqueConstraints =
     { @UniqueConstraint(columnNames =
         { ColumnNames.CODE_COLUMN, ColumnNames.DATABASE_INSTANCE_COLUMN }) })
-public final class GroupPE extends HibernateAbstractRegistrationHolder implements
-        IIdAndCodeHolder, Comparable<GroupPE>, Serializable
+public final class GroupPE extends HibernateAbstractRegistrationHolder implements IIdAndCodeHolder,
+        Comparable<GroupPE>, Serializable
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
@@ -193,7 +193,8 @@ public final class GroupPE extends HibernateAbstractRegistrationHolder implement
         }
         final GroupPE that = (GroupPE) obj;
         final EqualsBuilder builder = new EqualsBuilder();
-        builder.append(code, that.code);
+        builder.append(getCode(), that.getCode());
+        builder.append(getDatabaseInstance(), that.getDatabaseInstance());
         return builder.isEquals();
     }
 
@@ -201,7 +202,8 @@ public final class GroupPE extends HibernateAbstractRegistrationHolder implement
     public final int hashCode()
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
-        builder.append(code);
+        builder.append(getCode());
+        builder.append(getDatabaseInstance());
         return builder.toHashCode();
     }
 

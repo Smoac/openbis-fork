@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
@@ -48,7 +49,7 @@ public final class SamplePropertyTranslator
 
     }
 
-    public final static List<SampleProperty> translate(final List<SamplePropertyPE> list)
+    public final static List<SampleProperty> translate(final Set<SamplePropertyPE> list)
     {
         if (list == null)
         {

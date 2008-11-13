@@ -18,7 +18,8 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -72,7 +73,7 @@ public class ProcedurePE implements IIdHolder, Serializable
     // control layout directly.
     private SamplePE[] inputSamples = SamplePE.EMPTY_ARRAY;
 
-    private List<DataPE> data = DataPE.EMPTY_LIST;
+    private Set<DataPE> data = new HashSet<DataPE>();
 
     public final void setId(final Long id)
     {
@@ -127,7 +128,7 @@ public class ProcedurePE implements IIdHolder, Serializable
         return getExperimentInternal();
     }
 
-    void setExperimentInternal(ExperimentPE experiment)
+    void setExperimentInternal(final ExperimentPE experiment)
     {
         this.experiment = experiment;
     }
@@ -164,12 +165,12 @@ public class ProcedurePE implements IIdHolder, Serializable
 
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = ColumnNames.PROCEDURE_PRODUCED_BY_COLUMN, updatable = false)
-    public List<DataPE> getData()
+    public Set<DataPE> getData()
     {
         return data;
     }
 
-    public void setData(final List<DataPE> data)
+    public void setData(final Set<DataPE> data)
     {
         this.data = data;
     }

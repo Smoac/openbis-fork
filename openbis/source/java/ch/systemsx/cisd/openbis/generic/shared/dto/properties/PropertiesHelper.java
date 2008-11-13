@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto.properties;
 
-import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -81,7 +81,7 @@ public final class PropertiesHelper
         final ListSet table = new ListSet();
         for (int rowIndex = 0; rowIndex < entities.length; rowIndex++)
         {
-            final List<T> properties = entities[rowIndex].getProperties();
+            final Set<T> properties = entities[rowIndex].getProperties();
             assert properties != null : "Unspecified properties";
             for (final EntityPropertyPE property : properties)
             {

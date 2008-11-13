@@ -22,6 +22,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
@@ -32,6 +34,7 @@ import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
 /**
  * Persistence entity representing entity property.
@@ -162,5 +165,34 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
     {
         assert entityKind != null : "Unspecified entity kind";
         return ClassUtils.createInstance(entityKind.<T> getEntityPropertyClass());
+    }
+
+    @Override
+    public final boolean equals(final Object obj)
+    {
+        EqualsHashUtils.assertDefined(getEntity(), "entity");
+        EqualsHashUtils.assertDefined(getEntityTypePropertyType(), "etpt");
+        if (obj == this)
+        {
+            return true;
+        }
+        if (obj instanceof EntityPropertyPE == false)
+        {
+            return false;
+        }
+        final EntityPropertyPE that = (EntityPropertyPE) obj;
+        final EqualsBuilder builder = new EqualsBuilder();
+        builder.append(getEntity(), that.getEntity());
+        builder.append(getEntityTypePropertyType(), that.getEntityTypePropertyType());
+        return builder.isEquals();
+    }
+
+    @Override
+    public final int hashCode()
+    {
+        final HashCodeBuilder builder = new HashCodeBuilder();
+        builder.append(getEntity());
+        builder.append(getEntityTypePropertyType());
+        return builder.toHashCode();
     }
 }
