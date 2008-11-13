@@ -27,10 +27,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
 /**
  * Defines the sample parents columns for sample grid/table.
+ * <p>
+ * Currently these columns are not sortable.
+ * </p>
  * 
  * @author Izabela Adamczyk
  */
-public class ParentColumns
+// TODO 2008-11-13, Christian Ribeaud: Make these columns sortable. It is not just about turning on
+// a flag. There is more to do on the server side...
+public final class ParentColumns
 {
     private List<ColumnConfig> columns;
 
@@ -43,7 +48,7 @@ public class ParentColumns
         columns = new ArrayList<ColumnConfig>();
     }
 
-    public void define(SampleType type)
+    public final void define(final SampleType type)
     {
         columns.clear();
         addGeneratedFromParentColumns(1, type.getGeneratedFromHierarchyDepth());
@@ -72,6 +77,7 @@ public class ParentColumns
     {
         final ColumnConfig columnConfig = new ColumnConfig();
         columnConfig.setMenuDisabled(true);
+        columnConfig.setSortable(false);
         columnConfig.setId(SampleModel.GENERATED_FROM_PARENT_PREFIX + i);
         columnConfig.setHeader(messageProvider.getMessage("generated_from", i));
         columnConfig.setWidth(150);
@@ -82,6 +88,7 @@ public class ParentColumns
     {
         final ColumnConfig columnConfig = new ColumnConfig();
         columnConfig.setMenuDisabled(true);
+        columnConfig.setSortable(false);
         columnConfig.setId(SampleModel.CONTAINER_PARENT_PREFIX + i);
         columnConfig.setHeader(messageProvider.getMessage("part_of", i));
         columnConfig.setWidth(150);

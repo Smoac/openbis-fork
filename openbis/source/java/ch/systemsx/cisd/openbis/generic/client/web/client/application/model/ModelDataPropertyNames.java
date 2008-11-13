@@ -23,6 +23,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 /**
  * Some constants used in {@link ModelData} implementations.
  * <p>
+ * Use <i>Java</i> coding standard for naming these property names and be aware that some of them
+ * could be use for sorting when using <i>Result Set</i>.
+ * </p>
+ * <p>
  * <b>Important note</b>: Do not put a <code>_</code> in the property name except for specifying
  * a field path.
  * </p>

@@ -20,7 +20,10 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.collections.comparators.BooleanComparator;
+
 import ch.systemsx.cisd.common.utilities.FieldComparator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 
 /**
@@ -94,6 +97,11 @@ final class ComparatorRegistry
 
         private String fieldName;
 
+        private final int compareBoolean(final boolean b1, final boolean b2)
+        {
+            return BooleanComparator.getTrueFirstComparator().compare(b1, b2);
+        }
+
         //
         // IFieldComparator
         //
@@ -108,9 +116,21 @@ final class ComparatorRegistry
         public final int compare(final Sample o1, final Sample o2)
         {
             assert fieldName != null : "Field name not specified.";
-            if (fieldName.equals(null))
+            if (fieldName.equals(ModelDataPropertyNames.IS_GROUP_SAMPLE))
             {
-
+                final boolean b1 = o1.getGroup() != null;
+                final boolean b2 = o2.getGroup() != null;
+                return compareBoolean(b1, b2);
+            } else if (fieldName.equals(ModelDataPropertyNames.IS_INSTANCE_SAMPLE))
+            {
+                final boolean b1 = o1.getDatabaseInstance() != null;
+                final boolean b2 = o2.getDatabaseInstance() != null;
+                return compareBoolean(b1, b2);
+            } else if (fieldName.equals(ModelDataPropertyNames.IS_INVALID))
+            {
+                final boolean b1 = o1.getInvalidation() != null;
+                final boolean b2 = o2.getInvalidation() != null;
+                return compareBoolean(b1, b2);
             }
             return fieldComparator.compare(o1, o2);
         }

@@ -28,9 +28,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypeProperty
 
 /**
  * Defines the sample properties columns for sample grid/table.
+ * <p>
+ * Currently these columns are not sortable.
+ * </p>
  * 
  * @author Izabela Adamczyk
  */
+// TODO 2008-11-13, Christian Ribeaud: Make these columns sortable. It is not just about turning on
+// a flag. There is more to do on the server side...
 public final class PropertyColumns
 {
     private final List<ColumnConfig> columns;
@@ -60,6 +65,7 @@ public final class PropertyColumns
     {
         final ColumnConfig columnConfig = new ColumnConfig();
         columnConfig.setMenuDisabled(true);
+        columnConfig.setSortable(false);
         final PropertyType propertyType = sampleTypePropertyType.getPropertyType();
         columnConfig.setId(SampleModel.createID(propertyType));
         columnConfig.setHeader(propertyType.getLabel());

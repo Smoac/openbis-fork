@@ -168,7 +168,8 @@ final class SampleBrowserGrid extends LayoutContainer
     private final Grid<SampleModel> createGrid()
     {
         final Grid<SampleModel> sampleGrid =
-                new Grid<SampleModel>(new ListStore<SampleModel>(sampleLoader), createColumnModel());
+                new Grid<SampleModel>(new ListStore<SampleModel>(sampleLoader), new ColumnModel(
+                        new ArrayList<ColumnConfig>()));
         sampleGrid.setId(GRID_ID);
         sampleGrid.setLoadMask(true);
         sampleGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
