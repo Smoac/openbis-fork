@@ -56,11 +56,11 @@ public class DefaultSessionManagerTest
     private IAuthenticationService authenticationService;
 
     private ISessionFactory<BasicSession> sessionFactory;
-    
+
     private ILogMessagePrefixGenerator<BasicSession> prefixGenerator;
-    
+
     private IRemoteHostProvider remoteHostProvider;
-    
+
     private ISessionManager<BasicSession> sessionManager;
 
     private BufferedAppender logRecorder;
@@ -105,7 +105,7 @@ public class DefaultSessionManagerTest
         // Otherwise one does not known which test failed.
         context.assertIsSatisfied();
     }
-    
+
     private void prepareRemoteHostSessionFactoryAndPrefixGenerator(final String user)
     {
         context.checking(new Expectations()
@@ -114,14 +114,13 @@ public class DefaultSessionManagerTest
                     allowing(remoteHostProvider).getRemoteHost();
                     will(returnValue(REMOTE_HOST));
 
-                    one(sessionFactory)
-                    .create(with(any(String.class)), with(equal(user)),
+                    one(sessionFactory).create(with(any(String.class)), with(equal(user)),
                             with(equal(principal)), with(equal(REMOTE_HOST)),
                             with(any(Long.class)), with(any(Integer.class)));
                     BasicSession session =
-                        new BasicSession(user + "-1", user, principal, REMOTE_HOST, 42L, 0);
+                            new BasicSession(user + "-1", user, principal, REMOTE_HOST, 42L, 0);
                     will(returnValue(session));
-                    
+
                     atLeast(1).of(prefixGenerator).createPrefix(session);
                     will(returnValue("[USER:'bla', HOST:'remote-host']"));
                 }
@@ -153,9 +152,11 @@ public class DefaultSessionManagerTest
         assertEquals(
                 "INFO  OPERATION.DefaultSessionManager - "
                         + "LOGIN: User 'bla' has been successfully authenticated from host 'remote-host'. Session token: '"
-                        + token + "'." + OSUtilities.LINE_SEPARATOR
-                        + "INFO  AUTH.DefaultSessionManager - [USER:'bla', HOST:'remote-host']: login", logRecorder
-                        .getLogContent());
+                        + token
+                        + "'."
+                        + OSUtilities.LINE_SEPARATOR
+                        + "INFO  AUTH.DefaultSessionManager - [USER:'bla', HOST:'remote-host']: login",
+                logRecorder.getLogContent());
 
         context.assertIsSatisfied();
     }
@@ -176,15 +177,17 @@ public class DefaultSessionManagerTest
 
                     allowing(remoteHostProvider).getRemoteHost();
                     will(returnValue(REMOTE_HOST));
-                    
+
                     one(prefixGenerator).createPrefix(user, REMOTE_HOST);
                     will(returnValue("[USER:'bla', HOST:'remote-host']"));
                 }
             });
         assert null == sessionManager.tryToOpenSession(user, "blub");
-        assertEquals("WARN  OPERATION.DefaultSessionManager - "
-                + "LOGIN: User 'bla' failed to authenticate from host 'remote-host'."
-                + OSUtilities.LINE_SEPARATOR + "INFO  AUTH.DefaultSessionManager - [USER:'bla', HOST:'remote-host']: login   ...FAILED",
+        assertEquals(
+                "WARN  OPERATION.DefaultSessionManager - "
+                        + "LOGIN: User 'bla' failed to authenticate from host 'remote-host'."
+                        + OSUtilities.LINE_SEPARATOR
+                        + "INFO  AUTH.DefaultSessionManager - [USER:'bla', HOST:'remote-host']: login   ...FAILED",
                 logRecorder.getLogContent());
 
         context.assertIsSatisfied();
@@ -234,7 +237,6 @@ public class DefaultSessionManagerTest
                 }
             });
 
-        
         sessionManager = createSessionManager(0);
         final String sessionToken = sessionManager.tryToOpenSession("bla", "blub");
         assert sessionToken.length() > 0;
@@ -254,10 +256,14 @@ public class DefaultSessionManagerTest
         {
             assertExceptionMessageForInvalidSessionToken(e);
         }
-        assertEquals("INFO  OPERATION.DefaultSessionManager - " + "LOGOUT: Expiring session '"
-                + sessionToken + "' for user 'bla' after 0 minutes of inactivity."
-                + OSUtilities.LINE_SEPARATOR + "INFO  AUTH.DefaultSessionManager - [USER:'bla', HOST:'remote-host']: session_expired  [inactive 0:00:00.000]", logRecorder
-                .getLogContent());
+        assertEquals(
+                "INFO  OPERATION.DefaultSessionManager - "
+                        + "LOGOUT: Expiring session '"
+                        + sessionToken
+                        + "' for user 'bla' after 0 minutes of inactivity."
+                        + OSUtilities.LINE_SEPARATOR
+                        + "INFO  AUTH.DefaultSessionManager - [USER:'bla', HOST:'remote-host']: session_expired  [inactive 0:00:00.000]",
+                logRecorder.getLogContent());
 
         context.assertIsSatisfied();
     }
