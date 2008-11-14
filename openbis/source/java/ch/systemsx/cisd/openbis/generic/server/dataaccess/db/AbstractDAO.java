@@ -88,7 +88,7 @@ public abstract class AbstractDAO extends HibernateDaoSupport
     }
 
     @Private
-    protected final void setDatabaseInstance(final DatabaseInstancePE databaseInstance)
+    public final void setDatabaseInstance(final DatabaseInstancePE databaseInstance)
     {
         this.databaseInstance = databaseInstance;
     }
