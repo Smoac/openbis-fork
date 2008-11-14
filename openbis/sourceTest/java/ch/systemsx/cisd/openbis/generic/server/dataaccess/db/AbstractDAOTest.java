@@ -59,6 +59,7 @@ public abstract class AbstractDAOTest extends AbstractTransactionalTestNGSpringC
         System.setProperty("database.kind", "test");
         System.setProperty("script-folder", "sourceTest");
         System.setProperty("hibernate.search.index-mode", "NO_INDEX");
+        System.setProperty("hibernate.search.index-base", "sourceTest/lucene/indices");
         System.setProperty("mass-upload-folder", "sourceTest/sql/postgresql");
     }
 
@@ -187,7 +188,7 @@ public abstract class AbstractDAOTest extends AbstractTransactionalTestNGSpringC
     {
         return getPerson("test");
     }
-    
+
     protected PersonPE getPerson(String userID)
     {
         PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(userID);

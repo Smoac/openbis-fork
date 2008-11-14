@@ -17,13 +17,18 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
@@ -32,12 +37,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
  * @author Christian Ribeaud
  */
 @Test(groups =
-    { "db", "hibernateSearch", "broken" })
-// TODO 2008-11-04, Christian Ribeaud: Put this test in the broken till we have a good strategy how
-// to include the Hibernate Search tests.
+    { "db", "hibernateSearch" })
 public final class HibernateSearchDAOTest extends AbstractDAOTest
 {
-
     private final static void checkSamples(final List<SamplePE> samples, final int size,
             final String code, final String lastName)
     {
@@ -50,26 +52,83 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         }
     }
 
+    @SuppressWarnings("unused")
+    @DataProvider
+    private final static Object[][] getC11FieldsAndTerm()
+    {
+        return new Object[][]
+            {
+                { new String[]
+                    { "code" }, "C11" },
+                { new String[]
+                    { "code" }, "code:C11" },
+                { new String[]
+                    { "code", "registrator.lastName" }, "code:C11 AND registrator.lastName:Doe" },
+                { new String[]
+                    { "code", "registrator.lastName" }, "code:C11 AND registrator.lastName:d*" },
+                { new String[]
+                    { "code", "registrator.lastName" }, "code:C11 AND registrator.lastName:*oe" } };
+    }
+
     @Test
-    public final void testSearchEntitiesByTermForC11()
+    public final void testSearchEntitiesByTermFailed()
+    {
+        final IHibernateSearchDAO hibernateSearchDAO = daoFactory.getHibernateSearchDAO();
+        boolean fail = true;
+        try
+        {
+            hibernateSearchDAO.searchEntitiesByTerm(null, null, null);
+        } catch (final AssertionError ex)
+        {
+            fail = false;
+        }
+        assertFalse(fail);
+        fail = true;
+        try
+        {
+            hibernateSearchDAO.searchEntitiesByTerm(MaterialPE.class,
+                    ArrayUtils.EMPTY_STRING_ARRAY, "");
+        } catch (final AssertionError ex)
+        {
+            fail = false;
+        }
+        assertFalse(fail);
+    }
+
+    @Test(dataProvider = "getC11FieldsAndTerm")
+    public final void testSearchEntitiesByTermForSampleC11(final String[] fields, final String term)
     {
         final IHibernateSearchDAO hibernateSearchDAO = daoFactory.getHibernateSearchDAO();
         final String code = "C11";
-        final String lastName = "System User";
-        final int size = 69;
-        List<SamplePE> samples =
-                hibernateSearchDAO.searchEntitiesByTerm(SamplePE.class, new String[]
-                    { "code" }, "C11");
-        checkSamples(samples, size, code, lastName);
-        samples = hibernateSearchDAO.searchEntitiesByTerm(SamplePE.class, new String[]
-            { "code" }, "code:C11");
-        checkSamples(samples, size, code, lastName);
-        samples = hibernateSearchDAO.searchEntitiesByTerm(SamplePE.class, new String[]
-            { "code", "registrator.lastName" }, "code:C11 AND registrator.lastName:System User");
-        checkSamples(samples, size, code, lastName);
-        samples = hibernateSearchDAO.searchEntitiesByTerm(SamplePE.class, new String[]
-            { "code", "registrator.lastName" }, "code:C11 AND registrator.lastName:System*");
+        final String lastName = "Doe";
+        final int size = 3;
+        final List<SamplePE> samples =
+                hibernateSearchDAO.searchEntitiesByTerm(SamplePE.class, fields, term);
         checkSamples(samples, size, code, lastName);
     }
 
+    @Test
+    public final void testSearchEntitiesByTermForExperiment()
+    {
+        final IHibernateSearchDAO hibernateSearchDAO = daoFactory.getHibernateSearchDAO();
+        final List<ExperimentPE> experiments =
+                hibernateSearchDAO.searchEntitiesByTerm(ExperimentPE.class, new String[]
+                    { "code" }, "exp");
+        assertEquals(2, experiments.size());
+        assertEquals("EXP-X", experiments.get(0).getCode());
+        assertEquals("EXP-REUSE", experiments.get(1).getCode());
+    }
+
+    @Test
+    public final void testSearchEntitiesByTermForMaterial()
+    {
+        final IHibernateSearchDAO hibernateSearchDAO = daoFactory.getHibernateSearchDAO();
+        final List<MaterialPE> experiments =
+                hibernateSearchDAO.searchEntitiesByTerm(MaterialPE.class, new String[]
+                    { "materialProperties.value", "materialProperties.vocabularyTerm.code" },
+                        "adenovirus");
+        assertEquals(2, experiments.size());
+        assertEquals("AD3", experiments.get(0).getCode());
+        assertEquals("AD5", experiments.get(1).getCode());
+    }
 }

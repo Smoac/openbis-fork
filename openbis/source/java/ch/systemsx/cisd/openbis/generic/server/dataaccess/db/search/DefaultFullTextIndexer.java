@@ -46,11 +46,15 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
     /**
      * It is critical that <code>batchSize</code> matches
      * <code>hibernate.search.worker.batch_size</code>.
+     * <p>
+     * Default value (meaning <i>unspecified</i>) is <code>0</code>.
+     * </p>
      */
     private final int batchSize;
 
     DefaultFullTextIndexer(final int batchSize)
     {
+        assert batchSize > -1 : "Batch size can not be negative.";
         this.batchSize = batchSize;
     }
 
@@ -77,7 +81,7 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
                 operationLog.debug(String.format("Indexing entity '%s'."));
             }
             fullTextSession.index(object);
-            if (index % batchSize == 0)
+            if (batchSize > 0 && index % batchSize == 0)
             {
                 hibernateSession.clear();
             }
