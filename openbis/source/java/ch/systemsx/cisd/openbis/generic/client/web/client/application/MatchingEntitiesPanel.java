@@ -47,9 +47,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
  */
 public class MatchingEntitiesPanel extends LayoutContainer
 {
-    private static final String PREFIX = "global-search_";
+    static final String PREFIX = GenericConstants.ID_PREFIX + "matching-entities-panel_";
 
-    static final String ID = GenericConstants.ID_PREFIX + PREFIX;
+    static final String GRID_ID = PREFIX + "grid";
 
     private final IViewContext<?> viewContext;
 
@@ -57,7 +57,7 @@ public class MatchingEntitiesPanel extends LayoutContainer
             final List<MatchingEntity> matchingEntities)
     {
         this.viewContext = viewContext;
-        setId(ID + XDOM.getUniqueId());
+        setId(PREFIX + XDOM.getUniqueId());
         setLayout(new FitLayout());
         add(createGrid(matchingEntities));
     }
@@ -75,6 +75,7 @@ public class MatchingEntitiesPanel extends LayoutContainer
         final ListStore<MatchingEntityModel> store = new ListStore<MatchingEntityModel>();
         store.add(MatchingEntityModel.convert(matchingEntities));
         final Grid<MatchingEntityModel> grid = new Grid<MatchingEntityModel>(store, columnModel);
+        grid.setId(GRID_ID);
         grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         grid.addListener(Events.CellDoubleClick, new Listener<GridEvent>()
             {

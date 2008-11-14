@@ -16,8 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
@@ -31,9 +35,23 @@ final class SearchCommand extends AbstractDefaultTestCommand
 {
     private final String searchString;
 
+    /**
+     * The entity selected in the entity chooser.
+     * <p>
+     * Default value is 'All'.
+     * </p>
+     */
+    private final String selectedEntity;
+
     SearchCommand(final String searchString)
     {
-        super(SessionContextCallback.class);
+        this(null, searchString);
+    }
+
+    SearchCommand(final String selectedEntityOrNull, final String searchString)
+    {
+        super(EntityChooser.ListSearchableEntities.class);
+        this.selectedEntity = selectedEntityOrNull == null ? "All" : selectedEntityOrNull;
         this.searchString = searchString;
     }
 
@@ -47,6 +65,11 @@ final class SearchCommand extends AbstractDefaultTestCommand
                 GWTTestUtil.getTextFieldWithID(SearchWidget.TEXT_FIELD_ID);
         textField.setValue(searchString);
         assertEquals(searchString, textField.getValue());
+        final ComboBox<ModelData> comboBox =
+                GWTTestUtil.getComboBoxWithID(SearchWidget.ENTITY_CHOOSER_ID);
+        GWTUtils.setSelectedItem(comboBox, ModelDataPropertyNames.DESCRIPTION, selectedEntity);
+        assertEquals(selectedEntity, comboBox.getSelection().get(0).get(
+                ModelDataPropertyNames.DESCRIPTION));
         GWTTestUtil.clickButtonWithID(SearchWidget.SUBMIT_BUTTON_ID);
     }
 

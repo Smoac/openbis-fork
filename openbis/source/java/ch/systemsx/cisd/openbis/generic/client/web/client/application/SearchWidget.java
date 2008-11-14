@@ -166,11 +166,10 @@ final class SearchWidget extends LayoutContainer
     // Helper classes
     //
 
-    private final class ListMatchingEntitiesAsyncCallback extends
+    public final class ListMatchingEntitiesAsyncCallback extends
             AbstractAsyncCallback<List<MatchingEntity>>
     {
-        private ListMatchingEntitiesAsyncCallback(
-                final IViewContext<IGenericClientServiceAsync> viewContext)
+        ListMatchingEntitiesAsyncCallback(final IViewContext<IGenericClientServiceAsync> viewContext)
         {
             super(viewContext);
         }

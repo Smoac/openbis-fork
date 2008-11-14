@@ -67,24 +67,34 @@ final class EntityChooser extends ComboBox<SearchableEntityModel>
     {
         super.onRender(parent, index);
         genericContext.getService().listSearchableEntities(
-                new AbstractAsyncCallback<List<SearchableEntity>>(genericContext)
-                    {
-
-                        //
-                        // AbstractAsyncCallback
-                        //
-
-                        @Override
-                        protected void process(final List<SearchableEntity> result)
-                        {
-                            final ListStore<SearchableEntityModel> searchableEntityStore =
-                                    getStore();
-                            searchableEntityStore.removeAll();
-                            searchableEntityStore
-                                    .add(SearchableEntityModel.NULL_SEARCHABLE_ENTITY_MODEL);
-                            searchableEntityStore.add(SearchableEntityModel.convert(result));
-                            setValue(searchableEntityStore.getAt(0));
-                        }
-                    });
+                new ListSearchableEntities(genericContext));
     }
+
+    //
+    // Helper classes
+    //
+
+    public final class ListSearchableEntities extends AbstractAsyncCallback<List<SearchableEntity>>
+    {
+
+        ListSearchableEntities(final IViewContext<?> viewContext)
+        {
+            super(viewContext);
+        }
+
+        //
+        // AbstractAsyncCallback
+        //
+
+        @Override
+        protected final void process(final List<SearchableEntity> result)
+        {
+            final ListStore<SearchableEntityModel> searchableEntityStore = getStore();
+            searchableEntityStore.removeAll();
+            searchableEntityStore.add(SearchableEntityModel.NULL_SEARCHABLE_ENTITY_MODEL);
+            searchableEntityStore.add(SearchableEntityModel.convert(result));
+            setValue(searchableEntityStore.getAt(0));
+        }
+    }
+
 }

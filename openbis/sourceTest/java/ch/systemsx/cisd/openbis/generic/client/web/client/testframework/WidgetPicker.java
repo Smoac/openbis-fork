@@ -34,6 +34,7 @@ public class WidgetPicker implements IWidgetHandler<Widget>
      */
     public WidgetPicker(final String id)
     {
+        assert id != null : "Unspecified widget id.";
         this.id = id;
     }
 
@@ -45,13 +46,19 @@ public class WidgetPicker implements IWidgetHandler<Widget>
         return pickedWidget;
     }
 
+    protected boolean acceptWidgetId(final String widgetIdOrNull)
+    {
+        return id.equals(widgetIdOrNull);
+    }
+
     //
     // IWidgetHandler
     //
 
     public final boolean handle(final Widget widgetOrNull)
     {
-        if (id.equals(GWTTestUtil.tryToGetWidgetID(widgetOrNull)))
+        final String widgetId = GWTTestUtil.tryToGetWidgetID(widgetOrNull);
+        if (acceptWidgetId(widgetId))
         {
             pickedWidget = widgetOrNull;
             return true;

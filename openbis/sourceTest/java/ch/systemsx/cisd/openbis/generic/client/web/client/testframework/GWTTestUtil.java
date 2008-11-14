@@ -50,10 +50,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
  * 
  * @author Franz-Josef Elmer
  */
-public class GWTTestUtil
+public final class GWTTestUtil
 {
     private GWTTestUtil()
     {
+        // Can not be instantiated.
     }
 
     /**
@@ -162,7 +163,7 @@ public class GWTTestUtil
      */
     public final static void selectTabItemWithId(final String tabPanelId, final String tabItemId)
     {
-        final TabPanel tabPanel = GWTTestUtil.getTabPanelWithID(tabPanelId);
+        final TabPanel tabPanel = getTabPanelWithID(tabPanelId);
         final TabItem tabItem = tabPanel.findItem(tabItemId, false);
         Assert.assertTrue("No tab item with id '" + tabItemId + "' could be found.",
                 tabItem != null);

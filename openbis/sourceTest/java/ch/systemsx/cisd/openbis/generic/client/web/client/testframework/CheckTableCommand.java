@@ -53,7 +53,8 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
      * Creates an instance for the specified table or grid ID and the specified class of the
      * triggering call-back object.
      */
-    public CheckTableCommand(final String tableID, final Class<? extends AsyncCallback<?>> callbackClass)
+    public CheckTableCommand(final String tableID,
+            final Class<? extends AsyncCallback<?>> callbackClass)
     {
         super(callbackClass);
         this.tableID = tableID;

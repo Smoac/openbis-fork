@@ -16,8 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import static ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames.IDENTIFIER;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.SearchWidget.ListMatchingEntitiesAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 
 /**
  * A {@link AbstractGWTTestCase} extension to test searching.
@@ -26,10 +31,42 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Abstract
  */
 public class SearchTest extends AbstractGWTTestCase
 {
-    public final void testSearch()
+    private final static CheckTableCommand createCheckTableCommandForAll()
+    {
+        final CheckTableCommand checkTableCommand =
+                new CheckTableCommand(MatchingEntitiesPanel.GRID_ID,
+                        ListMatchingEntitiesAsyncCallback.class).expectedSize(2);
+        checkTableCommand.expectedRow(new Row().withCell(IDENTIFIER, "CISD:/MP"));
+        checkTableCommand.expectedRow(new Row().withCell(IDENTIFIER, "CISD:/CISD/EMPTY-MP"));
+        return checkTableCommand;
+    }
+
+    private final static CheckTableCommand createCheckTableCommandForExperiment()
+    {
+        final CheckTableCommand checkTableCommand =
+                new CheckTableCommand(MatchingEntitiesPanel.GRID_ID,
+                        ListMatchingEntitiesAsyncCallback.class).expectedSize(5);
+        checkTableCommand.expectedRow(new Row().withCell(IDENTIFIER, "CISD:/CISD/NEMO/EXP10"));
+        checkTableCommand.expectedRow(new Row().withCell(IDENTIFIER, "CISD:/CISD/NEMO/EXP11"));
+        checkTableCommand.expectedRow(new Row().withCell(IDENTIFIER, "CISD:/CISD/NEMO/EXP1"));
+        return checkTableCommand;
+    }
+
+    public final void testAllSearch()
     {
         remoteConsole.prepare(new Login("test", "a"));
         remoteConsole.prepare(new SearchCommand("MP"));
+        remoteConsole.prepare(createCheckTableCommandForAll());
+
+        remoteConsole.finish(10000);
+        client.onModuleLoad();
+    }
+
+    public final void testExperimentSearch()
+    {
+        remoteConsole.prepare(new Login("test", "a"));
+        remoteConsole.prepare(new SearchCommand("Experiment", "John"));
+        remoteConsole.prepare(createCheckTableCommandForExperiment());
 
         remoteConsole.finish(10000);
         client.onModuleLoad();
