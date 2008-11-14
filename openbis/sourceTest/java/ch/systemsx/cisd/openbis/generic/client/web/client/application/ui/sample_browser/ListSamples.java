@@ -33,7 +33,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestU
  */
 public final class ListSamples extends AbstractDefaultTestCommand
 {
-
     private final String sampleTypeNameOrNull;
 
     private final boolean includeShared;
@@ -51,7 +50,6 @@ public final class ListSamples extends AbstractDefaultTestCommand
         this.sampleTypeNameOrNull = sampleTypeNameOrNull;
         addCallbackClass(GroupSelectionWidget.ListGroupsCallback.class);
         addCallbackClass(SampleTypeSelectionWidget.ListSampleTypesCallback.class);
-
     }
 
     //

@@ -67,7 +67,7 @@ final class SampleBrowserGrid extends LayoutContainer
 {
     private static final int PAGE_SIZE = 50;
 
-    private static final String PREFIX = "sample-browser-grid";
+    private static final String PREFIX = "sample-browser-grid_";
 
     static final String GRID_ID = GenericConstants.ID_PREFIX + PREFIX + "grid";
 

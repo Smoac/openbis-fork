@@ -56,6 +56,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
  */
 final class SearchWidget extends LayoutContainer
 {
+    private static final String PREFIX = GenericConstants.ID_PREFIX + "search-widget_";
+
+    static final String TEXT_FIELD_ID = PREFIX + "text-field";
+
+    static final String SUBMIT_BUTTON_ID = PREFIX + "submit-button";
+
+    static final String ENTITY_CHOOSER_ID = PREFIX + "entity-chooser";
+
     private final EntityChooser entityChooser;
 
     private final TextField<String> textField;
@@ -85,13 +93,19 @@ final class SearchWidget extends LayoutContainer
                 }
             };
         textField = createTextField();
-        entityChooser = new EntityChooser(viewContext);
-        entityChooser.setStyleAttribute("marginRight", "5px");
+        entityChooser = createEntityChooser();
         searchButton = createSearchButton();
-        searchButton.setStyleAttribute("marginLeft", "5px");
         add(entityChooser);
         add(textField);
         add(searchButton);
+    }
+
+    private final EntityChooser createEntityChooser()
+    {
+        final EntityChooser comboBox = new EntityChooser(viewContext);
+        comboBox.setStyleAttribute("marginRight", "5px");
+        comboBox.setId(ENTITY_CHOOSER_ID);
+        return comboBox;
     }
 
     private final static TableRowLayout createLayout()
@@ -106,6 +120,7 @@ final class SearchWidget extends LayoutContainer
     private final TextField<String> createTextField()
     {
         final TextField<String> field = new TextField<String>();
+        field.setId(TEXT_FIELD_ID);
         field.setWidth(200);
         field.addKeyListener(enterKeyListener);
         return field;
@@ -128,6 +143,8 @@ final class SearchWidget extends LayoutContainer
     {
         final Button button =
                 new Button(viewContext.getMessageProvider().getMessage("search_button"));
+        button.setId(SUBMIT_BUTTON_ID);
+        button.setStyleAttribute("marginLeft", "5px");
         button.addSelectionListener(new SelectionListener<ComponentEvent>()
             {
 

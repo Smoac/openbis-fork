@@ -23,31 +23,31 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ICodeProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IInvalidationProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 
-
 /**
- * Abstract superclass of a generic {@link IProperty} which implements convenient
- * property value expectations.
- * It uses a fluent API approach for its methods to prepare expectations.
- *
+ * Abstract superclass of a generic {@link IProperty} which implements convenient property value
+ * expectations. It uses a fluent API approach for its methods to prepare expectations.
+ * 
  * @author Franz-Josef Elmer
  */
 public abstract class AbstractProperty<C extends IPropertyChecker<?>> implements IProperty<C>
 {
     private final String key;
+
     protected final C checker;
+
     protected final String message;
 
     /**
      * Creates an instance with the specified property name for the specified checker.
      */
-    protected AbstractProperty(String key, C checker)
+    protected AbstractProperty(final String key, final C checker)
     {
         this.key = key;
         this.checker = checker;
         message = "Property '" + key + "':";
     }
 
-    public C by(IValueAssertion<?> valueAssertion)
+    public C by(final IValueAssertion<?> valueAssertion)
     {
         checker.property(key, valueAssertion);
         return checker;
@@ -60,24 +60,23 @@ public abstract class AbstractProperty<C extends IPropertyChecker<?>> implements
     {
         return by(new IValueAssertion<Object>()
             {
-                public void assertValue(Object value)
+                public void assertValue(final Object value)
                 {
-                    Assert.assertEquals(message, expectedValue, String.valueOf(value));        
+                    Assert.assertEquals(message, expectedValue, String.valueOf(value));
                 }
             });
     }
-    
+
     /**
-     * Sets assertion that the toString()ed property value matches the specified regular
-     * expression.
+     * Sets assertion that the toString()ed property value matches the specified regular expression.
      */
     public C matchingPattern(final String pattern)
     {
         return by(new IValueAssertion<Object>()
             {
-                public void assertValue(Object value)
+                public void assertValue(final Object value)
                 {
-                    String valueAsString = String.valueOf(value);
+                    final String valueAsString = String.valueOf(value);
                     if (valueAsString.matches(pattern) == false)
                     {
                         Assert.fail(message + " expected pattern <" + pattern + "> but was <"
@@ -94,74 +93,74 @@ public abstract class AbstractProperty<C extends IPropertyChecker<?>> implements
     {
         return by(new IValueAssertion<Object>()
             {
-                public void assertValue(Object value)
+                public void assertValue(final Object value)
                 {
                     Assert.assertEquals(message, expectedValue, value);
                 }
             });
     }
-    
+
     /**
-     * Sets assertion that the property value is of type {@link ICodeProvider} with a code
-     * equals the specified code.
+     * Sets assertion that the property value is of type {@link ICodeProvider} with a code equals
+     * the specified code.
      */
     public C asCode(final String expectedCode)
     {
         return by(new IValueAssertion<ICodeProvider>()
             {
-                public void assertValue(ICodeProvider code)
+                public void assertValue(final ICodeProvider code)
                 {
                     Assert.assertEquals(message, expectedCode, code.getCode());
                 }
             });
     }
-    
+
     /**
-     * Sets assertion that the property value is of type {@link IInvalidationProvider} with 
-     * no {@link Invalidation} object.
+     * Sets assertion that the property value is of type {@link IInvalidationProvider} with no
+     * {@link Invalidation} object.
      */
     public C asValidEntity()
     {
         return by(new IValueAssertion<IInvalidationProvider>()
             {
-                public void assertValue(IInvalidationProvider provider)
+                public void assertValue(final IInvalidationProvider provider)
                 {
-                    Invalidation invalidation = provider.getInvalidation();
+                    final Invalidation invalidation = provider.getInvalidation();
                     Assert.assertNull(message + " expected to be a valid entity.", invalidation);
                 }
             });
     }
 
     /**
-     * Sets assertion that the property value is of type {@link IInvalidationProvider} with 
-     * an {@link Invalidation} object.
+     * Sets assertion that the property value is of type {@link IInvalidationProvider} with an
+     * {@link Invalidation} object.
      */
     public C asInvalidEntity()
     {
         return by(new IValueAssertion<IInvalidationProvider>()
             {
-                public void assertValue(IInvalidationProvider provider)
+                public void assertValue(final IInvalidationProvider provider)
                 {
-                    Invalidation invalidation = provider.getInvalidation();
+                    final Invalidation invalidation = provider.getInvalidation();
                     Assert.assertNotNull(message + " expected to be an invalid entity.",
                             invalidation);
                 }
             });
     }
-    
+
     /**
-     * Sets assertion that the property value is of type {@link EntityProperty} with a value
-     * equals the specified string.
+     * Sets assertion that the property value is of type {@link EntityProperty} with a value equals
+     * the specified string.
      */
     public C asProperty(final String expectedValue)
     {
         return by(new IValueAssertion<EntityProperty<?, ?>>()
             {
-                public void assertValue(EntityProperty<?, ?> value)
+                public void assertValue(final EntityProperty<?, ?> value)
                 {
                     Assert.assertEquals(message, expectedValue, value.getValue());
                 }
             });
     }
-    
+
 }

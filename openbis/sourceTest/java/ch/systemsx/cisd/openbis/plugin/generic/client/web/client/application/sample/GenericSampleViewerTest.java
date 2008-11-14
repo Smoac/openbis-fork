@@ -32,14 +32,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IValueAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 
 /**
+ * A {@link AbstractGWTTestCase} extension to test {@link GenericSampleViewer}.
  * 
- *
  * @author Franz-Josef Elmer
  */
 public class GenericSampleViewerTest extends AbstractGWTTestCase
 {
     private static final String GROUP_IDENTIFIER = "CISD:/CISD";
+
     private static final String MASTER_PLATE_EXAMPLE = "MP1-MIXED";
+
     private static final String CELL_PLATE_EXAMPLE = "3VCP1";
 
     public final void testShowMasterPlateView()
@@ -57,7 +59,6 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                 "DP1-B [DILUTION_PLATE]");
         checkSample.property("Plate Geometry").asProperty("384_WELLS_16X24");
 
-        
         CheckTableCommand componentsTable = checkSample.componentsTable().expectedSize(4);
         componentsTable.expectedRow(new Row().withCell(CODE, "A01"));
         componentsTable.expectedRow(new Row().withCell(CODE, "A02"));
@@ -68,9 +69,9 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
 
         remoteConsole.finish(60000);
         client.onModuleLoad();
-        
+
     }
-    
+
     public final void testShowCellPlateView()
     {
         remoteConsole.prepare(new Login("test", "a"));
@@ -95,8 +96,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         checkSample.property("Dilution Plate").asInvalidEntity();
         checkSample.property("Master Plate").asCode("MP001-1");
         checkSample.property("Master Plate").asInvalidEntity();
-        
-        
+
         checkSample.componentsTable().expectedSize(0);
         CheckTableCommand dataTable = checkSample.dataTable().expectedSize(2);
         dataTable.expectedRow(new Row().withCell(CODE, "20081105092158673-1").withCell(
@@ -104,10 +104,9 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         dataTable.expectedRow(new Row().withCell(CODE, "20081105092159188-3").withCell(LOCATION,
                 "analysis/result"));
         remoteConsole.prepare(checkSample);
-        
+
         remoteConsole.finish(60000);
         client.onModuleLoad();
-        
     }
 
 }

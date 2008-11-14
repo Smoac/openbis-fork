@@ -38,12 +38,6 @@ public abstract class AbstractGWTTestCase extends GWTTestCase
 
     protected Client client;
 
-    @Override
-    public String getModuleName()
-    {
-        return "ch.systemsx.cisd.openbis.OpenBIS";
-    }
-
     /**
      * Terminates test. Wrapper of {@link #finishTest()}. Will be used in {@link RemoteConsole}.
      */
@@ -61,6 +55,24 @@ public abstract class AbstractGWTTestCase extends GWTTestCase
         delayTestFinish(timeoutMillis);
     }
 
+    protected void setUpTest() throws Exception
+    {
+    }
+
+    protected void tearDownTest() throws Exception
+    {
+    }
+
+    //
+    // GWTTestCase
+    //
+
+    @Override
+    public final String getModuleName()
+    {
+        return "ch.systemsx.cisd.openbis.OpenBIS";
+    }
+
     @Override
     protected final void gwtSetUp() throws Exception
     {
@@ -69,10 +81,6 @@ public abstract class AbstractGWTTestCase extends GWTTestCase
         client = new Client();
         GWTUtils.testing();
         setUpTest();
-    }
-
-    protected void setUpTest() throws Exception
-    {
     }
 
     @Override
@@ -96,10 +104,6 @@ public abstract class AbstractGWTTestCase extends GWTTestCase
                 });
         }
         tearDownTest();
-    }
-
-    protected void tearDownTest() throws Exception
-    {
     }
 
 }

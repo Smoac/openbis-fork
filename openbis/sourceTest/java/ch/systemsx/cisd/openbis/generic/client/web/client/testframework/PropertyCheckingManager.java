@@ -40,7 +40,7 @@ public class PropertyCheckingManager extends Assert
     /**
      * Adds for the property with specified name the specified value assertion.
      */
-    public void addExcpectedProperty(String name, IValueAssertion<?> valueAssertion)
+    public void addExcpectedProperty(final String name, final IValueAssertion<?> valueAssertion)
     {
         expectedProperties.put(name, valueAssertion);
     }
@@ -48,12 +48,12 @@ public class PropertyCheckingManager extends Assert
     /**
      * Checks the assertion for the properties of a {@link PropertyGrid} with specified widget ID.
      */
-    public void assertPropertiesOf(String widgetID)
+    public void assertPropertiesOf(final String widgetID)
     {
-        Widget widget = GWTTestUtil.getWidgetWithID(widgetID);
+        final Widget widget = GWTTestUtil.getWidgetWithID(widgetID);
         assertTrue("Expected WidgetComponent instead of " + widget.getClass(),
                 widget instanceof WidgetComponent);
-        Widget wrappedWidget = ((WidgetComponent) widget).getWidget();
+        final Widget wrappedWidget = ((WidgetComponent) widget).getWidget();
         assertTrue("Expected PropertyGrid instead of " + wrappedWidget.getClass(),
                 wrappedWidget instanceof PropertyGrid);
         assertProperties(((PropertyGrid) wrappedWidget).getProperties());
@@ -63,17 +63,17 @@ public class PropertyCheckingManager extends Assert
     /**
      * Checks the assertion for the specified properties.
      */
-    public void assertProperties(Map<String, ?> actualProperties)
+    public void assertProperties(final Map<String, ?> actualProperties)
     {
-        for (Map.Entry<String, IValueAssertion> expectedProperty : expectedProperties.entrySet())
+        for (final Map.Entry<String, IValueAssertion> expectedProperty : expectedProperties.entrySet())
         {
-            String key = expectedProperty.getKey();
+            final String key = expectedProperty.getKey();
             assertTrue("Expected property not found: " + key, actualProperties.containsKey(key));
-            Object value = actualProperties.get(key);
+            final Object value = actualProperties.get(key);
             try
             {
                 expectedProperty.getValue().assertValue(value);
-            } catch (ClassCastException e)
+            } catch (final ClassCastException e)
             {
                 throw new IllegalArgumentException("Property '" + key
                         + "' is not of expected type: " + value);

@@ -28,15 +28,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Abstract
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
 /**
+ * A {@link AbstractDefaultTestCommand} extension for showing a sample of given code.
  * 
- *
  * @author Franz-Josef Elmer
  */
-public class ShowSample extends AbstractDefaultTestCommand
+public final class ShowSample extends AbstractDefaultTestCommand
 {
     private final String code;
 
-    public ShowSample(String code)
+    public ShowSample(final String code)
     {
         this.code = code;
         addCallbackClass(SampleBrowserGrid.ListSamplesCallback.class);
@@ -56,16 +56,16 @@ public class ShowSample extends AbstractDefaultTestCommand
         final ListStore<SampleModel> store = table.getStore();
         for (int i = 0; i < store.getCount(); i++)
         {
-            SampleModel row = store.getAt(i);
+            final SampleModel row = store.getAt(i);
             if (code.equals(row.get(ModelDataPropertyNames.CODE)))
             {
-                GridEvent gridEvent = new GridEvent(table);
+                final GridEvent gridEvent = new GridEvent(table);
                 gridEvent.rowIndex = i;
                 return gridEvent;
             }
         }
-       fail("Sample '" + code + "' not found in store with " + store.getCount() + " rows.");
-       return null; // just to make the compiler happy
+        fail("Sample '" + code + "' not found in store with " + store.getCount() + " rows.");
+        return null; // just to make the compiler happy
     }
 
 }

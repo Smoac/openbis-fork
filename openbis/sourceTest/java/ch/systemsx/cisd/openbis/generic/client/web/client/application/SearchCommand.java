@@ -14,29 +14,27 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.SessionContextCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.LeftMenu;
+import com.extjs.gxt.ui.client.widget.form.TextField;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
 /**
- * A {@link AbstractDefaultTestCommand} extension for choosing a roles menu element.
+ * A {@link AbstractDefaultTestCommand} extension which triggers a search just after a login has
+ * been performed with specified parameters.
  * 
- * @author Izabela Adamczyk
+ * @author Christian Ribeaud
  */
-public final class OpenTab extends AbstractDefaultTestCommand
+final class SearchCommand extends AbstractDefaultTestCommand
 {
-    private final String category;
+    private final String searchString;
 
-    private final String option;
-
-    public OpenTab(final String category, final String option)
+    SearchCommand(final String searchString)
     {
         super(SessionContextCallback.class);
-        this.category = category;
-        this.option = option;
+        this.searchString = searchString;
     }
 
     //
@@ -45,7 +43,11 @@ public final class OpenTab extends AbstractDefaultTestCommand
 
     public final void execute()
     {
-        GWTTestUtil.selectMenuCategoryWithID(LeftMenu.ID, category);
-        GWTTestUtil.selectMenuWithID(LeftMenu.ID, category, option);
+        final TextField<String> textField =
+                GWTTestUtil.getTextFieldWithID(SearchWidget.TEXT_FIELD_ID);
+        textField.setValue(searchString);
+        assertEquals(searchString, textField.getValue());
+        GWTTestUtil.clickButtonWithID(SearchWidget.SUBMIT_BUTTON_ID);
     }
+
 }

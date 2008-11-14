@@ -48,8 +48,8 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
                 CategoriesBuilder.MENU_ELEMENTS.LIST));
         remoteConsole.prepare(new CreateGroup(groupCode));
         remoteConsole.prepare(new CheckGroup(groupCode.toUpperCase()));
-        remoteConsole.finish(20000);
 
+        remoteConsole.finish(20000);
         client.onModuleLoad();
     }
 
@@ -62,8 +62,8 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
                 CategoriesBuilder.MENU_ELEMENTS.LIST));
         remoteConsole.prepare(new CreatePerson(userId));
         remoteConsole.prepare(new CheckPerson(userId));
-        remoteConsole.finish(20000);
 
+        remoteConsole.finish(20000);
         client.onModuleLoad();
     }
 
@@ -74,10 +74,10 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
                 CategoriesBuilder.MENU_ELEMENTS.LIST));
         remoteConsole.prepare(new CreateRole(TEST_GROUP.toUpperCase(), USER_ID,
                 RoleListBox.OBSERVER));
-        remoteConsole.prepare(
-                new CheckRole(TEST_GROUP.toUpperCase(), USER_ID, RoleListBox.OBSERVER));
-        remoteConsole.finish(20000);
+        remoteConsole
+                .prepare(new CheckRole(TEST_GROUP.toUpperCase(), USER_ID, RoleListBox.OBSERVER));
 
+        remoteConsole.finish(20000);
         client.onModuleLoad();
     }
 }

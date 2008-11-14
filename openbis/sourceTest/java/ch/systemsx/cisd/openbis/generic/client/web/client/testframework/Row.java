@@ -35,7 +35,7 @@ public class Row
      * @param columnID ID of the column to which the cell belongs.
      * @param value Expected value.
      */
-    public Row withCell(String columnID, Object value)
+    public Row withCell(final String columnID, final Object value)
     {
         columnIDValuesMap.put(columnID, value);
         return this;

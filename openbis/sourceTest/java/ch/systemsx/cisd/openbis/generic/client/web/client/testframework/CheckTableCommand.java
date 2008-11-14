@@ -27,9 +27,9 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
- * Command for checking the content (i.e. <code>ListStore</code>) of a table (i.e. <code>Grid</code>).
- * It uses a fluent API approach for its methods to prepare expectations.
- *
+ * Command for checking the content (i.e. <code>ListStore</code>) of a table (i.e.
+ * <code>Grid</code>). It uses a fluent API approach for its methods to prepare expectations.
+ * 
  * @author Franz-Josef Elmer
  */
 public class CheckTableCommand extends AbstractDefaultTestCommand
@@ -37,40 +37,41 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
     private final String tableID;
 
     private int expectedNumberOfRows = -1;
+
     private List<Row> expectedRows = new ArrayList<Row>();
 
     /**
      * Creates an instance for the specified table or grid ID.
      */
-    public CheckTableCommand(String tableID)
+    public CheckTableCommand(final String tableID)
     {
         super();
         this.tableID = tableID;
     }
 
     /**
-     * Creates an instance for the specified table or grid ID and the specified class
-     * of the triggering call-back object.
+     * Creates an instance for the specified table or grid ID and the specified class of the
+     * triggering call-back object.
      */
-    public CheckTableCommand(String tableID, Class<? extends AsyncCallback<?>> callbackClass)
+    public CheckTableCommand(final String tableID, final Class<? extends AsyncCallback<?>> callbackClass)
     {
         super(callbackClass);
         this.tableID = tableID;
     }
-    
+
     /**
      * Prepares this with the expectation upon the number of table rows.
      */
-    public CheckTableCommand expectedSize(int numberOfRows)
+    public CheckTableCommand expectedSize(final int numberOfRows)
     {
         this.expectedNumberOfRows = numberOfRows;
         return this;
     }
-    
+
     /**
      * Prepares this with the expectation upon a certain row to be appear in the table.
      */
-    public CheckTableCommand expectedRow(Row row)
+    public CheckTableCommand expectedRow(final Row row)
     {
         expectedRows.add(row);
         return this;
@@ -79,12 +80,12 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
     public void execute()
     {
         final ListStore<ModelData> store = getTableStore();
-        List<Row> matchedRows = new ArrayList<Row>();
-        for (Row expectedRow : expectedRows)
+        final List<Row> matchedRows = new ArrayList<Row>();
+        for (final Row expectedRow : expectedRows)
         {
             for (int i = 0; i < store.getCount(); i++)
             {
-                ModelData row = store.getAt(i);
+                final ModelData row = store.getAt(i);
                 if (match(expectedRow, row))
                 {
                     matchedRows.add(expectedRow);
@@ -95,8 +96,8 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
         expectedRows.removeAll(matchedRows);
         if (expectedRows.isEmpty() == false)
         {
-            StringBuffer buffer = new StringBuffer("Unmatched expected rows:");
-            for (Row expectedRow : expectedRows)
+            final StringBuffer buffer = new StringBuffer("Unmatched expected rows:");
+            for (final Row expectedRow : expectedRows)
             {
                 buffer.append('\n').append(expectedRow);
             }
@@ -108,9 +109,9 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
         }
     }
 
-    private boolean match(Row expectedRow, ModelData row)
+    private boolean match(final Row expectedRow, final ModelData row)
     {
-        for (Map.Entry<String, Object> entry : expectedRow.getColumnIDValuesMap().entrySet())
+        for (final Map.Entry<String, Object> entry : expectedRow.getColumnIDValuesMap().entrySet())
         {
             if (TestUtil.isEqual(row.get(entry.getKey()), entry.getValue()) == false)
             {
@@ -119,7 +120,7 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
         }
         return true;
     }
-    
+
     @SuppressWarnings("unchecked")
     private ListStore<ModelData> getTableStore()
     {
