@@ -139,6 +139,7 @@ final class GroupDAO extends AbstractDAO implements IGroupDAO
         group.setCode(CodeConverter.tryToDatabase(group.getCode()));
         final HibernateTemplate template = getHibernateTemplate();
         template.save(group);
+        template.flush();
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format("ADD: group '%s'.", group));
