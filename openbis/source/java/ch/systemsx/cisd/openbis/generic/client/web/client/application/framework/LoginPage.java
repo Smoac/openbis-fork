@@ -61,6 +61,6 @@ final class LoginPage extends LayoutContainer
         verticalPanel.add(new LoginWidget(viewContext));
 
         add(verticalPanel);
-
+        layout();
     }
 }

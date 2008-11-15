@@ -98,6 +98,7 @@ final class SearchWidget extends LayoutContainer
         add(entityChooser);
         add(textField);
         add(searchButton);
+        layout();
     }
 
     private final EntityChooser createEntityChooser()
