@@ -131,16 +131,26 @@ final class SearchWidget extends LayoutContainer
 
     private final void doSearch()
     {
-        final SearchableEntity selectedSearchableEntity =
+        final SearchableEntity selectedSearchableEntityOrNull =
                 entityChooser.tryGetSelectedSearchableEntity();
         final String queryText = textField.getValue();
         if (StringUtils.isBlank(queryText) == false)
         {
             searchButton.setEnabled(false);
-            viewContext.getService().listMatchingEntities(selectedSearchableEntity, queryText,
-                    new DefaultResultSetConfig<String>(),
-                    new ListMatchingEntitiesAsyncCallback(viewContext));
+            viewContext.getService().listMatchingEntities(
+                    selectedSearchableEntityOrNull,
+                    queryText,
+                    createResultSetConfig(),
+                    new ListMatchingEntitiesAsyncCallback(viewContext,
+                            selectedSearchableEntityOrNull, queryText));
         }
+    }
+
+    private final static DefaultResultSetConfig<String> createResultSetConfig()
+    {
+        final DefaultResultSetConfig<String> resultSetConfig = new DefaultResultSetConfig<String>();
+        resultSetConfig.setLimit(MatchingEntitiesPanel.PAGE_SIZE);
+        return resultSetConfig;
     }
 
     private final Button createSearchButton()
@@ -173,9 +183,23 @@ final class SearchWidget extends LayoutContainer
     public final class ListMatchingEntitiesAsyncCallback extends
             AbstractAsyncCallback<ResultSet<MatchingEntity>>
     {
-        ListMatchingEntitiesAsyncCallback(final IViewContext<IGenericClientServiceAsync> viewContext)
+        private final SearchableEntity searchableEntityOrNull;
+
+        private final String queryText;
+
+        ListMatchingEntitiesAsyncCallback(
+                final IViewContext<IGenericClientServiceAsync> viewContext,
+                final SearchableEntity searchableEntityOrNull, final String queryText)
         {
             super(viewContext);
+            this.searchableEntityOrNull = searchableEntityOrNull;
+            this.queryText = queryText;
+        }
+
+        @SuppressWarnings("unchecked")
+        private final IViewContext<IGenericClientServiceAsync> castViewContext()
+        {
+            return (IViewContext<IGenericClientServiceAsync>) viewContext;
         }
 
         //
@@ -192,7 +216,6 @@ final class SearchWidget extends LayoutContainer
         protected final void process(final ResultSet<MatchingEntity> result)
         {
             searchButton.enable();
-            final String queryText = textField.getValue();
             final List<MatchingEntity> entities = result.getList();
             if (entities.size() == 0)
             {
@@ -216,9 +239,12 @@ final class SearchWidget extends LayoutContainer
             final AppEvent<ContentPanel> event = new AppEvent<ContentPanel>(AppEvents.NAVI_EVENT);
             final String selectedText =
                     entityChooser.getValue().get(ModelDataPropertyNames.DESCRIPTION);
+            final MatchingEntitiesPanel matchingEntitiesPanel =
+                    new MatchingEntitiesPanel(castViewContext(), searchableEntityOrNull, queryText);
             event.setData(GenericConstants.ASSOCIATED_CONTENT_PANEL, new DefaultTabItem(viewContext
                     .getMessageProvider().getMessage("global_search", selectedText, queryText),
-                    new MatchingEntitiesPanel(viewContext, entities)));
+                    matchingEntitiesPanel, matchingEntitiesPanel));
+            matchingEntitiesPanel.setFirstResulSet(result);
             Dispatcher.get().dispatch(event);
         }
     }

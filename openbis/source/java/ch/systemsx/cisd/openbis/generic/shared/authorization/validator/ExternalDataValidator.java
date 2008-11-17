@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  */
 public final class ExternalDataValidator extends AbstractValidator<ExternalDataPE>
 {
-    private final GroupValidator groupValidator;
+    private final IValidator<GroupPE> groupValidator;
 
     public ExternalDataValidator()
     {

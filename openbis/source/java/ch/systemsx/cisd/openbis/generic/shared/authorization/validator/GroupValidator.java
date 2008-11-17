@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.authorization.validator;
 
 import java.util.Set;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
@@ -29,8 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
  */
 public final class GroupValidator extends AbstractValidator<GroupPE>
 {
-
-    private final DatabaseInstanceValidator databaseInstanceValidator;
+    private final IValidator<DatabaseInstancePE> databaseInstanceValidator;
 
     public GroupValidator()
     {

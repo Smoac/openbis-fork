@@ -27,8 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  */
 public final class BaseExperimentValidator extends AbstractValidator<BaseExperiment>
 {
-
-    private final GroupValidator groupValidator;
+    private final IValidator<GroupPE> groupValidator;
 
     public BaseExperimentValidator()
     {
