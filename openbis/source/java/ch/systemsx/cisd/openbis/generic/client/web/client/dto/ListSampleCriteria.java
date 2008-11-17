@@ -24,7 +24,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * @author Izabela Adamczyk
  * @author Tomasz Pylak
  */
-public final class ListSampleCriteria extends AbstractResultSetConfig<String> implements
+public final class ListSampleCriteria extends DefaultResultSetConfig<String> implements
         IsSerializable
 {
     private SampleType sampleType;

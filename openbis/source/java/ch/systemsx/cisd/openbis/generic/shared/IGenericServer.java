@@ -153,6 +153,6 @@ public interface IGenericServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public <T extends IMatchingEntity> List<T> listMatchingEntities(final String sessionToken,
+    public List<IMatchingEntity> listMatchingEntities(final String sessionToken,
             final SearchableEntity[] searchableEntities, final String queryText);
 }

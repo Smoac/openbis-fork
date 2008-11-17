@@ -51,12 +51,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Mode
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ParentColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyColumns;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GxtTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo.SortDir;
 
 /**
  * A {@link LayoutContainer} which contains the grid where the samples are displayed.
@@ -127,15 +126,6 @@ final class SampleBrowserGrid extends LayoutContainer
         return new RpcProxy<PagingLoadConfig, PagingLoadResult<SampleModel>>()
             {
 
-                private final SortInfo translate(
-                        final com.extjs.gxt.ui.client.data.SortInfo sortInfo)
-                {
-                    final SortInfo result = new SortInfo();
-                    result.setSortField(sortInfo.getSortField());
-                    result.setSortDir(SortDir.valueOf(sortInfo.getSortDir().name()));
-                    return result;
-                }
-
                 //
                 // RpcProxy
                 //
@@ -147,7 +137,7 @@ final class SampleBrowserGrid extends LayoutContainer
                     final int offset = loadConfig.getOffset();
                     criteria.setLimit(loadConfig.getLimit());
                     criteria.setOffset(offset);
-                    criteria.setSortInfo(translate(loadConfig.getSortInfo()));
+                    criteria.setSortInfo(GxtTranslator.translate(loadConfig.getSortInfo()));
                     criteria.setResultSetKey(resultSetKey);
                     viewContext.getService().listSamples(criteria,
                             new ListSamplesCallback(viewContext, callback, offset));

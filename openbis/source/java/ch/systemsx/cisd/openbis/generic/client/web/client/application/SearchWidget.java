@@ -38,7 +38,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Mode
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EnterKeyListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 
 /**
@@ -136,6 +138,7 @@ final class SearchWidget extends LayoutContainer
         {
             searchButton.setEnabled(false);
             viewContext.getService().listMatchingEntities(selectedSearchableEntity, queryText,
+                    new DefaultResultSetConfig<String>(),
                     new ListMatchingEntitiesAsyncCallback(viewContext));
         }
     }
@@ -168,7 +171,7 @@ final class SearchWidget extends LayoutContainer
     //
 
     public final class ListMatchingEntitiesAsyncCallback extends
-            AbstractAsyncCallback<List<MatchingEntity>>
+            AbstractAsyncCallback<ResultSet<MatchingEntity>>
     {
         ListMatchingEntitiesAsyncCallback(final IViewContext<IGenericClientServiceAsync> viewContext)
         {
@@ -186,11 +189,12 @@ final class SearchWidget extends LayoutContainer
         }
 
         @Override
-        protected final void process(final List<MatchingEntity> result)
+        protected final void process(final ResultSet<MatchingEntity> result)
         {
             searchButton.enable();
             final String queryText = textField.getValue();
-            if (result.size() == 0)
+            final List<MatchingEntity> entities = result.getList();
+            if (entities.size() == 0)
             {
                 final IMessageProvider messageProvider = viewContext.getMessageProvider();
                 MessageBox.alert(messageProvider.getMessage("messagebox_warning"), messageProvider
@@ -214,7 +218,7 @@ final class SearchWidget extends LayoutContainer
                     entityChooser.getValue().get(ModelDataPropertyNames.DESCRIPTION);
             event.setData(GenericConstants.ASSOCIATED_CONTENT_PANEL, new DefaultTabItem(viewContext
                     .getMessageProvider().getMessage("global_search", selectedText, queryText),
-                    new MatchingEntitiesPanel(viewContext, result)));
+                    new MatchingEntitiesPanel(viewContext, entities)));
             Dispatcher.get().dispatch(event);
         }
     }

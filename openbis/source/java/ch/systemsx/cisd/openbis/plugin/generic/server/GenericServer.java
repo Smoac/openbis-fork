@@ -308,19 +308,17 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         return externalDataTable.getExternalData();
     }
 
-    @SuppressWarnings("unchecked")
-    public final <T extends IMatchingEntity> List<T> listMatchingEntities(
-            final String sessionToken, final SearchableEntity[] searchableEntities,
-            final String queryText)
+    public final List<IMatchingEntity> listMatchingEntities(final String sessionToken,
+            final SearchableEntity[] searchableEntities, final String queryText)
     {
         getSessionManager().getSession(sessionToken);
-        final List<T> list = new ArrayList<T>();
+        final List<IMatchingEntity> list = new ArrayList<IMatchingEntity>();
         try
         {
             for (final SearchableEntity searchableEntity : searchableEntities)
             {
-                final List<T> entities =
-                        (List<T>) getDAOFactory().getHibernateSearchDAO().searchEntitiesByTerm(
+                final List<IMatchingEntity> entities =
+                        getDAOFactory().getHibernateSearchDAO().searchEntitiesByTerm(
                                 searchableEntity.getMatchingEntityClass(),
                                 searchableEntity.getFields(), queryText);
                 list.addAll(entities);
@@ -329,8 +327,6 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         {
             throw new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
         }
-        // TODO 2008-11-04, Christian Ribeaud: Remove this by implementing paging on the server
-        // side.
-        return list.subList(0, Math.min(100, list.size()));
+        return list;
     }
 }

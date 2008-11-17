@@ -20,6 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
@@ -117,8 +118,9 @@ public interface IGenericClientService extends IClientService
     /**
      * Lists the entities matching the search.
      */
-    public List<MatchingEntity> listMatchingEntities(final SearchableEntity searchableEntityOrNull,
-            final String queryText) throws UserFailureException;
+    public ResultSet<MatchingEntity> listMatchingEntities(final SearchableEntity searchableEntityOrNull,
+            final String queryText, final IResultSetConfig<String> resultSetConfig)
+            throws UserFailureException;
 
     /**
      * Removes the session result set associated with given key.

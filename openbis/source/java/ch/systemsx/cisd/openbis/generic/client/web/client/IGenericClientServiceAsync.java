@@ -22,6 +22,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
@@ -98,10 +99,11 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
     public void listSearchableEntities(final AsyncCallback<List<SearchableEntity>> asyncCallback);
 
     /**
-     * @see IGenericClientService#listMatchingEntities(SearchableEntity, String)
+     * @see IGenericClientService#listMatchingEntities(SearchableEntity, String, IResultSetConfig)
      */
     public void listMatchingEntities(final SearchableEntity searchableEntity,
-            final String queryText, final AsyncCallback<List<MatchingEntity>> asyncCallback);
+            final String queryText, final IResultSetConfig<String> resultSetConfig,
+            final AsyncCallback<ResultSet<MatchingEntity>> asyncCallback);
 
     /**
      * @see IGenericClientService#removeResultSet(String)

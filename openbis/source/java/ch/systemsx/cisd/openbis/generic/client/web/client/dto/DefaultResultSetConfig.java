@@ -19,11 +19,11 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * An <code>abstract</code> {@link IResultSetConfig} implementation.
+ * A default {@link IResultSetConfig} implementation.
  * 
  * @author Christian Ribeaud
  */
-public abstract class AbstractResultSetConfig<K> implements IResultSetConfig<K>, IsSerializable
+public class DefaultResultSetConfig<K> implements IResultSetConfig<K>, IsSerializable
 {
     private int limit = -1;
 

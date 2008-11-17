@@ -30,6 +30,7 @@ import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
@@ -50,6 +51,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.util.ResultSetTranslat
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.RoleAssignmentTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.SampleTypeTranslator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.util.SearchableEntityTranslator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.util.RoleCodeTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
@@ -59,7 +62,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
@@ -83,24 +85,11 @@ public final class GenericClientService extends AbstractClientService implements
     @Resource(name = ResourceNames.GENERIC_SERVER)
     private IGenericServer genericServer;
 
-    private final static RoleCode translateRoleSetCode(final String code)
+    @SuppressWarnings("unchecked")
+    private final <K> IResultSetManager<K> getResultSetManager()
     {
-        if ("INSTANCE_ADMIN".compareTo(code) == 0)
-        {
-            return RoleCode.ADMIN;
-        } else if ("GROUP_ADMIN".compareTo(code) == 0)
-        {
-            return RoleCode.ADMIN;
-        } else if ("USER".compareTo(code) == 0)
-        {
-            return RoleCode.USER;
-        } else if ("OBSERVER".compareTo(code) == 0)
-        {
-            return RoleCode.OBSERVER;
-        } else
-        {
-            throw new IllegalArgumentException("Unknown role set");
-        }
+        return (IResultSetManager<K>) getHttpSession().getAttribute(
+                SessionConstants.OPENBIS_RESULT_SET_MANAGER);
     }
 
     //
@@ -208,7 +197,7 @@ public final class GenericClientService extends AbstractClientService implements
             final GroupIdentifier groupIdentifier =
                     new GroupIdentifier(DatabaseInstanceIdentifier.HOME, group);
             final String sessionToken = getSessionToken();
-            genericServer.registerGroupRole(sessionToken, translateRoleSetCode(roleSetCode),
+            genericServer.registerGroupRole(sessionToken, RoleCodeTranslator.translate(roleSetCode),
                     groupIdentifier, person);
         } catch (final UserFailureException e)
         {
@@ -222,7 +211,7 @@ public final class GenericClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            genericServer.registerInstanceRole(sessionToken, translateRoleSetCode(roleSetCode),
+            genericServer.registerInstanceRole(sessionToken, RoleCodeTranslator.translate(roleSetCode),
                     person);
         } catch (final UserFailureException e)
         {
@@ -239,7 +228,7 @@ public final class GenericClientService extends AbstractClientService implements
             final GroupIdentifier groupIdentifier =
                     new GroupIdentifier(DatabaseInstanceIdentifier.HOME, group);
             final String sessionToken = getSessionToken();
-            genericServer.deleteGroupRole(sessionToken, translateRoleSetCode(roleSetCode),
+            genericServer.deleteGroupRole(sessionToken, RoleCodeTranslator.translate(roleSetCode),
                     groupIdentifier, person);
         } catch (final UserFailureException e)
         {
@@ -254,7 +243,7 @@ public final class GenericClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            genericServer.deleteInstanceRole(sessionToken, translateRoleSetCode(roleSetCode),
+            genericServer.deleteInstanceRole(sessionToken, RoleCodeTranslator.translate(roleSetCode),
                     person);
         } catch (final UserFailureException e)
         {
@@ -281,7 +270,6 @@ public final class GenericClientService extends AbstractClientService implements
         }
     }
 
-    @SuppressWarnings("unchecked")
     public final ResultSet<Sample> listSamples(final ListSampleCriteria listCriteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -289,9 +277,7 @@ public final class GenericClientService extends AbstractClientService implements
         {
             final ListSampleCriteriaDTO criteria =
                     ListSampleCriteriaTranslator.translate(listCriteria);
-            final IResultSetManager resultSetManager =
-                    (IResultSetManager) getHttpSession().getAttribute(
-                            SessionConstants.OPENBIS_RESULT_SET_MANAGER);
+            final IResultSetManager<String> resultSetManager = getResultSetManager();
             final IResultSet<String, Sample> result =
                     resultSetManager.getResultSet(listCriteria, new IResultSetRetriever<Sample>()
                         {
@@ -367,42 +353,47 @@ public final class GenericClientService extends AbstractClientService implements
         }
     }
 
-    public final List<MatchingEntity> listMatchingEntities(
-            final SearchableEntity searchableEntityOrNull, final String queryText)
+    public final ResultSet<MatchingEntity> listMatchingEntities(
+            final SearchableEntity searchableEntityOrNull, final String queryText,
+            final IResultSetConfig<String> resultSetConfig)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
-            final ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity[] matchingEntities;
-            if (searchableEntityOrNull == null)
-            {
-                matchingEntities =
-                        ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity.values();
-            } else
-            {
-                matchingEntities =
-                        new ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity[]
-                            { ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity
-                                    .valueOf(searchableEntityOrNull.getName()) };
-            }
-            return BeanUtils.createBeanList(MatchingEntity.class, genericServer
-                    .listMatchingEntities(getSessionToken(), matchingEntities, queryText),
-                    DtoConverters.getMatchingEntityConverter());
+            final ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity[] matchingEntities =
+                    SearchableEntityTranslator.translate(searchableEntityOrNull);
+            final IResultSetManager<String> resultSetManager = getResultSetManager();
+            final IResultSet<String, MatchingEntity> result =
+                    resultSetManager.getResultSet(resultSetConfig,
+                            new IResultSetRetriever<MatchingEntity>()
+                                {
+
+                                    //
+                                    // IDataRetriever
+                                    //
+
+                                    public final List<MatchingEntity> getData()
+                                    {
+                                        return BeanUtils.createBeanList(MatchingEntity.class,
+                                                genericServer.listMatchingEntities(
+                                                        getSessionToken(), matchingEntities,
+                                                        queryText), DtoConverters
+                                                        .getMatchingEntityConverter());
+                                    }
+                                });
+            return ResultSetTranslator.translate(result);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
     }
 
-    @SuppressWarnings("unchecked")
     public final void removeResultSet(final String resultSetKey)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
-            final IResultSetManager<String> resultSetManager =
-                    (IResultSetManager<String>) getHttpSession().getAttribute(
-                            SessionConstants.OPENBIS_RESULT_SET_MANAGER);
+            final IResultSetManager<String> resultSetManager = getResultSetManager();
             resultSetManager.removeResultSet(resultSetKey);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
