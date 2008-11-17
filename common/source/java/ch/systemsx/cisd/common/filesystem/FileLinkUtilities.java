@@ -30,85 +30,60 @@ public class FileLinkUtilities
 
     private final static boolean operational = FileUtilities.loadNativeLibraryFromResource("jlink");
 
-    private static void throwException(String type, String source, String target,
+    private static void throwLinkCreationException(String type, String source, String target,
             String errorMessage)
     {
         throw new WrappedIOException(new IOException(String.format(
                 "Creating %s link '%s' -> '%s': %s", type, source, target, errorMessage)));
     }
 
-    private static void throwException(String filename, String errorMessage)
+    private static void throwStatException(String filename, String errorMessage)
     {
         throw new WrappedIOException(new IOException(String.format(
                 "Cannot obtain inode info for file '%s': %s", filename, errorMessage)));
     }
 
-    /** A class that provides information about a link. */
-    public static final class LinkInfo
+    private static void throwFileException(String operation, String filename, String errorMessage)
     {
-        private final int inode;
-
-        private final int hardLinkCount;
-
-        private final boolean isSsymbolicLink;
-
-        private final String symbolicLinkOrNull;
-
-        private LinkInfo(int[] info, String symbolicLinkOrNull)
-        {
-            this.inode = info[0];
-            this.hardLinkCount = info[1];
-            this.isSsymbolicLink = (info[2] != 0);
-            this.symbolicLinkOrNull = symbolicLinkOrNull;
-        }
-
-        /**
-         * Returns <code>true</code>, if this link is a symbolic link.
-         */
-        public final boolean isSymbolicLink()
-        {
-            return isSsymbolicLink;
-        }
-
-        /**
-         * Returns the value of the symbolic link, or <code>null</code>, if this link is not a
-         * symbolic link.
-         */
-        public final String tryGetSymbolicLink()
-        {
-            return symbolicLinkOrNull;
-        }
-
-        /**
-         * Returns the inode number of this link.
-         */
-        public final int getInode()
-        {
-            return inode;
-        }
-
-        /**
-         * Returns the hard link count of this link.
-         */
-        public final int getHardLinkCount()
-        {
-            return hardLinkCount;
-        }
+        throw new WrappedIOException(new IOException(String.format("Cannot %s of file '%s': %s",
+                operation, filename, errorMessage)));
     }
 
-    //
-    // The wrappers for the native function calls.
-    //
+    private static void throwIdException(String operation, int id, String errorMessage)
+    {
+        throw new WrappedIOException(new IOException(String.format("Cannot %s of id %s: %s",
+                operation, id, errorMessage)));
+    }
+
+    private static void throwNameException(String operation, String name, String errorMessage)
+    {
+        throw new WrappedIOException(new IOException(String.format("Cannot %s of name '%s': %s",
+                operation, name, errorMessage)));
+    }
 
     private static native int hardlink(String filename, String linktarget);
 
     private static native int symlink(String filename, String linktarget);
 
-    private static native int linkinfo(String filename, int[] info);
+    private static native int linkinfo(String filename, long[] info);
 
     private static native String readlink(String filename, int linkvallen);
 
+    private static native int chmod(String filename, short mode);
+
+    private static native int chown(String filename, int uid, int gid);
+
+    private static native String getpwuid(int uid);
+
+    private static native String getgrgid(int gid);
+
+    private static native int getpwnam(String user);
+
+    private static native int getgrnam(String group);
+
     private static native String strerror(int errnum);
+
+    private static native String strerrorErrno();
 
     /**
      * Returns <code>true</code>, if the native library has been loaded successfully and the link
@@ -130,12 +105,12 @@ public class FileLinkUtilities
     {
         if (filename == null || linkname == null)
         {
-            throwException("hard", filename, linkname, "null is not allowed");
+            throwLinkCreationException("hard", filename, linkname, "null is not allowed");
         }
         final int result = hardlink(filename, linkname);
         if (result < 0)
         {
-            throwException("hard", filename, linkname, strerror(result));
+            throwLinkCreationException("hard", filename, linkname, strerror(result));
         }
     }
 
@@ -151,26 +126,26 @@ public class FileLinkUtilities
     {
         if (filename == null || linkname == null)
         {
-            throwException("symbolic", filename, linkname, "null is not allowed");
+            throwLinkCreationException("symbolic", filename, linkname, "null is not allowed");
         }
         final int result = symlink(filename, linkname);
         if (result < 0)
         {
-            throwException("symbolic", filename, linkname, strerror(result));
+            throwLinkCreationException("symbolic", filename, linkname, strerror(result));
         }
     }
 
-    private static int[] getLinkInfoArray(String linkname) throws WrappedIOException
+    private static long[] getLinkInfoArray(String linkname) throws WrappedIOException
     {
         if (linkname == null)
         {
-            throwException(linkname, "null is not allowed");
+            throwStatException(linkname, "null is not allowed");
         }
-        final int[] inodeInfo = new int[4];
+        final long[] inodeInfo = new long[8];
         final int result = linkinfo(linkname, inodeInfo);
         if (result < 0)
         {
-            throwException(linkname, strerror(result));
+            throwStatException(linkname, strerror(result));
         }
         return inodeInfo;
     }
@@ -181,7 +156,7 @@ public class FileLinkUtilities
      * @throws WrappedIOException If the information could not be obtained, e.g. because the link
      *             does not exist.
      */
-    public static final int getInode(String filename) throws WrappedIOException
+    public static final long getInode(String filename) throws WrappedIOException
     {
         return getLinkInfoArray(filename)[0];
     }
@@ -194,7 +169,7 @@ public class FileLinkUtilities
      */
     public static final int getHardLinkCount(String filename) throws WrappedIOException
     {
-        return getLinkInfoArray(filename)[1];
+        return (int) getLinkInfoArray(filename)[1];
     }
 
     /**
@@ -218,8 +193,8 @@ public class FileLinkUtilities
      */
     public static final String tryReadSymbolicLink(String linkname) throws WrappedIOException
     {
-        final int[] info = getLinkInfoArray(linkname);
-        return (info[2] != 0) ? readlink(linkname, info[3]) : null;
+        final long[] info = getLinkInfoArray(linkname);
+        return FileLinkType.isSymLink(info[2]) ? readlink(linkname, (int) info[4]) : null;
     }
 
     /**
@@ -228,11 +203,104 @@ public class FileLinkUtilities
      * @throws WrappedIOException If the information could not be obtained, e.g. because the link
      *             does not exist.
      */
-    public static final LinkInfo getLinkInfo(String linkname) throws WrappedIOException
+    public static final FileLinkInfo getLinkInfo(String linkname) throws WrappedIOException
     {
-        final int[] info = getLinkInfoArray(linkname);
-        final String symbolicLinkOrNull = (info[2] != 0) ? readlink(linkname, info[3]) : null;
-        return new LinkInfo(info, symbolicLinkOrNull);
+        return getLinkInfo(linkname, true);
+    }
+
+    /**
+     * Returns the information about <var>linkname</var>. If
+     * <code>readSymbolicLinkTarget == true</code>, then the symbolic link target is read when
+     * <var>linkname</var> is a symbolic link.
+     * 
+     * @throws WrappedIOException If the information could not be obtained, e.g. because the link
+     *             does not exist.
+     */
+    public static final FileLinkInfo getLinkInfo(String linkname, boolean readSymbolicLinkTarget)
+            throws WrappedIOException
+    {
+        final long[] info = getLinkInfoArray(linkname);
+        final String symbolicLinkOrNull =
+                (readSymbolicLinkTarget && FileLinkType.isSymLink(info[2])) ? readlink(
+                        linkname, (int) info[4]) : null;
+        return new FileLinkInfo(info, symbolicLinkOrNull);
+    }
+
+    /**
+     * Sets the access mode of <var>filename</var> to the specified <var>mode</var> value.
+     */
+    public static final void setAccessMode(String filename, short mode) throws WrappedIOException
+    {
+        final int result = chmod(filename, mode);
+        if (result < 0)
+        {
+            throwFileException("set mode", filename, strerror(result));
+        }
+    }
+
+    /**
+     * Sets the owner of <var>filename</var> to the specified <var>uid</var> and <var>gid</var>
+     * values.
+     */
+    public static final void setOwner(String filename, int uid, int gid) throws WrappedIOException
+    {
+        final int result = chown(filename, uid, gid);
+        if (result < 0)
+        {
+            throwFileException("set owner", filename, strerror(result));
+        }
+    }
+
+    /**
+     * Returns the name of the user identified by <var>uid</var>.
+     */
+    public static final String getUserNameForUid(int uid) throws WrappedIOException
+    {
+        final String name = getpwuid(uid);
+        if (name == null)
+        {
+            throwIdException("get user name", uid, strerrorErrno());
+        }
+        return name;
+    }
+
+    /**
+     * Returns the name of the group identified by <var>gid</var>.
+     */
+    public static final String getGroupNameForGid(int gid) throws WrappedIOException
+    {
+        final String name = getgrgid(gid);
+        if (name == null)
+        {
+            throwIdException("get group name", gid, strerrorErrno());
+        }
+        return name;
+    }
+
+    /**
+     * Returns the uid of the <var>user</var>.
+     */
+    public static final int getUidForUserName(String user) throws WrappedIOException
+    {
+        final int uid = getpwnam(user);
+        if (uid < 0)
+        {
+            throwNameException("get uid", user, strerrorErrno());
+        }
+        return uid;
+    }
+
+    /**
+     * Returns the gid of the <var>group</var>.
+     */
+    public static final int getGidForGroupName(String group) throws WrappedIOException
+    {
+        final int gid = getgrnam(group);
+        if (gid < 0)
+        {
+            throwNameException("get gid", group, strerrorErrno());
+        }
+        return gid;
     }
 
 }
