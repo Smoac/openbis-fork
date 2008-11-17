@@ -250,7 +250,7 @@ final class MatchingEntitiesPanel extends ContentPanel implements Listener<TabPa
     // Helper classes
     //
 
-    final class ListMatchingEntitiesCallback extends
+    private final class ListMatchingEntitiesCallback extends
             AbstractAsyncCallback<ResultSet<MatchingEntity>>
     {
         private final AsyncCallback<PagingLoadResult<MatchingEntityModel>> delegate;

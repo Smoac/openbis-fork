@@ -37,13 +37,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
  */
 public final class GroupValidatorTest
 {
-    private static final long GROUP_ID = 123L;
+    static final long GROUP_ID = 123L;
 
-    private static final long ANOTHER_GROUP_ID = 456L;
+    static final long ANOTHER_GROUP_ID = 456L;
 
-    private static final long INSTANCE_ID = 987L;
+    static final long INSTANCE_ID = 987L;
 
-    private final static GroupPE createGroup()
+    final static GroupPE createGroup()
     {
         final GroupPE group = new GroupPE();
         group.setId(GROUP_ID);
@@ -51,7 +51,7 @@ public final class GroupValidatorTest
         return group;
     }
 
-    private final static GroupPE createAnotherGroup()
+    final static GroupPE createAnotherGroup()
     {
         final GroupPE group = new GroupPE();
         group.setId(ANOTHER_GROUP_ID);
@@ -59,7 +59,7 @@ public final class GroupValidatorTest
         return group;
     }
 
-    private final static DatabaseInstancePE createDatabaseInstance()
+    final static DatabaseInstancePE createDatabaseInstance()
     {
         final DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
         databaseInstance.setId(INSTANCE_ID);

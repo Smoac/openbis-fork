@@ -52,7 +52,8 @@ public class MainTabPanel extends TabPanel
         setLayout(new FitLayout());
         setTabScroll(true);
         add(createWelcomePanel());
-        setId(ID);
+        // Remove last '_'.
+        setId(ID.substring(0, ID.length() - 1));
     }
 
     private final MainTabItem createWelcomePanel()

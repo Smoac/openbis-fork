@@ -20,8 +20,11 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.ImageBundle;
 
 /**
+ * A generic {@link ImageBundle} implementation.
+ * <p>
+ * Note that this approach does not render correctly animated <i>gif</i> (no animation!).
+ * </p>
  * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IGenericImageBundle extends ImageBundle

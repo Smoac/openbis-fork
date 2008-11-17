@@ -16,6 +16,21 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.authorization.validator;
 
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+
 /**
  * Test cases for corresponding {@link MatchingEntityValidator} class.
  * 
@@ -24,4 +39,87 @@ package ch.systemsx.cisd.openbis.generic.shared.authorization.validator;
 public final class MatchingEntityValidatorTest
 {
 
+    private final static ExperimentPE createExperiment()
+    {
+        final ExperimentPE experiment = new ExperimentPE();
+        final ProjectPE projectPE = new ProjectPE();
+        projectPE.setGroup(GroupValidatorTest.createGroup());
+        experiment.setProject(projectPE);
+        return experiment;
+    }
+
+    private final static SamplePE createGroupSample()
+    {
+        final SamplePE sample = new SamplePE();
+        sample.setGroup(GroupValidatorTest.createGroup());
+        return sample;
+    }
+
+    private final static SamplePE createDatabaseSample()
+    {
+        final SamplePE sample = new SamplePE();
+        sample.setDatabaseInstance(GroupValidatorTest.createDatabaseInstance());
+        return sample;
+    }
+
+    final static PersonPE createPerson(final boolean withRoleAssignment)
+    {
+        final PersonPE person = new PersonPE();
+        if (withRoleAssignment)
+        {
+            final List<RoleAssignmentPE> list = new ArrayList<RoleAssignmentPE>();
+            RoleAssignmentPE assignment = new RoleAssignmentPE();
+            // Group assignment
+            assignment = new RoleAssignmentPE();
+            assignment.setRole(RoleCode.USER);
+            assignment.setPerson(person);
+            assignment.setGroup(GroupValidatorTest.createAnotherGroup());
+            list.add(assignment);
+            person.setRoleAssignments(list);
+        }
+        return person;
+    }
+
+    @Test
+    public final void testIsValidFailed()
+    {
+        boolean fail = true;
+        try
+        {
+            new MatchingEntityValidator().isValid(null, null);
+        } catch (final AssertionError e)
+        {
+            fail = false;
+        }
+        assertFalse(fail);
+    }
+
+    @Test
+    public final void testIsValidWithExperiment()
+    {
+        final PersonPE person = createPerson(true);
+        final ExperimentPE experiment = createExperiment();
+        final MatchingEntityValidator validator = new MatchingEntityValidator();
+        // Different group
+        assertFalse(validator.isValid(person, experiment));
+        // Same group
+        experiment.getProject().getGroup().setId(GroupValidatorTest.ANOTHER_GROUP_ID);
+        assertTrue(validator.isValid(person, experiment));
+    }
+
+    @Test
+    public final void testIsValidWithSample()
+    {
+        final PersonPE person = createPerson(true);
+        final SamplePE groupSample = createGroupSample();
+        final MatchingEntityValidator validator = new MatchingEntityValidator();
+        // Different group
+        assertFalse(validator.isValid(person, groupSample));
+        // Same group
+        groupSample.getGroup().setId(GroupValidatorTest.ANOTHER_GROUP_ID);
+        assertTrue(validator.isValid(person, groupSample));
+        // Database sample
+        final SamplePE databaseSample = createDatabaseSample();
+        assertTrue(validator.isValid(person, databaseSample));
+    }
 }

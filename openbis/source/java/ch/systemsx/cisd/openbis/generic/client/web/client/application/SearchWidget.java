@@ -30,6 +30,7 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.TableRowLayout;
+import com.google.gwt.user.client.ui.Image;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
@@ -76,6 +77,8 @@ final class SearchWidget extends LayoutContainer
 
     private final EnterKeyListener enterKeyListener;
 
+    private final Image loadingImage;
+
     SearchWidget(final IViewContext<IGenericClientServiceAsync> viewContext)
     {
         final TableRowLayout tableRowLayout = createLayout();
@@ -100,13 +103,28 @@ final class SearchWidget extends LayoutContainer
         add(entityChooser);
         add(textField);
         add(searchButton);
+        loadingImage = createLoadingImage();
+        add(loadingImage);
         layout();
+    }
+
+    private final void enableSearch(final boolean enable)
+    {
+        searchButton.setEnabled(enable);
+        loadingImage.setVisible(!enable);
+    }
+
+    private final static Image createLoadingImage()
+    {
+        final Image image = new Image("images/loading.gif");
+        image.setVisible(false);
+        return image;
     }
 
     private final EntityChooser createEntityChooser()
     {
         final EntityChooser comboBox = new EntityChooser(viewContext);
-        comboBox.setStyleAttribute("marginRight", "5px");
+        comboBox.setStyleAttribute("marginRight", "3px");
         comboBox.setId(ENTITY_CHOOSER_ID);
         return comboBox;
     }
@@ -136,13 +154,14 @@ final class SearchWidget extends LayoutContainer
         final String queryText = textField.getValue();
         if (StringUtils.isBlank(queryText) == false)
         {
-            searchButton.setEnabled(false);
-            viewContext.getService().listMatchingEntities(
-                    selectedSearchableEntityOrNull,
-                    queryText,
-                    createResultSetConfig(),
-                    new ListMatchingEntitiesAsyncCallback(viewContext,
-                            selectedSearchableEntityOrNull, queryText));
+            enableSearch(false);
+            viewContext.getService()
+                    .listMatchingEntities(
+                            selectedSearchableEntityOrNull,
+                            queryText,
+                            createResultSetConfig(),
+                            new SearchResultCallback(viewContext, selectedSearchableEntityOrNull,
+                                    queryText));
         }
     }
 
@@ -158,7 +177,8 @@ final class SearchWidget extends LayoutContainer
         final Button button =
                 new Button(viewContext.getMessageProvider().getMessage("search_button"));
         button.setId(SUBMIT_BUTTON_ID);
-        button.setStyleAttribute("marginLeft", "5px");
+        button.setStyleAttribute("marginLeft", "3px");
+        button.setStyleAttribute("marginRight", "3px");
         button.addSelectionListener(new SelectionListener<ComponentEvent>()
             {
 
@@ -180,15 +200,14 @@ final class SearchWidget extends LayoutContainer
     // Helper classes
     //
 
-    public final class ListMatchingEntitiesAsyncCallback extends
+    public final class SearchResultCallback extends
             AbstractAsyncCallback<ResultSet<MatchingEntity>>
     {
         private final SearchableEntity searchableEntityOrNull;
 
         private final String queryText;
 
-        ListMatchingEntitiesAsyncCallback(
-                final IViewContext<IGenericClientServiceAsync> viewContext,
+        SearchResultCallback(final IViewContext<IGenericClientServiceAsync> viewContext,
                 final SearchableEntity searchableEntityOrNull, final String queryText)
         {
             super(viewContext);
@@ -209,13 +228,13 @@ final class SearchWidget extends LayoutContainer
         @Override
         protected final void finishOnFailure(final Throwable caught)
         {
-            searchButton.enable();
+            enableSearch(true);
         }
 
         @Override
         protected final void process(final ResultSet<MatchingEntity> result)
         {
-            searchButton.enable();
+            enableSearch(true);
             final List<MatchingEntity> entities = result.getList();
             if (entities.size() == 0)
             {
