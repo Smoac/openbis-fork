@@ -478,6 +478,10 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
         return fileName;
     }
 
+    //
+    // IMatchingEntity
+    //
+
     @Transient
     public final String getIdentifier()
     {

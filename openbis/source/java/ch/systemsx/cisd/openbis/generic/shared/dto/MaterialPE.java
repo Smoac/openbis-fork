@@ -299,6 +299,10 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
         return AbstractIdAndCodeHolder.compare(this, o);
     }
 
+    //
+    // IMatchingEntity
+    //
+
     @Transient
     public final String getIdentifier()
     {

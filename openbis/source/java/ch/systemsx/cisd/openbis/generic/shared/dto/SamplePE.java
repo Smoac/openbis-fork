@@ -453,6 +453,10 @@ public class SamplePE implements IIdAndCodeHolder, Comparable<SamplePE>,
         getSampleProperties().add(property);
     }
 
+    //
+    // IMatchingEntity
+    //
+
     @Transient
     public final String getIdentifier()
     {
