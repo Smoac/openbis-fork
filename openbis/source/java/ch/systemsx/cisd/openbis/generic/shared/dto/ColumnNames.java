@@ -52,6 +52,8 @@ public final class ColumnNames
 
     public static final String DOWNLOAD_URL_COLUMN = "download_url";
 
+    public static final String EXPERIMENT_ATTACHMENT_CONTENT_COLUMN = "exac_id";
+
     public static final String EXPERIMENT_COLUMN = "expe_id";
 
     public static final String EXPERIMENT_TYPE_COLUMN = "exty_id";
@@ -160,7 +162,7 @@ public final class ColumnNames
 
     public static final String UUID_COLUMN = "uuid";
 
-    public static final String VALUE = "value";
+    public static final String VALUE_COLUMN = "value";
 
     public static final String VERSION_COLUMN = "version";
 

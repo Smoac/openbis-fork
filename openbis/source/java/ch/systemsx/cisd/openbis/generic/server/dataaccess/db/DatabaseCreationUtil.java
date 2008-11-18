@@ -101,7 +101,7 @@ public final class DatabaseCreationUtil
         {
             final AbstractApplicationContext applicationContext =
                     new ClassPathXmlApplicationContext(new String[]
-                        { "applicationContext.xml" }, true);
+                        { "dbConfigurationContext.xml" }, true);
             DatabaseCreationUtil.beanFactory = applicationContext;
         }
         return beanFactory;

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -26,6 +27,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -33,6 +35,7 @@ import javax.persistence.UniqueConstraint;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 
@@ -56,11 +59,11 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
 
     public static final AttachmentPE[] EMPTY_ARRAY = new AttachmentPE[0];
 
-    private byte[] value;
-
     private String fileName;
 
     private int version;
+
+    private AttachmentContentPE attachmentContent;
 
     transient private Long id;
 
@@ -110,7 +113,7 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
         this.id = id;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @NotNull(message = ValidationMessages.EXPERIMENT_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN, updatable = false)
     public ExperimentPE getParent()
@@ -123,23 +126,19 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
         this.parent = parent;
     }
 
-    /**
-     * Returns bytes blob stored in the attachment.
-     */
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @NotNull(message = ValidationMessages.ATTACHMENT_CONTENT_NOT_NULL_MESSAGE)
-    public byte[] getValue()
+    @JoinColumn(name = ColumnNames.EXPERIMENT_ATTACHMENT_CONTENT_COLUMN, updatable = false)
+    @IndexedEmbedded
+    public AttachmentContentPE getAttachmentContent()
     {
-        return value;
+        return attachmentContent;
     }
 
-    public void setValue(final byte[] value)
+    public void setAttachmentContent(final AttachmentContentPE attachmentContent)
     {
-        this.value = value;
+        this.attachmentContent = attachmentContent;
     }
-
-    //
-    // Object
-    //
 
     @Override
     public final boolean equals(final Object obj)
@@ -178,9 +177,9 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
         final ToStringBuilder builder =
                 new ToStringBuilder(this,
                         ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
-        builder.append("len(value)", value != null ? value.length : null);
-        builder.append("fileName", fileName);
-        builder.append("version", version);
+        builder.append("fileName", getFileName());
+        builder.append("version", getVersion());
+        builder.append("parent", getParent());
         return builder.toString();
     }
 

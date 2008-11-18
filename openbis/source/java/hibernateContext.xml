@@ -54,6 +54,7 @@
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE</value>
 
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentContentPE</value>
 
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE</value>
@@ -90,6 +91,9 @@
                     <prop key="hibernate.use_sql_comments">true</prop>
                 -->
             </props>
+        </property>
+        <property name="lobHandler">
+            <bean class="org.springframework.jdbc.support.lob.DefaultLobHandler" />
         </property>
     </bean>
 

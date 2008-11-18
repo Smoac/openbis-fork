@@ -47,6 +47,8 @@ public final class ValidationMessages
     public static final String CODE_PATTERN_MESSAGE =
             "Given code '%s' contains illegal characters (allowed: A-Z, a-z, 0-9, _ and -)";
 
+    public static final String DATA_SET_TYPE_NOT_NULL_MESSAGE = "Data set type" + CAN_NOT_BE_NULL;
+
     public static final String DATA_TYPE_NOT_NULL_MESSAGE = "Data type" + CAN_NOT_BE_NULL;
 
     public static final String DATABASE_INSTANCE_NOT_NULL_MESSAGE =
@@ -102,18 +104,18 @@ public final class ValidationMessages
 
     public static final String LOCATOR_TYPE_NOT_NULL_MESSAGE = "Locator type" + CAN_NOT_BE_NULL;
 
-    public static final String MATERIAL_TYPE_NOT_NULL_MESSAGE = "Material type" + CAN_NOT_BE_NULL;
-
     public static final String MATERIAL_NOT_NULL_MESSAGE = "Material" + CAN_NOT_BE_NULL;
+
+    public static final String MATERIAL_TYPE_NOT_NULL_MESSAGE = "Material type" + CAN_NOT_BE_NULL;
 
     public static final String MATERIAL_TYPE_PROPERTY_TYPE_NOT_NULL_MESSAGE =
             "Material type - property type" + CAN_NOT_BE_NULL;
 
-    public static final String DATA_SET_TYPE_NOT_NULL_MESSAGE = "Data set type" + CAN_NOT_BE_NULL;
-
     public static final String PERSON_NOT_NULL_MESSAGE = "Person" + CAN_NOT_BE_NULL;
 
     public static final String PROCEDURE_NOT_NULL_MESSAGE = "Procedure" + CAN_NOT_BE_NULL;
+
+    public static final String PROJECT_NOT_NULL_MESSAGE = "Project" + CAN_NOT_BE_NULL;
 
     public static final String PROPERTY_TYPE_NOT_NULL_MESSAGE = "Property type" + CAN_NOT_BE_NULL;
 
@@ -134,11 +136,11 @@ public final class ValidationMessages
 
     public static final String VALUE_LENGTH_MESSAGE = LENGTH_PREFIX + "value" + LENGTH_SUFFIX;
 
+    public static final String VALUE_NOT_NULL_MESSAGE = "Value" + CAN_NOT_BE_NULL;
+
     public static final String VERSION_NOT_NULL_MESSAGE = "Version" + CAN_NOT_BE_NULL;
 
     public static final String VOCABULARY_NOT_NULL_MESSAGE = "Vocabulary" + CAN_NOT_BE_NULL;
-
-    public static final String PROJECT_NOT_NULL_MESSAGE = "Project" + CAN_NOT_BE_NULL;
 
     private ValidationMessages()
     {

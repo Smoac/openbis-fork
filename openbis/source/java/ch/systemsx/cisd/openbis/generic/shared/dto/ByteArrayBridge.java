@@ -14,26 +14,25 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
+package ch.systemsx.cisd.openbis.generic.shared.dto;
+
+import org.hibernate.search.bridge.builtin.StringBridge;
 
 /**
- * A static class which holds the database version.
+ * A {@link StringBridge} extension for handling <i>bytes</i>.
  * 
  * @author Christian Ribeaud
  */
-public final class DatabaseVersionHolder
+public final class ByteArrayBridge extends StringBridge
 {
-    /** Current version of the database. */
-    private static final String DATABASE_VERSION = "028";
 
-    private DatabaseVersionHolder()
-    {
-        // Can not be instantiated
-    }
+    //
+    // StringBridge
+    //
 
-    /** Returns the current version of the database. */
-    public final static String getDatabaseVersion()
+    @Override
+    public final String objectToString(final Object object)
     {
-        return DATABASE_VERSION;
+        return new String((byte[]) object);
     }
 }

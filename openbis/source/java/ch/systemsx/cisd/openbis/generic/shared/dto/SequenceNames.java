@@ -32,11 +32,16 @@ public final class SequenceNames
 
     public static final String DATA_SET_RELATIONSHIP_SEQUENCE = "DATA_SET_RELATIONSHIP_ID_SEQ";
 
+    public static final String DATA_SET_TYPE_SEQUENCE = "DATA_SET_TYPE_ID_SEQ";
+
     public static final String DATA_STORE_SEQUENCE = "DATA_STORE_ID_SEQ";
 
     public static final String DATA_TYPE_SEQUENCE = "DATA_TYPE_ID_SEQ";
 
     public static final String DATABASE_INSTANCE_SEQUENCE = "DATABASE_INSTANCE_ID_SEQ";
+
+    public static final String EXPERIMENT_ATTACHMENT_CONTENT_SEQUENCE =
+            "EXPERIMENT_ATTACHMENT_CONTENT_ID_SEQ";
 
     public static final String EXPERIMENT_ATTACHMENT_SEQUENCE = "EXPERIMENT_ATTACHMENT_ID_SEQ";
 
@@ -64,11 +69,9 @@ public final class SequenceNames
 
     public static final String MATERIAL_TYPE_PROPERTY_TYPE_SEQUENCE = "MTPT_ID_SEQ";
 
-    public static final String DATA_SET_TYPE_SEQUENCE = "DATA_SET_TYPE_ID_SEQ";
+    public static final String MATERIAL_TYPE_SEQUENCE = "MATERIAL_TYPE_ID_SEQ";
 
     public final static String PERSON_SEQUENCE = "PERSON_ID_SEQ";
-
-    public static final String MATERIAL_TYPE_SEQUENCE = "MATERIAL_TYPE_ID_SEQ";
 
     public static final String PROCEDURE_SEQUENCE = "PROCEDURE_ID_SEQ";
 

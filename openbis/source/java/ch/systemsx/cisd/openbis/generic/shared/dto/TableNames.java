@@ -32,6 +32,8 @@ public final class TableNames
 
     public static final String DATA_SET_RELATIONSHIPS_TABLE = "data_set_relationships";
 
+    public static final String DATA_SET_TYPES_TABLE = "data_set_types";
+
     public static final String DATA_STORES_TABLE = "data_stores";
 
     public static final String DATA_TABLE = "data";
@@ -39,6 +41,9 @@ public final class TableNames
     public static final String DATA_TYPES_TABLE = "data_types";
 
     public static final String DATABASE_INSTANCES_TABLE = "database_instances";
+
+    public static final String EXPERIMENT_ATTACHMENT_CONTENT_TABLE =
+            "experiment_attachment_contents";
 
     public static final String EXPERIMENT_ATTACHMENTS_TABLE = "experiment_attachments";
 
@@ -70,8 +75,6 @@ public final class TableNames
     public static final String MATERIAL_TYPES_TABLE = "material_types";
 
     public static final String MATERIALS_TABLE = "materials";
-
-    public static final String DATA_SET_TYPES_TABLE = "data_set_types";
 
     public static final String PERSONS_TABLE = "persons";
 

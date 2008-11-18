@@ -93,7 +93,7 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
      */
     abstract public void setHolder(final IIdAndCodeHolder entity);
 
-    @Column(name = ColumnNames.VALUE)
+    @Column(name = ColumnNames.VALUE_COLUMN)
     @Length(max = 1024, message = ValidationMessages.VALUE_LENGTH_MESSAGE)
     @Field(index = Index.TOKENIZED)
     public String getValue()
