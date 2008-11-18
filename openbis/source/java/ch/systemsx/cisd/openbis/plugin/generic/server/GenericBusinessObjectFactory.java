@@ -19,8 +19,10 @@ package ch.systemsx.cisd.openbis.plugin.generic.server;
 import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.AbstractBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.GroupBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGenericBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
@@ -31,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.RoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleTable;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
 /**
@@ -67,7 +70,14 @@ public class GenericBusinessObjectFactory extends AbstractBusinessObjectFactory 
 
     public final ISampleBO createSampleBO(final Session session)
     {
-        return new SampleBO(getDaoFactory(), session);
+        final IEntityPropertiesConverter converter =
+                createEntityPropertiesConverter(EntityKind.SAMPLE);
+        return new SampleBO(getDaoFactory(), converter, session);
+    }
+
+    public IEntityPropertiesConverter createEntityPropertiesConverter(final EntityKind entityKind)
+    {
+        return new EntityPropertiesConverter(entityKind, getDaoFactory());
     }
 
     public final IExternalDataTable createExternalDataTable(final Session session)

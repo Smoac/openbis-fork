@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleToRegister;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
@@ -118,12 +119,17 @@ public interface IGenericClientService extends IClientService
     /**
      * Lists the entities matching the search.
      */
-    public ResultSet<MatchingEntity> listMatchingEntities(final SearchableEntity searchableEntityOrNull,
-            final String queryText, final IResultSetConfig<String> resultSetConfig)
-            throws UserFailureException;
+    public ResultSet<MatchingEntity> listMatchingEntities(
+            final SearchableEntity searchableEntityOrNull, final String queryText,
+            final IResultSetConfig<String> resultSetConfig) throws UserFailureException;
 
     /**
      * Removes the session result set associated with given key.
      */
     public void removeResultSet(final String resultSetKey) throws UserFailureException;
+
+    /**
+     * Registers a new sample.
+     */
+    public void registerSample(final SampleToRegister sample) throws UserFailureException;
 }

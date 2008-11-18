@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2007 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,22 +19,12 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * The {@link EntityTypePropertyType} extension for <i>Sample Type</i>.
+ * Available types of entity properties.
  * 
  * @author Izabela Adamczyk
  */
-public class SampleTypePropertyType extends EntityTypePropertyType<SampleType> implements
-        IsSerializable
+public enum DataTypes implements IsSerializable
 {
-    private boolean isDisplayed;
+    INTEGER, VARCHAR, REAL, TIMESTAMP, BOOLEAN, CONTROLLEDVOCABULARY;
 
-    public final boolean isDisplayed()
-    {
-        return isDisplayed;
-    }
-
-    public final void setDisplayed(final boolean isDisplayed)
-    {
-        this.isDisplayed = isDisplayed;
-    }
 }

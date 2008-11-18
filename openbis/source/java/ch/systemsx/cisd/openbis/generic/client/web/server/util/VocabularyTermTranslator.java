@@ -14,27 +14,22 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
+package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 
 /**
- * The {@link EntityTypePropertyType} extension for <i>Sample Type</i>.
- * 
  * @author Izabela Adamczyk
  */
-public class SampleTypePropertyType extends EntityTypePropertyType<SampleType> implements
-        IsSerializable
+public class VocabularyTermTranslator
 {
-    private boolean isDisplayed;
 
-    public final boolean isDisplayed()
+    public static VocabularyTerm translate(VocabularyTermPE vt)
     {
-        return isDisplayed;
+        VocabularyTerm result = new VocabularyTerm();
+        result.setCode(vt.getCode());
+        return result;
     }
 
-    public final void setDisplayed(final boolean isDisplayed)
-    {
-        this.isDisplayed = isDisplayed;
-    }
 }

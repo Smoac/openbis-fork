@@ -101,4 +101,36 @@ abstract class AbstractTypeDAO<T extends AbstractTypePE> extends AbstractDAO
         final String className = getEntityClass().getSimpleName();
         return StringUtils.substring(className, 0, className.length() - 2);
     }
+
+    final List<T> listTypes() throws DataAccessException
+    {
+        return listTypes(true);
+    }
+
+    final List<T> listTypes(final boolean appendDatabaseInstance) throws DataAccessException
+    {
+        final List<T> list;
+        if (appendDatabaseInstance)
+        {
+            list =
+                    cast(getHibernateTemplate().find(
+                            String.format("from %s st where st.databaseInstance = ?",
+                                    getEntityClass().getSimpleName()), new Object[]
+                                { getDatabaseInstance() }));
+
+        } else
+        {
+            list =
+                    cast(getHibernateTemplate().find(
+                            String.format("from %s", getEntityClass().getSimpleName())));
+
+        }
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug("list" + getTypeDescription() + "s: " + list.size()
+                    + " type(s) have been found.");
+        }
+        return list;
+    }
+
 }

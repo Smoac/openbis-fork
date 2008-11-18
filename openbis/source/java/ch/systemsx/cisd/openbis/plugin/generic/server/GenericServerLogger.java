@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleToRegisterDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -172,5 +173,11 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
                 "SEARCHABLE-ENTITIES(%s) QUERY-TEXT(%s)", Arrays.toString(searchableEntities),
                 queryText);
         return null;
+    }
+
+    public void registerSample(String sessionToken, SampleToRegisterDTO newSample)
+    {
+        logTracking(sessionToken, "register_sample", "SAMPLE_TYPE(%s) SAMPLE(%S)", newSample
+                .getSampleTypeCode(), newSample.getSampleIdentifier());
     }
 }

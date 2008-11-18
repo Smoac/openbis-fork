@@ -16,25 +16,33 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * The {@link EntityTypePropertyType} extension for <i>Sample Type</i>.
+ * Controlled vocabulary.
  * 
  * @author Izabela Adamczyk
  */
-public class SampleTypePropertyType extends EntityTypePropertyType<SampleType> implements
-        IsSerializable
+public class Vocabulary implements IsSerializable
 {
-    private boolean isDisplayed;
 
-    public final boolean isDisplayed()
+    private List<VocabularyTerm> terms = new ArrayList<VocabularyTerm>();
+
+    public Vocabulary()
     {
-        return isDisplayed;
     }
 
-    public final void setDisplayed(final boolean isDisplayed)
+    public List<VocabularyTerm> getTerms()
     {
-        this.isDisplayed = isDisplayed;
+        return terms;
     }
+
+    public void setTerms(List<VocabularyTerm> terms)
+    {
+        this.terms = terms;
+    }
+
 }

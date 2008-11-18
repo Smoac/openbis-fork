@@ -27,6 +27,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -49,6 +50,13 @@ final class SampleTypeDAO extends AbstractTypeDAO<SampleTypePE> implements ISamp
         for (final SampleTypePE sampleTypePE : list)
         {
             HibernateUtils.initialize(sampleTypePE.getSampleTypePropertyTypes());
+            for (SampleTypePropertyTypePE stpt : sampleTypePE.getSampleTypePropertyTypes())
+            {
+                if (stpt.getPropertyType().getVocabulary() != null)
+                {
+                    HibernateUtils.initialize(stpt.getPropertyType().getVocabulary().getTerms());
+                }
+            }
         }
     }
 

@@ -21,10 +21,13 @@ import org.springframework.dao.DataAccessException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISamplePropertyDAO;
@@ -32,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * An <code>abstract</code> <i>Business Object</i>.
@@ -118,5 +122,20 @@ abstract class AbstractBusinessObject implements IDAOFactory
     public final IHibernateSearchDAO getHibernateSearchDAO()
     {
         return daoFactory.getHibernateSearchDAO();
+    }
+
+    public IPropertyTypeDAO getPropertyTypeDAO()
+    {
+        return daoFactory.getPropertyTypeDAO();
+    }
+
+    public IEntityTypeDAO getEntityTypeDAO(EntityKind entityKind)
+    {
+        return daoFactory.getEntityTypeDAO(entityKind);
+    }
+
+    public IEntityPropertyTypeDAO getEntityPropertyTypeDAO(EntityKind entityKind)
+    {
+        return daoFactory.getEntityPropertyTypeDAO(entityKind);
     }
 }

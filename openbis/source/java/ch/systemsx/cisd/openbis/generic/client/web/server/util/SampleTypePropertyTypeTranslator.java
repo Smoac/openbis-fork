@@ -17,11 +17,13 @@
 package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypeComparator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -48,14 +50,18 @@ public final class SampleTypePropertyTypeTranslator
 
     }
 
-    public static List<SampleTypePropertyType> translate(final Set<SampleTypePropertyTypePE> list,
+    public static List<SampleTypePropertyType> translate(final Set<SampleTypePropertyTypePE> set,
             final SampleType sampleType)
     {
-        final List<SampleTypePropertyType> result = new ArrayList<SampleTypePropertyType>();
-        if (HibernateUtils.isInitialized(list) == false)
+        if (HibernateUtils.isInitialized(set) == false)
         {
             return DtoConverters.createUnmodifiableEmptyList();
         }
+        // TODO 2008-11-17, IA: move sorting to server
+        ArrayList<SampleTypePropertyTypePE> list = new ArrayList<SampleTypePropertyTypePE>(set);
+        Collections.sort(list, new SampleTypePropertyTypeComparator());
+
+        final List<SampleTypePropertyType> result = new ArrayList<SampleTypePropertyType>();
         for (final SampleTypePropertyTypePE st : list)
         {
             final SampleTypePropertyType etpt = translate(st);

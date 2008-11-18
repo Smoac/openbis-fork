@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleToRegisterDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -32,4 +34,17 @@ public interface ISampleBO
 
     /** Returns the sample which has been loaded. */
     SamplePE getSample();
+
+    /**
+     * Defines a new sample. After invocation of this method {@link IBusinessObject#save()} should
+     * be invoked to store the new sample in the Data Access Layer.
+     * 
+     * @throws UserFailureException if specified sample type code is not a valid one.
+     */
+    void define(SampleToRegisterDTO newSample);
+
+    /**
+     * Writes changed are added data to the Data Access Layers.
+     */
+    public void save() throws UserFailureException;
 }

@@ -16,16 +16,23 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.hibernate.SessionFactory;
 
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISamplePropertyDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * @author Franz-Josef Elmer
@@ -42,6 +49,14 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
 
     private final IHibernateSearchDAO hibernateSearchDAO;
 
+    private final IPropertyTypeDAO propertyTypeDAO;
+
+    private final Map<EntityKind, IEntityTypeDAO> entityTypeDAOs =
+            new HashMap<EntityKind, IEntityTypeDAO>();
+
+    private final Map<EntityKind, IEntityPropertyTypeDAO> entityPropertyTypeDAOs =
+            new HashMap<EntityKind, IEntityPropertyTypeDAO>();
+
     public DAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory)
     {
@@ -52,6 +67,16 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         samplePropertyDAO = new SamplePropertyDAO(sessionFactory, databaseInstance);
         externalDataDAO = new ExternalDataDAO(sessionFactory, databaseInstance);
         hibernateSearchDAO = new HibernateSearchDAO(sessionFactory);
+        propertyTypeDAO = new PropertyTypeDAO(sessionFactory, databaseInstance);
+        final EntityKind[] entityKinds = EntityKind.values();
+        for (final EntityKind entityKind : entityKinds)
+        {
+            final EntityTypeDAO dao =
+                    new EntityTypeDAO(entityKind, sessionFactory, databaseInstance);
+            entityTypeDAOs.put(entityKind, dao);
+            entityPropertyTypeDAOs.put(entityKind, new EntityPropertyTypeDAO(entityKind,
+                    sessionFactory, databaseInstance));
+        }
     }
 
     //
@@ -81,5 +106,20 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     public final IHibernateSearchDAO getHibernateSearchDAO()
     {
         return hibernateSearchDAO;
+    }
+
+    public IEntityPropertyTypeDAO getEntityPropertyTypeDAO(EntityKind entityKind)
+    {
+        return entityPropertyTypeDAOs.get(entityKind);
+    }
+
+    public IEntityTypeDAO getEntityTypeDAO(EntityKind entityKind)
+    {
+        return entityTypeDAOs.get(entityKind);
+    }
+
+    public IPropertyTypeDAO getPropertyTypeDAO()
+    {
+        return propertyTypeDAO;
     }
 }

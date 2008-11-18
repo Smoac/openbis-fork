@@ -29,6 +29,10 @@ public class PropertyType implements IsSerializable
 
     private boolean internalNamespace;
 
+    private DataType dataType;
+
+    private Vocabulary vocabulary;
+
     public String getSimpleCode()
     {
         return simpleCode;
@@ -62,6 +66,35 @@ public class PropertyType implements IsSerializable
     public String getId()
     {
         return isInternalNamespace() + getSimpleCode();
+    }
+
+    public DataType getDataType()
+    {
+        return dataType;
+    }
+
+    public void setDataType(DataType dataType)
+    {
+        this.dataType = dataType;
+    }
+
+    public Vocabulary getVocabulary()
+    {
+        return vocabulary;
+    }
+
+    public void setVocabulary(Vocabulary vocabulary)
+    {
+        this.vocabulary = vocabulary;
+    }
+
+    public String getCode()
+    {
+        StringBuilder sb = new StringBuilder();
+        if (isInternalNamespace() == false)
+            sb.append("USER.");
+        sb.append(getSimpleCode());
+        return sb.toString().toUpperCase();
     }
 
 }

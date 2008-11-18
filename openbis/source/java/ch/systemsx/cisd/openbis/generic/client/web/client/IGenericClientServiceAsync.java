@@ -30,8 +30,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleToRegister;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
 /**
  * Asynchronous version of {@link IGenericClientService}.
@@ -109,4 +111,10 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
      * @see IGenericClientService#removeResultSet(String)
      */
     public void removeResultSet(final String resultSetKey, final AsyncCallback<Void> asyncCallback);
+
+    /**
+     * @see IGenericClientService#registerSample(SampleToRegister)
+     */
+    public void registerSample(final SampleToRegister sample,
+            final AsyncCallback<Void> asyncCallback) throws UserFailureException;
 }

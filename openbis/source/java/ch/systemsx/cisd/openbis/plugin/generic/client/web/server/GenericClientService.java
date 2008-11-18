@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleToRegister;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
@@ -46,13 +47,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetRe
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.GroupTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.ListSampleCriteriaTranslator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.util.SampleToRegisterTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.PersonTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.ResultSetTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.RoleAssignmentTranslator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.util.RoleCodeTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.SearchableEntityTranslator;
-import ch.systemsx.cisd.openbis.generic.client.web.server.util.RoleCodeTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
@@ -197,8 +199,8 @@ public final class GenericClientService extends AbstractClientService implements
             final GroupIdentifier groupIdentifier =
                     new GroupIdentifier(DatabaseInstanceIdentifier.HOME, group);
             final String sessionToken = getSessionToken();
-            genericServer.registerGroupRole(sessionToken, RoleCodeTranslator.translate(roleSetCode),
-                    groupIdentifier, person);
+            genericServer.registerGroupRole(sessionToken,
+                    RoleCodeTranslator.translate(roleSetCode), groupIdentifier, person);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -211,8 +213,8 @@ public final class GenericClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            genericServer.registerInstanceRole(sessionToken, RoleCodeTranslator.translate(roleSetCode),
-                    person);
+            genericServer.registerInstanceRole(sessionToken, RoleCodeTranslator
+                    .translate(roleSetCode), person);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -243,8 +245,8 @@ public final class GenericClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            genericServer.deleteInstanceRole(sessionToken, RoleCodeTranslator.translate(roleSetCode),
-                    person);
+            genericServer.deleteInstanceRole(sessionToken, RoleCodeTranslator
+                    .translate(roleSetCode), person);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -396,6 +398,19 @@ public final class GenericClientService extends AbstractClientService implements
             final IResultSetManager<String> resultSetManager = getResultSetManager();
             resultSetManager.removeResultSet(resultSetKey);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public final void registerSample(SampleToRegister sample)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            genericServer.registerSample(sessionToken, SampleToRegisterTranslator.translate(sample));
+        } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         }

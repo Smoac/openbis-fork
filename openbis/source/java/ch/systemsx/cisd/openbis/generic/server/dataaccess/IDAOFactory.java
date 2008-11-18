@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+
 /**
  * A <i>Data Access Object</i> factory.
  * 
@@ -48,4 +50,19 @@ public interface IDAOFactory extends IAuthorizationDAOFactory
      * Returns the {@link IHibernateSearchDAO} implementation.
      */
     public IHibernateSearchDAO getHibernateSearchDAO();
+
+    /**
+     * Returns the {@link IPropertyTypeDAO} implementation.
+     */
+    public IPropertyTypeDAO getPropertyTypeDAO();
+
+    /**
+     * Returns the {@link IEntityTypeDAO} implementation.
+     */
+    public IEntityTypeDAO getEntityTypeDAO(EntityKind entityKind);
+
+    /**
+     * Returns the {@link IEntityPropertyTypeDAO} implementation.
+     */
+    public IEntityPropertyTypeDAO getEntityPropertyTypeDAO(EntityKind entityKind);
 }

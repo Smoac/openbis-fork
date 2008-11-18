@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 import ch.systemsx.cisd.common.annotation.CollectionMapping;
 
 /**
@@ -26,7 +28,7 @@ import ch.systemsx.cisd.common.annotation.CollectionMapping;
  * 
  * @author Izabela Adamczyk
  */
-public final class SampleType extends EntityType
+public final class SampleType extends EntityType implements IsSerializable
 {
     private int generatedFromHierarchyDepth;
 

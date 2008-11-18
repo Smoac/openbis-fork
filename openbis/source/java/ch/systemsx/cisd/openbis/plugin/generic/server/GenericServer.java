@@ -30,6 +30,7 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.utilities.ParameterChecker;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
@@ -52,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleToRegisterDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -328,5 +330,14 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             throw new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
         }
         return list;
+    }
+
+    public final void registerSample(final String sessionToken, final SampleToRegisterDTO newSample)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        ParameterChecker.checkIfNotNull(newSample, "sample");
+        final ISampleBO sampleBO = getBusinessObjectFactory().createSampleBO(session);
+        sampleBO.define(newSample);
+        sampleBO.save();
     }
 }
