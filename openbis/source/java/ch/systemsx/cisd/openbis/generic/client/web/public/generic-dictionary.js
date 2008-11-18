@@ -75,9 +75,10 @@ var generic = {
   search_button: "Search",
   global_search: "[{0}]: '{1}'",
   identifier: "Identifier",
-  no_match: "No results found for '{0}'",
+  no_match: "No results found for '{0}'.",
   entity_type: "Entity Type",
   entity_kind: "Entity Kind",
+  too_generic: "Query string '{0}' is too generic.",
   
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

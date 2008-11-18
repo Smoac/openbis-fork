@@ -79,8 +79,6 @@ final class SearchWidget extends LayoutContainer
 
     private final Image loadingImage;
 
-    private boolean searching;
-
     SearchWidget(final IViewContext<IGenericClientServiceAsync> viewContext)
     {
         final TableRowLayout tableRowLayout = createLayout();
@@ -96,7 +94,8 @@ final class SearchWidget extends LayoutContainer
                 @Override
                 protected final void onEnterKey()
                 {
-                    if (searching == false)
+                    // While searching the search button is disabled.
+                    if (searchButton.isEnabled())
                     {
                         doSearch();
                     }
@@ -115,9 +114,14 @@ final class SearchWidget extends LayoutContainer
 
     private final void enableSearch(final boolean enable)
     {
-        searching = enable == false;
         searchButton.setEnabled(enable);
         loadingImage.setVisible(enable == false);
+    }
+
+    private final void selectAllAndFocus()
+    {
+        textField.selectAll();
+        textField.focus();
     }
 
     private final static Image createLoadingImage()
@@ -160,6 +164,25 @@ final class SearchWidget extends LayoutContainer
         final String queryText = textField.getValue();
         if (StringUtils.isBlank(queryText) == false)
         {
+            if ("*".equals(queryText) || "?".equals(queryText))
+            {
+                final IMessageProvider messageProvider = viewContext.getMessageProvider();
+                MessageBox.alert(messageProvider.getMessage("messagebox_warning"), messageProvider
+                        .getMessage("too_generic", queryText), new Listener<WindowEvent>()
+                    {
+
+                        //
+                        // Listener
+                        //
+
+                        public final void handleEvent(final WindowEvent be)
+                        {
+                            selectAllAndFocus();
+                        }
+
+                    });
+                return;
+            }
             enableSearch(false);
             viewContext.getService()
                     .listMatchingEntities(
@@ -255,7 +278,7 @@ final class SearchWidget extends LayoutContainer
 
                         public final void handleEvent(final WindowEvent be)
                         {
-                            textField.focus();
+                            selectAllAndFocus();
                         }
                     });
                 return;
