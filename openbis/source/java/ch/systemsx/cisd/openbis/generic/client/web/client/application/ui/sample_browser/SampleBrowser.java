@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.TabPanelEvent;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 
@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Propert
  * 
  * @author Izabela Adamczyk
  */
-public final class SampleBrowser extends ContentPanel implements Listener<TabPanelEvent>
+public final class SampleBrowser extends LayoutContainer implements Listener<TabPanelEvent>
 {
     private static final String PREFIX = "sample-browser";
 
@@ -50,8 +50,6 @@ public final class SampleBrowser extends ContentPanel implements Listener<TabPan
         this.viewContext = viewContext;
         setId(ID);
         setLayout(new RowLayout());
-        setHeaderVisible(false);
-        setHeading("Sample browser");
 
         final CommonColumns commonColumns = new CommonColumns(viewContext.getMessageProvider());
         final ParentColumns parentColumns = new ParentColumns(viewContext.getMessageProvider());

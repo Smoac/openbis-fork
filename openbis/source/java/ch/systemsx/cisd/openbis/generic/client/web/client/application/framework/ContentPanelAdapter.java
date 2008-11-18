@@ -27,7 +27,6 @@ import com.extjs.gxt.ui.client.widget.Header;
  * 
  * @author Christian Ribeaud
  */
-// TODO 2008-11-12, Christian Ribeaud: Remove this when each component is a ITabItem.
 public final class ContentPanelAdapter implements ITabItem
 {
     private final ContentPanel contentPanel;

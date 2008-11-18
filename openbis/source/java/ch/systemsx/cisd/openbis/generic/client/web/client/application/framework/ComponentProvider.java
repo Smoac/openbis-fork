@@ -26,10 +26,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_
 
 /**
  * Creates and provides GUI modules/components (such as sample browser).
+ * <p>
+ * Note that the returned object must be a {@link ITabItem} implementation.
+ * </p>
  * 
  * @author Izabela Adamczyk
  */
-// TODO 2008-11-12, Christian Ribeaud: Each component should be a ITabItem.
 final class ComponentProvider
 {
     private final SampleBrowser sampleBrowser;
@@ -57,38 +59,38 @@ final class ComponentProvider
         sampleBatchRegistration = new SampleBatchRegistrationMock(viewContext);
     }
 
-    public SampleBrowser getSampleBrowser()
+    public final ITabItem getSampleBrowser()
     {
-        return sampleBrowser;
+        return new DefaultTabItem("Sample browser", sampleBrowser, sampleBrowser);
     }
 
-    public DummyComponent getDummyComponent()
+    public final ITabItem getDummyComponent()
     {
-        return dummyComponent;
+        return new DefaultTabItem("Not implemented feature", dummyComponent);
     }
 
-    public GroupsView getGroupsView()
+    public final ITabItem getGroupsView()
     {
-        return groupsView;
+        return new ContentPanelAdapter(groupsView);
     }
 
-    public RolesView getRolesView()
+    public final ITabItem getRolesView()
     {
-        return rolesView;
+        return new ContentPanelAdapter(rolesView);
     }
 
-    public PersonsView getPersonsView()
+    public final ITabItem getPersonsView()
     {
-        return personsView;
+        return new ContentPanelAdapter(personsView);
     }
 
-    public SampleRegistrationMock getSampleRegistration()
+    public final ITabItem getSampleRegistration()
     {
-        return sampleRegistration;
+        return new ContentPanelAdapter(sampleRegistration);
     }
 
-    public SampleBatchRegistrationMock getSampleBatchRegistration()
+    public ITabItem getSampleBatchRegistration()
     {
-        return sampleBatchRegistration;
+        return new ContentPanelAdapter(sampleBatchRegistration);
     }
 }

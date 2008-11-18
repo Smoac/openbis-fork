@@ -58,7 +58,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
  */
 public class GroupsView extends ContentPanel
 {
-
     public static final String ID = GenericConstants.ID_PREFIX + "groups-view";
 
     public static final String TABLE_ID = ID + "_table";

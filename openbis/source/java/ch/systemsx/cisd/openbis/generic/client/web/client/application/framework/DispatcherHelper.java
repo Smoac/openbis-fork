@@ -23,8 +23,6 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.Component;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-
 /**
  * A helper for using {@link Dispatcher}.
  * 
@@ -52,7 +50,7 @@ public final class DispatcherHelper
     public final static AppEvent<ITabItem> createNaviEvent(final ITabItem tabItem)
     {
         final AppEvent<ITabItem> event = new AppEvent<ITabItem>(AppEvents.NAVI_EVENT);
-        event.setData(GenericConstants.ASSOCIATED_CONTENT_PANEL, tabItem);
+        event.data = tabItem;
         return event;
     }
 

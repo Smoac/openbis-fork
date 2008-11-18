@@ -24,7 +24,6 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.event.WindowEvent;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -35,6 +34,7 @@ import com.google.gwt.user.client.ui.Image;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EnterKeyListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
@@ -79,6 +79,8 @@ final class SearchWidget extends LayoutContainer
 
     private final Image loadingImage;
 
+    private boolean searching;
+
     SearchWidget(final IViewContext<IGenericClientServiceAsync> viewContext)
     {
         final TableRowLayout tableRowLayout = createLayout();
@@ -94,7 +96,10 @@ final class SearchWidget extends LayoutContainer
                 @Override
                 protected final void onEnterKey()
                 {
-                    doSearch();
+                    if (searching == false)
+                    {
+                        doSearch();
+                    }
                 }
             };
         textField = createTextField();
@@ -110,8 +115,9 @@ final class SearchWidget extends LayoutContainer
 
     private final void enableSearch(final boolean enable)
     {
+        searching = enable == false;
         searchButton.setEnabled(enable);
-        loadingImage.setVisible(!enable);
+        loadingImage.setVisible(enable == false);
     }
 
     private final static Image createLoadingImage()
@@ -255,14 +261,14 @@ final class SearchWidget extends LayoutContainer
                 return;
             }
             textField.reset();
-            final AppEvent<ContentPanel> event = new AppEvent<ContentPanel>(AppEvents.NAVI_EVENT);
+            final AppEvent<ITabItem> event = new AppEvent<ITabItem>(AppEvents.NAVI_EVENT);
             final String selectedText =
                     entityChooser.getValue().get(ModelDataPropertyNames.DESCRIPTION);
             final MatchingEntitiesPanel matchingEntitiesPanel =
                     new MatchingEntitiesPanel(castViewContext(), searchableEntityOrNull, queryText);
-            event.setData(GenericConstants.ASSOCIATED_CONTENT_PANEL, new DefaultTabItem(viewContext
-                    .getMessageProvider().getMessage("global_search", selectedText, queryText),
-                    matchingEntitiesPanel, matchingEntitiesPanel));
+            event.data =
+                    new DefaultTabItem(viewContext.getMessageProvider().getMessage("global_search",
+                            selectedText, queryText), matchingEntitiesPanel, matchingEntitiesPanel);
             matchingEntitiesPanel.setFirstResulSet(result);
             Dispatcher.get().dispatch(event);
         }

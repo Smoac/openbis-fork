@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.TabPanelEvent;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.View;
@@ -29,7 +27,6 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.google.gwt.user.client.ui.RootPanel;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TopMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Footer;
@@ -64,18 +61,7 @@ final class AppView extends View
     @SuppressWarnings("unchecked")
     private final ITabItem getData(final AppEvent<?> event)
     {
-        final Object data = event.getData(GenericConstants.ASSOCIATED_CONTENT_PANEL);
-        if (data instanceof ContentPanel)
-        {
-            // TODO 2008-11-12, Christian Ribeaud: Remove this when each component is a ITabItem.
-            Listener<TabPanelEvent> tabPanelEventListener = null;
-            if (data instanceof Listener)
-            {
-                tabPanelEventListener = (Listener<TabPanelEvent>) data;
-            }
-            return new ContentPanelAdapter((ContentPanel) data, tabPanelEventListener);
-        }
-        return (ITabItem) data;
+        return ((AppEvent<ITabItem>) event).data;
     }
 
     private final void activateTab(final ITabItem tabItem)

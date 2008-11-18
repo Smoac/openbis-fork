@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
-import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
  * 
  * @author Izabela Adamczyk
  */
-public final class DummyComponent extends ContentPanel
+public final class DummyComponent extends LayoutContainer
 {
     private static final String PREFIX = "dummy-component";
 
@@ -35,10 +35,7 @@ public final class DummyComponent extends ContentPanel
     public DummyComponent()
     {
         setId(ID);
-        setHeading("Not implemented feature");
-        setHeaderVisible(false);
         setLayout(new CenterLayout());
         addText("<div class='dummy-component'>This feature will be implemented later...</div>");
-        setBodyBorder(false);
     }
 }

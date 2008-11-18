@@ -41,6 +41,4 @@ public class GenericConstants
         return "/" + APPLICATION_NAME + "/" + (GWT.isScript() ? APPLICATION_NAME + "/" : "")
                 + serviceName;
     }
-
-    public static final String ASSOCIATED_CONTENT_PANEL = "associated-panel";
 }

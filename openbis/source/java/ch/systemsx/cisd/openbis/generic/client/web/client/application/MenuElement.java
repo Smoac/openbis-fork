@@ -16,28 +16,26 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import com.extjs.gxt.ui.client.widget.ContentPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 
 /**
  * Element of the {@link MenuCategory}.
  * 
  * @author Izabela Adamczyk
  */
-public class MenuElement
+public final class MenuElement
 {
     private final String title;
 
-    private final ContentPanel associatedComponent;
+    private final ITabItem tabItem;
 
     private final String partOfId;
 
-    public MenuElement(final String partOfId, final String title,
-            final ContentPanel associatedComponent)
+    public MenuElement(final String partOfId, final String title, final ITabItem tabItem)
     {
-
         this.partOfId = partOfId;
         this.title = title;
-        this.associatedComponent = associatedComponent;
+        this.tabItem = tabItem;
     }
 
     public String getTitle()
@@ -45,9 +43,9 @@ public class MenuElement
         return title;
     }
 
-    public ContentPanel getAssociatedContentPanel()
+    public ITabItem getTabItem()
     {
-        return associatedComponent;
+        return tabItem;
     }
 
     public String getPartOfId()
