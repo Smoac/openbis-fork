@@ -48,7 +48,8 @@ public final class Experiment extends AbstractEntity<Experiment>
 
     private ProjectPE project;
 
-    private ProcessingInstructionDTO[] processingInstructions = ProcessingInstructionDTO.EMPTY_ARRAY;
+    private ProcessingInstructionDTO[] processingInstructions =
+            ProcessingInstructionDTO.EMPTY_ARRAY;
 
     private InvalidationPE invalidation;
 
@@ -93,20 +94,20 @@ public final class Experiment extends AbstractEntity<Experiment>
     }
 
     /**
-     * Returns the descriptions of all {@link FileAttachmentPE}s that are stored for this
+     * Returns the descriptions of all {@link AttachmentPE}s that are stored for this
      * experiment. If there are no such properties, the array will be empty (have length 0).
      */
     public final AttachmentPE[] getAttachments()
     {
         if (attachments == null)
         {
-            return new AttachmentPE[0];
+            return AttachmentPE.EMPTY_ARRAY;
         }
         return attachments;
     }
 
     /**
-     * Sets the descriptions of all {@link FileAttachmentPE}s.
+     * Sets the descriptions of all {@link AttachmentPE}s.
      */
     public final void setAttachments(final AttachmentPE[] attachments)
     {
@@ -152,7 +153,8 @@ public final class Experiment extends AbstractEntity<Experiment>
         return processingInstructions;
     }
 
-    public final void setProcessingInstructions(final ProcessingInstructionDTO[] processingInstructions)
+    public final void setProcessingInstructions(
+            final ProcessingInstructionDTO[] processingInstructions)
     {
         this.processingInstructions = processingInstructions;
     }

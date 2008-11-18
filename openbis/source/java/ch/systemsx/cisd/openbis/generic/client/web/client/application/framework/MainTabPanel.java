@@ -38,13 +38,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
  */
 public class MainTabPanel extends TabPanel
 {
-    private static final String PREFIX = "main-tab-panel_";
+    private static final String PREFIX = GenericConstants.ID_PREFIX + "main-tab-panel_";
 
     public static final String TAB_SUFFIX = "_tab";
 
     private final IViewContext<IGenericClientServiceAsync> viewContext;
 
-    public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
+    public static final String ID = PREFIX.substring(0, PREFIX.length() - 1);
 
     MainTabPanel(final IViewContext<IGenericClientServiceAsync> viewContext)
     {
@@ -52,14 +52,13 @@ public class MainTabPanel extends TabPanel
         setLayout(new FitLayout());
         setTabScroll(true);
         add(createWelcomePanel());
-        // Remove last '_'.
-        setId(ID.substring(0, ID.length() - 1));
+        setId(ID);
     }
 
     private final MainTabItem createWelcomePanel()
     {
         final LayoutContainer layoutContainer = new LayoutContainer(new CenterLayout());
-        layoutContainer.setId(ID + "welcome");
+        layoutContainer.setId(PREFIX + "welcome");
         layoutContainer.addText(createWelcomeText());
         final MainTabItem intro = new MainTabItem(new DefaultTabItem("&nbsp;", layoutContainer));
         intro.setClosable(false);
@@ -123,7 +122,7 @@ public class MainTabPanel extends TabPanel
         public MainTabItem(final ITabItem tabItem)
         {
             this.tabItem = tabItem;
-            setId(ID + tabItem.getId() + TAB_SUFFIX);
+            setId(PREFIX + tabItem.getId() + TAB_SUFFIX);
             setClosable(true);
             setLayout(new FitLayout());
             setText(tabItem.getTitle());

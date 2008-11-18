@@ -16,32 +16,182 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import java.util.Collections;
-import java.util.Set;
+import java.io.Serializable;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.hibernate.validator.Length;
+import org.hibernate.validator.NotNull;
+
+import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
 /**
- * Contains information about an attachment. Does not contain attachment content.<br>
- * NOTE: this class does not add anything to the superclass. It exists only because superclasses
- * cannot be mapped to tables in Hibernate.
+ * Contains information about an attachment together with its content.
  * 
- * @author Tomasz Pylak
+ * @author Bernd Rinn
  */
 @Entity
 @Table(name = TableNames.EXPERIMENT_ATTACHMENTS_TABLE, uniqueConstraints =
     { @UniqueConstraint(columnNames =
         { ColumnNames.EXPERIMENT_COLUMN, ColumnNames.FILE_NAME_COLUMN, ColumnNames.VERSION_COLUMN }) })
-public class AttachmentPE extends AbstractAttachmentPE
+public class AttachmentPE extends HibernateAbstractRegistrationHolder implements Serializable,
+        Comparable<AttachmentPE>
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
-    public static final Set<AttachmentPE> EMPTY_SET = Collections.emptySet();
-
     public static final AttachmentPE[] EMPTY_ARRAY = new AttachmentPE[0];
+
+    private byte[] value;
+
+    private String fileName;
+
+    private int version;
+
+    transient private Long id;
+
+    /**
+     * Parent (e.g. an experiment) to which this attachment belongs.
+     */
+    private ExperimentPE parent;
+
+    /**
+     * Returns the file name of the property or <code>null</code>.
+     */
+    @Column(name = ColumnNames.FILE_NAME_COLUMN)
+    @NotNull(message = ValidationMessages.FILE_NAME_NOT_NULL_MESSAGE)
+    @Length(max = 100, message = ValidationMessages.FILE_NAME_LENGTH_MESSAGE)
+    public String getFileName()
+    {
+        return fileName;
+    }
+
+    public void setFileName(final String fileName)
+    {
+        this.fileName = fileName;
+    }
+
+    @Column(name = ColumnNames.VERSION_COLUMN)
+    @NotNull(message = ValidationMessages.VERSION_NOT_NULL_MESSAGE)
+    public int getVersion()
+    {
+        return version;
+    }
+
+    public void setVersion(final int version)
+    {
+        this.version = version;
+    }
+
+    @SequenceGenerator(name = SequenceNames.EXPERIMENT_ATTACHMENT_SEQUENCE, sequenceName = SequenceNames.EXPERIMENT_ATTACHMENT_SEQUENCE, allocationSize = 1)
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.EXPERIMENT_ATTACHMENT_SEQUENCE)
+    public final Long getId()
+    {
+        return id;
+    }
+
+    public final void setId(final Long id)
+    {
+        this.id = id;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotNull(message = ValidationMessages.EXPERIMENT_NOT_NULL_MESSAGE)
+    @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN, updatable = false)
+    public ExperimentPE getParent()
+    {
+        return parent;
+    }
+
+    public void setParent(final ExperimentPE parent)
+    {
+        this.parent = parent;
+    }
+
+    /**
+     * Returns bytes blob stored in the attachment.
+     */
+    @NotNull(message = ValidationMessages.ATTACHMENT_CONTENT_NOT_NULL_MESSAGE)
+    public byte[] getValue()
+    {
+        return value;
+    }
+
+    public void setValue(final byte[] value)
+    {
+        this.value = value;
+    }
+
+    //
+    // Object
+    //
+
+    @Override
+    public final boolean equals(final Object obj)
+    {
+        EqualsHashUtils.assertDefined(getFileName(), "name");
+        EqualsHashUtils.assertDefined(getVersion(), "version");
+        if (obj == this)
+        {
+            return true;
+        }
+        if (obj instanceof AttachmentPE == false)
+        {
+            return false;
+        }
+        final AttachmentPE that = (AttachmentPE) obj;
+        final EqualsBuilder builder = new EqualsBuilder();
+        builder.append(getFileName(), that.getFileName());
+        builder.append(getVersion(), that.getVersion());
+        builder.append(getParent(), that.getParent());
+        return builder.isEquals();
+    }
+
+    @Override
+    public final int hashCode()
+    {
+        final HashCodeBuilder builder = new HashCodeBuilder();
+        builder.append(getFileName());
+        builder.append(getVersion());
+        builder.append(getParent());
+        return builder.toHashCode();
+    }
+
+    @Override
+    public final String toString()
+    {
+        final ToStringBuilder builder =
+                new ToStringBuilder(this,
+                        ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
+        builder.append("len(value)", value != null ? value.length : null);
+        builder.append("fileName", fileName);
+        builder.append("version", version);
+        return builder.toString();
+    }
+
+    //
+    // Comparable
+    //
+
+    public final int compareTo(final AttachmentPE o)
+    {
+        final int byFile = getFileName().compareTo(o.getFileName());
+        return byFile == 0 ? Integer.valueOf(getVersion()).compareTo(o.getVersion()) : byFile;
+    }
 
 }

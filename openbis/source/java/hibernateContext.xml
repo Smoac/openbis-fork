@@ -53,7 +53,6 @@
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE</value>
 
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.FileAttachmentPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE</value>
 
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE</value>

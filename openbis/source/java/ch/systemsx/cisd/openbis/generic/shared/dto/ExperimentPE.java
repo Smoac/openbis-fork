@@ -450,7 +450,7 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
         return builder.toString();
     }
 
-    public final static void unescapeFileName(final AbstractAttachmentPE attachment)
+    public final static void unescapeFileName(final AttachmentPE attachment)
     {
         if (attachment != null)
         {
