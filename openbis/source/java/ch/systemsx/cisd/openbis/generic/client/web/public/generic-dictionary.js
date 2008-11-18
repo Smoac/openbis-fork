@@ -51,8 +51,8 @@ var generic = {
   experiment: "Experiment",
   experiment_identifier: "Experiment Identifier",
   generated_samples: "Generated Samples",
-  generated_from: "Parent (gener.) {0}",
-  part_of: "Parent (cont.) {0}",
+  generated_from: "Parent {0}",
+  part_of: "Container {0}",
     
   //
   // Invalidation

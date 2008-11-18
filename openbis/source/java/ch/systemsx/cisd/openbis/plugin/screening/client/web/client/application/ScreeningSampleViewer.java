@@ -29,7 +29,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.ObjectArrayPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
@@ -74,8 +73,7 @@ public final class ScreeningSampleViewer extends LayoutContainer
         properties.put(messageProvider.getMessage("sample"), sample);
         properties.put(messageProvider.getMessage("sample_type"), sampleType);
         properties.put(messageProvider.getMessage(REGISTRATOR), sample.getRegistrator());
-        properties.put(messageProvider.getMessage(REGISTRATION_DATE), sample
-                .getRegistrationDate());
+        properties.put(messageProvider.getMessage(REGISTRATION_DATE), sample.getRegistrationDate());
         if (generated.length > 0)
         {
             properties.put(messageProvider.getMessage("generated_samples"), generated);
@@ -87,7 +85,7 @@ public final class ScreeningSampleViewer extends LayoutContainer
         Sample generatedFrom = sample.getGeneratedFrom();
         for (int i = 0; i < sampleType.getGeneratedFromHierarchyDepth() && generatedFrom != null; i++)
         {
-            properties.put(generatedFrom.getSampleType().getDescription(), generatedFrom);
+            properties.put(messageProvider.getMessage("generated_from", i + 1), generatedFrom);
             generatedFrom = generatedFrom.getGeneratedFrom();
         }
         for (final SampleProperty property : sample.getProperties())
@@ -108,12 +106,8 @@ public final class ScreeningSampleViewer extends LayoutContainer
                 .createPersonPropertyValueRenderer(messageProvider));
         propertyGrid.registerPropertyValueRenderer(SampleType.class, PropertyValueRenderers
                 .createSampleTypePropertyValueRenderer(messageProvider));
-        propertyGrid.registerPropertyValueRenderer(Sample[].class,
-                new ObjectArrayPropertyValueRenderer<Sample>(messageProvider,
-                        PropertyValueRenderers.createSamplePropertyValueRenderer(messageProvider,
-                                true)));
         propertyGrid.registerPropertyValueRenderer(Sample.class, PropertyValueRenderers
-                .createSamplePropertyValueRenderer(messageProvider, false));
+                .createSamplePropertyValueRenderer(messageProvider, true));
         propertyGrid.registerPropertyValueRenderer(Invalidation.class, PropertyValueRenderers
                 .createInvalidationPropertyValueRenderer(messageProvider));
         propertyGrid.registerPropertyValueRenderer(SampleProperty.class, PropertyValueRenderers
