@@ -282,6 +282,7 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
     }
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "parent")
+    @IndexedEmbedded
     @Private
     public Set<AttachmentPE> getExperimentAttachments()
     {

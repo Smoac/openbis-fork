@@ -27,7 +27,10 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Type;
+import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Store;
 import org.hibernate.validator.NotNull;
 
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
@@ -66,7 +69,7 @@ public class AttachmentContentPE implements Serializable
     @Column(name = ColumnNames.VALUE_COLUMN, updatable = false)
     @NotNull(message = ValidationMessages.VALUE_NOT_NULL_MESSAGE)
     @Type(type = "org.springframework.orm.hibernate3.support.BlobByteArrayType")
-    @FieldBridge(impl = ByteArrayBridge.class)
+    @Field(bridge = @FieldBridge(impl = ByteArrayBridge.class), index = Index.TOKENIZED, store = Store.NO)
     public byte[] getValue()
     {
         return value;

@@ -47,6 +47,13 @@ public enum SearchableEntity
     },
     EXPERIMENT("Experiment")
     {
+
+        private final String[] getAttachmentFields()
+        {
+            return new String[]
+                { "experimentAttachments.attachmentContent.value" };
+        }
+
         //
         // SearchableEntity
         //
@@ -60,8 +67,8 @@ public enum SearchableEntity
         @Override
         public final String[] getFields()
         {
-            return (String[]) ArrayUtils.addAll(getStandardFields(), getPropertyFields(name()
-                    .toLowerCase()));
+            return (String[]) ArrayUtils.addAll(ArrayUtils.addAll(getStandardFields(),
+                    getPropertyFields(name().toLowerCase())), getAttachmentFields());
         }
     },
     MATERIAL("Material")
