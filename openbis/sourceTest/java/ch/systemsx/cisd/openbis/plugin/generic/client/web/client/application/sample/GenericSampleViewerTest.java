@@ -92,10 +92,10 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                     assertEquals("wrong-code", invalidation.getReason());
                 }
             });
-        checkSample.property("Dilution Plate").asCode("3V-123");
-        checkSample.property("Dilution Plate").asInvalidEntity();
-        checkSample.property("Master Plate").asCode("MP001-1");
-        checkSample.property("Master Plate").asInvalidEntity();
+        checkSample.property("Parent 1").asCode("3V-123");
+        checkSample.property("Parent 1").asInvalidEntity();
+        checkSample.property("Parent 2").asCode("MP001-1");
+        checkSample.property("Parent 2").asInvalidEntity();
 
         checkSample.componentsTable().expectedSize(0);
         CheckTableCommand dataTable = checkSample.dataTable().expectedSize(2);
