@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
@@ -262,6 +263,9 @@ public class EntityPropertiesConverterTest
         materialTypePE.setId(materialTypeId);
         materialTypePE.setCode(materialTypeCode);
         materialTypePE.setDescription("");
+        DatabaseInstancePE databaseInstancePE = new DatabaseInstancePE();
+        databaseInstancePE.setCode("db");
+        materialTypePE.setDatabaseInstance(databaseInstancePE);
         return materialTypePE;
     }
 
