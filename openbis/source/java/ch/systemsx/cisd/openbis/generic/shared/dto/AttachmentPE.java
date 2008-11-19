@@ -126,7 +126,7 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
         this.parent = parent;
     }
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @NotNull(message = ValidationMessages.ATTACHMENT_CONTENT_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.EXPERIMENT_ATTACHMENT_CONTENT_COLUMN, updatable = false)
     @IndexedEmbedded
