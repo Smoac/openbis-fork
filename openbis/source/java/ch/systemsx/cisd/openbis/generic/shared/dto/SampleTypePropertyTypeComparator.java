@@ -18,6 +18,11 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.util.Comparator;
 
+/**
+ * Comparator for {@link SampleTypePropertyTypePE}s.
+ * 
+ * @author Izabela Adamczyk
+ */
 public final class SampleTypePropertyTypeComparator implements Comparator<SampleTypePropertyTypePE>
 {
 
