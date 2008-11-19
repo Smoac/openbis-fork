@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -191,7 +190,7 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
         this.roleAssignments = rolesAssignments;
     }
 
-    public final void setRoleAssignments(final List<RoleAssignmentPE> rolesAssignments)
+    public final void setRoleAssignments(final Iterable<RoleAssignmentPE> rolesAssignments)
     {
         getRoleAssignmentsInternal().clear();
         for (final RoleAssignmentPE child : rolesAssignments)
@@ -249,7 +248,8 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
         }
         final PersonPE that = (PersonPE) obj;
         final EqualsBuilder builder = new EqualsBuilder();
-        builder.append(userId, that.userId);
+        builder.append(getUserId(), that.getUserId());
+        builder.append(getDatabaseInstance(), that.getDatabaseInstance());
         return builder.isEquals();
     }
 
@@ -257,7 +257,8 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
     public final int hashCode()
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
-        builder.append(userId);
+        builder.append(getUserId());
+        builder.append(getDatabaseInstance());
         return builder.toHashCode();
     }
 

@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -68,7 +68,7 @@ public class ExperimentTypePropertyTypePE extends EntityTypePropertyTypePE
     @SuppressWarnings("unused")
     // for Hibernate only
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, mappedBy = "entityTypePropertyType", targetEntity = ExperimentPropertyPE.class)
-    private List<EntityPropertyPE> getPropertyValues()
+    private Set<EntityPropertyPE> getPropertyValues()
     {
         return propertyValues;
     }

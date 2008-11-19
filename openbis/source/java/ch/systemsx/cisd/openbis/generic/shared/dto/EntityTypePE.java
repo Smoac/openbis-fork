@@ -21,12 +21,15 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.validator.NotNull;
 
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
 /**
  * Persistence Entity representing entity type.
@@ -78,4 +81,36 @@ public abstract class EntityTypePE extends AbstractTypePE
         return builder;
     }
 
+    //
+    // Object
+    //
+
+    @Override
+    public boolean equals(final Object obj)
+    {
+        EqualsHashUtils.assertDefined(getCode(), "code");
+        EqualsHashUtils.assertDefined(getDatabaseInstance(), "database instance");
+        if (obj == this)
+        {
+            return true;
+        }
+        if (obj instanceof EntityTypePE == false)
+        {
+            return false;
+        }
+        final EntityTypePE that = (EntityTypePE) obj;
+        final EqualsBuilder builder = new EqualsBuilder();
+        builder.append(getCode(), that.getCode());
+        builder.append(getDatabaseInstance(), that.getDatabaseInstance());
+        return builder.isEquals();
+    }
+
+    @Override
+    public int hashCode()
+    {
+        final HashCodeBuilder builder = new HashCodeBuilder();
+        builder.append(getCode());
+        builder.append(getDatabaseInstance());
+        return builder.toHashCode();
+    }
 }

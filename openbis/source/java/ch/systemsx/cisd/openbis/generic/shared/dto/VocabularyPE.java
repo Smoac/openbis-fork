@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -146,7 +145,7 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
         return new UnmodifiableSetDecorator<VocabularyTermPE>(getVocabularyTerms());
     }
 
-    public final void setTerms(final List<VocabularyTermPE> terms)
+    public final void setTerms(final Iterable<VocabularyTermPE> terms)
     {
         getVocabularyTerms().clear();
         for (final VocabularyTermPE child : terms)
@@ -250,6 +249,8 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
         final VocabularyPE that = (VocabularyPE) obj;
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(getCode(), that.getCode());
+        builder.append(isInternalNamespace(), that.isInternalNamespace());
+        builder.append(getDatabaseInstance(), that.getDatabaseInstance());
         return builder.isEquals();
     }
 
@@ -258,6 +259,8 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(getCode());
+        builder.append(isInternalNamespace());
+        builder.append(getDatabaseInstance());
         return builder.toHashCode();
     }
 

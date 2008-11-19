@@ -61,7 +61,7 @@ public abstract class AbstractIdAndCodeHolder<T extends IIdAndCodeHolder> implem
     //
 
     @Override
-    public final boolean equals(final Object obj)
+    public boolean equals(final Object obj)
     {
         EqualsHashUtils.assertDefined(getCode(), "code");
         if (obj == this)
@@ -79,7 +79,7 @@ public abstract class AbstractIdAndCodeHolder<T extends IIdAndCodeHolder> implem
     }
 
     @Override
-    public final int hashCode()
+    public int hashCode()
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(getCode());
