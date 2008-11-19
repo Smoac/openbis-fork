@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
  * 
  * @author Christian Ribeaud
  */
-public class ExternalData extends CodeWithRegistration
+public class ExternalData extends CodeWithRegistration<ExternalData>
 {
     private String location;
 

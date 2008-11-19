@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
  * 
  * @author Tomasz Pylak
  */
-public class Experiment extends CodeWithRegistration implements Comparable<Experiment>
+public class Experiment extends CodeWithRegistration<Experiment>
 {
     private Project project;
 
@@ -65,6 +65,7 @@ public class Experiment extends CodeWithRegistration implements Comparable<Exper
     // Comparable
     //
 
+    @Override
     public final int compareTo(final Experiment o)
     {
         return getExperimentIdentifier().compareTo(o.getExperimentIdentifier());

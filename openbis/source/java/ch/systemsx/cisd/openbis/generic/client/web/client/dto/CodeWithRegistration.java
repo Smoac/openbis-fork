@@ -21,7 +21,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
  * 
  * @author Christian Ribeaud
  */
-public class CodeWithRegistration extends AbstractRegistrationHolder implements ICodeProvider
+public class CodeWithRegistration<T extends CodeWithRegistration<T>> extends
+        AbstractRegistrationHolder implements ICodeProvider, Comparable<T>
 {
     private String code;
 
@@ -37,5 +38,14 @@ public class CodeWithRegistration extends AbstractRegistrationHolder implements 
     public final String getCode()
     {
         return code;
+    }
+
+    //
+    // Comparable
+    //
+
+    public int compareTo(final T o)
+    {
+        return Code.CODE_PROVIDER_COMPARATOR.compare(this, o);
     }
 }

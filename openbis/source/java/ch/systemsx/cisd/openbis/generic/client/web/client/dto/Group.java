@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
  * 
  * @author Franz-Josef Elmer
  */
-public final class Group extends CodeWithRegistration
+public final class Group extends CodeWithRegistration<Group>
 {
     private String description;
 

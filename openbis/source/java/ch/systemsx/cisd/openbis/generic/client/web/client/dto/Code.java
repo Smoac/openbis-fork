@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import java.util.Comparator;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
@@ -25,6 +27,9 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public class Code<T extends Code<T>> implements IsSerializable, ICodeProvider, Comparable<T>
 {
+    public final static Comparator<ICodeProvider> CODE_PROVIDER_COMPARATOR =
+            new CodeProviderComparator();
+
     private String code;
 
     public final void setCode(final String code)
@@ -45,17 +50,37 @@ public class Code<T extends Code<T>> implements IsSerializable, ICodeProvider, C
     // Comparable
     //
 
-    public int compareTo(final T o)
+    public final int compareTo(final T o)
     {
-        final String thatCode = o.code;
-        if (code == null)
+        return CODE_PROVIDER_COMPARATOR.compare(this, o);
+    }
+
+    //
+    // Helper classes
+    //
+
+    public final static class CodeProviderComparator implements Comparator<ICodeProvider>
+    {
+
+        //
+        // Comparable
+        //
+
+        public int compare(final ICodeProvider o1, final ICodeProvider o2)
         {
-            return thatCode == null ? 0 : -1;
+            assert o1 != null : "Unspecified code provider.";
+            assert o2 != null : "Unspecified code provider.";
+            final String thisCode = o1.getCode();
+            final String thatCode = o2.getCode();
+            if (thisCode == null)
+            {
+                return thatCode == null ? 0 : -1;
+            }
+            if (thatCode == null)
+            {
+                return 1;
+            }
+            return thisCode.compareTo(thatCode);
         }
-        if (thatCode == null)
-        {
-            return 1;
-        }
-        return code.compareTo(thatCode);
     }
 }
