@@ -30,6 +30,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -113,17 +114,28 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
         this.id = id;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotNull(message = ValidationMessages.EXPERIMENT_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN, updatable = false)
-    public ExperimentPE getParent()
+    private ExperimentPE getParentInternal()
     {
         return parent;
     }
 
-    public void setParent(final ExperimentPE parent)
+    void setParentInternal(final ExperimentPE parent)
     {
         this.parent = parent;
+    }
+
+    @Transient
+    public ExperimentPE getParent()
+    {
+        return getParentInternal();
+    }
+
+    public void setParent(final ExperimentPE parent)
+    {
+        parent.addAttachment(this);
     }
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)

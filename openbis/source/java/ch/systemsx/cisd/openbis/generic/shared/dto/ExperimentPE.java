@@ -65,6 +65,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * Persistence Entity representing experiment.
@@ -281,15 +282,18 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
         getExperimentProperties().add(property);
     }
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "parent")
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "parentInternal")
     @IndexedEmbedded
     @Private
+    // for Hibernate and bean conversion only
     public Set<AttachmentPE> getExperimentAttachments()
     {
         return attachments;
     }
 
+    @SuppressWarnings("unused")
     @Private
+    // for Hibernate and bean conversion only
     public void setExperimentAttachments(final Set<AttachmentPE> attachments)
     {
         this.attachments = attachments;
@@ -315,11 +319,29 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
     // Package visibility to avoid bean conversion which will call an uninitialized field.
     final void setAttachments(final Set<AttachmentPE> attachments)
     {
-        for (final AttachmentPE experimentAttachment : attachments)
+        getExperimentAttachments().clear();
+        for (final AttachmentPE attachment : attachments)
         {
-            experimentAttachment.setParent(this);
+            addAttachment(attachment);
         }
-        setExperimentAttachments(attachments);
+    }
+
+    public void addAttachment(final AttachmentPE child)
+    {
+        final ExperimentPE parent = child.getParent();
+        if (parent != null)
+        {
+            parent.getExperimentAttachments().remove(child);
+        }
+        child.setParentInternal(this);
+        // ensure that the collection is of the proper type - bean populator could set it to
+        // unmuttable empty list
+        if (getExperimentAttachments().size() == 0
+                && getExperimentAttachments() instanceof HashSet == false)
+        {
+            setExperimentAttachments(new HashSet<AttachmentPE>());
+        }
+        getExperimentAttachments().add(child);
     }
 
     @Transient
@@ -502,5 +524,10 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
     public final EntityKind getEntityKind()
     {
         return EntityKind.EXPERIMENT;
+    }
+
+    public void ensureAttachmentsLoaded()
+    {
+        HibernateUtils.initialize(getExperimentAttachments());
     }
 }
