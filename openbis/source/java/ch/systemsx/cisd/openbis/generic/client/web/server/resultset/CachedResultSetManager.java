@@ -53,9 +53,12 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     @Private
     final Map<K, List<?>> results = new HashMap<K, List<?>>();
 
+    private final ComparatorRegistry comparatorRegistry;
+
     public CachedResultSetManager(final IResultSetKeyGenerator<K> resultSetKeyProvider)
     {
         this.resultSetKeyProvider = resultSetKeyProvider;
+        comparatorRegistry = new ComparatorRegistry();
     }
 
     @SuppressWarnings("unchecked")
@@ -80,7 +83,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             return;
         }
         final Comparator<T> fieldComparator =
-                ComparatorRegistry.getComparator((Class<T>) data.get(0).getClass(), sortField);
+                comparatorRegistry.getComparator((Class<T>) data.get(0).getClass(), sortField);
         Collections.sort(data, sortDir == SortDir.ASC ? fieldComparator : new ReverseComparator(
                 fieldComparator));
     }
@@ -122,17 +125,17 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     //
 
     public final synchronized <T> IResultSet<K, T> getResultSet(
-            final IResultSetConfig<K> resultConfig, final IOriginalDataProvider<T> dataRetriever)
+            final IResultSetConfig<K> resultConfig, final IOriginalDataProvider<T> dataProvider)
     {
         assert resultConfig != null : "Unspecified result configuration";
-        assert dataRetriever != null : "Unspecified data retriever";
+        assert dataProvider != null : "Unspecified data retriever";
         final List<T> data;
         K dataKey = resultConfig.getResultSetKey();
         if (dataKey == null)
         {
             operationLog.debug("Unknown result set key: retrieving the data.");
             dataKey = resultSetKeyProvider.createKey();
-            data = dataRetriever.getOriginalData();
+            data = dataProvider.getOriginalData();
             results.put(dataKey, data);
         } else
         {

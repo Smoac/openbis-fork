@@ -20,10 +20,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.collections.comparators.BooleanComparator;
 
 import ch.systemsx.cisd.common.utilities.FieldComparator;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 
 /**
@@ -34,31 +32,27 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
  */
 final class ComparatorRegistry
 {
-    private final static Map<Class<?>, IFieldComparator<?>> comparators =
+    private final Map<Class<?>, IFieldComparator<?>> comparators =
             new HashMap<Class<?>, IFieldComparator<?>>();
 
-    static
+    ComparatorRegistry()
     {
         comparators.put(Sample.class, new SampleComparator());
-    }
-
-    private ComparatorRegistry()
-    {
         // Can not be instantiated.
     }
 
-    private final static <T> Comparator<T> getDefaultComparator(final String fieldName)
+    private final <T> Comparator<T> getDefaultComparator(final String fieldName)
     {
         return new FieldComparator<T>(fieldName, '_');
     }
 
     @SuppressWarnings("unchecked")
-    private final static <T> Comparator<T> cast(final IFieldComparator<?> comparator)
+    private final <T> Comparator<T> cast(final IFieldComparator<?> comparator)
     {
         return (Comparator<T>) comparator;
     }
 
-    final static <T> Comparator<T> getComparator(final Class<T> clazz, final String fieldName)
+    final <T> Comparator<T> getComparator(final Class<T> clazz, final String fieldName)
     {
         assert clazz != null : "Unspecified class.";
         assert fieldName != null : "Unspecified field name.";
@@ -69,70 +63,5 @@ final class ComparatorRegistry
         }
         comparator.setFieldName(fieldName);
         return cast(comparator);
-    }
-
-    //
-    // Helper classes
-    //
-
-    /**
-     * An {@link Comparator} extension which bases its sorting on a specified class field.
-     * 
-     * @author Christian Ribeaud
-     */
-    private static interface IFieldComparator<T> extends Comparator<T>
-    {
-        /**
-         * Set the field name which determines the sorting.
-         * <p>
-         * Must be specified before comparison occurs.
-         * </p>
-         */
-        void setFieldName(final String fieldName);
-    }
-
-    private final static class SampleComparator implements IFieldComparator<Sample>
-    {
-        private FieldComparator<Sample> fieldComparator;
-
-        private String fieldName;
-
-        private final int compareBoolean(final boolean b1, final boolean b2)
-        {
-            return BooleanComparator.getTrueFirstComparator().compare(b1, b2);
-        }
-
-        //
-        // IFieldComparator
-        //
-
-        public final void setFieldName(final String fieldName)
-        {
-            assert fieldName != null : "Unspecified field name.";
-            this.fieldName = fieldName;
-            fieldComparator = new FieldComparator<Sample>(fieldName, '_');
-        }
-
-        public final int compare(final Sample o1, final Sample o2)
-        {
-            assert fieldName != null : "Field name not specified.";
-            if (fieldName.equals(ModelDataPropertyNames.IS_GROUP_SAMPLE))
-            {
-                final boolean b1 = o1.getGroup() != null;
-                final boolean b2 = o2.getGroup() != null;
-                return compareBoolean(b1, b2);
-            } else if (fieldName.equals(ModelDataPropertyNames.IS_INSTANCE_SAMPLE))
-            {
-                final boolean b1 = o1.getDatabaseInstance() != null;
-                final boolean b2 = o2.getDatabaseInstance() != null;
-                return compareBoolean(b1, b2);
-            } else if (fieldName.equals(ModelDataPropertyNames.IS_INVALID))
-            {
-                final boolean b1 = o1.getInvalidation() != null;
-                final boolean b2 = o2.getInvalidation() != null;
-                return compareBoolean(b1, b2);
-            }
-            return fieldComparator.compare(o1, o2);
-        }
     }
 }
