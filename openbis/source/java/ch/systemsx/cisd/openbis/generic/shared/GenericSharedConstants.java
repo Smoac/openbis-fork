@@ -33,5 +33,5 @@ public final class GenericSharedConstants
      * Every time some public class in this package or subpackage is changed, we should increment
      * this.
      */
-    public static final int VERSION = 29; // for release S42
+    public static final int VERSION = 30; // for release S44
 }
