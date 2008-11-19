@@ -108,7 +108,7 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
 
     private DataStorePE dataStore;
 
-    private Set<AttachmentPE> attachments = new HashSet<AttachmentPE>();
+    private List<AttachmentPE> attachments = new ArrayList<AttachmentPE>();
 
     private List<ProcedurePE> procedures = new ArrayList<ProcedurePE>();
 
@@ -286,7 +286,7 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
     @IndexedEmbedded
     @Private
     // for Hibernate and bean conversion only
-    public Set<AttachmentPE> getExperimentAttachments()
+    public List<AttachmentPE> getExperimentAttachments()
     {
         return attachments;
     }
@@ -294,7 +294,7 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
     @SuppressWarnings("unused")
     @Private
     // for Hibernate and bean conversion only
-    public void setExperimentAttachments(final Set<AttachmentPE> attachments)
+    public void setExperimentAttachments(final List<AttachmentPE> attachments)
     {
         this.attachments = attachments;
     }
@@ -339,7 +339,7 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
         if (getExperimentAttachments().size() == 0
                 && getExperimentAttachments() instanceof HashSet == false)
         {
-            setExperimentAttachments(new HashSet<AttachmentPE>());
+            setExperimentAttachments(new ArrayList<AttachmentPE>());
         }
         getExperimentAttachments().add(child);
     }
