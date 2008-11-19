@@ -273,6 +273,7 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
         builder.append("lastName", lastName);
         builder.append("email", email);
         builder.append("systemUser", systemUser);
+        builder.append(getDatabaseInstance());
         return builder.toString();
     }
 
