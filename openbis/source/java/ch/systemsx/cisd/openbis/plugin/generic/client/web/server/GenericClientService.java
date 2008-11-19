@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetManager;
-import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetRetriever;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.GroupTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.ListSampleCriteriaTranslator;
@@ -281,14 +281,14 @@ public final class GenericClientService extends AbstractClientService implements
                     ListSampleCriteriaTranslator.translate(listCriteria);
             final IResultSetManager<String> resultSetManager = getResultSetManager();
             final IResultSet<String, Sample> result =
-                    resultSetManager.getResultSet(listCriteria, new IResultSetRetriever<Sample>()
+                    resultSetManager.getResultSet(listCriteria, new IOriginalDataProvider<Sample>()
                         {
 
                             //
                             // IDataRetriever
                             //
 
-                            public final List<Sample> getData()
+                            public final List<Sample> getOriginalData()
                             {
                                 final List<SamplePE> samplePEs =
                                         genericServer.listSamples(getSessionToken(), criteria);
@@ -367,14 +367,14 @@ public final class GenericClientService extends AbstractClientService implements
             final IResultSetManager<String> resultSetManager = getResultSetManager();
             final IResultSet<String, MatchingEntity> result =
                     resultSetManager.getResultSet(resultSetConfig,
-                            new IResultSetRetriever<MatchingEntity>()
+                            new IOriginalDataProvider<MatchingEntity>()
                                 {
 
                                     //
                                     // IDataRetriever
                                     //
 
-                                    public final List<MatchingEntity> getData()
+                                    public final List<MatchingEntity> getOriginalData()
                                     {
                                         return BeanUtils.createBeanList(MatchingEntity.class,
                                                 genericServer.listMatchingEntities(

@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo.SortDir;
 
 /**
  * A {@link IResultSetManager} implementation which caches the full data retrieved using
- * {@link IResultSetRetriever}.
+ * {@link IOriginalDataProvider}.
  * 
  * @author Christian Ribeaud
  */
@@ -45,7 +45,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
 {
     private static final long serialVersionUID = 1L;
 
-    private final IResultSetKeyProvider<K> resultSetKeyProvider;
+    private final IResultSetKeyGenerator<K> resultSetKeyProvider;
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, CachedResultSetManager.class);
@@ -53,7 +53,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     @Private
     final Map<K, List<?>> results = new HashMap<K, List<?>>();
 
-    public CachedResultSetManager(final IResultSetKeyProvider<K> resultSetKeyProvider)
+    public CachedResultSetManager(final IResultSetKeyGenerator<K> resultSetKeyProvider)
     {
         this.resultSetKeyProvider = resultSetKeyProvider;
     }
@@ -122,7 +122,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     //
 
     public final synchronized <T> IResultSet<K, T> getResultSet(
-            final IResultSetConfig<K> resultConfig, final IResultSetRetriever<T> dataRetriever)
+            final IResultSetConfig<K> resultConfig, final IOriginalDataProvider<T> dataRetriever)
     {
         assert resultConfig != null : "Unspecified result configuration";
         assert dataRetriever != null : "Unspecified data retriever";
@@ -131,8 +131,8 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         if (dataKey == null)
         {
             operationLog.debug("Unknown result set key: retrieving the data.");
-            dataKey = resultSetKeyProvider.getKey();
-            data = dataRetriever.getData();
+            dataKey = resultSetKeyProvider.createKey();
+            data = dataRetriever.getOriginalData();
             results.put(dataKey, data);
         } else
         {
@@ -169,7 +169,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     //
 
     public final static class TokenBasedResultSetKeyProvider implements
-            IResultSetKeyProvider<String>
+            IResultSetKeyGenerator<String>
     {
 
         private final TokenGenerator tokenGenerator;
@@ -183,14 +183,14 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         // IResultSetKeyProvider
         //
 
-        public final String getKey()
+        public final String createKey()
         {
             return tokenGenerator.getNewToken(System.currentTimeMillis());
         }
     }
 
     public final static class CounterBasedResultSetKeyProvider implements
-            IResultSetKeyProvider<Integer>
+            IResultSetKeyGenerator<Integer>
     {
         private int counter;
 
@@ -202,7 +202,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         // IResultSetKeyProvider
         //
 
-        public final Integer getKey()
+        public final Integer createKey()
         {
             return counter++;
         }

@@ -21,15 +21,15 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * Each implementation knows how to retrieve the data used to produce a {@link IResultSet}.
+ * Each implementation knows how to retrieve the original data used to produce a {@link IResultSet}.
  * 
  * @author Christian Ribeaud
  */
-public interface IResultSetRetriever<T>
+public interface IOriginalDataProvider<T>
 {
 
     /**
      * Returns the original data.
      */
-    public List<T> getData() throws UserFailureException;
+    public List<T> getOriginalData() throws UserFailureException;
 }

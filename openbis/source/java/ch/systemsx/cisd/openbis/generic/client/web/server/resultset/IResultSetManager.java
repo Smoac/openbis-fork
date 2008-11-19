@@ -31,12 +31,12 @@ public interface IResultSetManager<K>
      * Produces a {@link IResultSet} from given <var>resultConfig</var> and given
      * <var>dataRetriever</var>.
      * <p>
-     * In case of cached data, the {@link IResultSetRetriever} implementation is only used in the
+     * In case of cached data, the {@link IOriginalDataProvider} implementation is only used in the
      * first call, when the full data are not already there.
      * </p>
      */
     public <T> IResultSet<K, T> getResultSet(final IResultSetConfig<K> resultConfig,
-            final IResultSetRetriever<T> dataRetriever) throws UserFailureException;
+            final IOriginalDataProvider<T> dataRetriever) throws UserFailureException;
 
     /**
      * Remove the data mapped to given <var>resultSetKey</var>.

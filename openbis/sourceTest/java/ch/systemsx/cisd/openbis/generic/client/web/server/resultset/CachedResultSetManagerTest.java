@@ -47,7 +47,7 @@ public final class CachedResultSetManagerTest
 {
     private IResultSetConfig<String> resultSetConfig;
 
-    private IResultSetRetriever<?> resultSetRetriever;
+    private IOriginalDataProvider<?> resultSetRetriever;
 
     private IResultSetManager<String> resultSetManager;
 
@@ -88,7 +88,7 @@ public final class CachedResultSetManagerTest
     {
         context = new Mockery();
         resultSetConfig = context.mock(IResultSetConfig.class);
-        resultSetRetriever = context.mock(IResultSetRetriever.class);
+        resultSetRetriever = context.mock(IOriginalDataProvider.class);
         resultSetManager = createResultSetManager();
     }
 
@@ -157,7 +157,7 @@ public final class CachedResultSetManagerTest
                     one(resultSetConfig).getResultSetKey();
                     will(returnValue(null));
 
-                    one(resultSetRetriever).getData();
+                    one(resultSetRetriever).getOriginalData();
                     will(returnValue(Collections.emptyList()));
 
                     allowResultSetCreation(this);

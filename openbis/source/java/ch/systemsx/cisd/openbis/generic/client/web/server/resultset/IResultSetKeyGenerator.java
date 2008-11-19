@@ -17,15 +17,18 @@
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
 /**
- * A result set key provider.
+ * A result set key generator.
  * 
  * @author Christian Ribeaud
  */
-public interface IResultSetKeyProvider<T>
+public interface IResultSetKeyGenerator<T>
 {
 
     /**
-     * Returns an unique key.
+     * Creates and returns an unique result set key.
+     * <p>
+     * Each call will return a new value.
+     * </p>
      */
-    public T getKey();
+    public T createKey();
 }
