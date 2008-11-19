@@ -118,6 +118,18 @@ public final class GenericSampleRegistrationForm extends FormPanel
         groupMultiField.add(sharedCheckbox);
         groupMultiField.add(groupSelectionWidget);
         groupMultiField.setLabelSeparator(MANDATORY_LABEL_SEPARATOR);
+        groupMultiField.setValidator(new Validator<Field<?>, MultiField<Field<?>>>()
+            {
+                public String validate(MultiField<Field<?>> field, String value)
+                {
+                    if (sharedCheckbox.getValue() == false
+                            && groupSelectionWidget.tryGetSelected() == null)
+                    {
+                        return "Group must be chosen or shared selected";
+                    }
+                    return null;
+                }
+            });
 
         parentGenerator = new VarcharField("Generated from sample", false);
 
@@ -174,7 +186,7 @@ public final class GenericSampleRegistrationForm extends FormPanel
         {
             if (g == null)
             {
-                throw new UserFailureException("Group must be chosen or shared selected");
+                throw new UserFailureException("Group not chosen");
             }
             sb.append(g.getCode() + "/");
         }
