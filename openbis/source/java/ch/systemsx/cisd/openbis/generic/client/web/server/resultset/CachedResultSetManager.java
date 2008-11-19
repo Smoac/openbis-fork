@@ -168,13 +168,13 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     // Helper classes
     //
 
-    public final static class TokenBasedResultSetKeyProvider implements
+    public final static class TokenBasedResultSetKeyGenerator implements
             IResultSetKeyGenerator<String>
     {
 
         private final TokenGenerator tokenGenerator;
 
-        public TokenBasedResultSetKeyProvider()
+        public TokenBasedResultSetKeyGenerator()
         {
             this.tokenGenerator = new TokenGenerator();
         }
@@ -189,12 +189,12 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         }
     }
 
-    public final static class CounterBasedResultSetKeyProvider implements
+    public final static class CounterBasedResultSetKeyGenerator implements
             IResultSetKeyGenerator<Integer>
     {
         private int counter;
 
-        public CounterBasedResultSetKeyProvider()
+        public CounterBasedResultSetKeyGenerator()
         {
         }
 

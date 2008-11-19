@@ -172,7 +172,7 @@ public abstract class AbstractClientService implements IClientService
             httpSession.setAttribute(SessionConstants.OPENBIS_SERVER_ATTRIBUTE_KEY, getServer());
             httpSession.setAttribute(SessionConstants.OPENBIS_RESULT_SET_MANAGER,
                     new CachedResultSetManager<String>(
-                            new CachedResultSetManager.TokenBasedResultSetKeyProvider()));
+                            new CachedResultSetManager.TokenBasedResultSetKeyGenerator()));
             return createSessionContext(session);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {

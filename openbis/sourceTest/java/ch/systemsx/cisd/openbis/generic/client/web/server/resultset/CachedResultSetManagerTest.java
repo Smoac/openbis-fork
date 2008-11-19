@@ -96,7 +96,7 @@ public final class CachedResultSetManagerTest
     {
         final CachedResultSetManager<String> resultSetManager =
                 new CachedResultSetManager<String>(
-                        new CachedResultSetManager.TokenBasedResultSetKeyProvider());
+                        new CachedResultSetManager.TokenBasedResultSetKeyGenerator());
         resultSetManager.results.put("1", createSampleList());
         return resultSetManager;
     }
