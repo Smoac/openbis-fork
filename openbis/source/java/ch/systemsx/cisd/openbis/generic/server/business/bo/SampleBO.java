@@ -61,7 +61,10 @@ public final class SampleBO extends AbstractSampleIdentifierBusinessObject imple
 
     public final SamplePE getSample()
     {
-        assert sample != null : "Unloaded sample.";
+        if (sample == null)
+        {
+            throw new IllegalStateException("Unloaded sample.");
+        }
         return sample;
     }
 
