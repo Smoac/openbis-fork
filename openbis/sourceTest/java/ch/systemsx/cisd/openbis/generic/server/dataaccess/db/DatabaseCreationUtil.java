@@ -19,8 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.lang.StringUtils;
-import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -31,9 +29,6 @@ import ch.systemsx.cisd.dbmigration.DBMigrationEngine;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.dbmigration.ISqlScriptProvider;
 import ch.systemsx.cisd.dbmigration.postgresql.DumpPreparator;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.FullTextIndexerRunnable;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.HibernateSearchContext;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexMode;
 
 /**
  * Utility methods around database creation.
@@ -42,57 +37,16 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexMode;
  */
 public final class DatabaseCreationUtil
 {
-    private static final String LUCENE_INDICES = "sourceTest/lucene/indices";
-
     private static BeanFactory beanFactory;
-
-    private static HibernateSearchContext hibernateSearchContext;
 
     static
     {
         LogInitializer.init();
-        // Deactivate the indexing in the application context loaded by Spring.
-        System.setProperty("hibernate.search.index-mode", "NO_INDEX");
-        System.setProperty("hibernate.search.index-base", LUCENE_INDICES);
     }
 
-    public static void main(final String[] args) throws Exception
+    private DatabaseCreationUtil()
     {
-        if (args.length == 0 || args.length > 2)
-        {
-            System.out.println("Usage: java " + DatabaseCreationUtil.class.getName()
-                    + "[--reindex[=true|false]] <database version>");
-            System.exit(1);
-        }
-        final String databaseVersion;
-        boolean reindex = false;
-        if (args.length == 1)
-        {
-            reindex = false;
-            databaseVersion = args[0];
-        } else
-        {
-            if (args[0].startsWith("--reindex"))
-            {
-                if (args[0].indexOf('=') > -1)
-                {
-                    reindex = Boolean.parseBoolean(StringUtils.split(args[0], '=')[1]);
-                } else
-                {
-                    reindex = true;
-                }
-            }
-            databaseVersion = args[1];
-        }
-        // If reindexing is asked, creating a HibernateSearchContext should be done before the
-        // Spring application context gets loaded because HibernateSearchContext removes the whole
-        // indices directory.
-        if (reindex)
-        {
-            hibernateSearchContext = createHibernateSearchContext();
-            hibernateSearchContext.afterPropertiesSet();
-        }
-        createFilesFromADumpOfAMigratedDatabase(databaseVersion, reindex);
+        // This class can not be instantiated.
     }
 
     private final static BeanFactory getBeanFactory()
@@ -110,11 +64,9 @@ public final class DatabaseCreationUtil
     /**
      * Creates all files in <code>sourceTest/sql/postgresql</code> necessary to set up a database
      * of the current version by dumping a database migrated from the specified version.
-     * 
-     * @param reindex
      */
-    private final static void createFilesFromADumpOfAMigratedDatabase(final String databaseVersion,
-            final boolean reindex) throws Exception
+    private final static void createFilesFromADumpOfAMigratedDatabase(final String databaseVersion)
+            throws Exception
     {
         final String databaseKind = "migration_dump";
         final DatabaseConfigurationContext context =
@@ -130,33 +82,6 @@ public final class DatabaseCreationUtil
         createDumpForJava(databaseKind, scriptProvider.getDumpFolder(DatabaseVersionHolder
                 .getDatabaseVersion()));
         scriptProvider.markAsDumpRestorable(DatabaseVersionHolder.getDatabaseVersion());
-        if (reindex)
-        {
-            performFullTextIndex(databaseKind);
-        }
-    }
-
-    /**
-     * Performs a full text index because the test database has been migrated.
-     */
-    private final static void performFullTextIndex(final String databaseKind) throws Exception
-    {
-        final BeanFactory factory = getBeanFactory();
-        final FullTextIndexerRunnable fullTextIndexer =
-                new FullTextIndexerRunnable((SessionFactory) factory
-                        .getBean("hibernate-session-factory"), hibernateSearchContext);
-        fullTextIndexer.run();
-    }
-
-    /**
-     * Creates a freshly new {@link HibernateSearchContext} overriding the one loaded by <i>Spring</i>.
-     */
-    private final static HibernateSearchContext createHibernateSearchContext()
-    {
-        final HibernateSearchContext context = new HibernateSearchContext();
-        context.setIndexBase(LUCENE_INDICES);
-        context.setIndexMode(IndexMode.INDEX_FROM_SCRATCH);
-        return context;
     }
 
     /**
@@ -190,8 +115,18 @@ public final class DatabaseCreationUtil
         return configurationContext;
     }
 
-    private DatabaseCreationUtil()
+    //
+    // Main method
+    //
+
+    public static void main(final String[] args) throws Exception
     {
-        // This class can not be instantiated.
+        if (args.length != 1)
+        {
+            System.out.println("Usage: java " + DatabaseCreationUtil.class.getName()
+                    + "<database version>");
+            System.exit(1);
+        }
+        createFilesFromADumpOfAMigratedDatabase(args[0]);
     }
 }
