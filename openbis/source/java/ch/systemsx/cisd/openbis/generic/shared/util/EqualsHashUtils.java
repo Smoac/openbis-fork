@@ -28,7 +28,8 @@ public class EqualsHashUtils
     {
         if (o == null)
         {
-            throw new IllegalStateException(name);
+            throw new IllegalStateException("Field should be defined but is null: " + name
+                    + ". Equals operation cannot be performed.");
         }
     }
 
