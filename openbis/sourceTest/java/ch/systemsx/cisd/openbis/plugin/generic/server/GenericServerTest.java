@@ -36,10 +36,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.plugin.screening.server.ScreeningServer;
 
 /**
- * Test cases for corresponding {@link ScreeningServer} class.
+ * Test cases for corresponding {@link GenericServer} class.
  * 
  * @author Franz-Josef Elmer
  */

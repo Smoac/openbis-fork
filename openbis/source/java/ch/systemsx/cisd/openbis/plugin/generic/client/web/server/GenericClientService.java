@@ -25,7 +25,10 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
+import ch.rinn.restrictions.Friend;
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
@@ -41,17 +44,17 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleToRegister;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetManager;
-import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.GroupTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.ListSampleCriteriaTranslator;
-import ch.systemsx.cisd.openbis.generic.client.web.server.util.SampleToRegisterTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.PersonTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.ResultSetTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.RoleAssignmentTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.RoleCodeTranslator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.util.SampleToRegisterTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.SearchableEntityTranslator;
@@ -61,7 +64,6 @@ import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
@@ -80,12 +82,25 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
  * @author Franz-Josef Elmer
  */
 @Component(value = ResourceNames.GENERIC_SERVICE)
+@Friend(toClasses = AbstractClientService.class)
 public final class GenericClientService extends AbstractClientService implements
         IGenericClientService
 {
 
     @Resource(name = ResourceNames.GENERIC_SERVER)
     private IGenericServer genericServer;
+
+    public GenericClientService()
+    {
+    }
+
+    @Private
+    GenericClientService(final IGenericServer genericServer,
+            final IRequestContextProvider requestContextProvider)
+    {
+        super(requestContextProvider);
+        this.genericServer = genericServer;
+    }
 
     @SuppressWarnings("unchecked")
     private final <K> IResultSetManager<K> getResultSetManager()
@@ -277,8 +292,6 @@ public final class GenericClientService extends AbstractClientService implements
     {
         try
         {
-            final ListSampleCriteriaDTO criteria =
-                    ListSampleCriteriaTranslator.translate(listCriteria);
             final IResultSetManager<String> resultSetManager = getResultSetManager();
             final IResultSet<String, Sample> result =
                     resultSetManager.getResultSet(listCriteria, new IOriginalDataProvider<Sample>()
@@ -290,10 +303,12 @@ public final class GenericClientService extends AbstractClientService implements
 
                             public final List<Sample> getOriginalData()
                             {
-                                final List<SamplePE> samplePEs =
-                                        genericServer.listSamples(getSessionToken(), criteria);
-                                final List<Sample> list = new ArrayList<Sample>(samplePEs.size());
-                                for (final SamplePE sample : samplePEs)
+                                final List<SamplePE> samples =
+                                        genericServer.listSamples(getSessionToken(),
+                                                ListSampleCriteriaTranslator
+                                                        .translate(listCriteria));
+                                final List<Sample> list = new ArrayList<Sample>(samples.size());
+                                for (final SamplePE sample : samples)
                                 {
                                     list.add(SampleTranslator.translate(sample));
                                 }
@@ -409,7 +424,8 @@ public final class GenericClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            genericServer.registerSample(sessionToken, SampleToRegisterTranslator.translate(sample));
+            genericServer
+                    .registerSample(sessionToken, SampleToRegisterTranslator.translate(sample));
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

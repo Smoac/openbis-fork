@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.ArrayList;
@@ -47,7 +48,7 @@ public final class CachedResultSetManagerTest
 {
     private IResultSetConfig<String> resultSetConfig;
 
-    private IOriginalDataProvider<?> resultSetRetriever;
+    private IOriginalDataProvider<?> originalDataProvider;
 
     private IResultSetManager<String> resultSetManager;
 
@@ -88,7 +89,7 @@ public final class CachedResultSetManagerTest
     {
         context = new Mockery();
         resultSetConfig = context.mock(IResultSetConfig.class);
-        resultSetRetriever = context.mock(IOriginalDataProvider.class);
+        originalDataProvider = context.mock(IOriginalDataProvider.class);
         resultSetManager = createResultSetManager();
     }
 
@@ -157,14 +158,14 @@ public final class CachedResultSetManagerTest
                     one(resultSetConfig).getResultSetKey();
                     will(returnValue(null));
 
-                    one(resultSetRetriever).getOriginalData();
+                    one(originalDataProvider).getOriginalData();
                     will(returnValue(Collections.emptyList()));
 
                     allowResultSetCreation(this);
                 }
             });
         final IResultSet<String, ?> resultSet =
-                resultSetManager.getResultSet(resultSetConfig, resultSetRetriever);
+                resultSetManager.getResultSet(resultSetConfig, originalDataProvider);
         assertEquals(0, resultSet.getList().size());
         assertEquals(0, resultSet.getTotalLength());
         assertTrue(StringUtils.isNotEmpty(resultSet.getResultSetKey()));
@@ -172,7 +173,7 @@ public final class CachedResultSetManagerTest
     }
 
     @Test
-    public final void testGetResult()
+    public final void testGetResultWithAlreadyCachedData()
     {
         context.checking(new Expectations()
             {
@@ -184,10 +185,35 @@ public final class CachedResultSetManagerTest
                 }
             });
         final IResultSet<String, ?> resultSet =
-                resultSetManager.getResultSet(resultSetConfig, resultSetRetriever);
+                resultSetManager.getResultSet(resultSetConfig, originalDataProvider);
         assertEquals(2, resultSet.getList().size());
         assertEquals(3, resultSet.getTotalLength());
         assertEquals("1", resultSet.getResultSetKey());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testGetResultWithoutCachedData()
+    {
+        final String value = "value";
+        context.checking(new Expectations()
+            {
+                {
+                    one(resultSetConfig).getResultSetKey();
+                    will(returnValue(null));
+
+                    one(originalDataProvider).getOriginalData();
+                    will(returnValue(Collections.singletonList(value)));
+
+                    allowResultSetCreation(this);
+                }
+            });
+        final IResultSet<String, ?> resultSet =
+                resultSetManager.getResultSet(resultSetConfig, originalDataProvider);
+        assertEquals(1, resultSet.getList().size());
+        assertEquals(1, resultSet.getTotalLength());
+        assertNotNull(resultSet.getResultSetKey());
+        assertEquals(value, resultSet.getList().get(0));
         context.assertIsSatisfied();
     }
 

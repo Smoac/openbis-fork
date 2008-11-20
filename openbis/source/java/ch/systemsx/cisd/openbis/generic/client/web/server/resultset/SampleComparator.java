@@ -22,6 +22,11 @@ import ch.systemsx.cisd.common.utilities.FieldComparator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 
+/**
+ * A {@link IFieldComparator} suitable for {@link Sample}.
+ * 
+ * @author Christian Ribeaud
+ */
 final class SampleComparator implements IFieldComparator<Sample>
 {
     private FieldComparator<Sample> fieldComparator;

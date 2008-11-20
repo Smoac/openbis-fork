@@ -23,7 +23,7 @@ import java.util.List;
  * 
  * @author Christian Ribeaud
  */
-final class DefaultResultSet<K, T> implements IResultSet<K, T>
+public final class DefaultResultSet<K, T> implements IResultSet<K, T>
 {
     private final K resultSetKey;
 
@@ -31,7 +31,7 @@ final class DefaultResultSet<K, T> implements IResultSet<K, T>
 
     private final int totalLength;
 
-    DefaultResultSet(final K resultSetKey, final List<T> list, final int totalLength)
+    public DefaultResultSet(final K resultSetKey, final List<T> list, final int totalLength)
     {
         assert resultSetKey != null : "Unspecified result set key";
         assert list != null : "Unspecified list.";
