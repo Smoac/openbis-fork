@@ -12,6 +12,9 @@ VER=$1
 PREV_VER=$(( $VER - 1 ))
 DB_SNAPSHOT=db_snapshots/sprint$PREV_VER-lims_productive.sql
 
+# Unalias rm command
+unalias rm
+
 echo Stopping the components...
 ./sprint/openBIS-server/apache-tomcat/bin/shutdown.sh
 ./sprint/download-server/download-service.sh stop
@@ -23,7 +26,7 @@ rm -f $DB_SNAPSHOT
 
 echo Installing openBIS server...
 mv sprint-$PREV_VER old
-rm sprint
+rm -f sprint
 mkdir sprint-$VER
 ln -s sprint-$VER sprint
 cd sprint
@@ -33,15 +36,28 @@ cd openBIS-server
 
 echo Installing download server...
 cd ..
-unzip ../download-server-S$VER* 
+unzip ../download-server-S$VER*
 cd download-server
 cp ~/old/sprint-$PREV_VER/download-server/etc/service.properties etc/
 chmod 700 download-service.sh
 export JAVA_HOME=/usr
 ./download-service.sh start
 
+echo Installing generic openBIS...
+cd ~
+unzip openbis-S$VER*
+WAR_FILE=openbis/genericopenbis.war
+# Put the previous 'service.properties' file into the war file.
+jar -uf $WAR_FILE -C old/sprint-$PREV_VER/openBIS-server/apache-tomcat/webapps/genericopenbis WEB-INF/classes/service.properties
+# Just put the war file in the weapps directory, Tomcat will do the rest
+mv $WAR_FILE sprint/openBIS-server/apache-tomcat/webapps
+
 echo Doing some cleaning...
 cd
 mv *.zip tmp
+rm -rf openbis
+
+# Reset the rm command alias
+alias 'rm=rm -i'
 
 echo Done!
