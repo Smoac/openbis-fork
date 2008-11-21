@@ -82,7 +82,7 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
-    public static final Object EMPTY_ARRAY = new ExperimentPE[0];
+    public static final ExperimentPE[] EMPTY_ARRAY = new ExperimentPE[0];
 
     public static final char HIDDEN_EXPERIMENT_PROPERTY_PREFIX_CHARACTER = '$';
 
