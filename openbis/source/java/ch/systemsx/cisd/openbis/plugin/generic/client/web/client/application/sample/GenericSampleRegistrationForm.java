@@ -41,6 +41,7 @@ import com.google.gwt.user.client.ui.ListBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataTypes;
@@ -82,8 +83,6 @@ public final class GenericSampleRegistrationForm extends FormPanel
     private MultiField<Field<?>> groupMultiField;
 
     private static final String MANDATORY_LABEL_SEPARATOR = ": *";
-
-    private static final String CODE_REGEX = "[a-zA-Z0-9_]+";
 
     public GenericSampleRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext, SampleType sampleType)
@@ -381,7 +380,7 @@ public final class GenericSampleRegistrationForm extends FormPanel
         CodeField(String label, boolean mandatory)
         {
             super(label, mandatory);
-            setRegex(CODE_REGEX);
+            setRegex(GenericConstants.CODE_PATTERN);
         }
     }
 

@@ -41,4 +41,6 @@ public class GenericConstants
         return "/" + APPLICATION_NAME + "/" + (GWT.isScript() ? APPLICATION_NAME + "/" : "")
                 + serviceName;
     }
+
+    public final static String CODE_PATTERN = "^[A-Z0-9_\\-]+$";
 }
