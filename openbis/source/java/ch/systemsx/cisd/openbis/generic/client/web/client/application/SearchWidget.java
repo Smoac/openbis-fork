@@ -268,19 +268,23 @@ final class SearchWidget extends LayoutContainer
             if (entities.size() == 0)
             {
                 final IMessageProvider messageProvider = viewContext.getMessageProvider();
+                final Listener<WindowEvent> listener = null;
+                // TODO 2008-11-21, Christian Ribeaud: Replace the <null> listener with the
+                // following once gxt solved the problem with event propagation in MessageBox.
+                // final Listener<WindowEvent> listener = new Listener<WindowEvent>()
+                // {
+                //
+                // //
+                // // Listener
+                // //
+                //
+                // public final void handleEvent(final WindowEvent be)
+                // {
+                // selectAllAndFocus();
+                // }
+                // };
                 MessageBox.alert(messageProvider.getMessage("messagebox_warning"), messageProvider
-                        .getMessage("no_match", queryText), new Listener<WindowEvent>()
-                    {
-
-                        //
-                        // Listener
-                        //
-
-                        public final void handleEvent(final WindowEvent be)
-                        {
-                            selectAllAndFocus();
-                        }
-                    });
+                        .getMessage("no_match", queryText), listener);
                 return;
             }
             textField.reset();

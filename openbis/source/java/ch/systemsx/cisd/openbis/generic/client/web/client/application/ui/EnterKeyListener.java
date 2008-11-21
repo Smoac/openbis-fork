@@ -23,6 +23,7 @@ public abstract class EnterKeyListener extends KeyListener
         {
             onEnterKey();
             event.stopEvent();
+            event.doit = false;
         }
     }
 }
