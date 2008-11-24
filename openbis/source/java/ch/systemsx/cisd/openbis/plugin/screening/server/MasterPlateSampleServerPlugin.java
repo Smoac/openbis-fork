@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.plugin.SampleServerPluginRegistry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 
 /**
- * The {@link ISampleServerPlugin} implementation for <i>Cell Plate</i> plates.
+ * The {@link ISampleServerPlugin} implementation for plates of type <code>MASTER_PLATE</code>.
  * <p>
  * This class is annotated with {@link Component} so that it automatically gets registered to
  * {@link SampleServerPluginRegistry} by <i>Spring</i>.
@@ -33,12 +33,12 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
  * 
  * @author Christian Ribeaud
  */
-@Component(ResourceNames.DILUTION_PLATE_SAMPLE_SERVER_PLUGIN)
-public final class DilutionPlateSampleServerPlugin extends AbstractSampleServerPlugin
+@Component(ResourceNames.MASTER_PLATE_SAMPLE_SERVER_PLUGIN)
+public final class MasterPlateSampleServerPlugin extends AbstractSampleServerPlugin
 {
-    private static final String DILUTION_PLATE_TYPE_CODE = "DILUTION_PLATE";
+    private static final String MASTER_PLATE_TYPE_CODE = "MASTER_PLATE";
 
-    private DilutionPlateSampleServerPlugin()
+    private MasterPlateSampleServerPlugin()
     {
     }
 
@@ -48,7 +48,7 @@ public final class DilutionPlateSampleServerPlugin extends AbstractSampleServerP
 
     public final String getSampleTypeCode()
     {
-        return DILUTION_PLATE_TYPE_CODE;
+        return MASTER_PLATE_TYPE_CODE;
     }
 
     public final ISampleTypeSlaveServerPlugin getSlaveServer()

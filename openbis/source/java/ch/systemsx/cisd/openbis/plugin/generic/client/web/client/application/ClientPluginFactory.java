@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application;
 
-import java.util.Collections;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
@@ -69,7 +68,8 @@ public final class ClientPluginFactory extends
 
     public final Set<String> getSampleTypeCodes()
     {
-        return Collections.singleton(SampleTypeCode.CONTROL_LAYOUT.getCode());
+        throw new UnsupportedOperationException(
+                "Generic plugin factory supports every sample type.");
     }
 
     //

@@ -73,7 +73,7 @@ public final class ClientPluginFactory extends
 
     public final Set<String> getSampleTypeCodes()
     {
-        return Collections.singleton(SampleTypeCode.DILUTION_PLATE.getCode());
+        return Collections.singleton(SampleTypeCode.MASTER_PLATE.getCode());
     }
 
     //
@@ -89,8 +89,8 @@ public final class ClientPluginFactory extends
         public final ITabItem createSampleViewer(final String sampleIdentifier)
         {
             final IViewContext<IScreeningClientServiceAsync> viewContext = getViewContext();
-            final ScreeningSampleViewer sampleViewer = new ScreeningSampleViewer(viewContext,
-                    sampleIdentifier);
+            final ScreeningSampleViewer sampleViewer =
+                    new ScreeningSampleViewer(viewContext, sampleIdentifier);
             return new DefaultTabItem(sampleIdentifier, sampleViewer)
                 {
 

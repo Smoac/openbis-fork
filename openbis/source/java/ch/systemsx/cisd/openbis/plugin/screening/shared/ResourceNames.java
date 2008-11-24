@@ -32,6 +32,6 @@ public final class ResourceNames
 
     public final static String SCREENING_SERVER = "screening-server";
 
-    public final static String DILUTION_PLATE_SAMPLE_SERVER_PLUGIN =
-            "dilution-plate-sample-server-plugin";
+    public final static String MASTER_PLATE_SAMPLE_SERVER_PLUGIN =
+            "master-plate-sample-server-plugin";
 }

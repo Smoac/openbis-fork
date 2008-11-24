@@ -40,7 +40,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
 {
     private static final String GROUP_IDENTIFIER = "CISD:/CISD";
 
-    private static final String MASTER_PLATE_EXAMPLE = "MP1-MIXED";
+    private static final String CONTROL_LAYOUT_EXAMPLE = "CL1";
 
     private static final String CELL_PLATE_EXAMPLE = "3VCP1";
 
@@ -49,21 +49,19 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         remoteConsole.prepare(new Login("test", "a"));
         remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.SAMPLES,
                 CategoriesBuilder.MENU_ELEMENTS.LIST));
-        remoteConsole.prepare(new ListSamples(true, true, "CISD", "MASTER_PLATE"));
-        remoteConsole.prepare(new ShowSample(MASTER_PLATE_EXAMPLE));
-        CheckSample checkSample = new CheckSample(GROUP_IDENTIFIER, MASTER_PLATE_EXAMPLE);
-        checkSample.property("Sample").asString(MASTER_PLATE_EXAMPLE);
-        checkSample.property("Sample Type").asCode("MASTER_PLATE");
+        remoteConsole.prepare(new ListSamples(true, true, "CISD", "CONTROL_LAYOUT"));
+        remoteConsole.prepare(new ShowSample(CONTROL_LAYOUT_EXAMPLE));
+        final CheckSample checkSample = new CheckSample(GROUP_IDENTIFIER, CONTROL_LAYOUT_EXAMPLE);
+        checkSample.property("Sample").asString(CONTROL_LAYOUT_EXAMPLE);
+        checkSample.property("Sample Type").asCode("CONTROL_LAYOUT");
         checkSample.property("Registrator").asPerson("Doe, John");
-        checkSample.property("Generated Samples").asGeneratedSamples("DP1-A [DILUTION_PLATE]",
-                "DP1-B [DILUTION_PLATE]");
         checkSample.property("Plate Geometry").asProperty("384_WELLS_16X24");
+        checkSample.property("Description").asProperty("test control layout");
 
-        CheckTableCommand componentsTable = checkSample.componentsTable().expectedSize(4);
+        final CheckTableCommand componentsTable = checkSample.componentsTable().expectedSize(2);
         componentsTable.expectedRow(new Row().withCell(CODE, "A01"));
-        componentsTable.expectedRow(new Row().withCell(CODE, "A02"));
         componentsTable.expectedRow(new Row().withCell(CODE, "A03"));
-        componentsTable.expectedRow(new Row().withCell(CODE, "B02"));
+
         checkSample.dataTable().expectedSize(0);
         remoteConsole.prepare(checkSample);
 
@@ -79,14 +77,14 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                 CategoriesBuilder.MENU_ELEMENTS.LIST));
         remoteConsole.prepare(new ListSamples(true, true, "CISD", "CELL_PLATE"));
         remoteConsole.prepare(new ShowSample(CELL_PLATE_EXAMPLE));
-        CheckSample checkSample = new CheckSample(GROUP_IDENTIFIER, CELL_PLATE_EXAMPLE);
+        final CheckSample checkSample = new CheckSample(GROUP_IDENTIFIER, CELL_PLATE_EXAMPLE);
         checkSample.property("Sample").asString(CELL_PLATE_EXAMPLE);
         checkSample.property("Sample Type").asCode("CELL_PLATE");
         checkSample.property("Generated Samples").asGeneratedSamples("3VRP1A [REINFECT_PLATE]",
                 "3VRP1B [REINFECT_PLATE]");
         checkSample.property("Invalidation").by(new IValueAssertion<Invalidation>()
             {
-                public void assertValue(Invalidation invalidation)
+                public void assertValue(final Invalidation invalidation)
                 {
                     assertEquals("Doe", invalidation.getRegistrator().getLastName());
                     assertEquals("wrong-code", invalidation.getReason());
@@ -98,7 +96,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         checkSample.property("Parent 2").asInvalidEntity();
 
         checkSample.componentsTable().expectedSize(0);
-        CheckTableCommand dataTable = checkSample.dataTable().expectedSize(2);
+        final CheckTableCommand dataTable = checkSample.dataTable().expectedSize(2);
         dataTable.expectedRow(new Row().withCell(CODE, "20081105092158673-1").withCell(
                 FILE_FORMAT_TYPE, "TIFF"));
         dataTable.expectedRow(new Row().withCell(CODE, "20081105092159188-3").withCell(LOCATION,
