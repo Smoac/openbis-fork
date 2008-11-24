@@ -16,11 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
-import java.util.List;
-
 import org.springframework.dao.DataAccessException;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 
 /**
@@ -30,41 +27,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
  */
 public interface IPropertyTypeDAO
 {
-
-    /**
-     * Lists the property types registered in the database.
-     * 
-     * @return The list of all {@link PropertyTypePE}s registered in the database. Never returns
-     *         <code>null</code> but could return an empty list.
-     */
-    public List<PropertyTypePE> listPropertyTypes() throws DataAccessException;
-
-    /**
-     * Creates a new property type based on the specified DTO.
-     * <p>
-     * As a side effect {@link PropertyTypePE#setId(Long)} will be invoked with the <i>unique
-     * identifier</i> returned by the persistent layer.
-     * </p>
-     * 
-     * @param propertyTypeDTO the DTO to get the information from for the property type that is to
-     *            be created. This can not be <code>null</code>.
-     */
-    public void createPropertyType(final PropertyTypePE propertyTypeDTO)
-            throws DataAccessException;
-
-    /**
-     * Lists the data types registered in the database.
-     * 
-     * @return The list of all {@link DataTypePE}s registered in the database. Never returns
-     *         <code>null</code> but could return an empty list.
-     */
-    public List<DataTypePE> listDataTypes() throws DataAccessException;
-
-    /**
-     * @return ID of the property type with the given code or <code>null</code> if no such a
-     *         property exists.
-     */
-    public Long tryFindPropertyTypeIdByCode(final String code) throws DataAccessException;
 
     /**
      * Returns the property type for the specified code.
