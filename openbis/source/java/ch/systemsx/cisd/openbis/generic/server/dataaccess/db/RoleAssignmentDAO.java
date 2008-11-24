@@ -108,8 +108,8 @@ public final class RoleAssignmentDAO extends AbstractDAO implements IRoleAssignm
         }
     }
 
-    public RoleAssignmentPE tryFindGroupRoleAssignment(final RoleCode role, final String group,
-            final String person)
+    public final RoleAssignmentPE tryFindGroupRoleAssignment(final RoleCode role,
+            final String group, final String person)
     {
         List<RoleAssignmentPE> roles;
         roles =
@@ -129,7 +129,8 @@ public final class RoleAssignmentDAO extends AbstractDAO implements IRoleAssignm
 
     }
 
-    public RoleAssignmentPE tryFindInstanceRoleAssignment(final RoleCode role, final String person)
+    public final RoleAssignmentPE tryFindInstanceRoleAssignment(final RoleCode role,
+            final String person)
     {
         List<RoleAssignmentPE> roles;
         roles =

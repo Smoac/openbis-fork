@@ -50,6 +50,10 @@ final class PropertyTypeDAO extends AbstractDAO implements IPropertyTypeDAO
         super(sessionFactory, databaseInstance);
     }
 
+    //
+    // IPropertyTypeDAO
+    //
+
     public final PropertyTypePE tryFindPropertyTypeByCode(final String code)
             throws DataAccessException
     {

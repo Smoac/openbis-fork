@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * 
  * @author Franz-Josef Elmer
  */
-class EntityTypeDAO extends AbstractTypeDAO<EntityTypePE> implements IEntityTypeDAO
+final class EntityTypeDAO extends AbstractTypeDAO<EntityTypePE> implements IEntityTypeDAO
 {
 
     private final EntityKind entityKind;
@@ -43,18 +43,27 @@ class EntityTypeDAO extends AbstractTypeDAO<EntityTypePE> implements IEntityType
         this.entityKind = entityKind;
     }
 
+    //
+    // AbstractTypeDAO
+    //
+
     @Override
-    Class<?> getEntityClass()
+    final Class<?> getEntityClass()
     {
         return entityKind.getTypeClass();
     }
 
-    public EntityTypePE tryToFindEntityTypeByCode(final String code) throws DataAccessException
+    //
+    // IEntityTypeDAO
+    //
+
+    public final EntityTypePE tryToFindEntityTypeByCode(final String code)
+            throws DataAccessException
     {
         return super.tryFindTypeByCode(code);
     }
 
-    public List<EntityTypePE> listEntityTypes() throws DataAccessException
+    public final List<EntityTypePE> listEntityTypes() throws DataAccessException
     {
         return super.listTypes();
     }

@@ -58,6 +58,10 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         return entityKind.getEntityTypePropertyTypeAssignmentClass();
     }
 
+    //
+    // IEntityPropertyTypeDAO
+    //
+
     public final List<EntityTypePropertyTypePE> listEntityPropertyTypes(
             final EntityTypePE entityType) throws DataAccessException
     {

@@ -85,6 +85,10 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
         }
     }
 
+    //
+    // ISampleDAO
+    //
+
     public final void createSample(final SamplePE sample) throws DataAccessException
     {
         assert sample != null : "Unspecified sample";
@@ -100,10 +104,6 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
             operationLog.info("ADD: sample " + sample);
         }
     }
-
-    //
-    // ISampleDAO
-    //
 
     public final List<SamplePE> listSamplesByTypeAndGroup(final SampleTypePE sampleType,
             final GroupPE group) throws DataAccessException
