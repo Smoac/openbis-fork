@@ -64,7 +64,17 @@ final class ColumnChooser extends TextToolItem
         this.parentColumns = parentColumns;
         this.propertyColumns = propertyColumns;
         setEnabled(false);
-        reload();
+        // Setting a menu, even dummy, at construction seems to be important for correct GUI
+        // rendering, especially for Safari.
+        setMenu(createDummyMenu());
+    }
+
+    private final static Menu createDummyMenu()
+    {
+        final Menu menu = new Menu();
+        // Putting nothing or just an empty string does not satisfy Safari.
+        menu.add(new MenuItem("<dummy>"));
+        return menu;
     }
 
     final void reload()
@@ -84,9 +94,9 @@ final class ColumnChooser extends TextToolItem
     private final List<Item> createCommonMenu()
     {
         final ArrayList<Item> result = new ArrayList<Item>();
-        for (final ColumnConfig cc : commonColumns.getColumns())
+        for (final ColumnConfig columnConfig : commonColumns.getColumns())
         {
-            result.add(createFromConfig(cc));
+            result.add(createFromConfig(columnConfig));
         }
         return result;
     }
