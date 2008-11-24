@@ -126,6 +126,7 @@ public final class SampleBO extends AbstractSampleIdentifierBusinessObject imple
                 sample.setTop(contained.getTop() == null ? contained : contained.getTop());
             }
         }
+        SampleGenericBusinessRules.assertValidParents(sample);
         dataChanged = true;
     }
 

@@ -25,7 +25,6 @@ import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.form.AdapterField;
@@ -33,6 +32,7 @@ import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.GroupSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataTypes;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
@@ -82,7 +83,13 @@ public final class GenericSampleRegistrationForm extends FormPanel
 
     private MultiField<Field<?>> groupMultiField;
 
+    private InfoBox infoBox;
+
     private static final String MANDATORY_LABEL_SEPARATOR = ": *";
+
+    private static final int LABEL_WIDTH = 150;
+
+    private static final int FIELD_WIDTH = 400;
 
     public GenericSampleRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext, SampleType sampleType)
@@ -95,7 +102,17 @@ public final class GenericSampleRegistrationForm extends FormPanel
 
     private void createFormFields()
     {
+        infoBox = new InfoBox();
+
         code = new CodeField("Sample code", true);
+        code.addListener(Events.Focus, new Listener<BaseEvent>()
+            {
+
+                public void handleEvent(BaseEvent be)
+                {
+                    infoBox.fade();
+                }
+            });
 
         groupSelectionWidget = new GroupSelectionWidget(viewContext);
         groupSelectionWidget.setEnabled(SELECT_GROUP_BY_DEFAULT);
@@ -143,24 +160,26 @@ public final class GenericSampleRegistrationForm extends FormPanel
 
     private void configureForm()
     {
-        setHScrollPosition(20);
         setHeaderVisible(false);
         setBodyBorder(false);
-        setLabelWidth(150);
-        setFieldWidth(350);
+
+        setLabelWidth(LABEL_WIDTH);
+        setFieldWidth(FIELD_WIDTH);
         setButtonAlign(HorizontalAlignment.LEFT);
         final ButtonBar bb = new ButtonBar();
         bb.setCellSpacing(20);
-        Button resetButton = new Button("Reset");
-        resetButton.addSelectionListener(new SelectionListener<ComponentEvent>()
-            {
-                @Override
-                public void componentSelected(ComponentEvent ce)
-                {
-                    resetForm();
-                }
-            });
-        bb.add(resetButton);
+        // Reset functionality - uncomment if needed
+        //
+        // Button resetButton = new Button("Reset");
+        // resetButton.addSelectionListener(new SelectionListener<ComponentEvent>()
+        // {
+        // @Override
+        // public void componentSelected(ComponentEvent ce)
+        // {
+        // resetForm("");
+        // }
+        // });
+        // bb.add(resetButton);
 
         Button saveButton = new Button("Save");
         saveButton.addSelectionListener(new SelectionListener<ComponentEvent>()
@@ -193,6 +212,19 @@ public final class GenericSampleRegistrationForm extends FormPanel
         return sb.toString().toUpperCase();
     }
 
+    static String createSuccessfullRegistrationInfo(boolean shared, String code, Group group)
+    {
+        if (shared)
+        {
+            return "Shared sample <b>" + code + "</b> successfully registered";
+
+        } else
+        {
+            return "Sample <b>" + code + "</b> successfully registered in group <b>"
+                    + group.getCode() + "</b>";
+        }
+    }
+
     private void submitForm()
     {
         if (isValid())
@@ -214,28 +246,26 @@ public final class GenericSampleRegistrationForm extends FormPanel
             viewContext.getService().registerSample(sampleToRegister,
                     new AbstractAsyncCallback<Void>(viewContext)
                         {
-
                             @Override
                             protected void process(Void result)
                             {
-                                MessageBox mb = new MessageBox();
-                                mb.setIcon(MessageBox.INFO);
-                                mb.setButtons(MessageBox.OK);
-                                mb.setModal(true);
-                                mb.setTitle("Registration successfull");
-                                mb.setMessage("Sample '" + createSampleIdentifier()
-                                        + "' successfully registered.");
-                                mb.show();
-                                resetForm();
+
+                                String message =
+                                        createSuccessfullRegistrationInfo(
+                                                sharedCheckbox.getValue(), code.getValue(),
+                                                groupSelectionWidget.tryGetSelected());
+                                resetForm(message);
+
                             }
                         });
         }
     }
 
-    private void resetForm()
+    private void resetForm(String info)
     {
         createFormFields();
         addFormFields();
+        infoBox.display(info);
         layout();
     }
 
@@ -249,6 +279,7 @@ public final class GenericSampleRegistrationForm extends FormPanel
     public void addFormFields()
     {
         removeAll();
+        add(infoBox);
         add(code);
         add(groupMultiField);
         add(parentGenerator);
@@ -382,6 +413,7 @@ public final class GenericSampleRegistrationForm extends FormPanel
             super(label, mandatory);
             setRegex(GenericConstants.CODE_PATTERN);
         }
+
     }
 
     static class RealField extends BasicTextField<Double>
@@ -427,6 +459,45 @@ public final class GenericSampleRegistrationForm extends FormPanel
                         }
                     }
                 });
+        }
+    }
+
+    static class InfoBox extends LabelField
+    {
+
+        public InfoBox()
+        {
+            setVisible(false);
+            setStyleAttribute("text-align", "center !important");
+            setPosition(-2, 0);
+        }
+
+        private void setStrongStyle()
+        {
+            setStyleAttribute("background-color", "#feffbe !important");
+            setStyleAttribute("border", "1px solid #edee8b !important");
+        }
+
+        private void setLightStyle()
+        {
+            setStyleAttribute("background-color", "#feffdf !important");
+            setStyleAttribute("color", "gray !important");
+            setStyleAttribute("border", "1px solid #e7e7e7 !important");
+        }
+
+        public void fade()
+        {
+            setLightStyle();
+        }
+
+        public void display(String text)
+        {
+            if (StringUtils.isBlank(text) == false)
+            {
+                setStrongStyle();
+                setVisible(true);
+                setText(text);
+            }
         }
     }
 

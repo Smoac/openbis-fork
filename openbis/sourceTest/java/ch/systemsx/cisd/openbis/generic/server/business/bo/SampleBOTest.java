@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleToRegisterDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
@@ -61,6 +62,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
  */
 public final class SampleBOTest
 {
+    private static final String DB = "DB";
+
     private static final String DILUTION_PLATE = SampleTypeCode.DILUTION_PLATE.getCode();
 
     private static final String MASTER_PLATE = SampleTypeCode.MASTER_PLATE.getCode();
@@ -135,9 +138,66 @@ public final class SampleBOTest
         return sample;
     }
 
+    private final static SampleIdentifier getSharedSampleIdentifier(final String code)
+    {
+        return new SampleIdentifier(new DatabaseInstanceIdentifier(DB), code);
+    }
+
     private final static SampleIdentifier getSampleIdentifier(final String code)
     {
         return new SampleIdentifier(IdentifierHelper.createIdentifier(EXAMPLE_GROUP), code);
+    }
+
+    @Test(expectedExceptions = UserFailureException.class)
+    public final void testFailToDefineSharedSampleWithParentInAGroup()
+    {
+        final SampleIdentifier sharedSampleIdentifier =
+                getSharedSampleIdentifier(DEFAULT_SAMPLE_CODE);
+        final SampleToRegisterDTO newSharedSample = new SampleToRegisterDTO();
+        newSharedSample.setSampleIdentifier(sharedSampleIdentifier);
+        newSharedSample.setSampleTypeCode(SampleTypeCode.DILUTION_PLATE.getCode());
+
+        final SampleIdentifier parentGroupIdentifier = getSampleIdentifier("SAMPLE_GENERATOR");
+        newSharedSample.setGeneratorParent(parentGroupIdentifier);
+
+        newSharedSample.setProperties(SimpleEntityProperty.EMPTY_ARRAY);
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(databaseInstanceDAO).tryFindDatabaseInstanceByCode(DB);
+                    will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
+
+                    allowing(daoFactory).getSampleDAO();
+                    will(returnValue(sampleDAO));
+
+                    ManagerTestTool.prepareFindGroup(this, daoFactory, groupDAO,
+                            databaseInstanceDAO);
+
+                    final SamplePE groupParent = new SamplePE();
+                    groupParent.setRegistrator(EXAMPLE_PERSON);
+                    groupParent.setGroup(EXAMPLE_GROUP);
+                    groupParent.setCode("SAMPLE_GENERATOR");
+                    one(sampleDAO).tryFindByCodeAndGroup(parentGroupIdentifier.getSampleCode(),
+                            EXAMPLE_GROUP);
+                    will(returnValue(groupParent));
+
+                    final SampleTypePE sampleType = new SampleTypePE();
+                    sampleType.setCode(DILUTION_PLATE);
+
+                    one(daoFactory).getSampleTypeDAO();
+                    will(returnValue(sampleTypeDAO));
+                    one(sampleTypeDAO).tryFindSampleTypeByCode(DILUTION_PLATE);
+                    will(returnValue(sampleType));
+
+                    one(propertiesConverter).convertProperties(newSharedSample.getProperties(),
+                            DILUTION_PLATE, EXAMPLE_PERSON);
+                    will(returnValue(new ArrayList<SamplePropertyPE>()));
+                }
+            });
+
+        final SampleBO sampleBO = createSampleBO();
+        sampleBO.define(newSharedSample);
     }
 
     @Test

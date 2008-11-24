@@ -16,11 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
@@ -44,7 +44,7 @@ public class SampleRegistrationPanel extends ContentPanel
         setHeading("Sample registration");
         setHeaderVisible(false);
         setBodyBorder(false);
-        setLayout(new FitLayout());
+        setScrollMode(Scroll.AUTO);
         sampleTypeSelection = new SampleTypeSelectionWidget(viewContext, true);
         sampleTypeSelection.addSelectionChangedListener(new SelectionChangedListener<ModelData>()
             {
@@ -56,7 +56,6 @@ public class SampleRegistrationPanel extends ContentPanel
                     {
                         removeAll();
                         add(new GenericSampleRegistrationForm(viewContext, selectedType));
-
                         layout();
                     }
                 }
