@@ -334,13 +334,6 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
             parent.getExperimentAttachments().remove(child);
         }
         child.setParentInternal(this);
-        // ensure that the collection is of the proper type - bean populator could set it to
-        // unmuttable empty list
-        if (getExperimentAttachments().size() == 0
-                && getExperimentAttachments() instanceof HashSet == false)
-        {
-            setExperimentAttachments(new ArrayList<AttachmentPE>());
-        }
         getExperimentAttachments().add(child);
     }
 
