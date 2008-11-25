@@ -85,7 +85,7 @@ public final class RoleAssignmentTable extends AbstractBusinessObject implements
                 newRoleAssignment.getDatabaseInstanceIdentifier();
         if (databaseInstanceIdentifier != null)
         {
-            DatabaseInstancePE databaseInstance =
+            final DatabaseInstancePE databaseInstance =
                     GroupIdentifierHelper.getDatabaseInstance(databaseInstanceIdentifier, this);
             roleAssignment.setDatabaseInstance(databaseInstance);
         } else

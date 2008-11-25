@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.generic.shared.authorization.validator;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.testng.annotations.Test;
 
@@ -67,7 +67,7 @@ public final class MatchingEntityValidatorTest
         final PersonPE person = new PersonPE();
         if (withRoleAssignment)
         {
-            final List<RoleAssignmentPE> list = new ArrayList<RoleAssignmentPE>();
+            final Set<RoleAssignmentPE> list = new HashSet<RoleAssignmentPE>();
             RoleAssignmentPE assignment = new RoleAssignmentPE();
             // Group assignment
             assignment = new RoleAssignmentPE();

@@ -28,6 +28,8 @@ import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * Data access object for {@link SampleTypePE}. <br>
@@ -44,9 +46,20 @@ final class SampleTypeDAO extends AbstractTypeDAO<SampleTypePE> implements ISamp
         super(sessionFactory, databaseInstance);
     }
 
-    //
-    // AbstractTypeDAO
-    //
+    private final static void fetchPropertyTypes(final List<SampleTypePE> list)
+    {
+        for (final SampleTypePE sampleTypePE : list)
+        {
+            HibernateUtils.initialize(sampleTypePE.getSampleTypePropertyTypes());
+            for (final SampleTypePropertyTypePE stpt : sampleTypePE.getSampleTypePropertyTypes())
+            {
+                if (stpt.getPropertyType().getVocabulary() != null)
+                {
+                    HibernateUtils.initialize(stpt.getPropertyType().getVocabulary().getTerms());
+                }
+            }
+        }
+    }
 
     @Override
     final Class<SampleTypePE> getEntityClass()
@@ -62,15 +75,15 @@ final class SampleTypeDAO extends AbstractTypeDAO<SampleTypePE> implements ISamp
             throws DataAccessException
     {
         String query =
-                String.format("from %s st left join fetch st.sampleTypePropertyTypesInternal stpt "
-                        + "left join fetch stpt.propertyType.vocabulary.vocabularyTerms "
-                        + "where st.databaseInstance = ?", getEntityClass().getSimpleName());
+                String.format("from %s st where st.databaseInstance = ?", getEntityClass()
+                        .getSimpleName());
         if (onlyListable)
         {
             query += " and st.listable = true";
         }
         final List<SampleTypePE> list =
                 cast(getHibernateTemplate().find(query, toArray(getDatabaseInstance())));
+        fetchPropertyTypes(list);
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%s(%s): %d type(s) have been found.", MethodUtils

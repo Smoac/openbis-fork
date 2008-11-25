@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import org.jmock.Expectations;
@@ -62,7 +63,8 @@ public final class AuthorizationTestUtil
      * </p>
      */
     public final static <T> T createAndPrepareAuthorizationProxy(final Class<T> proxyInterface,
-            final Mockery context, final List<GroupPE> groups, final String homeDbCode, final String dbCode)
+            final Mockery context, final List<GroupPE> groups, final String homeDbCode,
+            final String dbCode)
     {
         final IAuthorizationDAOFactory daoFactory =
                 context.mock(IAuthorizationDAOFactory.class, "authorization IDAOFactory mock");
@@ -71,7 +73,7 @@ public final class AuthorizationTestUtil
         final DatabaseInstancePE homeDb = createDatabaseInstance(homeDbCode);
         final DatabaseInstancePE db = createDatabaseInstance(dbCode);
         final IDatabaseInstanceDAO databaseInstanceDAO =
-            context.mock(IDatabaseInstanceDAO.class, "authorization IDatabaseInstanceDAO mock");
+                context.mock(IDatabaseInstanceDAO.class, "authorization IDatabaseInstanceDAO mock");
         final IGroupDAO groupDAO = context.mock(IGroupDAO.class, "authorization IGroupDAO mock");
         context.checking(new Expectations()
             {
@@ -184,8 +186,8 @@ public final class AuthorizationTestUtil
     // ----------------
 
     private final static void prepareAuthorizationExpectations(final Mockery context,
-            final IAuthorizationDAOFactory daoFactory, final List<GroupPE> groups, final String homeDbCode,
-            final String... otherDatabasesCodes)
+            final IAuthorizationDAOFactory daoFactory, final List<GroupPE> groups,
+            final String homeDbCode, final String... otherDatabasesCodes)
     {
         final DatabaseInstancePE homeDb = createDatabaseInstance(homeDbCode);
         final List<DatabaseInstancePE> databases = new ArrayList<DatabaseInstancePE>();
@@ -224,7 +226,7 @@ public final class AuthorizationTestUtil
                 }
             });
     }
-    
+
     public static IAuthSession createSession(final RoleAssignmentPE... roleAssignments)
     {
         final PersonPE person = new PersonPE();
@@ -237,25 +239,25 @@ public final class AuthorizationTestUtil
         databaseInstance.setCode("my database instance");
         databaseInstance.setId(841L);
         person.setDatabaseInstance(databaseInstance);
-        person.setRoleAssignments(Arrays.asList(roleAssignments));
+        person.setRoleAssignments(new HashSet<RoleAssignmentPE>(Arrays.asList(roleAssignments)));
         return new IAuthSession()
             {
                 public PersonPE tryGetPerson()
                 {
                     return person;
                 }
-        
+
                 public String tryGetHomeGroupCode()
                 {
                     GroupPE homeGroup = person.getHomeGroup();
                     return homeGroup == null ? null : homeGroup.getCode();
                 }
-        
+
                 public String getUserName()
                 {
                     return person.getFirstName() + " " + person.getLastName();
                 }
-        
+
             };
     }
 

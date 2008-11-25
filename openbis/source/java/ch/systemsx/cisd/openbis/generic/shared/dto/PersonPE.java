@@ -44,6 +44,7 @@ import org.hibernate.validator.Email;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 
+import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 
@@ -190,7 +191,7 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
         this.roleAssignments = rolesAssignments;
     }
 
-    public final void setRoleAssignments(final Iterable<RoleAssignmentPE> rolesAssignments)
+    public final void setRoleAssignments(final Set<RoleAssignmentPE> rolesAssignments)
     {
         getRoleAssignmentsInternal().clear();
         for (final RoleAssignmentPE child : rolesAssignments)
@@ -202,21 +203,24 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
     @Transient
     public final Set<RoleAssignmentPE> getRoleAssignments()
     {
-        // The returned assignments cannot be wrapped as immutable, because they are lazily loaded
-        // and wrapping them in decorator class will make both checking if collection is initialized
-        // and initializing it impossible.
-        return getRoleAssignmentsInternal();
+        return new UnmodifiableSetDecorator<RoleAssignmentPE>(getRoleAssignmentsInternal());
     }
 
     public void addRoleAssignment(final RoleAssignmentPE roleAssignment)
     {
-        final PersonPE personFromRoleAssignment = roleAssignment.getPerson();
-        if (personFromRoleAssignment != null)
+        final PersonPE person = roleAssignment.getPerson();
+        if (person != null)
         {
-            personFromRoleAssignment.getRoleAssignmentsInternal().remove(roleAssignment);
+            person.removeRoleAssigment(roleAssignment);
         }
         roleAssignment.setPersonInternal(this);
         getRoleAssignmentsInternal().add(roleAssignment);
+    }
+
+    public void removeRoleAssigment(final RoleAssignmentPE roleAssignment)
+    {
+        assert roleAssignment != null : "Unspecified role assignment.";
+        getRoleAssignmentsInternal().remove(roleAssignment);
     }
 
     //

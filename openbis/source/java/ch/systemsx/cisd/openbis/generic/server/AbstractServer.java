@@ -78,6 +78,17 @@ public abstract class AbstractServer<T extends IServer> implements IServer,
         return proxyFactory;
     }
 
+    private final RoleAssignmentPE createRoleAssigment(final PersonPE registrator,
+            final PersonPE person)
+    {
+        final RoleAssignmentPE roleAssignmentPE = new RoleAssignmentPE();
+        roleAssignmentPE.setPerson(person);
+        roleAssignmentPE.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
+        roleAssignmentPE.setRegistrator(registrator);
+        roleAssignmentPE.setRole(RoleCode.ADMIN);
+        return roleAssignmentPE;
+    }
+
     protected AbstractServer(final ISessionManager<Session> sessionManager,
             final IDAOFactory daoFactory, IGenericBusinessObjectFactory boFactory)
     {
@@ -179,16 +190,11 @@ public abstract class AbstractServer<T extends IServer> implements IServer,
         }
         if (isFirstLoggedUser)
         {
-            final RoleAssignmentPE roleAssignmentPE = new RoleAssignmentPE();
             final PersonPE person = session.tryGetPerson();
-            roleAssignmentPE.setPerson(person);
-            roleAssignmentPE.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
-            roleAssignmentPE.setRegistrator(registrator);
-            roleAssignmentPE.setRole(RoleCode.ADMIN);
-            daoFactory.getRoleAssignmentDAO().createRoleAssignment(roleAssignmentPE);
-            person.setRoleAssignments(Collections.singletonList(roleAssignmentPE));
+            final RoleAssignmentPE roleAssignmentPE = createRoleAssigment(registrator, person);
+            person.setRoleAssignments(Collections.singleton(roleAssignmentPE));
+            daoFactory.getPersonDAO().updatePerson(person);
         }
         return session;
     }
-
 }

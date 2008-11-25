@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -207,7 +208,6 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     public final void deleteGroupRole(final String sessionToken, final RoleCode roleCode,
             final GroupIdentifier groupIdentifier, final String person)
     {
-
         final Session session = getSessionManager().getSession(sessionToken);
 
         final RoleAssignmentPE roleAssignment =
@@ -215,27 +215,26 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                         groupIdentifier.getGroupCode(), person);
         if (roleAssignment == null)
         {
-            throw new UserFailureException("Given role does not exist.");
+            throw new UserFailureException("Given group role does not exist.");
         }
         final PersonPE personPE = session.tryGetPerson();
-        if (roleAssignment.getPerson().compareTo(personPE) == 0
-                && roleAssignment.getRole().compareTo(RoleCode.ADMIN) == 0)
+        if (roleAssignment.getPerson().equals(personPE)
+                && roleAssignment.getRole().equals(RoleCode.ADMIN))
         {
             boolean isInstanceAdmin = false;
-            if (personPE != null && personPE.getRoleAssignments() != null)
+            for (final RoleAssignmentPE roleAssigment : personPE.getRoleAssignments())
             {
-                for (final RoleAssignmentPE ra : personPE.getRoleAssignments())
+                if (roleAssigment.getDatabaseInstance() != null
+                        && roleAssigment.getRole().equals(RoleCode.ADMIN))
                 {
-                    if (ra.getDatabaseInstance() != null && ra.getRole().equals(RoleCode.ADMIN))
-                    {
-                        isInstanceAdmin = true;
-                    }
+                    isInstanceAdmin = true;
                 }
             }
             if (isInstanceAdmin == false)
             {
                 throw new UserFailureException(
-                        "For safety reason you cannot give away your own group admin power. Ask instance admin to do that for you.");
+                        "For safety reason you cannot give away your own group admin power. "
+                                + "Ask instance admin to do that for you.");
             }
         }
         getDAOFactory().getRoleAssignmentDAO().deleteRoleAssignment(roleAssignment);
@@ -244,23 +243,23 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     public final void deleteInstanceRole(final String sessionToken, final RoleCode roleCode,
             final String person)
     {
-
         final Session session = getSessionManager().getSession(sessionToken);
+        final IRoleAssignmentDAO roleAssignmentDAO = getDAOFactory().getRoleAssignmentDAO();
         final RoleAssignmentPE roleAssignment =
-                getDAOFactory().getRoleAssignmentDAO().tryFindInstanceRoleAssignment(roleCode,
-                        person);
+                roleAssignmentDAO.tryFindInstanceRoleAssignment(roleCode, person);
         if (roleAssignment == null)
         {
-            throw new UserFailureException("Given role does not exist.");
+            throw new UserFailureException("Given database instance role does not exist.");
         }
-        if (roleAssignment.getPerson().compareTo(session.tryGetPerson()) == 0
-                && roleAssignment.getRole().compareTo(RoleCode.ADMIN) == 0
+        if (roleAssignment.getPerson().equals(session.tryGetPerson())
+                && roleAssignment.getRole().equals(RoleCode.ADMIN)
                 && roleAssignment.getDatabaseInstance() != null)
         {
             throw new UserFailureException(
-                    "For safety reason you cannot give away your own omnipotence. Ask another instance admin to do that for you.");
+                    "For safety reason you cannot give away your own omnipotence. "
+                            + "Ask another instance admin to do that for you.");
         }
-        getDAOFactory().getRoleAssignmentDAO().deleteRoleAssignment(roleAssignment);
+        roleAssignmentDAO.deleteRoleAssignment(roleAssignment);
     }
 
     public final List<PersonPE> listPersons(final String sessionToken)

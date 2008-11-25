@@ -25,7 +25,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.ParameterChecker;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleToRegisterDTO;
@@ -165,8 +164,7 @@ public final class SampleBO extends AbstractSampleIdentifierBusinessObject imple
 
         try
         {
-            final ISampleDAO sampleDAO = getSampleDAO();
-            sampleDAO.createSample(sample);
+            getSampleDAO().createSample(sample);
         } catch (final DataAccessException ex)
         {
             throwException(ex, String.format("Sample '%s'", sample.getSampleIdentifier()));

@@ -22,8 +22,8 @@ import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.testng.annotations.Test;
 
@@ -48,9 +48,9 @@ public final class DefaultAccessControllerTest
 {
     private DefaultAccessController accessController = new DefaultAccessController(null);
 
-    private final static List<RoleAssignmentPE> createRoleAssignments()
+    private final static Set<RoleAssignmentPE> createRoleAssignments()
     {
-        final List<RoleAssignmentPE> roleAssignments = new ArrayList<RoleAssignmentPE>();
+        final Set<RoleAssignmentPE> roleAssignments = new HashSet<RoleAssignmentPE>();
 
         final RoleAssignmentPE groupRole = new RoleAssignmentPE();
 

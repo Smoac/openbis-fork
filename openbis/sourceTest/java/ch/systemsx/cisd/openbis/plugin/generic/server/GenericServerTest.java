@@ -111,7 +111,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                     will(returnValue(null));
 
                     one(personDAO).createPerson(person);
-                    one(roleAssignmentDAO).createRoleAssignment(roleAssignment);
+                    one(personDAO).updatePerson(person);
                 }
             });
 

@@ -42,6 +42,8 @@ public final class RoleAssignmentDAO extends AbstractDAO implements IRoleAssignm
 {
     public final static Class<RoleAssignmentPE> ENTITY_CLASS = RoleAssignmentPE.class;
 
+    private static final String TABLE_NAME = ENTITY_CLASS.getSimpleName();
+
     /**
      * This logger does not output any SQL statement. If you want to do so, you had better set an
      * appropriate debugging level for class {@link JdbcAccessor}.
@@ -102,8 +104,13 @@ public final class RoleAssignmentDAO extends AbstractDAO implements IRoleAssignm
     {
         assert roleAssignment != null : "Role assignment unspecified";
 
-        roleAssignment.getPerson().getRoleAssignments().remove(roleAssignment);
-        getHibernateTemplate().delete(roleAssignment);
+        // Remove the role assignment from the person grantee before delete it from the hibernate
+        // session. Or you will get an InvalidDataAccessApiUsageException caused by an
+        // ObjectDeletedException.
+        roleAssignment.getPerson().removeRoleAssigment(roleAssignment);
+        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+        hibernateTemplate.delete(roleAssignment);
+        hibernateTemplate.flush();
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format("DELETE: role assignment '%s'.", roleAssignment));
@@ -113,14 +120,12 @@ public final class RoleAssignmentDAO extends AbstractDAO implements IRoleAssignm
     public final RoleAssignmentPE tryFindGroupRoleAssignment(final RoleCode role,
             final String group, final String person)
     {
-        List<RoleAssignmentPE> roles;
-        roles =
+        final List<RoleAssignmentPE> roles =
                 cast(getHibernateTemplate().find(
                         String.format(
                                 "from %s r where r.personInternal.userId = ? and group.code = ? "
-                                        + "and r.role = ?", ENTITY_CLASS.getSimpleName()),
-                        new Object[]
-                            { person, group, role }));
+                                        + "and r.role = ?", TABLE_NAME),
+                        toArray(person, group, role)));
         final RoleAssignmentPE roleAssignment =
                 tryFindEntity(roles, "role_assignments", role, group, person);
         if (operationLog.isInfoEnabled())
@@ -140,8 +145,8 @@ public final class RoleAssignmentDAO extends AbstractDAO implements IRoleAssignm
         final List<RoleAssignmentPE> roles =
                 cast(getHibernateTemplate().find(
                         String.format("from %s r where r.personInternal.userId = ? "
-                                + "and r.role = ? and r.databaseInstance = ?", ENTITY_CLASS
-                                .getSimpleName()), toArray(person, role, getDatabaseInstance())));
+                                + "and r.role = ? and r.databaseInstance = ?", TABLE_NAME),
+                        toArray(person, role, getDatabaseInstance())));
         final RoleAssignmentPE roleAssignment =
                 tryFindEntity(roles, "role_assignments", role, person);
         if (operationLog.isInfoEnabled())
