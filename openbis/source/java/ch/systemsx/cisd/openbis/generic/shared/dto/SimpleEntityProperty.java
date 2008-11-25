@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityPropertyValu
  * 
  * @author Tomasz Pylak
  */
+// TODO 2008-11-25, Christian Ribeaud: Remove use of SimpleEntityProperty in openbis project.
 public final class SimpleEntityProperty extends AbstractHashable implements Serializable
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
