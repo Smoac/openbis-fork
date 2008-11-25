@@ -41,6 +41,8 @@ final class DatabaseInstanceDAO extends AbstractDAO implements IDatabaseInstance
 
     private final static Class<DatabaseInstancePE> ENTITY_CLASS = DatabaseInstancePE.class;
 
+    private static final String TABLE_NAME = ENTITY_CLASS.getSimpleName();
+
     /**
      * This logger does not output any SQL statement. If you want to do so, you had better set an
      * appropriate debugging level for class {@link JdbcAccessor}.
@@ -81,8 +83,8 @@ final class DatabaseInstanceDAO extends AbstractDAO implements IDatabaseInstance
         final String columnName = isUUID ? "uuid" : "code";
         final List<DatabaseInstancePE> databaseInstances =
                 cast(getHibernateTemplate().find(
-                        String.format("from %s d where d." + columnName + " = ? ", ENTITY_CLASS
-                                .getSimpleName()), toArray(code)));
+                        String.format("from %s d where d." + columnName + " = ? ", TABLE_NAME),
+                        toArray(code)));
         return databaseInstances;
     }
 
@@ -94,9 +96,8 @@ final class DatabaseInstanceDAO extends AbstractDAO implements IDatabaseInstance
     {
         final List<DatabaseInstancePE> list =
                 cast(getHibernateTemplate().find(
-                        String.format("from %s d where d.originalSource = ?", ENTITY_CLASS
-                                .getSimpleName()), new Object[]
-                            { true }));
+                        String.format("from %s d where d.originalSource = ?", TABLE_NAME),
+                        toArray(true)));
         return getEntity(list);
     }
 
@@ -157,8 +158,11 @@ final class DatabaseInstanceDAO extends AbstractDAO implements IDatabaseInstance
     public final void createDatabaseInstance(final DatabaseInstancePE databaseInstance)
             throws DataAccessException
     {
-        databaseInstance.setCode(CodeConverter.tryToDatabase(databaseInstance.getCode()));
+        assert databaseInstance != null : "Unspecified database instance";
         databaseInstance.setUuid(UuidUtil.generateUUID());
+        validatePE(databaseInstance);
+
+        databaseInstance.setCode(CodeConverter.tryToDatabase(databaseInstance.getCode()));
         final HibernateTemplate template = getHibernateTemplate();
         template.save(databaseInstance);
         template.flush();

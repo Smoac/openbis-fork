@@ -20,7 +20,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.jdbc.support.JdbcAccessor;
@@ -72,9 +71,10 @@ public final class RoleAssignmentDAO extends AbstractDAO implements IRoleAssignm
 
     public final List<RoleAssignmentPE> listRoleAssignmentsByPerson(final PersonPE person)
     {
-        final Criterion granteeEq = Restrictions.eq("personInternal", person);
+        assert person != null : "Unspecified person.";
+
         final DetachedCriteria criteria = DetachedCriteria.forClass(ENTITY_CLASS);
-        criteria.add(granteeEq);
+        criteria.add(Restrictions.eq("personInternal", person));
         final List<RoleAssignmentPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())
         {
@@ -100,6 +100,8 @@ public final class RoleAssignmentDAO extends AbstractDAO implements IRoleAssignm
 
     public final void deleteRoleAssignment(final RoleAssignmentPE roleAssignment)
     {
+        assert roleAssignment != null : "Role assignment unspecified";
+
         roleAssignment.getPerson().getRoleAssignments().remove(roleAssignment);
         getHibernateTemplate().delete(roleAssignment);
         if (operationLog.isInfoEnabled())
@@ -132,13 +134,14 @@ public final class RoleAssignmentDAO extends AbstractDAO implements IRoleAssignm
     public final RoleAssignmentPE tryFindInstanceRoleAssignment(final RoleCode role,
             final String person)
     {
-        List<RoleAssignmentPE> roles;
-        roles =
+        assert role != null : "Unspecified role.";
+        assert person != null : "Unspecified person.";
+
+        final List<RoleAssignmentPE> roles =
                 cast(getHibernateTemplate().find(
                         String.format("from %s r where r.personInternal.userId = ? "
                                 + "and r.role = ? and r.databaseInstance = ?", ENTITY_CLASS
-                                .getSimpleName()), new Object[]
-                            { person, role, getDatabaseInstance() }));
+                                .getSimpleName()), toArray(person, role, getDatabaseInstance())));
         final RoleAssignmentPE roleAssignment =
                 tryFindEntity(roles, "role_assignments", role, person);
         if (operationLog.isInfoEnabled())

@@ -58,6 +58,7 @@ final class PropertyTypeDAO extends AbstractDAO implements IPropertyTypeDAO
             throws DataAccessException
     {
         assert code != null : "Unspecified property type code";
+
         final List<PropertyTypePE> list =
                 cast(getHibernateTemplate().find(
                         String.format("select pt from %s pt where pt.simpleCode = ? "

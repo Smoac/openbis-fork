@@ -102,6 +102,7 @@ public final class PersonDAO extends AbstractDAO implements IPersonDAO
     public final PersonPE tryFindPersonByUserId(final String userId) throws DataAccessException
     {
         assert userId != null : "Unspecified user id";
+
         final List<PersonPE> persons =
                 cast(getHibernateTemplate().find(
                         String.format("from %s p where p.userId = ? "

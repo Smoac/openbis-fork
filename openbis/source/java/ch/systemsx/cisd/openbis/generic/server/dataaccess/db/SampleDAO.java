@@ -108,15 +108,16 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
     public final List<SamplePE> listSamplesByTypeAndGroup(final SampleTypePE sampleType,
             final GroupPE group) throws DataAccessException
     {
+        assert sampleType != null : "Unspecified sample type.";
+        assert group != null : "Unspecified group.";
+
         final Criteria criteria = createListSampleForTypeCriteria(sampleType);
         criteria.add(Restrictions.eq("group", group));
-
         final List<SamplePE> list = cast(criteria.list());
-
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format(
-                    "%d samples have been found for sample type %s and group %s.", list.size(),
+                    "%d samples have been found for sample type '%s' and group '%s'.", list.size(),
                     sampleType, group));
         }
         return list;
@@ -125,16 +126,17 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
     public final List<SamplePE> listSamplesByTypeAndDatabaseInstance(final SampleTypePE sampleType,
             final DatabaseInstancePE databaseInstance)
     {
+        assert sampleType != null : "Unspecified sample type.";
+        assert databaseInstance != null : "Unspecified database instance.";
+
         final Criteria criteria = createListSampleForTypeCriteria(sampleType);
         criteria.add(Restrictions.eq("databaseInstance", databaseInstance));
-
         final List<SamplePE> list = cast(criteria.list());
-
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format(
-                    "%d samples have been found for sample type %s and database instance %s.", list
-                            .size(), sampleType, databaseInstance));
+                    "%d samples have been found for sample type '%s' and database instance '%s'.",
+                    list.size(), sampleType, databaseInstance));
         }
         return list;
     }
@@ -179,6 +181,8 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
 
     public final List<SamplePE> listSamplesByGeneratedFrom(final SamplePE sample)
     {
+        assert sample != null : "Unspecified sample.";
+
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
         final String hql = String.format("from %s s where s.generatedFrom = ?", TABLE_NAME);
         final List<SamplePE> list = cast(hibernateTemplate.find(hql, toArray(sample)));
