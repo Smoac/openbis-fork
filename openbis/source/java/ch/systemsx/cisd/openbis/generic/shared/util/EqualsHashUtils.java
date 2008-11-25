@@ -16,21 +16,30 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.util;
 
+import ch.systemsx.cisd.common.utilities.MethodUtils;
+
 /**
  * Utility class containing methods useful in defining equals and hashCode methods.
  * 
  * @author Izabela Adamczyk
  */
-public class EqualsHashUtils
+public final class EqualsHashUtils
 {
+    private EqualsHashUtils()
+    {
+        // Can not be instantiated.
+    }
 
     public static void assertDefined(final Object o, final String name)
     {
+        assert name != null : "Unspecified name.";
         if (o == null)
         {
-            throw new IllegalStateException("Field should be defined but is null: " + name
-                    + ". Equals operation cannot be performed.");
+            final String className =
+                    MethodUtils.getMethodOnStack(2).getDeclaringClass().getSimpleName();
+            throw new IllegalStateException(String.format(
+                    "Field name '%s' in class '%s' should be defined but is null."
+                            + " Equals operation cannot be performed.", name, className));
         }
     }
-
 }
