@@ -50,6 +50,13 @@ public final class GenericServerTest extends AbstractServerTestCase
         return new GenericServer(authenticationService, sessionManager, daoFactory, boFactory);
     }
 
+    private final static PersonPE createSystemUser()
+    {
+        final PersonPE systemPerson = new PersonPE();
+        systemPerson.setUserId(PersonPE.SYSTEM_USER_ID);
+        return systemPerson;
+    }
+
     @Test
     public void testLogout()
     {
@@ -88,7 +95,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         final String user = "user";
         final String password = "password";
         final Session session = createExampleSession();
-        final PersonPE systemPerson = new PersonPE();
+        final PersonPE systemPerson = createSystemUser();
         final PersonPE person = createPersonFromPrincipal(PRINCIPAL);
         final RoleAssignmentPE roleAssignment = new RoleAssignmentPE();
         roleAssignment.setPerson(person);
@@ -129,7 +136,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         final String user = "user";
         final String password = "password";
         final Session session = createExampleSession();
-        final PersonPE systemPerson = new PersonPE();
+        final PersonPE systemPerson = createSystemUser();
         final PersonPE person = createPersonFromPrincipal(PRINCIPAL);
         context.checking(new Expectations()
             {
@@ -163,7 +170,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         final String user = "user";
         final String password = "password";
         final Session session = createExampleSession();
-        final PersonPE systemPerson = new PersonPE();
+        final PersonPE systemPerson = createSystemUser();
         final PersonPE person = createPersonFromPrincipal(PRINCIPAL);
         context.checking(new Expectations()
             {

@@ -109,6 +109,19 @@ public abstract class AbstractServer<T extends IServer> implements IServer,
         return person;
     }
 
+    private final static PersonPE getSystemUser(final List<PersonPE> persons)
+    {
+        for (final PersonPE personPE : persons)
+        {
+            if (personPE.isSystemUser())
+            {
+                return personPE;
+            }
+        }
+        throw new IllegalStateException(String.format(
+                "No system user could be found in given list '%s'.", persons));
+    }
+
     protected final IGenericBusinessObjectFactory getBusinessObjectFactory()
     {
         return businessObjectFactory;
@@ -174,25 +187,28 @@ public abstract class AbstractServer<T extends IServer> implements IServer,
         }
         final Session session = sessionManager.getSession(sessionToken);
         final List<PersonPE> persons = daoFactory.getPersonDAO().listPersons();
+        assert persons.size() > 0 : "At least system user should be in the database";
+        // If only one user (system user), then this is the first logged user.
         final boolean isFirstLoggedUser = persons.size() == 1;
-        final PersonPE registrator = persons.get(0);
-        PersonPE personPE = daoFactory.getPersonDAO().tryFindPersonByUserId(user);
-        if (personPE == null)
+        final PersonPE systemUser = getSystemUser(persons);
+        PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(user);
+        if (person == null)
         {
-            personPE = createPerson(session.getPrincipal(), registrator);
+            person = createPerson(session.getPrincipal(), systemUser);
         } else
         {
-            HibernateUtils.initialize(personPE.getRoleAssignments());
+            HibernateUtils.initialize(person.getRoleAssignments());
         }
         if (session.tryGetPerson() == null)
         {
-            session.setPerson(personPE);
+            session.setPerson(person);
         }
         if (isFirstLoggedUser)
         {
-            final PersonPE person = session.tryGetPerson();
-            final RoleAssignmentPE roleAssignmentPE = createRoleAssigment(registrator, person);
-            person.setRoleAssignments(Collections.singleton(roleAssignmentPE));
+            // First logged user does have any role assignment yet. Make him database instance
+            // administrator.
+            final RoleAssignmentPE roleAssignment = createRoleAssigment(systemUser, person);
+            person.setRoleAssignments(Collections.singleton(roleAssignment));
             daoFactory.getPersonDAO().updatePerson(person);
         }
         return session;
