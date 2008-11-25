@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
@@ -24,10 +25,17 @@ import static org.testng.AssertJUnit.fail;
 
 import java.util.List;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -40,8 +48,11 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
     { "db", "sampleType" })
 public final class SampleTypeDAOTest extends AbstractDAOTest
 {
-
     static final String DEFAULT_SAMPLE_TYPE = SampleTypeCode.MASTER_PLATE.getCode();
+
+    private BufferedAppender logRecorder;
+
+    private Level previousLevel;
 
     static final void checkSampleType(final SampleTypePE type)
     {
@@ -49,6 +60,32 @@ public final class SampleTypeDAOTest extends AbstractDAOTest
         assertNotNull(type.getId());
         assertNotNull(type.getCode());
         assertNotNull(type.getDescription());
+    }
+
+    //
+    // AbstractDAOTest
+    //
+
+    @Override
+    @BeforeMethod
+    public final void setUp()
+    {
+        super.setUp();
+        logRecorder = new BufferedAppender("%m%n", Level.DEBUG);
+        // Because 'log.xml' set the root logger level to INFO, we have to reset it here to DEBUG if
+        // we want to catch the messages we are looking for.
+        final Logger rootLogger = Logger.getRootLogger();
+        previousLevel = rootLogger.getLevel();
+        rootLogger.setLevel(Level.DEBUG);
+    }
+
+    @Override
+    @AfterMethod
+    public void tearDown()
+    {
+        super.tearDown();
+        logRecorder.reset();
+        Logger.getRootLogger().setLevel(previousLevel);
     }
 
     @Test
@@ -72,9 +109,17 @@ public final class SampleTypeDAOTest extends AbstractDAOTest
         final ISampleTypeDAO sampleTypeDAO = daoFactory.getSampleTypeDAO();
         final List<SampleTypePE> samples = sampleTypeDAO.listSampleTypes(false);
         assert samples.size() > 0;
-        for (SampleTypePE sampleTypePE : samples)
+        for (final SampleTypePE sampleTypePE : samples)
         {
-            assertTrue(HibernateUtils.isInitialized(sampleTypePE));
+            assertTrue(HibernateUtils.isInitialized(sampleTypePE.getSampleTypePropertyTypes()));
+            for (final SampleTypePropertyTypePE stpt : sampleTypePE.getSampleTypePropertyTypes())
+            {
+                final VocabularyPE vocabulary = stpt.getPropertyType().getVocabulary();
+                if (vocabulary != null)
+                {
+                    assertTrue(HibernateUtils.isInitialized(vocabulary.getTerms()));
+                }
+            }
         }
         // Change database instance id.
         changeDatabaseInstanceId(sampleTypeDAO);
@@ -111,5 +156,34 @@ public final class SampleTypeDAOTest extends AbstractDAOTest
         changeDatabaseInstanceId(sampleTypeDAO);
         assertNull(sampleTypeDAO.tryFindSampleTypeByCode(DEFAULT_SAMPLE_TYPE));
         resetDatabaseInstanceId(sampleTypeDAO);
+    }
+
+    @Test
+    public final void testTryFindByExample()
+    {
+        final ISampleTypeDAO sampleTypeDAO = daoFactory.getSampleTypeDAO();
+        boolean fail = true;
+        try
+        {
+            sampleTypeDAO.tryFindSampleTypeByExample(null);
+        } catch (final AssertionError e)
+        {
+            fail = false;
+        }
+        assertFalse(fail);
+        final SampleTypePE example = new SampleTypePE();
+        example.setCode(DEFAULT_SAMPLE_TYPE);
+        logRecorder.resetLogContent();
+        final SampleTypePE sampleType = sampleTypeDAO.tryFindSampleTypeByExample(example);
+        checkSampleType(sampleType);
+        assertTrue(logRecorder
+                .getLogContent()
+                .indexOf(
+                        "SampleTypeDAO.tryFindSampleTypeByExample(SampleTypePE{"
+                                + "code=MASTER_PLATE,description=<null>,databaseInstance=<null>,listable=<null>,"
+                                + "containerHierarchyDepth=<null>,generatedFromHierarchyDepth=<null>}): Sample type "
+                                + "'SampleTypePE{code=MASTER_PLATE,description=Master Plate,"
+                                + "databaseInstance=DatabaseInstancePE{code=CISD},listable=true,"
+                                + "containerHierarchyDepth=0,generatedFromHierarchyDepth=0}' found.") > -1);
     }
 }

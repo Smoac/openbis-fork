@@ -33,8 +33,6 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
@@ -68,7 +66,6 @@ public final class SampleTypePE extends EntityTypePE
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "entityTypeInternal")
     @JoinColumn(name = ColumnNames.SAMPLE_TYPE_COLUMN, updatable = false)
-    @Fetch(FetchMode.SUBSELECT)
     private Set<SampleTypePropertyTypePE> getSampleTypePropertyTypesInternal()
     {
         return sampleTypePropertyTypes;

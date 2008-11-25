@@ -44,8 +44,6 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.annotations.Check;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
 import org.hibernate.search.annotations.DocumentId;
@@ -210,7 +208,6 @@ public class SamplePE implements IIdAndCodeHolder, Comparable<SamplePE>,
     }
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entity")
-    @Fetch(FetchMode.SUBSELECT)
     // @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @IndexedEmbedded
     private Set<SamplePropertyPE> getSampleProperties()

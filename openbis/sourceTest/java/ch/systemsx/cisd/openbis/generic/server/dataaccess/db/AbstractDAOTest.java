@@ -76,13 +76,13 @@ public abstract class AbstractDAOTest extends AbstractTransactionalTestNGSpringC
     private Object currentDAO;
 
     @BeforeMethod(alwaysRun = true)
-    public final void setUp()
+    public void setUp()
     {
         createAnotherDatabaseInstanceId();
     }
 
     @AfterMethod(alwaysRun = true)
-    public final void tearDown()
+    public void tearDown()
     {
         if (currentDAO != null)
         {
@@ -189,30 +189,30 @@ public abstract class AbstractDAOTest extends AbstractTransactionalTestNGSpringC
         return getPerson("test");
     }
 
-    protected PersonPE getPerson(String userID)
+    protected PersonPE getPerson(final String userID)
     {
-        PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(userID);
+        final PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(userID);
         assertNotNull("Person '" + userID + "' does not exists.", person);
         return person;
     }
 
-    protected DatabaseInstancePE createDatabaseInstance(String databaseInstanceCode)
+    protected DatabaseInstancePE createDatabaseInstance(final String databaseInstanceCode)
     {
-        DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
+        final DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
         databaseInstance.setCode(databaseInstanceCode);
         daoFactory.getDatabaseInstanceDAO().createDatabaseInstance(databaseInstance);
         return databaseInstance;
     }
 
-    protected GroupPE createGroup(String groupCode)
+    protected GroupPE createGroup(final String groupCode)
     {
-        DatabaseInstancePE databaseInstance = daoFactory.getHomeDatabaseInstance();
+        final DatabaseInstancePE databaseInstance = daoFactory.getHomeDatabaseInstance();
         return createGroup(groupCode, databaseInstance);
     }
 
-    protected GroupPE createGroup(String groupCode, DatabaseInstancePE databaseInstance)
+    protected GroupPE createGroup(final String groupCode, final DatabaseInstancePE databaseInstance)
     {
-        GroupPE group = new GroupPE();
+        final GroupPE group = new GroupPE();
         group.setCode(groupCode);
         group.setDatabaseInstance(databaseInstance);
         group.setRegistrator(getSystemPerson());

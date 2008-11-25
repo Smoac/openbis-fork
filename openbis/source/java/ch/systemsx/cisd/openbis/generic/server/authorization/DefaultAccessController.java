@@ -33,7 +33,7 @@ import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.ClassUtils;
+import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.Role;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
@@ -92,7 +92,7 @@ public final class DefaultAccessController implements IAccessController
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("Controlling access to method '%s' took %s",
-                    ClassUtils.describeMethod(method), stopWatch));
+                    MethodUtils.describeMethod(method), stopWatch));
         }
     }
 
@@ -131,7 +131,7 @@ public final class DefaultAccessController implements IAccessController
                 // TODO 2008-08-07, Tomasz Pylak: why this is not a programming error? What a user
                 // can do if a programmer does not put an authorization annotation for a method?
                 final String msg =
-                        String.format(METHOD_ROLES_NOT_FOUND_TEMPLATE, ClassUtils
+                        String.format(METHOD_ROLES_NOT_FOUND_TEMPLATE, MethodUtils
                                 .describeMethod(method));
                 return Status.createError(msg);
             }

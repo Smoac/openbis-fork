@@ -82,8 +82,7 @@ final class DatabaseInstanceDAO extends AbstractDAO implements IDatabaseInstance
         final List<DatabaseInstancePE> databaseInstances =
                 cast(getHibernateTemplate().find(
                         String.format("from %s d where d." + columnName + " = ? ", ENTITY_CLASS
-                                .getSimpleName()), new Object[]
-                            { code }));
+                                .getSimpleName()), toArray(code)));
         return databaseInstances;
     }
 
@@ -117,7 +116,6 @@ final class DatabaseInstanceDAO extends AbstractDAO implements IDatabaseInstance
             throws DataAccessException
     {
         assert databaseInstancePE != null : "Unspecified database instance";
-        assert databaseInstancePE.getId() != null : "Unspecified database instance id";
         validatePE(databaseInstancePE);
 
         databaseInstancePE.setCode(CodeConverter.tryToDatabase(databaseInstancePE.getCode()));
@@ -156,7 +154,7 @@ final class DatabaseInstanceDAO extends AbstractDAO implements IDatabaseInstance
         return databaseInstance;
     }
 
-    public void createDatabaseInstance(DatabaseInstancePE databaseInstance)
+    public final void createDatabaseInstance(final DatabaseInstancePE databaseInstance)
             throws DataAccessException
     {
         databaseInstance.setCode(CodeConverter.tryToDatabase(databaseInstance.getCode()));
@@ -164,5 +162,10 @@ final class DatabaseInstanceDAO extends AbstractDAO implements IDatabaseInstance
         final HibernateTemplate template = getHibernateTemplate();
         template.save(databaseInstance);
         template.flush();
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("ADD: Database instance '%s'.", databaseInstance));
+        }
+
     }
 }

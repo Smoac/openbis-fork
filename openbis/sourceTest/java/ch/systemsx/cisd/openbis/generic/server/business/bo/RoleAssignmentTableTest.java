@@ -114,8 +114,8 @@ public final class RoleAssignmentTableTest
                     one(daoFactory).getGroupDAO();
                     will(returnValue(groupDAO));
 
-                    one(groupDAO).tryFindGroupByCodeAndDatabaseInstanceId(groupCode.toUpperCase(),
-                            databaseInstanceId);
+                    one(groupDAO).tryFindGroupByCodeAndDatabaseInstance(groupCode.toUpperCase(),
+                            databaseInstancePE);
                     will(returnValue(groupPE));
                 }
             });

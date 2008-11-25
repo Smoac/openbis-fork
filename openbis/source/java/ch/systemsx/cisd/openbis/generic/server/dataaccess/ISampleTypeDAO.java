@@ -30,17 +30,27 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 public interface ISampleTypeDAO
 {
     /**
+     * Returns a list of {@link SampleTypePE} which have their property types and corresponding
+     * vocabulary terms eagerly fetched (overriding default behavior which lazily loads the property
+     * types).
+     * 
      * @return The list of {@link SampleTypePE}s registered in the database.
      * @param onlyListable if true, then only types appropriate to be listed are returned.
      */
-    public List<SampleTypePE> listSampleTypes(boolean onlyListable) throws DataAccessException;
+    public List<SampleTypePE> listSampleTypes(final boolean onlyListable)
+            throws DataAccessException;
 
     /**
-     * For given <var>code</var> returns corresponding <code>SampleType</code>.
+     * For given <var>code</var> returns corresponding {@link SampleTypePE}.
      * 
-     * @return <code>null</code> if no type found.
+     * @return <code>null</code> if no type found for given <var>code</var>.
      */
-    public SampleTypePE tryFindSampleTypeByCode(String code) throws DataAccessException;
+    public SampleTypePE tryFindSampleTypeByCode(final String code) throws DataAccessException;
 
-    public SampleTypePE tryFindByExample(SampleTypePE sampleType);
+    /**
+     * For given example <var>sampleType</var> returns corresponding {@link SampleTypePE}.
+     * 
+     * @return <code>null</code> if no type found for given <var>sampleType</var>.
+     */
+    public SampleTypePE tryFindSampleTypeByExample(final SampleTypePE sampleType) throws DataAccessException;
 }

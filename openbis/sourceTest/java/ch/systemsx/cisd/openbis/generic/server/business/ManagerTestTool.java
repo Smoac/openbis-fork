@@ -104,8 +104,8 @@ public class ManagerTestTool
                 EXAMPLE_DATABASE_INSTANCE.getCode().toUpperCase());
         expectations.will(Expectations.returnValue(EXAMPLE_DATABASE_INSTANCE));
 
-        expectations.allowing(groupDAO).tryFindGroupByCodeAndDatabaseInstanceId(
-                EXAMPLE_GROUP.getCode().toUpperCase(), EXAMPLE_DATABASE_INSTANCE.getId());
+        expectations.allowing(groupDAO).tryFindGroupByCodeAndDatabaseInstance(
+                EXAMPLE_GROUP.getCode().toUpperCase(), EXAMPLE_DATABASE_INSTANCE);
         expectations.will(Expectations.returnValue(EXAMPLE_GROUP));
     }
 
@@ -121,8 +121,7 @@ public class ManagerTestTool
         exp.allowing(daoFactory).getGroupDAO();
         exp.will(Expectations.returnValue(groupDAO));
 
-        exp.allowing(groupDAO).tryFindGroupByCodeAndDatabaseInstanceId(groupCode.toUpperCase(),
-                dbId);
+        exp.allowing(groupDAO).tryFindGroupByCodeAndDatabaseInstance(groupCode.toUpperCase(), db);
         exp.will(Expectations.returnValue(ManagerTestTool.EXAMPLE_GROUP));
         return ManagerTestTool.EXAMPLE_GROUP;
     }

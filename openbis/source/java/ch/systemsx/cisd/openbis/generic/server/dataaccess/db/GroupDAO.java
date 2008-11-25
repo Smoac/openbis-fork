@@ -60,22 +60,22 @@ final class GroupDAO extends AbstractDAO implements IGroupDAO
     // IGroupDAO
     //
 
-    public final GroupPE tryFindGroupByCodeAndDatabaseInstanceId(final String groupCode,
-            final long databaseInstanceId) throws DataAccessException
+    public final GroupPE tryFindGroupByCodeAndDatabaseInstance(final String groupCode,
+            final DatabaseInstancePE databaseInstance) throws DataAccessException
     {
-        assert groupCode != null : "Unspecified group code";
+        assert groupCode != null : "Unspecified group code.";
+        assert databaseInstance != null : "Unspecified database instance.";
 
         final List<GroupPE> list =
                 cast(getHibernateTemplate().find(
                         String.format("select g from %s g where g.code = ? "
-                                + "and g.databaseInstance.id = ?", ENTITY_CLASS.getSimpleName()),
-                        new Object[]
-                            { CodeConverter.tryToDatabase(groupCode), databaseInstanceId }));
+                                + "and g.databaseInstance = ?", ENTITY_CLASS.getSimpleName()),
+                        toArray(CodeConverter.tryToDatabase(groupCode), databaseInstance)));
         final GroupPE entity = tryFindEntity(list, "group");
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug("tryFindGroupByCodeAndDatabaseInstanceId(" + groupCode + ", "
-                    + databaseInstanceId + "): '" + entity + "'");
+            operationLog.debug("tryFindGroupByCodeAndDatabaseInstance(" + groupCode + ", "
+                    + databaseInstance + "): '" + entity + "'");
         }
         return entity;
     }
@@ -90,28 +90,14 @@ final class GroupDAO extends AbstractDAO implements IGroupDAO
         return list;
     }
 
-    public final List<GroupPE> listGroups(final long databaseInstanceId) throws DataAccessException
-    {
-        final List<GroupPE> list =
-                cast(getHibernateTemplate().find(
-                        String.format("from %s g where g.databaseInstance.id = ?", ENTITY_CLASS
-                                .getSimpleName()), new Object[]
-                            { databaseInstanceId }));
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug("listGroups(" + databaseInstanceId + "): " + list.size()
-                    + " group(s) have been found.");
-        }
-        return list;
-    }
-
-    public List<GroupPE> listGroups(DatabaseInstancePE databaseInstance) throws DataAccessException
+    public final List<GroupPE> listGroups(final DatabaseInstancePE databaseInstance)
+            throws DataAccessException
     {
         assert databaseInstance != null : "Unspecified database instance.";
 
-        DetachedCriteria criteria = DetachedCriteria.forClass(GroupPE.class);
-        criteria = criteria.add(Restrictions.eq("databaseInstance", databaseInstance));
-        List<GroupPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
+        final DetachedCriteria criteria = DetachedCriteria.forClass(ENTITY_CLASS);
+        criteria.add(Restrictions.eq("databaseInstance", databaseInstance));
+        final List<GroupPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug("listGroups(" + databaseInstance.getCode() + "): " + list.size()
@@ -133,11 +119,11 @@ final class GroupDAO extends AbstractDAO implements IGroupDAO
     public final void createGroup(final GroupPE group) throws DataAccessException
     {
         assert group != null : "Unspecified group";
+        assert group.getDatabaseInstance().isOriginalSource() : "Registration on a non-home database is not allowed";
         validatePE(group);
 
-        assert group.getDatabaseInstance().isOriginalSource() : "registration on a non home database is not allowed";
-        group.setCode(CodeConverter.tryToDatabase(group.getCode()));
         final HibernateTemplate template = getHibernateTemplate();
+        group.setCode(CodeConverter.tryToDatabase(group.getCode()));
         template.save(group);
         template.flush();
         if (operationLog.isInfoEnabled())

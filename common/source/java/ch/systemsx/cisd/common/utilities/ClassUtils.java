@@ -346,17 +346,6 @@ public final class ClassUtils
     }
 
     /**
-     * Describes given <var>method</var> in following format:
-     * <code>&lt;class-name&gt;.&lt;method-name&gt;</code>, for instance
-     * <code>Object.hashCode</code>.
-     */
-    public final static String describeMethod(final Method method)
-    {
-        assert method != null : "Unspecified method";
-        return method.getDeclaringClass().getSimpleName() + "." + method.getName();
-    }
-
-    /**
      * Creates an array of given {@link Class} type and of given <var>len</var>.
      */
     @SuppressWarnings("unchecked")

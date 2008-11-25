@@ -16,33 +16,90 @@
 
 package ch.systemsx.cisd.common.utilities;
 
+import java.lang.reflect.Method;
+
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 /**
+ * Test cases for the {@link MethodUtilsTest}.
  * 
- *
  * @author Franz-Josef Elmer
  */
-public class MethodUtilsTest extends AssertJUnit
+public final class MethodUtilsTest extends AssertJUnit
 {
+    private final void privateMethodOnStack()
+    {
+        // If <code>Class.getDeclaredMethods</code> were used instead of
+        // <code>Class.getDeclaredMethods</code>,
+        // we will have 'ch.systemsx.cisd.common.utilities.ClassUtilsTest.privateMethodOnStack()'
+        // here.
+        assertNull(MethodUtils.getMethodOnStack(1));
+    }
+
     @Test
     public void testMethodWithNoParameters() throws Exception
     {
         assertEquals("toString()", MethodUtils.toString(String.class.getMethod("toString")));
     }
-    
+
     @Test
     public void testMethodWithOneParameter() throws Exception
     {
         assertEquals("startsWith(String)", MethodUtils.toString(String.class.getMethod(
                 "startsWith", String.class)));
     }
-    
+
     @Test
     public void testMethodWithTwoParameters() throws Exception
     {
-        assertEquals("split(String, int)", MethodUtils.toString(String.class.getMethod(
-                "split", String.class, Integer.TYPE)));
+        assertEquals("split(String, int)", MethodUtils.toString(String.class.getMethod("split",
+                String.class, Integer.TYPE)));
+    }
+
+    @Test
+    public final void testGetCurrentMethod()
+    {
+        assertEquals("testGetCurrentMethod", MethodUtils.getCurrentMethod().getName());
+        // Border cases
+        assertEquals(new SameMethodName().getMethodName(), new SameMethodName().getMethodName(
+                new Object(), new Object()));
+    }
+
+    @Test
+    public final void testGetMethodOnStack()
+    {
+        assertEquals("getMethodOnStack", MethodUtils.getMethodOnStack(0).getName());
+        assertEquals("testGetMethodOnStack", MethodUtils.getMethodOnStack(1).getName());
+        assertNull(MethodUtils.getMethodOnStack(2));
+        privateMethodOnStack();
+    }
+
+    @Test
+    public final void testDescribeMethod()
+    {
+        final Method method = Object.class.getMethods()[0];
+        final String methodDescription = MethodUtils.describeMethod(method);
+        assertEquals("Object.hashCode", methodDescription);
+    }
+
+    //
+    // Helper classes
+    //
+
+    private final static class SameMethodName
+    {
+
+        public final String getMethodName()
+        {
+            final StackTraceElement[] elements = new Throwable().getStackTrace();
+            return elements[0].getMethodName();
+        }
+
+        public final String getMethodName(final Object one, final Object two)
+        {
+            final StackTraceElement[] elements = new Throwable().getStackTrace();
+            return elements[0].getMethodName();
+        }
     }
 }

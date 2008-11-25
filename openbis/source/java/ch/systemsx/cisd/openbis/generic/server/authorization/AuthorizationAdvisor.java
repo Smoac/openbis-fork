@@ -37,7 +37,7 @@ import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.AnnotationUtils;
-import ch.systemsx.cisd.common.utilities.ClassUtils;
+import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.common.utilities.AnnotationUtils.Parameter;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.ISessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
@@ -160,7 +160,7 @@ public final class AuthorizationAdvisor extends DefaultPointcutAdvisor
                         "[USER:'%s' GROUP:%s]: Authorization failure while "
                                 + "invoking method '%s': %s", session.getUserName(),
                         groupCode == null ? "<UNDEFINED>" : "'" + groupCode + "'",
-                        ClassUtils.describeMethod(method), errorMessage));
+                        MethodUtils.describeMethod(method), errorMessage));
                 throw new AuthorizationFailureException(errorMessage);
             }
             return returnValueFilter.applyFilter(session, method, methodInvocation.proceed());

@@ -112,7 +112,7 @@ public final class SampleTable extends AbstractSampleIdentifierBusinessObject im
         } else
         {
             final SampleTypePE sampleType =
-                    getSampleTypeDAO().tryFindByExample(criteria.getSampleType());
+                    getSampleTypeDAO().tryFindSampleTypeByExample(criteria.getSampleType());
             if (sampleType == null)
             {
                 throw new UserFailureException("Cannot find a sample type matching to "

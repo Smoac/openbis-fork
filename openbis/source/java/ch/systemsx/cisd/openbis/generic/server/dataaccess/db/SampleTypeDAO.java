@@ -24,11 +24,10 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * Data access object for {@link SampleTypePE}. <br>
@@ -45,19 +44,14 @@ final class SampleTypeDAO extends AbstractTypeDAO<SampleTypePE> implements ISamp
         super(sessionFactory, databaseInstance);
     }
 
-    private void fetchPropertyTypes(final List<SampleTypePE> list)
+    //
+    // AbstractTypeDAO
+    //
+
+    @Override
+    final Class<SampleTypePE> getEntityClass()
     {
-        for (final SampleTypePE sampleTypePE : list)
-        {
-            HibernateUtils.initialize(sampleTypePE.getSampleTypePropertyTypes());
-            for (SampleTypePropertyTypePE stpt : sampleTypePE.getSampleTypePropertyTypes())
-            {
-                if (stpt.getPropertyType().getVocabulary() != null)
-                {
-                    HibernateUtils.initialize(stpt.getPropertyType().getVocabulary().getTerms());
-                }
-            }
-        }
+        return SampleTypePE.class;
     }
 
     //
@@ -67,41 +61,42 @@ final class SampleTypeDAO extends AbstractTypeDAO<SampleTypePE> implements ISamp
     public final List<SampleTypePE> listSampleTypes(final boolean onlyListable)
             throws DataAccessException
     {
-        final List<SampleTypePE> list;
-
         String query =
-                String.format("from %s st where st.databaseInstance = ?", getEntityClass()
-                        .getSimpleName());
+                String.format("from %s st left join fetch st.sampleTypePropertyTypesInternal stpt "
+                        + "left join fetch stpt.propertyType.vocabulary.vocabularyTerms "
+                        + "where st.databaseInstance = ?", getEntityClass().getSimpleName());
         if (onlyListable)
         {
             query += " and st.listable = true";
         }
-        list = cast(getHibernateTemplate().find(query, toArray(getDatabaseInstance())));
-        fetchPropertyTypes(list);
-
+        final List<SampleTypePE> list =
+                cast(getHibernateTemplate().find(query, toArray(getDatabaseInstance())));
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug("list" + getTypeDescription() + "s: " + list.size()
-                    + " type(s) have been found.");
+            operationLog.debug(String.format("%s(%s): %d type(s) have been found.", MethodUtils
+                    .describeMethod(MethodUtils.getCurrentMethod()), onlyListable, list.size()));
         }
         return list;
     }
 
-    public final SampleTypePE tryFindByExample(final SampleTypePE sampleType)
+    public final SampleTypePE tryFindSampleTypeByExample(final SampleTypePE sampleType)
+            throws DataAccessException
     {
-        final List<SampleTypePE> result = cast(getHibernateTemplate().findByExample(sampleType));
-        return tryFindEntity(result, "sample type");
+        assert sampleType != null : "Unspecified sample type.";
+
+        final List<SampleTypePE> list = cast(getHibernateTemplate().findByExample(sampleType));
+        final SampleTypePE result = tryFindEntity(list, "sample type");
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%s(%s): Sample type '%s' found.", MethodUtils
+                    .describeMethod(MethodUtils.getCurrentMethod()), sampleType, result));
+        }
+        return result;
     }
 
     public final SampleTypePE tryFindSampleTypeByCode(final String code) throws DataAccessException
     {
         return tryFindTypeByCode(code);
-    }
-
-    @Override
-    final Class<SampleTypePE> getEntityClass()
-    {
-        return SampleTypePE.class;
     }
 
 }

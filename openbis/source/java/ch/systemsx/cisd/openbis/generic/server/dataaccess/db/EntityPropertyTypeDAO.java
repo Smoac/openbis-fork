@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
- * The unique <code>EntityPropertyTypeDAO</code> implementation.
+ * The unique {@link IEntityPropertyTypeDAO} implementation.
  * 
  * @author Christian Ribeaud
  * @author Tomasz Pylak

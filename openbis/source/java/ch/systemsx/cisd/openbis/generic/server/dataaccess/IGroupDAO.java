@@ -46,19 +46,17 @@ public interface IGroupDAO
      */
     public List<GroupPE> listGroups() throws DataAccessException;
 
-    /** List all groups which are in the given database instance. */
-    public List<GroupPE> listGroups(long databaseInstanceId) throws DataAccessException;
-    
     /** Lists all groups which belong to the specified database instance. */
-    public List<GroupPE> listGroups(DatabaseInstancePE databaseInstance) throws DataAccessException;
+    public List<GroupPE> listGroups(final DatabaseInstancePE databaseInstance)
+            throws DataAccessException;
 
     /** Creates a new group in the database. */
-    public void createGroup(GroupPE groupDTO) throws DataAccessException;
+    public void createGroup(final GroupPE groupDTO) throws DataAccessException;
 
     /**
      * Returns <code>GroupPE</code> identified by given <var>groupCode</var> and given
      * <var>databaseInstanceId</var> or <code>null</code> if such a group does not exist.
      */
-    public GroupPE tryFindGroupByCodeAndDatabaseInstanceId(String groupCode, long databaseInstanceId)
-            throws DataAccessException;
+    public GroupPE tryFindGroupByCodeAndDatabaseInstance(final String groupCode,
+            final DatabaseInstancePE databaseInstance) throws DataAccessException;
 }

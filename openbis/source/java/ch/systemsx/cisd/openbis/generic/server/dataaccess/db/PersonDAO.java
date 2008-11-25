@@ -78,8 +78,8 @@ public final class PersonDAO extends AbstractDAO implements IPersonDAO
     public final void updatePerson(final PersonPE person) throws DataAccessException
     {
         assert person != null : "Given person can not be null.";
-
         validatePE(person);
+
         final HibernateTemplate template = getHibernateTemplate();
         template.update(person);
         template.flush();
@@ -106,8 +106,7 @@ public final class PersonDAO extends AbstractDAO implements IPersonDAO
                 cast(getHibernateTemplate().find(
                         String.format("from %s p where p.userId = ? "
                                 + "and p.databaseInstance = ?", ENTITY_CLASS.getSimpleName()),
-                        new Object[]
-                            { userId, getDatabaseInstance() }));
+                        toArray(userId, getDatabaseInstance())));
         final PersonPE person = tryFindEntity(persons, "persons", userId);
         if (operationLog.isDebugEnabled())
         {
@@ -121,8 +120,7 @@ public final class PersonDAO extends AbstractDAO implements IPersonDAO
         final List<PersonPE> list =
                 cast(getHibernateTemplate().find(
                         String.format("from %s p where p.databaseInstance = ?", ENTITY_CLASS
-                                .getSimpleName()), new Object[]
-                            { getDatabaseInstance() }));
+                                .getSimpleName()), toArray(getDatabaseInstance())));
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug("listPersons(): " + list.size() + " person(s) have been found.");

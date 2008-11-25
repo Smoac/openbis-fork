@@ -39,13 +39,13 @@ public final class GroupDAOTest extends AbstractDAOTest
     @Test
     public void testCreateGroup()
     {
-        String groupCode = "test-group";
-        GroupPE group = createGroup(groupCode);
+        final String groupCode = "test-group";
+        final GroupPE group = createGroup(groupCode);
 
-        DatabaseInstancePE databaseInstance = daoFactory.getHomeDatabaseInstance();
-        GroupPE retrievedGroup =
-                daoFactory.getGroupDAO().tryFindGroupByCodeAndDatabaseInstanceId(groupCode,
-                        databaseInstance.getId());
+        final DatabaseInstancePE databaseInstance = daoFactory.getHomeDatabaseInstance();
+        final GroupPE retrievedGroup =
+                daoFactory.getGroupDAO().tryFindGroupByCodeAndDatabaseInstance(groupCode,
+                        databaseInstance);
         AssertJUnit.assertNotNull(retrievedGroup);
         assertEquals(group.getRegistrator(), retrievedGroup.getRegistrator());
     }
@@ -53,7 +53,7 @@ public final class GroupDAOTest extends AbstractDAOTest
     @Test
     public void testListGroups()
     {
-        List<GroupPE> groups = daoFactory.getGroupDAO().listGroups();
+        final List<GroupPE> groups = daoFactory.getGroupDAO().listGroups();
         Collections.sort(groups);
         assertEquals("CISD", groups.get(0).getCode());
         assertEquals("TESTGROUP", groups.get(1).getCode());
@@ -63,7 +63,7 @@ public final class GroupDAOTest extends AbstractDAOTest
     @Test
     public void testListGroupsOfHomeDatabaseInstance()
     {
-        List<GroupPE> groups =
+        final List<GroupPE> groups =
                 daoFactory.getGroupDAO().listGroups(daoFactory.getHomeDatabaseInstance());
         Collections.sort(groups);
         assertEquals("CISD", groups.get(0).getCode());
@@ -74,10 +74,10 @@ public final class GroupDAOTest extends AbstractDAOTest
     @Test
     public void testListGroupsOfAnotherDatabaseInstance()
     {
-        DatabaseInstancePE databaseInstance = createDatabaseInstance("another-db");
+        final DatabaseInstancePE databaseInstance = createDatabaseInstance("another-db");
         databaseInstance.setOriginalSource(true); // to cheat GroupDAO
         createGroup("test-group", databaseInstance);
-        List<GroupPE> groups = daoFactory.getGroupDAO().listGroups(databaseInstance);
+        final List<GroupPE> groups = daoFactory.getGroupDAO().listGroups(databaseInstance);
         assertEquals("TEST-GROUP", groups.get(0).getCode());
         assertEquals(1, groups.size());
     }

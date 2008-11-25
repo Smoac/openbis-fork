@@ -28,7 +28,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.FilteredList;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.ClassUtils;
+import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.IValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
@@ -106,7 +106,7 @@ public final class DefaultReturnValueFilter implements IReturnValueFilter
         int diff = oldSize - list.size();
         if (diff > 0)
         {
-            operationLog.info(String.format(FILTER_APPLIED_ON_LIST, ClassUtils
+            operationLog.info(String.format(FILTER_APPLIED_ON_LIST, MethodUtils
                     .describeMethod(method), diff));
         }
         return list;
@@ -128,7 +128,7 @@ public final class DefaultReturnValueFilter implements IReturnValueFilter
         int diff = returnValue.length - newValue.length;
         if (diff > 0)
         {
-            operationLog.info(String.format(FILTER_APPLIED_ON_ARRAY, ClassUtils
+            operationLog.info(String.format(FILTER_APPLIED_ON_ARRAY, MethodUtils
                     .describeMethod(method), diff));
         }
         return newValue;
@@ -142,7 +142,7 @@ public final class DefaultReturnValueFilter implements IReturnValueFilter
             return returnValue;
         }
         operationLog
-                .info(String.format(FILTER_APPLIED_ON_VALUE, ClassUtils.describeMethod(method)));
+                .info(String.format(FILTER_APPLIED_ON_VALUE, MethodUtils.describeMethod(method)));
         return null;
     }
 
@@ -152,7 +152,7 @@ public final class DefaultReturnValueFilter implements IReturnValueFilter
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("Return value filtering of method '%s' took %s",
-                    ClassUtils.describeMethod(method), stopWatch));
+                    MethodUtils.describeMethod(method), stopWatch));
         }
     }
 
@@ -216,14 +216,14 @@ public final class DefaultReturnValueFilter implements IReturnValueFilter
         {
             if (returnValueOrNull == null)
             {
-                operationLog.debug(String.format(NULL_RETURN_VALUE_MSG_FORMAT, ClassUtils
+                operationLog.debug(String.format(NULL_RETURN_VALUE_MSG_FORMAT, MethodUtils
                         .describeMethod(method)));
                 return returnValueOrNull;
             }
             final ReturnValueFilter annotation = method.getAnnotation(ReturnValueFilter.class);
             if (annotation == null)
             {
-                operationLog.debug(String.format(NO_ANNOTATION_FOUND_MSG_FORMAT, ClassUtils
+                operationLog.debug(String.format(NO_ANNOTATION_FOUND_MSG_FORMAT, MethodUtils
                         .describeMethod(method), ReturnValueFilter.class.getSimpleName()));
                 return returnValueOrNull;
             }

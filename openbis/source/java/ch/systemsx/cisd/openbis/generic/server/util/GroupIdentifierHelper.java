@@ -122,10 +122,13 @@ public final class GroupIdentifierHelper
         }
     }
 
-    private static DatabaseInstanceIdentifier normalize(final DatabaseInstanceIdentifier identifier,
+    private static DatabaseInstanceIdentifier normalize(
+            final DatabaseInstanceIdentifier identifier,
             final IDatabaseInstanceFinder instanceFinder)
     {
-        final String code = DatabaseInstanceIdentifierHelper.getDatabaseInstance(identifier, instanceFinder).getCode();
+        final String code =
+                DatabaseInstanceIdentifierHelper.getDatabaseInstance(identifier, instanceFinder)
+                        .getCode();
         return new DatabaseInstanceIdentifier(code.toUpperCase());
     }
 
@@ -151,12 +154,14 @@ public final class GroupIdentifierHelper
                     return daoFactory.getHomeDatabaseInstance();
                 }
 
-                public DatabaseInstancePE tryFindDatabaseInstanceByCode(final String databaseInstanceCode)
+                public DatabaseInstancePE tryFindDatabaseInstanceByCode(
+                        final String databaseInstanceCode)
                 {
                     return databaseInstancesByCode.tryGet(databaseInstanceCode);
                 }
 
-                public DatabaseInstancePE tryFindDatabaseInstanceByUUID(final String databaseInstanceUUID)
+                public DatabaseInstancePE tryFindDatabaseInstanceByUUID(
+                        final String databaseInstanceUUID)
                 {
                     return databaseInstancesByUUID.tryGet(databaseInstanceUUID);
                 }
@@ -167,7 +172,8 @@ public final class GroupIdentifierHelper
      * Creates database instance finder which checks the database everytime when the instance is
      * searched.
      */
-    private final static IDatabaseInstanceFinder createInstanceFinder(final IAuthorizationDAOFactory daoFactory)
+    private final static IDatabaseInstanceFinder createInstanceFinder(
+            final IAuthorizationDAOFactory daoFactory)
     {
         return new IDatabaseInstanceFinder()
             {
@@ -176,7 +182,8 @@ public final class GroupIdentifierHelper
                     return daoFactory.getHomeDatabaseInstance();
                 }
 
-                public DatabaseInstancePE tryFindDatabaseInstanceByCode(final String databaseInstanceCode)
+                public DatabaseInstancePE tryFindDatabaseInstanceByCode(
+                        final String databaseInstanceCode)
                 {
                     return daoFactory.getDatabaseInstanceDAO().tryFindDatabaseInstanceByCode(
                             databaseInstanceCode);
@@ -192,13 +199,14 @@ public final class GroupIdentifierHelper
     }
 
     /** finds a group in the database for the given identifier */
-    public static final GroupPE tryGetGroup(final GroupIdentifier groupIdentifier, final PersonPE person,
-            final IAuthorizationDAOFactory daoFactory)
+    public static final GroupPE tryGetGroup(final GroupIdentifier groupIdentifier,
+            final PersonPE person, final IAuthorizationDAOFactory daoFactory)
     {
         final String groupCode = GroupCodeHelper.getGroupCode(person, groupIdentifier);
-        final Long databaseInstanceId = getDatabaseInstance(groupIdentifier, daoFactory).getId();
+        final DatabaseInstancePE databaseInstance =
+                getDatabaseInstance(groupIdentifier, daoFactory);
         final IGroupDAO groupDAO = daoFactory.getGroupDAO();
-        return groupDAO.tryFindGroupByCodeAndDatabaseInstanceId(groupCode, databaseInstanceId);
+        return groupDAO.tryFindGroupByCodeAndDatabaseInstance(groupCode, databaseInstance);
     }
 
     public final static DatabaseInstancePE getDatabaseInstance(
@@ -206,7 +214,8 @@ public final class GroupIdentifierHelper
             final IAuthorizationDAOFactory daoFactory) throws UserFailureException
     {
         IDatabaseInstanceFinder finder = createInstanceFinder(daoFactory);
-        return DatabaseInstanceIdentifierHelper.getDatabaseInstance(databaseInstanceIdentifier, finder);
+        return DatabaseInstanceIdentifierHelper.getDatabaseInstance(databaseInstanceIdentifier,
+                finder);
     }
 
     public final static DatabaseInstancePE tryGetDatabaseInstance(
@@ -214,7 +223,8 @@ public final class GroupIdentifierHelper
             final IAuthorizationDAOFactory daoFactory) throws UserFailureException
     {
         IDatabaseInstanceFinder finder = createInstanceFinder(daoFactory);
-        return DatabaseInstanceIdentifierHelper.tryGetDatabaseInstance(databaseInstanceIdentifier, finder);
+        return DatabaseInstanceIdentifierHelper.tryGetDatabaseInstance(databaseInstanceIdentifier,
+                finder);
     }
 
 }

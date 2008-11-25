@@ -25,7 +25,6 @@ import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -123,19 +122,21 @@ public final class ClassUtilsTest
                 ClassUtils.create(Appendable.class, MyClass.class.getName(), list);
         assertSame(list, ((MyClass) appendable).iterable);
     }
-    
+
     private static interface AnInterfaceWithOnlyVoidMethods
     {
         public void exec();
+
         public void print(String message);
     }
-    
+
     private static interface AnInterfaceWithNotOnlyVoidMethods
     {
         public int exec();
+
         public void print(String message);
     }
-    
+
     @Test
     public void testAssertInterfaceWithOnlyVoidMethodsWithAnInterfaceWithOnlyVoidMethods()
     {
@@ -155,7 +156,7 @@ public final class ClassUtilsTest
                     + ".exec has non-void return type: int", e.getMessage());
         }
     }
-    
+
     @Test
     public void testAssertInterfaceWithOnlyVoidMethodsWithAClass()
     {
@@ -168,7 +169,7 @@ public final class ClassUtilsTest
             assertEquals("Is not an interface: java.lang.String", e.getMessage());
         }
     }
-    
+
     @Test
     public final void testSetFieldValueWithExpectedThrowable()
     {
@@ -208,14 +209,6 @@ public final class ClassUtilsTest
         final Object object = new Object();
         ClassUtils.setFieldValue(myExtendedClass, "finalObject", object);
         assertSame(object, myExtendedClass.finalObject);
-    }
-
-    @Test
-    public final void testDescribeMethod()
-    {
-        final Method method = Object.class.getMethods()[0];
-        final String methodDescription = ClassUtils.describeMethod(method);
-        assertEquals("Object.hashCode", methodDescription);
     }
 
     @Test
