@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Events;
@@ -36,6 +37,7 @@ import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.ListBox;
 
@@ -225,6 +227,21 @@ public final class GenericSampleRegistrationForm extends FormPanel
         }
     }
 
+    String valueToString(Object value)
+    {
+        if (value == null)
+        {
+            return null;
+        } else if (value instanceof Date)
+        {
+            return DateTimeFormat.getFormat(GenericConstants.DEFAULT_DATE_FORMAT_PATTERN).format(
+                    (Date) value);
+        } else
+        {
+            return value.toString();
+        }
+    }
+
     private void submitForm()
     {
         if (isValid())
@@ -238,7 +255,7 @@ public final class GenericSampleRegistrationForm extends FormPanel
                 {
                     SampleTypePropertyType stpt = field.getData(ETPT);
                     SampleProperty sp = new SampleProperty();
-                    sp.setValue(field.getValue().toString());
+                    sp.setValue(valueToString(field.getValue()));
                     sp.setEntityTypePropertyType(stpt);
                     sampleToRegister.addProperty(sp);
                 }

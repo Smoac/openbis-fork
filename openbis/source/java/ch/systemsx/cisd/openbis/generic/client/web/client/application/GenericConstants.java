@@ -43,4 +43,6 @@ public class GenericConstants
     }
 
     public final static String CODE_PATTERN = "^[A-Z0-9_\\-]+$";
+
+    public static final String DEFAULT_DATE_FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss zzz";
 }

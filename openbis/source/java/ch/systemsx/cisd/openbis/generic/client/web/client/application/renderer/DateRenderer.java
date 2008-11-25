@@ -20,6 +20,8 @@ import java.util.Date;
 
 import com.google.gwt.i18n.client.DateTimeFormat;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+
 /**
  * A <i>static</i> class to render {@link java.util.Date}.
  * 
@@ -30,7 +32,8 @@ public final class DateRenderer
     /**
      * Default date format.
      */
-    private static final String DEFAULT_DATE_FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss zzz";
+    private static final String DEFAULT_DATE_FORMAT_PATTERN =
+            GenericConstants.DEFAULT_DATE_FORMAT_PATTERN;
 
     /**
      * Default {@link DateTimeFormat}.

@@ -28,6 +28,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureE
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleToRegisterDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityPropertyValue;
 
 /**
  * @author Izabela Adamczyk
@@ -57,9 +59,9 @@ public class SampleToRegisterTranslator
         for (SampleProperty property : properties)
         {
             PropertyType propertyType = property.getEntityTypePropertyType().getPropertyType();
-            simpleProperties.add(new SimpleEntityProperty(propertyType.getCode(), propertyType
-                    .getLabel(), DataTypeTranslator.translate(propertyType.getDataType()), property
-                    .getValue()));
+            EntityDataType dataType = DataTypeTranslator.translate(propertyType.getDataType());
+            simpleProperties.add(EntityPropertyValue.createFromUntyped(property.getValue(),
+                    dataType).createSimple(propertyType.getCode(), propertyType.getLabel()));
         }
         result.setProperties(simpleProperties.toArray(new SimpleEntityProperty[0]));
 
