@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application;
 
 import java.util.Set;
 
+import com.google.gwt.user.client.ui.Widget;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IClientPluginFactory;
@@ -25,6 +27,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ISampleVie
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer;
 
 /**
@@ -100,6 +104,11 @@ public final class ClientPluginFactory extends
                         sampleViewer.loadSampleInfo();
                     }
                 };
+        }
+
+        public Widget createRegistrationClientForSampleType(SampleType sampleType)
+        {
+            return new GenericSampleRegistrationForm(getViewContext(), sampleType);
         }
     }
 }

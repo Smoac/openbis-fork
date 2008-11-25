@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import com.google.gwt.user.client.ui.Widget;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
 /**
  * The sample view plugin.
@@ -30,4 +33,9 @@ public interface ISampleViewClientPlugin
      * Shows a detailed view of the sample identifier by given <var>sampleIdentifier</var>.
      */
     public ITabItem createSampleViewer(final String sampleIdentifier);
+
+    /**
+     * Shows a registration form for samples of type <var>sampleTypeCode</var>.
+     */
+    public Widget createRegistrationClientForSampleType(SampleType sampleTypeCode);
 }

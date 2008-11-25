@@ -29,7 +29,6 @@ import com.google.gwt.user.client.Element;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.SampleTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleRegistrationForm;
 
 /**
  * @author Izabela Adamczyk
@@ -55,7 +54,10 @@ public class SampleRegistrationPanel extends ContentPanel
                     if (selectedType != null)
                     {
                         removeAll();
-                        add(new GenericSampleRegistrationForm(viewContext, selectedType));
+                        add(viewContext.getClientPluginFactoryProvider().getClientPluginFactory(
+                                selectedType.getCode()).createViewClientForSampleType(
+                                selectedType.getCode()).createRegistrationClientForSampleType(
+                                selectedType));
                         layout();
                     }
                 }
