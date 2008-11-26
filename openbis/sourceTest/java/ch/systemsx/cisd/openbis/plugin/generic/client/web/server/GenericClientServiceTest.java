@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.server;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -31,17 +32,22 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleToRegister;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DefaultResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetManager;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleToRegisterDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
  * Test cases for corresponding {@link GenericClientService} class.
@@ -51,6 +57,8 @@ import ch.systemsx.cisd.openbis.generic.shared.IGenericServer;
 @Friend(toClasses = GenericClientService.class)
 public final class GenericClientServiceTest
 {
+    private static final String SESSION_TOKEN = "session-token";
+
     private Mockery context;
 
     private IGenericServer genericServer;
@@ -65,22 +73,37 @@ public final class GenericClientServiceTest
 
     private IResultSetManager<String> resultSetManager;
 
+    private Session session;
+
     private final static ListSampleCriteria createListCriteria()
     {
         final ListSampleCriteria criteria = new ListSampleCriteria();
-        final SampleType sampleType = createSampleType();
+        final SampleType sampleType = createSampleType("MASTER_PLATE", "DB1");
         criteria.setSampleType(sampleType);
         return criteria;
     }
 
-    private final static SampleType createSampleType()
+    private final static SampleType createSampleType(String code, String dbCode)
     {
         final SampleType sampleType = new SampleType();
-        sampleType.setCode("MASTER_PLATE");
+        sampleType.setCode(code);
         final DatabaseInstance databaseInstance = new DatabaseInstance();
-        databaseInstance.setCode("DB1");
+        databaseInstance.setCode(dbCode);
         sampleType.setDatabaseInstance(databaseInstance);
         return sampleType;
+    }
+
+    private final static SampleToRegister createSampleToRegister(String sampleIdentifier,
+            String type, List<SampleProperty> properties, String generatorParent,
+            String containerParent)
+    {
+        SampleToRegister s = new SampleToRegister();
+        s.setSampleIdentifier(sampleIdentifier);
+        s.setType(type);
+        s.setProperties(properties);
+        s.setGeneratorParent(generatorParent);
+        s.setContainerParent(containerParent);
+        return s;
     }
 
     private final void prepareGetSession(final Expectations expectations)
@@ -90,6 +113,14 @@ public final class GenericClientServiceTest
 
         expectations.one(servletRequest).getSession(false);
         expectations.will(Expectations.returnValue(httpSession));
+    }
+
+    private void prepareGetSessionToken(Expectations expectations)
+    {
+        prepareGetSession(expectations);
+
+        expectations.one(httpSession).getAttribute(SessionConstants.OPENBIS_SESSION_ATTRIBUTE_KEY);
+        expectations.will(Expectations.returnValue(session));
     }
 
     private final void prepareGetResultSetManager(final Expectations expectations)
@@ -114,6 +145,13 @@ public final class GenericClientServiceTest
         httpSession = context.mock(HttpSession.class);
         resultSetManager = context.mock(IResultSetManager.class);
         genericClientService = new GenericClientService(genericServer, requestContextProvider);
+        session = createSessionMock();
+    }
+
+    private Session createSessionMock()
+    {
+        return new Session("user", SESSION_TOKEN, new Principal("user", "FirstName", "LastName",
+                "email@users.ch"), "remote-host", System.currentTimeMillis() - 1);
     }
 
     @AfterMethod
@@ -155,4 +193,30 @@ public final class GenericClientServiceTest
         assertEquals(0, resultSet.getTotalLength());
         context.assertIsSatisfied();
     }
+
+    @Test
+    public final void testRegisterSample()
+    {
+        SampleToRegister newSample =
+                createSampleToRegister("/group1/sample1", "MASTER_PLATE",
+                        new ArrayList<SampleProperty>(), null, null);
+        context.checking(new Expectations()
+            {
+                {
+                    prepareGetSessionToken(this);
+                    one(genericServer).registerSample(with(SESSION_TOKEN), getTranslatedSample());
+                }
+
+                @SuppressWarnings(
+                    { "unchecked" })
+                private final SampleToRegisterDTO getTranslatedSample()
+                {
+                    return with(any(SampleToRegisterDTO.class));
+                }
+
+            });
+        genericClientService.registerSample(newSample);
+        context.assertIsSatisfied();
+    }
+
 }

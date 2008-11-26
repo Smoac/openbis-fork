@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleToRegisterDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -426,5 +427,27 @@ public final class GenericServerTest extends AbstractServerTestCase
                 }
             });
         createServer().listExternalData(SESSION_TOKEN, sampleIdentifier);
+        context.assertIsSatisfied();
     }
+
+    @Test
+    public final void testRegisterSample()
+    {
+        final Session session = prepareGetSession();
+        final SampleToRegisterDTO newSample = new SampleToRegisterDTO();
+        context.checking(new Expectations()
+            {
+                {
+                    one(boFactory).createSampleBO(session);
+                    will(returnValue(sampleBO));
+
+                    one(sampleBO).define(newSample);
+                    one(sampleBO).save();
+
+                }
+            });
+        createServer().registerSample(SESSION_TOKEN, newSample);
+        context.assertIsSatisfied();
+    }
+
 }
