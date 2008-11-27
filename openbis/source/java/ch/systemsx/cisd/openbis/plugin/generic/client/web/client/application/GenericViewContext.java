@@ -4,12 +4,8 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractPluginViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.IClientPluginFactoryProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.IGenericImageBundle;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.IPageController;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.CompositeMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
@@ -22,22 +18,20 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  * 
  * @author Christian Ribeaud
  */
-public final class GenericViewContext extends AbstractViewContext<IGenericClientServiceAsync>
+public final class GenericViewContext extends AbstractPluginViewContext<IGenericClientServiceAsync>
 {
     private static final String TECHNOLOGY_NAME = "generic";
-
-    private final IViewContext<ICommonClientServiceAsync> commonViewContext;
 
     private final IMessageProvider messageProvider;
 
     private final IGenericClientServiceAsync service;
 
-    public GenericViewContext(final IViewContext<ICommonClientServiceAsync> originalViewContext)
+    public GenericViewContext(final IViewContext<ICommonClientServiceAsync> commonViewContext)
     {
-        this.commonViewContext = originalViewContext;
+        super(commonViewContext);
         this.messageProvider =
                 new CompositeMessageProvider(new DictonaryBasedMessageProvider(TECHNOLOGY_NAME),
-                        originalViewContext.getMessageProvider());
+                        commonViewContext.getMessageProvider());
         this.service = createScreeningClientService();
     }
 
@@ -58,33 +52,8 @@ public final class GenericViewContext extends AbstractViewContext<IGenericClient
         return messageProvider;
     }
 
-    public final IGenericImageBundle getImageBundle()
-    {
-        return commonViewContext.getImageBundle();
-    }
-
-    public final GenericViewModel getModel()
-    {
-        return commonViewContext.getModel();
-    }
-
-    public final IPageController getPageController()
-    {
-        return commonViewContext.getPageController();
-    }
-
     public final IGenericClientServiceAsync getService()
     {
         return service;
-    }
-
-    public final IClientPluginFactoryProvider getClientPluginFactoryProvider()
-    {
-        return commonViewContext.getClientPluginFactoryProvider();
-    }
-
-    public final IViewContext<ICommonClientServiceAsync> getCommonViewContext()
-    {
-        return commonViewContext;
     }
 }

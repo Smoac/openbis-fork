@@ -21,11 +21,14 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.apache.log4j.Logger;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.factory.FactoryBean;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerFactory;
 import ch.systemsx.cisd.common.spring.LogInterceptor;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGenericBusinessObjectFactory;
@@ -47,6 +50,9 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 public abstract class AbstractServer<T extends IServer> implements IServer,
         IInvocationLoggerFactory<T>, FactoryBean
 {
+    private final static Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, AbstractServer.class);
+
     @Resource(name = ComponentNames.SESSION_MANAGER)
     private ISessionManager<Session> sessionManager;
 
@@ -63,7 +69,16 @@ public abstract class AbstractServer<T extends IServer> implements IServer,
 
     protected AbstractServer()
     {
-        System.out.println(getClass());
+        operationLog.info(String.format("Creating new '%s' implementation: '%s'.", IServer.class
+                .getSimpleName(), getClass().getName()));
+    }
+
+    protected AbstractServer(final ISessionManager<Session> sessionManager,
+            final IDAOFactory daoFactory, IGenericBusinessObjectFactory boFactory)
+    {
+        this.sessionManager = sessionManager;
+        this.daoFactory = daoFactory;
+        this.businessObjectFactory = boFactory;
     }
 
     private final ProxyFactory getProxyFactory()
@@ -88,14 +103,6 @@ public abstract class AbstractServer<T extends IServer> implements IServer,
         roleAssignmentPE.setRegistrator(registrator);
         roleAssignmentPE.setRole(RoleCode.ADMIN);
         return roleAssignmentPE;
-    }
-
-    protected AbstractServer(final ISessionManager<Session> sessionManager,
-            final IDAOFactory daoFactory, IGenericBusinessObjectFactory boFactory)
-    {
-        this.sessionManager = sessionManager;
-        this.daoFactory = daoFactory;
-        this.businessObjectFactory = boFactory;
     }
 
     protected final PersonPE createPerson(final Principal principal, final PersonPE registrator)

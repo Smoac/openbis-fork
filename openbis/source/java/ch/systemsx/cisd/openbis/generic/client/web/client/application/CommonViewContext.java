@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  * 
  * @author Franz-Josef Elmer
  */
-public final class CommonViewContext extends AbstractViewContext<ICommonClientServiceAsync>
+public final class CommonViewContext implements IViewContext<ICommonClientServiceAsync>
 {
     // We use here 'generic' because we did not split the javascript dictionary yet.
     private static final String TECHNOLOGY_NAME = "generic";
