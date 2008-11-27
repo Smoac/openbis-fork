@@ -73,7 +73,9 @@
         </property>
         <property name="hibernateProperties">
             <props>
-                <prop key="hibernate.cache.use_query_cache">true</prop>
+                <!-- Uncomment this if you want globally disable the second-level cache. 
+                    <prop key="hibernate.cache.use_second_level_cache">false</prop>
+                -->
                 <prop key="hibernate.cache.provider_class">
                     org.hibernate.cache.EhCacheProvider
                 </prop>

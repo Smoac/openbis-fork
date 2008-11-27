@@ -16,27 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
-
 /**
- * A entity that matches the <i>Hibernate Search</i> request.
+ * A role that holds a identifier.
  * 
  * @author Christian Ribeaud
  */
-public interface IMatchingEntity extends IIdentifierHolder
+public interface IIdentifierHolder
 {
     /**
-     * Returns the registrator of the entity.
+     * Returns a <code>String</code> that uniquely identifies this object.
      */
-    public PersonPE getRegistrator();
-
-    /**
-     * Returns the entity type of this matching entity.
-     */
-    public EntityTypePE getEntityType();
-
-    /**
-     * Return the entity kind of this matching entity.
-     */
-    public EntityKind getEntityKind();
+    public String getIdentifier();
 }
