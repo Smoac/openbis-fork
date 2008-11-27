@@ -35,11 +35,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
  */
 final class EntityChooser extends ComboBox<SearchableEntityModel>
 {
-    private final IViewContext<ICommonClientServiceAsync> genericContext;
+    private final IViewContext<ICommonClientServiceAsync> commonContext;
 
-    EntityChooser(final IViewContext<ICommonClientServiceAsync> genericContext)
+    EntityChooser(final IViewContext<ICommonClientServiceAsync> commonContext)
     {
-        this.genericContext = genericContext;
+        this.commonContext = commonContext;
         setEditable(false);
         setDisplayField(ModelDataPropertyNames.DESCRIPTION);
         setWidth(100);
@@ -66,8 +66,8 @@ final class EntityChooser extends ComboBox<SearchableEntityModel>
     protected final void onRender(final Element parent, final int index)
     {
         super.onRender(parent, index);
-        genericContext.getService().listSearchableEntities(
-                new ListSearchableEntities(genericContext));
+        commonContext.getService().listSearchableEntities(
+                new ListSearchableEntities(commonContext));
     }
 
     //

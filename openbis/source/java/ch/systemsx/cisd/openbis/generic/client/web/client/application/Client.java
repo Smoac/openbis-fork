@@ -50,7 +50,7 @@ public final class Client implements EntryPoint
     {
         final ICommonClientServiceAsync service = GWT.create(ICommonClientService.class);
         final ServiceDefTarget endpoint = (ServiceDefTarget) service;
-        endpoint.setServiceEntryPoint(GenericConstants.GENERIC_SERVER_NAME);
+        endpoint.setServiceEntryPoint(GenericConstants.COMMON_SERVER_NAME);
         final IGenericImageBundle imageBundle =
                 GWT.<IGenericImageBundle> create(IGenericImageBundle.class);
         final IMessageProvider messageProvider = new DictonaryBasedMessageProvider("common");

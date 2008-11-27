@@ -29,11 +29,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleToRegister;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
-import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
 /**
  * Asynchronous version of {@link ICommonClientService}.
@@ -84,12 +81,6 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<ResultSet<Sample>> asyncCallback);
 
     /**
-     * @see ICommonClientService#getSampleInfo(String)
-     */
-    public void getSampleInfo(final String sampleIdentifier,
-            AsyncCallback<SampleGeneration> asyncCallback);
-
-    /**
      * @see ICommonClientService#listExternalData(String)
      */
     public void listExternalData(final String sampleIdentifier,
@@ -111,10 +102,4 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      * @see ICommonClientService#removeResultSet(String)
      */
     public void removeResultSet(final String resultSetKey, final AsyncCallback<Void> asyncCallback);
-
-    /**
-     * @see ICommonClientService#registerSample(SampleToRegister)
-     */
-    public void registerSample(final SampleToRegister sample,
-            final AsyncCallback<Void> asyncCallback) throws UserFailureException;
 }

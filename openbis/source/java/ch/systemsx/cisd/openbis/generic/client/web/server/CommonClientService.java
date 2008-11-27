@@ -40,8 +40,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleToRegister;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
@@ -54,7 +52,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.util.PersonTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.ResultSetTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.RoleAssignmentTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.RoleCodeTranslator;
-import ch.systemsx.cisd.openbis.generic.client.web.server.util.SampleToRegisterTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.SearchableEntityTranslator;
@@ -66,7 +63,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
@@ -87,7 +83,7 @@ public final class CommonClientService extends AbstractClientService implements
 {
 
     @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
-    private ICommonServer genericServer;
+    private ICommonServer commonServer;
 
     public CommonClientService()
     {
@@ -98,7 +94,7 @@ public final class CommonClientService extends AbstractClientService implements
             final IRequestContextProvider requestContextProvider)
     {
         super(requestContextProvider);
-        this.genericServer = genericServer;
+        this.commonServer = genericServer;
     }
 
     @SuppressWarnings("unchecked")
@@ -115,7 +111,7 @@ public final class CommonClientService extends AbstractClientService implements
     @Override
     protected final IServer getServer()
     {
-        return genericServer;
+        return commonServer;
     }
 
     //
@@ -129,7 +125,7 @@ public final class CommonClientService extends AbstractClientService implements
             final DatabaseInstanceIdentifier identifier =
                     new DatabaseInstanceIdentifier(databaseInstanceCode);
             final List<Group> result = new ArrayList<Group>();
-            final List<GroupPE> groups = genericServer.listGroups(getSessionToken(), identifier);
+            final List<GroupPE> groups = commonServer.listGroups(getSessionToken(), identifier);
             for (final GroupPE group : groups)
             {
                 result.add(GroupTranslator.translate(group));
@@ -147,7 +143,7 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            genericServer.registerGroup(sessionToken, groupCode, descriptionOrNull,
+            commonServer.registerGroup(sessionToken, groupCode, descriptionOrNull,
                     groupLeaderOrNull);
         } catch (final UserFailureException e)
         {
@@ -162,7 +158,7 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final List<Person> result = new ArrayList<Person>();
-            final List<PersonPE> persons = genericServer.listPersons(getSessionToken());
+            final List<PersonPE> persons = commonServer.listPersons(getSessionToken());
             for (final PersonPE person : persons)
             {
                 result.add(PersonTranslator.translate(person));
@@ -179,7 +175,7 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            genericServer.registerPerson(sessionToken, code);
+            commonServer.registerPerson(sessionToken, code);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -192,7 +188,7 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final List<RoleAssignment> result = new ArrayList<RoleAssignment>();
-            final List<RoleAssignmentPE> roles = genericServer.listRoles(getSessionToken());
+            final List<RoleAssignmentPE> roles = commonServer.listRoles(getSessionToken());
             for (final RoleAssignmentPE role : roles)
             {
                 result.add(RoleAssignmentTranslator.translate(role));
@@ -213,7 +209,7 @@ public final class CommonClientService extends AbstractClientService implements
             final GroupIdentifier groupIdentifier =
                     new GroupIdentifier(DatabaseInstanceIdentifier.HOME, group);
             final String sessionToken = getSessionToken();
-            genericServer.registerGroupRole(sessionToken,
+            commonServer.registerGroupRole(sessionToken,
                     RoleCodeTranslator.translate(roleSetCode), groupIdentifier, person);
         } catch (final UserFailureException e)
         {
@@ -227,7 +223,7 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            genericServer.registerInstanceRole(sessionToken, RoleCodeTranslator
+            commonServer.registerInstanceRole(sessionToken, RoleCodeTranslator
                     .translate(roleSetCode), person);
         } catch (final UserFailureException e)
         {
@@ -244,7 +240,7 @@ public final class CommonClientService extends AbstractClientService implements
             final GroupIdentifier groupIdentifier =
                     new GroupIdentifier(DatabaseInstanceIdentifier.HOME, group);
             final String sessionToken = getSessionToken();
-            genericServer.deleteGroupRole(sessionToken, RoleCodeTranslator.translate(roleSetCode),
+            commonServer.deleteGroupRole(sessionToken, RoleCodeTranslator.translate(roleSetCode),
                     groupIdentifier, person);
         } catch (final UserFailureException e)
         {
@@ -259,7 +255,7 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            genericServer.deleteInstanceRole(sessionToken, RoleCodeTranslator
+            commonServer.deleteInstanceRole(sessionToken, RoleCodeTranslator
                     .translate(roleSetCode), person);
         } catch (final UserFailureException e)
         {
@@ -273,7 +269,7 @@ public final class CommonClientService extends AbstractClientService implements
     {
         try
         {
-            final List<SampleTypePE> sampleTypes = genericServer.listSampleTypes(getSessionToken());
+            final List<SampleTypePE> sampleTypes = commonServer.listSampleTypes(getSessionToken());
             final List<SampleType> result = new ArrayList<SampleType>();
             for (final SampleTypePE sampleTypePE : sampleTypes)
             {
@@ -303,7 +299,7 @@ public final class CommonClientService extends AbstractClientService implements
                             public final List<Sample> getOriginalData()
                             {
                                 final List<SamplePE> samples =
-                                        genericServer.listSamples(getSessionToken(),
+                                        commonServer.listSamples(getSessionToken(),
                                                 ListSampleCriteriaTranslator
                                                         .translate(listCriteria));
                                 final List<Sample> list = new ArrayList<Sample>(samples.size());
@@ -321,22 +317,6 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public final SampleGeneration getSampleInfo(final String sampleIdentifier)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
-    {
-        try
-        {
-            final SampleIdentifier identifier = SampleIdentifierFactory.parse(sampleIdentifier);
-            final SampleGenerationDTO sampleGeneration =
-                    genericServer.getSampleInfo(getSessionToken(), identifier);
-            return BeanUtils.createBean(SampleGeneration.class, sampleGeneration, DtoConverters
-                    .getSampleConverter());
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
-    }
-
     public final List<ExternalData> listExternalData(final String sampleIdentifier)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -344,7 +324,7 @@ public final class CommonClientService extends AbstractClientService implements
         {
             final SampleIdentifier identifier = SampleIdentifierFactory.parse(sampleIdentifier);
             final List<ExternalDataPE> externalData =
-                    genericServer.listExternalData(getSessionToken(), identifier);
+                    commonServer.listExternalData(getSessionToken(), identifier);
             return BeanUtils.createBeanList(ExternalData.class, externalData);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
@@ -391,7 +371,7 @@ public final class CommonClientService extends AbstractClientService implements
                                     public final List<MatchingEntity> getOriginalData()
                                     {
                                         return BeanUtils.createBeanList(MatchingEntity.class,
-                                                genericServer.listMatchingEntities(
+                                                commonServer.listMatchingEntities(
                                                         getSessionToken(), matchingEntities,
                                                         queryText), DtoConverters
                                                         .getMatchingEntityConverter());
@@ -412,20 +392,6 @@ public final class CommonClientService extends AbstractClientService implements
             final IResultSetManager<String> resultSetManager = getResultSetManager();
             resultSetManager.removeResultSet(resultSetKey);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
-    }
-
-    public final void registerSample(SampleToRegister sample)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
-    {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            genericServer
-                    .registerSample(sessionToken, SampleToRegisterTranslator.translate(sample));
-        } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         }

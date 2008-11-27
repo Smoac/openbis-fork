@@ -30,7 +30,7 @@ public class GenericConstants
 
     private static final String APPLICATION_NAME = "genericopenbis";
 
-    public static final String GENERIC_SERVER_NAME = createServicePath("generic");
+    public static final String COMMON_SERVER_NAME = createServicePath("common");
 
     /**
      * Creates for the specified service name the service path.

@@ -27,8 +27,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleToRegister;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
@@ -100,12 +98,6 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
-     * For given <var>sampleIdentifier</var> returns corresponding {@link Sample}.
-     */
-    public SampleGeneration getSampleInfo(final String sampleIdentifier)
-            throws UserFailureException;
-
-    /**
      * For given <var>sampleIdentifier</var> returns corresponding list of {@link ExternalData}.
      */
     public List<ExternalData> listExternalData(final String sampleIdentifier)
@@ -127,9 +119,4 @@ public interface ICommonClientService extends IClientService
      * Removes the session result set associated with given key.
      */
     public void removeResultSet(final String resultSetKey) throws UserFailureException;
-
-    /**
-     * Registers a new sample.
-     */
-    public void registerSample(final SampleToRegister sample) throws UserFailureException;
 }

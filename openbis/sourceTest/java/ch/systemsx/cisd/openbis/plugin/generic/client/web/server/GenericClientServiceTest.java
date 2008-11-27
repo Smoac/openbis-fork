@@ -16,10 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.server;
 
-import static org.testng.AssertJUnit.assertEquals;
-
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,16 +31,8 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DatabaseInstance;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleToRegister;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DefaultResultSet;
-import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetManager;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleToRegisterDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -71,33 +60,13 @@ public final class GenericClientServiceTest
 
     private HttpSession httpSession;
 
-    private IResultSetManager<String> resultSetManager;
-
     private Session session;
 
-    private final static ListSampleCriteria createListCriteria()
+    private final static SampleToRegister createSampleToRegister(final String sampleIdentifier,
+            final String type, final List<SampleProperty> properties, final String generatorParent,
+            final String containerParent)
     {
-        final ListSampleCriteria criteria = new ListSampleCriteria();
-        final SampleType sampleType = createSampleType("MASTER_PLATE", "DB1");
-        criteria.setSampleType(sampleType);
-        return criteria;
-    }
-
-    private final static SampleType createSampleType(String code, String dbCode)
-    {
-        final SampleType sampleType = new SampleType();
-        sampleType.setCode(code);
-        final DatabaseInstance databaseInstance = new DatabaseInstance();
-        databaseInstance.setCode(dbCode);
-        sampleType.setDatabaseInstance(databaseInstance);
-        return sampleType;
-    }
-
-    private final static SampleToRegister createSampleToRegister(String sampleIdentifier,
-            String type, List<SampleProperty> properties, String generatorParent,
-            String containerParent)
-    {
-        SampleToRegister s = new SampleToRegister();
+        final SampleToRegister s = new SampleToRegister();
         s.setSampleIdentifier(sampleIdentifier);
         s.setType(type);
         s.setProperties(properties);
@@ -115,23 +84,12 @@ public final class GenericClientServiceTest
         expectations.will(Expectations.returnValue(httpSession));
     }
 
-    private void prepareGetSessionToken(Expectations expectations)
+    private void prepareGetSessionToken(final Expectations expectations)
     {
         prepareGetSession(expectations);
 
         expectations.one(httpSession).getAttribute(SessionConstants.OPENBIS_SESSION_ATTRIBUTE_KEY);
         expectations.will(Expectations.returnValue(session));
-    }
-
-    private final void prepareGetResultSetManager(final Expectations expectations)
-    {
-        expectations.one(httpSession).getAttribute(SessionConstants.OPENBIS_RESULT_SET_MANAGER);
-        expectations.will(Expectations.returnValue(resultSetManager));
-    }
-
-    private final static List<Sample> createSampleList()
-    {
-        return Collections.emptyList();
     }
 
     @BeforeMethod
@@ -143,7 +101,6 @@ public final class GenericClientServiceTest
         requestContextProvider = context.mock(IRequestContextProvider.class);
         servletRequest = context.mock(HttpServletRequest.class);
         httpSession = context.mock(HttpSession.class);
-        resultSetManager = context.mock(IResultSetManager.class);
         genericClientService = new GenericClientService(genericServer, requestContextProvider);
         session = createSessionMock();
     }
@@ -163,41 +120,9 @@ public final class GenericClientServiceTest
     }
 
     @Test
-    public final void testListSamples()
-    {
-        final String resultSetKey = "1";
-        final DefaultResultSet<String, Sample> defaultResultSet =
-                new DefaultResultSet<String, Sample>(resultSetKey, createSampleList(), 0);
-        final ListSampleCriteria listCriteria = createListCriteria();
-        context.checking(new Expectations()
-            {
-                {
-                    prepareGetSession(this);
-                    prepareGetResultSetManager(this);
-
-                    one(resultSetManager).getResultSet(with(listCriteria),
-                            getOriginalDataProvider());
-                    will(returnValue(defaultResultSet));
-                }
-
-                @SuppressWarnings("unchecked")
-                private final IOriginalDataProvider<Sample> getOriginalDataProvider()
-                {
-                    return with(any(IOriginalDataProvider.class));
-                }
-
-            });
-        final ResultSet<Sample> resultSet = genericClientService.listSamples(listCriteria);
-        assertEquals(0, resultSet.getList().size());
-        assertEquals(resultSetKey, resultSet.getResultSetKey());
-        assertEquals(0, resultSet.getTotalLength());
-        context.assertIsSatisfied();
-    }
-
-    @Test
     public final void testRegisterSample()
     {
-        SampleToRegister newSample =
+        final SampleToRegister newSample =
                 createSampleToRegister("/group1/sample1", "MASTER_PLATE",
                         new ArrayList<SampleProperty>(), null, null);
         context.checking(new Expectations()

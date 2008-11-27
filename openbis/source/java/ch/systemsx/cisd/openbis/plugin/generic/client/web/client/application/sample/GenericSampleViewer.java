@@ -114,7 +114,7 @@ public final class GenericSampleViewer extends LayoutContainer
         final LayoutContainer container = new LayoutContainer();
         container.setLayout(new RowLayout());
         // 'Part of' samples
-        IMessageProvider messageProvider = viewContext.getMessageProvider();
+        final IMessageProvider messageProvider = viewContext.getMessageProvider();
         ContentPanel panel = createContentPanel(messageProvider.getMessage("part_of_heading"));
         final ListLoader<BaseListLoadConfig> sampleLoader =
                 createListLoader(createRpcProxyForPartOfSamples());
@@ -175,7 +175,7 @@ public final class GenericSampleViewer extends LayoutContainer
                 {
                     final ListSampleCriteria sampleCriteria = new ListSampleCriteria();
                     sampleCriteria.setContainerIdentifier(sampleIdentifier);
-                    viewContext.getService().listSamples(sampleCriteria,
+                    viewContext.getCommonViewContext().getService().listSamples(sampleCriteria,
                             new ListSamplesCallback(viewContext, callback));
                 }
             };
@@ -194,8 +194,8 @@ public final class GenericSampleViewer extends LayoutContainer
                 public final void load(final BaseListLoadConfig loadConfig,
                         final AsyncCallback<BaseListLoadResult<ExternalDataModel>> callback)
                 {
-                    viewContext.getService().listExternalData(sampleIdentifier,
-                            new ListExternalDataCallback(viewContext, callback));
+                    viewContext.getCommonViewContext().getService().listExternalData(
+                            sampleIdentifier, new ListExternalDataCallback(viewContext, callback));
                 }
             };
     }
@@ -409,7 +409,7 @@ public final class GenericSampleViewer extends LayoutContainer
 
         private SampleGenerationInfoCallback(
                 final IViewContext<IGenericClientServiceAsync> viewContext,
-                GenericSampleViewer genericSampleViewer)
+                final GenericSampleViewer genericSampleViewer)
         {
             super(viewContext);
             this.genericSampleViewer = genericSampleViewer;
@@ -432,10 +432,10 @@ public final class GenericSampleViewer extends LayoutContainer
             genericSampleViewer.removeAll();
             genericSampleViewer.setLayout(new BorderLayout());
             // Left panel
-            Component leftPanel = genericSampleViewer.createLeftPanel(result);
+            final Component leftPanel = genericSampleViewer.createLeftPanel(result);
             genericSampleViewer.add(leftPanel, GenericSampleViewer.createLeftBorderLayoutData());
             // Right panel
-            Component rightPanel = genericSampleViewer.createRightPanel();
+            final Component rightPanel = genericSampleViewer.createRightPanel();
             genericSampleViewer.add(rightPanel, GenericSampleViewer.createRightBorderLayoutData());
             genericSampleViewer.layout();
             genericSampleViewer.loadStores();
