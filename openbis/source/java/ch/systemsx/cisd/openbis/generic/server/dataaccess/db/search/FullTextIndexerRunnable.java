@@ -22,6 +22,7 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
+import org.apache.lucene.index.IndexWriter;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.search.annotations.Indexed;
@@ -60,6 +61,8 @@ public final class FullTextIndexerRunnable extends HibernateDaoSupport implement
         this.context = context;
         operationLog.debug(String.format("Hibernate search context: %s.", context));
         fullTextIndexer = new DefaultFullTextIndexer(context.getBatchSize());
+        // TODO 2008-11-25, Tomasz Pylak: maybe we could get rid of hardcoding package path by
+        // scanning Hibernate mapped entities?
         indexedEntityFinder =
                 new PackageBasedIndexedEntityFinder("ch.systemsx.cisd.openbis.generic.shared.dto");
     }
@@ -85,6 +88,8 @@ public final class FullTextIndexerRunnable extends HibernateDaoSupport implement
         Class<?> currentEntity = null;
         try
         {
+            // timeout exceptions were observed for the default timeout when database was bigger
+            IndexWriter.setDefaultWriteLockTimeout(3000);
             final File indexBase = new File(context.getIndexBase());
             final File markerFile = new File(indexBase, FULL_TEXT_INDEX_MARKER_FILENAME);
             if (indexMode == IndexMode.SKIP_IF_MARKER_FOUND && markerFile.exists())
