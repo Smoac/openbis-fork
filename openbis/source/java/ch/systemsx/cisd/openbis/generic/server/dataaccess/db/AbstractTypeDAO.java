@@ -18,14 +18,16 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.support.JdbcAccessor;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -64,43 +66,25 @@ abstract class AbstractTypeDAO<T extends AbstractTypePE> extends AbstractDAO
             throws DataAccessException
     {
         assert code != null : "Unspecified code";
-        final List<T> list;
+
+        final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
+        criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(code)));
         if (appendDatabaseInstance)
         {
-            list =
-                    cast(getHibernateTemplate()
-                            .find(
-                                    String.format("select st from %s st where st.code = ? "
-                                            + "and st.databaseInstance.id = ?", getEntityClass()
-                                            .getSimpleName()),
-                                    new Object[]
-                                        { CodeConverter.tryToDatabase(code),
-                                                getDatabaseInstance().getId() }));
-
-        } else
-        {
-            list =
-                    cast(getHibernateTemplate().find(
-                            String.format("select st from %s st where st.code = ? ",
-                                    getEntityClass().getSimpleName()), new Object[]
-                                { CodeConverter.tryToDatabase(code) }));
+            criteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
         }
+        final List<T> list = cast(getHibernateTemplate().findByCriteria(criteria));
         final T entity = tryFindEntity(list, "type");
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug("tryFind" + getTypeDescription() + "ByCode(" + code + "): '"
-                    + entity + "'");
+            operationLog.debug(String.format("%s(%s,%s): Entity type '%s' has been found.",
+                    MethodUtils.describeMethod(MethodUtils.getCurrentMethod()), code,
+                    appendDatabaseInstance, entity, list.size()));
         }
         return entity;
     }
 
     abstract Class<?> getEntityClass();
-
-    final String getTypeDescription()
-    {
-        final String className = getEntityClass().getSimpleName();
-        return StringUtils.substring(className, 0, className.length() - 2);
-    }
 
     final List<T> listTypes() throws DataAccessException
     {
@@ -109,26 +93,17 @@ abstract class AbstractTypeDAO<T extends AbstractTypePE> extends AbstractDAO
 
     final List<T> listTypes(final boolean appendDatabaseInstance) throws DataAccessException
     {
-        final List<T> list;
+        final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
         if (appendDatabaseInstance)
         {
-            list =
-                    cast(getHibernateTemplate().find(
-                            String.format("from %s st where st.databaseInstance = ?",
-                                    getEntityClass().getSimpleName()), new Object[]
-                                { getDatabaseInstance() }));
-
-        } else
-        {
-            list =
-                    cast(getHibernateTemplate().find(
-                            String.format("from %s", getEntityClass().getSimpleName())));
-
+            criteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
         }
+        final List<T> list = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug("list" + getTypeDescription() + "s: " + list.size()
-                    + " type(s) have been found.");
+            operationLog.debug(String.format("%s(%s): %d entity type(s) have been found.",
+                    MethodUtils.describeMethod(MethodUtils.getCurrentMethod()),
+                    appendDatabaseInstance, list.size()));
         }
         return list;
     }

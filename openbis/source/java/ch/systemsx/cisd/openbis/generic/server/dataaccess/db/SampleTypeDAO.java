@@ -81,8 +81,9 @@ final class SampleTypeDAO extends AbstractTypeDAO<SampleTypePE> implements ISamp
         final List<SampleTypePE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug(String.format("%s(%s): %d type(s) have been found.", MethodUtils
-                    .describeMethod(MethodUtils.getCurrentMethod()), onlyListable, list.size()));
+            operationLog.debug(String.format("%s(%s): %d sample type(s) have been found.",
+                    MethodUtils.describeMethod(MethodUtils.getCurrentMethod()), onlyListable, list
+                            .size()));
         }
         return list;
     }

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.utilities;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 
@@ -66,8 +67,8 @@ public final class MethodUtils
      * Returns the <code>Method</code> on the stack of <var>level</var>.
      * <p>
      * <code>level=0</code> is this method itself, <code>level=1</code> is the method that
-     * called it and so forth. This method internally uses {@link Class#getMethods()} to retrieve
-     * the <code>Method</code> (meaning that <code>private</code> methods will not be found).
+     * called it and so forth. This method internally uses {@link Class#getDeclaredMethods()} to
+     * retrieve the <code>Method</code>.
      * </p>
      * <p>
      * IMPORTANT NOTE: You should carefully use this method in a class having more than one method
@@ -76,20 +77,25 @@ public final class MethodUtils
      * </p>
      * 
      * @see StackTraceElement#getMethodName()
-     * @return <code>null</code> if none could be found.
+     * @throw {@link IndexOutOfBoundsException} if given <var>level</var> smaller or equal to
+     *        number of stack trace elements.
      */
     public final static Method getMethodOnStack(final int level)
     {
+        assert level > -1 : "Level must be positive.";
+
         final StackTraceElement[] elements = new Throwable().getStackTrace();
         if (elements.length <= level)
         {
-            return null;
+            throw new IndexOutOfBoundsException(String.format("Not enough elements: %d <= %d",
+                    elements.length, level));
         }
         final StackTraceElement element = elements[level];
         final String methodName = element.getMethodName();
+        Method[] methods = null;
         try
         {
-            final Method[] methods = Class.forName(element.getClassName()).getMethods();
+            methods = Class.forName(element.getClassName()).getDeclaredMethods();
             for (final Method method : methods)
             {
                 if (method.getName().equals(methodName))
@@ -102,7 +108,9 @@ public final class MethodUtils
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
-        return null;
+        throw new IllegalArgumentException(String.format(
+                "Method name '%s' could not be found in methods '%s'.", methodName, Arrays
+                        .toString(methods)));
     }
 
     /**
