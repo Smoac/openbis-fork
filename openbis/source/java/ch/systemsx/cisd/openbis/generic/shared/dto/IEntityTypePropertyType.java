@@ -16,9 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.util.Set;
 
 /**
- * An entity property is composed of:
+ * An entity type property type is composed of:
  * <ol>
  * <li>{@link IIdHolder#getId()}</li>
  * <li>{@link #getEntityType()}</li>
@@ -33,4 +34,9 @@ public interface IEntityTypePropertyType extends IIdHolder
      * Returns the entity type for this entity type property type.
      */
     public EntityTypePE getEntityType();
+
+    /**
+     * Returns the set of {@link EntityPropertyPE} associated with this entity type property type.
+     */
+    public Set<EntityPropertyPE> getPropertyValues();
 }

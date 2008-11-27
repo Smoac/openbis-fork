@@ -65,10 +65,6 @@ public class SampleTypePropertyTypePE extends EntityTypePropertyTypePE
         this.displayed = displayed;
     }
 
-    //
-    // EntityTypePropertyTypePE
-    //
-
     @NotNull(message = ValidationMessages.SAMPLE_TYPE_NOT_NULL_MESSAGE)
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = SampleTypePE.class)
     @JoinColumn(name = ColumnNames.SAMPLE_TYPE_COLUMN)
@@ -77,10 +73,12 @@ public class SampleTypePropertyTypePE extends EntityTypePropertyTypePE
         return entityType;
     }
 
-    @SuppressWarnings("unused")
-    // for Hibernate only
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, mappedBy = "entityTypePropertyType", targetEntity = SamplePropertyPE.class)
-    private Set<EntityPropertyPE> getPropertyValues()
+    //
+    // EntityTypePropertyTypePE
+    //
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entityTypePropertyType", targetEntity = SamplePropertyPE.class)
+    public Set<EntityPropertyPE> getPropertyValues()
     {
         return propertyValues;
     }

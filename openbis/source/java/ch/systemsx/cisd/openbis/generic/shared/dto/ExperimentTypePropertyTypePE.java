@@ -53,10 +53,6 @@ public class ExperimentTypePropertyTypePE extends EntityTypePropertyTypePE
     public static final ExperimentTypePropertyTypePE[] EMPTY_ARRAY =
             new ExperimentTypePropertyTypePE[0];
 
-    //
-    // EntityTypePropertyTypePE
-    //
-
     @NotNull(message = ValidationMessages.EXPERIMENT_TYPE_NOT_NULL_MESSAGE)
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = ExperimentTypePE.class)
     @JoinColumn(name = ColumnNames.EXPERIMENT_TYPE_COLUMN)
@@ -65,10 +61,12 @@ public class ExperimentTypePropertyTypePE extends EntityTypePropertyTypePE
         return entityType;
     }
 
-    @SuppressWarnings("unused")
-    // for Hibernate only
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, mappedBy = "entityTypePropertyType", targetEntity = ExperimentPropertyPE.class)
-    private Set<EntityPropertyPE> getPropertyValues()
+    //
+    // EntityTypePropertyTypePE
+    //
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entityTypePropertyType", targetEntity = ExperimentPropertyPE.class)
+    public Set<EntityPropertyPE> getPropertyValues()
     {
         return propertyValues;
     }

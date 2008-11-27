@@ -28,6 +28,8 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.validator.NotNull;
 
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
@@ -41,7 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 @Table(name = TableNames.SAMPLE_PROPERTIES_TABLE, uniqueConstraints =
     { @UniqueConstraint(columnNames =
         { ColumnNames.SAMPLE_COLUMN, ColumnNames.SAMPLE_TYPE_PROPERTY_TYPE_COLUMN }) })
-// @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class SamplePropertyPE extends EntityPropertyPE
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;

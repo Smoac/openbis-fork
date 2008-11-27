@@ -66,10 +66,10 @@ public final class HibernateUtils
     }
 
     /**
-     * For given <i>idHolder</i> returns corresponding {@link Long} id.
+     * For given <var>idHolder</var> returns corresponding {@link Long} id.
      * <p>
-     * Do not use this method. It is a hack till we use full object instead of id in proxied objects
-     * for DAO requests.
+     * Internally checks whether given {@link IIdHolder} is a {@link HibernateProxy} and handles
+     * correspondingly.
      * </p>
      */
     public final static Long getId(final IIdHolder idHolder)

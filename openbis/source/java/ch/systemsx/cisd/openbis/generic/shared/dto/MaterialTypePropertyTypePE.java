@@ -57,10 +57,6 @@ public class MaterialTypePropertyTypePE extends EntityTypePropertyTypePE
     {
     }
 
-    //
-    // EntityTypePropertyTypePE
-    //
-
     @NotNull(message = ValidationMessages.MATERIAL_TYPE_NOT_NULL_MESSAGE)
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = MaterialTypePE.class)
     @JoinColumn(name = ColumnNames.MATERIAL_TYPE_COLUMN)
@@ -69,10 +65,12 @@ public class MaterialTypePropertyTypePE extends EntityTypePropertyTypePE
         return entityType;
     }
 
-    @SuppressWarnings("unused")
-    // for Hibernate only
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, mappedBy = "entityTypePropertyType", targetEntity = MaterialPropertyPE.class)
-    private Set<EntityPropertyPE> getPropertyValues()
+    //
+    // EntityTypePropertyTypePE
+    //
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entityTypePropertyType", targetEntity = MaterialPropertyPE.class)
+    public Set<EntityPropertyPE> getPropertyValues()
     {
         return propertyValues;
     }
