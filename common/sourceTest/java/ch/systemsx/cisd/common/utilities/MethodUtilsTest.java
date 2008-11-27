@@ -30,11 +30,10 @@ public final class MethodUtilsTest extends AssertJUnit
 {
     private final void privateMethodOnStack()
     {
-        // If <code>Class.getDeclaredMethods</code> were used instead of
-        // <code>Class.getDeclaredMethods</code>,
-        // we will have 'ch.systemsx.cisd.common.utilities.ClassUtilsTest.privateMethodOnStack()'
-        // here.
-        assertNull(MethodUtils.getMethodOnStack(1));
+        // Because we use <code>Class.getDeclaredMethods</code> were used instead of
+        // <code>Class.getMethods</code>, we get
+        // 'ch.systemsx.cisd.common.utilities.MethodUtilsTest.privateMethodOnStack()' here.
+        assertEquals("privateMethodOnStack", MethodUtils.getMethodOnStack(1).getName());
     }
 
     @Test
@@ -71,7 +70,7 @@ public final class MethodUtilsTest extends AssertJUnit
     {
         assertEquals("getMethodOnStack", MethodUtils.getMethodOnStack(0).getName());
         assertEquals("testGetMethodOnStack", MethodUtils.getMethodOnStack(1).getName());
-        assertNull(MethodUtils.getMethodOnStack(2));
+        assertEquals("invoke0", MethodUtils.getMethodOnStack(2).getName());
         privateMethodOnStack();
     }
 
