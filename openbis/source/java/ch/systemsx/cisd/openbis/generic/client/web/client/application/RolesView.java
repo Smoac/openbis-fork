@@ -63,9 +63,9 @@ public class RolesView extends ContentPanel
 
     public static final String TABLE_ID = ID + "_table";
 
-    private final GenericViewContext viewContext;
+    private final CommonViewContext viewContext;
 
-    public RolesView(final GenericViewContext viewContext)
+    public RolesView(final CommonViewContext viewContext)
     {
         this.viewContext = viewContext;
         setLayout(new FitLayout());
@@ -229,7 +229,7 @@ public class RolesView extends ContentPanel
     public final class ListRolesCallback extends AbstractAsyncCallback<List<RoleAssignment>>
     {
 
-        private ListRolesCallback(final GenericViewContext viewContext)
+        private ListRolesCallback(final CommonViewContext viewContext)
         {
             super(viewContext);
         }

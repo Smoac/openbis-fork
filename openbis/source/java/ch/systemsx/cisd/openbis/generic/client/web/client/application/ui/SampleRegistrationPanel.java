@@ -26,7 +26,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.SampleTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
@@ -38,7 +38,7 @@ public class SampleRegistrationPanel extends ContentPanel
 
     private final SampleTypeSelectionWidget sampleTypeSelection;
 
-    public SampleRegistrationPanel(final GenericViewContext viewContext)
+    public SampleRegistrationPanel(final CommonViewContext viewContext)
     {
         setHeading("Sample registration");
         setHeaderVisible(false);

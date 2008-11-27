@@ -27,7 +27,7 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.google.gwt.user.client.ui.RootPanel;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TopMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Footer;
 
@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Footer;
  */
 final class AppView extends View
 {
-    private final GenericViewContext viewContext;
+    private final CommonViewContext viewContext;
 
     private Viewport viewport;
 
@@ -52,7 +52,7 @@ final class AppView extends View
 
     private CategoriesBuilder categoriesBuilder;
 
-    AppView(final Controller controller, final GenericViewContext viewContext)
+    AppView(final Controller controller, final CommonViewContext viewContext)
     {
         super(controller);
         this.viewContext = viewContext;

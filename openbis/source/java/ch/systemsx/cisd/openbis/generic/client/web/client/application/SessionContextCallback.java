@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
  */
 public final class SessionContextCallback extends AbstractAsyncCallback<SessionContext>
 {
-    SessionContextCallback(final GenericViewContext viewContext)
+    SessionContextCallback(final CommonViewContext viewContext)
     {
         super(viewContext);
     }

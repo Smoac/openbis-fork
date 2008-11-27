@@ -26,7 +26,7 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.RolesView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 
@@ -53,7 +53,7 @@ public class AddRoleDialog extends Window
 
     private final AdapterField roleBox;
 
-    public AddRoleDialog(final GenericViewContext viewContext, final RolesView roleList)
+    public AddRoleDialog(final CommonViewContext viewContext, final RolesView roleList)
     {
 
         setHeading("Add a new role");
@@ -96,7 +96,7 @@ public class AddRoleDialog extends Window
             }));
     }
 
-    private final Button createSaveButton(final GenericViewContext viewContext,
+    private final Button createSaveButton(final CommonViewContext viewContext,
             final RolesView roleList)
     {
         final Button button = new Button("Save", new SelectionListener<ComponentEvent>()

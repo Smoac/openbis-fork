@@ -25,7 +25,7 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.PersonsView;
 
 /**
@@ -43,7 +43,7 @@ public class AddPersonDialog extends Window
 
     private final PersonsView personList;
 
-    public AddPersonDialog(final GenericViewContext viewContext, final PersonsView p)
+    public AddPersonDialog(final CommonViewContext viewContext, final PersonsView p)
     {
         this.personList = p;
         setHeading("Add a new person");
@@ -83,7 +83,7 @@ public class AddPersonDialog extends Window
         return button;
     }
 
-    private Button createSaveButton(final GenericViewContext viewContext,
+    private Button createSaveButton(final CommonViewContext viewContext,
             final TextField<String> codeField)
     {
         final Button button = new Button("Save", new SelectionListener<ComponentEvent>()

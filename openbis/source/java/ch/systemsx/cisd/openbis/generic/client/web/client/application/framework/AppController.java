@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 
 /**
  * Main application controller.
@@ -30,9 +30,9 @@ public final class AppController extends Controller
 {
     private AppView appView;
 
-    private final GenericViewContext viewContext;
+    private final CommonViewContext viewContext;
 
-    public AppController(final GenericViewContext viewContext)
+    public AppController(final CommonViewContext viewContext)
     {
         this.viewContext = viewContext;
         registerEventTypes(AppEvents.INIT);

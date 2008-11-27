@@ -66,7 +66,7 @@ public class GroupsView extends ContentPanel
 
     public final class ListGroupsCallback extends AbstractAsyncCallback<List<Group>>
     {
-        private ListGroupsCallback(final GenericViewContext viewContext)
+        private ListGroupsCallback(final CommonViewContext viewContext)
         {
             super(viewContext);
         }
@@ -85,9 +85,9 @@ public class GroupsView extends ContentPanel
         refresh();
     }
 
-    private final GenericViewContext viewContext;
+    private final CommonViewContext viewContext;
 
-    public GroupsView(final GenericViewContext viewContext)
+    public GroupsView(final CommonViewContext viewContext)
     {
         this.viewContext = viewContext;
         setLayout(new FitLayout());

@@ -65,9 +65,9 @@ public class PersonsView extends ContentPanel
 
     public static final String TABLE_ID = ID + "_table";
 
-    private final GenericViewContext viewContext;
+    private final CommonViewContext viewContext;
 
-    public PersonsView(final GenericViewContext viewContext)
+    public PersonsView(final CommonViewContext viewContext)
     {
         this.viewContext = viewContext;
         setLayout(new FitLayout());
@@ -194,7 +194,7 @@ public class PersonsView extends ContentPanel
 
     public final class ListPersonsCallback extends AbstractAsyncCallback<List<Person>>
     {
-        private ListPersonsCallback(final GenericViewContext viewContext)
+        private ListPersonsCallback(final CommonViewContext viewContext)
         {
             super(viewContext);
         }

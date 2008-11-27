@@ -32,7 +32,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.FileUpload;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.SampleTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
@@ -44,7 +44,7 @@ public class SampleBatchRegistrationMock extends ContentPanel
 
     private final SampleTypeSelectionWidget sampleTypeSelection;
 
-    public SampleBatchRegistrationMock(final GenericViewContext viewContext)
+    public SampleBatchRegistrationMock(final CommonViewContext viewContext)
     {
         setHeading("Sample batch registration mock");
         setBodyBorder(false);
@@ -84,7 +84,7 @@ public class SampleBatchRegistrationMock extends ContentPanel
     static class SampleBatchRegistrationForm extends ContentPanel
     {
 
-        SampleBatchRegistrationForm(final GenericViewContext viewContext,
+        SampleBatchRegistrationForm(final CommonViewContext viewContext,
                 final SampleType sampleType)
         {
             setStyleAttribute("margin", "30");

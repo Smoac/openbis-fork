@@ -69,7 +69,7 @@ public final class Client implements EntryPoint
                     onModuleLoad();
                 }
             };
-        return new GenericViewContext(service, messageProvider, imageBundle, pageController);
+        return new CommonViewContext(service, messageProvider, imageBundle, pageController);
     }
 
     private final void initializeControllers()
@@ -77,7 +77,7 @@ public final class Client implements EntryPoint
         DispatcherHelper.clearControllers();
         final Dispatcher dispatcher = Dispatcher.get();
         dispatcher.addController(new LoginController(viewContext));
-        dispatcher.addController(new AppController((GenericViewContext) viewContext));
+        dispatcher.addController(new AppController((CommonViewContext) viewContext));
 
     }
 
@@ -102,7 +102,7 @@ public final class Client implements EntryPoint
                 {
                     viewContext.getModel().setApplicationInfo(info);
                     service.tryToGetCurrentSessionContext(new SessionContextCallback(
-                            (GenericViewContext) viewContext));
+                            (CommonViewContext) viewContext));
                 }
             });
     }

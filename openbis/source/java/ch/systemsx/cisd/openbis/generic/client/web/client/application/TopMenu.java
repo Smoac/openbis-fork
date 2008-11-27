@@ -43,9 +43,9 @@ public class TopMenu extends LayoutContainer
 
     private final ToolBar toolBar;
 
-    private final GenericViewContext viewContext;
+    private final CommonViewContext viewContext;
 
-    public TopMenu(final GenericViewContext viewContext)
+    public TopMenu(final CommonViewContext viewContext)
     {
         this.viewContext = viewContext;
         setLayout(new FlowLayout());
@@ -105,7 +105,7 @@ public class TopMenu extends LayoutContainer
     private final class LogoutButton extends TextToolItem
     {
 
-        LogoutButton(final GenericViewContext viewContext)
+        LogoutButton(final CommonViewContext viewContext)
         {
             super(viewContext.getMessage("header_logoutButtonLabel"));
             final SelectionListener<ComponentEvent> listener =

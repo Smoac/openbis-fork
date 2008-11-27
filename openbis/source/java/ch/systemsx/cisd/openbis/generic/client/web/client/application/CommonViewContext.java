@@ -26,8 +26,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  * 
  * @author Franz-Josef Elmer
  */
-public final class GenericViewContext extends AbstractViewContext<ICommonClientServiceAsync>
+public final class CommonViewContext extends AbstractViewContext<ICommonClientServiceAsync>
 {
+    // We use here 'generic' because we did not split the javascript dictionary yet.
+    private static final String TECHNOLOGY_NAME = "generic";
+
     private final ICommonClientServiceAsync service;
 
     private final IMessageProvider messageProvider;
@@ -40,13 +43,13 @@ public final class GenericViewContext extends AbstractViewContext<ICommonClientS
 
     private final IClientPluginFactoryProvider clientPluginFactoryProvider;
 
-    GenericViewContext(final ICommonClientServiceAsync service,
+    CommonViewContext(final ICommonClientServiceAsync service,
             final IMessageProvider messageProvider, final IGenericImageBundle imageBundle,
             final IPageController pageController)
     {
         this.service = service;
         this.messageProvider =
-                new CompositeMessageProvider(new DictonaryBasedMessageProvider("generic"),
+                new CompositeMessageProvider(new DictonaryBasedMessageProvider(TECHNOLOGY_NAME),
                         messageProvider);
         this.imageBundle = imageBundle;
         this.pageController = pageController;
@@ -86,5 +89,10 @@ public final class GenericViewContext extends AbstractViewContext<ICommonClientS
     public final IClientPluginFactoryProvider getClientPluginFactoryProvider()
     {
         return clientPluginFactoryProvider;
+    }
+
+    public final IViewContext<ICommonClientServiceAsync> getCommonViewContext()
+    {
+        return this;
     }
 }

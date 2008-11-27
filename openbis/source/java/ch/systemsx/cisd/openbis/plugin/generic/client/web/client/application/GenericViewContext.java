@@ -1,4 +1,4 @@
-package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application;
+package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
@@ -14,25 +14,25 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.CompositeMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientService;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**
- * The <i>screening</i> plugin specific {@link IViewContext} implementation.
+ * The <i>generic</i> plugin specific {@link IViewContext} implementation.
  * 
  * @author Christian Ribeaud
  */
-public final class ScreeningViewContext extends AbstractViewContext<IScreeningClientServiceAsync>
+public final class GenericViewContext extends AbstractViewContext<IGenericClientServiceAsync>
 {
-    private static final String TECHNOLOGY_NAME = "screening";
+    private static final String TECHNOLOGY_NAME = "generic";
 
     private final IViewContext<ICommonClientServiceAsync> commonViewContext;
 
     private final IMessageProvider messageProvider;
 
-    private final IScreeningClientServiceAsync service;
+    private final IGenericClientServiceAsync service;
 
-    public ScreeningViewContext(final IViewContext<ICommonClientServiceAsync> originalViewContext)
+    public GenericViewContext(final IViewContext<ICommonClientServiceAsync> originalViewContext)
     {
         this.commonViewContext = originalViewContext;
         this.messageProvider =
@@ -41,9 +41,9 @@ public final class ScreeningViewContext extends AbstractViewContext<IScreeningCl
         this.service = createScreeningClientService();
     }
 
-    private final static IScreeningClientServiceAsync createScreeningClientService()
+    private final static IGenericClientServiceAsync createScreeningClientService()
     {
-        final IScreeningClientServiceAsync service = GWT.create(IScreeningClientService.class);
+        final IGenericClientServiceAsync service = GWT.create(IGenericClientService.class);
         final ServiceDefTarget endpoint = (ServiceDefTarget) service;
         endpoint.setServiceEntryPoint(GenericConstants.createServicePath(TECHNOLOGY_NAME));
         return service;
@@ -73,7 +73,7 @@ public final class ScreeningViewContext extends AbstractViewContext<IScreeningCl
         return commonViewContext.getPageController();
     }
 
-    public final IScreeningClientServiceAsync getService()
+    public final IGenericClientServiceAsync getService()
     {
         return service;
     }

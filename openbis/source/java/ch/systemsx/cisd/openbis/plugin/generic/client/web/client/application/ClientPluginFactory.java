@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer;
 
@@ -37,7 +38,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sam
  * @author Christian Ribeaud
  */
 public final class ClientPluginFactory extends
-        AbstractClientPluginFactory<ICommonClientServiceAsync>
+        AbstractClientPluginFactory<IGenericClientServiceAsync>
 {
     private ISampleViewClientPlugin sampleViewClientPlugin;
 
@@ -51,10 +52,10 @@ public final class ClientPluginFactory extends
     //
 
     @Override
-    protected final IViewContext<ICommonClientServiceAsync> createViewContext(
+    protected final IViewContext<IGenericClientServiceAsync> createViewContext(
             final IViewContext<ICommonClientServiceAsync> originalViewContext)
     {
-        return originalViewContext;
+        return new GenericViewContext(originalViewContext);
     }
 
     //

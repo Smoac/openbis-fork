@@ -25,7 +25,7 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GroupsView;
 
 /**
@@ -38,7 +38,7 @@ public class AddGroupDialog extends Window
 {
     final class RegisterGroupCallback extends AbstractAsyncCallback<Void>
     {
-        private RegisterGroupCallback(final GenericViewContext viewContext)
+        private RegisterGroupCallback(final CommonViewContext viewContext)
         {
             super(viewContext);
         }
@@ -59,7 +59,7 @@ public class AddGroupDialog extends Window
 
     private final GroupsView groupList;
 
-    public AddGroupDialog(final GenericViewContext viewContext, final GroupsView g)
+    public AddGroupDialog(final CommonViewContext viewContext, final GroupsView g)
     {
         this.groupList = g;
         setHeading("Add a new group");
