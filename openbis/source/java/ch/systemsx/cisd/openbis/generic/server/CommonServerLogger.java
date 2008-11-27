@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.generic.server;
+package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.Arrays;
 import java.util.List;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
-import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IMatchingEntity;
@@ -39,20 +39,19 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 /**
- * Logger class for {@link GenericServer} which creates readable logs of method invocations.
+ * Logger class for {@link CommonServer} which creates readable logs of method invocations.
  * 
  * @author Franz-Josef Elmer
  */
-final class GenericServerLogger extends AbstractServerLogger implements IGenericServer
+final class CommonServerLogger extends AbstractServerLogger implements ICommonServer
 {
     /**
      * Creates an instance for the specified session manager and invocation status. The session
      * manager is used to retrieve user information which will be a part of the log message.
      */
-    GenericServerLogger(final ISessionManager<Session> sessionManager,
+    CommonServerLogger(final ISessionManager<Session> sessionManager,
             final boolean invocationSuccessful)
     {
         super(sessionManager, invocationSuccessful);

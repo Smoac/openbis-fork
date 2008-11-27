@@ -13,7 +13,7 @@
 
     <context:annotation-config />
 
-    <context:component-scan base-package="ch.systemsx.cisd.openbis.plugin"
+    <context:component-scan base-package="ch.systemsx.cisd.openbis"
         use-default-filters="false">
         <context:include-filter type="annotation"
             expression="org.springframework.stereotype.Controller" />

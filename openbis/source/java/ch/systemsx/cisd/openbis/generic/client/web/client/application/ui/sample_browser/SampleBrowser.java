@@ -23,7 +23,7 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
@@ -43,9 +43,9 @@ public final class SampleBrowser extends LayoutContainer implements Listener<Tab
 
     private SampleBrowserGrid sampleBrowserGrid;
 
-    private final IViewContext<IGenericClientServiceAsync> viewContext;
+    private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    public SampleBrowser(final IViewContext<IGenericClientServiceAsync> viewContext)
+    public SampleBrowser(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         this.viewContext = viewContext;
         setId(ID);

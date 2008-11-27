@@ -21,7 +21,7 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.google.gwt.user.client.ui.RootPanel;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 
 /**
@@ -33,10 +33,10 @@ public class LoginView extends View
 {
     private LoginPage loginPage;
 
-    private final IViewContext<IGenericClientServiceAsync> viewContext;
+    private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     public LoginView(final Controller controller,
-            final IViewContext<IGenericClientServiceAsync> viewContext)
+            final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(controller);
         this.viewContext = viewContext;

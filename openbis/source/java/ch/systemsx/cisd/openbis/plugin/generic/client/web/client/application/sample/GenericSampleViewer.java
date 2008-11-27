@@ -48,7 +48,7 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -87,7 +87,7 @@ public final class GenericSampleViewer extends LayoutContainer
 
     public static final String DATA_POSTFIX = "-data";
 
-    private final IViewContext<IGenericClientServiceAsync> viewContext;
+    private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     private Grid<SampleModel> partOfSamplesGrid;
 
@@ -95,7 +95,7 @@ public final class GenericSampleViewer extends LayoutContainer
 
     private final String sampleIdentifier;
 
-    public GenericSampleViewer(final IViewContext<IGenericClientServiceAsync> viewContext,
+    public GenericSampleViewer(final IViewContext<ICommonClientServiceAsync> viewContext,
             final String sampleIdentifier)
     {
         setId(ID_PREFIX + sampleIdentifier);
@@ -343,7 +343,7 @@ public final class GenericSampleViewer extends LayoutContainer
     {
         private final AsyncCallback<BaseListLoadResult<SampleModel>> delegate;
 
-        ListSamplesCallback(final IViewContext<IGenericClientServiceAsync> viewContext,
+        ListSamplesCallback(final IViewContext<ICommonClientServiceAsync> viewContext,
                 final AsyncCallback<BaseListLoadResult<SampleModel>> callback)
         {
             super(viewContext);
@@ -374,7 +374,7 @@ public final class GenericSampleViewer extends LayoutContainer
     {
         private final AsyncCallback<BaseListLoadResult<ExternalDataModel>> delegate;
 
-        ListExternalDataCallback(final IViewContext<IGenericClientServiceAsync> viewContext,
+        ListExternalDataCallback(final IViewContext<ICommonClientServiceAsync> viewContext,
                 final AsyncCallback<BaseListLoadResult<ExternalDataModel>> callback)
         {
             super(viewContext);
@@ -408,7 +408,7 @@ public final class GenericSampleViewer extends LayoutContainer
         private final GenericSampleViewer genericSampleViewer;
 
         private SampleGenerationInfoCallback(
-                final IViewContext<IGenericClientServiceAsync> viewContext,
+                final IViewContext<ICommonClientServiceAsync> viewContext,
                 GenericSampleViewer genericSampleViewer)
         {
             super(viewContext);

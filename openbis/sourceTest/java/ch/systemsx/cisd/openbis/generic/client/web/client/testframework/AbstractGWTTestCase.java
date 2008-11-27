@@ -21,7 +21,7 @@ import java.util.Date;
 import com.google.gwt.junit.client.GWTTestCase;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Client;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -88,7 +88,7 @@ public abstract class AbstractGWTTestCase extends GWTTestCase
     {
         remoteConsole.cancelTimer();
         AbstractAsyncCallback.setAllCallbackObjectsSilent();
-        final IViewContext<IGenericClientServiceAsync> viewContext = client.tryToGetViewContext();
+        final IViewContext<ICommonClientServiceAsync> viewContext = client.tryToGetViewContext();
         if (viewContext != null)
         {
             viewContext.getService().logout(new AsyncCallback<Void>()

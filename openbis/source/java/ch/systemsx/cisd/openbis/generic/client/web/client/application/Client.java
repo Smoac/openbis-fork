@@ -22,8 +22,8 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientService;
-import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppController;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.LoginController;
@@ -39,16 +39,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
  */
 public final class Client implements EntryPoint
 {
-    private IViewContext<IGenericClientServiceAsync> viewContext;
+    private IViewContext<ICommonClientServiceAsync> viewContext;
 
-    public final IViewContext<IGenericClientServiceAsync> tryToGetViewContext()
+    public final IViewContext<ICommonClientServiceAsync> tryToGetViewContext()
     {
         return viewContext;
     }
 
-    private final IViewContext<IGenericClientServiceAsync> createViewContext()
+    private final IViewContext<ICommonClientServiceAsync> createViewContext()
     {
-        final IGenericClientServiceAsync service = GWT.create(IGenericClientService.class);
+        final ICommonClientServiceAsync service = GWT.create(ICommonClientService.class);
         final ServiceDefTarget endpoint = (ServiceDefTarget) service;
         endpoint.setServiceEntryPoint(GenericConstants.GENERIC_SERVER_NAME);
         final IGenericImageBundle imageBundle =

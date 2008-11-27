@@ -27,7 +27,7 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.DOM;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 
@@ -42,11 +42,11 @@ public class MainTabPanel extends TabPanel
 
     public static final String TAB_SUFFIX = "_tab";
 
-    private final IViewContext<IGenericClientServiceAsync> viewContext;
+    private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     public static final String ID = PREFIX.substring(0, PREFIX.length() - 1);
 
-    MainTabPanel(final IViewContext<IGenericClientServiceAsync> viewContext)
+    MainTabPanel(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         this.viewContext = viewContext;
         setLayout(new FitLayout());

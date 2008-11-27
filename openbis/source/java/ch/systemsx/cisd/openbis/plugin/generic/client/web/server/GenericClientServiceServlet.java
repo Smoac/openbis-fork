@@ -22,15 +22,16 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import ch.systemsx.cisd.common.servlet.GWTRPCServiceExporter;
-import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
 /**
  * The {@link GWTRPCServiceExporter} for the <i>generic</i> service.
  * <p>
  * <i>URL</i> mappings are: <code>/generic</code> and <code>/genericopenbis/generic</code>.
- * The encapsulated {@link IGenericClientService} service implementation is expected to be defined
- * as bean with name <code>generic-service</code>.
+ * The encapsulated {@link ICommonClientService} service implementation is expected to be defined as
+ * bean with name <code>generic-service</code>.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -42,7 +43,7 @@ public final class GenericClientServiceServlet extends GWTRPCServiceExporter
 {
     private static final long serialVersionUID = 1L;
 
-    @Resource(name = ResourceNames.GENERIC_SERVICE)
+    @Resource(name = ResourceNames.GENERIC_PLUGIN_SERVICE)
     private IGenericClientService service;
 
     //

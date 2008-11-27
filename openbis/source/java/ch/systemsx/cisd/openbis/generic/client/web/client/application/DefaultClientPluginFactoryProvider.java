@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 import java.util.HashSet;
 import java.util.Set;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ClientPluginFactory;
 
 /**
@@ -34,14 +34,14 @@ public final class DefaultClientPluginFactoryProvider implements IClientPluginFa
     private IClientPluginFactory genericPluginFactory;
 
     public DefaultClientPluginFactoryProvider(
-            final IViewContext<IGenericClientServiceAsync> originalViewContext)
+            final IViewContext<ICommonClientServiceAsync> originalViewContext)
     {
         genericPluginFactory = new ClientPluginFactory(originalViewContext);
         registerPluginFactories(originalViewContext);
     }
 
     private final void registerPluginFactories(
-            final IViewContext<IGenericClientServiceAsync> originalViewContext)
+            final IViewContext<ICommonClientServiceAsync> originalViewContext)
     {
         // Automatically generated part - START
         registerPluginFactory(new ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory(originalViewContext));

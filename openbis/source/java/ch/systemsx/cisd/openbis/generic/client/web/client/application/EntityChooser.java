@@ -23,7 +23,7 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.google.gwt.user.client.Element;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SearchableEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
@@ -35,9 +35,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
  */
 final class EntityChooser extends ComboBox<SearchableEntityModel>
 {
-    private final IViewContext<IGenericClientServiceAsync> genericContext;
+    private final IViewContext<ICommonClientServiceAsync> genericContext;
 
-    EntityChooser(final IViewContext<IGenericClientServiceAsync> genericContext)
+    EntityChooser(final IViewContext<ICommonClientServiceAsync> genericContext)
     {
         this.genericContext = genericContext;
         setEditable(false);

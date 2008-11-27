@@ -49,7 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  * 
  * @author Franz-Josef Elmer
  */
-public interface IGenericServer extends IServer
+public interface ICommonServer extends IServer
 {
     /**
      * Returns all groups which belong to the specified database instance.

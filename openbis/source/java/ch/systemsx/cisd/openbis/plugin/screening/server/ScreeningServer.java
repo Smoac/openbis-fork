@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
  * 
  * @author Christian Ribeaud
  */
-@Component(ResourceNames.SCREENING_SERVER)
+@Component(ResourceNames.SCREENING_PLUGIN_SERVER)
 public final class ScreeningServer extends AbstractServer<IScreeningServer> implements
         IScreeningServer
 {

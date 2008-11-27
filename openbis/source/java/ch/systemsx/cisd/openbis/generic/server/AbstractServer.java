@@ -63,6 +63,7 @@ public abstract class AbstractServer<T extends IServer> implements IServer,
 
     protected AbstractServer()
     {
+        System.out.println(getClass());
     }
 
     private final ProxyFactory getProxyFactory()

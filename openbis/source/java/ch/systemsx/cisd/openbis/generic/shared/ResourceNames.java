@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.generic.shared;
+package ch.systemsx.cisd.openbis.generic.shared;
 
 /**
- * Resource name used in <i>generic</i> plug-in.
+ * Resource name used in <i>generic</i>.
  * <p>
  * Be aware about the uniqueness of the bean names loaded by <i>Spring</i>. Names defined here
  * should not conflict with already existing bean names. Look for other <code>ResourceNames</code>
@@ -28,18 +28,12 @@ package ch.systemsx.cisd.openbis.plugin.generic.shared;
  */
 public final class ResourceNames
 {
-    public final static String GENERIC_PLUGIN_SERVICE = "generic-plugin-service";
-
-    public final static String GENERIC_PLUGIN_SERVER = "generic-plugin-server";
-
-    public final static String GENERIC_SAMPLE_TYPE_SLAVE_SERVER_PLUGIN =
-            "generic-sample-type-slave-server-plugin";
-
-    public final static String GENERIC_BUSINESS_OBJECT_FACTORY = "generic-business-object-factory";
-
     private ResourceNames()
     {
         // Can not be instantiated.
     }
 
+    public final static String COMMON_SERVICE = "common-service";
+
+    public final static String COMMON_SERVER = "common-server";
 }

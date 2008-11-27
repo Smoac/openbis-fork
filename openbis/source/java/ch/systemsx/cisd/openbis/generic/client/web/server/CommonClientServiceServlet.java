@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.client.web.server;
+package ch.systemsx.cisd.openbis.generic.client.web.server;
 
 import javax.annotation.Resource;
 
@@ -23,28 +23,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import ch.systemsx.cisd.common.servlet.GWTRPCServiceExporter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientService;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 
 /**
- * The {@link GWTRPCServiceExporter} for the <i>screening</i> service.
+ * The {@link GWTRPCServiceExporter} for the <i>generic</i> service.
  * <p>
- * <i>URL</i> mappings are: <code>/screening</code> and <code>/genericopenbis/screening</code>.
- * The encapsulated {@link ICommonClientService} service implementation is expected to be defined
- * as bean with name <code>screening-service</code>.
+ * <i>URL</i> mappings are: <code>/common</code> and <code>/genericopenbis/common</code>. The
+ * encapsulated {@link ICommonClientService} service implementation is expected to be defined as
+ * bean with name <code>generic-service</code>.
  * </p>
  * 
  * @author Christian Ribeaud
  */
 @Controller
 @RequestMapping(
-    { "/screening", "/genericopenbis/screening" })
-public final class ScreeningClientServiceServlet extends GWTRPCServiceExporter
+    { "/common", "/genericopenbis/common" })
+public final class CommonClientServiceServlet extends GWTRPCServiceExporter
 {
     private static final long serialVersionUID = 1L;
 
-    @Resource(name = ResourceNames.SCREENING_PLUGIN_SERVICE)
-    private IScreeningClientService service;
+    @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVICE)
+    private ICommonClientService service;
 
     //
     // GWTRPCServiceExporter
@@ -55,5 +53,4 @@ public final class ScreeningClientServiceServlet extends GWTRPCServiceExporter
     {
         return service;
     }
-
 }

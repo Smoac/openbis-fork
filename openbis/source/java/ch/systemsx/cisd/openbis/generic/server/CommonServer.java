@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.generic.server;
+package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,8 +31,6 @@ import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.ParameterChecker;
-import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
-import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGenericBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
@@ -42,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
@@ -62,26 +61,23 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.ISampleServerPlugin;
 import ch.systemsx.cisd.openbis.plugin.SampleServerPluginRegistry;
-import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
-import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
 /**
  * Implementation of client-server interface.
  * 
  * @author Franz-Josef Elmer
  */
-@Component(ResourceNames.GENERIC_PLUGIN_SERVER)
-public final class GenericServer extends AbstractServer<IGenericServer> implements
-        ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer
+@Component(ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
+public final class CommonServer extends AbstractServer<ICommonServer> implements ICommonServer
 {
     @Resource(name = ComponentNames.AUTHENTICATION_SERVICE)
     private IAuthenticationService authenticationService;
 
-    public GenericServer()
+    public CommonServer()
     {
     }
 
-    GenericServer(final IAuthenticationService authenticationService,
+    CommonServer(final IAuthenticationService authenticationService,
             final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
             final IGenericBusinessObjectFactory boFactory)
     {
@@ -94,9 +90,9 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     //
 
     @Override
-    protected final Class<IGenericServer> getProxyInterface()
+    protected final Class<ICommonServer> getProxyInterface()
     {
-        return IGenericServer.class;
+        return ICommonServer.class;
     }
 
     //
@@ -106,9 +102,9 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     /**
      * Creates a logger used to log invocations of objects of this class.
      */
-    public final IGenericServer createLogger(final boolean invocationSuccessful)
+    public final ICommonServer createLogger(final boolean invocationSuccessful)
     {
-        return new GenericServerLogger(getSessionManager(), invocationSuccessful);
+        return new CommonServerLogger(getSessionManager(), invocationSuccessful);
     }
 
     //

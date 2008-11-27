@@ -31,7 +31,7 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.TableRowLayout;
 import com.google.gwt.user.client.ui.Image;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
@@ -71,7 +71,7 @@ final class SearchWidget extends LayoutContainer
 
     private final TextField<String> textField;
 
-    private final IViewContext<IGenericClientServiceAsync> viewContext;
+    private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     private final Button searchButton;
 
@@ -79,7 +79,7 @@ final class SearchWidget extends LayoutContainer
 
     private final Image loadingImage;
 
-    SearchWidget(final IViewContext<IGenericClientServiceAsync> viewContext)
+    SearchWidget(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         final TableRowLayout tableRowLayout = createLayout();
         setLayout(tableRowLayout);
@@ -236,7 +236,7 @@ final class SearchWidget extends LayoutContainer
 
         private final String queryText;
 
-        SearchResultCallback(final IViewContext<IGenericClientServiceAsync> viewContext,
+        SearchResultCallback(final IViewContext<ICommonClientServiceAsync> viewContext,
                 final SearchableEntity searchableEntityOrNull, final String queryText)
         {
             super(viewContext);
@@ -245,9 +245,9 @@ final class SearchWidget extends LayoutContainer
         }
 
         @SuppressWarnings("unchecked")
-        private final IViewContext<IGenericClientServiceAsync> castViewContext()
+        private final IViewContext<ICommonClientServiceAsync> castViewContext()
         {
-            return (IViewContext<IGenericClientServiceAsync>) viewContext;
+            return (IViewContext<ICommonClientServiceAsync>) viewContext;
         }
 
         //

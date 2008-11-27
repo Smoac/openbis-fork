@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.generic.client.web.server;
+package ch.systemsx.cisd.openbis.generic.client.web.server;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,6 +30,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
@@ -59,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.util.SampleTypeTransla
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.SearchableEntityTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
@@ -72,30 +74,27 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.plugin.AbstractClientService;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
-import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
-import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
 /**
- * The {@link IGenericClientService} implementation.
+ * The {@link ICommonClientService} implementation.
  * 
  * @author Franz-Josef Elmer
  */
-@Component(value = ResourceNames.GENERIC_PLUGIN_SERVICE)
+@Component(value = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVICE)
 @Friend(toClasses = AbstractClientService.class)
-public final class GenericClientService extends AbstractClientService implements
-        IGenericClientService
+public final class CommonClientService extends AbstractClientService implements
+        ICommonClientService
 {
 
-    @Resource(name = ResourceNames.GENERIC_PLUGIN_SERVER)
-    private IGenericServer genericServer;
+    @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
+    private ICommonServer genericServer;
 
-    public GenericClientService()
+    public CommonClientService()
     {
     }
 
     @Private
-    GenericClientService(final IGenericServer genericServer,
+    CommonClientService(final ICommonServer genericServer,
             final IRequestContextProvider requestContextProvider)
     {
         super(requestContextProvider);

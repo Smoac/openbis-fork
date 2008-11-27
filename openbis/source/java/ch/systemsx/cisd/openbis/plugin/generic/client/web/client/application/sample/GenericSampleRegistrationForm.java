@@ -41,7 +41,7 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.ListBox;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -67,7 +67,7 @@ public final class GenericSampleRegistrationForm extends FormPanel
 
     private static boolean SELECT_GROUP_BY_DEFAULT = true;
 
-    private final IViewContext<IGenericClientServiceAsync> viewContext;
+    private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     private final SampleType sampleType;
 
@@ -94,7 +94,7 @@ public final class GenericSampleRegistrationForm extends FormPanel
     private static final int FIELD_WIDTH = 400;
 
     public GenericSampleRegistrationForm(
-            final IViewContext<IGenericClientServiceAsync> viewContext, SampleType sampleType)
+            final IViewContext<ICommonClientServiceAsync> viewContext, SampleType sampleType)
     {
         this.viewContext = viewContext;
         this.sampleType = sampleType;

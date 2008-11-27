@@ -36,84 +36,84 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
 /**
- * Asynchronous version of {@link IGenericClientService}.
+ * Asynchronous version of {@link ICommonClientService}.
  * 
  * @author Franz-Josef Elmer
  */
-public interface IGenericClientServiceAsync extends IClientServiceAsync
+public interface ICommonClientServiceAsync extends IClientServiceAsync
 {
-    /** @see IGenericClientService#listGroups(String) */
+    /** @see ICommonClientService#listGroups(String) */
     public void listGroups(String databaseInstanceCode, AsyncCallback<List<Group>> callback);
 
-    /** @see IGenericClientService#registerGroup(String, String, String) */
+    /** @see ICommonClientService#registerGroup(String, String, String) */
     public void registerGroup(String groupCode, String descriptionOrNull, String groupLeaderOrNull,
             AsyncCallback<Void> callback);
 
-    /** @see IGenericClientService#listPersons() */
+    /** @see ICommonClientService#listPersons() */
     public void listPersons(AsyncCallback<List<Person>> asyncCallback);
 
-    /** @see IGenericClientService#registerPerson(String) */
+    /** @see ICommonClientService#registerPerson(String) */
     public void registerPerson(String code, AsyncCallback<Void> asyncCallback);
 
-    /** @see IGenericClientService#listRoles() */
+    /** @see ICommonClientService#listRoles() */
     public void listRoles(AsyncCallback<List<RoleAssignment>> asyncCallback);
 
-    /** @see IGenericClientService#registerGroupRole(String, String, String) */
+    /** @see ICommonClientService#registerGroupRole(String, String, String) */
     public void registerGroupRole(String roleSetCode, String group, String person,
             AsyncCallback<Void> asyncCallback);
 
-    /** @see IGenericClientService#deleteGroupRole(String, String, String) */
+    /** @see ICommonClientService#deleteGroupRole(String, String, String) */
     public void deleteGroupRole(String roleSetCode, String group, String person,
             AsyncCallback<Void> asyncCallback);
 
-    /** @see IGenericClientService#registerInstanceRole(String, String) */
+    /** @see ICommonClientService#registerInstanceRole(String, String) */
     public void registerInstanceRole(String roleSetCode, String person,
             AsyncCallback<Void> asyncCallback);
 
-    /** @see IGenericClientService#deleteInstanceRole(String, String) */
+    /** @see ICommonClientService#deleteInstanceRole(String, String) */
     public void deleteInstanceRole(String roleSetCode, String person,
             AsyncCallback<Void> asyncCallback);
 
-    /** @see IGenericClientService#listSampleTypes() */
+    /** @see ICommonClientService#listSampleTypes() */
     public void listSampleTypes(AsyncCallback<List<SampleType>> asyncCallback);
 
     /**
-     * @see IGenericClientService#listSamples(ListSampleCriteria)
+     * @see ICommonClientService#listSamples(ListSampleCriteria)
      */
     public void listSamples(final ListSampleCriteria criteria,
             AsyncCallback<ResultSet<Sample>> asyncCallback);
 
     /**
-     * @see IGenericClientService#getSampleInfo(String)
+     * @see ICommonClientService#getSampleInfo(String)
      */
     public void getSampleInfo(final String sampleIdentifier,
             AsyncCallback<SampleGeneration> asyncCallback);
 
     /**
-     * @see IGenericClientService#listExternalData(String)
+     * @see ICommonClientService#listExternalData(String)
      */
     public void listExternalData(final String sampleIdentifier,
             AsyncCallback<List<ExternalData>> asyncCallback);
 
     /**
-     * @see IGenericClientService#listSearchableEntities()
+     * @see ICommonClientService#listSearchableEntities()
      */
     public void listSearchableEntities(final AsyncCallback<List<SearchableEntity>> asyncCallback);
 
     /**
-     * @see IGenericClientService#listMatchingEntities(SearchableEntity, String, IResultSetConfig)
+     * @see ICommonClientService#listMatchingEntities(SearchableEntity, String, IResultSetConfig)
      */
     public void listMatchingEntities(final SearchableEntity searchableEntity,
             final String queryText, final IResultSetConfig<String> resultSetConfig,
             final AsyncCallback<ResultSet<MatchingEntity>> asyncCallback);
 
     /**
-     * @see IGenericClientService#removeResultSet(String)
+     * @see ICommonClientService#removeResultSet(String)
      */
     public void removeResultSet(final String resultSetKey, final AsyncCallback<Void> asyncCallback);
 
     /**
-     * @see IGenericClientService#registerSample(SampleToRegister)
+     * @see ICommonClientService#registerSample(SampleToRegister)
      */
     public void registerSample(final SampleToRegister sample,
             final AsyncCallback<Void> asyncCallback) throws UserFailureException;

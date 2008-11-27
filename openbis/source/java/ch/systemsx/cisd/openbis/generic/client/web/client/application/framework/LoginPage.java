@@ -25,7 +25,7 @@ import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.VerticalPanel;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoginWidget;
 
@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoginWi
 final class LoginPage extends LayoutContainer
 {
 
-    LoginPage(final IViewContext<IGenericClientServiceAsync> viewContext)
+    LoginPage(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         setStyleName("login-page");
         setLayout(new CenterLayout());

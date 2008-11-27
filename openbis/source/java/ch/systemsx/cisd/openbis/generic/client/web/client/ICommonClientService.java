@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureE
  * 
  * @author Franz-Josef Elmer
  */
-public interface IGenericClientService extends IClientService
+public interface ICommonClientService extends IClientService
 {
     /**
      * Returns a list of all groups which belong to the specified database instance.

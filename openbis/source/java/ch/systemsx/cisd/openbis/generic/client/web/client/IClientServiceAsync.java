@@ -27,16 +27,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 public interface IClientServiceAsync
 {
 
-    /** @see IGenericClientService#getApplicationInfo() */
+    /** @see ICommonClientService#getApplicationInfo() */
     public void getApplicationInfo(AsyncCallback<ApplicationInfo> callback);
 
-    /** @see IGenericClientService#tryToGetCurrentSessionContext() */
+    /** @see ICommonClientService#tryToGetCurrentSessionContext() */
     public void tryToGetCurrentSessionContext(AsyncCallback<SessionContext> callback);
 
-    /** @see IGenericClientService#tryToLogin(String, String) */
+    /** @see ICommonClientService#tryToLogin(String, String) */
     public void tryToLogin(String userID, String password, AsyncCallback<SessionContext> callback);
 
-    /** @see IGenericClientService#logout() */
+    /** @see ICommonClientService#logout() */
     public void logout(AsyncCallback<Void> callback);
 
 }

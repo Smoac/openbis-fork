@@ -18,6 +18,11 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared;
 
 /**
  * Resource name used in <i>screening</i> plug-in.
+ * <p>
+ * Be aware about the uniqueness of the bean names loaded by <i>Spring</i>. Names defined here
+ * should not conflict with already existing bean names. Look for other <code>ResourceNames</code>
+ * classes.
+ * </p>
  * 
  * @author Christian Ribeaud
  */
@@ -28,9 +33,9 @@ public final class ResourceNames
         // Can not be instantiated.
     }
 
-    public final static String SCREENING_SERVICE = "screening-service";
+    public final static String SCREENING_PLUGIN_SERVICE = "screening-plugin-service";
 
-    public final static String SCREENING_SERVER = "screening-server";
+    public final static String SCREENING_PLUGIN_SERVER = "screening-plugin-server";
 
     public final static String MASTER_PLATE_SAMPLE_SERVER_PLUGIN =
             "master-plate-sample-server-plugin";

@@ -42,7 +42,7 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.MatchingEntityModel;
@@ -69,7 +69,7 @@ final class MatchingEntitiesPanel extends ContentPanel implements Listener<TabPa
 
     static final String GRID_ID = PREFIX + "grid";
 
-    private final IViewContext<IGenericClientServiceAsync> viewContext;
+    private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     private final PagingLoader<PagingLoadConfig> matchingEntitiesLoader;
 
@@ -81,7 +81,7 @@ final class MatchingEntitiesPanel extends ContentPanel implements Listener<TabPa
 
     private ResultSet<MatchingEntity> firstResultSet;
 
-    MatchingEntitiesPanel(final IViewContext<IGenericClientServiceAsync> viewContext,
+    MatchingEntitiesPanel(final IViewContext<ICommonClientServiceAsync> viewContext,
             final SearchableEntity searchableEntity, final String queryText)
     {
         this.viewContext = viewContext;
@@ -257,7 +257,7 @@ final class MatchingEntitiesPanel extends ContentPanel implements Listener<TabPa
 
         private final int offset;
 
-        ListMatchingEntitiesCallback(final IViewContext<IGenericClientServiceAsync> viewContext,
+        ListMatchingEntitiesCallback(final IViewContext<ICommonClientServiceAsync> viewContext,
                 final AsyncCallback<PagingLoadResult<MatchingEntityModel>> delegate,
                 final int offset)
         {

@@ -26,7 +26,7 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.google.gwt.user.client.Element;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -82,18 +82,18 @@ public class SampleTypeSelectionWidget extends ComboBox<SampleTypeModel>
 
     static final String ID = GenericConstants.ID_PREFIX + PREFIX;
 
-    private final IViewContext<IGenericClientServiceAsync> viewContext;
+    private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     private final ListStore<SampleTypeModel> sampleTypeStore;
 
     private final boolean allowEmpty;
 
-    public SampleTypeSelectionWidget(final IViewContext<IGenericClientServiceAsync> viewContext)
+    public SampleTypeSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         this(viewContext, false);
     }
 
-    public SampleTypeSelectionWidget(final IViewContext<IGenericClientServiceAsync> viewContext,
+    public SampleTypeSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext,
             final boolean allowEmpty)
     {
         this.viewContext = viewContext;

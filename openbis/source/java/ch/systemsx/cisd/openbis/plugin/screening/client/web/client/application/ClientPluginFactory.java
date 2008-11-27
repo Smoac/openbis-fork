@@ -21,7 +21,7 @@ import java.util.Set;
 
 import com.google.gwt.user.client.ui.Widget;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ISampleViewClientPlugin;
@@ -46,7 +46,7 @@ public final class ClientPluginFactory extends
 {
     private ISampleViewClientPlugin sampleViewClientPlugin;
 
-    public ClientPluginFactory(final IViewContext<IGenericClientServiceAsync> originalViewContext)
+    public ClientPluginFactory(final IViewContext<ICommonClientServiceAsync> originalViewContext)
     {
         super(originalViewContext);
     }
@@ -57,7 +57,7 @@ public final class ClientPluginFactory extends
 
     @Override
     protected final IViewContext<IScreeningClientServiceAsync> createViewContext(
-            final IViewContext<IGenericClientServiceAsync> originalViewContext)
+            final IViewContext<ICommonClientServiceAsync> originalViewContext)
     {
         return new ScreeningViewContext(originalViewContext);
     }

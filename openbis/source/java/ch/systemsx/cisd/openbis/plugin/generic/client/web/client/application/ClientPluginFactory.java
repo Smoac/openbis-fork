@@ -20,7 +20,7 @@ import java.util.Set;
 
 import com.google.gwt.user.client.ui.Widget;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ISampleViewClientPlugin;
@@ -37,11 +37,11 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sam
  * @author Christian Ribeaud
  */
 public final class ClientPluginFactory extends
-        AbstractClientPluginFactory<IGenericClientServiceAsync>
+        AbstractClientPluginFactory<ICommonClientServiceAsync>
 {
     private ISampleViewClientPlugin sampleViewClientPlugin;
 
-    public ClientPluginFactory(final IViewContext<IGenericClientServiceAsync> originalViewContext)
+    public ClientPluginFactory(final IViewContext<ICommonClientServiceAsync> originalViewContext)
     {
         super(originalViewContext);
     }
@@ -51,8 +51,8 @@ public final class ClientPluginFactory extends
     //
 
     @Override
-    protected final IViewContext<IGenericClientServiceAsync> createViewContext(
-            final IViewContext<IGenericClientServiceAsync> originalViewContext)
+    protected final IViewContext<ICommonClientServiceAsync> createViewContext(
+            final IViewContext<ICommonClientServiceAsync> originalViewContext)
     {
         return originalViewContext;
     }

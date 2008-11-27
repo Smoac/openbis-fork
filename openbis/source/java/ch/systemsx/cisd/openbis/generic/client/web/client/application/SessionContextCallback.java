@@ -18,13 +18,13 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 
 /**
  * Callback class which handles return value
- * {@link IGenericClientService#tryToGetCurrentSessionContext()}.
+ * {@link ICommonClientService#tryToGetCurrentSessionContext()}.
  * 
  * @author Franz-Josef Elmer
  */

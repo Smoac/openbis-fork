@@ -40,7 +40,7 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -70,7 +70,7 @@ final class SampleBrowserGrid extends LayoutContainer
 
     static final String GRID_ID = GenericConstants.ID_PREFIX + PREFIX + "grid";
 
-    private final IViewContext<IGenericClientServiceAsync> viewContext;
+    private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     private final CommonColumns commonColumns;
 
@@ -88,7 +88,7 @@ final class SampleBrowserGrid extends LayoutContainer
 
     private String resultSetKey;
 
-    SampleBrowserGrid(final IViewContext<IGenericClientServiceAsync> viewContext,
+    SampleBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             final CommonColumns commonColumns, final ParentColumns parentColumns,
             final PropertyColumns propertyColumns)
     {
@@ -280,7 +280,7 @@ final class SampleBrowserGrid extends LayoutContainer
 
         private final int offset;
 
-        ListSamplesCallback(final IViewContext<IGenericClientServiceAsync> viewContext,
+        ListSamplesCallback(final IViewContext<ICommonClientServiceAsync> viewContext,
                 final AsyncCallback<PagingLoadResult<SampleModel>> delegate, final int offset)
         {
             super(viewContext);

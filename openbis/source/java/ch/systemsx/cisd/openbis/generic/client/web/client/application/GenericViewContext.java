@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.CompositeMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
@@ -26,9 +26,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  * 
  * @author Franz-Josef Elmer
  */
-public final class GenericViewContext extends AbstractViewContext<IGenericClientServiceAsync>
+public final class GenericViewContext extends AbstractViewContext<ICommonClientServiceAsync>
 {
-    private final IGenericClientServiceAsync service;
+    private final ICommonClientServiceAsync service;
 
     private final IMessageProvider messageProvider;
 
@@ -40,7 +40,7 @@ public final class GenericViewContext extends AbstractViewContext<IGenericClient
 
     private final IClientPluginFactoryProvider clientPluginFactoryProvider;
 
-    GenericViewContext(final IGenericClientServiceAsync service,
+    GenericViewContext(final ICommonClientServiceAsync service,
             final IMessageProvider messageProvider, final IGenericImageBundle imageBundle,
             final IPageController pageController)
     {
@@ -63,7 +63,7 @@ public final class GenericViewContext extends AbstractViewContext<IGenericClient
         return messageProvider;
     }
 
-    public final IGenericClientServiceAsync getService()
+    public final ICommonClientServiceAsync getService()
     {
         return service;
     }

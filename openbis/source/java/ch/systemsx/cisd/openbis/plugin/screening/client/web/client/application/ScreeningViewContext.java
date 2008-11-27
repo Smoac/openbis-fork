@@ -3,7 +3,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewModel;
@@ -26,13 +26,13 @@ public final class ScreeningViewContext extends AbstractViewContext<IScreeningCl
 {
     private static final String TECHNOLOGY_NAME = "screening";
 
-    private final IViewContext<IGenericClientServiceAsync> originalViewContext;
+    private final IViewContext<ICommonClientServiceAsync> originalViewContext;
 
     private final IMessageProvider messageProvider;
 
     private final IScreeningClientServiceAsync service;
 
-    public ScreeningViewContext(final IViewContext<IGenericClientServiceAsync> originalViewContext)
+    public ScreeningViewContext(final IViewContext<ICommonClientServiceAsync> originalViewContext)
     {
         this.originalViewContext = originalViewContext;
         this.messageProvider =
