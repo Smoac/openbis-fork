@@ -19,17 +19,19 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.hibernate.FetchMode;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * Data access object for {@link SampleTypePE}. <br>
@@ -39,27 +41,18 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  */
 final class SampleTypeDAO extends AbstractTypeDAO<SampleTypePE> implements ISampleTypeDAO
 {
-    private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
+    @Private
+    final static Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, SampleTypeDAO.class);
 
     SampleTypeDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance)
     {
         super(sessionFactory, databaseInstance);
     }
 
-    private final static void fetchPropertyTypes(final List<SampleTypePE> list)
-    {
-        for (final SampleTypePE sampleTypePE : list)
-        {
-            HibernateUtils.initialize(sampleTypePE.getSampleTypePropertyTypes());
-            for (final SampleTypePropertyTypePE stpt : sampleTypePE.getSampleTypePropertyTypes())
-            {
-                if (stpt.getPropertyType().getVocabulary() != null)
-                {
-                    HibernateUtils.initialize(stpt.getPropertyType().getVocabulary().getTerms());
-                }
-            }
-        }
-    }
+    //
+    // AbstractTypeDAO
+    //
 
     @Override
     final Class<SampleTypePE> getEntityClass()
@@ -74,16 +67,18 @@ final class SampleTypeDAO extends AbstractTypeDAO<SampleTypePE> implements ISamp
     public final List<SampleTypePE> listSampleTypes(final boolean onlyListable)
             throws DataAccessException
     {
-        String query =
-                String.format("from %s st where st.databaseInstance = ?", getEntityClass()
-                        .getSimpleName());
+        final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
+        criteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
+        criteria.setFetchMode("sampleTypePropertyTypesInternal", FetchMode.JOIN);
+        criteria.setFetchMode(
+                "sampleTypePropertyTypesInternal.propertyType.vocabulary.vocabularyTerms",
+                FetchMode.JOIN);
+        criteria.setResultTransformer(DetachedCriteria.DISTINCT_ROOT_ENTITY);
         if (onlyListable)
         {
-            query += " and st.listable = true";
+            criteria.add(Restrictions.eq("listable", true));
         }
-        final List<SampleTypePE> list =
-                cast(getHibernateTemplate().find(query, toArray(getDatabaseInstance())));
-        fetchPropertyTypes(list);
+        final List<SampleTypePE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%s(%s): %d type(s) have been found.", MethodUtils

@@ -88,7 +88,7 @@ abstract class AbstractTypeDAO<T extends AbstractTypePE> extends AbstractDAO
         final T entity = tryFindEntity(list, "type");
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug("tryFind" + getTypeDescription() + "ByCode(" + code + ", " + "): '"
+            operationLog.debug("tryFind" + getTypeDescription() + "ByCode(" + code + "): '"
                     + entity + "'");
         }
         return entity;

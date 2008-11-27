@@ -31,6 +31,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
@@ -46,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  */
 @Test(groups =
     { "db", "sampleType" })
+@Friend(toClasses = SampleTypeDAO.class)
 public final class SampleTypeDAOTest extends AbstractDAOTest
 {
     static final String DEFAULT_SAMPLE_TYPE = SampleTypeCode.MASTER_PLATE.getCode();
@@ -72,11 +74,10 @@ public final class SampleTypeDAOTest extends AbstractDAOTest
     {
         super.setUp();
         logRecorder = new BufferedAppender("%m%n", Level.DEBUG);
-        // Because 'log.xml' set the root logger level to INFO, we have to reset it here to DEBUG if
-        // we want to catch the messages we are looking for.
-        final Logger rootLogger = Logger.getRootLogger();
-        previousLevel = rootLogger.getLevel();
-        rootLogger.setLevel(Level.DEBUG);
+        final Logger sampleTypeLogger = SampleTypeDAO.operationLog;
+        previousLevel = sampleTypeLogger.getLevel();
+        assertNull(previousLevel);
+        sampleTypeLogger.setLevel(Level.DEBUG);
     }
 
     @Override
@@ -85,7 +86,8 @@ public final class SampleTypeDAOTest extends AbstractDAOTest
     {
         super.tearDown();
         logRecorder.reset();
-        Logger.getRootLogger().setLevel(previousLevel);
+        final Logger sampleTypeLogger = SampleTypeDAO.operationLog;
+        sampleTypeLogger.setLevel(previousLevel);
     }
 
     @Test
@@ -176,14 +178,13 @@ public final class SampleTypeDAOTest extends AbstractDAOTest
         logRecorder.resetLogContent();
         final SampleTypePE sampleType = sampleTypeDAO.tryFindSampleTypeByExample(example);
         checkSampleType(sampleType);
-        assertTrue(logRecorder
-                .getLogContent()
-                .indexOf(
-                        "SampleTypeDAO.tryFindSampleTypeByExample(SampleTypePE{"
-                                + "code=MASTER_PLATE,description=<null>,databaseInstance=<null>,listable=<null>,"
-                                + "containerHierarchyDepth=<null>,generatedFromHierarchyDepth=<null>}): Sample type "
-                                + "'SampleTypePE{code=MASTER_PLATE,description=Master Plate,"
-                                + "databaseInstance=DatabaseInstancePE{code=CISD},listable=true,"
-                                + "containerHierarchyDepth=0,generatedFromHierarchyDepth=0}' found.") > -1);
+        assertEquals(
+                "SampleTypeDAO.tryFindSampleTypeByExample(SampleTypePE{"
+                        + "code=MASTER_PLATE,description=<null>,databaseInstance=<null>,listable=<null>,"
+                        + "containerHierarchyDepth=<null>,generatedFromHierarchyDepth=<null>}): Sample type "
+                        + "'SampleTypePE{code=MASTER_PLATE,description=Master Plate,"
+                        + "databaseInstance=DatabaseInstancePE{code=CISD},listable=true,"
+                        + "containerHierarchyDepth=0,generatedFromHierarchyDepth=0}' found.",
+                logRecorder.getLogContent());
     }
 }
