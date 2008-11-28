@@ -7,8 +7,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractPluginViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.CompositeMessageProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
@@ -29,9 +27,11 @@ public final class GenericViewContext extends AbstractPluginViewContext<IGeneric
     public GenericViewContext(final IViewContext<ICommonClientServiceAsync> commonViewContext)
     {
         super(commonViewContext);
-        this.messageProvider =
-                new CompositeMessageProvider(new DictonaryBasedMessageProvider(TECHNOLOGY_NAME),
-                        commonViewContext.getMessageProvider());
+        // We currently use the message provider of the common view context.
+        // this.messageProvider =
+        // new CompositeMessageProvider(new DictonaryBasedMessageProvider(TECHNOLOGY_NAME),
+        // commonViewContext.getMessageProvider());
+        this.messageProvider = commonViewContext.getMessageProvider();
         this.service = createScreeningClientService();
     }
 
