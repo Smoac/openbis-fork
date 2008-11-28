@@ -23,7 +23,6 @@ import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypeComparator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -39,37 +38,34 @@ public final class SampleTypePropertyTypeTranslator
         // Can not be instantiated.
     }
 
-    public static SampleTypePropertyType translate(final SampleTypePropertyTypePE s)
+    public final static SampleTypePropertyType translate(
+            final SampleTypePropertyTypePE sampleTypePropertyType)
     {
         final SampleTypePropertyType result = new SampleTypePropertyType();
-        result.setDisplayed(s.isDisplayed());
-        result.setManagedInternally(s.isManagedInternally());
-        result.setMandatory(s.isMandatory());
-        result.setPropertyType(PropertyTypeTranslator.translate(s.getPropertyType()));
+        result.setDisplayed(sampleTypePropertyType.isDisplayed());
+        result.setManagedInternally(sampleTypePropertyType.isManagedInternally());
+        result.setMandatory(sampleTypePropertyType.isMandatory());
+        result.setPropertyType(PropertyTypeTranslator.translate(sampleTypePropertyType
+                .getPropertyType()));
         return result;
-
     }
 
-    public static List<SampleTypePropertyType> translate(final Set<SampleTypePropertyTypePE> set,
-            final SampleType sampleType)
+    public final static List<SampleTypePropertyType> translate(
+            final Set<SampleTypePropertyTypePE> sampleTypePropertyTypes, final SampleType sampleType)
     {
-        if (HibernateUtils.isInitialized(set) == false)
+        if (HibernateUtils.isInitialized(sampleTypePropertyTypes) == false)
         {
             return DtoConverters.createUnmodifiableEmptyList();
         }
-        // TODO 2008-11-17, IA: move sorting to server
-        ArrayList<SampleTypePropertyTypePE> list = new ArrayList<SampleTypePropertyTypePE>(set);
-        Collections.sort(list, new SampleTypePropertyTypeComparator());
-
         final List<SampleTypePropertyType> result = new ArrayList<SampleTypePropertyType>();
-        for (final SampleTypePropertyTypePE st : list)
+        for (final SampleTypePropertyTypePE sampleTypePropertyType : sampleTypePropertyTypes)
         {
-            final SampleTypePropertyType etpt = translate(st);
-            etpt.setEntityType(sampleType);
-            result.add(etpt);
+            final SampleTypePropertyType stpt = translate(sampleTypePropertyType);
+            stpt.setEntityType(sampleType);
+            result.add(stpt);
         }
+        Collections.sort(result);
         return result;
-
     }
 
 }

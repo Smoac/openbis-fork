@@ -16,10 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
+import java.io.Serializable;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
-
 
 import ch.systemsx.cisd.common.utilities.FieldComparator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
@@ -30,15 +30,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
  * 
  * @author Christian Ribeaud
  */
-final class ComparatorRegistry
+final class ComparatorRegistry implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private final Map<Class<?>, IFieldComparator<?>> comparators =
             new HashMap<Class<?>, IFieldComparator<?>>();
 
     ComparatorRegistry()
     {
         comparators.put(Sample.class, new SampleComparator());
-        // Can not be instantiated.
     }
 
     private final <T> Comparator<T> getDefaultComparator(final String fieldName)

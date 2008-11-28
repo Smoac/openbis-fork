@@ -21,7 +21,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 /**
  * @author Izabela Adamczyk
  */
-public class PropertyType implements IsSerializable
+public class PropertyType extends Code<PropertyType> implements IsSerializable
 {
     private String simpleCode;
 
@@ -63,17 +63,12 @@ public class PropertyType implements IsSerializable
         this.internalNamespace = internalNamespace;
     }
 
-    public String getId()
-    {
-        return isInternalNamespace() + getSimpleCode();
-    }
-
     public DataType getDataType()
     {
         return dataType;
     }
 
-    public void setDataType(DataType dataType)
+    public void setDataType(final DataType dataType)
     {
         this.dataType = dataType;
     }
@@ -83,18 +78,9 @@ public class PropertyType implements IsSerializable
         return vocabulary;
     }
 
-    public void setVocabulary(Vocabulary vocabulary)
+    public void setVocabulary(final Vocabulary vocabulary)
     {
         this.vocabulary = vocabulary;
-    }
-
-    public String getCode()
-    {
-        StringBuilder sb = new StringBuilder();
-        if (isInternalNamespace() == false)
-            sb.append("USER.");
-        sb.append(getSimpleCode());
-        return sb.toString().toUpperCase();
     }
 
 }

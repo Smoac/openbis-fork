@@ -23,7 +23,8 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Christian Ribeaud
  */
-public abstract class EntityTypePropertyType<T extends EntityType> implements IsSerializable
+public abstract class EntityTypePropertyType<T extends EntityType> implements IsSerializable,
+        Comparable<EntityTypePropertyType<T>>
 {
     private boolean mandatory;
 
@@ -73,4 +74,15 @@ public abstract class EntityTypePropertyType<T extends EntityType> implements Is
         this.entityType = entityType;
     }
 
+    //
+    // Comparable
+    //
+
+    public final int compareTo(final EntityTypePropertyType<T> o)
+    {
+        assert o != null : "Unspecified entity type property type.";
+        final PropertyType propertyType1 = getPropertyType();
+        final PropertyType propertyType2 = o.getPropertyType();
+        return propertyType1.compareTo(propertyType2);
+    }
 }

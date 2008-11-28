@@ -78,7 +78,7 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
             final Object object = results.get(0);
             if (operationLog.isDebugEnabled())
             {
-                operationLog.debug(String.format("Indexing entity '%s'."));
+                operationLog.debug(String.format("Indexing entity '%s'.", object));
             }
             fullTextSession.index(object);
             if (batchSize > 0 && index % batchSize == 0)

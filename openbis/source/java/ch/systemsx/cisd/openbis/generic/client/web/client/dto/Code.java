@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
@@ -59,8 +60,10 @@ public class Code<T extends Code<T>> implements IsSerializable, ICodeProvider, C
     // Helper classes
     //
 
-    public final static class CodeProviderComparator implements Comparator<ICodeProvider>
+    public final static class CodeProviderComparator implements Comparator<ICodeProvider>,
+            Serializable
     {
+        private static final long serialVersionUID = 1L;
 
         //
         // Comparable

@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class TestUtil
@@ -26,11 +24,18 @@ public class TestUtil
     private TestUtil()
     {
     }
-    
-    public static boolean isEqual(Object object1, Object object2)
-    {
-        return object1 == null ? object1 == object2 : object1.equals(object2);
-    }
 
+    public static boolean isEqual(final Object object1, final Object object2)
+    {
+        if (object1 == null)
+        {
+            return object2 == null ? true : false;
+        }
+        if (object2 == null)
+        {
+            return false;
+        }
+        return object1.equals(object2);
+    }
 
 }

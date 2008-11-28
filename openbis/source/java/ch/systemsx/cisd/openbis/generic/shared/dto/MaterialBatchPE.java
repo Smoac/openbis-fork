@@ -67,7 +67,7 @@ public final class MaterialBatchPE extends HibernateAbstractRegistrationHolder i
 
     private Double amount;
 
-    private transient Set<SamplePE> samples = new HashSet<SamplePE>();
+    private Set<SamplePE> samples = new HashSet<SamplePE>();
 
     private MaterialPE material;
 

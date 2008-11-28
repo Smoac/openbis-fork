@@ -175,6 +175,8 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             IResultSetKeyGenerator<String>
     {
 
+        private static final long serialVersionUID = 1L;
+
         private final TokenGenerator tokenGenerator;
 
         public TokenBasedResultSetKeyGenerator()
@@ -195,6 +197,8 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     public final static class CounterBasedResultSetKeyGenerator implements
             IResultSetKeyGenerator<Integer>
     {
+        private static final long serialVersionUID = 1L;
+
         private int counter;
 
         public CounterBasedResultSetKeyGenerator()

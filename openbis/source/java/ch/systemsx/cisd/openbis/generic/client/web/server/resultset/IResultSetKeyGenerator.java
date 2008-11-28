@@ -16,12 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
+import java.io.Serializable;
+
 /**
  * A result set key generator.
  * 
  * @author Christian Ribeaud
  */
-public interface IResultSetKeyGenerator<T>
+public interface IResultSetKeyGenerator<T> extends Serializable
 {
 
     /**

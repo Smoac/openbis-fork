@@ -72,9 +72,8 @@ public final class MatchingEntityValidatorTest
         if (withRoleAssignment)
         {
             final Set<RoleAssignmentPE> list = new HashSet<RoleAssignmentPE>();
-            RoleAssignmentPE assignment = new RoleAssignmentPE();
             // Group assignment
-            assignment = new RoleAssignmentPE();
+            final RoleAssignmentPE assignment = new RoleAssignmentPE();
             assignment.setRole(RoleCode.USER);
             assignment.setPerson(person);
             assignment.setGroup(GroupValidatorTest.createAnotherGroup());
