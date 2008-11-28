@@ -39,8 +39,7 @@ public final class SamplePropertyTranslator
     public final static SampleProperty translate(final SamplePropertyPE samplePropertyPE)
     {
         final SampleProperty result = new SampleProperty();
-        result.setValue(samplePropertyPE.getValue() == null ? samplePropertyPE.getVocabularyTerm()
-                .getCode() : samplePropertyPE.getValue());
+        result.setValue(samplePropertyPE.tryGetUntypedValue());
         result
                 .setEntityTypePropertyType(SampleTypePropertyTypeTranslator
                         .translate((SampleTypePropertyTypePE) samplePropertyPE
