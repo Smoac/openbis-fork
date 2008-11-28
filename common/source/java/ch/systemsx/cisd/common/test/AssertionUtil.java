@@ -34,4 +34,9 @@ public class AssertionUtil
         AssertJUnit.assertTrue(errorMsg, text.contains(expectedSubstring));
     }
 
+    /** asserts that given text contains expectedSubstring. Comparision is case insensitive. */
+    public static void assertContainsInsensitive(String expectedSubstring, String text)
+    {
+        assertContains(expectedSubstring.toUpperCase(), text.toUpperCase());
+    }
 }
