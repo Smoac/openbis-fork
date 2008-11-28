@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.common.utilities;
 
+import java.io.Serializable;
 import java.security.SecureRandom;
 import java.util.Formatter;
 
@@ -27,8 +28,10 @@ import ch.rinn.restrictions.Private;
  * 
  * @author Bernd Rinn
  */
-public final class TokenGenerator
+public final class TokenGenerator implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     @Private
     static final String TIMESTAMP_FORMAT = "%1$ty%1$tm%1$td%1$tH%1$tM%1$tS%1$tL-";
 
