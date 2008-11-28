@@ -4,10 +4,10 @@
     </target>
 
     <import file="../../build_resources/ant/build-common.xml" />
+
     <project-classpath name="ecp" classes="${classes}" />
     <property name="mainfolder" value="common" />
     <property name="jar.file" value="${dist}/common.jar" />
-    <property name="lib" value="../libraries" />
     <property name="nativesrc" value="${lib}/filelink/native" />
     <property name="nativeroot" value="${targets}/ant" />
     <property name="native" value="${nativeroot}/native" />
@@ -45,6 +45,15 @@
                            value="${version.number} (r${revision.number},${clean.flag})" />
             </manifest>
         </recursive-jar>
+    </target>
+
+    <!--
+	  // Runs the test suite 'tests.xml'.
+	  -->
+    <target name="run-tests" description="Runs the test suite 'tests.xml'.">
+        <antcall target="build-common.run-tests">
+            <param name="test.suite" value="tests.xml" />
+        </antcall>
     </target>
 
 </project>

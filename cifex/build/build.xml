@@ -6,8 +6,6 @@
     <property name="original.dist" value="../${ant.project.name}/dist" />
     <property name="original.dist.server" value="${original.dist}/server" />
 
-    <property name="lib" value="../libraries" />
-
     <property name="gwt.lib" value="${lib}/gwt" />
     <property name="gwt.dev.lib" value="${gwt.lib}/mac/gwt-dev-mac.jar" />
     <property name="gwt.user.lib" value="${gwt.lib}/gwt-user.jar" />

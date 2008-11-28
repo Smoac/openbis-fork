@@ -1,6 +1,7 @@
 <project name="build-common" basedir="..">
     <import file="build-basic.xml" />
 
+    <property name="lib" value="../libraries" />
     <taskdef name="build-info"
              classname="ch.systemsx.cisd.ant.task.subversion.GatherRevisionAndVersionTask"
              classpathref="build-resource.path" />
