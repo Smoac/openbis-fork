@@ -25,6 +25,7 @@ import org.springframework.jdbc.support.JdbcAccessor;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -69,7 +70,8 @@ final class PropertyTypeDAO extends AbstractDAO implements IPropertyTypeDAO
         final PropertyTypePE entity = tryFindEntity(list, "type");
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug("tryFindPropertyTypeByCode(" + code + "): '" + entity + "'");
+            operationLog.debug(String.format("%s(%s): '%s'.", MethodUtils.getCurrentMethod()
+                    .getName(), code, entity));
         }
         return entity;
     }

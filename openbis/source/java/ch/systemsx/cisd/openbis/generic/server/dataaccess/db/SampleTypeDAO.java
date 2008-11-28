@@ -82,8 +82,7 @@ final class SampleTypeDAO extends AbstractTypeDAO<SampleTypePE> implements ISamp
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%s(%s): %d sample type(s) have been found.",
-                    MethodUtils.describeMethod(MethodUtils.getCurrentMethod()), onlyListable, list
-                            .size()));
+                    MethodUtils.getCurrentMethod().getName(), onlyListable, list.size()));
         }
         return list;
     }
@@ -98,7 +97,7 @@ final class SampleTypeDAO extends AbstractTypeDAO<SampleTypePE> implements ISamp
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%s(%s): Sample type '%s' found.", MethodUtils
-                    .describeMethod(MethodUtils.getCurrentMethod()), sampleType, result));
+                    .getCurrentMethod().getName(), sampleType, result));
         }
         return result;
     }

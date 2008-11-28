@@ -28,6 +28,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -74,8 +75,8 @@ final class GroupDAO extends AbstractDAO implements IGroupDAO
         final GroupPE entity = tryFindEntity(list, "group");
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug("tryFindGroupByCodeAndDatabaseInstance(" + groupCode + ", "
-                    + databaseInstance + "): '" + entity + "'");
+            operationLog.debug(String.format("%s(%s, %s): '%s'.", MethodUtils.getCurrentMethod()
+                    .getName(), groupCode, databaseInstance, entity));
         }
         return entity;
     }
@@ -85,7 +86,8 @@ final class GroupDAO extends AbstractDAO implements IGroupDAO
         final List<GroupPE> list = cast(getHibernateTemplate().loadAll(ENTITY_CLASS));
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug("listGroups(): " + list.size() + " group(s) have been found.");
+            operationLog.debug(String.format("%s(): %d group(s) have been found.", MethodUtils
+                    .getCurrentMethod().getName(), list.size()));
         }
         return list;
     }
@@ -100,8 +102,8 @@ final class GroupDAO extends AbstractDAO implements IGroupDAO
         final List<GroupPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug("listGroups(" + databaseInstance.getCode() + "): " + list.size()
-                    + " group(s) have been found.");
+            operationLog.debug(String.format("%s(%s): %d group(s) have been found.", MethodUtils
+                    .getCurrentMethod().getName(), databaseInstance, list.size()));
         }
         return list;
     }
@@ -111,7 +113,8 @@ final class GroupDAO extends AbstractDAO implements IGroupDAO
         final GroupPE group = (GroupPE) getHibernateTemplate().load(ENTITY_CLASS, groupId);
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug("getGroupById(" + groupId + "): '" + group + "'.");
+            operationLog.debug(String.format("%s(%d): '%s'.", MethodUtils.getCurrentMethod()
+                    .getName(), groupId, group));
         }
         return group;
     }
@@ -119,6 +122,8 @@ final class GroupDAO extends AbstractDAO implements IGroupDAO
     public final void createGroup(final GroupPE group) throws DataAccessException
     {
         assert group != null : "Unspecified group";
+        // TODO 2008-12-28, Christian Ribeaud: This is a business rule. Find a better location for
+        // this.
         assert group.getDatabaseInstance().isOriginalSource() : "Registration on a non-home database is not allowed";
         validatePE(group);
 

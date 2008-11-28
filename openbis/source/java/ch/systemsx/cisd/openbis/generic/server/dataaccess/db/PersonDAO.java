@@ -26,6 +26,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -111,7 +112,8 @@ public final class PersonDAO extends AbstractDAO implements IPersonDAO
         final PersonPE person = tryFindEntity(persons, "persons", userId);
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug("tryFindPersonIdByUserID(" + userId + "): '" + person + "'.");
+            operationLog.debug(String.format("%s(%s): '%s'.", MethodUtils.getCurrentMethod()
+                    .getName(), userId, person));
         }
         return person;
     }
@@ -124,7 +126,8 @@ public final class PersonDAO extends AbstractDAO implements IPersonDAO
                                 .getSimpleName()), toArray(getDatabaseInstance())));
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug("listPersons(): " + list.size() + " person(s) have been found.");
+            operationLog.debug(String.format("%s(): %d person(s) have been found.", MethodUtils
+                    .getCurrentMethod().getName(), list.size()));
         }
         return list;
     }

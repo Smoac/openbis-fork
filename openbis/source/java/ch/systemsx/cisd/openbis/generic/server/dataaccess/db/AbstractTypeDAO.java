@@ -78,8 +78,8 @@ abstract class AbstractTypeDAO<T extends AbstractTypePE> extends AbstractDAO
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%s(%s,%s): Entity type '%s' has been found.",
-                    MethodUtils.describeMethod(MethodUtils.getCurrentMethod()), code,
-                    appendDatabaseInstance, entity, list.size()));
+                    MethodUtils.getCurrentMethod().getName(), code, appendDatabaseInstance, entity,
+                    list.size()));
         }
         return entity;
     }
@@ -102,8 +102,7 @@ abstract class AbstractTypeDAO<T extends AbstractTypePE> extends AbstractDAO
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%s(%s): %d entity type(s) have been found.",
-                    MethodUtils.describeMethod(MethodUtils.getCurrentMethod()),
-                    appendDatabaseInstance, list.size()));
+                    MethodUtils.getCurrentMethod().getName(), appendDatabaseInstance, list.size()));
         }
         return list;
     }

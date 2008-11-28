@@ -179,7 +179,7 @@ public final class SampleTypeDAOTest extends AbstractDAOTest
         final SampleTypePE sampleType = sampleTypeDAO.tryFindSampleTypeByExample(example);
         checkSampleType(sampleType);
         assertEquals(
-                "SampleTypeDAO.tryFindSampleTypeByExample(SampleTypePE{"
+                "tryFindSampleTypeByExample(SampleTypePE{"
                         + "code=MASTER_PLATE,description=<null>,databaseInstance=<null>,listable=<null>,"
                         + "containerHierarchyDepth=<null>,generatedFromHierarchyDepth=<null>}): Sample type "
                         + "'SampleTypePE{code=MASTER_PLATE,description=Master Plate,"

@@ -26,6 +26,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -135,8 +136,8 @@ final class DatabaseInstanceDAO extends AbstractDAO implements IDatabaseInstance
         final List<DatabaseInstancePE> list = cast(getHibernateTemplate().loadAll(ENTITY_CLASS));
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug("listDatabaseInstances(): " + list.size()
-                    + " database instance(s) have been found.");
+            operationLog.debug(String.format("%d database instance(s) have been found.", list
+                    .size()));
         }
         return list;
 
@@ -149,8 +150,8 @@ final class DatabaseInstanceDAO extends AbstractDAO implements IDatabaseInstance
                 (DatabaseInstancePE) getHibernateTemplate().load(ENTITY_CLASS, databaseInstanceId);
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug("getDatabaseInstanceById(" + databaseInstanceId + "): '"
-                    + databaseInstance + "'.");
+            operationLog.debug(String.format("%s(%d): '%s'.", MethodUtils.getCurrentMethod()
+                    .getName(), databaseInstanceId, databaseInstance));
         }
         return databaseInstance;
     }

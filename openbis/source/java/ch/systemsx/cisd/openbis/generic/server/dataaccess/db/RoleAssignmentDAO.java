@@ -27,6 +27,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -65,8 +66,8 @@ public final class RoleAssignmentDAO extends AbstractDAO implements IRoleAssignm
         final List<RoleAssignmentPE> list = cast(getHibernateTemplate().loadAll(ENTITY_CLASS));
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug("listRoleAssignments(): " + list.size()
-                    + " role assignment(s) have been found.");
+            operationLog.debug(String.format("%s(): %d role assignment(s) have been found.",
+                    MethodUtils.getCurrentMethod().getName(), list.size()));
         }
         return list;
     }
@@ -80,8 +81,8 @@ public final class RoleAssignmentDAO extends AbstractDAO implements IRoleAssignm
         final List<RoleAssignmentPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug("listRoleAssignmentsByPersonId(" + person + "): " + list.size()
-                    + " role assignment(s) have been found.");
+            operationLog.debug(String.format("%s(%s): %d role assignment(s) have been found.",
+                    MethodUtils.getCurrentMethod().getName(), person, list.size()));
         }
         return list;
     }
