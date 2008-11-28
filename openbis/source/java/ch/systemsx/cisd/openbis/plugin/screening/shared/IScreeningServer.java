@@ -24,8 +24,10 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.Authoriz
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleToRegisterDTOPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleToRegisterDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -48,4 +50,13 @@ public interface IScreeningServer extends IServer
     SampleGenerationDTO getSampleInfo(final String sessionToken,
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
             final SampleIdentifier sampleIdentifier) throws UserFailureException;
+
+    /**
+     * Registers a new sample.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.USER)
+    public void registerSample(final String sessionToken,
+            @AuthorizationGuard(guardClass = SampleToRegisterDTOPredicate.class)
+            final SampleToRegisterDTO newSample);
 }

@@ -174,7 +174,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
-    public void registerSample(String sessionToken, SampleToRegisterDTO newSample)
+    public void registerSample(final String sessionToken, final SampleToRegisterDTO newSample)
     {
         logTracking(sessionToken, "register_sample", "SAMPLE_TYPE(%s) SAMPLE(%S)", newSample
                 .getSampleTypeCode(), newSample.getSampleIdentifier());

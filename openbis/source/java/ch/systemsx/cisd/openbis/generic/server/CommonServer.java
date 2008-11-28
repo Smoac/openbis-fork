@@ -49,7 +49,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleToRegisterDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
@@ -59,8 +58,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.plugin.ISampleServerPlugin;
-import ch.systemsx.cisd.openbis.plugin.SampleServerPluginRegistry;
 
 /**
  * Implementation of client-server interface.
@@ -282,18 +279,6 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         sampleTable.enrichWithValidProcedure();
         sampleTable.enrichWithProperties();
         return sampleTable.getSamples();
-    }
-
-    public final SampleGenerationDTO getSampleInfo(final String sessionToken,
-            final SampleIdentifier identifier)
-    {
-        final Session session = getSessionManager().getSession(sessionToken);
-        final ISampleBO sampleBO = getBusinessObjectFactory().createSampleBO(session);
-        sampleBO.loadBySampleIdentifier(identifier);
-        final SamplePE sample = sampleBO.getSample();
-        final ISampleServerPlugin plugin =
-                SampleServerPluginRegistry.getPlugin(this, sample.getSampleType());
-        return plugin.getSlaveServer().getSampleInfo(getDAOFactory(), session, sample);
     }
 
     public final List<ExternalDataPE> listExternalData(final String sessionToken,

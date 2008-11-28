@@ -20,6 +20,9 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleToRegister;
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
 
 /**
  * Service interface for the <i>generic</i> <i>GWT</i> client.
@@ -32,4 +35,10 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
     /** @see IScreeningClientService#getSampleInfo(String) */
     public void getSampleInfo(final String sampleIdentifier,
             final AsyncCallback<SampleGeneration> callback);
+
+    /**
+     * @see IGenericClientService#registerSample(SampleToRegister)
+     */
+    public void registerSample(final SampleToRegister sample,
+            final AsyncCallback<Void> asyncCallback) throws UserFailureException;
 }

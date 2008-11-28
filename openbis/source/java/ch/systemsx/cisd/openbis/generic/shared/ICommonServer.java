@@ -25,7 +25,6 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnVa
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIdentifierPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleToRegisterDTOPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.GroupValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.MatchingEntityValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -34,9 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleToRegisterDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
@@ -136,14 +133,6 @@ public interface ICommonServer extends IServer
             final ListSampleCriteriaDTO criteria);
 
     /**
-     * For given {@link SampleIdentifier} returns the corresponding {@link SamplePE}.
-     */
-    @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
-    public SampleGenerationDTO getSampleInfo(final String sessionToken,
-            final SampleIdentifier identifier);
-
-    /**
      * For given {@link SampleIdentifier} returns the corresponding list of {@link ExternalDataPE}.
      */
     @Transactional(readOnly = true)
@@ -159,14 +148,5 @@ public interface ICommonServer extends IServer
     @ReturnValueFilter(validatorClass = MatchingEntityValidator.class)
     public List<SearchHit> listMatchingEntities(final String sessionToken,
             final SearchableEntity[] searchableEntities, final String queryText);
-
-    /**
-     * Registers a new sample.
-     */
-    @Transactional
-    @RolesAllowed(RoleSet.USER)
-    public void registerSample(final String sessionToken,
-            @AuthorizationGuard(guardClass = SampleToRegisterDTOPredicate.class)
-            final SampleToRegisterDTO newSample);
 
 }

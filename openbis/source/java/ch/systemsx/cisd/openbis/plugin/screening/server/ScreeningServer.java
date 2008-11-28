@@ -19,12 +19,14 @@ package ch.systemsx.cisd.openbis.plugin.screening.server;
 import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
+import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGenericBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleToRegisterDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.ISampleServerPlugin;
@@ -87,5 +89,10 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         final ISampleServerPlugin plugin =
                 SampleServerPluginRegistry.getPlugin(this, sample.getSampleType());
         return plugin.getSlaveServer().getSampleInfo(getDAOFactory(), session, sample);
+    }
+
+    public final void registerSample(final String sessionToken, final SampleToRegisterDTO newSample)
+    {
+        throw new NotImplementedException();
     }
 }
