@@ -25,9 +25,12 @@ import javax.persistence.MappedSuperclass;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.hibernate.search.annotations.Field;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.hibernate.search.annotations.ClassBridge;
 import org.hibernate.search.annotations.Index;
-import org.hibernate.search.annotations.IndexedEmbedded;
+import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.validator.Length;
 
 import ch.systemsx.cisd.common.utilities.ClassUtils;
@@ -43,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
  * @author Izabela Adamczyk
  */
 @MappedSuperclass
+@ClassBridge(index = Index.TOKENIZED, store = Store.YES, impl = EntityPropertyPE.EntityPropertySearchBridge.class)
 public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHolder implements
         IUntypedValueSetter, IEntityProperty
 {
@@ -67,6 +71,37 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
     protected transient Long id;
 
     protected EntityTypePropertyTypePE entityTypePropertyType;
+
+    /**
+     * This bridge allows to save in the search index not only the value of property, but also the
+     * corresponding property code.
+     */
+    public static class EntityPropertySearchBridge implements FieldBridge
+    {
+
+        private static final String PROPERTY_FIELD_PREFIX = "property: ";
+
+        public void set(String name, Object/* EntityPropertyPE */value,
+                Document/* Lucene document */document,
+                org.apache.lucene.document.Field.Store store,
+                org.apache.lucene.document.Field.Index index, Float boost)
+        {
+            EntityPropertyPE entityProperty = (EntityPropertyPE) value;
+            String fieldValue = entityProperty.tryGetUntypedValue();
+            String fieldName = PROPERTY_FIELD_PREFIX + getPropertyFieldName(entityProperty);
+            Field field = new Field(fieldName, fieldValue, store, index);
+            if (boost != null)
+            {
+                field.setBoost(boost);
+            }
+            document.add(field);
+        }
+
+        private String getPropertyFieldName(EntityPropertyPE entityProperty)
+        {
+            return entityProperty.getEntityTypePropertyType().getPropertyType().getLabel();
+        }
+    }
 
     public <T extends EntityTypePropertyTypePE> void setEntityTypePropertyType(
             final T entityTypePropertyType)
@@ -95,7 +130,6 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
 
     @Column(name = ColumnNames.VALUE_COLUMN)
     @Length(max = 1024, message = ValidationMessages.VALUE_LENGTH_MESSAGE)
-    @Field(index = Index.TOKENIZED)
     public String getValue()
     {
         return value;
@@ -109,7 +143,6 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.VOCABULARY_TERM_COLUMN)
-    @IndexedEmbedded
     public VocabularyTermPE getVocabularyTerm()
     {
         return vocabularyTerm;
@@ -143,8 +176,7 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
                 new ToStringBuilder(this,
                         ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
         builder.append("entityTypePropertyType", getEntityTypePropertyType());
-        builder.append("value", getValue());
-        builder.append("vocabularyTerm", getVocabularyTerm());
+        builder.append("value", tryGetUntypedValue());
         return builder.toString();
     }
 

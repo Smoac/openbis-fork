@@ -357,7 +357,7 @@ public class SamplePE implements IIdAndCodeHolder, Comparable<SamplePE>,
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.PERSON_REGISTERER_COLUMN, updatable = false)
-    @IndexedEmbedded
+    @IndexedEmbedded(prefix = SEARCH_PREFIX_REGISTRATOR)
     public PersonPE getRegistrator()
     {
         return registrator;

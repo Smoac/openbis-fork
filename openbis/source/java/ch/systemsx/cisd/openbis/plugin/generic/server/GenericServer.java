@@ -45,7 +45,6 @@ import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IMatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -55,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleToRegisterDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
@@ -310,19 +310,18 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         return externalDataTable.getExternalData();
     }
 
-    public final List<IMatchingEntity> listMatchingEntities(final String sessionToken,
+    public final List<SearchHit> listMatchingEntities(final String sessionToken,
             final SearchableEntity[] searchableEntities, final String queryText)
     {
         getSessionManager().getSession(sessionToken);
-        final List<IMatchingEntity> list = new ArrayList<IMatchingEntity>();
+        final List<SearchHit> list = new ArrayList<SearchHit>();
         try
         {
             for (final SearchableEntity searchableEntity : searchableEntities)
             {
-                final List<IMatchingEntity> entities =
+                final List<SearchHit> entities =
                         getDAOFactory().getHibernateSearchDAO().searchEntitiesByTerm(
-                                searchableEntity.getMatchingEntityClass(),
-                                searchableEntity.getFields(), queryText);
+                                searchableEntity.getMatchingEntityClass(), queryText);
                 list.addAll(entities);
             }
         } catch (final DataAccessException ex)

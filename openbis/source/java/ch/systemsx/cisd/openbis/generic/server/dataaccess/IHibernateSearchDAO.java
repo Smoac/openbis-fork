@@ -21,6 +21,7 @@ import java.util.List;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.IMatchingEntity;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
 
 /**
  * <i>Data Access Object</i> for accessing <i>Hibernate Search</i>.
@@ -30,11 +31,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.IMatchingEntity;
 public interface IHibernateSearchDAO
 {
     /**
-     * Searches in entities of type <var>entityClass</var> for given <var>searchTerm</var> in the
-     * specified <var>fields</var>.
+     * Searches in entities of type <var>entityClass</var> for given <var>searchTerm</var> using
+     * all the indexed fields.
      * 
      * @param searchTerm could be something like "<code>code:C11 AND registrator.lastName:System User</code>".
      */
-    public <T extends IMatchingEntity> List<T> searchEntitiesByTerm(final Class<T> entityClass,
-            final String[] fields, final String searchTerm) throws DataAccessException;
+    public <T extends IMatchingEntity> List<SearchHit> searchEntitiesByTerm(
+            final Class<T> entityClass, final String searchTerm) throws DataAccessException;
 }

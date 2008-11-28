@@ -92,7 +92,7 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
 
     @Column(name = ColumnNames.FIRST_NAME_COLUMN)
     @Length(max = 30, message = ValidationMessages.FIRST_NAME_LENGTH_MESSAGE)
-    @Field(index = Index.TOKENIZED)
+    @Field(index = Index.TOKENIZED, name = "First Name")
     public final String getFirstName()
     {
         return firstName;
@@ -105,7 +105,7 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
 
     @Column(name = ColumnNames.LAST_NAME_COLUMN)
     @Length(max = 30, message = ValidationMessages.LAST_NAME_LENGTH_MESSAGE)
-    @Field(index = Index.TOKENIZED)
+    @Field(index = Index.TOKENIZED, name = "Last Name")
     public final String getLastName()
     {
         return lastName;

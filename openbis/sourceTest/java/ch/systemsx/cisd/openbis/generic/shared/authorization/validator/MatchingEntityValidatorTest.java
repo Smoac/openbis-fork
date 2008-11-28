@@ -24,18 +24,22 @@ import java.util.Set;
 
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IMatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
 
 /**
  * Test cases for corresponding {@link MatchingEntityValidator} class.
  * 
  * @author Christian Ribeaud
  */
+@Friend(toClasses = MatchingEntityValidator.class)
 public final class MatchingEntityValidatorTest
 {
 
@@ -101,10 +105,15 @@ public final class MatchingEntityValidatorTest
         final ExperimentPE experiment = createExperiment();
         final MatchingEntityValidator validator = new MatchingEntityValidator();
         // Different group
-        assertFalse(validator.isValid(person, experiment));
+        assertFalse(validator.isValid(person, asHit(experiment)));
         // Same group
         experiment.getProject().getGroup().setId(GroupValidatorTest.ANOTHER_GROUP_ID);
-        assertTrue(validator.isValid(person, experiment));
+        assertTrue(validator.isValid(person, asHit(experiment)));
+    }
+
+    private static SearchHit asHit(IMatchingEntity matchingEntity)
+    {
+        return new SearchHit(matchingEntity, "unimportant", "?");
     }
 
     @Test
@@ -114,12 +123,12 @@ public final class MatchingEntityValidatorTest
         final SamplePE groupSample = createGroupSample();
         final MatchingEntityValidator validator = new MatchingEntityValidator();
         // Different group
-        assertFalse(validator.isValid(person, groupSample));
+        assertFalse(validator.isValid(person, asHit(groupSample)));
         // Same group
         groupSample.getGroup().setId(GroupValidatorTest.ANOTHER_GROUP_ID);
-        assertTrue(validator.isValid(person, groupSample));
+        assertTrue(validator.isValid(person, asHit(groupSample)));
         // Database sample
         final SamplePE databaseSample = createDatabaseSample();
-        assertTrue(validator.isValid(person, databaseSample));
+        assertTrue(validator.isValid(person, asHit(databaseSample)));
     }
 }

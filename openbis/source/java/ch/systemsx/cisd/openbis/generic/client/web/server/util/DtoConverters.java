@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -250,7 +251,7 @@ public class DtoConverters
         // BeanUtils.Converter
         //
 
-        public final EntityKind convertToEntityKind(final IMatchingEntity matchingEntity)
+        public final EntityKind convertToEntityKind(final SearchHit matchingEntity)
         {
             return EntityKind.valueOf(matchingEntity.getEntityKind().name());
         }

@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import org.apache.commons.lang.ArrayUtils;
-
 /**
  * An entity that is searchable by <i>Hibernate Search</i>.
  * 
@@ -37,23 +35,9 @@ public enum SearchableEntity
         {
             return cast(SamplePE.class);
         }
-
-        @Override
-        public final String[] getFields()
-        {
-            return (String[]) ArrayUtils.addAll(getStandardFields(), getPropertyFields(name()
-                    .toLowerCase()));
-        }
     },
     EXPERIMENT("Experiment")
     {
-
-        private final String[] getAttachmentFields()
-        {
-            return new String[]
-                { "experimentAttachments.attachmentContent.value" };
-        }
-
         //
         // SearchableEntity
         //
@@ -62,13 +46,6 @@ public enum SearchableEntity
         public final <T extends IMatchingEntity> Class<T> getMatchingEntityClass()
         {
             return cast(ExperimentPE.class);
-        }
-
-        @Override
-        public final String[] getFields()
-        {
-            return (String[]) ArrayUtils.addAll(ArrayUtils.addAll(getStandardFields(),
-                    getPropertyFields(name().toLowerCase())), getAttachmentFields());
         }
     },
     MATERIAL("Material")
@@ -82,13 +59,6 @@ public enum SearchableEntity
         {
             return cast(MaterialPE.class);
         }
-
-        @Override
-        public final String[] getFields()
-        {
-            return (String[]) ArrayUtils.addAll(getStandardFields(), getPropertyFields(name()
-                    .toLowerCase()));
-        }
     };
 
     private final String description;
@@ -96,20 +66,6 @@ public enum SearchableEntity
     SearchableEntity(final String description)
     {
         this.description = description;
-    }
-
-    static final String[] getStandardFields()
-    {
-        return new String[]
-            { "code", "registrator.firstName", "registrator.lastName" };
-    }
-
-    static final String[] getPropertyFields(final String entityName)
-    {
-        return new String[]
-
-            { String.format("%sProperties.value", entityName),
-                    String.format("%sProperties.vocabularyTerm.code", entityName) };
     }
 
     @SuppressWarnings("unchecked")
@@ -133,11 +89,6 @@ public enum SearchableEntity
     {
         return name();
     }
-
-    /**
-     * Returns the searchable fields for this entity.
-     */
-    public abstract String[] getFields();
 
     /**
      * Returns the <code>class</code> of this searchable entity.

@@ -48,6 +48,10 @@ public final class ModelDataPropertyNames
 
     public static final String ENTITY_TYPE = "entityType";
 
+    public static final String MATCHING_FIELD = "fieldDescription";
+
+    public static final String MATCHING_TEXT = "textFragment";
+
     /**
      * This is the path to the experiment field starting from {@link Sample}.
      * <p>

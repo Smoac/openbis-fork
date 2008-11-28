@@ -78,6 +78,8 @@ var generic = {
   no_match: "No results found for '{0}'.",
   entity_type: "Entity Type",
   entity_kind: "Entity Kind",
+  matching_text: "Matching Text",
+  matching_field: "Matching Field",
   too_generic: "Query string '{0}' is too generic.",
   
   // LAST LINE: KEEP IT AT THE END

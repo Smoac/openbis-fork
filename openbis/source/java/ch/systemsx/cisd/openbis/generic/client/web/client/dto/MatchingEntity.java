@@ -34,6 +34,10 @@ public final class MatchingEntity implements IsSerializable
 
     private EntityKind entityKind;
 
+    private String fieldDescription;
+
+    private String textFragment;
+
     public final EntityKind getEntityKind()
     {
         return entityKind;
@@ -72,6 +76,26 @@ public final class MatchingEntity implements IsSerializable
     public final void setEntityType(final EntityType entityType)
     {
         this.entityType = entityType;
+    }
+
+    public String getFieldDescription()
+    {
+        return fieldDescription;
+    }
+
+    public void setFieldDescription(String fieldDescription)
+    {
+        this.fieldDescription = fieldDescription;
+    }
+
+    public String getTextFragment()
+    {
+        return textFragment;
+    }
+
+    public void setTextFragment(String textFragment)
+    {
+        this.textFragment = textFragment;
     }
 
     //

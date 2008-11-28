@@ -36,7 +36,12 @@ import javax.persistence.UniqueConstraint;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.hibernate.search.annotations.IndexedEmbedded;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.hibernate.search.annotations.ClassBridge;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 
@@ -53,6 +58,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 @Table(name = TableNames.EXPERIMENT_ATTACHMENTS_TABLE, uniqueConstraints =
     { @UniqueConstraint(columnNames =
         { ColumnNames.EXPERIMENT_COLUMN, ColumnNames.FILE_NAME_COLUMN, ColumnNames.VERSION_COLUMN }) })
+@ClassBridge(impl = AttachmentPE.AtachmentSearchBridge.class, index = Index.TOKENIZED, store = Store.NO)
 public class AttachmentPE extends HibernateAbstractRegistrationHolder implements Serializable,
         Comparable<AttachmentPE>
 {
@@ -72,6 +78,33 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
      * Parent (e.g. an experiment) to which this attachment belongs.
      */
     private ExperimentPE parent;
+
+    /**
+     * This bridge allows to save in the search index not only the content of the attachment, but
+     * also corresponding file name and version.
+     */
+    public static class AtachmentSearchBridge implements FieldBridge
+    {
+        private static final String FIELD_PREFIX = "attachment: ";
+
+        public void set(String name, Object/* AttachmentPE */value,
+                Document/* Lucene document */document,
+                org.apache.lucene.document.Field.Store store,
+                org.apache.lucene.document.Field.Index index, Float boost)
+        {
+            AttachmentPE attachment = (AttachmentPE) value;
+            String fieldName =
+                    FIELD_PREFIX + attachment.getFileName() + ", ver. " + attachment.getVersion();
+            byte[] byteContent = attachment.getAttachmentContent().getValue();
+            String fieldValue = new String(byteContent);
+            Field field = new Field(fieldName, fieldValue, store, index);
+            if (boost != null)
+            {
+                field.setBoost(boost);
+            }
+            document.add(field);
+        }
+    }
 
     /**
      * Returns the file name of the property or <code>null</code>.
@@ -141,7 +174,6 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @NotNull(message = ValidationMessages.ATTACHMENT_CONTENT_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.EXPERIMENT_ATTACHMENT_CONTENT_COLUMN, updatable = false)
-    @IndexedEmbedded
     public AttachmentContentPE getAttachmentContent()
     {
         return attachmentContent;

@@ -25,6 +25,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 public interface IMatchingEntity extends IIdentifierHolder
 {
+    public static final String SEARCH_PREFIX_REGISTRATOR = "registrator: ";
+
     /**
      * Returns the registrator of the entity.
      */

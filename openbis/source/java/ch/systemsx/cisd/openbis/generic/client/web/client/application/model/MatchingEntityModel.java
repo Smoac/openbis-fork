@@ -44,6 +44,8 @@ public final class MatchingEntityModel extends BaseModelData
         set(ModelDataPropertyNames.IDENTIFIER, matchingEntity.getIdentifier());
         set(ModelDataPropertyNames.ENTITY_KIND, matchingEntity.getEntityKind().getDescription());
         set(ModelDataPropertyNames.ENTITY_TYPE, matchingEntity.getEntityType().getCode());
+        set(ModelDataPropertyNames.MATCHING_FIELD, matchingEntity.getFieldDescription());
+        set(ModelDataPropertyNames.MATCHING_TEXT, matchingEntity.getTextFragment());
         set(ModelDataPropertyNames.REGISTRATOR, PersonRenderer.createPersonAnchor(matchingEntity
                 .getRegistrator()));
     }
