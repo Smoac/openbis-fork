@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.CompositeMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
@@ -28,8 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  */
 public final class CommonViewContext implements IViewContext<ICommonClientServiceAsync>
 {
-    // We use here 'generic' because we did not split the javascript dictionary yet.
-    private static final String TECHNOLOGY_NAME = "generic";
+    private static final String TECHNOLOGY_NAME = "common";
 
     private final ICommonClientServiceAsync service;
 
@@ -48,9 +46,7 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
             final IPageController pageController)
     {
         this.service = service;
-        this.messageProvider =
-                new CompositeMessageProvider(new DictonaryBasedMessageProvider(TECHNOLOGY_NAME),
-                        messageProvider);
+        this.messageProvider = new DictonaryBasedMessageProvider(TECHNOLOGY_NAME);
         this.imageBundle = imageBundle;
         this.pageController = pageController;
         viewModel = new GenericViewModel();
