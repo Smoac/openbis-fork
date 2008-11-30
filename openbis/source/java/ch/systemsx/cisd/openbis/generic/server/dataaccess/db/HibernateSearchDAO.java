@@ -29,6 +29,7 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexReader.FieldOption;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -188,6 +189,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
     {
         final QueryParser parser = new QueryParser(fieldName, analyzer);
         parser.setAllowLeadingWildcard(true);
+        BooleanQuery.setMaxClauseCount(Integer.MAX_VALUE);
         return parser.parse(searchTerm);
     }
 
