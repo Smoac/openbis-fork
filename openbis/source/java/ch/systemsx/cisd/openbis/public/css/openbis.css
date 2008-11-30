@@ -3,7 +3,9 @@ body,div,td {
     font-size: 12px;
 }
 
-/* Login */
+/*****************************
+ * Login
+ *****************************/
 
 .login-welcome-text {
     font-size: 24px;
@@ -34,7 +36,9 @@ body,div,td {
     text-decoration: line-through;
 }
 
-/* Property grid */
+/*****************************
+ * Property grid
+ *****************************/
 
 .property-grid {
     table-layout: auto;
@@ -52,7 +56,9 @@ body,div,td {
     background-color: #dddddd;
 }
 
-/* MainTabPanel */
+/*****************************
+ * MainTabPanel
+ *****************************/
 
 .intro-tab {
     font-size: large;
@@ -63,11 +69,21 @@ body,div,td {
     text-align: center;
 }
 
-/* Overridden GXT stuff */
+/*****************************
+ * Overridden GXT stuff
+ *****************************/
 
 .x-accordion-hd {
     color: #15428B;
     font-weight: bold;
     font-size-adjust: none;
     text-transform: capitalize;
+}
+
+/* Remove the empty space if no icon has been specified for the tree. */
+.my-tree-icon div {
+    cursor: pointer;
+    margin-top: 1px;
+    height: 0%;
+    width: 0%;
 }
