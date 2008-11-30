@@ -164,7 +164,16 @@ final class SearchWidget extends LayoutContainer
         final String queryText = textField.getValue();
         if (StringUtils.isBlank(queryText) == false)
         {
-            if ("*".equals(queryText) || "?".equals(queryText))
+            boolean onlyWildcard = true;
+            for (final char c : queryText.toCharArray())
+            {
+                if (c != '*' && c != '?')
+                {
+                    onlyWildcard = false;
+                    break;
+                }
+            }
+            if (onlyWildcard)
             {
                 final IMessageProvider messageProvider = viewContext.getMessageProvider();
                 MessageBox.alert(messageProvider.getMessage("messagebox_warning"), messageProvider
