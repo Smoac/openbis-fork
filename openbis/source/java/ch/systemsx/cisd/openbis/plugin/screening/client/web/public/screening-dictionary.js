@@ -2,7 +2,7 @@
 var screening = {
 
   //
-  // Sample
+  // Sample Viewer
   //
   
   sample: "Plate",
