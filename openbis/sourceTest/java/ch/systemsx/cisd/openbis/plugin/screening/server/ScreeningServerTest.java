@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.server;
 import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -31,12 +32,25 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
  * 
  * @author Christian Ribeaud
  */
+@Friend(toClasses = ScreeningServer.class)
 public final class ScreeningServerTest extends AbstractServerTestCase
 {
+    private IScreeningBusinessObjectFactory screeningBusinessObjectFactory;
 
     private final IScreeningServer createServer()
     {
-        return new ScreeningServer(sessionManager, daoFactory, boFactory);
+        return new ScreeningServer(sessionManager, daoFactory, screeningBusinessObjectFactory);
+    }
+
+    //
+    // AbstractServerTestCase
+    //
+
+    @Override
+    public final void setUp()
+    {
+        super.setUp();
+        screeningBusinessObjectFactory = context.mock(IScreeningBusinessObjectFactory.class);
     }
 
     @Test
@@ -48,7 +62,7 @@ public final class ScreeningServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(boFactory).createSampleBO(session);
+                    one(commonBusinessObjectFactory).createSampleBO(session);
                     will(returnValue(sampleBO));
 
                     one(sampleBO).loadBySampleIdentifier(sampleIdentifier);

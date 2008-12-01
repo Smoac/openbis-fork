@@ -25,8 +25,8 @@ import org.testng.annotations.BeforeMethod;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IGenericBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -72,7 +72,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected ISessionManager<Session> sessionManager;
 
-    protected IGenericBusinessObjectFactory boFactory;
+    protected ICommonBusinessObjectFactory commonBusinessObjectFactory;
 
     protected IDatabaseInstanceDAO databaseInstanceDAO;
 
@@ -96,7 +96,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     @BeforeMethod
     @SuppressWarnings("unchecked")
-    public final void setUp()
+    public void setUp()
     {
         context = new Mockery();
         authenticationService = context.mock(IAuthenticationService.class);
@@ -110,7 +110,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         roleAssignmentDAO = context.mock(IRoleAssignmentDAO.class);
         externalDataDAO = context.mock(IExternalDataDAO.class);
 
-        boFactory = context.mock(IGenericBusinessObjectFactory.class);
+        commonBusinessObjectFactory = context.mock(ICommonBusinessObjectFactory.class);
         groupBO = context.mock(IGroupBO.class);
         sampleBO = context.mock(ISampleBO.class);
         externalDataTable = context.mock(IExternalDataTable.class);
@@ -134,7 +134,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
     }
 
     @AfterMethod
-    public final void tearDown()
+    public void tearDown()
     {
         // To following line of code should also be called at the end of each test method.
         // Otherwise one do not known which test failed.

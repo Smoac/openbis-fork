@@ -26,6 +26,7 @@ public final class ComponentNames
 
     private ComponentNames()
     {
+        // Can not be instantiated.
     }
 
     public final static String AUTHENTICATION_SERVICE = "authentication-service";
@@ -35,4 +36,6 @@ public final class ComponentNames
     public static final String LOG_INTERCEPTOR = "log-interceptor";
 
     public static final String DAO_FACTORY = "dao-factory";
+
+    public static final String COMMON_BUSINESS_OBJECT_FACTORY = "common-business-object-factory";
 }

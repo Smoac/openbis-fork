@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.server;
 import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -32,12 +33,25 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
  * 
  * @author Franz-Josef Elmer
  */
+@Friend(toClasses = GenericServer.class)
 public final class GenericServerTest extends AbstractServerTestCase
 {
+    private IGenericBusinessObjectFactory genericBusinessObjectFactory;
 
     private final IGenericServer createServer()
     {
-        return new GenericServer(sessionManager, daoFactory, boFactory);
+        return new GenericServer(sessionManager, daoFactory, genericBusinessObjectFactory);
+    }
+
+    //
+    // AbstractServerTestCase
+    //
+
+    @Override
+    public final void setUp()
+    {
+        super.setUp();
+        genericBusinessObjectFactory = context.mock(IGenericBusinessObjectFactory.class);
     }
 
     @Test
@@ -49,7 +63,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(boFactory).createSampleBO(session);
+                    one(commonBusinessObjectFactory).createSampleBO(session);
                     will(returnValue(sampleBO));
 
                     one(sampleBO).loadBySampleIdentifier(sampleIdentifier);
@@ -80,7 +94,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(boFactory).createSampleBO(session);
+                    one(commonBusinessObjectFactory).createSampleBO(session);
                     will(returnValue(sampleBO));
 
                     one(sampleBO).define(newSample);

@@ -16,12 +16,14 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
+import javax.annotation.Resource;
+
 import org.springframework.stereotype.Component;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.utilities.ParameterChecker;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IGenericBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
@@ -43,14 +45,19 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 public final class GenericServer extends AbstractServer<IGenericServer> implements
         ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer
 {
+    @Resource(name = ResourceNames.GENERIC_BUSINESS_OBJECT_FACTORY)
+    private IGenericBusinessObjectFactory businessObjectFactory;
+
     public GenericServer()
     {
     }
 
+    @Private
     GenericServer(final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
-            final IGenericBusinessObjectFactory boFactory)
+            final IGenericBusinessObjectFactory businessObjectFactory)
     {
-        super(sessionManager, daoFactory, boFactory);
+        super(sessionManager, daoFactory);
+        this.businessObjectFactory = businessObjectFactory;
     }
 
     //
@@ -83,7 +90,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             final SampleIdentifier identifier)
     {
         final Session session = getSessionManager().getSession(sessionToken);
-        final ISampleBO sampleBO = getBusinessObjectFactory().createSampleBO(session);
+        final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.loadBySampleIdentifier(identifier);
         final SamplePE sample = sampleBO.getSample();
         final ISampleServerPlugin plugin =
@@ -95,7 +102,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     {
         final Session session = getSessionManager().getSession(sessionToken);
         ParameterChecker.checkIfNotNull(newSample, "sample");
-        final ISampleBO sampleBO = getBusinessObjectFactory().createSampleBO(session);
+        final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.define(newSample);
         sampleBO.save();
     }

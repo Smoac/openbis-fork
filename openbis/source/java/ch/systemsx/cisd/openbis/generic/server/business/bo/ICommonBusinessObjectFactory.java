@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
  * 
  * @author Tomasz Pylak
  */
-public interface IGenericBusinessObjectFactory
+public interface ICommonBusinessObjectFactory
 {
     public IGroupBO createGroupBO(final Session session);
 

@@ -20,7 +20,6 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
-import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
@@ -45,7 +44,6 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
  * @author Franz-Josef Elmer
  */
 @Component(value = ResourceNames.GENERIC_PLUGIN_SERVICE)
-@Friend(toClasses = AbstractClientService.class)
 public final class GenericClientService extends AbstractClientService implements
         IGenericClientService
 {

@@ -30,7 +30,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
@@ -49,10 +48,8 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.GenericClientSe
  * 
  * @author Christian Ribeaud
  */
-@Friend(toClasses = CommonClientService.class)
 public final class CommonClientServiceTest
 {
-
     private Mockery context;
 
     private ICommonServer commonServer;

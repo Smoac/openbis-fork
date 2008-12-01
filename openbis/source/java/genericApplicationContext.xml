@@ -61,6 +61,27 @@
         <constructor-arg value="${session-timeout}" />
     </bean>
 
+    <bean id="common-business-object-factory"
+        class="ch.systemsx.cisd.openbis.generic.server.CommonBusinessObjectFactory">
+        <constructor-arg ref="dao-factory" />
+    </bean>
+
+    <!-- 
+        // Common
+    -->
+    
+    <bean id="common-server" class="ch.systemsx.cisd.openbis.generic.server.CommonServer">
+        <constructor-arg ref="authentication-service" />
+        <constructor-arg ref="session-manager" />
+        <constructor-arg ref="dao-factory" />
+        <constructor-arg ref="common-business-object-factory" />
+    </bean>
+
+    <bean id="common-service" class="ch.systemsx.cisd.openbis.generic.client.web.server.CommonClientService">
+        <constructor-arg ref="common-server" />
+        <constructor-arg ref="request-context-provider" />
+    </bean>
+
     <!-- 
         // Transaction
     -->
@@ -106,7 +127,7 @@
 
     <plugins:annotation-config />
 
-    <plugins:component-scan base-package="ch.systemsx.cisd.openbis">
+    <plugins:component-scan base-package="ch.systemsx.cisd.openbis.plugin">
         <plugins:exclude-filter type="annotation"
             expression="org.springframework.stereotype.Controller" />
     </plugins:component-scan>

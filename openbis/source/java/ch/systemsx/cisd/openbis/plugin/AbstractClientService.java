@@ -21,7 +21,6 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -52,11 +51,10 @@ public abstract class AbstractClientService implements IClientService
     @Resource(name = "request-context-provider")
     private IRequestContextProvider requestContextProvider;
 
-    public AbstractClientService()
+    protected AbstractClientService()
     {
     }
 
-    @Private
     protected AbstractClientService(final IRequestContextProvider requestContextProvider)
     {
         this.requestContextProvider = requestContextProvider;

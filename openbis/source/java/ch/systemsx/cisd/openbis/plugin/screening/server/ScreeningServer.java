@@ -16,12 +16,14 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server;
 
+import javax.annotation.Resource;
+
 import org.springframework.stereotype.Component;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IGenericBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
@@ -43,14 +45,19 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 public final class ScreeningServer extends AbstractServer<IScreeningServer> implements
         IScreeningServer
 {
+    @Resource(name = ResourceNames.SCREENING_BUSINESS_OBJECT_FACTORY)
+    private IScreeningBusinessObjectFactory businessObjectFactory;
+
     public ScreeningServer()
     {
     }
 
+    @Private
     ScreeningServer(final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
-            final IGenericBusinessObjectFactory businessObjectFactory)
+            final IScreeningBusinessObjectFactory businessObjectFactory)
     {
-        super(sessionManager, daoFactory, businessObjectFactory);
+        super(sessionManager, daoFactory);
+        this.businessObjectFactory = businessObjectFactory;
     }
 
     //
@@ -83,7 +90,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
             final SampleIdentifier identifier)
     {
         final Session session = getSessionManager().getSession(sessionToken);
-        final ISampleBO sampleBO = getBusinessObjectFactory().createSampleBO(session);
+        final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.loadBySampleIdentifier(identifier);
         final SamplePE sample = sampleBO.getSample();
         final ISampleServerPlugin plugin =

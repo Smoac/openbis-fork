@@ -45,7 +45,7 @@ public final class CommonServerTest extends AbstractServerTestCase
 
     private final ICommonServer createServer()
     {
-        return new CommonServer(authenticationService, sessionManager, daoFactory, boFactory);
+        return new CommonServer(authenticationService, sessionManager, daoFactory, commonBusinessObjectFactory);
     }
 
     private final static PersonPE createSystemUser()
@@ -236,7 +236,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(boFactory).createGroupBO(session);
+                    one(commonBusinessObjectFactory).createGroupBO(session);
                     will(returnValue(groupBO));
 
                     one(groupBO).define(groupCode, description, leader);
@@ -382,7 +382,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(boFactory).createExternalDataTable(session);
+                    one(commonBusinessObjectFactory).createExternalDataTable(session);
                     will(returnValue(externalDataTable));
 
                     one(externalDataTable).loadBySampleIdentifier(sampleIdentifier);

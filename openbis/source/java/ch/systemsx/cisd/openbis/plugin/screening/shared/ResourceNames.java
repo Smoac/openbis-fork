@@ -37,6 +37,9 @@ public final class ResourceNames
 
     public final static String SCREENING_PLUGIN_SERVER = "screening-plugin-server";
 
+    public final static String SCREENING_BUSINESS_OBJECT_FACTORY =
+            "screening-business-object-factory";
+
     public final static String MASTER_PLATE_SAMPLE_SERVER_PLUGIN =
             "master-plate-sample-server-plugin";
 }

@@ -20,6 +20,8 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
+import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleToRegister;
@@ -48,6 +50,18 @@ public final class ScreeningClientService extends AbstractClientService implemen
 
     @Resource(name = ResourceNames.SCREENING_PLUGIN_SERVER)
     private IScreeningServer screeningServer;
+
+    public ScreeningClientService()
+    {
+    }
+
+    @Private
+    ScreeningClientService(final IScreeningServer screeningServer,
+            final IRequestContextProvider requestContextProvider)
+    {
+        super(requestContextProvider);
+        this.screeningServer = screeningServer;
+    }
 
     //
     // AbstractClientService

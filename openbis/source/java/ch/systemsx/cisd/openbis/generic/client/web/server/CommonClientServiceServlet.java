@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import ch.systemsx.cisd.common.servlet.GWTRPCServiceExporter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
+import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 
 /**
  * The {@link GWTRPCServiceExporter} for the <i>generic</i> service.
@@ -41,7 +42,7 @@ public final class CommonClientServiceServlet extends GWTRPCServiceExporter
 {
     private static final long serialVersionUID = 1L;
 
-    @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVICE)
+    @Resource(name = ResourceNames.COMMON_SERVICE)
     private ICommonClientService service;
 
     //

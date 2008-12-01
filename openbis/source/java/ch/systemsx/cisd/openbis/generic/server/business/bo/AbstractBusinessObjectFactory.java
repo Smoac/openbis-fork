@@ -35,6 +35,11 @@ public abstract class AbstractBusinessObjectFactory
     {
     }
 
+    protected AbstractBusinessObjectFactory(final IDAOFactory daoFactory)
+    {
+        this.daoFactory = daoFactory;
+    }
+
     protected final IDAOFactory getDaoFactory()
     {
         return daoFactory;

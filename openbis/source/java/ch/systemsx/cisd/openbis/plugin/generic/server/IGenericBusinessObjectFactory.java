@@ -16,30 +16,19 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
-import org.springframework.stereotype.Component;
-
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.plugin.AbstractPluginBusinessObjectFactory;
-import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
 /**
- * The unique {@link IGenericBusinessObjectFactory} implementation.
+ * A <i>generic</i> plugin specific business object factory.
  * 
  * @author Christian Ribeaud
  */
-@Component(ResourceNames.GENERIC_BUSINESS_OBJECT_FACTORY)
-public final class GenericBusinessObjectFactory extends AbstractPluginBusinessObjectFactory
-        implements IGenericBusinessObjectFactory
+public interface IGenericBusinessObjectFactory
 {
 
-    //
-    // IGenericBusinessObjectFactory
-    //
-
-    public final ISampleBO createSampleBO(final Session session)
-    {
-        return getCommonBusinessObjectFactory().createSampleBO(session);
-    }
-
+    /**
+     * Creates a {@link ISampleBO} <i>Business Object</i>.
+     */
+    public ISampleBO createSampleBO(final Session session);
 }

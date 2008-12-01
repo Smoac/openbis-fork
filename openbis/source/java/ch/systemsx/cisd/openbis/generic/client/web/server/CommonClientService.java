@@ -21,12 +21,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.Resource;
-
-import org.springframework.stereotype.Component;
-
-import ch.rinn.restrictions.Friend;
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
@@ -76,25 +70,16 @@ import ch.systemsx.cisd.openbis.plugin.AbstractClientService;
  * 
  * @author Franz-Josef Elmer
  */
-@Component(value = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVICE)
-@Friend(toClasses = AbstractClientService.class)
 public final class CommonClientService extends AbstractClientService implements
         ICommonClientService
 {
-
-    @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
     private ICommonServer commonServer;
 
-    public CommonClientService()
-    {
-    }
-
-    @Private
-    CommonClientService(final ICommonServer genericServer,
+    public CommonClientService(final ICommonServer commonServer,
             final IRequestContextProvider requestContextProvider)
     {
         super(requestContextProvider);
-        this.commonServer = genericServer;
+        this.commonServer = commonServer;
     }
 
     @SuppressWarnings("unchecked")
@@ -209,8 +194,8 @@ public final class CommonClientService extends AbstractClientService implements
             final GroupIdentifier groupIdentifier =
                     new GroupIdentifier(DatabaseInstanceIdentifier.HOME, group);
             final String sessionToken = getSessionToken();
-            commonServer.registerGroupRole(sessionToken,
-                    RoleCodeTranslator.translate(roleSetCode), groupIdentifier, person);
+            commonServer.registerGroupRole(sessionToken, RoleCodeTranslator.translate(roleSetCode),
+                    groupIdentifier, person);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -255,8 +240,8 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            commonServer.deleteInstanceRole(sessionToken, RoleCodeTranslator
-                    .translate(roleSetCode), person);
+            commonServer.deleteInstanceRole(sessionToken,
+                    RoleCodeTranslator.translate(roleSetCode), person);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

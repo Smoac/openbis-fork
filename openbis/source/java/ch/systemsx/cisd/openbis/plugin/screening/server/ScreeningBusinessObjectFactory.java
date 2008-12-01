@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.generic.server;
+package ch.systemsx.cisd.openbis.plugin.screening.server;
 
 import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.AbstractPluginBusinessObjectFactory;
-import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 
 /**
- * The unique {@link IGenericBusinessObjectFactory} implementation.
+ * The unique {@link IScreeningBusinessObjectFactory} implementation.
  * 
  * @author Christian Ribeaud
  */
-@Component(ResourceNames.GENERIC_BUSINESS_OBJECT_FACTORY)
-public final class GenericBusinessObjectFactory extends AbstractPluginBusinessObjectFactory
-        implements IGenericBusinessObjectFactory
+@Component(ResourceNames.SCREENING_BUSINESS_OBJECT_FACTORY)
+public final class ScreeningBusinessObjectFactory extends AbstractPluginBusinessObjectFactory
+        implements IScreeningBusinessObjectFactory
 {
 
     //

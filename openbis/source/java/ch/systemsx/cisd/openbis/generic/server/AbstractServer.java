@@ -31,7 +31,6 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerFactory;
 import ch.systemsx.cisd.common.spring.LogInterceptor;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IGenericBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
@@ -40,7 +39,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
-import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
 /**
  * An <i>abstract</i> {@link IServer} implementation.
@@ -62,9 +60,6 @@ public abstract class AbstractServer<T extends IServer> implements IServer,
     @Resource(name = ComponentNames.LOG_INTERCEPTOR)
     private LogInterceptor logInterceptor;
 
-    @Resource(name = ResourceNames.GENERIC_BUSINESS_OBJECT_FACTORY)
-    private IGenericBusinessObjectFactory businessObjectFactory;
-
     private ProxyFactory proxyFactory;
 
     protected AbstractServer()
@@ -74,11 +69,11 @@ public abstract class AbstractServer<T extends IServer> implements IServer,
     }
 
     protected AbstractServer(final ISessionManager<Session> sessionManager,
-            final IDAOFactory daoFactory, IGenericBusinessObjectFactory boFactory)
+            final IDAOFactory daoFactory)
     {
+        this();
         this.sessionManager = sessionManager;
         this.daoFactory = daoFactory;
-        this.businessObjectFactory = boFactory;
     }
 
     private final ProxyFactory getProxyFactory()
@@ -128,11 +123,6 @@ public abstract class AbstractServer<T extends IServer> implements IServer,
         }
         throw new IllegalStateException(String.format(
                 "No system user could be found in given list '%s'.", persons));
-    }
-
-    protected final IGenericBusinessObjectFactory getBusinessObjectFactory()
-    {
-        return businessObjectFactory;
     }
 
     protected final ISessionManager<Session> getSessionManager()

@@ -32,10 +32,10 @@ public final class ResourceNames
 
     public final static String GENERIC_PLUGIN_SERVER = "generic-plugin-server";
 
+    public final static String GENERIC_BUSINESS_OBJECT_FACTORY = "generic-business-object-factory";
+
     public final static String GENERIC_SAMPLE_TYPE_SLAVE_SERVER_PLUGIN =
             "generic-sample-type-slave-server-plugin";
-
-    public final static String GENERIC_BUSINESS_OBJECT_FACTORY = "generic-business-object-factory";
 
     private ResourceNames()
     {

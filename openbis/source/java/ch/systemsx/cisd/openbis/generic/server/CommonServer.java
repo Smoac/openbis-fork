@@ -20,10 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.Resource;
-
 import org.springframework.dao.DataAccessException;
-import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ISessionManager;
@@ -31,8 +28,8 @@ import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.ParameterChecker;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IGenericBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
@@ -64,22 +61,19 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  * 
  * @author Franz-Josef Elmer
  */
-@Component(ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
 public final class CommonServer extends AbstractServer<ICommonServer> implements ICommonServer
 {
-    @Resource(name = ComponentNames.AUTHENTICATION_SERVICE)
     private IAuthenticationService authenticationService;
 
-    public CommonServer()
-    {
-    }
+    private ICommonBusinessObjectFactory businessObjectFactory;
 
-    CommonServer(final IAuthenticationService authenticationService,
+    public CommonServer(final IAuthenticationService authenticationService,
             final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
-            final IGenericBusinessObjectFactory boFactory)
+            final ICommonBusinessObjectFactory businessObjectFactory)
     {
-        super(sessionManager, daoFactory, boFactory);
+        super(sessionManager, daoFactory);
         this.authenticationService = authenticationService;
+        this.businessObjectFactory = businessObjectFactory;
     }
 
     //
@@ -128,7 +122,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             final String descriptionOrNull, final String groupLeaderOrNull)
     {
         final Session session = getSessionManager().getSession(sessionToken);
-        final IGroupBO groupBO = getBusinessObjectFactory().createGroupBO(session);
+        final IGroupBO groupBO = businessObjectFactory.createGroupBO(session);
         groupBO.define(groupCode, descriptionOrNull, groupLeaderOrNull);
         groupBO.save();
     }
@@ -174,8 +168,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         newRoleAssignment.setGroupIdentifier(groupIdentifier);
         newRoleAssignment.setRole(roleCode);
 
-        final IRoleAssignmentTable table =
-                getBusinessObjectFactory().createRoleAssignmentTable(session);
+        final IRoleAssignmentTable table = businessObjectFactory.createRoleAssignmentTable(session);
         table.add(newRoleAssignment);
         table.save();
 
@@ -192,8 +185,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
                 DatabaseInstanceIdentifier.HOME));
         newRoleAssignment.setRole(roleCode);
 
-        final IRoleAssignmentTable table =
-                getBusinessObjectFactory().createRoleAssignmentTable(session);
+        final IRoleAssignmentTable table = businessObjectFactory.createRoleAssignmentTable(session);
         table.add(newRoleAssignment);
         table.save();
 
@@ -274,7 +266,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             final ListSampleCriteriaDTO criteria)
     {
         final Session session = getSessionManager().getSession(sessionToken);
-        final ISampleTable sampleTable = getBusinessObjectFactory().createSampleTable(session);
+        final ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
         sampleTable.loadSamplesByCriteria(criteria);
         sampleTable.enrichWithValidProcedure();
         sampleTable.enrichWithProperties();
@@ -286,7 +278,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IExternalDataTable externalDataTable =
-                getBusinessObjectFactory().createExternalDataTable(session);
+                businessObjectFactory.createExternalDataTable(session);
         externalDataTable.loadBySampleIdentifier(identifier);
         return externalDataTable.getExternalData();
     }
@@ -316,7 +308,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     {
         final Session session = getSessionManager().getSession(sessionToken);
         ParameterChecker.checkIfNotNull(newSample, "sample");
-        final ISampleBO sampleBO = getBusinessObjectFactory().createSampleBO(session);
+        final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.define(newSample);
         sampleBO.save();
     }
