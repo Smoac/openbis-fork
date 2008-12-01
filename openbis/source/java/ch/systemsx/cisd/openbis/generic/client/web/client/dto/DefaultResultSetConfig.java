@@ -34,10 +34,10 @@ public class DefaultResultSetConfig<K> implements IResultSetConfig<K>, IsSeriali
     /**
      * The result set key.
      * <p>
-     * Could be <code>null</code> if unknown.
+     * Can be <code>null</code> if unknown.
      * </p>
      */
-    private K resultSetKey;
+    private K resultSetKeyOrNull;
 
     public final void setLimit(final int limit)
     {
@@ -56,7 +56,7 @@ public class DefaultResultSetConfig<K> implements IResultSetConfig<K>, IsSeriali
 
     public final void setResultSetKey(final K resultSetKey)
     {
-        this.resultSetKey = resultSetKey;
+        this.resultSetKeyOrNull = resultSetKey;
     }
 
     //
@@ -78,8 +78,9 @@ public class DefaultResultSetConfig<K> implements IResultSetConfig<K>, IsSeriali
         return sortInfo;
     }
 
+    /** Can be <code>null</code> if unknown. */
     public final K getResultSetKey()
     {
-        return resultSetKey;
+        return resultSetKeyOrNull;
     }
 }
