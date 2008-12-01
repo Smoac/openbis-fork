@@ -38,13 +38,19 @@ public class SampleRegistrationPanel extends ContentPanel
 
     private final SampleTypeSelectionWidget sampleTypeSelection;
 
+    public static final String ID = "sample-registration";
+
     public SampleRegistrationPanel(final CommonViewContext viewContext)
     {
         setHeading("Sample registration");
         setHeaderVisible(false);
         setBodyBorder(false);
         setScrollMode(Scroll.AUTO);
-        sampleTypeSelection = new SampleTypeSelectionWidget(viewContext, true);
+        sampleTypeSelection = new SampleTypeSelectionWidget(viewContext, true, ID);
+        final ToolBar toolBar = new ToolBar();
+        toolBar.add(new LabelToolItem("Sample type:"));
+        toolBar.add(new AdapterToolItem(sampleTypeSelection));
+        add(toolBar);
         sampleTypeSelection.addSelectionChangedListener(new SelectionChangedListener<ModelData>()
             {
                 @Override
@@ -54,6 +60,7 @@ public class SampleRegistrationPanel extends ContentPanel
                     if (selectedType != null)
                     {
                         removeAll();
+                        add(toolBar);
                         add(viewContext.getClientPluginFactoryProvider().getClientPluginFactory(
                                 selectedType.getCode()).createViewClientForSampleType(
                                 selectedType.getCode()).createRegistrationClientForSampleType(
@@ -62,10 +69,6 @@ public class SampleRegistrationPanel extends ContentPanel
                     }
                 }
             });
-        final ToolBar toolBar = new ToolBar();
-        toolBar.add(new LabelToolItem("Sample type:"));
-        toolBar.add(new AdapterToolItem(sampleTypeSelection));
-        setTopComponent(toolBar);
     }
 
     @Override
