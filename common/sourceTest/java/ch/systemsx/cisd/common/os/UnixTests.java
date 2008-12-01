@@ -23,6 +23,7 @@ import java.lang.reflect.Method;
 
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.filesystem.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.os.FileLinkType;
@@ -38,6 +39,7 @@ import static org.testng.AssertJUnit.*;
  * 
  * @author Bernd Rinn
  */
+@Friend(toClasses = Unix.class)
 public class UnixTests extends AbstractFileSystemTestCase
 {
 
@@ -262,6 +264,15 @@ public class UnixTests extends AbstractFileSystemTestCase
         assertTrue(user.getShell().startsWith("/"));
     }
 
+    @Test(groups =
+        { "requires_unix" })
+    public void testDetectProcess()
+    {
+        assertTrue(Unix.canDetectProcesses());
+        assertTrue(Unix.isProcessRunningProcFS(1));
+        assertTrue(Unix.isProcessRunningPS(1));
+    }
+    
     public static void main(String[] args) throws Throwable
     {
         final UnixTests test = new UnixTests();

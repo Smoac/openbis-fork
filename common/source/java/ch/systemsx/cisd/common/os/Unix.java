@@ -16,8 +16,11 @@
 
 package ch.systemsx.cisd.common.os;
 
+import java.io.File;
 import java.io.IOException;
 
+import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.WrappedIOException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
@@ -33,7 +36,14 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 public class Unix
 {
 
+    private enum ProcessDetection
+    {
+        PROCFS, PS, NONE
+    }
+
     private final static boolean operational;
+
+    private final static ProcessDetection processDetection;
 
     static
     {
@@ -41,6 +51,16 @@ public class Unix
         if (operational)
         {
             init();
+        }
+        if (isProcessRunningProcFS(1))
+        {
+            processDetection = ProcessDetection.PROCFS;
+        } else if (isProcessRunningPS(1))
+        {
+            processDetection = ProcessDetection.PS;
+        } else
+        {
+            processDetection = ProcessDetection.NONE;
         }
     }
 
@@ -355,6 +375,32 @@ public class Unix
 
     private static native String strerror();
 
+    @Private
+    static boolean isProcessRunningProcFS(int pid)
+    {
+        return new File("/proc/" + pid).isDirectory();
+    }
+
+    @Private
+    static boolean isProcessRunningPS(int pid)
+    {
+        try
+        {
+            return Runtime.getRuntime().exec(new String[]
+                { "ps", "-p", Integer.toString(pid) }).waitFor() == 0;
+        } catch (IOException ex)
+        {
+            return false;
+        } catch (InterruptedException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+    }
+
+    //
+    // Public
+    //
+
     /**
      * Returns <code>true</code>, if the native library has been loaded successfully and the link
      * utilities are operational, <code>false</code> otherwise.
@@ -362,6 +408,14 @@ public class Unix
     public static final boolean isOperational()
     {
         return operational;
+    }
+
+    /**
+     * Returns <code>true</code>, if process detection is available on this system.
+     */
+    public static boolean canDetectProcesses()
+    {
+        return processDetection != ProcessDetection.NONE;
     }
 
     //
@@ -374,6 +428,24 @@ public class Unix
     public static int getPid()
     {
         return getpid();
+    }
+
+    /**
+     * Returns <code>true</code>, if the process with <var>pid</var> is currently running and
+     * <code>false</code>, if it is not running or if process detection is not available (
+     * {@link #canDetectProcesses()} <code>== false</code>).
+     */
+    public static boolean isProcessRunning(int pid)
+    {
+        switch (processDetection)
+        {
+            case PROCFS:
+                return isProcessRunningProcFS(pid);
+            case PS:
+                return isProcessRunningPS(pid);
+            default:
+                return false;
+        }
     }
 
     /**
