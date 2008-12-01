@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SessionContextCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.LeftMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
@@ -32,11 +34,23 @@ public final class OpenTab extends AbstractDefaultTestCommand
 
     private final String option;
 
-    public OpenTab(final String category, final String option)
+    public OpenTab(final String category, final String option,
+            final Class<? extends AsyncCallback<?>> callbackClass)
     {
-        super(SessionContextCallback.class);
+        if (callbackClass == null)
+        {
+            addCallbackClass(SessionContextCallback.class);
+        } else
+        {
+            addCallbackClass(callbackClass);
+        }
         this.category = category;
         this.option = option;
+    }
+
+    public OpenTab(final String category, final String option)
+    {
+        this(category, option, null);
     }
 
     //

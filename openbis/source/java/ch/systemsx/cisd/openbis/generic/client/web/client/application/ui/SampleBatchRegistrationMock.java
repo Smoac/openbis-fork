@@ -48,7 +48,8 @@ public class SampleBatchRegistrationMock extends ContentPanel
     {
         setHeading("Sample batch registration mock");
         setBodyBorder(false);
-        sampleTypeSelection = new SampleTypeSelectionWidget(viewContext, true);
+        sampleTypeSelection =
+                new SampleTypeSelectionWidget(viewContext, true, "sample-batch-registration");
         sampleTypeSelection.addSelectionChangedListener(new SelectionChangedListener<ModelData>()
             {
                 @Override
@@ -84,8 +85,7 @@ public class SampleBatchRegistrationMock extends ContentPanel
     static class SampleBatchRegistrationForm extends ContentPanel
     {
 
-        SampleBatchRegistrationForm(final CommonViewContext viewContext,
-                final SampleType sampleType)
+        SampleBatchRegistrationForm(final CommonViewContext viewContext, final SampleType sampleType)
         {
             setStyleAttribute("margin", "30");
             setHeaderVisible(false);

@@ -50,7 +50,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
  */
 class SampleBrowserToolbar extends ToolBar
 {
-    private static final String PREFIX = "sample-browser-toolbar_";
+    public static final String ID = "sample-browser-toolbar";
+
+    private static final String PREFIX = ID + "_";
 
     static final String REFRESH_BUTTON_ID = GenericConstants.ID_PREFIX + PREFIX + "refresh-button";
 
@@ -83,7 +85,7 @@ class SampleBrowserToolbar extends ToolBar
             final ParentColumns parentColumns, final PropertyColumns propertyColumns)
     {
         this.sampleBrowserGrid = sampleBrowserGrid;
-        selectSampleTypeCombo = new SampleTypeSelectionWidget(viewContext);
+        selectSampleTypeCombo = new SampleTypeSelectionWidget(viewContext, ID);
         selectGroupCombo = new GroupSelectionWidget(viewContext);
         includeInstanceCheckbox = new CheckBox();
         includeInstanceCheckbox.setId(INCLUDE_SHARED_CHECKBOX_ID);

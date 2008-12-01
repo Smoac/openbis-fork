@@ -62,13 +62,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
  * 
  * @author Christian Ribeaud
  */
-final class SampleBrowserGrid extends LayoutContainer
+public final class SampleBrowserGrid extends LayoutContainer
 {
     private static final int PAGE_SIZE = 50;
 
     private static final String PREFIX = "sample-browser-grid_";
 
-    static final String GRID_ID = GenericConstants.ID_PREFIX + PREFIX + "grid";
+    public static final String GRID_ID = GenericConstants.ID_PREFIX + PREFIX + "grid";
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
@@ -274,7 +274,7 @@ final class SampleBrowserGrid extends LayoutContainer
     // Helper classes
     //
 
-    final class ListSamplesCallback extends AbstractAsyncCallback<ResultSet<Sample>>
+    public final class ListSamplesCallback extends AbstractAsyncCallback<ResultSet<Sample>>
     {
         private final AsyncCallback<PagingLoadResult<SampleModel>> delegate;
 

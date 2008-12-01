@@ -63,6 +63,21 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  */
 public final class GenericSampleRegistrationForm extends FormPanel
 {
+
+    private static final String PREFIX = "generic-sample-registration_";
+
+    public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
+
+    public static final String CODE_FIELD_ID = ID_PREFIX + "code";
+
+    public static final String SHARED_CHECKBOX_ID = ID_PREFIX + "shared";
+
+    public static final String PARENT_CONTAINER_FIELD_ID = ID_PREFIX + "parent-container";
+
+    public static final String PARENT_GENERATOR_FIELD_ID = ID_PREFIX + "parent-generator";
+
+    public static final String SAVE_BUTTON_ID = ID_PREFIX + "save-button";
+
     private static final String ETPT = "PROPERTY_TYPE";
 
     private static boolean SELECT_GROUP_BY_DEFAULT = true;
@@ -107,6 +122,7 @@ public final class GenericSampleRegistrationForm extends FormPanel
         infoBox = new InfoBox();
 
         code = new CodeField("Sample code", true);
+        code.setId(CODE_FIELD_ID);
         code.addListener(Events.Focus, new Listener<BaseEvent>()
             {
 
@@ -120,6 +136,7 @@ public final class GenericSampleRegistrationForm extends FormPanel
         groupSelectionWidget.setEnabled(SELECT_GROUP_BY_DEFAULT);
 
         sharedCheckbox = new CheckBox();
+        sharedCheckbox.setId(SHARED_CHECKBOX_ID);
         sharedCheckbox.setBoxLabel("Shared");
         sharedCheckbox.setValue(SELECT_GROUP_BY_DEFAULT == false);
         sharedCheckbox.addListener(Events.Change, new Listener<BaseEvent>()
@@ -150,8 +167,10 @@ public final class GenericSampleRegistrationForm extends FormPanel
             });
 
         parentGenerator = new VarcharField("Generated from sample", false);
+        parentGenerator.setId(PARENT_GENERATOR_FIELD_ID);
 
         parentContainer = new VarcharField("Part of sample", false);
+        parentContainer.setId(PARENT_CONTAINER_FIELD_ID);
 
         propertyFields = new ArrayList<Field<?>>();
         for (final SampleTypePropertyType stpt : sampleType.getSampleTypePropertyTypes())
@@ -184,6 +203,7 @@ public final class GenericSampleRegistrationForm extends FormPanel
         // bb.add(resetButton);
 
         Button saveButton = new Button("Save");
+        saveButton.setId(SAVE_BUTTON_ID);
         saveButton.addSelectionListener(new SelectionListener<ComponentEvent>()
             {
                 @Override
@@ -261,20 +281,26 @@ public final class GenericSampleRegistrationForm extends FormPanel
                 }
             }
             viewContext.getService().registerSample(sampleToRegister,
-                    new AbstractAsyncCallback<Void>(viewContext)
-                        {
-                            @Override
-                            protected void process(Void result)
-                            {
+                    new RegisterSampleCallback(viewContext));
+        }
+    }
 
-                                String message =
-                                        createSuccessfullRegistrationInfo(
-                                                sharedCheckbox.getValue(), code.getValue(),
-                                                groupSelectionWidget.tryGetSelected());
-                                resetForm(message);
+    public class RegisterSampleCallback extends AbstractAsyncCallback<Void>
+    {
+        public RegisterSampleCallback(IViewContext<?> viewContext)
+        {
+            super(viewContext);
+        }
 
-                            }
-                        });
+        @Override
+        protected void process(Void result)
+        {
+
+            String message =
+                    createSuccessfullRegistrationInfo(sharedCheckbox.getValue(), code.getValue(),
+                            groupSelectionWidget.tryGetSelected());
+            resetForm(message);
+
         }
     }
 

@@ -24,11 +24,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTab
  * 
  * @author Izabela Adamczyk
  */
-public final class CheckSampleTable extends CheckTableCommand
+public class CheckSampleTable extends CheckTableCommand
 {
     public CheckSampleTable()
     {
         super(SampleBrowserGrid.GRID_ID, SampleBrowserGrid.ListSamplesCallback.class);
     }
-    
+
 }

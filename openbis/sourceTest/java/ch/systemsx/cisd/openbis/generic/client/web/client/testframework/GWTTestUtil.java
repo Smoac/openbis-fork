@@ -31,6 +31,8 @@ import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.MultiField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.tree.Tree;
@@ -292,6 +294,9 @@ public final class GWTTestUtil
             } else if (widget instanceof Container)
             {
                 return new ContainerHandler(this).handle((Container<Component>) widget);
+            } else if (widget instanceof MultiField)
+            {
+                return new MultiFieldHandler(this).handle((MultiField<Field<?>>) widget);
             } else
             {
                 return false;
@@ -387,6 +392,34 @@ public final class GWTTestUtil
                     }
                 }
                 if (handler.handle(contentPanel.getBottomComponent()))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+    }
+
+    private static final class MultiFieldHandler implements IWidgetHandler<MultiField<Field<?>>>
+    {
+        private final IWidgetHandler<Widget> handler;
+
+        MultiFieldHandler(final IWidgetHandler<Widget> handler)
+        {
+            this.handler = handler;
+        }
+
+        //
+        // IWidgetHandler
+        //
+
+        public boolean handle(MultiField<Field<?>> widget)
+        {
+            final List<Field<?>> fields = widget.getAll();
+            for (int i = 0, n = fields.size(); i < n; i++)
+            {
+                if (handler.handle(fields.get(i)))
                 {
                     return true;
                 }

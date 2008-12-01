@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestU
  * 
  * @author Christian Ribeaud
  */
-public final class ListSamples extends AbstractDefaultTestCommand
+public class ListSamples extends AbstractDefaultTestCommand
 {
     private final String sampleTypeNameOrNull;
 
@@ -56,14 +56,14 @@ public final class ListSamples extends AbstractDefaultTestCommand
     // AbstractDefaultTestCommand
     //
 
-    public final void execute()
+    public void execute()
     {
         final GroupSelectionWidget groupSelector =
                 (GroupSelectionWidget) GWTTestUtil.getWidgetWithID(GroupSelectionWidget.ID);
 
         final ComboBox<SampleTypeModel> sampleTypeSelector =
                 (SampleTypeSelectionWidget) GWTTestUtil
-                        .getWidgetWithID(SampleTypeSelectionWidget.ID);
+                        .getWidgetWithID(SampleTypeSelectionWidget.ID + SampleBrowserToolbar.ID);
 
         final CheckBox includeGroupCheckbox =
                 (CheckBox) GWTTestUtil

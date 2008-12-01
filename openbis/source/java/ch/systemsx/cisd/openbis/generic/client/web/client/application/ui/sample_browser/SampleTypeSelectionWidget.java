@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 public class SampleTypeSelectionWidget extends ComboBox<SampleTypeModel>
 {
 
-    final class ListSampleTypesCallback extends AbstractAsyncCallback<List<SampleType>>
+    public final class ListSampleTypesCallback extends AbstractAsyncCallback<List<SampleType>>
     {
         private final boolean allowEmptyCall;
 
@@ -78,9 +78,9 @@ public class SampleTypeSelectionWidget extends ComboBox<SampleTypeModel>
         }
     }
 
-    private static final String PREFIX = "sample-select";
+    private static final String PREFIX = "sample-type-select-";
 
-    static final String ID = GenericConstants.ID_PREFIX + PREFIX;
+    public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
@@ -88,17 +88,18 @@ public class SampleTypeSelectionWidget extends ComboBox<SampleTypeModel>
 
     private final boolean allowEmpty;
 
-    public SampleTypeSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext)
+    public SampleTypeSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext,
+            String idSuffix)
     {
-        this(viewContext, false);
+        this(viewContext, false, idSuffix);
     }
 
     public SampleTypeSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final boolean allowEmpty)
+            final boolean allowEmpty, String idSuffix)
     {
         this.viewContext = viewContext;
         this.allowEmpty = allowEmpty;
-        setId(ID);
+        setId(ID + idSuffix);
         setEmptyText(allowEmpty ? "Choose sample type..." : "- No sample types found -");
         setEnabled(false);
         setDisplayField(ModelDataPropertyNames.CODE);

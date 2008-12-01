@@ -38,7 +38,9 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
 
     private int expectedNumberOfRows = -1;
 
-    private List<Row> expectedRows = new ArrayList<Row>();
+    private final List<Row> expectedRows = new ArrayList<Row>();
+
+    private final List<Row> unexpectedRows = new ArrayList<Row>();
 
     /**
      * Creates an instance for the specified table or grid ID.
@@ -66,6 +68,12 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
     public CheckTableCommand expectedSize(final int numberOfRows)
     {
         this.expectedNumberOfRows = numberOfRows;
+        return this;
+    }
+
+    public CheckTableCommand unexpectedRow(final Row row)
+    {
+        unexpectedRows.add(row);
         return this;
     }
 
@@ -107,6 +115,15 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
         if (expectedNumberOfRows >= 0)
         {
             assertEquals(expectedNumberOfRows, store.getCount());
+        }
+
+        for (final Row unexpectedRow : unexpectedRows)
+        {
+            for (int i = 0; i < store.getCount(); i++)
+            {
+                final ModelData row = store.getAt(i);
+                assertFalse(match(unexpectedRow, row));
+            }
         }
     }
 

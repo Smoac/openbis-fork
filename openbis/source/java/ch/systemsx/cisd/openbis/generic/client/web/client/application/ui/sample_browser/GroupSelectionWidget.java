@@ -41,7 +41,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
  */
 public class GroupSelectionWidget extends ComboBox<GroupModel>
 {
-    final class ListGroupsCallback extends AbstractAsyncCallback<List<Group>>
+    public final class ListGroupsCallback extends AbstractAsyncCallback<List<Group>>
     {
         ListGroupsCallback(final IViewContext<?> viewContext)
         {
@@ -64,7 +64,7 @@ public class GroupSelectionWidget extends ComboBox<GroupModel>
 
     private static final String PREFIX = "group-select";
 
-    static final String ID = GenericConstants.ID_PREFIX + PREFIX;
+    public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
