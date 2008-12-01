@@ -1,9 +1,17 @@
 <project name="authentication" basedir="..">
-	<import file="../../build_resources/ant/build-common.xml" />
-	<project-classpath name="ecp" classes="${classes}" />
-	<property name="mainfolder" value="authentication" />
+    <import file="../../build_resources/ant/build-common.xml" />
+    <project-classpath name="ecp" classes="${classes}" />
+    <property name="mainfolder" value="authentication" />
 
-  <target name="ci" depends="build-common.ci, check-dependencies"/>
+    <target name="ci" depends="build-common.ci, check-dependencies" />
 
-	
+    <!--
+	  // Runs the test suite 'tests.xml'.
+	  -->
+    <target name="run-tests" description="Runs the test suite 'tests.xml'.">
+        <antcall target="build-common.run-tests">
+            <param name="test.suite" value="tests.xml" />
+        </antcall>
+    </target>
+
 </project>
