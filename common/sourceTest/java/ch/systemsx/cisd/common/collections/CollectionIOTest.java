@@ -31,32 +31,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import org.testng.annotations.BeforeSuite;
+import org.apache.commons.io.FileUtils;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.collections.CollectionIO;
-import ch.systemsx.cisd.common.collections.IFromStringConverter;
-import ch.systemsx.cisd.common.collections.IToStringConverter;
-import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.filesystem.AbstractFileSystemTestCase;
 
 /**
  * Test cases for the {@link CollectionIO} class.
  * 
  * @author Bernd Rinn
  */
-public class CollectionIOTest
+public final class CollectionIOTest extends AbstractFileSystemTestCase
 {
-
-    private static final File workingDirectory =
-            new File("targets" + File.separator + "unit-test-wd");
-
-    @BeforeSuite
-    public void init()
-    {
-        LogInitializer.init();
-        workingDirectory.mkdirs();
-        assert workingDirectory.isDirectory();
-    }
 
     @Test
     public void writeCollection() throws IOException
@@ -111,8 +97,7 @@ public class CollectionIOTest
     {
         final File file = new File(workingDirectory, "readonly-test.list");
         file.delete();
-        file.deleteOnExit();
-        file.createNewFile();
+        FileUtils.touch(file);
         assert file.length() == 0;
         file.setReadOnly();
         final List<String> list = Arrays.asList("Hund", "Katze", "Maus");
@@ -144,8 +129,6 @@ public class CollectionIOTest
     public void readCollection() throws IOException
     {
         final File file = new File(workingDirectory, "test.list");
-        file.delete();
-        file.deleteOnExit();
         final PrintWriter writer = new PrintWriter(file);
         try
         {
@@ -167,9 +150,6 @@ public class CollectionIOTest
     @Test
     public void readCollectionToByteArray() throws IOException
     {
-        final File file = new File(workingDirectory, "test.list");
-        file.delete();
-        file.deleteOnExit();
         final ByteArrayOutputStream ostream = new ByteArrayOutputStream();
         final PrintWriter writer = new PrintWriter(ostream);
         try
@@ -194,8 +174,6 @@ public class CollectionIOTest
     public void readCollectionWithConverter() throws IOException
     {
         final File file = new File(workingDirectory, "test.list");
-        file.delete();
-        file.deleteOnExit();
         final PrintWriter writer = new PrintWriter(file);
         try
         {
@@ -234,8 +212,6 @@ public class CollectionIOTest
     public void readList() throws IOException
     {
         final File file = new File(workingDirectory, "test.list");
-        file.delete();
-        file.deleteOnExit();
         final PrintWriter writer = new PrintWriter(file);
         try
         {
@@ -258,8 +234,6 @@ public class CollectionIOTest
     public void readSet() throws IOException
     {
         final File file = new File(workingDirectory, "test.list");
-        file.delete();
-        file.deleteOnExit();
         final PrintWriter writer = new PrintWriter(file);
         try
         {

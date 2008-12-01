@@ -17,7 +17,8 @@
 package ch.systemsx.cisd.common.filesystem;
 
 import static ch.systemsx.cisd.common.filesystem.FileUtilities.ACCEPT_ALL_FILTER;
-import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -33,9 +34,6 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.collections.CollectionIO;
-import ch.systemsx.cisd.common.filesystem.DirectoryScanningTimerTask;
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.filesystem.IPathHandler;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.test.LogMonitoringAppender;
@@ -225,18 +223,19 @@ public class DirectoryScanningTimerTaskTest
     public void testStopped() throws IOException
     {
         final DirectoryScanningTimerTask scanner =
-            new DirectoryScanningTimerTask(workingDirectory, ACCEPT_ALL_FILTER, new IPathHandler()
-            {
-                public void handle(File path)
-                {
-                    throw new AssertionError("Shouldn't have been called");
-                }
+                new DirectoryScanningTimerTask(workingDirectory, ACCEPT_ALL_FILTER,
+                        new IPathHandler()
+                            {
+                                public void handle(File path)
+                                {
+                                    throw new AssertionError("Shouldn't have been called");
+                                }
 
-                public boolean isStopped()
-                {
-                    return true;
-                }
-            });
+                                public boolean isStopped()
+                                {
+                                    return true;
+                                }
+                            });
         final File someFile = new File(workingDirectory, "some_file");
         someFile.createNewFile();
         assertTrue(someFile.exists());
@@ -247,26 +246,27 @@ public class DirectoryScanningTimerTaskTest
     @Test
     public void testStopInFirstFile() throws IOException
     {
-        final File faultyPaths =
-            new File(workingDirectory, Constants.FAULTY_PATH_FILENAME);
+        final File faultyPaths = new File(workingDirectory, Constants.FAULTY_PATH_FILENAME);
         faultyPaths.createNewFile();
         assertTrue(faultyPaths.exists());
         final AtomicInteger counter = new AtomicInteger(0);
         final DirectoryScanningTimerTask scanner =
-            new DirectoryScanningTimerTask(workingDirectory, ACCEPT_ALL_FILTER, new IPathHandler()
-            {
-                boolean stop = false;
-                public void handle(File path)
-                {
-                    counter.incrementAndGet();
-                    stop = true;
-                }
+                new DirectoryScanningTimerTask(workingDirectory, ACCEPT_ALL_FILTER,
+                        new IPathHandler()
+                            {
+                                boolean stop = false;
 
-                public boolean isStopped()
-                {
-                    return stop;
-                }
-            });
+                                public void handle(File path)
+                                {
+                                    counter.incrementAndGet();
+                                    stop = true;
+                                }
+
+                                public boolean isStopped()
+                                {
+                                    return stop;
+                                }
+                            });
         final File someFile = new File(workingDirectory, "some_file");
         someFile.createNewFile();
         assertTrue(someFile.exists());

@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.common.compression.file;
 
-import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -24,6 +26,7 @@ import java.util.Collection;
 import java.util.Queue;
 
 import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.api.Invocation;
@@ -35,15 +38,15 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
+import ch.systemsx.cisd.common.logging.LogInitializer;
 
 /**
  * Test cases for the {@link CompressionWorker}.
  * 
  * @author Bernd Rinn
  */
-public class CompressionWorkerTest
+public final class CompressionWorkerTest
 {
-
     private Mockery context;
 
     private Queue<File> queue;
@@ -56,6 +59,8 @@ public class CompressionWorkerTest
 
     private BufferedAppender logRecorder;
 
+    private Level previousLevel;
+
     @SuppressWarnings("unchecked")
     private Queue<File> createFileQueue()
     {
@@ -65,11 +70,16 @@ public class CompressionWorkerTest
     @BeforeMethod
     public void setUp()
     {
+        LogInitializer.init();
         context = new Mockery();
         queue = createFileQueue();
         failed = new ArrayList<FailureRecord>();
         compressionMethod = context.mock(ICompressionMethod.class);
         logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG);
+        final Logger operationLogger = CompressionWorker.operationLog;
+        previousLevel = operationLogger.getLevel();
+        assertNull(previousLevel);
+        operationLogger.setLevel(Level.DEBUG);
         worker = new CompressionWorker(queue, failed, compressionMethod);
     }
 
@@ -77,8 +87,7 @@ public class CompressionWorkerTest
     public void tearDown()
     {
         logRecorder.reset();
-        // To following line of code should also be called at the end of each test method.
-        // Otherwise one do not known which test failed.
+        CompressionWorker.operationLog.setLevel(previousLevel);
         context.assertIsSatisfied();
     }
 
@@ -191,7 +200,8 @@ public class CompressionWorkerTest
         final FailureRecord record = failed.iterator().next();
         assertEquals(faultyFile, record.getFailedFile().getName());
         assertEquals(StatusFlag.RETRIABLE_ERROR, record.getFailureStatus().getFlag());
-        assertEquals(faultyStatus.tryGetErrorMessage(), record.getFailureStatus().tryGetErrorMessage());
+        assertEquals(faultyStatus.tryGetErrorMessage(), record.getFailureStatus()
+                .tryGetErrorMessage());
         assertTrue(logRecorder.getLogContent().indexOf(CompressionWorker.EXITING_MSG) >= 0);
     }
 
@@ -227,7 +237,8 @@ public class CompressionWorkerTest
         final FailureRecord record = failed.iterator().next();
         assertEquals(faultyFile, record.getFailedFile().getName());
         assertEquals(StatusFlag.ERROR, record.getFailureStatus().getFlag());
-        assertEquals(fatalStatus.tryGetErrorMessage(), record.getFailureStatus().tryGetErrorMessage());
+        assertEquals(fatalStatus.tryGetErrorMessage(), record.getFailureStatus()
+                .tryGetErrorMessage());
         assertTrue(logRecorder.getLogContent().indexOf(CompressionWorker.EXITING_MSG) >= 0);
     }
 

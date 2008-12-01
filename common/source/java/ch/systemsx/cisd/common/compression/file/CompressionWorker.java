@@ -52,7 +52,8 @@ class CompressionWorker implements Runnable
     @Private
     static final String EXITING_MSG = "No more files to compress - exiting worker.";
 
-    private final static Logger operationLog =
+    @Private
+    final static Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, CompressionWorker.class);
 
     private final Queue<File> workerQueue;
