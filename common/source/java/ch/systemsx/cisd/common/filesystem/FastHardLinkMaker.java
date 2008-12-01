@@ -21,6 +21,7 @@ import java.io.File;
 import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
 import ch.systemsx.cisd.common.exceptions.WrappedIOException;
+import ch.systemsx.cisd.common.os.Unix;
 
 /**
  * A {@link IFileImmutableCopier} that uses a native method to create hard links.
@@ -40,7 +41,7 @@ public class FastHardLinkMaker implements IFileImmutableCopier
                                 : nameOrNull);
                 try
                 {
-                    FileLinkUtilities.createHardLink(source.getAbsolutePath(), destination
+                    Unix.createHardLink(source.getAbsolutePath(), destination
                             .getAbsolutePath());
                     return true;
                 } catch (WrappedIOException ex)
@@ -56,7 +57,7 @@ public class FastHardLinkMaker implements IFileImmutableCopier
      */
     public final static boolean isOperational()
     {
-        return FileLinkUtilities.isOperational();
+        return Unix.isOperational();
     }
 
     /**
@@ -69,7 +70,7 @@ public class FastHardLinkMaker implements IFileImmutableCopier
      */
     public final static IFileImmutableCopier tryCreate(final TimingParameters timingParameters)
     {
-        if (FileLinkUtilities.isOperational() == false)
+        if (Unix.isOperational() == false)
         {
             return null;
         }
@@ -86,7 +87,7 @@ public class FastHardLinkMaker implements IFileImmutableCopier
      */
     public final static IFileImmutableCopier tryCreate()
     {
-        if (FileLinkUtilities.isOperational() == false)
+        if (Unix.isOperational() == false)
         {
             return null;
         }

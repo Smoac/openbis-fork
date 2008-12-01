@@ -8,7 +8,7 @@
     <project-classpath name="ecp" classes="${classes}" />
     <property name="mainfolder" value="common" />
     <property name="jar.file" value="${dist}/common.jar" />
-    <property name="nativesrc" value="${lib}/filelink/native" />
+    <property name="nativesrc" value="${lib}/unix/native" />
     <property name="nativeroot" value="${targets}/ant" />
     <property name="native" value="${nativeroot}/native" />
 
@@ -24,7 +24,7 @@
         <echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
         <copy todir="${native}">
             <fileset dir="${nativesrc}">
-                <include name="**/jlink.so" />
+                <include name="**/unix.so" />
             </fileset>
         </copy>
         <recursive-jar destfile="${jar.file}">
@@ -33,7 +33,7 @@
                 <include name="${build.info.filename}" />
             </fileset>
             <fileset dir="${nativeroot}">
-                <include name="**/jlink.so" />
+                <include name="**/unix.so" />
             </fileset>
             <zipfileset src="${lib}/log4j/log4j.jar" />
             <zipfileset src="${lib}/testng/testng-jdk15.jar" />

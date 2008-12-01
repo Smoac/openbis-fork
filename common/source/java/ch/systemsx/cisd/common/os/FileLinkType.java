@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.filesystem;
+package ch.systemsx.cisd.common.os;
 
 import java.io.Serializable;
 
@@ -30,7 +30,7 @@ public enum FileLinkType implements Serializable
     /**
      * Returns <code>true</code> if the <var>linkMode</var> corresponds to a symbolic link.
      */
-    public static boolean isSymLink(long linkMode)
+    static boolean isSymLink(long linkMode)
     {
         return linkMode == SYMLINK.ordinal();
     }

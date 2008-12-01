@@ -8,7 +8,7 @@
     <property name="dist.datamover.lib" value="${dist.datamover}/lib" />
     <property name="jar.file" value="${dist.datamover.lib}/datamover.jar" />
     <property name="dist.file.prefix" value="${dist}/datamover" />
-    <property name="nativesrc" value="${lib}/filelink/native" />
+    <property name="nativesrc" value="${lib}/unix/native" />
     <property name="nativeroot" value="${targets}/ant" />
     <property name="native" value="${nativeroot}/native" />
 
@@ -30,7 +30,7 @@
         <echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
         <copy todir="${native}">
             <fileset dir="${nativesrc}">
-                <include name="**/jlink.so" />
+                <include name="**/unix.so" />
             </fileset>
         </copy>
         <recursive-jar destfile="${jar.file}">
@@ -38,10 +38,9 @@
                 <include name="**/*.class" />
                 <include name="${build.info.filename}" />
             </fileset>
-            <!-- Commented out until we have a stable set of libraries. -->
-            <!--fileset dir="${nativeroot}">
-				<include name="**/jlink.so"/>
-			</fileset-->
+            <fileset dir="${nativeroot}">
+							<include name="**/unix.so"/>
+						</fileset>
             <manifest>
                 <attribute name="Main-Class" value="ch.systemsx.cisd.datamover.Main" />
                 <attribute name="Class-Path"
