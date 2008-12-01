@@ -122,7 +122,7 @@ final class GroupDAO extends AbstractDAO implements IGroupDAO
     public final void createGroup(final GroupPE group) throws DataAccessException
     {
         assert group != null : "Unspecified group";
-        // TODO 2008-12-28, Christian Ribeaud: This is a business rule. Find a better location for
+        // TODO 2008-11-28, Christian Ribeaud: This is a business rule. Find a better location for
         // this.
         assert group.getDatabaseInstance().isOriginalSource() : "Registration on a non-home database is not allowed";
         validatePE(group);

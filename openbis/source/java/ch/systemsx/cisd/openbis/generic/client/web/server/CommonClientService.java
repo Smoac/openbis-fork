@@ -73,7 +73,7 @@ import ch.systemsx.cisd.openbis.plugin.AbstractClientService;
 public final class CommonClientService extends AbstractClientService implements
         ICommonClientService
 {
-    private ICommonServer commonServer;
+    private final ICommonServer commonServer;
 
     public CommonClientService(final ICommonServer commonServer,
             final IRequestContextProvider requestContextProvider)
