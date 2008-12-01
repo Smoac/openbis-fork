@@ -16,13 +16,17 @@
 
 package ch.systemsx.cisd.common.utilities;
 
+import java.io.Serializable;
+
 /**
  * Implementation of time provider based on {@link System#currentTimeMillis()}.
  *
  * @author Franz-Josef Elmer
  */
-public class SystemTimeProvider implements ITimeProvider
+public class SystemTimeProvider implements ITimeProvider, Serializable
 {
+    private static final long serialVersionUID = 1L;
+    
     /** The one and only one instance of this class. */
     public static final ITimeProvider SYSTEM_TIME_PROVIDER = new SystemTimeProvider();
     
