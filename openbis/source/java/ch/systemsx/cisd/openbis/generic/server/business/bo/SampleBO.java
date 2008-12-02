@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.springframework.dao.DataAccessException;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.ParameterChecker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
@@ -48,8 +49,15 @@ public final class SampleBO extends AbstractSampleIdentifierBusinessObject imple
 
     public SampleBO(final IDAOFactory daoFactory, final Session session)
     {
+        this(daoFactory, session, new EntityPropertiesConverter(EntityKind.SAMPLE, daoFactory));
+    }
+
+    @Private
+    SampleBO(final IDAOFactory daoFactory, final Session session,
+            final IEntityPropertiesConverter entityPropertiesConverter)
+    {
         super(daoFactory, session);
-        propertiesConverter = new EntityPropertiesConverter(EntityKind.SAMPLE, daoFactory);
+        propertiesConverter = entityPropertiesConverter;
         this.dataChanged = false;
     }
 

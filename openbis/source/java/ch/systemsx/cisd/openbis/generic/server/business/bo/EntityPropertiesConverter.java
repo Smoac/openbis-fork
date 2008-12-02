@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
@@ -46,7 +47,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * 
  * @author Christian Ribeaud
  */
-// TODO 2008-12-02, Christian Ribeaud: Test missing for this class.
 public final class EntityPropertiesConverter implements IEntityPropertiesConverter
 {
     private final IDAOFactory daoFactory;
@@ -63,6 +63,9 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
 
     public EntityPropertiesConverter(final EntityKind entityKind, final IDAOFactory daoFactory)
     {
+        assert entityKind != null : "Unspecified entity kind.";
+        assert daoFactory != null : "Unspecified DAO factory.";
+
         this.daoFactory = daoFactory;
         this.entityKind = entityKind;
     }
@@ -175,15 +178,19 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             final EntityProperty<ET, ETPT>[] properties, final String entityTypeCode,
             final PersonPE registrator)
     {
+        assert entityTypeCode != null : "Unspecified entity type code.";
+        assert registrator != null : "Unspecified registrator";
+        assert properties != null : "Unspecified entity properties";
+        if (properties.length == 0)
+        {
+            return Collections.emptyList();
+        }
         final EntityTypePE entityTypePE = getEntityType(entityTypeCode);
         final List<T> list = new ArrayList<T>();
         for (final EntityProperty<ET, ETPT> property : properties)
         {
             final T convertedProperty = convertProperty(registrator, entityTypePE, property);
-            if (convertedProperty != null)
-            {
-                list.add(convertedProperty);
-            }
+            list.add(convertedProperty);
         }
         return list;
     }

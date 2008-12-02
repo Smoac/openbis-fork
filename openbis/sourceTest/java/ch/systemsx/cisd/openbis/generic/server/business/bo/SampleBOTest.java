@@ -36,6 +36,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataTypeCode;
@@ -63,7 +64,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
  * 
  * @author Franz-Josef Elmer
  */
-@Test(groups = "broken")
+@Friend(toClasses = SampleBO.class)
 public final class SampleBOTest
 {
     private static final String DB = "DB";
@@ -153,6 +154,11 @@ public final class SampleBOTest
     private final static SampleIdentifier getSampleIdentifier(final String code)
     {
         return new SampleIdentifier(IdentifierHelper.createIdentifier(EXAMPLE_GROUP), code);
+    }
+
+    private final SampleBO createSampleBO()
+    {
+        return new SampleBO(daoFactory, EXAMPLE_SESSION, propertiesConverter);
     }
 
     @Test
@@ -456,11 +462,6 @@ public final class SampleBOTest
                     ex.getMessage());
         }
         context.assertIsSatisfied();
-    }
-
-    private SampleBO createSampleBO()
-    {
-        return new SampleBO(daoFactory, EXAMPLE_SESSION);
     }
 
 }
