@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAll
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.GroupValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.MatchingEntityValidator;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ProjectValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -80,6 +81,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
+    @ReturnValueFilter(validatorClass = ProjectValidator.class)
     public List<ProjectPE> listProjects(String sessionToken);
 
     /**
@@ -149,7 +151,9 @@ public interface ICommonServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     public List<ExperimentPE> listExperiments(final String sessionToken,
-            ExperimentTypePE experimentType, ProjectIdentifier project);
+            ExperimentTypePE experimentType,
+            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class)
+            ProjectIdentifier project);
 
     /**
      * For given {@link SampleIdentifier} returns the corresponding list of {@link ExternalDataPE}.
