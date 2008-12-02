@@ -17,11 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.server;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.AbstractBusinessObjectFactory;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.GroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
@@ -32,7 +30,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleTable;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * The unique {@link ICommonBusinessObjectFactory} implementation.
@@ -45,13 +42,6 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     public CommonBusinessObjectFactory(final IDAOFactory daoFactory)
     {
         super(daoFactory);
-    }
-
-    // TODO 2008-12-01, Christian Ribeaud: Remove this.
-    private final IEntityPropertiesConverter createEntityPropertiesConverter(
-            final EntityKind entityKind)
-    {
-        return new EntityPropertiesConverter(entityKind, getDaoFactory());
     }
 
     //
@@ -75,9 +65,7 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
 
     public final ISampleBO createSampleBO(final Session session)
     {
-        final IEntityPropertiesConverter converter =
-                createEntityPropertiesConverter(EntityKind.SAMPLE);
-        return new SampleBO(getDaoFactory(), converter, session);
+        return new SampleBO(getDaoFactory(), session);
     }
 
     public final IExternalDataTable createExternalDataTable(final Session session)

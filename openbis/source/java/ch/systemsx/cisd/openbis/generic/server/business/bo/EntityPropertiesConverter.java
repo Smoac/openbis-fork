@@ -22,6 +22,9 @@ import java.util.List;
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.util.KeyExtractorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
@@ -29,11 +32,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityPropertyValue;
 
 /**
  * The unique {@link IEntityPropertiesConverter} implementation.
@@ -43,8 +44,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityPropertyValu
  * needed should be preferred.
  * </p>
  * 
- * @author Tomasz Pylak
+ * @author Christian Ribeaud
  */
+// TODO 2008-12-02, Christian Ribeaud: Test missing for this class.
 public final class EntityPropertiesConverter implements IEntityPropertiesConverter
 {
     private final IDAOFactory daoFactory;
@@ -126,7 +128,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
                     new TableMap<PropertyTypePE, EntityTypePropertyTypePE>(daoFactory
                             .getEntityPropertyTypeDAO(entityKind).listEntityPropertyTypes(
                                     entityTypePE),
-                            new EntityTypePropertyTypeByPropertyTypeKeyExtractor());
+                            EntityTypePropertyTypeByPropertyTypeKeyExtractor.INSTANCE);
         }
         final EntityTypePropertyTypePE entityTypePropertyType =
                 entityTypePropertyTypesByPropertyTypes.tryGet(propertyType);
@@ -139,42 +141,73 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         return entityTypePropertyType;
     }
 
-    public final <T extends EntityPropertyPE> List<T> convertProperties(
-            final SimpleEntityProperty[] properties, final String entityTypeCode,
+    private final <T extends EntityPropertyPE, ET extends EntityType, ETPT extends EntityTypePropertyType<ET>> T convertProperty(
+            final PersonPE registrator, final EntityTypePE entityTypePE,
+            final EntityProperty<ET, ETPT> property)
+    {
+        final String propertyCode =
+                property.getEntityTypePropertyType().getPropertyType().getCode();
+        final PropertyTypePE propertyType = getPropertyType(propertyCode);
+        final EntityTypePropertyTypePE entityTypePropertyType =
+                getEntityTypePropertyType(entityTypePE, propertyType);
+        final String value = property.getValue();
+        assert value != null : "Unspecified entity property value.";
+        return createEntityProperty(registrator, propertyType, entityTypePropertyType, value);
+    }
+
+    private final <T extends EntityPropertyPE> T createEntityProperty(final PersonPE registrator,
+            final PropertyTypePE propertyType,
+            final EntityTypePropertyTypePE entityTypePropertyType, final String value)
+    {
+        final T entityProperty = EntityPropertyPE.createEntityProperty(entityKind);
+        entityProperty.setRegistrator(registrator);
+        entityProperty.setEntityTypePropertyType(entityTypePropertyType);
+        final VocabularyTermPE vocabularyTerm = tryGetVocabularyTerm(value, propertyType);
+        entityProperty.setUntypedValue(value, vocabularyTerm);
+        return entityProperty;
+    }
+
+    //
+    // IEntityPropertiesConverter
+    //
+
+    public final <T extends EntityPropertyPE, ET extends EntityType, ETPT extends EntityTypePropertyType<ET>> List<T> convertProperties(
+            final EntityProperty<ET, ETPT>[] properties, final String entityTypeCode,
             final PersonPE registrator)
     {
         final EntityTypePE entityTypePE = getEntityType(entityTypeCode);
-        final List<T> result = new ArrayList<T>();
-        for (final SimpleEntityProperty property : properties)
+        final List<T> list = new ArrayList<T>();
+        for (final EntityProperty<ET, ETPT> property : properties)
         {
-            final String propertyCode = property.getCode();
-            final PropertyTypePE propertyType = getPropertyType(propertyCode);
-            final EntityTypePropertyTypePE entityTypePropertyType =
-                    getEntityTypePropertyType(entityTypePE, propertyType);
-            final String untypedValueOrNull =
-                    EntityPropertyValue.createFromSimple(property).tryGetUntypedValue();
-            if (entityTypePropertyType.isMandatory() && untypedValueOrNull == null)
+            final T convertedProperty = convertProperty(registrator, entityTypePE, property);
+            if (convertedProperty != null)
             {
-                throw UserFailureException.fromTemplate("No entity property value for '%s'.",
-                        propertyCode);
-            }
-            if (untypedValueOrNull != null)
-            {
-                final T entityProperty = EntityPropertyPE.createEntityProperty(entityKind);
-                entityProperty.setRegistrator(registrator);
-                entityProperty.setEntityTypePropertyType(entityTypePropertyType);
-                final VocabularyTermPE vocabularyTerm =
-                        tryGetVocabularyTerm(untypedValueOrNull, propertyType);
-                entityProperty.setUntypedValue(untypedValueOrNull, vocabularyTerm);
-                result.add(entityProperty);
+                list.add(convertedProperty);
             }
         }
-        return result;
+        return list;
     }
 
-    private final class EntityTypePropertyTypeByPropertyTypeKeyExtractor implements
+    //
+    // Helper classes
+    //
+
+    private final static class EntityTypePropertyTypeByPropertyTypeKeyExtractor implements
             IKeyExtractor<PropertyTypePE, EntityTypePropertyTypePE>
     {
+
+        static final EntityTypePropertyTypeByPropertyTypeKeyExtractor INSTANCE =
+                new EntityTypePropertyTypeByPropertyTypeKeyExtractor();
+
+        private EntityTypePropertyTypeByPropertyTypeKeyExtractor()
+        {
+            // Can not be instantiated.
+        }
+
+        //
+        // IKeyExtractor
+        //
+
         public final PropertyTypePE getKey(final EntityTypePropertyTypePE e)
         {
             return e.getPropertyType();

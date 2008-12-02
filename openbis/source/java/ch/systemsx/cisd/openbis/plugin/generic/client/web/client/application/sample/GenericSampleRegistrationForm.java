@@ -27,7 +27,6 @@ import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.DateField;
@@ -37,16 +36,16 @@ import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
-import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.ListBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataTypes;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleToRegister;
@@ -63,7 +62,6 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  */
 public final class GenericSampleRegistrationForm extends FormPanel
 {
-
     private static final String PREFIX = "generic-sample-registration_";
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
@@ -109,7 +107,7 @@ public final class GenericSampleRegistrationForm extends FormPanel
     private static final int FIELD_WIDTH = 400;
 
     public GenericSampleRegistrationForm(
-            final IViewContext<IGenericClientServiceAsync> viewContext, SampleType sampleType)
+            final IViewContext<IGenericClientServiceAsync> viewContext, final SampleType sampleType)
     {
         this.viewContext = viewContext;
         this.sampleType = sampleType;
@@ -117,16 +115,20 @@ public final class GenericSampleRegistrationForm extends FormPanel
         createFormFields();
     }
 
-    private void createFormFields()
+    private final void createFormFields()
     {
         infoBox = new InfoBox();
 
-        code = new CodeField("Sample code", true);
+        code = new CodeField("Sample code");
         code.setId(CODE_FIELD_ID);
         code.addListener(Events.Focus, new Listener<BaseEvent>()
             {
 
-                public void handleEvent(BaseEvent be)
+                //
+                // Listener
+                //
+
+                public final void handleEvent(final BaseEvent be)
                 {
                     infoBox.fade();
                 }
@@ -141,7 +143,11 @@ public final class GenericSampleRegistrationForm extends FormPanel
         sharedCheckbox.setValue(SELECT_GROUP_BY_DEFAULT == false);
         sharedCheckbox.addListener(Events.Change, new Listener<BaseEvent>()
             {
-                public void handleEvent(BaseEvent be)
+                //
+                // Listener
+                //
+
+                public final void handleEvent(final BaseEvent be)
                 {
                     groupSelectionWidget
                             .setEnabled(sharedCheckbox.getValue().booleanValue() == false);
@@ -155,7 +161,11 @@ public final class GenericSampleRegistrationForm extends FormPanel
         groupMultiField.setLabelSeparator(MANDATORY_LABEL_SEPARATOR);
         groupMultiField.setValidator(new Validator<Field<?>, MultiField<Field<?>>>()
             {
-                public String validate(MultiField<Field<?>> field, String value)
+                //
+                // Validator
+                //
+
+                public final String validate(final MultiField<Field<?>> field, final String value)
                 {
                     if (sharedCheckbox.getValue() == false
                             && groupSelectionWidget.tryGetSelected() == null)
@@ -179,49 +189,39 @@ public final class GenericSampleRegistrationForm extends FormPanel
         }
     }
 
-    private void configureForm()
+    private final void configureForm()
     {
         setHeaderVisible(false);
         setBodyBorder(false);
+        setWidth(LABEL_WIDTH + FIELD_WIDTH + 20);
 
         setLabelWidth(LABEL_WIDTH);
         setFieldWidth(FIELD_WIDTH);
-        setButtonAlign(HorizontalAlignment.LEFT);
-        final ButtonBar bb = new ButtonBar();
-        bb.setCellSpacing(20);
-        // Reset functionality - uncomment if needed
-        //
-        // Button resetButton = new Button("Reset");
-        // resetButton.addSelectionListener(new SelectionListener<ComponentEvent>()
-        // {
-        // @Override
-        // public void componentSelected(ComponentEvent ce)
-        // {
-        // resetForm("");
-        // }
-        // });
-        // bb.add(resetButton);
-
-        Button saveButton = new Button("Save");
+        setButtonAlign(HorizontalAlignment.RIGHT);
+        final Button saveButton = new Button("Save");
         saveButton.setId(SAVE_BUTTON_ID);
         saveButton.addSelectionListener(new SelectionListener<ComponentEvent>()
             {
+
+                //
+                // SelectionListener
+                //
+
                 @Override
-                public void componentSelected(ComponentEvent ce)
+                public final void componentSelected(final ComponentEvent ce)
                 {
                     submitForm();
                 }
             });
-        bb.add(saveButton);
-        setButtonBar(bb);
+        addButton(saveButton);
     }
 
-    private String createSampleIdentifier()
+    private final String createSampleIdentifier()
     {
-        boolean shared = sharedCheckbox.getValue();
-        Group g = groupSelectionWidget.tryGetSelected();
-        String c = code.getValue();
-        StringBuilder sb = new StringBuilder("/");
+        final boolean shared = sharedCheckbox.getValue();
+        final Group g = groupSelectionWidget.tryGetSelected();
+        final String c = code.getValue();
+        final StringBuilder sb = new StringBuilder("/");
         if (shared == false)
         {
             if (g == null)
@@ -234,7 +234,8 @@ public final class GenericSampleRegistrationForm extends FormPanel
         return sb.toString().toUpperCase();
     }
 
-    static String createSuccessfullRegistrationInfo(boolean shared, String code, Group group)
+    private final static String createSuccessfullRegistrationInfo(final boolean shared,
+            final String code, final Group group)
     {
         if (shared)
         {
@@ -247,37 +248,36 @@ public final class GenericSampleRegistrationForm extends FormPanel
         }
     }
 
-    String valueToString(Object value)
+    private final String valueToString(final Object value)
     {
         if (value == null)
         {
             return null;
         } else if (value instanceof Date)
         {
-            return DateTimeFormat.getFormat(GenericConstants.DEFAULT_DATE_FORMAT_PATTERN).format(
-                    (Date) value);
+            return DateRenderer.renderDate((Date) value);
         } else
         {
             return value.toString();
         }
     }
 
-    private void submitForm()
+    private final void submitForm()
     {
         if (isValid())
         {
-            SampleToRegister sampleToRegister =
+            final SampleToRegister sampleToRegister =
                     new SampleToRegister(createSampleIdentifier(), sampleType.getCode(),
                             parentGenerator.getValue(), parentContainer.getValue());
-            for (Field<?> field : propertyFields)
+            for (final Field<?> field : propertyFields)
             {
                 if (field.getValue() != null)
                 {
-                    SampleTypePropertyType stpt = field.getData(ETPT);
-                    SampleProperty sp = new SampleProperty();
-                    sp.setValue(valueToString(field.getValue()));
-                    sp.setEntityTypePropertyType(stpt);
-                    sampleToRegister.addProperty(sp);
+                    final SampleTypePropertyType stpt = field.getData(ETPT);
+                    final SampleProperty sampleProperty = new SampleProperty();
+                    sampleProperty.setValue(valueToString(field.getValue()));
+                    sampleProperty.setEntityTypePropertyType(stpt);
+                    sampleToRegister.addProperty(sampleProperty);
                 }
             }
             viewContext.getService().registerSample(sampleToRegister,
@@ -285,38 +285,12 @@ public final class GenericSampleRegistrationForm extends FormPanel
         }
     }
 
-    public class RegisterSampleCallback extends AbstractAsyncCallback<Void>
-    {
-        public RegisterSampleCallback(IViewContext<?> viewContext)
-        {
-            super(viewContext);
-        }
-
-        @Override
-        protected void process(Void result)
-        {
-
-            String message =
-                    createSuccessfullRegistrationInfo(sharedCheckbox.getValue(), code.getValue(),
-                            groupSelectionWidget.tryGetSelected());
-            resetForm(message);
-
-        }
-    }
-
-    private void resetForm(String info)
+    private final void resetForm(final String info)
     {
         createFormFields();
         addFormFields();
         infoBox.display(info);
         layout();
-    }
-
-    @Override
-    protected void onRender(final Element target, final int index)
-    {
-        super.onRender(target, index);
-        addFormFields();
     }
 
     public void addFormFields()
@@ -333,12 +307,12 @@ public final class GenericSampleRegistrationForm extends FormPanel
         }
     }
 
-    private Field<?> createProperty(final SampleTypePropertyType stpt)
+    private final Field<?> createProperty(final SampleTypePropertyType stpt)
     {
         final Field<?> field;
-        final DataTypes dataType = stpt.getPropertyType().getDataType().getCode();
-        boolean isMandatory = stpt.isMandatory();
-        String label = stpt.getPropertyType().getLabel();
+        final DataTypeCode dataType = stpt.getPropertyType().getDataType().getCode();
+        final boolean isMandatory = stpt.isMandatory();
+        final String label = stpt.getPropertyType().getLabel();
         switch (dataType)
         {
             case BOOLEAN:
@@ -370,9 +344,46 @@ public final class GenericSampleRegistrationForm extends FormPanel
         return field;
     }
 
-    class CheckBoxField extends CheckBox
+    //
+    // FormPanel
+    //
+
+    @Override
+    protected final void onRender(final Element target, final int index)
     {
-        public CheckBoxField(String label, boolean mandatory)
+        super.onRender(target, index);
+        addFormFields();
+    }
+
+    //
+    // Helper classes
+    //
+
+    public final class RegisterSampleCallback extends AbstractAsyncCallback<Void>
+    {
+        RegisterSampleCallback(final IViewContext<?> viewContext)
+        {
+            super(viewContext);
+        }
+
+        //
+        // AbstractAsyncCallback
+        //
+
+        @Override
+        protected final void process(final Void result)
+        {
+
+            final String message =
+                    createSuccessfullRegistrationInfo(sharedCheckbox.getValue(), code.getValue(),
+                            groupSelectionWidget.tryGetSelected());
+            resetForm(message);
+        }
+    }
+
+    private final static class CheckBoxField extends CheckBox
+    {
+        CheckBoxField(final String label, final boolean mandatory)
         {
             setFieldLabel(label);
             if (mandatory)
@@ -382,9 +393,9 @@ public final class GenericSampleRegistrationForm extends FormPanel
         }
     }
 
-    class DateFormField extends DateField
+    private final static class DateFormField extends DateField
     {
-        DateFormField(String label, boolean mandatory)
+        DateFormField(final String label, final boolean mandatory)
         {
             setFieldLabel(label);
             setValidateOnBlur(true);
@@ -397,11 +408,11 @@ public final class GenericSampleRegistrationForm extends FormPanel
         }
     }
 
-    static class ControlledVocabullaryField extends AdapterField
+    private final static class ControlledVocabullaryField extends AdapterField
     {
 
-        public ControlledVocabullaryField(String label, boolean mandatory,
-                List<VocabularyTerm> terms)
+        ControlledVocabullaryField(final String label, final boolean mandatory,
+                final List<VocabularyTerm> terms)
         {
             super(createListBox(terms));
             setFieldLabel(label);
@@ -411,10 +422,10 @@ public final class GenericSampleRegistrationForm extends FormPanel
             }
         }
 
-        private static final ListBox createListBox(List<VocabularyTerm> terms)
+        private static final ListBox createListBox(final List<VocabularyTerm> terms)
         {
-            ListBox box = new ListBox();
-            for (VocabularyTerm term : terms)
+            final ListBox box = new ListBox();
+            for (final VocabularyTerm term : terms)
             {
                 box.addItem(term.getCode());
             }
@@ -423,10 +434,10 @@ public final class GenericSampleRegistrationForm extends FormPanel
 
     }
 
-    static class BasicTextField<T> extends TextField<T>
+    private static class BasicTextField<T> extends TextField<T>
     {
 
-        BasicTextField(String label, boolean mandatory)
+        BasicTextField(final String label, final boolean mandatory)
         {
             setFieldLabel(label);
             setMaxLength(1024);
@@ -440,40 +451,43 @@ public final class GenericSampleRegistrationForm extends FormPanel
         }
     }
 
-    static class VarcharField extends BasicTextField<String>
+    private static class VarcharField extends BasicTextField<String>
     {
-        VarcharField(String label, boolean mandatory)
+        VarcharField(final String label, final boolean mandatory)
         {
             super(label, mandatory);
         }
     }
 
-    static class CodeField extends VarcharField
+    private final static class CodeField extends VarcharField
     {
 
-        CodeField(String label, boolean mandatory)
+        CodeField(final String label)
         {
-            super(label, mandatory);
+            super(label, true);
             setRegex(GenericConstants.CODE_PATTERN);
         }
-
     }
 
-    static class RealField extends BasicTextField<Double>
+    private final static class RealField extends BasicTextField<Double>
     {
-        RealField(String label, boolean mandatory)
+        RealField(final String label, final boolean mandatory)
         {
             super(label, mandatory);
             setValidator(new Validator<Double, Field<Double>>()
                 {
 
-                    public String validate(Field<Double> field, String val)
+                    //
+                    // Validator
+                    //
+
+                    public final String validate(final Field<Double> field, final String val)
                     {
                         try
                         {
                             Double.parseDouble(val);
                             return null;
-                        } catch (NumberFormatException e)
+                        } catch (final NumberFormatException e)
                         {
                             return "Real number required";
                         }
@@ -482,21 +496,25 @@ public final class GenericSampleRegistrationForm extends FormPanel
         }
     }
 
-    static class IntegerField extends BasicTextField<Integer>
+    private final static class IntegerField extends BasicTextField<Integer>
     {
-        IntegerField(String label, boolean mandatory)
+        IntegerField(final String label, final boolean mandatory)
         {
             super(label, mandatory);
             setValidator(new Validator<Integer, Field<Integer>>()
                 {
 
-                    public String validate(Field<Integer> field, String val)
+                    //
+                    // Validator
+                    //
+
+                    public final String validate(final Field<Integer> field, final String val)
                     {
                         try
                         {
                             Integer.parseInt(val);
                             return null;
-                        } catch (NumberFormatException e)
+                        } catch (final NumberFormatException e)
                         {
                             return "Integer required";
                         }
@@ -505,10 +523,10 @@ public final class GenericSampleRegistrationForm extends FormPanel
         }
     }
 
-    static class InfoBox extends LabelField
+    private final static class InfoBox extends LabelField
     {
 
-        public InfoBox()
+        InfoBox()
         {
             setVisible(false);
             setStyleAttribute("text-align", "center !important");
@@ -533,7 +551,7 @@ public final class GenericSampleRegistrationForm extends FormPanel
             setLightStyle();
         }
 
-        public void display(String text)
+        public void display(final String text)
         {
             if (StringUtils.isBlank(text) == false)
             {

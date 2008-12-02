@@ -19,27 +19,28 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
+ * A class that represents a data type.
+ * 
  * @author Izabela Adamczyk
  */
-public class DataType implements IsSerializable
+public final class DataType implements IsSerializable
 {
+    private DataTypeCode code;
 
-    DataTypes code;
-
-    String description;
+    private String description;
 
     public DataType()
     {
     }
 
-    public DataTypes getCode()
+    public DataTypeCode getCode()
     {
         return code;
     }
 
-    public void setCode(DataTypes entityDataType)
+    public void setCode(final DataTypeCode code)
     {
-        this.code = entityDataType;
+        this.code = code;
     }
 
     public String getDescription()
@@ -47,7 +48,7 @@ public class DataType implements IsSerializable
         return description;
     }
 
-    public void setDescription(String description)
+    public void setDescription(final String description)
     {
         this.description = description;
     }

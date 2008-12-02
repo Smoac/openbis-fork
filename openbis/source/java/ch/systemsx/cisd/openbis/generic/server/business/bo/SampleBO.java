@@ -16,13 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-import java.util.HashSet;
 import java.util.List;
 
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.ParameterChecker;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -30,8 +30,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleToRegisterDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * The unique {@link ISampleBO} implementation.
@@ -46,12 +46,34 @@ public final class SampleBO extends AbstractSampleIdentifierBusinessObject imple
 
     private boolean dataChanged;
 
-    public SampleBO(final IDAOFactory daoFactory,
-            final IEntityPropertiesConverter entityPropertiesConverter, final Session session)
+    public SampleBO(final IDAOFactory daoFactory, final Session session)
     {
         super(daoFactory, session);
-        propertiesConverter = entityPropertiesConverter;
+        propertiesConverter = new EntityPropertiesConverter(EntityKind.SAMPLE, daoFactory);
         this.dataChanged = false;
+    }
+
+    private final SampleTypePE getSampleType(final String code) throws UserFailureException
+    {
+        final SampleTypePE sampleType = getSampleTypeDAO().tryFindSampleTypeByCode(code);
+        if (sampleType == null)
+        {
+            throw UserFailureException.fromTemplate(
+                    "No sample type with code '%s' could be found in the database.", code);
+        }
+        return sampleType;
+    }
+
+    private final void defineSampleProperties(final SampleProperty[] sampleProperties)
+    {
+        final String sampleTypeCode = sample.getSampleType().getCode();
+        final List<SamplePropertyPE> properties =
+                propertiesConverter.convertProperties(sampleProperties, sampleTypeCode, sample
+                        .getRegistrator());
+        for (final SamplePropertyPE sampleProperty : properties)
+        {
+            sample.addProperty(sampleProperty);
+        }
     }
 
     //
@@ -92,7 +114,7 @@ public final class SampleBO extends AbstractSampleIdentifierBusinessObject imple
         sample.setGroup(sampleOwner.tryGetGroup());
         sample.setDatabaseInstance(sampleOwner.tryGetDatabaseInstance());
         defineSampleProperties(newSample.getProperties());
-        final SampleIdentifier generatorParentSampleIdentifier = newSample.getGeneratorParent();
+        final SampleIdentifier generatorParentSampleIdentifier = newSample.getParent();
         if (generatorParentSampleIdentifier != null)
         {
             final SamplePE generatedFrom = getSampleByIdentifier(generatorParentSampleIdentifier);
@@ -109,7 +131,7 @@ public final class SampleBO extends AbstractSampleIdentifierBusinessObject imple
                         .getTop());
             }
         }
-        final SampleIdentifier containerParentSampleIdentifier = newSample.getContainerParent();
+        final SampleIdentifier containerParentSampleIdentifier = newSample.getContainer();
         if (containerParentSampleIdentifier != null)
         {
             final SamplePE contained = getSampleByIdentifier(containerParentSampleIdentifier);
@@ -127,34 +149,6 @@ public final class SampleBO extends AbstractSampleIdentifierBusinessObject imple
         }
         SampleGenericBusinessRules.assertValidParents(sample);
         dataChanged = true;
-    }
-
-    // other fields of sample should be already defined
-    private void defineSampleProperties(final SimpleEntityProperty[] simpleProperties)
-    {
-        final String sampleTypeCode = sample.getSampleType().getCode();
-
-        final List<SamplePropertyPE> properties =
-                propertiesConverter.convertProperties(simpleProperties, sampleTypeCode, sample
-                        .getRegistrator());
-        final HashSet<SamplePropertyPE> set = new HashSet<SamplePropertyPE>();
-        for (final SamplePropertyPE ep : properties)
-        {
-            ep.setHolder(sample);
-            set.add(ep);
-        }
-        sample.setProperties(set);
-    }
-
-    private final SampleTypePE getSampleType(final String code) throws UserFailureException
-    {
-        final SampleTypePE sampleType = getSampleTypeDAO().tryFindSampleTypeByCode(code);
-        if (sampleType == null)
-        {
-            throw UserFailureException.fromTemplate(
-                    "No sample type with code '%s' could be found in the database.", code);
-        }
-        return sampleType;
     }
 
     public final void save()

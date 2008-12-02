@@ -18,21 +18,23 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleEntityProperty;
 
 /**
- * Converter between {@link SimpleEntityProperty} and {@link EntityPropertyPE}.
+ * Converter between {@link EntityProperty} and {@link EntityPropertyPE}.
  * 
- * @author Tomasz Pylak
+ * @author Christian Ribeaud
  */
 public interface IEntityPropertiesConverter
 {
 
     /**
-     * Converts the set of {@link SimpleEntityProperty} objects obtained from the specified entity
-     * to an array of {@link EntityPropertyPE} objects.
+     * Converts the set of {@link EntityProperty} objects obtained from the specified entity to an
+     * array of {@link EntityPropertyPE} objects.
      * <p>
      * Checks whether all properties values have right type and if all mandatory properties are
      * provided.
@@ -40,7 +42,7 @@ public interface IEntityPropertiesConverter
      * 
      * @param registrator Will appear in the objects of the output.
      */
-    public <T extends EntityPropertyPE> List<T> convertProperties(
-            final SimpleEntityProperty[] properties, final String entityTypeCode,
+    public <T extends EntityPropertyPE, ET extends EntityType, ETPT extends EntityTypePropertyType<ET>> List<T> convertProperties(
+            final EntityProperty<ET, ETPT>[] properties, final String entityTypeCode,
             final PersonPE registrator);
 }

@@ -23,8 +23,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Izabela Adamczyk
  */
-public enum DataTypes implements IsSerializable
+public enum DataTypeCode implements IsSerializable
 {
     INTEGER, VARCHAR, REAL, TIMESTAMP, BOOLEAN, CONTROLLEDVOCABULARY;
-
 }

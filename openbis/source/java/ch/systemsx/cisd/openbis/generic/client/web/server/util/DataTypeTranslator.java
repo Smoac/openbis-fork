@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataTypes;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 
@@ -60,22 +60,22 @@ public class DataTypeTranslator
         }
     }
 
-    private static DataTypes translate(EntityDataType edt)
+    private static DataTypeCode translate(EntityDataType edt)
     {
         switch (edt)
         {
             case BOOLEAN:
-                return DataTypes.BOOLEAN;
+                return DataTypeCode.BOOLEAN;
             case CONTROLLEDVOCABULARY:
-                return DataTypes.CONTROLLEDVOCABULARY;
+                return DataTypeCode.CONTROLLEDVOCABULARY;
             case INTEGER:
-                return DataTypes.INTEGER;
+                return DataTypeCode.INTEGER;
             case REAL:
-                return DataTypes.REAL;
+                return DataTypeCode.REAL;
             case TIMESTAMP:
-                return DataTypes.TIMESTAMP;
+                return DataTypeCode.TIMESTAMP;
             default:
-                return DataTypes.VARCHAR;
+                return DataTypeCode.VARCHAR;
 
         }
     }

@@ -68,10 +68,10 @@ public final class GenericClientServiceTest
     {
         final SampleToRegister s = new SampleToRegister();
         s.setSampleIdentifier(sampleIdentifier);
-        s.setType(type);
+        s.setSampleTypeCode(type);
         s.setProperties(properties);
-        s.setGeneratorParent(generatorParent);
-        s.setContainerParent(containerParent);
+        s.setParent(generatorParent);
+        s.setContainer(containerParent);
         return s;
     }
 

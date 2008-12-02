@@ -42,7 +42,13 @@ public class GenericConstants
                 + serviceName;
     }
 
-    public final static String CODE_PATTERN = "^[A-Z0-9_\\-]+$";
+    /**
+     * The pattern for a correct code.
+     * <p>
+     * Note that this one accepts letters in lower case.
+     * </p>
+     */
+    public final static String CODE_PATTERN = "^[a-zA-Z0-9_\\-]+$";
 
     public static final String DEFAULT_DATE_FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss zzz";
 }

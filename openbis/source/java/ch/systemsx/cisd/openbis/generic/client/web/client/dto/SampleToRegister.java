@@ -21,85 +21,89 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-public class SampleToRegister implements IsSerializable
+/**
+ * A sample to register.
+ * 
+ * @author Christian Ribeaud
+ */
+public final class SampleToRegister implements IsSerializable
 {
-    String sampleIdentifier;
+    private String sampleIdentifier;
 
-    String typeCode;
+    private String sampleTypeCode;
 
-    String generatorParent;
+    private String parent;
 
-    String containerParent;
+    private String container;
 
-    List<SampleProperty> properties;
+    private List<SampleProperty> properties;
 
     public SampleToRegister()
     {
     }
 
-    public SampleToRegister(String sampleIdentifier, String type, String generatorParent,
-            String containerParent)
+    public SampleToRegister(final String sampleIdentifier, final String sampleTypeCode, final String parent,
+            final String container)
     {
         this.sampleIdentifier = sampleIdentifier;
-        this.typeCode = type;
-        this.generatorParent = generatorParent;
-        this.containerParent = containerParent;
+        this.sampleTypeCode = sampleTypeCode;
+        this.parent = parent;
+        this.container = container;
         properties = new ArrayList<SampleProperty>();
     }
 
-    public String getSampleIdentifier()
+    public final String getSampleIdentifier()
     {
         return sampleIdentifier;
     }
 
-    public void setSampleIdentifier(String code)
+    public final void setSampleIdentifier(final String sampleIdentifier)
     {
-        this.sampleIdentifier = code;
+        this.sampleIdentifier = sampleIdentifier;
     }
 
-    public String getType()
+    public final String getSampleTypeCode()
     {
-        return typeCode;
+        return sampleTypeCode;
     }
 
-    public void setType(String type)
+    public final void setSampleTypeCode(final String typeCode)
     {
-        this.typeCode = type;
+        this.sampleTypeCode = typeCode;
     }
 
-    public String getGeneratorParent()
+    public final String getParent()
     {
-        return generatorParent;
+        return parent;
     }
 
-    public void setGeneratorParent(String generatorParent)
+    public final void setParent(final String parent)
     {
-        this.generatorParent = generatorParent;
+        this.parent = parent;
     }
 
-    public String getContainerParent()
+    public final String getContainer()
     {
-        return containerParent;
+        return container;
     }
 
-    public void setContainerParent(String containerParent)
+    public final void setContainer(final String container)
     {
-        this.containerParent = containerParent;
+        this.container = container;
     }
 
-    public List<SampleProperty> getProperties()
+    public final List<SampleProperty> getProperties()
     {
         return properties;
     }
 
-    public void setProperties(List<SampleProperty> properties)
+    public final void setProperties(final List<SampleProperty> properties)
     {
         this.properties = properties;
     }
 
-    public void addProperty(SampleProperty property)
+    public final void addProperty(final SampleProperty property)
     {
         properties.add(property);
     }
-
 }

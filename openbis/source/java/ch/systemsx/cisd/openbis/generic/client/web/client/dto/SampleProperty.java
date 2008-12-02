@@ -26,5 +26,5 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public final class SampleProperty extends EntityProperty<SampleType, SampleTypePropertyType>
         implements IsSerializable
 {
-
+    public static final SampleProperty[] EMPTY_ARRAY = new SampleProperty[0];
 }

@@ -18,75 +18,81 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
-public class SampleToRegisterDTO implements Serializable, ISimpleEntityPropertiesHolder
+/**
+ * A sample that is ready to be registered.
+ * 
+ * @author Christian Ribeaud
+ */
+public final class SampleToRegisterDTO implements Serializable
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
-    SampleIdentifier sampleIdentifier;
+    private SampleIdentifier sampleIdentifier;
 
-    String typeCode;
+    private String sampleTypeCode;
 
-    SampleIdentifier generatorParent;
+    private SampleIdentifier parent;
 
-    SampleIdentifier containerParent;
+    private SampleIdentifier container;
 
-    SimpleEntityProperty[] properties;
+    private SampleProperty[] properties;
 
     public SampleToRegisterDTO()
     {
     }
 
-    public SampleIdentifier getSampleIdentifier()
+    public final SampleIdentifier getSampleIdentifier()
     {
         return sampleIdentifier;
     }
 
-    public void setSampleIdentifier(SampleIdentifier code)
+    public final void setSampleIdentifier(final SampleIdentifier sampleIdentifier)
     {
-        this.sampleIdentifier = code;
+        this.sampleIdentifier = sampleIdentifier;
     }
 
-    public SampleIdentifier getGeneratorParent()
+    public final SampleIdentifier getParent()
     {
-        return generatorParent;
+        return parent;
     }
 
-    public void setGeneratorParent(SampleIdentifier generatorParent)
+    public final void setParent(final SampleIdentifier parent)
     {
-        this.generatorParent = generatorParent;
+        this.parent = parent;
     }
 
-    public SampleIdentifier getContainerParent()
+    public final SampleIdentifier getContainer()
     {
-        return containerParent;
+        return container;
     }
 
-    public void setContainerParent(SampleIdentifier containerParent)
+    public final void setContainer(final SampleIdentifier container)
     {
-        this.containerParent = containerParent;
+        this.container = container;
     }
 
-    public void setProperties(SimpleEntityProperty[] properties)
+    public final void setProperties(final SampleProperty[] properties)
     {
         this.properties = properties;
     }
 
-    public SimpleEntityProperty[] getProperties()
+    public final SampleProperty[] getProperties()
     {
         return properties;
     }
 
-    public void setSampleTypeCode(String type)
+    public final void setSampleTypeCode(final String sampleTypeCode)
     {
-        typeCode = type;
+        this.sampleTypeCode = sampleTypeCode;
     }
 
-    public String getSampleTypeCode()
+    public final String getSampleTypeCode()
     {
-        return typeCode;
+        return sampleTypeCode;
     }
 
 }

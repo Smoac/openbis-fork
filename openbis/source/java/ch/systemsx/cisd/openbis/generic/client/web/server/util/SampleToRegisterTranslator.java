@@ -16,57 +16,44 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleToRegister;
-import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleToRegisterDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityPropertyValue;
 
 /**
+ * A {@link SampleToRegisterDTO} &lt;---&gt; {@link SampleToRegister} translator.
+ * 
  * @author Izabela Adamczyk
  */
-public class SampleToRegisterTranslator
+public final class SampleToRegisterTranslator
 {
 
-    public static SampleToRegisterDTO translate(SampleToRegister sample)
+    private SampleToRegisterTranslator()
     {
-        SampleToRegisterDTO result = new SampleToRegisterDTO();
+        // Can not be instantiated.
+    }
 
-        // Sample
-        if (StringUtils.isBlank(sample.getSampleIdentifier()) == false)
-            result.setSampleIdentifier(SampleIdentifierFactory.parse(sample.getSampleIdentifier()));
-        else
-            throw new UserFailureException("Sample code incorrect");
-
-        // Parents
-        if (StringUtils.isBlank(sample.getContainerParent()) == false)
-            result.setContainerParent(SampleIdentifierFactory.parse(sample.getContainerParent()));
-        if (StringUtils.isBlank(sample.getGeneratorParent()) == false)
-            result.setGeneratorParent(SampleIdentifierFactory.parse(sample.getGeneratorParent()));
-
-        // Properties
-        List<SimpleEntityProperty> simpleProperties = new ArrayList<SimpleEntityProperty>();
-        List<SampleProperty> properties = sample.getProperties();
-        for (SampleProperty property : properties)
+    /**
+     * Translates a given {@link SampleToRegister} into a {@link SampleToRegisterDTO}.
+     */
+    public final static SampleToRegisterDTO translate(final SampleToRegister sample)
+    {
+        final SampleToRegisterDTO result = new SampleToRegisterDTO();
+        result.setSampleIdentifier(SampleIdentifierFactory.parse(sample.getSampleIdentifier()));
+        final String container = sample.getContainer();
+        if (StringUtils.isBlank(container) == false)
         {
-            PropertyType propertyType = property.getEntityTypePropertyType().getPropertyType();
-            EntityDataType dataType = DataTypeTranslator.translate(propertyType.getDataType());
-            simpleProperties.add(EntityPropertyValue.createFromUntyped(property.getValue(),
-                    dataType).createSimple(propertyType.getCode(), propertyType.getLabel()));
+            result.setContainer(SampleIdentifierFactory.parse(container));
         }
-        result.setProperties(simpleProperties.toArray(new SimpleEntityProperty[0]));
-
-        // Type
-        result.setSampleTypeCode(sample.getType());
+        final String parent = sample.getParent();
+        if (StringUtils.isBlank(parent) == false)
+        {
+            result.setParent(SampleIdentifierFactory.parse(parent));
+        }
+        result.setProperties(sample.getProperties().toArray(SampleProperty.EMPTY_ARRAY));
+        result.setSampleTypeCode(sample.getSampleTypeCode());
         return result;
     }
 }
