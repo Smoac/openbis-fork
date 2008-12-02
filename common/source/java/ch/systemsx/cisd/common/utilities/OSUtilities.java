@@ -70,7 +70,7 @@ public class OSUtilities
     public static String getCompatibleComputerPlatform()
     {
         String osName = System.getProperty("os.name");
-        if ("Windows XP".equals(osName) || "Windows Vista".equals(osName))
+        if (osName.startsWith("Windows"))
         {
             osName = "Windows";
         }
