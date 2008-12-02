@@ -20,7 +20,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonView
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GroupsView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.PersonsView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.RolesView;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SampleBatchRegistrationMock;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SampleBatchRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SampleRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment_browser.ExperimentBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.SampleBrowser;
@@ -47,7 +47,7 @@ final class ComponentProvider
 
     private final SampleRegistrationPanel sampleRegistration;
 
-    private final SampleBatchRegistrationMock sampleBatchRegistration;
+    private final SampleBatchRegistrationPanel sampleBatchRegistration;
 
     private final ExperimentBrowser experimentBrowser;
 
@@ -59,7 +59,7 @@ final class ComponentProvider
         rolesView = new RolesView(viewContext);
         personsView = new PersonsView(viewContext);
         sampleRegistration = new SampleRegistrationPanel(viewContext);
-        sampleBatchRegistration = new SampleBatchRegistrationMock(viewContext);
+        sampleBatchRegistration = new SampleBatchRegistrationPanel(viewContext);
         experimentBrowser = new ExperimentBrowser(viewContext);
     }
 
@@ -90,12 +90,12 @@ final class ComponentProvider
 
     public final ITabItem getSampleRegistration()
     {
-        return new ContentPanelAdapter(sampleRegistration);
+        return new DefaultTabItem("Sample registration", sampleRegistration);
     }
 
-    public ITabItem getSampleBatchRegistration()
+    public final ITabItem getSampleBatchRegistration()
     {
-        return new ContentPanelAdapter(sampleBatchRegistration);
+        return new DefaultTabItem("Sample batch registration", sampleBatchRegistration);
     }
 
     public ITabItem getExperimentBrowser()

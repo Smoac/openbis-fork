@@ -102,9 +102,9 @@ public final class GenericSampleRegistrationForm extends FormPanel
 
     private static final String MANDATORY_LABEL_SEPARATOR = ": *";
 
-    private static final int LABEL_WIDTH = 150;
+    static final int LABEL_WIDTH = 100;
 
-    private static final int FIELD_WIDTH = 400;
+    static final int FIELD_WIDTH = 400;
 
     public GenericSampleRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext, final SampleType sampleType)
@@ -204,6 +204,7 @@ public final class GenericSampleRegistrationForm extends FormPanel
         setButtonAlign(HorizontalAlignment.RIGHT);
         final Button saveButton =
                 new Button(viewContext.getMessageProvider().getMessage("button_save"));
+        saveButton.setStyleAttribute("marginRight", "20px");
         saveButton.setId(SAVE_BUTTON_ID);
         saveButton.addSelectionListener(new SelectionListener<ComponentEvent>()
             {

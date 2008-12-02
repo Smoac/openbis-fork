@@ -22,6 +22,8 @@ import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Header;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+
 /**
  * A {@link ITabItem} implementation to adapt a {@link ContentPanel}.
  * 
@@ -41,6 +43,9 @@ public final class ContentPanelAdapter implements ITabItem
     public ContentPanelAdapter(final ContentPanel contentPanel,
             final Listener<TabPanelEvent> tabPanelEventListener)
     {
+        // Note that if not set, is then automatically generated. So this is why we test for
+        // 'ID_PREFIX'. We want the user to set an unique id.
+        assert contentPanel.getId().startsWith(GenericConstants.ID_PREFIX) : "Unspecified component id.";
         this.contentPanel = contentPanel;
         this.tabPanelEventListener = tabPanelEventListener;
     }

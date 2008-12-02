@@ -19,10 +19,17 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 import com.google.gwt.core.client.GWT;
 
 /**
+ * Some generic constants.
+ * 
  * @author Franz-Josef Elmer
  */
-public class GenericConstants
+public final class GenericConstants
 {
+    private GenericConstants()
+    {
+        // Can not be instantiated.
+    }
+
     /**
      * Prefix all widget IDs have to start with.
      */

@@ -35,7 +35,12 @@ public interface ISampleViewClientPlugin
     public ITabItem createSampleViewer(final String sampleIdentifier);
 
     /**
-     * Shows a registration form for samples of type <var>sampleTypeCode</var>.
+     * Shows a registration form for samples of given <var>sampleType</var>.
      */
-    public Widget createRegistrationClientForSampleType(SampleType sampleTypeCode);
+    public Widget createRegistrationForSampleType(final SampleType sampleType);
+
+    /**
+     * Shows a batch registration form for samples of given <var>sampleType</var>.
+     */
+    public Widget createBatchRegistrationForSampleType(final SampleType sampleType);
 }

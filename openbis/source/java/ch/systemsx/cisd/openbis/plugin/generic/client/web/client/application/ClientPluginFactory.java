@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleBatchRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer;
 
@@ -107,9 +108,15 @@ public final class ClientPluginFactory extends
                 };
         }
 
-        public Widget createRegistrationClientForSampleType(SampleType sampleType)
+        public final Widget createRegistrationForSampleType(final SampleType sampleType)
         {
             return new GenericSampleRegistrationForm(getViewContext(), sampleType);
         }
+
+        public final Widget createBatchRegistrationForSampleType(final SampleType sampleType)
+        {
+            return new GenericSampleBatchRegistrationForm(getViewContext(), sampleType);
+        }
+
     }
 }

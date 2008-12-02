@@ -110,7 +110,12 @@ public final class ClientPluginFactory extends
                 };
         }
 
-        public Widget createRegistrationClientForSampleType(final SampleType sampleTypeCode)
+        public final Widget createRegistrationForSampleType(final SampleType sampleTypeCode)
+        {
+            return new DummyComponent();
+        }
+
+        public final Widget createBatchRegistrationForSampleType(SampleType sampleType)
         {
             return new DummyComponent();
         }

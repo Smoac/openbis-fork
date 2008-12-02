@@ -26,6 +26,7 @@ var common = {
   //
   
   button_save: "save",
+  button_submit: "submit",
   
   //
   // LoginWidget
