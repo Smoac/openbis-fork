@@ -48,7 +48,7 @@ public class ProjectModel extends BaseModelData
 
     String renderProjectWithGroup(final Project p)
     {
-        return p.getGroup() + ": " + p.getCode();
+        return p.getCode() + " (" + p.getGroup().getCode() + ")";
     }
 
     public final static List<ProjectModel> convert(final List<Project> projects)
