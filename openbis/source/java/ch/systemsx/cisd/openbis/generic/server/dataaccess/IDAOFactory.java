@@ -60,4 +60,14 @@ public interface IDAOFactory extends IAuthorizationDAOFactory
      * Returns the {@link IEntityPropertyTypeDAO} implementation.
      */
     public IEntityPropertyTypeDAO getEntityPropertyTypeDAO(EntityKind entityKind);
+
+    /**
+     * Returns the implementation of {@link IExperimentDAO}.
+     */
+    public IExperimentDAO getExperimentDAO();
+
+    /**
+     * @return The implementation of the {@link IProjectDAO}.
+     */
+    public IProjectDAO getProjectDAO();
 }

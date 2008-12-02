@@ -62,6 +62,7 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
         personDAO = new PersonDAO(sessionFactory, homeDatabaseInstance);
         groupDAO = new GroupDAO(sessionFactory, homeDatabaseInstance);
         roleAssignmentDAO = new RoleAssignmentDAO(sessionFactory, homeDatabaseInstance);
+
     }
 
     private final DatabaseInstancePE getDatabaseInstanceId(final String databaseInstanceCode)

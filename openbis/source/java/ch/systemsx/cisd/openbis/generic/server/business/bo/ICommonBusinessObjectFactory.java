@@ -40,4 +40,9 @@ public interface ICommonBusinessObjectFactory
      * Creates a {@link IExternalDataTable} <i>Business Object</i>.
      */
     public IExternalDataTable createExternalDataTable(final Session session);
+
+    /**
+     * Creates a {@link IExperimentTable} <i>Business Object</i>.
+     */
+    public IExperimentTable createExperimentTable(final Session session);
 }

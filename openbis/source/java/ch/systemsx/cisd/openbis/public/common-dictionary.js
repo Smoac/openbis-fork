@@ -85,6 +85,12 @@ var common = {
   generated_samples: "Generated Samples",
   generated_from: "Parent {0}",
   part_of: "Container {0}",
+  
+  //
+  // Experiment Browser
+  //
+  
+  experiment_type: "Experiment type",
 
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

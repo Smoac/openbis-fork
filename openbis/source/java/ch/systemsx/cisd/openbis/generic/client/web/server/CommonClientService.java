@@ -25,12 +25,16 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
@@ -40,9 +44,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDat
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.DtoConverters;
+import ch.systemsx.cisd.openbis.generic.client.web.server.util.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.GroupTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.ListSampleCriteriaTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.PersonTranslator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.util.ProjectTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.ResultSetTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.RoleAssignmentTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.RoleCodeTranslator;
@@ -53,14 +59,18 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.util.UserFailureExcept
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.plugin.AbstractClientService;
@@ -302,6 +312,41 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    public final ResultSet<Experiment> listExperiments(final ListExperimentsCriteria listCriteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final IResultSetManager<String> resultSetManager = getResultSetManager();
+            final IResultSet<String, Experiment> result =
+                    resultSetManager.getResultSet(listCriteria,
+                            new IOriginalDataProvider<Experiment>()
+                                {
+                                    public final List<Experiment> getOriginalData()
+                                    {
+                                        final List<ExperimentPE> experiments =
+                                                commonServer.listExperiments(getSessionToken(),
+                                                        ExperimentTranslator.translate(listCriteria
+                                                                .getExperimentType()),
+                                                        new ProjectIdentifier(listCriteria
+                                                                .getGroupCode(), listCriteria
+                                                                .getProjectCode()));
+                                        final List<Experiment> list =
+                                                new ArrayList<Experiment>(experiments.size());
+                                        for (final ExperimentPE experiment : experiments)
+                                        {
+                                            list.add(ExperimentTranslator.translate(experiment));
+                                        }
+                                        return list;
+                                    }
+                                });
+            return ResultSetTranslator.translate(result);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
     public final List<ExternalData> listExternalData(final String sampleIdentifier)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -377,6 +422,43 @@ public final class CommonClientService extends AbstractClientService implements
             final IResultSetManager<String> resultSetManager = getResultSetManager();
             resultSetManager.removeResultSet(resultSetKey);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public List<Project> listProjects()
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final List<Project> result = new ArrayList<Project>();
+            final List<ProjectPE> projects = commonServer.listProjects(getSessionToken());
+            for (final ProjectPE project : projects)
+            {
+                result.add(ProjectTranslator.translate(project));
+            }
+            return result;
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public List<ExperimentType> listExperimentTypes()
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final List<ExperimentType> result = new ArrayList<ExperimentType>();
+            final List<ExperimentTypePE> projects =
+                    commonServer.listExperimentTypes(getSessionToken());
+            for (final ExperimentTypePE expType : projects)
+            {
+                result.add(ExperimentTranslator.translate(expType));
+            }
+            return result;
+        } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         }

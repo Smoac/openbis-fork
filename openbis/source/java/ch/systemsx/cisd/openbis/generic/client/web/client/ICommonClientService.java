@@ -18,12 +18,16 @@ package ch.systemsx.cisd.openbis.generic.client.web.client;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
@@ -98,6 +102,12 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
+     * Returns a list of experiments.
+     */
+    public ResultSet<Experiment> listExperiments(final ListExperimentsCriteria criteria)
+            throws UserFailureException;
+
+    /**
      * For given <var>sampleIdentifier</var> returns corresponding list of {@link ExternalData}.
      */
     public List<ExternalData> listExternalData(final String sampleIdentifier)
@@ -119,4 +129,14 @@ public interface ICommonClientService extends IClientService
      * Removes the session result set associated with given key.
      */
     public void removeResultSet(final String resultSetKey) throws UserFailureException;
+
+    /**
+     * Returns a list of all projects.
+     */
+    public List<Project> listProjects() throws UserFailureException;
+
+    /**
+     * Returns a list of all experiment types.
+     */
+    public List<ExperimentType> listExperimentTypes() throws UserFailureException;
 }

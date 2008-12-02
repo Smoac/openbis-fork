@@ -29,6 +29,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.ParameterChecker;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
@@ -39,11 +40,15 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -54,7 +59,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * Implementation of client-server interface.
@@ -256,6 +263,14 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         return persons;
     }
 
+    public final List<ProjectPE> listProjects(final String sessionToken)
+    {
+        getSessionManager().getSession(sessionToken);
+        final List<ProjectPE> projects = getDAOFactory().getProjectDAO().listProjects();
+        Collections.sort(projects);
+        return projects;
+    }
+
     public final List<SampleTypePE> listSampleTypes(final String sessionToken)
     {
         getSessionManager().getSession(sessionToken);
@@ -311,5 +326,32 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.define(newSample);
         sampleBO.save();
+    }
+
+    public List<ExperimentPE> listExperiments(final String sessionToken,
+            final ExperimentTypePE experimentType, final ProjectIdentifier projectIdentifier)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IExperimentTable experimentTable =
+                businessObjectFactory.createExperimentTable(session);
+        experimentTable.load(experimentType.getCode(), projectIdentifier);
+        final List<ExperimentPE> experiments = experimentTable.getExperiments();
+        Collections.sort(experiments);
+        return experiments;
+    }
+
+    public List<ExperimentTypePE> listExperimentTypes(final String sessionToken)
+    {
+        getSessionManager().getSession(sessionToken);
+        final List<ExperimentTypePE> experimentTypes =
+                cast(getDAOFactory().getEntityTypeDAO(EntityKind.EXPERIMENT).listEntityTypes());
+        Collections.sort(experimentTypes);
+        return experimentTypes;
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<ExperimentTypePE> cast(final List<? extends EntityTypePE> experimentTypes)
+    {
+        return (List<ExperimentTypePE>) experimentTypes;
     }
 }

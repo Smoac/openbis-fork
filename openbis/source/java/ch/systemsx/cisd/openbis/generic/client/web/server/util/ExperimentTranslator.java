@@ -45,12 +45,24 @@ public final class ExperimentTranslator
         result.setExperimentType(translate(experiment.getExperimentType()));
         result.setExperimentIdentifier(experiment.getIdentifier());
         result.setProject(ProjectTranslator.translate(experiment.getProject()));
+        result.setRegistrationDate(experiment.getRegistrationDate());
+        result.setRegistrator(PersonTranslator.translate(experiment.getRegistrator()));
         return result;
     }
 
-    private final static ExperimentType translate(final ExperimentTypePE experimentType)
+    public final static ExperimentType translate(final ExperimentTypePE experimentType)
     {
         final ExperimentType result = new ExperimentType();
+        result.setCode(experimentType.getCode());
+        result.setDescription(experimentType.getDescription());
+        result.setDatabaseInstance(DatabaseInstanceTranslator.translate(experimentType
+                .getDatabaseInstance()));
+        return result;
+    }
+
+    public final static ExperimentTypePE translate(final ExperimentType experimentType)
+    {
+        final ExperimentTypePE result = new ExperimentTypePE();
         result.setCode(experimentType.getCode());
         result.setDescription(experimentType.getDescription());
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(experimentType

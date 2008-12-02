@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 @Component(ResourceNames.GENERIC_BUSINESS_OBJECT_FACTORY)
 public final class GenericBusinessObjectFactory extends AbstractPluginBusinessObjectFactory
         implements IGenericBusinessObjectFactory
-{
+    {
 
     //
     // IGenericBusinessObjectFactory

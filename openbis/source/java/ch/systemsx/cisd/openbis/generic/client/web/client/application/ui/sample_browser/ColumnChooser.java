@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Propert
  * 
  * @author Izabela Adamczyk
  */
-final class ColumnChooser extends TextToolItem
+public final class ColumnChooser extends TextToolItem
 {
     public static final String ID = GenericConstants.ID_PREFIX + "column_chooser";
 

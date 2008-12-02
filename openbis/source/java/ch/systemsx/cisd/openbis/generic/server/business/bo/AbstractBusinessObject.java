@@ -23,10 +23,12 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
@@ -58,7 +60,7 @@ abstract class AbstractBusinessObject implements IDAOFactory
 
     protected final PersonPE findRegistrator()
     {
-        PersonPE registrator = session.tryGetPerson();
+        final PersonPE registrator = session.tryGetPerson();
         assert registrator != null : "Missing person instance in session object.";
         return registrator;
     }
@@ -123,13 +125,23 @@ abstract class AbstractBusinessObject implements IDAOFactory
         return daoFactory.getPropertyTypeDAO();
     }
 
-    public IEntityTypeDAO getEntityTypeDAO(EntityKind entityKind)
+    public IEntityTypeDAO getEntityTypeDAO(final EntityKind entityKind)
     {
         return daoFactory.getEntityTypeDAO(entityKind);
     }
 
-    public IEntityPropertyTypeDAO getEntityPropertyTypeDAO(EntityKind entityKind)
+    public IEntityPropertyTypeDAO getEntityPropertyTypeDAO(final EntityKind entityKind)
     {
         return daoFactory.getEntityPropertyTypeDAO(entityKind);
+    }
+
+    public IExperimentDAO getExperimentDAO()
+    {
+        return daoFactory.getExperimentDAO();
+    }
+
+    public IProjectDAO getProjectDAO()
+    {
+        return daoFactory.getProjectDAO();
     }
 }

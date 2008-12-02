@@ -184,7 +184,7 @@ public class CategoriesBuilder
     private MenuCategory createExperimentCategory()
     {
         final List<MenuElement> elements = new ArrayList<MenuElement>();
-        elements.add(new MenuElement(MENU_ELEMENTS.LIST, "List", provider.getDummyComponent()));
+        elements.add(new MenuElement(MENU_ELEMENTS.LIST, "List", provider.getExperimentBrowser()));
         elements.add(new MenuElement(MENU_ELEMENTS.LIST_TYPES, "List types", provider
                 .getDummyComponent()));
         elements.add(new MenuElement(MENU_ELEMENTS.REGISTER, "Register", provider

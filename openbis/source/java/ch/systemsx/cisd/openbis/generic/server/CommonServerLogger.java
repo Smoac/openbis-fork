@@ -21,10 +21,13 @@ import java.util.List;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
@@ -38,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -154,23 +158,22 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     public final SampleGenerationDTO getSampleInfo(final String sessionToken,
             final SampleIdentifier identifier)
     {
-        logTracking(sessionToken, "get_sample_info", "IDENTIFIER(%s)", identifier);
+        logAccess(sessionToken, "get_sample_info", "IDENTIFIER(%s)", identifier);
         return null;
     }
 
     public final List<ExternalDataPE> listExternalData(final String sessionToken,
             final SampleIdentifier identifier)
     {
-        logTracking(sessionToken, "list_external_data", "IDENTIFIER(%s)", identifier);
+        logAccess(sessionToken, "list_external_data", "IDENTIFIER(%s)", identifier);
         return null;
     }
 
     public final List<SearchHit> listMatchingEntities(final String sessionToken,
             final SearchableEntity[] searchableEntities, final String queryText)
     {
-        logTracking(sessionToken, "list_matching_entities",
-                "SEARCHABLE-ENTITIES(%s) QUERY-TEXT(%s)", Arrays.toString(searchableEntities),
-                queryText);
+        logAccess(sessionToken, "list_matching_entities", "SEARCHABLE-ENTITIES(%s) QUERY-TEXT(%s)",
+                Arrays.toString(searchableEntities), queryText);
         return null;
     }
 
@@ -178,5 +181,24 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logTracking(sessionToken, "register_sample", "SAMPLE_TYPE(%s) SAMPLE(%S)", newSample
                 .getSampleTypeCode(), newSample.getSampleIdentifier());
+    }
+
+    public List<ExperimentPE> listExperiments(final String sessionToken,
+            final ExperimentTypePE experimentType, final ProjectIdentifier project)
+    {
+        logAccess(sessionToken, "list_experiments", "TYPE(%s) PROJECT(%s)", experimentType, project);
+        return null;
+    }
+
+    public List<ProjectPE> listProjects(final String sessionToken)
+    {
+        logAccess(sessionToken, "list_projects");
+        return null;
+    }
+
+    public List<ExperimentTypePE> listExperimentTypes(final String sessionToken)
+    {
+        logAccess(sessionToken, "list_experiment_types");
+        return null;
     }
 }

@@ -27,10 +27,13 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAll
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.GroupValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.MatchingEntityValidator;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -39,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -70,6 +74,13 @@ public interface ICommonServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     public List<PersonPE> listPersons(String sessionToken);
+
+    /**
+     * Returns all projects.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public List<ProjectPE> listProjects(String sessionToken);
 
     /**
      * Registers a new person.
@@ -133,6 +144,14 @@ public interface ICommonServer extends IServer
             final ListSampleCriteriaDTO criteria);
 
     /**
+     * Lists experiments.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public List<ExperimentPE> listExperiments(final String sessionToken,
+            ExperimentTypePE experimentType, ProjectIdentifier project);
+
+    /**
      * For given {@link SampleIdentifier} returns the corresponding list of {@link ExternalDataPE}.
      */
     @Transactional(readOnly = true)
@@ -148,5 +167,12 @@ public interface ICommonServer extends IServer
     @ReturnValueFilter(validatorClass = MatchingEntityValidator.class)
     public List<SearchHit> listMatchingEntities(final String sessionToken,
             final SearchableEntity[] searchableEntities, final String queryText);
+
+    /**
+     * List experiment types.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public List<ExperimentTypePE> listExperimentTypes(String sessionToken);
 
 }
