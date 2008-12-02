@@ -13,6 +13,14 @@ var generic = {
   location: "Location",
   file_format_type: "File Format",
   
+  //
+  // Sample Registration
+  //
+  
+  instance_sample: "Shared",
+  generated_from_sample: "Parent",
+  part_of_sample: "Container",  
+  
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma
 };

@@ -26,6 +26,7 @@ import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
@@ -52,7 +53,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleToRegister;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTerm;
-import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**
@@ -62,7 +62,6 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  */
 public final class GenericSampleRegistrationForm extends FormPanel
 {
-
     private static final String PREFIX = "generic-sample-registration_";
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
@@ -93,7 +92,7 @@ public final class GenericSampleRegistrationForm extends FormPanel
 
     private TextField<String> parentGenerator;
 
-    private TextField<String> code;
+    private TextField<String> codeField;
 
     private CheckBox sharedCheckbox;
 
@@ -120,9 +119,9 @@ public final class GenericSampleRegistrationForm extends FormPanel
     {
         infoBox = new InfoBox();
 
-        code = new CodeField("Sample code");
-        code.setId(CODE_FIELD_ID);
-        code.addListener(Events.Focus, new Listener<BaseEvent>()
+        codeField = new CodeField(viewContext.getMessageProvider().getMessage("code"));
+        codeField.setId(CODE_FIELD_ID);
+        codeField.addListener(Events.Focus, new Listener<BaseEvent>()
             {
 
                 //
@@ -156,7 +155,7 @@ public final class GenericSampleRegistrationForm extends FormPanel
             });
 
         groupMultiField = new MultiField<Field<?>>();
-        groupMultiField.setFieldLabel("Group");
+        groupMultiField.setFieldLabel(viewContext.getMessageProvider().getMessage("group"));
         groupMultiField.add(sharedCheckbox);
         groupMultiField.add(groupSelectionWidget);
         groupMultiField.setLabelSeparator(MANDATORY_LABEL_SEPARATOR);
@@ -177,10 +176,14 @@ public final class GenericSampleRegistrationForm extends FormPanel
                 }
             });
 
-        parentGenerator = new VarcharField("Generated from sample", false);
+        parentGenerator =
+                new VarcharField(viewContext.getMessageProvider().getMessage(
+                        "generated_from_sample"), false);
         parentGenerator.setId(PARENT_GENERATOR_FIELD_ID);
 
-        parentContainer = new VarcharField("Part of sample", false);
+        parentContainer =
+                new VarcharField(viewContext.getMessageProvider().getMessage("part_of_sample"),
+                        false);
         parentContainer.setId(PARENT_CONTAINER_FIELD_ID);
 
         propertyFields = new ArrayList<Field<?>>();
@@ -194,12 +197,13 @@ public final class GenericSampleRegistrationForm extends FormPanel
     {
         setHeaderVisible(false);
         setBodyBorder(false);
-        setWidth(LABEL_WIDTH + FIELD_WIDTH + 20);
+        setWidth(LABEL_WIDTH + FIELD_WIDTH + 40);
 
         setLabelWidth(LABEL_WIDTH);
         setFieldWidth(FIELD_WIDTH);
         setButtonAlign(HorizontalAlignment.RIGHT);
-        final Button saveButton = new Button("Save");
+        final Button saveButton =
+                new Button(viewContext.getMessageProvider().getMessage("button_save"));
         saveButton.setId(SAVE_BUTTON_ID);
         saveButton.addSelectionListener(new SelectionListener<ComponentEvent>()
             {
@@ -220,19 +224,15 @@ public final class GenericSampleRegistrationForm extends FormPanel
     private final String createSampleIdentifier()
     {
         final boolean shared = sharedCheckbox.getValue();
-        final Group g = groupSelectionWidget.tryGetSelected();
-        final String c = code.getValue();
-        final StringBuilder sb = new StringBuilder("/");
+        final Group group = groupSelectionWidget.tryGetSelected();
+        final String code = codeField.getValue();
+        final StringBuilder builder = new StringBuilder("/");
         if (shared == false)
         {
-            if (g == null)
-            {
-                throw new UserFailureException("Group not chosen");
-            }
-            sb.append(g.getCode() + "/");
+            builder.append(group.getCode() + "/");
         }
-        sb.append(c);
-        return sb.toString().toUpperCase();
+        builder.append(code);
+        return builder.toString().toUpperCase();
     }
 
     private final static String createSuccessfullRegistrationInfo(final boolean shared,
@@ -298,7 +298,7 @@ public final class GenericSampleRegistrationForm extends FormPanel
     {
         removeAll();
         add(infoBox);
-        add(code);
+        add(codeField);
         add(groupMultiField);
         add(parentGenerator);
         add(parentContainer);
@@ -376,8 +376,8 @@ public final class GenericSampleRegistrationForm extends FormPanel
         {
 
             final String message =
-                    createSuccessfullRegistrationInfo(sharedCheckbox.getValue(), code.getValue(),
-                            groupSelectionWidget.tryGetSelected());
+                    createSuccessfullRegistrationInfo(sharedCheckbox.getValue(), codeField
+                            .getValue(), groupSelectionWidget.tryGetSelected());
             resetForm(message);
         }
     }
@@ -466,9 +466,11 @@ public final class GenericSampleRegistrationForm extends FormPanel
         CodeField(final String label)
         {
             super(label, true);
-            setRegex(GenericConstants.CODE_PATTERN);
+            final String codePattern = GenericConstants.CODE_PATTERN;
+            setRegex(codePattern);
+            getMessages().setRegexText(
+                    Format.substitute("Value does not match pattern {0}.", codePattern));
         }
-
     }
 
     private final static class RealField extends BasicTextField<Double>
@@ -531,21 +533,21 @@ public final class GenericSampleRegistrationForm extends FormPanel
         InfoBox()
         {
             setVisible(false);
-            setStyleAttribute("text-align", "center !important");
+            setStyleAttribute("textAlign", "center");
             setPosition(-2, 0);
         }
 
         private void setStrongStyle()
         {
-            setStyleAttribute("background-color", "#feffbe !important");
-            setStyleAttribute("border", "1px solid #edee8b !important");
+            setStyleAttribute("backgroundColor", "#feffbe");
+            setStyleAttribute("border", "1px solid #edee8b");
         }
 
         private void setLightStyle()
         {
-            setStyleAttribute("background-color", "#feffdf !important");
-            setStyleAttribute("color", "gray !important");
-            setStyleAttribute("border", "1px solid #e7e7e7 !important");
+            setStyleAttribute("backgroundColor", "#feffdf");
+            setStyleAttribute("color", "gray");
+            setStyleAttribute("border", "1px solid #e7e7e7");
         }
 
         public void fade()

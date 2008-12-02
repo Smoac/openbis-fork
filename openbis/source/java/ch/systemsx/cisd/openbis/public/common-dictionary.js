@@ -22,6 +22,12 @@ var common = {
   messagebox_info: "Info",
   
   //
+  // Buttons
+  //
+  
+  button_save: "save",
+  
+  //
   // LoginWidget
   //
   
