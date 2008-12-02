@@ -16,7 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleToRegister;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleToRegisterDTO;

@@ -17,7 +17,7 @@ check sets [generic.client] [generic.server] [generic.shared]
 layer generic.client-server = [generic.client] [generic.server]
 layer generic.shared = [generic.shared]
 
-check layeringOf generic.shared generic.client-server
+# check layeringOf generic.shared generic.client-server
 
 #-------- Web client ---------------------
 
