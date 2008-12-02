@@ -25,7 +25,6 @@ import org.testng.annotations.BeforeMethod;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
@@ -72,8 +71,6 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected ISessionManager<Session> sessionManager;
 
-    protected ICommonBusinessObjectFactory commonBusinessObjectFactory;
-
     protected IDatabaseInstanceDAO databaseInstanceDAO;
 
     protected IPersonDAO personDAO;
@@ -110,7 +107,6 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         roleAssignmentDAO = context.mock(IRoleAssignmentDAO.class);
         externalDataDAO = context.mock(IExternalDataDAO.class);
 
-        commonBusinessObjectFactory = context.mock(ICommonBusinessObjectFactory.class);
         groupBO = context.mock(IGroupBO.class);
         sampleBO = context.mock(ISampleBO.class);
         externalDataTable = context.mock(IExternalDataTable.class);

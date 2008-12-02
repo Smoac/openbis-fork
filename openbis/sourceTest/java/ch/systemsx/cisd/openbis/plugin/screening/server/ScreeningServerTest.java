@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.server;
 
 import org.jmock.Expectations;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
@@ -47,6 +48,7 @@ public final class ScreeningServerTest extends AbstractServerTestCase
     //
 
     @Override
+    @BeforeMethod
     public final void setUp()
     {
         super.setUp();
@@ -62,7 +64,7 @@ public final class ScreeningServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createSampleBO(session);
+                    one(screeningBusinessObjectFactory).createSampleBO(session);
                     will(returnValue(sampleBO));
 
                     one(sampleBO).loadBySampleIdentifier(sampleIdentifier);

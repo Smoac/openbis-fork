@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
 import org.jmock.Expectations;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
@@ -48,6 +49,7 @@ public final class GenericServerTest extends AbstractServerTestCase
     //
 
     @Override
+    @BeforeMethod
     public final void setUp()
     {
         super.setUp();
@@ -63,7 +65,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createSampleBO(session);
+                    one(genericBusinessObjectFactory).createSampleBO(session);
                     will(returnValue(sampleBO));
 
                     one(sampleBO).loadBySampleIdentifier(sampleIdentifier);
@@ -94,7 +96,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createSampleBO(session);
+                    one(genericBusinessObjectFactory).createSampleBO(session);
                     will(returnValue(sampleBO));
 
                     one(sampleBO).define(newSample);

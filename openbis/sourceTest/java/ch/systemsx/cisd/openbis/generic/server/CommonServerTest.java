@@ -21,9 +21,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.jmock.Expectations;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
@@ -42,10 +44,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  */
 public final class CommonServerTest extends AbstractServerTestCase
 {
+    private ICommonBusinessObjectFactory commonBusinessObjectFactory;
 
     private final ICommonServer createServer()
     {
-        return new CommonServer(authenticationService, sessionManager, daoFactory, commonBusinessObjectFactory);
+        return new CommonServer(authenticationService, sessionManager, daoFactory,
+                commonBusinessObjectFactory);
     }
 
     private final static PersonPE createSystemUser()
@@ -53,6 +57,18 @@ public final class CommonServerTest extends AbstractServerTestCase
         final PersonPE systemPerson = new PersonPE();
         systemPerson.setUserId(PersonPE.SYSTEM_USER_ID);
         return systemPerson;
+    }
+
+    //
+    // AbstractServerTestCase
+    //
+
+    @Override
+    @BeforeMethod
+    public final void setUp()
+    {
+        super.setUp();
+        commonBusinessObjectFactory = context.mock(ICommonBusinessObjectFactory.class);
     }
 
     @Test
