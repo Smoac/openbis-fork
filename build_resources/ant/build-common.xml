@@ -101,19 +101,9 @@
       // Runs a TestNG test suite
       // Parameter: test.suite = path of test suite relative to the test source folder
       -->
-    <target name="run-tests"
-            depends="cobertura-instrument, compile-tests"
-            description="Runs a TestNG test suite.">
+    <target name="run-tests" depends="compile-tests">
         <delete dir="${output.test}" />
-        <testng workingDir="." outputdir="${output.test}" haltonfailure="true">
-            <sysproperty key="net.sourceforge.cobertura.datafile" file="${cobertura.datafile}" />
-            <classpath>
-                <!-- Instrumented classes must be found before the non-instrumented ones. -->
-                <pathelement location="${cobertura.instrumented}" />
-                <pathelement path="${ecp}" />
-                <!-- Required in order to run instrumented test. -->
-                <path refid="cobertura.classpath" />
-            </classpath>
+        <testng classpath="${ecp}" workingDir="." outputdir="${output.test}" haltonfailure="true">
             <xmlfileset dir="${sources.test}" includes="${test.suite}" />
         </testng>
     </target>
