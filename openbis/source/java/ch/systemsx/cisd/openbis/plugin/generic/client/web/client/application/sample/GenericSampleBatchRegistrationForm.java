@@ -116,9 +116,9 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
         panel.setMethod(Method.POST);
         panel.setButtonAlign(HorizontalAlignment.RIGHT);
         panel.addButton(button);
-        // Do some action after the form has been successfully submitted. Note that the response
-        // coming from the server could be an error message. Even in case of error this listener
-        // will be informed.
+        // Does some action after the form has been successfully submitted. Note that the response
+        // coming from the server could be an error message. Even in case of error on the server
+        // side this listener will be informed.
         panel.addListener(Events.Submit, new Listener<FormEvent>()
             {
 

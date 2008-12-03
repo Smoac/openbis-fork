@@ -18,18 +18,14 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.event.WindowEvent;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.TableRowLayout;
-import com.google.gwt.user.client.ui.Image;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
@@ -73,11 +69,9 @@ final class SearchWidget extends LayoutContainer
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    private final Button searchButton;
+    private final ButtonWithLoadingMask searchButton;
 
     private final EnterKeyListener enterKeyListener;
-
-    private final Image loadingImage;
 
     SearchWidget(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
@@ -107,28 +101,18 @@ final class SearchWidget extends LayoutContainer
         add(entityChooser);
         add(textField);
         add(searchButton);
-        loadingImage = createLoadingImage();
-        add(loadingImage);
         layout();
     }
 
     private final void enableSearch(final boolean enable)
     {
         searchButton.setEnabled(enable);
-        loadingImage.setVisible(enable == false);
     }
 
     private final void selectAllAndFocus()
     {
         textField.selectAll();
         textField.focus();
-    }
-
-    private final static Image createLoadingImage()
-    {
-        final Image image = new Image("images/loading.gif");
-        image.setVisible(false);
-        return image;
     }
 
     private final EntityChooser createEntityChooser()
@@ -154,6 +138,7 @@ final class SearchWidget extends LayoutContainer
         field.setId(TEXT_FIELD_ID);
         field.setWidth(200);
         field.addKeyListener(enterKeyListener);
+        field.setStyleAttribute("marginRight", "3px");
         return field;
     }
 
@@ -210,27 +195,22 @@ final class SearchWidget extends LayoutContainer
         return resultSetConfig;
     }
 
-    private final Button createSearchButton()
+    private final ButtonWithLoadingMask createSearchButton()
     {
-        final Button button =
-                new Button(viewContext.getMessageProvider().getMessage("search_button"));
-        button.setId(SUBMIT_BUTTON_ID);
-        button.setStyleAttribute("marginLeft", "3px");
-        button.setStyleAttribute("marginRight", "3px");
-        button.addSelectionListener(new SelectionListener<ComponentEvent>()
-            {
+        final ButtonWithLoadingMask button =
+                new ButtonWithLoadingMask(viewContext.getMessageProvider().getMessage(
+                        "search_button"), SUBMIT_BUTTON_ID)
+                    {
+                        //
+                        // ButtonWithLoadingMask
+                        //
 
-                //
-                // SelectionListener
-                //
-
-                @Override
-                public final void componentSelected(final ComponentEvent ce)
-                {
-                    doSearch();
-                }
-
-            });
+                        @Override
+                        public final void doButtonClick()
+                        {
+                            doSearch();
+                        }
+                    };
         return button;
     }
 
@@ -277,23 +257,8 @@ final class SearchWidget extends LayoutContainer
             if (entities.size() == 0)
             {
                 final IMessageProvider messageProvider = viewContext.getMessageProvider();
-                final Listener<WindowEvent> listener = null;
-                // TODO 2008-11-21, Christian Ribeaud: Replace the <null> listener with the
-                // following once gxt solved the problem with event propagation in MessageBox.
-                // final Listener<WindowEvent> listener = new Listener<WindowEvent>()
-                // {
-                //
-                // //
-                // // Listener
-                // //
-                //
-                // public final void handleEvent(final WindowEvent be)
-                // {
-                // selectAllAndFocus();
-                // }
-                // };
                 MessageBox.alert(messageProvider.getMessage("messagebox_warning"), messageProvider
-                        .getMessage("no_match", queryText), listener);
+                        .getMessage("no_match", queryText), null);
                 return;
             }
             textField.reset();
