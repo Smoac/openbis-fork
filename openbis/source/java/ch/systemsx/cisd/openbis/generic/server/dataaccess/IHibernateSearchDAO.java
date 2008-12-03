@@ -34,7 +34,7 @@ public interface IHibernateSearchDAO
      * Searches in entities of type <var>entityClass</var> for given <var>searchTerm</var> using
      * all the indexed fields.
      * 
-     * @param searchTerm could be something like "<code>code:C11 AND registrator.lastName:System User</code>".
+     * @param searchTerm could be something like "<code>C11 AND System User</code>".
      */
     public <T extends IMatchingEntity> List<SearchHit> searchEntitiesByTerm(
             final Class<T> entityClass, final String searchTerm) throws DataAccessException;
