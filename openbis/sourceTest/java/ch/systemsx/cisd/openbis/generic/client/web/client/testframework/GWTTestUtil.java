@@ -101,6 +101,21 @@ public final class GWTTestUtil
                 widget instanceof Button);
         ((Button) widget).fireEvent(Events.Select);
     }
+    
+
+    /**
+     * Sets the value of the {@link TextField} with specified id. 
+     * 
+     * @param valueOrNull If <code>null</code> the text field value will not be changed.
+     * @throws AssertionError if no widget found for <code>id</code> or isn't a text field.
+     */
+    public static void setTextFieldValue(final String id, final String valueOrNull)
+    {
+        if (valueOrNull != null)
+        {
+            getTextFieldWithID(id).setValue(valueOrNull);
+        }
+    }
 
     /**
      * Gets the {@link TextField} with specified id.

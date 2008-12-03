@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
-import com.extjs.gxt.ui.client.widget.form.TextField;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
@@ -39,6 +38,10 @@ public final class FillSampleRegistrationForm extends AbstractDefaultTestCommand
 
     private final boolean includeShared;
 
+    private String parent;
+    
+    private String container;
+
     public FillSampleRegistrationForm(final boolean includeShared, final String groupNameOrNull,
             final String code)
     {
@@ -47,7 +50,19 @@ public final class FillSampleRegistrationForm extends AbstractDefaultTestCommand
         this.code = code;
         addCallbackClass(GroupSelectionWidget.ListGroupsCallback.class);
     }
+    
+    public FillSampleRegistrationForm parent(String parentFieldValue)
+    {
+        this.parent = parentFieldValue;
+        return this;
+    }
 
+    public FillSampleRegistrationForm container(String containerFieldValue)
+    {
+        this.container = containerFieldValue;
+        return this;
+    }
+    
     //
     // AbstractDefaultTestCommand
     //
@@ -55,10 +70,7 @@ public final class FillSampleRegistrationForm extends AbstractDefaultTestCommand
     @SuppressWarnings("unchecked")
     public final void execute()
     {
-        final TextField<String> codeField =
-                (TextField<String>) GWTTestUtil
-                        .getWidgetWithID(GenericSampleRegistrationForm.CODE_FIELD_ID);
-        codeField.setValue(code);
+        GWTTestUtil.setTextFieldValue(GenericSampleRegistrationForm.CODE_FIELD_ID, code);
 
         final CheckBox includeSharedCheckbox =
                 (CheckBox) GWTTestUtil
@@ -71,6 +83,9 @@ public final class FillSampleRegistrationForm extends AbstractDefaultTestCommand
                     (GroupSelectionWidget) GWTTestUtil.getWidgetWithID(GroupSelectionWidget.ID);
             GWTUtils.setSelectedItem(groupSelector, ModelDataPropertyNames.CODE, groupNameOrNull);
         }
+        
+        GWTTestUtil.setTextFieldValue(GenericSampleRegistrationForm.PARENT_GENERATOR_FIELD_ID, parent);
+        GWTTestUtil.setTextFieldValue(GenericSampleRegistrationForm.PARENT_CONTAINER_FIELD_ID, container);
 
         GWTTestUtil.clickButtonWithID(GenericSampleRegistrationForm.SAVE_BUTTON_ID);
     }
