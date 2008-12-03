@@ -349,7 +349,7 @@ public final class PropertyUtils
     // Helper classes
     //
 
-    private static enum Boolean
+    public static enum Boolean
     {
         TRUE("1", "yes", "true"), FALSE("0", "no", "false");
 
