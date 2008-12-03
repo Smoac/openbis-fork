@@ -269,6 +269,9 @@
             <lib dir="${gwt.lib}">
                 <include name="gwt-servlet.jar" />
             </lib>
+            <lib dir="${lib}/commons-fileupload">
+                <include name="*.jar" />
+            </lib>
             <!-- Database -->
             <lib dir="${lib}/postgresql">
                 <include name="postgresql.jar" />

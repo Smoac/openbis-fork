@@ -43,5 +43,6 @@
 	<classpathentry kind="lib" path="/libraries/ehcache/ehcache.jar" sourcepath="/libraries/ehcache/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/javassist/javassist.jar" sourcepath="/libraries/javassist/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/lucene/lucene-core.jar" sourcepath="/libraries/lucene/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/commons-fileupload/commons-fileupload.jar" sourcepath="/libraries/commons-fileupload/src.zip"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

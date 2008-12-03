@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
  * <p>
  * <i>URL</i> mappings are: <code>/common</code> and <code>/genericopenbis/common</code>. The
  * encapsulated {@link ICommonClientService} service implementation is expected to be defined as
- * bean with name <code>generic-service</code>.
+ * bean with name <code>common-service</code>.
  * </p>
  * 
  * @author Christian Ribeaud

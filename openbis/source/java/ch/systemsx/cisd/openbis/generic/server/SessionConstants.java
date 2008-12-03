@@ -33,4 +33,6 @@ public final class SessionConstants
     public static final String OPENBIS_SERVER_ATTRIBUTE_KEY = "openbis-server";
 
     public static final String OPENBIS_RESULT_SET_MANAGER = "openbis-result-set-manager";
+
+    public static final String OPENBIS_UPLOADED_FILES = "openbis-uploaded-files";
 }

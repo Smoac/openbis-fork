@@ -16,8 +16,11 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
+import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.FormEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.widget.Component;
@@ -52,8 +55,6 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
 
     private final IViewContext<IGenericClientServiceAsync> viewContext;
 
-    private final SampleType sampleType;
-
     private FormPanel formPanel;
 
     private Button submitButton;
@@ -63,7 +64,6 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
     {
         super(createLayout());
         this.viewContext = viewContext;
-        this.sampleType = sampleType;
         add(createUI());
     }
 
@@ -103,7 +103,7 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
         return formLayout;
     }
 
-    private final static FormPanel createFormPanel(final Button button)
+    private final FormPanel createFormPanel(final Button button)
     {
         final FormPanel panel = new FormPanel();
         panel.setLayout(new FlowLayout());
@@ -116,6 +116,23 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
         panel.setMethod(Method.POST);
         panel.setButtonAlign(HorizontalAlignment.RIGHT);
         panel.addButton(button);
+        // Do some action after the form has been successfully submitted. Note that the response
+        // coming from the server could be an error message. Even in case of error this listener
+        // will be informed.
+        panel.addListener(Events.Submit, new Listener<FormEvent>()
+            {
+
+                //
+                // Listener
+                //
+
+                public final void handleEvent(final FormEvent be)
+                {
+                    submitButton.setEnabled(true);
+                    // TODO 2008-12-03, Christian Ribeaud: Trigger the reading of uploaded files
+                    // here if the result returned by the server is fine.
+                }
+            });
         return panel;
     }
 
