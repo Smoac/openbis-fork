@@ -37,7 +37,7 @@ public final class QueryRestrictionPredicate extends
     //
 
     @Override
-    final GroupIdentifier convert(final QueryRestriction value)
+    public final GroupIdentifier convert(final QueryRestriction value)
     {
         GroupIdentifier groupIdentifier = value.tryGetGroupIdentifier();
         if (groupIdentifier == null)
@@ -48,7 +48,7 @@ public final class QueryRestrictionPredicate extends
     }
 
     @Override
-    final String getCandidateDescription()
+    public final String getCandidateDescription()
     {
         return "query restriction";
     }

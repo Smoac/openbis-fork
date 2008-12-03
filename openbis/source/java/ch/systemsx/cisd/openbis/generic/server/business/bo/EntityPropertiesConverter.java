@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -61,13 +62,24 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
 
     private TableMap<PropertyTypePE, EntityTypePropertyTypePE> entityTypePropertyTypesByPropertyTypes;
 
+    private final IPropertyValueValidator propertyValueValidator;
+
     public EntityPropertiesConverter(final EntityKind entityKind, final IDAOFactory daoFactory)
+    {
+        this(entityKind, daoFactory, new PropertyValidator());
+    }
+
+    @Private
+    EntityPropertiesConverter(final EntityKind entityKind, final IDAOFactory daoFactory,
+            final IPropertyValueValidator propertyValueValidator)
     {
         assert entityKind != null : "Unspecified entity kind.";
         assert daoFactory != null : "Unspecified DAO factory.";
+        assert propertyValueValidator != null : "Unspecified property value validator.";
 
         this.daoFactory = daoFactory;
         this.entityKind = entityKind;
+        this.propertyValueValidator = propertyValueValidator;
     }
 
     private final EntityTypePE getEntityType(final String entityTypeCode)
@@ -151,10 +163,11 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         final String propertyCode =
                 property.getEntityTypePropertyType().getPropertyType().getCode();
         final PropertyTypePE propertyType = getPropertyType(propertyCode);
-        final EntityTypePropertyTypePE entityTypePropertyType =
-                getEntityTypePropertyType(entityTypePE, propertyType);
         final String value = property.getValue();
         assert value != null : "Unspecified entity property value.";
+        propertyValueValidator.validatePropertyValue(propertyType, value);
+        final EntityTypePropertyTypePE entityTypePropertyType =
+                getEntityTypePropertyType(entityTypePE, propertyType);
         return createEntityProperty(registrator, propertyType, entityTypePropertyType, value);
     }
 

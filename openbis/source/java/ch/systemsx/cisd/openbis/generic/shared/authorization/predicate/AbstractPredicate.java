@@ -34,7 +34,7 @@ abstract class AbstractPredicate<T> implements IPredicate<T>
     /**
      * Returns a simple description for the exception to be thrown.
      */
-    abstract String getCandidateDescription();
+    public abstract String getCandidateDescription();
 
     /**
      * Does the validation after parameters have been checked.

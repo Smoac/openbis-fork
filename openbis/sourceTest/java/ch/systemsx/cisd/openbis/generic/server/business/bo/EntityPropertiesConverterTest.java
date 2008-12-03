@@ -28,6 +28,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
@@ -49,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * 
  * @author Christian Ribeaud
  */
+@Friend(toClasses = EntityPropertiesConverter.class)
 public final class EntityPropertiesConverterTest
 {
     private static final String VARCHAR_PROPERTY_TYPE_CODE = "color";
@@ -65,6 +67,8 @@ public final class EntityPropertiesConverterTest
 
     private IPropertyTypeDAO propertyTypeDAO;
 
+    private IPropertyValueValidator propertyValueValidator;
+
     @BeforeMethod
     public void setUp()
     {
@@ -73,6 +77,7 @@ public final class EntityPropertiesConverterTest
         entityPropertyTypeDAO = context.mock(IEntityPropertyTypeDAO.class);
         entityTypeDAO = context.mock(IEntityTypeDAO.class);
         propertyTypeDAO = context.mock(IPropertyTypeDAO.class);
+        propertyValueValidator = context.mock(IPropertyValueValidator.class);
     }
 
     @AfterMethod
@@ -86,7 +91,7 @@ public final class EntityPropertiesConverterTest
     private final IEntityPropertiesConverter createEntityPropertiesConverter(
             final EntityKind entityKind)
     {
-        return new EntityPropertiesConverter(entityKind, daoFactory);
+        return new EntityPropertiesConverter(entityKind, daoFactory, propertyValueValidator);
     }
 
     private void prepareForConvertion(final Expectations exp)
@@ -187,6 +192,8 @@ public final class EntityPropertiesConverterTest
 
                     one(propertyTypeDAO).tryFindPropertyTypeByCode(VARCHAR_PROPERTY_TYPE_CODE);
                     will(returnValue(propertyTypePE));
+
+                    one(propertyValueValidator).validatePropertyValue(propertyTypePE, "blue");
                 }
             });
         final SampleProperty[] properties = createSampleProperties();

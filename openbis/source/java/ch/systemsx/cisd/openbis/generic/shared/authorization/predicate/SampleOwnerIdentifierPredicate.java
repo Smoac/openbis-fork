@@ -57,7 +57,7 @@ public final class SampleOwnerIdentifierPredicate extends AbstractPredicate<Samp
     }
 
     @Override
-    final String getCandidateDescription()
+    public final String getCandidateDescription()
     {
         return "sample identifier";
     }

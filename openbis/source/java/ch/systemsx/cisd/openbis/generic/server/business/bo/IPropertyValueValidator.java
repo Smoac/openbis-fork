@@ -14,23 +14,22 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.dto;
+package ch.systemsx.cisd.openbis.generic.server.business.bo;
+
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 
 /**
- * Interface of classes having entity properties.
+ * A property value validator.
  * 
- * @author Franz-Josef Elmer
+ * @author Christian Ribeaud
  */
-public interface ISimpleEntityPropertiesHolder
+public interface IPropertyValueValidator
 {
     /**
-     * Gets the entity properties.
+     * Validates given <var>value</var> against given {@link PropertyTypePE},
      */
-    public SimpleEntityProperty[] getProperties();
-
-    /**
-     * Sets the entity properties.
-     */
-    public void setProperties(final SimpleEntityProperty[] properties);
+    public void validatePropertyValue(final PropertyTypePE propertyType, final String value)
+            throws UserFailureException;
 
 }

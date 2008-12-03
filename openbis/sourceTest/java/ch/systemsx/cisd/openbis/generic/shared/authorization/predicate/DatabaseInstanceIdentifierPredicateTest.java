@@ -34,7 +34,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifierTest;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DatabaseInstanceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
@@ -79,7 +78,7 @@ public final class DatabaseInstanceIdentifierPredicateTest
         return databaseInstance;
     }
 
-    final static PersonPE createPerson()
+    public final static PersonPE createPerson()
     {
         final PersonPE personPE = new PersonPE();
         personPE.setUserId("megapixel");
@@ -87,7 +86,7 @@ public final class DatabaseInstanceIdentifierPredicateTest
         return personPE;
     }
 
-    final static List<RoleWithIdentifier> createAllowedRoles(final boolean withInstanceRole)
+    public final static List<RoleWithIdentifier> createAllowedRoles(final boolean withInstanceRole)
     {
         final List<RoleWithIdentifier> list = new ArrayList<RoleWithIdentifier>();
         final RoleWithIdentifier groupRole =

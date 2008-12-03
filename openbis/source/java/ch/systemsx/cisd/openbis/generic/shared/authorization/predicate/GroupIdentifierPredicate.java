@@ -105,7 +105,7 @@ public final class GroupIdentifierPredicate extends
     }
 
     @Override
-    final String getCandidateDescription()
+    public final String getCandidateDescription()
     {
         return "group identifier";
     }

@@ -64,7 +64,7 @@ public final class SampleFilterPredicate extends AbstractPredicate<SampleFilter>
     }
 
     @Override
-    final String getCandidateDescription()
+    public final String getCandidateDescription()
     {
         return "sample filter";
     }

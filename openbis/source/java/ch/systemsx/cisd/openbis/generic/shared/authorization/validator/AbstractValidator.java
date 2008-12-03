@@ -33,7 +33,7 @@ public abstract class AbstractValidator<T> implements IValidator<T>
      * Must be implemented by subclasses.
      * </p>
      */
-    abstract boolean doValidation(final PersonPE person, final T value);
+    public abstract boolean doValidation(final PersonPE person, final T value);
 
     //
     // IValidator

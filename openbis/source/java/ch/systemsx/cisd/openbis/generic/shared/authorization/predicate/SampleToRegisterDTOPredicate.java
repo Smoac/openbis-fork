@@ -37,13 +37,13 @@ public final class SampleToRegisterDTOPredicate extends
     //
 
     @Override
-    final SampleOwnerIdentifier convert(final SampleToRegisterDTO value)
+    public final SampleOwnerIdentifier convert(final SampleToRegisterDTO value)
     {
         return value.getSampleIdentifier();
     }
 
     @Override
-    final String getCandidateDescription()
+    public final String getCandidateDescription()
     {
         return "SampleToRegister";
     }

@@ -54,7 +54,7 @@ public final class ArrayPredicate<T> extends AbstractPredicate<T[]>
     }
 
     @Override
-    final String getCandidateDescription()
+    public final String getCandidateDescription()
     {
         if (predicate instanceof AbstractPredicate)
         {

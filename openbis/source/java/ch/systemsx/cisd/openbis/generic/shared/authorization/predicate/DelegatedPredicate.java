@@ -35,11 +35,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  * 
  * @author Christian Ribeaud
  */
-abstract class DelegatedPredicate<P, T> extends AbstractPredicate<T>
+public abstract class DelegatedPredicate<P, T> extends AbstractPredicate<T>
 {
     private final IPredicate<P> delegate;
 
-    DelegatedPredicate(final IPredicate<P> delegate)
+    public DelegatedPredicate(final IPredicate<P> delegate)
     {
         this.delegate = delegate;
     }
@@ -47,7 +47,7 @@ abstract class DelegatedPredicate<P, T> extends AbstractPredicate<T>
     /**
      * Converts given <var>value</var> to type needed.
      */
-    abstract P convert(final T value);
+    public abstract P convert(final T value);
 
     //
     // AbstractPredicate
@@ -59,8 +59,8 @@ abstract class DelegatedPredicate<P, T> extends AbstractPredicate<T>
     }
 
     @Override
-    final Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
-            final T value)
+    public final Status doEvaluation(final PersonPE person,
+            final List<RoleWithIdentifier> allowedRoles, final T value)
     {
         return delegate.evaluate(person, allowedRoles, convert(value));
     }

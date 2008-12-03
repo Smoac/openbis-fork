@@ -49,8 +49,7 @@ public final class DatabaseInstanceIdentifierPredicate extends
         {
             final RoleLevel roleGroup = role.getRoleGroup();
             if (roleGroup.equals(RoleLevel.INSTANCE)
-                    && role.getAssignedDatabaseInstance().getUuid().equals(
-                            databaseInstanceUUID))
+                    && role.getAssignedDatabaseInstance().getUuid().equals(databaseInstanceUUID))
             {
                 return true;
             }
@@ -71,7 +70,7 @@ public final class DatabaseInstanceIdentifierPredicate extends
     //
 
     @Override
-    final String getCandidateDescription()
+    public final String getCandidateDescription()
     {
         return "database instance identifier";
     }
