@@ -221,6 +221,7 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
     {
         assert roleAssignment != null : "Unspecified role assignment.";
         getRoleAssignmentsInternal().remove(roleAssignment);
+        roleAssignment.setPersonInternal(null);
     }
 
     //
