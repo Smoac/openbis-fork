@@ -25,6 +25,7 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
@@ -37,6 +38,7 @@ import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
@@ -128,9 +130,18 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
 
                 public final void handleEvent(final FormEvent be)
                 {
-                    submitButton.setEnabled(true);
-                    // TODO 2008-12-03, Christian Ribeaud: Trigger the reading of uploaded files
-                    // here if the result returned by the server is fine.
+                    // Was successful
+                    final String msg = be.resultHtml;
+                    if (StringUtils.isBlank(msg))
+                    {
+                        // TODO 2008-12-03, Christian Ribeaud: Trigger the reading of uploaded files
+                        // here if the result returned by the server is fine. Afterwards do not
+                        // forget to enable the button again.
+                    } else
+                    {
+                        MessageBox.alert(viewContext.getMessageProvider().getMessage(
+                                "messagebox_error"), msg, null);
+                    }
                 }
             });
         return panel;

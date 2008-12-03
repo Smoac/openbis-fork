@@ -104,7 +104,7 @@ public abstract class ButtonWithLoadingMask extends LayoutContainer
                 @Override
                 public final void componentSelected(final ComponentEvent ce)
                 {
-
+                    setEnabled(false);
                     doButtonClick();
                 }
 
@@ -126,8 +126,6 @@ public abstract class ButtonWithLoadingMask extends LayoutContainer
     {
         final Image image = new Image(LOADING_IMAGE_URL);
         image.setVisible(false);
-        image.setHeight("16px");
-        image.setWidth("16px");
         return image;
     }
 

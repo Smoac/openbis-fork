@@ -175,9 +175,9 @@ final class SearchWidget extends LayoutContainer
                         }
 
                     });
+                enableSearch(true);
                 return;
             }
-            enableSearch(false);
             viewContext.getService()
                     .listMatchingEntities(
                             selectedSearchableEntityOrNull,

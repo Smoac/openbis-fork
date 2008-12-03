@@ -39,7 +39,9 @@ import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
  * available as session attribute {@link SessionConstants#OPENBIS_UPLOADED_FILES} in an object of
  * type {@link UploadedFilesBean}.<br />
  * This service is synchronized on the session object to serialize parallel invocations from the
- * same client.
+ * same client.<br />
+ * The <i>HTTP</i> response returns an empty string or <code>null</code> if the upload was
+ * successful and is finished.
  * </p>
  * <p>
  * <i>URL</i> mappings are: <code>/upload</code> and <code>/genericopenbis/upload</code>.
@@ -77,7 +79,14 @@ public final class UploadServiceServlet extends AbstractCommandController
                 + "of DefaultMultipartHttpServletRequest.";
         final DefaultMultipartHttpServletRequest multipartRequest =
                 (DefaultMultipartHttpServletRequest) request;
-        final UploadedFilesBean uploadedFiles = (UploadedFilesBean) command;
+        final HttpSession session = request.getSession(false);
+        UploadedFilesBean uploadedFiles =
+                (UploadedFilesBean) session.getAttribute(SessionConstants.OPENBIS_UPLOADED_FILES);
+        if (uploadedFiles == null)
+        {
+            uploadedFiles = (UploadedFilesBean) command;
+            session.setAttribute(SessionConstants.OPENBIS_UPLOADED_FILES, uploadedFiles);
+        }
         for (final Iterator<String> iterator = cast(multipartRequest.getFileNames()); iterator
                 .hasNext(); /**/)
         {
@@ -88,11 +97,8 @@ public final class UploadServiceServlet extends AbstractCommandController
                 uploadedFiles.addMultipartFile(multipartFile);
             }
         }
-        final HttpSession session = request.getSession(false);
-        // Ensure that there is always something put in the session.
-        session.setAttribute(SessionConstants.OPENBIS_UPLOADED_FILES, uploadedFiles);
-        // TODO 2008-12-03, Christian Ribeaud: Returns an appropriate ModelAndView that gives
-        // information about what has been done.
+        response.setContentType("text/html");
+        response.setStatus(HttpServletResponse.SC_OK);
         return null;
     }
 }
