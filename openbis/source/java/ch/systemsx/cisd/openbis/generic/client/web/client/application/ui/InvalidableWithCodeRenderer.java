@@ -26,21 +26,21 @@ import com.google.gwt.user.client.Element;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 
 /**
- * Renders sample code and marks if the sample is invalid
+ * Renders code and marks if invalid
  * 
  * @author Tomasz Pylak
  */
-public class SampleRenderer implements GridCellRenderer<ModelData>
+public class InvalidableWithCodeRenderer implements GridCellRenderer<ModelData>
 {
 
-    public String render(ModelData model, String property, ColumnData config, int rowIndex,
-            int colIndex, ListStore<ModelData> store)
+    public String render(final ModelData model, final String property, final ColumnData config,
+            final int rowIndex, final int colIndex, final ListStore<ModelData> store)
     {
-        String code = (String) model.get(ModelDataPropertyNames.CODE);
-        boolean isInvalid = (Boolean) model.get(ModelDataPropertyNames.IS_INVALID);
+        final String code = (String) model.get(ModelDataPropertyNames.CODE);
+        final boolean isInvalid = (Boolean) model.get(ModelDataPropertyNames.IS_INVALID);
         if (isInvalid)
         {
-            Element div = DOM.createDiv();
+            final Element div = DOM.createDiv();
             div.setAttribute("class", "invalid");
             div.setInnerText(code);
             return DOM.toString(div);

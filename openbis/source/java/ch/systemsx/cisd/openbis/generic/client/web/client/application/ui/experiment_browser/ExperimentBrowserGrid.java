@@ -49,7 +49,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExperimentModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.YesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.InvalidableWithCodeRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.PagingToolBarWithoutRefresh;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GxtTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
@@ -189,7 +191,10 @@ public final class ExperimentBrowserGrid extends LayoutContainer
     private final ColumnModel createColumnModel()
     {
         final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-        configs.add(ColumnConfigFactory.createCodeColumnConfig(viewContext.getMessageProvider()));
+        final ColumnConfig codeColumn =
+                ColumnConfigFactory.createCodeColumnConfig(viewContext.getMessageProvider());
+        codeColumn.setRenderer(new InvalidableWithCodeRenderer());
+        configs.add(codeColumn);
 
         configs.add(ColumnConfigFactory.createDefaultConfig(viewContext.getMessageProvider(),
                 ModelDataPropertyNames.EXPERIMENT_TYPE_CODE_FOR_EXPERIMENT, "experiment_type"));
@@ -202,6 +207,11 @@ public final class ExperimentBrowserGrid extends LayoutContainer
                 .getMessageProvider()));
         configs.add(ColumnConfigFactory.createRegistrationDateColumnConfig(viewContext
                 .getMessageProvider()));
+        final ColumnConfig isInvalidColumn =
+                ColumnConfigFactory.createDefaultConfig(viewContext.getMessageProvider(),
+                        ModelDataPropertyNames.IS_INVALID, "is_invalid");
+        isInvalidColumn.setRenderer(new YesNoRenderer());
+        configs.add(isInvalidColumn);
         return new ColumnModel(configs);
     }
 

@@ -24,7 +24,7 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.YesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SampleRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.InvalidableWithCodeRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
@@ -82,7 +82,7 @@ public final class CommonColumns
     private final ColumnConfig createSampleCodeColumnConfig()
     {
         final ColumnConfig codeColumn = ColumnConfigFactory.createCodeColumnConfig(messageProvider);
-        codeColumn.setRenderer(new SampleRenderer());
+        codeColumn.setRenderer(new InvalidableWithCodeRenderer());
         return codeColumn;
     }
 

@@ -58,6 +58,7 @@ public final class ExperimentModel extends BaseModelData
                 .getRegistrator()));
         set(ModelDataPropertyNames.REGISTRATION_DATE, DateRenderer.renderDate(experiment
                 .getRegistrationDate()));
+        set(ModelDataPropertyNames.IS_INVALID, experiment.getInvalidation() != null);
     }
 
     public final static List<ExperimentModel> asExperimentModels(final List<Experiment> experiments)
