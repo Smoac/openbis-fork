@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 
 /**
@@ -70,11 +71,28 @@ public final class ModelDataPropertyNames
     public static final String EXPERIMENT_IDENTIFIER_FOR_SAMPLE =
             EXPERIMENT_FOR_SAMPLE + FIELD_PATH_SEPARATOR + "experimentIdentifier";
 
+    /**
+     * This is the path to the experiment type code field starting from {@link Experiment}.
+     * <p>
+     * Changing this may mean that sorting no longer works on the server side if result set is used.
+     * </p>
+     */
+    public static final String EXPERIMENT_TYPE_CODE_FOR_EXPERIMENT =
+            "experimentType" + FIELD_PATH_SEPARATOR + "code";
+
     public static final String FILE_FORMAT_TYPE = "fileFormatType";
 
     public static final String FIRST_NAME = "firstName";
 
     public static final String GROUP = "group";
+
+    /**
+     * This is the path to the project field starting from {@link Experiment}.
+     * <p>
+     * Changing this may mean that sorting no longer works on the server side if result set is used.
+     * </p>
+     */
+    public static final String GROUP_FOR_EXPERIMENT = "project" + FIELD_PATH_SEPARATOR + "group";
 
     public static final String IDENTIFIER = "identifier";
 
@@ -124,8 +142,6 @@ public final class ModelDataPropertyNames
     public static final String PROJECT_WITH_GROUP = "projectWithGroup";
 
     public static final String PROJECT = "project";
-
-    public static final String EXPERIMENT_TYPE_CODE = "experimentTypeCode";
 
     public static final String EXPERIMENT_IDENTIFIER = "experimentIdentifier";
 

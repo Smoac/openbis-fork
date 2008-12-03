@@ -192,9 +192,9 @@ public final class ExperimentBrowserGrid extends LayoutContainer
         configs.add(ColumnConfigFactory.createCodeColumnConfig(viewContext.getMessageProvider()));
 
         configs.add(ColumnConfigFactory.createDefaultConfig(viewContext.getMessageProvider(),
-                ModelDataPropertyNames.EXPERIMENT_TYPE_CODE, "experiment_type"));
+                ModelDataPropertyNames.EXPERIMENT_TYPE_CODE_FOR_EXPERIMENT, "experiment_type"));
         configs.add(ColumnConfigFactory.createDefaultConfig(viewContext.getMessageProvider(),
-                ModelDataPropertyNames.GROUP));
+                ModelDataPropertyNames.GROUP_FOR_EXPERIMENT, "group"));
         configs.add(ColumnConfigFactory.createDefaultConfig(viewContext.getMessageProvider(),
                 ModelDataPropertyNames.PROJECT));
 

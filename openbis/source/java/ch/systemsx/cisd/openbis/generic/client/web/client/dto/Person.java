@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  * 
  * @author Franz-Josef Elmer
  */
-public class Person extends AbstractRegistrationHolder
+public class Person extends AbstractRegistrationHolder implements Comparable<Person>
 {
     private String firstName;
 
@@ -76,7 +76,7 @@ public class Person extends AbstractRegistrationHolder
     @Override
     public String toString()
     {
-        StringBuilder result = new StringBuilder();
+        final StringBuilder result = new StringBuilder();
         if (firstName != null && lastName != null)
         {
             result.append(firstName);
@@ -87,5 +87,16 @@ public class Person extends AbstractRegistrationHolder
             result.append(userId);
         }
         return result.toString();
+    }
+
+    public int compareTo(final Person o)
+    {
+        if (o == null)
+        {
+            return -1;
+        } else
+        {
+            return this.toString().compareTo(o.toString());
+        }
     }
 }
