@@ -295,14 +295,15 @@ public final class GenericSampleViewer extends LayoutContainer
     {
         final ContentPanel panel = new ContentPanel();
         panel.setScrollMode(Scroll.AUTOY);
-        panel.setHeading(viewContext.getMessageProvider().getMessage("sample_properties_heading"));
-        panel.add(createPropertyGrid(sampleGeneration));
+        IMessageProvider messageProvider = viewContext.getMessageProvider();
+        panel.setHeading(messageProvider.getMessage("sample_properties_heading"));
+        panel.add(createPropertyGrid(sampleIdentifier, sampleGeneration, messageProvider));
         return panel;
     }
 
-    private final PropertyGrid createPropertyGrid(final SampleGeneration sampleGeneration)
+    public static PropertyGrid createPropertyGrid(String sampleIdentifier,
+            final SampleGeneration sampleGeneration, final IMessageProvider messageProvider)
     {
-        final IMessageProvider messageProvider = viewContext.getMessageProvider();
         final Map<String, Object> properties = createProperties(messageProvider, sampleGeneration);
         final PropertyGrid propertyGrid = new PropertyGrid(messageProvider, properties.size());
         propertyGrid.getElement().setId(PROPERTIES_ID_PREFIX + sampleIdentifier);

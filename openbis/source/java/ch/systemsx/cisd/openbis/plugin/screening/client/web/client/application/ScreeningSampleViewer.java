@@ -16,27 +16,15 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application;
 
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames.REGISTRATION_DATE;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames.REGISTRATOR;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 
 /**
@@ -62,58 +50,10 @@ public final class ScreeningSampleViewer extends LayoutContainer
         this.sampleIdentifier = sampleIdentifier;
     }
 
-    private final static Map<String, Object> createProperties(
-            final IMessageProvider messageProvider, final SampleGeneration sampleGeneration)
-    {
-        final Map<String, Object> properties = new LinkedHashMap<String, Object>();
-        final Sample sample = sampleGeneration.getGenerator();
-        final SampleType sampleType = sample.getSampleType();
-        final Invalidation invalidation = sample.getInvalidation();
-        final Sample[] generated = sampleGeneration.getGenerated();
-        properties.put(messageProvider.getMessage("sample"), sample);
-        properties.put(messageProvider.getMessage("sample_type"), sampleType);
-        properties.put(messageProvider.getMessage(REGISTRATOR), sample.getRegistrator());
-        properties.put(messageProvider.getMessage(REGISTRATION_DATE), sample.getRegistrationDate());
-        if (generated.length > 0)
-        {
-            properties.put(messageProvider.getMessage("generated_samples"), generated);
-        }
-        if (invalidation != null)
-        {
-            properties.put(messageProvider.getMessage("invalidation"), invalidation);
-        }
-        Sample generatedFrom = sample.getGeneratedFrom();
-        for (int i = 0; i < sampleType.getGeneratedFromHierarchyDepth() && generatedFrom != null; i++)
-        {
-            properties.put(messageProvider.getMessage("generated_from", i + 1), generatedFrom);
-            generatedFrom = generatedFrom.getGeneratedFrom();
-        }
-        for (final SampleProperty property : sample.getProperties())
-        {
-            final String simpleCode =
-                    property.getEntityTypePropertyType().getPropertyType().getLabel();
-            properties.put(simpleCode, property);
-        }
-        return properties;
-    }
-
     private final Widget createUI(final SampleGeneration sampleGeneration)
     {
         final IMessageProvider messageProvider = viewContext.getMessageProvider();
-        final Map<String, Object> properties = createProperties(messageProvider, sampleGeneration);
-        final PropertyGrid propertyGrid = new PropertyGrid(messageProvider, properties.size());
-        propertyGrid.registerPropertyValueRenderer(Person.class, PropertyValueRenderers
-                .createPersonPropertyValueRenderer(messageProvider));
-        propertyGrid.registerPropertyValueRenderer(SampleType.class, PropertyValueRenderers
-                .createSampleTypePropertyValueRenderer(messageProvider));
-        propertyGrid.registerPropertyValueRenderer(Sample.class, PropertyValueRenderers
-                .createSamplePropertyValueRenderer(messageProvider, true));
-        propertyGrid.registerPropertyValueRenderer(Invalidation.class, PropertyValueRenderers
-                .createInvalidationPropertyValueRenderer(messageProvider));
-        propertyGrid.registerPropertyValueRenderer(SampleProperty.class, PropertyValueRenderers
-                .createSamplePropertyPropertyValueRenderer(messageProvider));
-        propertyGrid.setProperties(properties);
-        return propertyGrid;
+        return GenericSampleViewer.createPropertyGrid(sampleIdentifier, sampleGeneration, messageProvider);
     }
 
     /**
