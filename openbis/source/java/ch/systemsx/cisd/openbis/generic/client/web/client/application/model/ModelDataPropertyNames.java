@@ -125,6 +125,10 @@ public final class ModelDataPropertyNames
 
     public static final String PROJECT = "project";
 
+    public static final String EXPERIMENT_TYPE_CODE = "experimentTypeCode";
+
+    public static final String EXPERIMENT_IDENTIFIER = "experimentIdentifier";
+
     private ModelDataPropertyNames()
     {
         // Can not be instantiated.

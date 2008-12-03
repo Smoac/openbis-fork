@@ -41,4 +41,9 @@ public interface IExperimentDAO
      * Lists all registered experiments.
      */
     public List<ExperimentPE> listExperiments() throws DataAccessException;
+
+    /**
+     * Returns {@link ExperimentPE} defined by given project and experiment code.
+     */
+    public ExperimentPE tryFindByCodeAndProject(ProjectPE project, String experimentCode);
 }

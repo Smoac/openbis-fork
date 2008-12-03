@@ -23,9 +23,11 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.Authoriz
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleToRegisterDTOPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleToRegisterDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -52,5 +54,12 @@ public interface IGenericServer extends IServer
     public void registerSample(final String sessionToken,
             @AuthorizationGuard(guardClass = SampleToRegisterDTOPredicate.class)
             final SampleToRegisterDTO newSample);
+
+    /**
+     * For given {@link ExperimentIdentifier} returns the corresponding {@link ExperimentPE}.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public ExperimentPE getExperimentInfo(String sessionToken, ExperimentIdentifier identifier);
 
 }

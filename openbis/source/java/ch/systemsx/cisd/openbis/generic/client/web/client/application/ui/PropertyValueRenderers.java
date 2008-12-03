@@ -23,6 +23,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.propert
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DOMUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentProperty;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
@@ -238,4 +240,49 @@ public final class PropertyValueRenderers
             return value.getValue();
         }
     }
+
+    /**
+     * Creates a {@link IPropertyValueRenderer} implementation for rendering {@link ExperimentType}.
+     */
+    public final static IPropertyValueRenderer<ExperimentType> createExperimentTypePropertyValueRenderer(
+            final IMessageProvider messageProvider)
+    {
+        return new ExperimentTypePropertyValueRenderer(messageProvider);
+    }
+
+    /**
+     * Renderer for {@link ExperimentType}.
+     * 
+     * @author Izabela Adamczyk
+     */
+    private final static class ExperimentTypePropertyValueRenderer extends
+            AbstractPropertyValueRenderer<ExperimentType>
+    {
+
+        ExperimentTypePropertyValueRenderer(final IMessageProvider messageProvider)
+        {
+            super(messageProvider);
+        }
+
+        //
+        // AbstractPropertyValueRenderer
+        //
+
+        @Override
+        public final String renderNotNull(final ExperimentType value)
+        {
+            return value.getCode();
+        }
+    }
+
+    /**
+     * Creates a {@link IPropertyValueRenderer} implementation for rendering
+     * {@link ExperimentProperty}.
+     */
+    public final static IPropertyValueRenderer<ExperimentProperty> createExperimentPropertyPropertyValueRenderer(
+            final IMessageProvider messageProvider)
+    {
+        return new EntityPropertyPropertyValueRenderer<ExperimentProperty>(messageProvider);
+    }
+
 }

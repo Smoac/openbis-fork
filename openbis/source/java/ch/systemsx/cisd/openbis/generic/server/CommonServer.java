@@ -70,9 +70,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 public final class CommonServer extends AbstractServer<ICommonServer> implements ICommonServer
 {
-    private IAuthenticationService authenticationService;
+    private final IAuthenticationService authenticationService;
 
-    private ICommonBusinessObjectFactory businessObjectFactory;
+    private final ICommonBusinessObjectFactory businessObjectFactory;
 
     public CommonServer(final IAuthenticationService authenticationService,
             final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
@@ -335,6 +335,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         final IExperimentTable experimentTable =
                 businessObjectFactory.createExperimentTable(session);
         experimentTable.load(experimentType.getCode(), projectIdentifier);
+        experimentTable.enrichWithProperties();
         final List<ExperimentPE> experiments = experimentTable.getExperiments();
         Collections.sort(experiments);
         return experiments;

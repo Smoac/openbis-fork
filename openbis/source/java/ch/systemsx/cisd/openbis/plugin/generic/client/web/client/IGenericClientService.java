@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleToRegister;
@@ -40,4 +41,9 @@ public interface IGenericClientService extends IClientService
      * Registers a new sample.
      */
     public void registerSample(final SampleToRegister sample) throws UserFailureException;
+
+    /**
+     * For given <var>experimentIdentifier</var> returns corresponding {@link Experiment}.
+     */
+    public Experiment getExperimentInfo(String experimentIdentifier) throws UserFailureException;
 }

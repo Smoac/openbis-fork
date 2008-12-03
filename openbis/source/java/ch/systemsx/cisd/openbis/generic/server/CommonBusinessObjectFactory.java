@@ -17,10 +17,12 @@
 package ch.systemsx.cisd.openbis.generic.server;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.AbstractBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.GroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
@@ -78,5 +80,10 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     public IExperimentTable createExperimentTable(final Session session)
     {
         return new ExperimentTable(getDaoFactory(), session);
+    }
+
+    public final IExperimentBO createExperimentBO(final Session session)
+    {
+        return new ExperimentBO(getDaoFactory(), session);
     }
 }

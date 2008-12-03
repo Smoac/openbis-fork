@@ -43,7 +43,7 @@ public final class ProcedureTranslator
             return null;
         }
         final Procedure result = new Procedure();
-        result.setExperiment(ExperimentTranslator.translate(procedure.getExperiment()));
+        result.setExperiment(ExperimentTranslator.translate(procedure.getExperiment(), false));
         result.setProcedureType(translate(procedure.getProcedureType()));
         result.setRegistrationDate(procedure.getRegistrationDate());
         return result;

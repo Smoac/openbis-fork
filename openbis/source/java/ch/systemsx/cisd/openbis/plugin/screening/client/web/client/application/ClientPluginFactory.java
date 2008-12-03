@@ -24,6 +24,7 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IClientPluginFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IExperimentViewClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ISampleViewClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
@@ -45,6 +46,8 @@ public final class ClientPluginFactory extends
         AbstractClientPluginFactory<IScreeningClientServiceAsync>
 {
     private ISampleViewClientPlugin sampleViewClientPlugin;
+
+    private IExperimentViewClientPlugin experimentViewClientPlugin;
 
     public ClientPluginFactory(final IViewContext<ICommonClientServiceAsync> originalViewContext)
     {
@@ -119,5 +122,29 @@ public final class ClientPluginFactory extends
         {
             return new DummyComponent();
         }
+    }
+
+    private final class ExperimentViewClientPlugin implements IExperimentViewClientPlugin
+    {
+        public final ITabItem createExperimentViewer(final String experimentIdentifier)
+        {
+            final DummyComponent experimentViewer = new DummyComponent();
+            return new DefaultTabItem(experimentIdentifier, experimentViewer);
+        }
+    }
+
+    public IExperimentViewClientPlugin createViewClientForExperimentType(
+            final String experimentTypeCode)
+    {
+        if (experimentViewClientPlugin == null)
+        {
+            experimentViewClientPlugin = new ExperimentViewClientPlugin();
+        }
+        return experimentViewClientPlugin;
+    }
+
+    public Set<String> getExperimentTypeCodes()
+    {
+        return Collections.emptySet();
     }
 }

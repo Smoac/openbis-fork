@@ -45,4 +45,9 @@ public interface ICommonBusinessObjectFactory
      * Creates a {@link IExperimentTable} <i>Business Object</i>.
      */
     public IExperimentTable createExperimentTable(final Session session);
+
+    /**
+     * Creates a {@link IExperimentBO} <i>Business Object</i>.
+     */
+    public IExperimentBO createExperimentBO(final Session session);
 }

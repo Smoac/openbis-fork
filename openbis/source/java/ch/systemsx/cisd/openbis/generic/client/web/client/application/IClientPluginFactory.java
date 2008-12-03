@@ -31,8 +31,19 @@ public interface IClientPluginFactory
     public Set<String> getSampleTypeCodes();
 
     /**
+     * Returns all the experiment type codes supported by the implementation.
+     */
+    public Set<String> getExperimentTypeCodes();
+
+    /**
      * Return the {@link ISampleViewClientPlugin} specific to given <var>sampleTypeCode</var>.
      */
     public ISampleViewClientPlugin createViewClientForSampleType(final String sampleTypeCode);
+
+    /**
+     * Return the {@link IExperimentViewClientPlugin} specific to given <var>experimentTypeCode</var>.
+     */
+    public IExperimentViewClientPlugin createViewClientForExperimentType(
+            final String experimentTypeCode);
 
 }

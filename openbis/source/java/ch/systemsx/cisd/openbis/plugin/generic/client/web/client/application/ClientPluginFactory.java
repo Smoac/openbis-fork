@@ -23,12 +23,14 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IClientPluginFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IExperimentViewClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ISampleViewClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentViewer;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleBatchRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer;
@@ -42,6 +44,8 @@ public final class ClientPluginFactory extends
         AbstractClientPluginFactory<IGenericClientServiceAsync>
 {
     private ISampleViewClientPlugin sampleViewClientPlugin;
+
+    private IExperimentViewClientPlugin experimentViewClientPlugin;
 
     public ClientPluginFactory(final IViewContext<ICommonClientServiceAsync> originalViewContext)
     {
@@ -117,6 +121,41 @@ public final class ClientPluginFactory extends
         {
             return new GenericSampleBatchRegistrationForm(getViewContext(), sampleType);
         }
+    }
 
+    private final class ExperimentViewClientPlugin implements IExperimentViewClientPlugin
+    {
+
+        public final ITabItem createExperimentViewer(final String experimentIdentifier)
+        {
+            final GenericExperimentViewer experimentViewer =
+                    new GenericExperimentViewer(getViewContext(), experimentIdentifier);
+            return new DefaultTabItem(experimentIdentifier, experimentViewer)
+                {
+
+                    @Override
+                    public final void initialize()
+                    {
+                        experimentViewer.loadExperimentInfo();
+                    }
+                };
+        }
+
+    }
+
+    public IExperimentViewClientPlugin createViewClientForExperimentType(
+            final String experimentTypeCode)
+    {
+        if (experimentViewClientPlugin == null)
+        {
+            experimentViewClientPlugin = new ExperimentViewClientPlugin();
+        }
+        return experimentViewClientPlugin;
+    }
+
+    public Set<String> getExperimentTypeCodes()
+    {
+        throw new UnsupportedOperationException(
+                "Generic plugin factory supports every experiment type.");
     }
 }

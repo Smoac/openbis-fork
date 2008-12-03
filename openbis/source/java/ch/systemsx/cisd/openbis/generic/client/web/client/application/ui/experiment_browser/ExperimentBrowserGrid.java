@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experi
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
@@ -26,6 +27,9 @@ import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
+import com.extjs.gxt.ui.client.event.GridEvent;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -41,6 +45,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExperimentModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
@@ -148,6 +154,30 @@ public final class ExperimentBrowserGrid extends LayoutContainer
         experimentGrid.setId(GRID_ID);
         experimentGrid.setLoadMask(true);
         experimentGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        experimentGrid.addListener(Events.CellDoubleClick, new Listener<GridEvent>()
+            {
+
+                //
+                // Listener
+                //
+
+                public final void handleEvent(final GridEvent be)
+                {
+                    final ExperimentModel experimentModel =
+                            (ExperimentModel) be.grid.getStore().getAt(be.rowIndex);
+                    final ExperimentType experimentType =
+                            (ExperimentType) experimentModel
+                                    .get(ModelDataPropertyNames.EXPERIMENT_TYPE);
+                    final String experimentIdentifier =
+                            experimentModel.get(ModelDataPropertyNames.EXPERIMENT_IDENTIFIER);
+                    final String code = experimentType.getCode();
+                    final ITabItem tabView =
+                            viewContext.getClientPluginFactoryProvider().getClientPluginFactory(
+                                    code).createViewClientForExperimentType(code)
+                                    .createExperimentViewer(experimentIdentifier);
+                    Dispatcher.get().dispatch(DispatcherHelper.createNaviEvent(tabView));
+                }
+            });
         return experimentGrid;
     }
 
@@ -162,7 +192,7 @@ public final class ExperimentBrowserGrid extends LayoutContainer
         configs.add(ColumnConfigFactory.createCodeColumnConfig(viewContext.getMessageProvider()));
 
         configs.add(ColumnConfigFactory.createDefaultConfig(viewContext.getMessageProvider(),
-                ModelDataPropertyNames.EXPERIMENT_TYPE, "experiment_type"));
+                ModelDataPropertyNames.EXPERIMENT_TYPE_CODE, "experiment_type"));
         configs.add(ColumnConfigFactory.createDefaultConfig(viewContext.getMessageProvider(),
                 ModelDataPropertyNames.GROUP));
         configs.add(ColumnConfigFactory.createDefaultConfig(viewContext.getMessageProvider(),

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleToRegister;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
@@ -42,4 +43,10 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
      */
     public void registerSample(final SampleToRegister sample,
             final AsyncCallback<Void> asyncCallback) throws UserFailureException;
+
+    /**
+     * @see IGenericClientService#getExperimentInfo(String)
+     */
+    public void getExperimentInfo(String experimentIdentifier,
+            final AsyncCallback<Experiment> experimentInfoCallback);
 }

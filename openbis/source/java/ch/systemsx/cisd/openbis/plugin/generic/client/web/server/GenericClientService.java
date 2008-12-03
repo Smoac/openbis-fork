@@ -24,13 +24,18 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleToRegister;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.DtoConverters;
+import ch.systemsx.cisd.openbis.generic.client.web.server.util.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.SampleToRegisterTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.plugin.AbstractClientService;
@@ -102,6 +107,22 @@ public final class GenericClientService extends AbstractClientService implements
             genericServer
                     .registerSample(sessionToken, SampleToRegisterTranslator.translate(sample));
         } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public Experiment getExperimentInfo(final String experimentIdentifier)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final ExperimentIdentifier identifier =
+                    new ExperimentIdentifierFactory(experimentIdentifier).createIdentifier();
+            final ExperimentPE experiment =
+                    genericServer.getExperimentInfo(getSessionToken(), identifier);
+            return ExperimentTranslator.translate(experiment, true);
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         }

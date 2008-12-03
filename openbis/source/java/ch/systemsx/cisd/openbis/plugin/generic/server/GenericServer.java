@@ -24,12 +24,15 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.utilities.ParameterChecker;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleToRegisterDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.ISampleServerPlugin;
 import ch.systemsx.cisd.openbis.plugin.SampleServerPluginRegistry;
@@ -105,5 +108,16 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.define(newSample);
         sampleBO.save();
+    }
+
+    public ExperimentPE getExperimentInfo(final String sessionToken,
+            final ExperimentIdentifier identifier)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
+        experimentBO.loadByExperimentIdentifier(identifier);
+        experimentBO.enrichWithProperties();
+        final ExperimentPE experiment = experimentBO.getExperiment();
+        return experiment;
     }
 }

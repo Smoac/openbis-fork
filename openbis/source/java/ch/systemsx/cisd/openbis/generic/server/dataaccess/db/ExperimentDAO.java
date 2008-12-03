@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
@@ -28,6 +29,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
@@ -40,6 +42,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
  */
 public class ExperimentDAO extends AbstractDAO implements IExperimentDAO
 {
+
+    private static final Class<ExperimentPE> ENTITY_CLASS = ExperimentPE.class;
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, ExperimentDAO.class);
@@ -56,7 +60,7 @@ public class ExperimentDAO extends AbstractDAO implements IExperimentDAO
         assert experimentType != null : "Unspecified experiment type.";
         assert project != null : "Unspecified project.";
 
-        final DetachedCriteria criteria = DetachedCriteria.forClass(ExperimentPE.class);
+        final DetachedCriteria criteria = DetachedCriteria.forClass(ENTITY_CLASS);
         criteria.add(Restrictions.eq("experimentType", experimentType));
         criteria.add(Restrictions.eq("project", project));
         final List<ExperimentPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
@@ -71,13 +75,31 @@ public class ExperimentDAO extends AbstractDAO implements IExperimentDAO
 
     public List<ExperimentPE> listExperiments() throws DataAccessException
     {
-        final List<ExperimentPE> list = cast(getHibernateTemplate().loadAll(ExperimentPE.class));
+        final List<ExperimentPE> list = cast(getHibernateTemplate().loadAll(ENTITY_CLASS));
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%s(): %d experiment(s) have been found.", MethodUtils
                     .getCurrentMethod().getName(), list.size()));
         }
         return list;
+    }
+
+    public ExperimentPE tryFindByCodeAndProject(final ProjectPE project, final String experimentCode)
+    {
+        assert experimentCode != null : "Unspecified experiment code.";
+        assert project != null : "Unspecified project.";
+
+        final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
+        criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(experimentCode)));
+        criteria.add(Restrictions.eq("project", project));
+        final ExperimentPE experiment = (ExperimentPE) criteria.uniqueResult();
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format(
+                    "Following experiment '%s' has been found for code '%s' and project '%s'.",
+                    experiment, experimentCode, project));
+        }
+        return experiment;
     }
 
 }

@@ -69,6 +69,13 @@ body,div,td {
     text-align: center;
 }
 
+.section-heading {
+    color: white;
+    background-color: #1e4e8f;
+    margin-top: 5;
+    padding: 3;
+}
+
 /*****************************
  * Overridden GXT stuff
  *****************************/

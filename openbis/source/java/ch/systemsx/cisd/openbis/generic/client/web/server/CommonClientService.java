@@ -335,7 +335,8 @@ public final class CommonClientService extends AbstractClientService implements
                                                 new ArrayList<Experiment>(experiments.size());
                                         for (final ExperimentPE experiment : experiments)
                                         {
-                                            list.add(ExperimentTranslator.translate(experiment));
+                                            list.add(ExperimentTranslator.translate(experiment,
+                                                    true));
                                         }
                                         return list;
                                     }

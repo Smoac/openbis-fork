@@ -34,7 +34,8 @@ public final class ExperimentTranslator
         // Can not be instantiated.
     }
 
-    public final static Experiment translate(final ExperimentPE experiment)
+    public final static Experiment translate(final ExperimentPE experiment,
+            final boolean withDetails)
     {
         if (experiment == null)
         {
@@ -47,6 +48,13 @@ public final class ExperimentTranslator
         result.setProject(ProjectTranslator.translate(experiment.getProject()));
         result.setRegistrationDate(experiment.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(experiment.getRegistrator()));
+        if (withDetails)
+        {
+            result.setInvalidation(InvalidationTranslator.translate(experiment.getInvalidation()));
+            result
+                    .setProperties(ExperimentPropertyTranslator.translate(experiment
+                            .getProperties()));
+        }
         return result;
     }
 

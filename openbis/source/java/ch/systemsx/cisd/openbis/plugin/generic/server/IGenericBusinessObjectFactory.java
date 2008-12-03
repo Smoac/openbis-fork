@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
@@ -31,4 +32,9 @@ public interface IGenericBusinessObjectFactory
      * Creates a {@link ISampleBO} <i>Business Object</i>.
      */
     public ISampleBO createSampleBO(final Session session);
+
+    /**
+     * Creates a {@link IExperimentBO} <i>Business Object</i>.
+     */
+    public IExperimentBO createExperimentBO(final Session session);
 }

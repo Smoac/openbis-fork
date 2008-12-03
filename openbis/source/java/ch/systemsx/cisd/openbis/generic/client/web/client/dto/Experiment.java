@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 
 /**
@@ -30,6 +32,10 @@ public class Experiment extends CodeWithRegistration<Experiment>
     private ExperimentType experimentType;
 
     private String experimentIdentifier;
+
+    private List<ExperimentProperty> properties;
+
+    private Invalidation invalidation;
 
     public Project getProject()
     {
@@ -69,5 +75,25 @@ public class Experiment extends CodeWithRegistration<Experiment>
     public final int compareTo(final Experiment o)
     {
         return getExperimentIdentifier().compareTo(o.getExperimentIdentifier());
+    }
+
+    public List<ExperimentProperty> getProperties()
+    {
+        return properties;
+    }
+
+    public void setProperties(final List<ExperimentProperty> properties)
+    {
+        this.properties = properties;
+    }
+
+    public Invalidation getInvalidation()
+    {
+        return invalidation;
+    }
+
+    public void setInvalidation(final Invalidation invalidation)
+    {
+        this.invalidation = invalidation;
     }
 }

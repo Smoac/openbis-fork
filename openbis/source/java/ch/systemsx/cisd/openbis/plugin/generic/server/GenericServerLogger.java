@@ -18,9 +18,11 @@ package ch.systemsx.cisd.openbis.plugin.generic.server;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleToRegisterDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
@@ -48,7 +50,7 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     public final SampleGenerationDTO getSampleInfo(final String sessionToken,
             final SampleIdentifier identifier)
     {
-        logTracking(sessionToken, "get_sample_info", "IDENTIFIER(%s)", identifier);
+        logAccess(sessionToken, "get_sample_info", "IDENTIFIER(%s)", identifier);
         return null;
     }
 
@@ -56,5 +58,12 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     {
         logTracking(sessionToken, "register_sample", "SAMPLE_TYPE(%s) SAMPLE(%S)", newSample
                 .getSampleTypeCode(), newSample.getSampleIdentifier());
+    }
+
+    public ExperimentPE getExperimentInfo(final String sessionToken,
+            final ExperimentIdentifier identifier)
+    {
+        logAccess(sessionToken, "get_experiment_info", "IDENTIFIER(%s)", identifier);
+        return null;
     }
 }
