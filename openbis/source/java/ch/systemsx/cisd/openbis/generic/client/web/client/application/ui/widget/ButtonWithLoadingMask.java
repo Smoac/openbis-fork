@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget;
 
 import com.extjs.gxt.ui.client.Style.Direction;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
