@@ -79,6 +79,7 @@ final class SearchWidget extends LayoutContainer
         final TableRowLayout tableRowLayout = createLayout();
         setLayout(tableRowLayout);
         this.viewContext = viewContext;
+        searchButton = createSearchButton();
         enterKeyListener = new EnterKeyListener()
             {
 
@@ -92,13 +93,13 @@ final class SearchWidget extends LayoutContainer
                     // While searching the search button is disabled.
                     if (searchButton.isEnabled())
                     {
+                        enableSearch(false);
                         doSearch();
                     }
                 }
             };
         textField = createTextField();
         entityChooser = createEntityChooser();
-        searchButton = createSearchButton();
         add(entityChooser);
         add(textField);
         add(searchButton);

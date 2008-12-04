@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget;
 
 import com.extjs.gxt.ui.client.Style.Direction;
-import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -94,7 +94,7 @@ public abstract class ButtonWithLoadingMask extends LayoutContainer
         {
             but.setId(buttonIdOrNull);
         }
-        but.addSelectionListener(new SelectionListener<ComponentEvent>()
+        but.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
 
                 //
@@ -102,7 +102,7 @@ public abstract class ButtonWithLoadingMask extends LayoutContainer
                 //
 
                 @Override
-                public final void componentSelected(final ComponentEvent ce)
+                public final void componentSelected(final ButtonEvent ce)
                 {
                     setEnabled(false);
                     doButtonClick();
