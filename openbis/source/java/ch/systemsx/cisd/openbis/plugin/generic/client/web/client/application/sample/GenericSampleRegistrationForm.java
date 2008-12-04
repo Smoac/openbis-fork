@@ -33,7 +33,6 @@ import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
@@ -45,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
@@ -219,6 +218,22 @@ public final class GenericSampleRegistrationForm extends FormPanel
                     submitForm();
                 }
             });
+        final Button resetButton =
+                new Button(viewContext.getMessageProvider().getMessage("button_reset"));
+        resetButton.addSelectionListener(new SelectionListener<ComponentEvent>()
+            {
+
+                //
+                // SelectionListener
+                //
+
+                @Override
+                public final void componentSelected(final ComponentEvent ce)
+                {
+                    reset();
+                }
+            });
+        addButton(resetButton);
         addButton(saveButton);
     }
 
@@ -526,45 +541,6 @@ public final class GenericSampleRegistrationForm extends FormPanel
                         }
                     }
                 });
-        }
-    }
-
-    private final static class InfoBox extends LabelField
-    {
-
-        InfoBox()
-        {
-            setVisible(false);
-            setStyleAttribute("textAlign", "center");
-            setPosition(-2, 0);
-        }
-
-        private void setStrongStyle()
-        {
-            setStyleAttribute("backgroundColor", "#feffbe");
-            setStyleAttribute("border", "1px solid #edee8b");
-        }
-
-        private void setLightStyle()
-        {
-            setStyleAttribute("backgroundColor", "#feffdf");
-            setStyleAttribute("color", "gray");
-            setStyleAttribute("border", "1px solid #e7e7e7");
-        }
-
-        public void fade()
-        {
-            setLightStyle();
-        }
-
-        public void display(final String text)
-        {
-            if (StringUtils.isBlank(text) == false)
-            {
-                setStrongStyle();
-                setVisible(true);
-                setText(text);
-            }
         }
     }
 
