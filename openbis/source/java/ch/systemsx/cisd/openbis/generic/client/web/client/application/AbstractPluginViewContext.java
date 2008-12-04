@@ -16,8 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.rpc.ServiceDefTarget;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.CompositeMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
  * An <i>abstract</i> {@link IViewContext} implementation which should be extended by each plugin
@@ -29,15 +35,47 @@ public abstract class AbstractPluginViewContext<T extends IClientServiceAsync> i
         IViewContext<T>
 {
     private final IViewContext<ICommonClientServiceAsync> commonViewContext;
+    
+    private final IMessageProvider messageProvider;
+    
+    private final T service;
 
     public AbstractPluginViewContext(final IViewContext<ICommonClientServiceAsync> commonViewContext)
     {
         this.commonViewContext = commonViewContext;
+        String technology = getTechnology();
+        messageProvider =
+                new CompositeMessageProvider(new DictonaryBasedMessageProvider(technology),
+                        commonViewContext.getMessageProvider());
+        service = createClientServiceAsync();
+        final ServiceDefTarget endpoint = (ServiceDefTarget) service;
+        endpoint.setServiceEntryPoint(GenericConstants.createServicePath(technology));
     }
+    
+    /**
+     * Returns the name of the technology.
+     */
+    protected abstract String getTechnology();
+    
+    /**
+     * Creates the service. Implementations will usually invoke {@link GWT#create(Class)}
+     * with the corresponding synchronous service interface.
+     */
+    protected abstract T createClientServiceAsync();
 
     //
     // IViewContext
     //
+
+    public final T getService()
+    {
+        return service;
+    }
+    
+    public final IMessageProvider getMessageProvider()
+    {
+        return messageProvider;
+    }
 
     public final IViewContext<ICommonClientServiceAsync> getCommonViewContext()
     {

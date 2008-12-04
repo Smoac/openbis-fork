@@ -1,15 +1,10 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.rpc.ServiceDefTarget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractPluginViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.CompositeMessageProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
@@ -22,38 +17,20 @@ public final class GenericViewContext extends AbstractPluginViewContext<IGeneric
 {
     private static final String TECHNOLOGY_NAME = "generic";
 
-    private final IMessageProvider messageProvider;
-
-    private final IGenericClientServiceAsync service;
-
     public GenericViewContext(final IViewContext<ICommonClientServiceAsync> commonViewContext)
     {
         super(commonViewContext);
-        this.messageProvider =
-                new CompositeMessageProvider(new DictonaryBasedMessageProvider(TECHNOLOGY_NAME),
-                        commonViewContext.getMessageProvider());
-        this.service = createScreeningClientService();
+    }
+    
+    @Override
+    protected String getTechnology()
+    {
+        return TECHNOLOGY_NAME;
     }
 
-    private final static IGenericClientServiceAsync createScreeningClientService()
+    @Override
+    protected IGenericClientServiceAsync createClientServiceAsync()
     {
-        final IGenericClientServiceAsync service = GWT.create(IGenericClientService.class);
-        final ServiceDefTarget endpoint = (ServiceDefTarget) service;
-        endpoint.setServiceEntryPoint(GenericConstants.createServicePath(TECHNOLOGY_NAME));
-        return service;
-    }
-
-    //
-    // IViewContext
-    //
-
-    public final IMessageProvider getMessageProvider()
-    {
-        return messageProvider;
-    }
-
-    public final IGenericClientServiceAsync getService()
-    {
-        return service;
+        return GWT.create(IGenericClientService.class);
     }
 }
