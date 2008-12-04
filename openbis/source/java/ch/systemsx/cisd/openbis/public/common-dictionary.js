@@ -25,8 +25,8 @@ var common = {
   // Buttons
   //
   
-  button_save: "save",
-  button_submit: "submit",
+  button_save: "Save",
+  button_submit: "Submit",
   
   //
   // LoginWidget
@@ -35,7 +35,7 @@ var common = {
   login_invitation: "Please login to start your session:", 
   login_userLabel: "User",
   login_passwordLabel: "Password",
-  login_buttonLabel: "login",
+  login_buttonLabel: "Login",
   login_failed: "Sorry, you entered an invalid username or password. Please try again.",
   
   //
