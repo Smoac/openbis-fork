@@ -54,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExternalDataModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
@@ -74,7 +75,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  * 
  * @author Christian Ribeaud
  */
-public final class GenericSampleViewer extends LayoutContainer
+public final class GenericSampleViewer extends AbstractViewer<IGenericClientServiceAsync>
 {
     private static final String PREFIX = "generic-sample-viewer_";
 
@@ -87,8 +88,6 @@ public final class GenericSampleViewer extends LayoutContainer
 
     public static final String DATA_POSTFIX = "-data";
 
-    private final IViewContext<IGenericClientServiceAsync> viewContext;
-
     private Grid<SampleModel> partOfSamplesGrid;
 
     private Grid<ExternalDataModel> externalDataGrid;
@@ -98,9 +97,9 @@ public final class GenericSampleViewer extends LayoutContainer
     public GenericSampleViewer(final IViewContext<IGenericClientServiceAsync> viewContext,
             final String sampleIdentifier)
     {
+        super(viewContext);
         setId(ID_PREFIX + sampleIdentifier);
         this.sampleIdentifier = sampleIdentifier;
-        this.viewContext = viewContext;
     }
 
     private final static BorderLayoutData createRightBorderLayoutData()
@@ -330,7 +329,8 @@ public final class GenericSampleViewer extends LayoutContainer
     /**
      * Load the sample information.
      */
-    public final void loadSampleInfo()
+    @Override
+    public void loadData()
     {
         viewContext.getService().getSampleInfo(sampleIdentifier,
                 new SampleGenerationInfoCallback(viewContext, this));

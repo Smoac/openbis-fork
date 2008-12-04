@@ -25,6 +25,7 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
@@ -33,22 +34,20 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  * 
  * @author Izabela Adamczyk
  */
-public final class GenericExperimentViewer extends LayoutContainer
+public final class GenericExperimentViewer extends AbstractViewer<IGenericClientServiceAsync>
 {
     private static final String PREFIX = "generic-experiment-viewer_";
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
-
-    private final IViewContext<IGenericClientServiceAsync> viewContext;
 
     private final String experimentIdentifier;
 
     public GenericExperimentViewer(final IViewContext<IGenericClientServiceAsync> viewContext,
             final String experimentIdentifier)
     {
+        super(viewContext);
         setId(ID_PREFIX + experimentIdentifier);
         this.experimentIdentifier = experimentIdentifier;
-        this.viewContext = viewContext;
     }
 
     private static void addSection(final LayoutContainer lc, final Widget w)
@@ -59,7 +58,8 @@ public final class GenericExperimentViewer extends LayoutContainer
     /**
      * Load the experiment information.
      */
-    public final void loadExperimentInfo()
+    @Override
+    public final void loadData()
     {
         viewContext.getService().getExperimentInfo(experimentIdentifier,
                 new ExperimentInfoCallback(viewContext, this));

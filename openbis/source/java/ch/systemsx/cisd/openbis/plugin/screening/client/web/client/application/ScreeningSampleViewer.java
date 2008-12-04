@@ -16,12 +16,12 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application;
 
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer;
@@ -32,21 +32,19 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningCli
  * 
  * @author Christian Ribeaud
  */
-public final class ScreeningSampleViewer extends LayoutContainer
+public final class ScreeningSampleViewer extends AbstractViewer<IScreeningClientServiceAsync>
 {
     private static final String PREFIX = "screening-sample-viewer_";
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
-
-    private final IViewContext<IScreeningClientServiceAsync> viewContext;
 
     private final String sampleIdentifier;
 
     public ScreeningSampleViewer(final IViewContext<IScreeningClientServiceAsync> viewContext,
             final String sampleIdentifier)
     {
+        super(viewContext);
         setId(ID_PREFIX + sampleIdentifier);
-        this.viewContext = viewContext;
         this.sampleIdentifier = sampleIdentifier;
     }
 
@@ -59,7 +57,8 @@ public final class ScreeningSampleViewer extends LayoutContainer
     /**
      * Load the sample information.
      */
-    public final void loadSampleInfo()
+    @Override
+    public final void loadData()
     {
         SampleInfoCallback callback = new SampleInfoCallback(viewContext, this);
         viewContext.getService().getSampleInfo(sampleIdentifier, callback);

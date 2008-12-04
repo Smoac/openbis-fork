@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DummyComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ViewerTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.SampleTypeCode;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
@@ -95,23 +96,9 @@ public final class ClientPluginFactory extends
 
         public final ITabItem createSampleViewer(final String sampleIdentifier)
         {
-            final IViewContext<IScreeningClientServiceAsync> viewContext = getViewContext();
             final ScreeningSampleViewer sampleViewer =
-                    new ScreeningSampleViewer(viewContext, sampleIdentifier);
-            return new DefaultTabItem(sampleIdentifier, sampleViewer)
-                {
-
-                    //
-                    // DefaultTabItem
-                    //
-
-                    @Override
-                    public final void initialize()
-                    {
-                        sampleViewer.loadSampleInfo();
-                    }
-                };
-        }
+                    new ScreeningSampleViewer(getViewContext(), sampleIdentifier);
+            return new ViewerTabItem(sampleIdentifier, sampleViewer);        }
 
         public final Widget createRegistrationForSampleType(final SampleType sampleTypeCode)
         {
