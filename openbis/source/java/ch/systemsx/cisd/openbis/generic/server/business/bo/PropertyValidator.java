@@ -17,12 +17,15 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.time.DateUtils;
+
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.utilities.DateFormatThreadLocal;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
@@ -37,8 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 // TODO 2008-12-03, Christian Ribeaud: Write a test for this class.
 public final class PropertyValidator implements IPropertyValueValidator
 {
-    public static final ThreadLocal<SimpleDateFormat> CANONICAL_DATE_FORMAT =
-            new DateFormatThreadLocal("yyyy-MM-dd HH:mm:ss Z");
+    private final static String[] DATE_PATTERNS = createDatePatterns();
 
     private final static Map<EntityDataType, IDataTypeValidator> dataTypeValidators = createMap();
 
@@ -53,6 +55,17 @@ public final class PropertyValidator implements IPropertyValueValidator
         map.put(EntityDataType.REAL, new RealValidator());
         map.put(EntityDataType.CONTROLLEDVOCABULARY, new ControlledVocabularyValidator());
         return map;
+    }
+
+    private final static String[] createDatePatterns()
+    {
+        final List<String> datePatterns = new ArrayList<String>();
+        // Order does not matter due to DateUtils implementation used.
+        datePatterns.add("yyyy-MM-dd HH:mm:ss Z");
+        datePatterns.add("yyyy-MM-dd HH:mm:ss");
+        datePatterns.add("yyyy-MM-dd HH:mm");
+        datePatterns.add("yyyy-MM-dd");
+        return datePatterns.toArray(ArrayUtils.EMPTY_STRING_ARRAY);
     }
 
     //
@@ -134,7 +147,7 @@ public final class PropertyValidator implements IPropertyValueValidator
             assert value != null : "Unspecified value.";
             try
             {
-                CANONICAL_DATE_FORMAT.get().parse(value);
+                DateUtils.parseDate(value, DATE_PATTERNS);
                 return true;
             } catch (final ParseException ex)
             {
