@@ -203,34 +203,32 @@ final class MatchingEntitiesPanel extends ContentPanel implements Listener<TabPa
 
     private final ColumnConfig createMatchedFieldColumnConfig()
     {
-        ColumnConfig config = createColumnConfig(ModelDataPropertyNames.MATCHING_FIELD, "matching_field");
+        ColumnConfig config =
+                ColumnConfigFactory.createDefaultColumnConfig(viewContext.getMessageProvider()
+        .getMessage("matching_field"), ModelDataPropertyNames.MATCHING_FIELD);
         config.setWidth(140);
         return config;
     }
 
     private final ColumnConfig createEntityKindColumnConfig()
     {
-        return createColumnConfig(ModelDataPropertyNames.ENTITY_KIND, "entity_kind");
+        return ColumnConfigFactory.createDefaultColumnConfig(viewContext.getMessageProvider()
+        .getMessage("entity_kind"), ModelDataPropertyNames.ENTITY_KIND);
     }
 
     private final ColumnConfig createIdentifierColumnConfig()
     {
         final ColumnConfig columnConfig =
-                ColumnConfigFactory.createDefaultConfig(viewContext.getMessageProvider(),
-                        ModelDataPropertyNames.IDENTIFIER);
+                ColumnConfigFactory.createDefaultColumnConfig(viewContext.getMessageProvider()
+                        .getMessage("identifier"), ModelDataPropertyNames.IDENTIFIER);
         columnConfig.setWidth(140);
         return columnConfig;
     }
 
     private final ColumnConfig createEntityTypeColumnConfig()
     {
-        return createColumnConfig(ModelDataPropertyNames.ENTITY_TYPE, "entity_type");
-    }
-
-    private ColumnConfig createColumnConfig(final String id, final String headerKey)
-    {
-        return ColumnConfigFactory.createDefaultConfig(viewContext.getMessageProvider(), id,
-                headerKey);
+        return ColumnConfigFactory.createDefaultColumnConfig(viewContext.getMessageProvider()
+        .getMessage("entity_type"), ModelDataPropertyNames.ENTITY_TYPE);
     }
 
     private final static PagingToolBar createPagingToolBar()

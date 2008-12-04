@@ -63,12 +63,11 @@ public final class PropertyColumns
     private final ColumnConfig createPropertyColumn(
             final SampleTypePropertyType sampleTypePropertyType)
     {
-        final ColumnConfig columnConfig = new ColumnConfig();
-        columnConfig.setMenuDisabled(true);
-        columnConfig.setSortable(false);
         final PropertyType propertyType = sampleTypePropertyType.getPropertyType();
-        columnConfig.setId(SampleModel.createID(propertyType));
-        columnConfig.setHeader(propertyType.getLabel());
+        final ColumnConfig columnConfig =
+                ColumnConfigFactory.createDefaultColumnConfig(propertyType.getLabel(), SampleModel
+                        .createID(propertyType));
+        columnConfig.setSortable(false);
         columnConfig.setWidth(80);
         columnConfig.setHidden(sampleTypePropertyType.isDisplayed() == false);
         return columnConfig;

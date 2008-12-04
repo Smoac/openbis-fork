@@ -28,52 +28,53 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  */
 public final class ColumnConfigFactory
 {
+    private static final int DEFAULT_COLUMN_WIDTH = 100;
 
     private ColumnConfigFactory()
     {
         // Can not be instantiated.
     }
 
-    public final static ColumnConfig createMenuDisableColumnConfig()
-    {
-        final ColumnConfig columnConfig = new ColumnConfig();
-        columnConfig.setMenuDisabled(true);
-        return columnConfig;
-    }
-
     public final static ColumnConfig createRegistratorColumnConfig(
             final IMessageProvider messageProvider)
     {
-        return createDefaultConfig(messageProvider, ModelDataPropertyNames.REGISTRATOR);
+        return createDefaultColumnConfig(messageProvider.getMessage("registrator"),
+                ModelDataPropertyNames.REGISTRATOR);
     }
 
     public final static ColumnConfig createCodeColumnConfig(final IMessageProvider messageProvider)
     {
-        return createDefaultConfig(messageProvider, ModelDataPropertyNames.CODE);
+        return createDefaultColumnConfig(messageProvider.getMessage("code"),
+                ModelDataPropertyNames.CODE);
     }
 
     public final static ColumnConfig createRegistrationDateColumnConfig(
             final IMessageProvider messageProvider)
     {
         final ColumnConfig registrationDateColumnConfig =
-                createDefaultConfig(messageProvider, ModelDataPropertyNames.REGISTRATION_DATE);
+                createDefaultColumnConfig(messageProvider.getMessage("registration_date"),
+                        ModelDataPropertyNames.REGISTRATION_DATE);
         registrationDateColumnConfig.setWidth(200);
         return registrationDateColumnConfig;
     }
 
-    public final static ColumnConfig createDefaultConfig(final IMessageProvider messageProvider,
-            final String id)
+    //
+    // Default ColumnConfig
+    //
+
+    public final static ColumnConfig createDefaultColumnConfig(final String id)
     {
-        return createDefaultConfig(messageProvider, id, id);
+        final ColumnConfig columnConfig = new ColumnConfig();
+        columnConfig.setId(id);
+        columnConfig.setSortable(true);
+        return columnConfig;
     }
 
-    public final static ColumnConfig createDefaultConfig(final IMessageProvider messageProvider,
-            final String id, final String headerKey)
+    public final static ColumnConfig createDefaultColumnConfig(final String header, final String id)
     {
-        final ColumnConfig columnConfig = createMenuDisableColumnConfig();
-        columnConfig.setId(id);
-        columnConfig.setHeader(messageProvider.getMessage(headerKey));
-        columnConfig.setWidth(100);
+        final ColumnConfig columnConfig = createDefaultColumnConfig(id);
+        columnConfig.setHeader(header);
+        columnConfig.setWidth(DEFAULT_COLUMN_WIDTH);
         return columnConfig;
     }
 

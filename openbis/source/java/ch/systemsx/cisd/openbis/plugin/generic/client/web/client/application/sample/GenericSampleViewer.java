@@ -229,19 +229,17 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
 
     private final ColumnConfig createFileFormatTypeColumnConfig()
     {
-        final ColumnConfig columnConfig = ColumnConfigFactory.createMenuDisableColumnConfig();
-        columnConfig.setId(ModelDataPropertyNames.FILE_FORMAT_TYPE);
-        columnConfig.setHeader(viewContext.getMessageProvider().getMessage("file_format_type"));
-        columnConfig.setWidth(100);
+        final ColumnConfig columnConfig =
+                ColumnConfigFactory.createDefaultColumnConfig(viewContext.getMessageProvider()
+                        .getMessage("file_format_type"), ModelDataPropertyNames.FILE_FORMAT_TYPE);
         return columnConfig;
     }
 
     private final ColumnConfig createLocationColumnConfig()
     {
-        final ColumnConfig columnConfig = ColumnConfigFactory.createMenuDisableColumnConfig();
-        columnConfig.setId(ModelDataPropertyNames.LOCATION);
-        columnConfig.setHeader(viewContext.getMessageProvider().getMessage("location"));
-        columnConfig.setWidth(100);
+        final ColumnConfig columnConfig =
+                ColumnConfigFactory.createDefaultColumnConfig(viewContext.getMessageProvider()
+                        .getMessage("location"), ModelDataPropertyNames.LOCATION);
         return columnConfig;
     }
 

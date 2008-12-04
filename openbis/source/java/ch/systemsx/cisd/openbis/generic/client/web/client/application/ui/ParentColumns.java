@@ -75,22 +75,20 @@ public final class ParentColumns
 
     private final ColumnConfig createGeneratedFromParentColumn(final int i)
     {
-        final ColumnConfig columnConfig = new ColumnConfig();
-        columnConfig.setMenuDisabled(true);
+        final ColumnConfig columnConfig =
+                ColumnConfigFactory.createDefaultColumnConfig(messageProvider.getMessage(
+                        "generated_from", i), SampleModel.GENERATED_FROM_PARENT_PREFIX + i);
         columnConfig.setSortable(false);
-        columnConfig.setId(SampleModel.GENERATED_FROM_PARENT_PREFIX + i);
-        columnConfig.setHeader(messageProvider.getMessage("generated_from", i));
         columnConfig.setWidth(150);
         return columnConfig;
     }
 
     private final ColumnConfig createContainerParentColumn(final int i)
     {
-        final ColumnConfig columnConfig = new ColumnConfig();
-        columnConfig.setMenuDisabled(true);
+        final ColumnConfig columnConfig =
+                ColumnConfigFactory.createDefaultColumnConfig(messageProvider.getMessage("part_of",
+                        i), SampleModel.CONTAINER_PARENT_PREFIX + i);
         columnConfig.setSortable(false);
-        columnConfig.setId(SampleModel.CONTAINER_PARENT_PREFIX + i);
-        columnConfig.setHeader(messageProvider.getMessage("part_of", i));
         columnConfig.setWidth(150);
         return columnConfig;
     }

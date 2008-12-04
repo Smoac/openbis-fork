@@ -43,8 +43,6 @@ final class ToolbarController
 
     private final CheckBox groupCheckbox;
 
-    private final ColumnChooser columnChooser;
-
     private final ParentColumns parentColumns;
 
     private final PropertyColumns propertyColumns;
@@ -57,8 +55,7 @@ final class ToolbarController
             final SampleTypeSelectionWidget sampleTypeSelectionWidget,
             final GroupSelectionWidget groupSelectionWidget, final CheckBox instanceCheckbox,
             final CheckBox groupCheckbox, final Button submitButton, final Button exportButton,
-            final ColumnChooser columnChooser, final ParentColumns parentColumns,
-            final PropertyColumns propertyColumns)
+            final ParentColumns parentColumns, final PropertyColumns propertyColumns)
     {
         this.sampleBrowserGrid = sampleBrowserGrid;
         this.sampleTypeSelectionWidget = sampleTypeSelectionWidget;
@@ -67,8 +64,6 @@ final class ToolbarController
         this.groupCheckbox = groupCheckbox;
         this.submitButton = submitButton;
         this.exportButton = exportButton;
-        this.columnChooser = columnChooser;
-        columnChooser.setToolbarController(this);
         this.parentColumns = parentColumns;
         this.propertyColumns = propertyColumns;
     }
@@ -110,8 +105,6 @@ final class ToolbarController
         assert type != null : "Should not be null.";
         propertyColumns.define(type);
         parentColumns.define(type);
-        columnChooser.reload();
-        columnChooser.setEnabled(true);
     }
 
     final void refreshGroupCheckbox()

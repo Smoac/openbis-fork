@@ -79,8 +79,6 @@ class SampleBrowserToolbar extends ToolBar
 
     private final Button exportButton;
 
-    private final ColumnChooser columnChooser;
-
     public SampleBrowserToolbar(final IViewContext<ICommonClientServiceAsync> viewContext,
             final SampleBrowserGrid sampleBrowserGrid, final CommonColumns commonColumns,
             final ParentColumns parentColumns, final PropertyColumns propertyColumns)
@@ -95,7 +93,6 @@ class SampleBrowserToolbar extends ToolBar
         includeGroupCheckbox.setId(INCLUDE_GROUP_CHECKBOX_ID);
         includeGroupCheckbox.setStyleAttribute("margin", "4px");
         includeGroupCheckbox.setValue(true);
-        columnChooser = new ColumnChooser(commonColumns, parentColumns, propertyColumns);
         submitButton = createSubmitButton();
         submitButton.setEnabled(false);
         exportButton = createExportButton();
@@ -103,7 +100,7 @@ class SampleBrowserToolbar extends ToolBar
         controller =
                 new ToolbarController(sampleBrowserGrid, selectSampleTypeCombo, selectGroupCombo,
                         includeInstanceCheckbox, includeGroupCheckbox, submitButton, exportButton,
-                        columnChooser, parentColumns, propertyColumns);
+                        parentColumns, propertyColumns);
         addSelectSampleTypeListeners();
         addSelectGroupListeners();
         addIncludeInstanceListeners();
@@ -185,28 +182,16 @@ class SampleBrowserToolbar extends ToolBar
         removeAll();
         add(new LabelToolItem("Sample type:"));
         add(new AdapterToolItem(selectSampleTypeCombo));
-
         add(new SeparatorToolItem());
-
         add(new LabelToolItem("Shared:"));
         add(new AdapterToolItem(includeInstanceCheckbox));
-
         add(new SeparatorToolItem());
-
         add(new LabelToolItem("Group:"));
         add(new AdapterToolItem(includeGroupCheckbox));
         add(new AdapterToolItem(selectGroupCombo));
-
-        add(new SeparatorToolItem());
-
-        add(columnChooser);
-
         add(new FillToolItem());
-
         add(new AdapterToolItem(submitButton));
-
         add(new SeparatorToolItem());
-
         add(new AdapterToolItem(exportButton));
         layout();
     }

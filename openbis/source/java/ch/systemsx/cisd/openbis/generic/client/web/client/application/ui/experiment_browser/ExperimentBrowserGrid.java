@@ -196,20 +196,21 @@ public final class ExperimentBrowserGrid extends LayoutContainer
         codeColumn.setRenderer(new InvalidableWithCodeRenderer());
         configs.add(codeColumn);
 
-        configs.add(ColumnConfigFactory.createDefaultConfig(viewContext.getMessageProvider(),
-                ModelDataPropertyNames.EXPERIMENT_TYPE_CODE_FOR_EXPERIMENT, "experiment_type"));
-        configs.add(ColumnConfigFactory.createDefaultConfig(viewContext.getMessageProvider(),
-                ModelDataPropertyNames.GROUP_FOR_EXPERIMENT, "group"));
-        configs.add(ColumnConfigFactory.createDefaultConfig(viewContext.getMessageProvider(),
-                ModelDataPropertyNames.PROJECT));
+        configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext.getMessageProvider()
+                .getMessage("experiment_type"),
+                ModelDataPropertyNames.EXPERIMENT_TYPE_CODE_FOR_EXPERIMENT));
+        configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext.getMessageProvider()
+                .getMessage("group"), ModelDataPropertyNames.GROUP_FOR_EXPERIMENT));
+        configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext.getMessageProvider()
+                .getMessage("project"), ModelDataPropertyNames.PROJECT));
 
         configs.add(ColumnConfigFactory.createRegistratorColumnConfig(viewContext
                 .getMessageProvider()));
         configs.add(ColumnConfigFactory.createRegistrationDateColumnConfig(viewContext
                 .getMessageProvider()));
         final ColumnConfig isInvalidColumn =
-                ColumnConfigFactory.createDefaultConfig(viewContext.getMessageProvider(),
-                        ModelDataPropertyNames.IS_INVALID, "is_invalid");
+                ColumnConfigFactory.createDefaultColumnConfig(viewContext.getMessageProvider()
+                        .getMessage("is_invalid"), ModelDataPropertyNames.IS_INVALID);
         isInvalidColumn.setRenderer(new YesNoRenderer());
         configs.add(isInvalidColumn);
         return new ColumnModel(configs);
