@@ -26,6 +26,7 @@ var common = {
   //
   
   button_save: "Save",
+  button_cancel: "Cancel",
   button_submit: "Submit",
   
   //

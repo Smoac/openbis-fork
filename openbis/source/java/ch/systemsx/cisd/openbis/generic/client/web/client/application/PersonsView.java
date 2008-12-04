@@ -43,11 +43,11 @@ import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.PersonModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnFilter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddPersonDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
@@ -124,7 +124,7 @@ public class PersonsView extends ContentPanel
         registrationDateColumnConfig.setHeader("Registration Date");
         registrationDateColumnConfig.setWidth(COL_DATE);
         registrationDateColumnConfig.setAlignment(HorizontalAlignment.RIGHT);
-        registrationDateColumnConfig.setDateTimeFormat(DateTimeFormat.getShortDateFormat());
+        registrationDateColumnConfig.setDateTimeFormat(DateRenderer.DEFAULT_DATE_TIME_FORMAT);
         configs.add(registrationDateColumnConfig);
 
         final ColumnModel cm = new ColumnModel(configs);

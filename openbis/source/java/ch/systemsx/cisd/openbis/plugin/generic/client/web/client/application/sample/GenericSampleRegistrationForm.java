@@ -402,6 +402,7 @@ public final class GenericSampleRegistrationForm extends FormPanel
             setFieldLabel(label);
             setValidateOnBlur(true);
             setAutoValidate(true);
+            getPropertyEditor().setFormat(DateRenderer.SHORT_DATE_TIME_FORMAT);
             if (mandatory)
             {
                 setLabelSeparator(MANDATORY_LABEL_SEPARATOR);
