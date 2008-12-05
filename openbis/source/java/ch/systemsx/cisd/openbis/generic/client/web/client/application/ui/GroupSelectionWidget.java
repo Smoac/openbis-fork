@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Events;
-import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
@@ -48,8 +48,12 @@ public class GroupSelectionWidget extends ComboBox<GroupModel>
             super(viewContext);
         }
 
+        //
+        // AbstractAsyncCallback
+        //
+
         @Override
-        protected void process(final List<Group> result)
+        protected final void process(final List<Group> result)
         {
             groupStore.removeAll();
             groupStore.add(GroupModel.convert(result));
@@ -82,16 +86,21 @@ public class GroupSelectionWidget extends ComboBox<GroupModel>
         setFieldLabel("Group");
         groupStore = new ListStore<GroupModel>();
         setStore(groupStore);
-        addListener(Events.OnClick, new Listener<BaseEvent>()
+        addListener(Events.OnClick, new Listener<FieldEvent>()
             {
-                public void handleEvent(final BaseEvent be)
+
+                //
+                // Listener
+                //
+
+                public final void handleEvent(final FieldEvent be)
                 {
                     expand();
                 }
             });
     }
 
-    public Group tryGetSelected()
+    public final Group tryGetSelected()
     {
         final List<GroupModel> selection = getSelection();
         if (selection.size() > 0)
@@ -103,16 +112,20 @@ public class GroupSelectionWidget extends ComboBox<GroupModel>
         }
     }
 
+    void refresh()
+    {
+        viewContext.getService().listGroups(null, new ListGroupsCallback(viewContext));
+    }
+
+    //
+    // ComboBox
+    //
+
     @Override
     protected void onRender(final Element parent, final int pos)
     {
         super.onRender(parent, pos);
         refresh();
-    }
-
-    void refresh()
-    {
-        viewContext.getService().listGroups(null, new ListGroupsCallback(viewContext));
     }
 
 }

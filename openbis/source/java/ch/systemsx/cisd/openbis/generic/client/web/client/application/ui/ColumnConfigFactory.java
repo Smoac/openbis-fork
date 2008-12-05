@@ -67,6 +67,9 @@ public final class ColumnConfigFactory
         final ColumnConfig columnConfig = new ColumnConfig();
         columnConfig.setId(id);
         columnConfig.setSortable(true);
+        columnConfig.setHidden(false);
+        columnConfig.setMenuDisabled(false);
+        columnConfig.setResizable(true);
         return columnConfig;
     }
 

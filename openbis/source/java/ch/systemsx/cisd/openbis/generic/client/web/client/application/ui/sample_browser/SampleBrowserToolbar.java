@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser;
 
 import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ParentColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyColumns;
@@ -49,7 +50,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
  * @author Izabela Adamczyk
  * @author Christian Ribeaud
  */
-class SampleBrowserToolbar extends ToolBar
+final class SampleBrowserToolbar extends ToolBar
 {
     public static final String ID = "sample-browser-toolbar";
 
@@ -79,11 +80,16 @@ class SampleBrowserToolbar extends ToolBar
 
     private final Button exportButton;
 
+    private final IViewContext<ICommonClientServiceAsync> viewContext;
+
+    private SampleType selectedSampleType;
+
     public SampleBrowserToolbar(final IViewContext<ICommonClientServiceAsync> viewContext,
             final SampleBrowserGrid sampleBrowserGrid, final CommonColumns commonColumns,
             final ParentColumns parentColumns, final PropertyColumns propertyColumns)
     {
         this.sampleBrowserGrid = sampleBrowserGrid;
+        this.viewContext = viewContext;
         selectSampleTypeCombo = new SampleTypeSelectionWidget(viewContext, ID);
         selectGroupCombo = new GroupSelectionWidget(viewContext);
         includeInstanceCheckbox = new CheckBox();
@@ -98,7 +104,7 @@ class SampleBrowserToolbar extends ToolBar
         exportButton = createExportButton();
         exportButton.setEnabled(false);
         controller =
-                new ToolbarController(sampleBrowserGrid, selectSampleTypeCombo, selectGroupCombo,
+                new ToolbarController(selectSampleTypeCombo, selectGroupCombo,
                         includeInstanceCheckbox, includeGroupCheckbox, submitButton, exportButton,
                         parentColumns, propertyColumns);
         addSelectSampleTypeListeners();
@@ -109,9 +115,13 @@ class SampleBrowserToolbar extends ToolBar
 
     private void addIncludeGroupListeners()
     {
-        includeGroupCheckbox.addListener(Event.ONCLICK, new Listener<BaseEvent>()
+        includeGroupCheckbox.addListener(Event.ONCLICK, new Listener<FieldEvent>()
             {
-                public void handleEvent(final BaseEvent be)
+                //
+                // Listener
+                //
+
+                public final void handleEvent(final FieldEvent be)
                 {
                     controller.refreshButtons();
                     controller.showOrHideGroupList();
@@ -121,9 +131,13 @@ class SampleBrowserToolbar extends ToolBar
 
     private void addIncludeInstanceListeners()
     {
-        includeInstanceCheckbox.addListener(Event.ONCLICK, new Listener<BaseEvent>()
+        includeInstanceCheckbox.addListener(Event.ONCLICK, new Listener<FieldEvent>()
             {
-                public void handleEvent(final BaseEvent be)
+                //
+                // Listener
+                //
+
+                public final void handleEvent(final FieldEvent be)
                 {
                     controller.refreshButtons();
                 }
@@ -146,14 +160,14 @@ class SampleBrowserToolbar extends ToolBar
                 }
             });
 
-        selectGroupCombo.addListener(AppEvents.CALLBACK_FINISHED, new Listener<BaseEvent>()
+        selectGroupCombo.addListener(AppEvents.CALLBACK_FINISHED, new Listener<FieldEvent>()
             {
 
                 //
                 // Listener
                 //
 
-                public final void handleEvent(final BaseEvent be)
+                public final void handleEvent(final FieldEvent be)
                 {
                     controller.refreshGroupCheckbox();
                 }
@@ -162,18 +176,20 @@ class SampleBrowserToolbar extends ToolBar
 
     private void addSelectSampleTypeListeners()
     {
-        selectSampleTypeCombo.addSelectionChangedListener(new SelectionChangedListener<ModelData>()
-            {
-                //
-                // SelectionChangedListener
-                //
+        selectSampleTypeCombo
+                .addSelectionChangedListener(new SelectionChangedListener<SampleTypeModel>()
+                    {
+                        //
+                        // SelectionChangedListener
+                        //
 
-                @Override
-                public final void selectionChanged(final SelectionChangedEvent<ModelData> se)
-                {
-                    controller.refreshButtons();
-                }
-            });
+                        @Override
+                        public final void selectionChanged(
+                                final SelectionChangedEvent<SampleTypeModel> se)
+                        {
+                            controller.refreshButtons();
+                        }
+                    });
     }
 
     private void display()
@@ -198,46 +214,57 @@ class SampleBrowserToolbar extends ToolBar
 
     private Button createSubmitButton()
     {
-        final Button refreshButton = new Button("Refresh", new SelectionListener<ComponentEvent>()
-            {
-                //
-                // SelectionListener
-                //
+        final Button refreshButton =
+                new Button(viewContext.getMessageProvider().getMessage("button_refresh"),
+                        new SelectionListener<ButtonEvent>()
+                            {
+                                //
+                                // SelectionListener
+                                //
 
-                @Override
-                public final void componentSelected(final ComponentEvent ce)
-                {
-                    final SampleType selectedType = selectSampleTypeCombo.tryGetSelected();
-                    final String selectedGroupCode =
-                            selectGroupCombo.tryGetSelected() == null ? null : selectGroupCombo
-                                    .tryGetSelected().getCode();
+                                @Override
+                                public final void componentSelected(final ButtonEvent ce)
+                                {
+                                    final SampleType selectedType =
+                                            selectSampleTypeCombo.tryGetSelected();
+                                    final String selectedGroupCode =
+                                            selectGroupCombo.tryGetSelected() == null ? null
+                                                    : selectGroupCombo.tryGetSelected().getCode();
 
-                    final Boolean includeGroup = includeGroupCheckbox.getValue();
-                    final Boolean includeInstance = includeInstanceCheckbox.getValue();
+                                    final Boolean includeGroup = includeGroupCheckbox.getValue();
+                                    final Boolean includeInstance =
+                                            includeInstanceCheckbox.getValue();
 
-                    controller.rebuildColumnChooser();
-                    sampleBrowserGrid.refresh(selectedType, selectedGroupCode, includeGroup,
-                            includeInstance);
-                }
-            });
+                                    if (selectedType.equals(selectedSampleType) == false)
+                                    {
+                                        controller.redefineColumns();
+                                        selectedSampleType = selectedType;
+                                    }
+                                    sampleBrowserGrid.refresh(selectedType, selectedGroupCode,
+                                            includeGroup, includeInstance);
+                                }
+                            });
         refreshButton.setId(REFRESH_BUTTON_ID);
         return refreshButton;
     }
 
     private Button createExportButton()
     {
-        final Button button = new Button("Export data", new SelectionListener<ComponentEvent>()
-            {
-                //
-                // SelectionListener
-                //
+        final Button button =
+                new Button(viewContext.getMessageProvider().getMessage("button_exportData"),
+                        new SelectionListener<ButtonEvent>()
+                            {
+                                //
+                                // SelectionListener
+                                //
 
-                @Override
-                public final void componentSelected(final ComponentEvent ce)
-                {
-                    MessageBox.alert("Warning", "Not yet implemented!", null);
-                }
-            });
+                                @Override
+                                public final void componentSelected(final ButtonEvent ce)
+                                {
+                                    MessageBox.alert(viewContext.getMessageProvider().getMessage(
+                                            "messagebox_warning"), "Not yet implemented!", null);
+                                }
+                            });
         return button;
     }
 

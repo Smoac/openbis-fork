@@ -29,6 +29,8 @@ var common = {
   button_cancel: "Cancel",
   button_reset: "Reset",
   button_submit: "Submit",
+  button_refresh: "Refresh",
+  button_exportData: "Export Data",
   
   //
   // LoginWidget

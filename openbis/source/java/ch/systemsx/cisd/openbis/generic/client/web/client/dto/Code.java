@@ -57,6 +57,31 @@ public class Code<T extends Code<T>> implements IsSerializable, ICodeProvider, C
     }
 
     //
+    // Object
+    //
+
+    @Override
+    public final boolean equals(final Object obj)
+    {
+        if (obj == this)
+        {
+            return true;
+        }
+        if (obj instanceof Code == false)
+        {
+            return false;
+        }
+        final Code<?> that = (Code<?>) obj;
+        return getCode().equals(that.getCode());
+    }
+
+    @Override
+    public final int hashCode()
+    {
+        return getCode().hashCode();
+    }
+
+    //
     // Helper classes
     //
 

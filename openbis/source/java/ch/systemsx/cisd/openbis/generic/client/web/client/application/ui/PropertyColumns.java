@@ -68,7 +68,7 @@ public final class PropertyColumns
                 ColumnConfigFactory.createDefaultColumnConfig(propertyType.getLabel(), SampleModel
                         .createID(propertyType));
         columnConfig.setSortable(false);
-        columnConfig.setWidth(80);
+        columnConfig.setWidth(150);
         columnConfig.setHidden(sampleTypePropertyType.isDisplayed() == false);
         return columnConfig;
     }

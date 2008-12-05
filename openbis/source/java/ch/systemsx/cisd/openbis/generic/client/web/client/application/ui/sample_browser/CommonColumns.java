@@ -43,27 +43,62 @@ public final class CommonColumns
         columns = new ArrayList<ColumnConfig>();
         this.messageProvider = messageProvider;
         define();
-
     }
 
-    private void define()
+    private final void define()
     {
-        columns.add(createHiddenColumn(ModelDataPropertyNames.DATABASE_INSTANCE,
-                "database_instance"));
-        columns.add(ColumnConfigFactory.createDefaultColumnConfig(messageProvider
-                .getMessage("group"), ModelDataPropertyNames.GROUP));
+        columns.add(createDatabaseInstanceColumnConfig());
+        columns.add(createGroupColumnConfig());
         columns.add(createSampleCodeColumnConfig());
         columns.add(createSampleIdentifierColumn());
-        columns.add(createHiddenBooleanColumn(ModelDataPropertyNames.IS_INSTANCE_SAMPLE,
-                "is_instance_sample"));
+        columns.add(createIsInstanceSampleColumnConfig());
         columns.add(createHiddenRegistratorColumn());
         columns.add(createHiddenRegistrationDateColumnConfig());
-        columns.add(createHiddenBooleanColumn(ModelDataPropertyNames.IS_INVALID, "is_invalid"));
-        columns.add(ColumnConfigFactory.createDefaultColumnConfig(messageProvider
-                .getMessage("project"), ModelDataPropertyNames.PROJECT_FOR_SAMPLE));
-        columns.add(ColumnConfigFactory.createDefaultColumnConfig(messageProvider
-                .getMessage("experiment"), ModelDataPropertyNames.EXPERIMENT_FOR_SAMPLE));
+        columns.add(createIsInvalidColumnConfig());
+        columns.add(createProjectColumnConfig());
+        columns.add(createExperimentColumnConfig());
         columns.add(createHiddenExperimentIdentifierColumn());
+    }
+
+    private final ColumnConfig createIsInvalidColumnConfig()
+    {
+        return createHiddenBooleanColumn(ModelDataPropertyNames.IS_INVALID, "is_invalid");
+    }
+
+    private final ColumnConfig createGroupColumnConfig()
+    {
+        return ColumnConfigFactory.createDefaultColumnConfig(messageProvider.getMessage("group"),
+                ModelDataPropertyNames.GROUP);
+    }
+
+    private final ColumnConfig createDatabaseInstanceColumnConfig()
+    {
+        return createHiddenColumn(ModelDataPropertyNames.DATABASE_INSTANCE, "database_instance");
+    }
+
+    private final ColumnConfig createIsInstanceSampleColumnConfig()
+    {
+        return createHiddenBooleanColumn(ModelDataPropertyNames.IS_INSTANCE_SAMPLE,
+                "is_instance_sample");
+    }
+
+    private final ColumnConfig createProjectColumnConfig()
+    {
+        final ColumnConfig columnConfig =
+                ColumnConfigFactory.createDefaultColumnConfig(
+                        messageProvider.getMessage("project"),
+                        ModelDataPropertyNames.PROJECT_FOR_SAMPLE);
+        columnConfig.setWidth(150);
+        return columnConfig;
+    }
+
+    private final ColumnConfig createExperimentColumnConfig()
+    {
+        final ColumnConfig columnConfig =
+                ColumnConfigFactory.createDefaultColumnConfig(messageProvider
+                        .getMessage("experiment"), ModelDataPropertyNames.EXPERIMENT_FOR_SAMPLE);
+        columnConfig.setWidth(150);
+        return columnConfig;
     }
 
     private final ColumnConfig createHiddenRegistrationDateColumnConfig()

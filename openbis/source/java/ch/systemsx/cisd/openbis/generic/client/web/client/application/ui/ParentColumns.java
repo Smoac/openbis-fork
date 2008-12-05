@@ -79,7 +79,6 @@ public final class ParentColumns
                 ColumnConfigFactory.createDefaultColumnConfig(messageProvider.getMessage(
                         "generated_from", i), SampleModel.GENERATED_FROM_PARENT_PREFIX + i);
         columnConfig.setSortable(false);
-        columnConfig.setWidth(150);
         return columnConfig;
     }
 
@@ -89,7 +88,6 @@ public final class ParentColumns
                 ColumnConfigFactory.createDefaultColumnConfig(messageProvider.getMessage("part_of",
                         i), SampleModel.CONTAINER_PARENT_PREFIX + i);
         columnConfig.setSortable(false);
-        columnConfig.setWidth(150);
         return columnConfig;
     }
 

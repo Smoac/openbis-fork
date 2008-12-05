@@ -231,8 +231,8 @@ public final class SampleBrowserGrid extends LayoutContainer
     /**
      * Refreshes the sample browser grid up to given parameters.
      * <p>
-     * Note that, doing so, the result set associated with this <code>resultSetKey</code> on the
-     * server side will be refreshed as well.
+     * Note that, doing so, the result set associated on the server side with this
+     * <code>resultSetKey</code> will be removed.
      * </p>
      */
     final void refresh(final SampleType selectedType, final String selectedGroupCode,
