@@ -88,11 +88,7 @@ final class SearchWidget extends LayoutContainer
                 @Override
                 protected final void onEnterKey()
                 {
-                    // While searching the search button is disabled.
-                    if (searchButton.isEnabled())
-                    {
-                        doSearch();
-                    }
+                    doSearch();
                 }
             };
         textField = createTextField();
@@ -137,6 +133,11 @@ final class SearchWidget extends LayoutContainer
 
     private final void doSearch()
     {
+        // Do not trigger another search when already searching.
+        if (searchButton.isEnabled() == false)
+        {
+            return;
+        }
         final SearchableEntity selectedSearchableEntityOrNull =
                 entityChooser.tryGetSelectedSearchableEntity();
         final String queryText = textField.getValue();
