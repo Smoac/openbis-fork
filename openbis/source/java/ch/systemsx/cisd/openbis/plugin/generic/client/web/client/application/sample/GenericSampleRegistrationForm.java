@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Events;
@@ -45,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
@@ -117,7 +117,6 @@ public final class GenericSampleRegistrationForm extends FormPanel
     private final void createFormFields()
     {
         infoBox = new InfoBox();
-
         codeField = new CodeField(viewContext.getMessageProvider().getMessage("code"));
         codeField.setId(CODE_FIELD_ID);
         codeField.addListener(Events.Focus, new Listener<BaseEvent>()
@@ -270,9 +269,6 @@ public final class GenericSampleRegistrationForm extends FormPanel
         if (value == null)
         {
             return null;
-        } else if (value instanceof Date)
-        {
-            return DateRenderer.renderDate((Date) value);
         } else
         {
             return value.toString();
@@ -432,7 +428,7 @@ public final class GenericSampleRegistrationForm extends FormPanel
         ControlledVocabullaryField(final String label, final boolean mandatory,
                 final List<VocabularyTerm> terms)
         {
-            super(createListBox(terms));
+            super(createListBox(terms, mandatory));
             setFieldLabel(label);
             if (mandatory)
             {
@@ -440,14 +436,34 @@ public final class GenericSampleRegistrationForm extends FormPanel
             }
         }
 
-        private static final ListBox createListBox(final List<VocabularyTerm> terms)
+        private static final ListBox createListBox(final List<VocabularyTerm> terms,
+                final boolean mandatory)
         {
             final ListBox box = new ListBox();
+            if (mandatory)
+            {
+                box.addItem(GWTUtils.NONE_LIST_ITEM);
+            }
             for (final VocabularyTerm term : terms)
             {
                 box.addItem(term.getCode());
             }
             return box;
+        }
+
+        //
+        // AdapterField
+        //
+
+        @Override
+        public final Object getValue()
+        {
+            final String stringValue = super.getValue().toString();
+            if (GWTUtils.NONE_LIST_ITEM.equals(stringValue))
+            {
+                return null;
+            }
+            return stringValue;
         }
 
     }

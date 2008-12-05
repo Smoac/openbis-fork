@@ -31,6 +31,12 @@ import com.google.gwt.user.client.ui.ListBox;
 public final class GWTUtils
 {
 
+    /**
+     * The <code>null</code> value label for {@link ListBox} resp. {@link ComboBox} when no value
+     * has been selected by the user.
+     */
+    public static final String NONE_LIST_ITEM = "(None)";
+
     private GWTUtils()
     {
         // Can not be instantiated.
