@@ -25,6 +25,7 @@ import java.util.Map;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.time.DateUtils;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
@@ -37,9 +38,20 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
  * 
  * @author Christian Ribeaud
  */
-// TODO 2008-12-03, Christian Ribeaud: Write a test for this class.
 public final class PropertyValidator implements IPropertyValueValidator
 {
+    @Private
+    static final String EXCEPTION_TEMPLATE =
+            "Value '%s' has improper format. It should be of type '%s'.";
+
+    public static final String DAYS_DATE_PATTERN = "yyyy-MM-dd";
+
+    public static final String MINUTES_DATE_PATTERN = "yyyy-MM-dd HH:mm";
+
+    public static final String SECONDS_DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
+
+    public static final String CANONICAL_DATE_PATTERN = "yyyy-MM-dd HH:mm:ss Z";
+
     private final static String[] DATE_PATTERNS = createDatePatterns();
 
     private final static Map<EntityDataType, IDataTypeValidator> dataTypeValidators = createMap();
@@ -61,10 +73,10 @@ public final class PropertyValidator implements IPropertyValueValidator
     {
         final List<String> datePatterns = new ArrayList<String>();
         // Order does not matter due to DateUtils implementation used.
-        datePatterns.add("yyyy-MM-dd HH:mm:ss Z");
-        datePatterns.add("yyyy-MM-dd HH:mm:ss");
-        datePatterns.add("yyyy-MM-dd HH:mm");
-        datePatterns.add("yyyy-MM-dd");
+        datePatterns.add(CANONICAL_DATE_PATTERN);
+        datePatterns.add(SECONDS_DATE_PATTERN);
+        datePatterns.add(MINUTES_DATE_PATTERN);
+        datePatterns.add(DAYS_DATE_PATTERN);
         return datePatterns.toArray(ArrayUtils.EMPTY_STRING_ARRAY);
     }
 
@@ -90,9 +102,8 @@ public final class PropertyValidator implements IPropertyValueValidator
         {
             return;
         }
-        throw UserFailureException.fromTemplate(
-                "Value '%s' has improper format. It should be of type '%s'.", value, entityDataType
-                        .getNiceRepresentation());
+        throw UserFailureException.fromTemplate(EXCEPTION_TEMPLATE, value, entityDataType
+                .getNiceRepresentation());
     }
 
     //
