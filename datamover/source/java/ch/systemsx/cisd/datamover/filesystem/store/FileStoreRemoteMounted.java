@@ -22,6 +22,7 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusWithResult;
+import ch.systemsx.cisd.common.exceptions.TimeoutException;
 import ch.systemsx.cisd.common.filesystem.StoreItem;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
@@ -85,50 +86,80 @@ public final class FileStoreRemoteMounted extends AbstractFileStore
 
     public final Status delete(final StoreItem item)
     {
-        // we do not run delete with a timeout
-        return localImpl.delete(item);
+        try
+        {
+            // we do not run delete with a timeout
+            return localImpl.delete(item);
+        } catch (TimeoutException ex)
+        {
+            return Status.createRetriableError(ex.getMessage());
+        }
     }
 
     public final BooleanStatus exists(final StoreItem item)
     {
-        final BooleanStatus statusOrNull = localImplMonitored.exists(item);
-        if (statusOrNull == null)
+        try
         {
-            return BooleanStatus.createError("Could not determine whether '" + item
-                    + "' exists: time out.");
+            final BooleanStatus statusOrNull = localImplMonitored.exists(item);
+            if (statusOrNull == null)
+            {
+                return BooleanStatus.createError("Could not determine whether '" + item
+                        + "' exists: time out.");
+            }
+            return statusOrNull;
+        } catch (TimeoutException ex)
+        {
+            return BooleanStatus.createError(ex.getMessage());
         }
-        return statusOrNull;
     }
 
     public final StatusWithResult<Long> lastChanged(final StoreItem item,
             final long stopWhenFindYounger)
     {
-        return localImplMonitored.lastChanged(item, stopWhenFindYounger);
+        try
+        {
+            return localImplMonitored.lastChanged(item, stopWhenFindYounger);
+        } catch (TimeoutException ex)
+        {
+            return StatusWithResult.<Long> createRetriableError(ex.getMessage());
+        }
     }
 
     public final StatusWithResult<Long> lastChangedRelative(final StoreItem item,
             final long stopWhenFindYoungerRelative)
     {
-        final StatusWithResult<Long> statusOrNull =
-                localImplMonitored.lastChangedRelative(item, stopWhenFindYoungerRelative);
-        if (statusOrNull == null)
+        try
         {
-            return StatusWithResult.<Long> createError(String.format(
-                    "Could not determine \"last changed time\" of %s: time out.", item));
+            final StatusWithResult<Long> statusOrNull =
+                    localImplMonitored.lastChangedRelative(item, stopWhenFindYoungerRelative);
+            if (statusOrNull == null)
+            {
+                return StatusWithResult.<Long> createError(String.format(
+                        "Could not determine \"last changed time\" of %s: time out.", item));
+            }
+            return statusOrNull;
+        } catch (TimeoutException ex)
+        {
+            return StatusWithResult.<Long> createRetriableError(ex.getMessage());
         }
-        return statusOrNull;
     }
 
     public final BooleanStatus checkDirectoryFullyAccessible(final long timeOutMillis)
     {
-        final BooleanStatus statusOrNull =
-                localImplMonitored.checkDirectoryFullyAccessible(timeOutMillis);
-        if (statusOrNull == null)
+        try
         {
-            return BooleanStatus.createError("Could not determine whether store '" + toString()
-                    + "' is fully accessible: time out.");
+            final BooleanStatus statusOrNull =
+                    localImplMonitored.checkDirectoryFullyAccessible(timeOutMillis);
+            if (statusOrNull == null)
+            {
+                return BooleanStatus.createError("Could not determine whether store '" + toString()
+                        + "' is fully accessible: time out.");
+            }
+            return statusOrNull;
+        } catch (TimeoutException ex)
+        {
+            return BooleanStatus.createError(ex.getMessage());
         }
-        return statusOrNull;
     }
 
     private static class StoringLogger implements ISimpleLogger
