@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Events;
@@ -269,6 +270,9 @@ public final class GenericSampleRegistrationForm extends FormPanel
         if (value == null)
         {
             return null;
+        } else if (value instanceof Date)
+        {
+            return DateRenderer.renderDate((Date) value);
         } else
         {
             return value.toString();
@@ -440,7 +444,7 @@ public final class GenericSampleRegistrationForm extends FormPanel
                 final boolean mandatory)
         {
             final ListBox box = new ListBox();
-            if (mandatory)
+            if (mandatory == false)
             {
                 box.addItem(GWTUtils.NONE_LIST_ITEM);
             }

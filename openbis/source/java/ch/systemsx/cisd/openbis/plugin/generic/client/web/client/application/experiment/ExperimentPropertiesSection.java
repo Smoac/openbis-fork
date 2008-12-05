@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames.REGISTRATION_DATE;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames.REGISTRATOR;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -82,8 +79,8 @@ public class ExperimentPropertiesSection extends SectionPanel
         final Invalidation invalidation = experiment.getInvalidation();
         properties.put(messageProvider.getMessage("experiment"), experiment.getCode());
         properties.put(messageProvider.getMessage("experiment_type"), experimentType);
-        properties.put(messageProvider.getMessage(REGISTRATOR), experiment.getRegistrator());
-        properties.put(messageProvider.getMessage(REGISTRATION_DATE), experiment
+        properties.put(messageProvider.getMessage("registrator"), experiment.getRegistrator());
+        properties.put(messageProvider.getMessage("registration_date"), experiment
                 .getRegistrationDate());
         if (invalidation != null)
         {

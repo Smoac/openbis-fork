@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames.REGISTRATION_DATE;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames.REGISTRATOR;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -263,8 +260,9 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         final Sample[] generated = sampleGeneration.getGenerated();
         properties.put(messageProvider.getMessage("sample"), sample.getCode());
         properties.put(messageProvider.getMessage("sample_type"), sampleType);
-        properties.put(messageProvider.getMessage(REGISTRATOR), sample.getRegistrator());
-        properties.put(messageProvider.getMessage(REGISTRATION_DATE), sample.getRegistrationDate());
+        properties.put(messageProvider.getMessage("registrator"), sample.getRegistrator());
+        properties.put(messageProvider.getMessage("registration_date"), sample
+                .getRegistrationDate());
         if (generated.length > 0)
         {
             properties.put(messageProvider.getMessage("generated_samples"), generated);

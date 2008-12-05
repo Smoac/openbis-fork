@@ -17,12 +17,15 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 
 /**
- * Some constants used in {@link ModelData} implementations.
+ * Some constants used in {@link ModelData} implementations. These constants are typically used in
+ * {@link ColumnConfig#setId(String)}. Because they serve a different purpose, they should not be
+ * used in {@link ColumnConfig#setHeader(String)}.
  * <p>
  * Use <i>Java</i> coding standard for naming these property names and be aware that some of them
  * could be use for sorting when using <i>Result Set</i>.
