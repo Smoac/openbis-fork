@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.util.log;
 
+import com.google.gwt.core.client.Duration;
+
 /**
  * Static class for logging.
  * 
@@ -67,11 +69,11 @@ public final class Log
     }
 
     /** Logs the time given <var>task</var> took. */
-    public static void logTimeTaken(final long start, final String task)
+    public static void logTimeTaken(final Duration duration, final String task)
     {
         if (enabled)
         {
-            impl.logTimeTaken(start, task);
+            impl.logTimeTaken(duration, task);
         }
     }
 }

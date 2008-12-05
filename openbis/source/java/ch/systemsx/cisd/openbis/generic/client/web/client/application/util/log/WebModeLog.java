@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.util.log;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Html;
+import com.google.gwt.core.client.Duration;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DOMUtils;
 
@@ -59,10 +60,9 @@ final class WebModeLog extends LogImpl
     }
 
     @Override
-    public final void logTimeTaken(final long start, final String taskName)
+    public final void logTimeTaken(final Duration duration, final String taskName)
     {
-        final long end = System.currentTimeMillis();
-        final String message = taskName + " took " + (end - start) / 1000F + "s";
+        final String message = taskName + " took " + duration.elapsedMillis() / 1000F + "s";
         loggingDialog.append(message);
     }
 

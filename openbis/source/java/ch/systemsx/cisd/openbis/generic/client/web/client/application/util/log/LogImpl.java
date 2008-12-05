@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.util.log;
 
+import com.google.gwt.core.client.Duration;
+import com.google.gwt.core.client.GWT;
 
 /**
  * Logging implementation.
@@ -29,7 +31,7 @@ abstract class LogImpl
     public abstract void log(final String message);
 
     /** Logs the time given <var>task</var> took. */
-    public abstract void logTimeTaken(final long start, final String taskName);
+    public abstract void logTimeTaken(final Duration duration, final String taskName);
 
     /** Shows this <code>LogImpl</code> implementation. */
     public abstract void show();
@@ -40,7 +42,6 @@ abstract class LogImpl
     /** Returns log implementation for this mode (<i>Web</i> or <i>Hosted</i>). */
     public final static LogImpl getImpl()
     {
-        // return GWT.isScript() ? (LogImpl) new WebModeLog() : new HostedModeLog();
-        return new WebModeLog();
+        return GWT.isScript() ? (LogImpl) new WebModeLog() : new HostedModeLog();
     }
 }
