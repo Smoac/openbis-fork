@@ -16,14 +16,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
  * limitations under the License.
  */
 
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.util.ClientConstants.COL_DATE;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.util.ClientConstants.COL_EMAIL;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.util.ClientConstants.COL_FIRST_NAME;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.util.ClientConstants.COL_LAST_NAME;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.util.ClientConstants.COL_PERSON;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.util.ClientConstants.COL_PERSON_ID;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.util.ClientConstants.FIT_SIZE;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,6 +40,7 @@ import com.google.gwt.user.client.Element;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.PersonModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnFilter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddPersonDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
@@ -92,37 +85,37 @@ public class PersonsView extends ContentPanel
         final ColumnConfig codeColumnConfig = new ColumnConfig();
         codeColumnConfig.setId(ModelDataPropertyNames.USER_ID);
         codeColumnConfig.setHeader("User ID");
-        codeColumnConfig.setWidth(COL_PERSON_ID);
+        codeColumnConfig.setWidth(ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
         configs.add(codeColumnConfig);
 
         final ColumnConfig firstNameColumnConfig = new ColumnConfig();
         firstNameColumnConfig.setId(ModelDataPropertyNames.FIRST_NAME);
         firstNameColumnConfig.setHeader("First Name");
-        firstNameColumnConfig.setWidth(COL_FIRST_NAME);
+        firstNameColumnConfig.setWidth(ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
         configs.add(firstNameColumnConfig);
 
         final ColumnConfig lastNameColumnConfig = new ColumnConfig();
         lastNameColumnConfig.setId(ModelDataPropertyNames.LAST_NAME);
         lastNameColumnConfig.setHeader("Last Name");
-        lastNameColumnConfig.setWidth(COL_LAST_NAME);
+        lastNameColumnConfig.setWidth(ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
         configs.add(lastNameColumnConfig);
 
         final ColumnConfig emailNameColumnConfig = new ColumnConfig();
         emailNameColumnConfig.setId(ModelDataPropertyNames.EMAIL);
         emailNameColumnConfig.setHeader("Email");
-        emailNameColumnConfig.setWidth(COL_EMAIL);
+        emailNameColumnConfig.setWidth(ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
         configs.add(emailNameColumnConfig);
 
         final ColumnConfig registratorColumnConfig = new ColumnConfig();
         registratorColumnConfig.setId(ModelDataPropertyNames.REGISTRATOR);
         registratorColumnConfig.setHeader("Registrator");
-        registratorColumnConfig.setWidth(COL_PERSON);
+        registratorColumnConfig.setWidth(ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
         configs.add(registratorColumnConfig);
 
         final ColumnConfig registrationDateColumnConfig = new ColumnConfig();
         registrationDateColumnConfig.setId(ModelDataPropertyNames.REGISTRATION_DATE);
         registrationDateColumnConfig.setHeader("Registration Date");
-        registrationDateColumnConfig.setWidth(COL_DATE);
+        registrationDateColumnConfig.setWidth(ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
         registrationDateColumnConfig.setAlignment(HorizontalAlignment.RIGHT);
         registrationDateColumnConfig.setDateTimeFormat(DateRenderer.DEFAULT_DATE_TIME_FORMAT);
         configs.add(registrationDateColumnConfig);
@@ -139,7 +132,7 @@ public class PersonsView extends ContentPanel
         final PersonsView personList = this;
 
         cp.setLayout(new FitLayout());
-        cp.setSize(FIT_SIZE, FIT_SIZE);
+        cp.setSize("90%", "90%");
 
         final Grid<PersonModel> grid = new Grid<PersonModel>(store, cm);
         grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);

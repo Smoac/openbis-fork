@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  */
 public final class ColumnConfigFactory
 {
-    private static final int DEFAULT_COLUMN_WIDTH = 100;
+    public static final int DEFAULT_COLUMN_WIDTH = 100;
 
     private ColumnConfigFactory()
     {

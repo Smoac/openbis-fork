@@ -16,11 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.util.ClientConstants.COL_DB_INSTANCE;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.util.ClientConstants.COL_GROUP;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.util.ClientConstants.COL_PERSON;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.util.ClientConstants.COL_ROLE;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,6 +39,7 @@ import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.RoleModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnFilter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddRoleDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
@@ -91,25 +87,25 @@ public class RolesView extends ContentPanel
         final ColumnConfig userIdColumnConfig = new ColumnConfig();
         userIdColumnConfig.setId(ModelDataPropertyNames.PERSON);
         userIdColumnConfig.setHeader("Person");
-        userIdColumnConfig.setWidth(COL_PERSON);
+        userIdColumnConfig.setWidth(ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
         configs.add(userIdColumnConfig);
 
         final ColumnConfig groupColumnConfig = new ColumnConfig();
         groupColumnConfig.setId(ModelDataPropertyNames.GROUP);
         groupColumnConfig.setHeader("Group");
-        groupColumnConfig.setWidth(COL_GROUP);
+        groupColumnConfig.setWidth(ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
         configs.add(groupColumnConfig);
 
         final ColumnConfig instanceColumnConfig = new ColumnConfig();
         instanceColumnConfig.setId(ModelDataPropertyNames.DATABASE_INSTANCE);
         instanceColumnConfig.setHeader("Database Instance");
-        instanceColumnConfig.setWidth(COL_DB_INSTANCE);
+        instanceColumnConfig.setWidth(ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
         configs.add(instanceColumnConfig);
 
         final ColumnConfig roleColumnConfig = new ColumnConfig();
         roleColumnConfig.setId(ModelDataPropertyNames.ROLE);
         roleColumnConfig.setHeader("Role");
-        roleColumnConfig.setWidth(COL_ROLE);
+        roleColumnConfig.setWidth(ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
         configs.add(roleColumnConfig);
 
         final ColumnModel cm = new ColumnModel(configs);

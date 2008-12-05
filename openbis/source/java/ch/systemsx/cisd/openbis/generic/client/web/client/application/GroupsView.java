@@ -16,11 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.util.ClientConstants.COL_DATE;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.util.ClientConstants.COL_GROUP;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.util.ClientConstants.COL_PERSON;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.util.ClientConstants.FIT_SIZE;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,6 +42,7 @@ import com.google.gwt.user.client.Element;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.GroupModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnFilter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddGroupDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
@@ -110,25 +106,25 @@ public class GroupsView extends ContentPanel
         final ColumnConfig codeColumnConfig = new ColumnConfig();
         codeColumnConfig.setId(ModelDataPropertyNames.CODE);
         codeColumnConfig.setHeader("Code");
-        codeColumnConfig.setWidth(COL_GROUP);
+        codeColumnConfig.setWidth(ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
         configs.add(codeColumnConfig);
 
         final ColumnConfig leaderColumnConfig = new ColumnConfig();
         leaderColumnConfig.setId(ModelDataPropertyNames.LEADER);
         leaderColumnConfig.setHeader("Leader");
-        leaderColumnConfig.setWidth(COL_PERSON);
+        leaderColumnConfig.setWidth(ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
         configs.add(leaderColumnConfig);
 
         final ColumnConfig registratorColumnConfig = new ColumnConfig();
         registratorColumnConfig.setId(ModelDataPropertyNames.REGISTRATOR);
         registratorColumnConfig.setHeader("Registrator");
-        registratorColumnConfig.setWidth(COL_PERSON);
+        registratorColumnConfig.setWidth(ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
         configs.add(registratorColumnConfig);
 
         final ColumnConfig registrationDateColumnConfig = new ColumnConfig();
         registrationDateColumnConfig.setId(ModelDataPropertyNames.REGISTRATION_DATE);
         registrationDateColumnConfig.setHeader("Registration Date");
-        registrationDateColumnConfig.setWidth(COL_DATE);
+        registrationDateColumnConfig.setWidth(ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
         registrationDateColumnConfig.setAlignment(HorizontalAlignment.RIGHT);
         registrationDateColumnConfig.setDateTimeFormat(DateRenderer.DEFAULT_DATE_TIME_FORMAT);
         configs.add(registrationDateColumnConfig);
@@ -146,7 +142,7 @@ public class GroupsView extends ContentPanel
         cp.setButtonAlign(HorizontalAlignment.CENTER);
 
         cp.setLayout(new FitLayout());
-        cp.setSize(FIT_SIZE, FIT_SIZE);
+        cp.setSize("90%", "90%");
 
         final Grid<GroupModel> grid = new Grid<GroupModel>(store, cm);
         grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
