@@ -18,8 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.WindowEvent;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -93,7 +91,6 @@ final class SearchWidget extends LayoutContainer
                     // While searching the search button is disabled.
                     if (searchButton.isEnabled())
                     {
-                        enableSearch(false);
                         doSearch();
                     }
                 }
@@ -109,12 +106,6 @@ final class SearchWidget extends LayoutContainer
     private final void enableSearch(final boolean enable)
     {
         searchButton.setEnabled(enable);
-    }
-
-    private final void selectAllAndFocus()
-    {
-        textField.selectAll();
-        textField.focus();
     }
 
     private final EntityChooser createEntityChooser()
@@ -164,22 +155,10 @@ final class SearchWidget extends LayoutContainer
             {
                 final IMessageProvider messageProvider = viewContext.getMessageProvider();
                 MessageBox.alert(messageProvider.getMessage("messagebox_warning"), messageProvider
-                        .getMessage("too_generic", queryText), new Listener<WindowEvent>()
-                    {
-
-                        //
-                        // Listener
-                        //
-
-                        public final void handleEvent(final WindowEvent be)
-                        {
-                            selectAllAndFocus();
-                        }
-
-                    });
-                enableSearch(true);
+                        .getMessage("too_generic", queryText), null);
                 return;
             }
+            enableSearch(false);
             viewContext.getService()
                     .listMatchingEntities(
                             selectedSearchableEntityOrNull,

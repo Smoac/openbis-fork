@@ -104,7 +104,6 @@ public abstract class ButtonWithLoadingMask extends LayoutContainer
                 @Override
                 public final void componentSelected(final ButtonEvent ce)
                 {
-                    setEnabled(false);
                     doButtonClick();
                 }
 
