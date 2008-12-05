@@ -31,6 +31,17 @@ public final class PagingToolBarWithoutRefresh extends PagingToolBar
         super(pageSize);
     }
 
+    private final void removeRefreshButton()
+    {
+        final int refreshIndex = toolBar.indexOf(refresh);
+        if (refreshIndex > -1)
+        {
+            toolBar.remove(refresh);
+            // Remove the SeparatorToolItem placed just before the refresh button.
+            toolBar.remove(toolBar.getItem(refreshIndex - 1));
+        }
+    }
+
     //
     // PagingToolBar
     //
@@ -38,11 +49,7 @@ public final class PagingToolBarWithoutRefresh extends PagingToolBar
     @Override
     protected final void afterRender()
     {
-        final int refreshIndex = toolBar.indexOf(refresh);
-        if (refreshIndex > -1)
-        {
-            toolBar.remove(refresh);
-        }
+        removeRefreshButton();
         super.afterRender();
     }
 }
