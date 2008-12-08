@@ -43,10 +43,10 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.ListBox;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ICallbackListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
@@ -267,20 +267,6 @@ public final class GenericSampleRegistrationForm extends LayoutContainer
         return builder.toString().toUpperCase();
     }
 
-    private final static String createSuccessfullRegistrationInfo(final boolean shared,
-            final String code, final Group group)
-    {
-        if (shared)
-        {
-            return "Shared sample <b>" + code + "</b> successfully registered";
-
-        } else
-        {
-            return "Sample <b>" + code + "</b> successfully registered in group <b>"
-                    + group.getCode() + "</b>";
-        }
-    }
-
     private final String valueToString(final Object value)
     {
         if (value == null)
@@ -383,43 +369,48 @@ public final class GenericSampleRegistrationForm extends LayoutContainer
     // Helper classes
     //
 
-    public final class RegisterSampleCallback extends AbstractAsyncCallback<Void>
+    public final class RegisterSampleCallback extends VoidAsyncCallback<Void>
     {
+
         RegisterSampleCallback(final IViewContext<?> viewContext)
         {
-            super(viewContext, new ICallbackListener()
-                {
+            super(viewContext, new RegisterSampleCallbackListener());
+        }
+    }
 
-                    //
-                    // ICallbackListener
-                    //
+    private final class RegisterSampleCallbackListener implements ICallbackListener<Void>
+    {
+        private final String createSuccessfullRegistrationInfo(final boolean shared,
+                final String code, final Group group)
+        {
+            if (shared)
+            {
+                return "Shared sample <b>" + code + "</b> successfully registered";
 
-                    public final void finishOnSuccessOf(final AsyncCallback<Object> callback,
-                            final Object result)
-                    {
-                        final String message =
-                                createSuccessfullRegistrationInfo(sharedCheckbox.getValue(),
-                                        codeField.getValue(), groupSelectionWidget
-                                                .tryGetSelectedGroup());
-                        infoBox.displayInfo(message);
-                        formPanel.reset();
-                    }
-
-                    public final void onFailureOf(final AsyncCallback<Object> callback,
-                            final String failureMessage, final Throwable throwable)
-                    {
-                        infoBox.displayError(failureMessage);
-                    }
-                });
+            } else
+            {
+                return "Sample <b>" + code + "</b> successfully registered in group <b>"
+                        + group.getCode() + "</b>";
+            }
         }
 
         //
-        // AbstractAsyncCallback
+        // ICallbackListener
         //
 
-        @Override
-        protected final void process(final Void result)
+        public final void finishOnSuccessOf(final AsyncCallback<Void> callback, final Void result)
         {
+            final String message =
+                    createSuccessfullRegistrationInfo(sharedCheckbox.getValue(), codeField
+                            .getValue(), groupSelectionWidget.tryGetSelectedGroup());
+            infoBox.displayInfo(message);
+            formPanel.reset();
+        }
+
+        public final void onFailureOf(final AsyncCallback<Void> callback,
+                final String failureMessage, final Throwable throwable)
+        {
+            infoBox.displayError(failureMessage);
         }
     }
 

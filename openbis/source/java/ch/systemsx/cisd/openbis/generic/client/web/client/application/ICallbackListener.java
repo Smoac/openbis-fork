@@ -20,23 +20,23 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * Listener of invocations of methods of {@link AsyncCallback}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-public interface ICallbackListener
+public interface ICallbackListener<T>
 {
     /**
      * Handles invocations of {@link AsyncCallback#onFailure(Throwable)} of the specified callback
      * object with the specified failure message and throwable. This method will be invoked before
      * the callback object is showing the failure message in a popup dialog.
      */
-    public void onFailureOf(AsyncCallback<Object> callback, String failureMessage,
-            Throwable throwable);
-    
+    public void onFailureOf(final AsyncCallback<T> callback, final String failureMessage,
+            final Throwable throwable);
+
     /**
-     * Handles invocations of {@link AsyncCallback#onSuccess(Object)} of the specified
-     * callback object with the specified result object. This method will be invoked after
-     * the callback object is actually processing the result object.
+     * Handles invocations of {@link AsyncCallback#onSuccess(Object)} of the specified callback
+     * object with the specified result object. This method will be invoked after the callback
+     * object is actually processing the result object.
      */
-    public void finishOnSuccessOf(AsyncCallback<Object> callback, Object result);
+    public void finishOnSuccessOf(final AsyncCallback<T> callback, final T result);
 }

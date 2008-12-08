@@ -125,7 +125,7 @@ public class RemoteConsole
     // Helper classes
     //
 
-    private final class RemoteConsoleCallbackListener implements ICallbackListener
+    private final class RemoteConsoleCallbackListener implements ICallbackListener<Object>
     {
         RemoteConsoleCallbackListener()
         {

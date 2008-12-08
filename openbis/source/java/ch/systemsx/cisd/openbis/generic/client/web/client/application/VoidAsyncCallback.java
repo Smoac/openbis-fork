@@ -21,12 +21,18 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
  * 
  * @author Christian Ribeaud
  */
-public final class VoidAsyncCallback<T> extends AbstractAsyncCallback<T>
+public class VoidAsyncCallback<T> extends AbstractAsyncCallback<T>
 {
 
     public VoidAsyncCallback(final IViewContext<?> viewContext)
     {
         super(viewContext);
+    }
+
+    public VoidAsyncCallback(final IViewContext<?> viewContext,
+            final ICallbackListener<T> callbackListener)
+    {
+        super(viewContext, callbackListener);
     }
 
     //
