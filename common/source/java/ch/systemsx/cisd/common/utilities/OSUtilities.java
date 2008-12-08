@@ -78,6 +78,22 @@ public class OSUtilities
     }
 
     /**
+     * @return The name of the CPU architecture.
+     */
+    public static String getCPUArchitecture()
+    {
+        return System.getProperty("os.arch");
+    }
+    
+    /**
+     * @return The name of the operating system.
+     */
+    public static String getOSName()
+    {
+        return System.getProperty("os.name");
+    }
+    
+    /**
      * @return The name of the computer platform (CPU architecture and OS name).
      */
     public static String getComputerPlatform()
