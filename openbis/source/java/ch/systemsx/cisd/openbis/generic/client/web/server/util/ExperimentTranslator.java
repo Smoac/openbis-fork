@@ -70,6 +70,7 @@ public final class ExperimentTranslator
                     break;
                 case ATTACHMENTS:
                     result.setAttachments(translate(experiment.getAttachments()));
+                    break;
                 default:
                     break;
             }
