@@ -45,7 +45,7 @@ public final class SampleRegistrationPanel extends LayoutContainer
     {
         setId(GenericConstants.ID_PREFIX + ID);
         setScrollMode(Scroll.AUTO);
-        sampleTypeSelection = new SampleTypeSelectionWidget(viewContext, true, ID);
+        sampleTypeSelection = new SampleTypeSelectionWidget(viewContext, ID);
         final ToolBar toolBar = new ToolBar();
         toolBar.add(new LabelToolItem("Sample type:"));
         toolBar.add(new AdapterToolItem(sampleTypeSelection));
@@ -60,7 +60,7 @@ public final class SampleRegistrationPanel extends LayoutContainer
                 @Override
                 public void selectionChanged(final SelectionChangedEvent<ModelData> se)
                 {
-                    final SampleType selectedType = sampleTypeSelection.tryGetSelected();
+                    final SampleType selectedType = sampleTypeSelection.tryGetSelectedSampleType();
                     if (selectedType != null)
                     {
                         removeAll();

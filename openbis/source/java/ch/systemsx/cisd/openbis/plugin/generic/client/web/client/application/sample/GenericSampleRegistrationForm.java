@@ -167,7 +167,7 @@ public final class GenericSampleRegistrationForm extends FormPanel
                 public final String validate(final MultiField<Field<?>> field, final String value)
                 {
                     if (sharedCheckbox.getValue() == false
-                            && groupSelectionWidget.tryGetSelected() == null)
+                            && groupSelectionWidget.tryGetSelectedGroup() == null)
                     {
                         return "Group must be chosen or shared selected";
                     }
@@ -240,7 +240,7 @@ public final class GenericSampleRegistrationForm extends FormPanel
     private final String createSampleIdentifier()
     {
         final boolean shared = sharedCheckbox.getValue();
-        final Group group = groupSelectionWidget.tryGetSelected();
+        final Group group = groupSelectionWidget.tryGetSelectedGroup();
         final String code = codeField.getValue();
         final StringBuilder builder = new StringBuilder("/");
         if (shared == false)
@@ -393,7 +393,7 @@ public final class GenericSampleRegistrationForm extends FormPanel
 
             final String message =
                     createSuccessfullRegistrationInfo(sharedCheckbox.getValue(), codeField
-                            .getValue(), groupSelectionWidget.tryGetSelected());
+                            .getValue(), groupSelectionWidget.tryGetSelectedGroup());
             resetForm(message);
         }
     }

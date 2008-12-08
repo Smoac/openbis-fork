@@ -20,7 +20,6 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -29,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Sear
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 
 /**
- * A {@link SimpleComboBox} extension for searching entities.
+ * A {@link ComboBox} extension for searching entities.
  * 
  * @author Christian Ribeaud
  */
@@ -46,16 +45,16 @@ final class EntityChooser extends ComboBox<SearchableEntityModel>
         setStore(new ListStore<SearchableEntityModel>());
     }
 
-    public final SearchableEntity tryGetSelectedSearchableEntity()
+    /**
+     * Returns the {@link SearchableEntity} currently selected.
+     * 
+     * @return never <code>null</code> but be sure not to call this method if nothing is selected.
+     */
+    public final SearchableEntity getSelectedSearchableEntity()
     {
         final List<SearchableEntityModel> selection = getSelection();
-        if (selection.size() > 0)
-        {
-            return selection.get(0).get(ModelDataPropertyNames.OBJECT);
-        } else
-        {
-            return null;
-        }
+        assert selection.size() == 1 : "Selection is empty.";
+        return selection.get(0).get(ModelDataPropertyNames.OBJECT);
     }
 
     //
@@ -66,8 +65,8 @@ final class EntityChooser extends ComboBox<SearchableEntityModel>
     protected final void onRender(final Element parent, final int index)
     {
         super.onRender(parent, index);
-        commonContext.getService().listSearchableEntities(
-                new ListSearchableEntities(commonContext));
+        commonContext.getService()
+                .listSearchableEntities(new ListSearchableEntities(commonContext));
     }
 
     //

@@ -139,7 +139,7 @@ final class SearchWidget extends LayoutContainer
             return;
         }
         final SearchableEntity selectedSearchableEntityOrNull =
-                entityChooser.tryGetSelectedSearchableEntity();
+                entityChooser.getSelectedSearchableEntity();
         final String queryText = textField.getValue();
         if (StringUtils.isBlank(queryText) == false)
         {

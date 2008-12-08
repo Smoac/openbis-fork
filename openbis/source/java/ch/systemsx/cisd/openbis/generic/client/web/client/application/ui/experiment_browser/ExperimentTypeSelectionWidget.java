@@ -16,12 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment_browser;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.Events;
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.google.gwt.user.client.Element;
@@ -39,97 +35,42 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentType;
  * 
  * @author Izabela Adamczyk
  */
-public class ExperimentTypeSelectionWidget extends ComboBox<ExperimentTypeModel>
+public final class ExperimentTypeSelectionWidget extends ComboBox<ExperimentTypeModel>
 {
-
-    public final class ListExperimentTypesCallback extends
-            AbstractAsyncCallback<List<ExperimentType>>
-    {
-        private final boolean allowEmptyCall;
-
-        ListExperimentTypesCallback(final IViewContext<?> viewContext, final boolean allowEmpty)
-        {
-            super(viewContext);
-            allowEmptyCall = allowEmpty;
-        }
-
-        @Override
-        protected void process(final List<ExperimentType> result)
-        {
-            experimentTypeStore.removeAll();
-            experimentTypeStore.add(convert(result));
-            if (experimentTypeStore.getCount() > 0)
-            {
-                setEnabled(true);
-                if (allowEmptyCall == false)
-                {
-                    setValue(experimentTypeStore.getAt(0));
-                }
-            }
-        }
-
-        List<ExperimentTypeModel> convert(final List<ExperimentType> experimentTypes)
-        {
-            final List<ExperimentTypeModel> result = new ArrayList<ExperimentTypeModel>();
-            for (final ExperimentType st : experimentTypes)
-            {
-                result.add(new ExperimentTypeModel(st));
-            }
-            return result;
-        }
-    }
-
     private static final String PREFIX = "experiment-type-select-";
 
     public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    private final ListStore<ExperimentTypeModel> experimentTypeStore;
-
-    private final boolean allowEmpty;
-
     public ExperimentTypeSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext,
             final String idSuffix)
     {
-        this(viewContext, false, idSuffix);
-    }
-
-    public ExperimentTypeSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final boolean allowEmpty, final String idSuffix)
-    {
         this.viewContext = viewContext;
-        this.allowEmpty = allowEmpty;
         setId(ID + idSuffix);
-        setEmptyText(allowEmpty ? "Choose experiment type..." : "- No experiment types found -");
         setEnabled(false);
         setDisplayField(ModelDataPropertyNames.CODE);
         setEditable(false);
-        setWidth(150);
+        setWidth(180);
         setFieldLabel("Experiment type");
-        experimentTypeStore = new ListStore<ExperimentTypeModel>();
-        setStore(experimentTypeStore);
-        addListener(Events.OnClick, new Listener<BaseEvent>()
-            {
-
-                public void handleEvent(final BaseEvent be)
-                {
-                    expand();
-                }
-            });
+        setStore(new ListStore<ExperimentTypeModel>());
     }
 
-    public ExperimentType tryGetSelected()
+    /**
+     * Returns the {@link ExperimentType} currently selected.
+     * 
+     * @return <code>null</code> if nothing is selected yet.
+     */
+    public final ExperimentType tryGetSelectedExperimentType()
     {
-
         final List<ExperimentTypeModel> selection = getSelection();
-        if (selection.size() > 0)
+        final int size = selection.size();
+        if (size > 0)
         {
+            assert size == 1 : "Selection is empty.";
             return selection.get(0).get(ModelDataPropertyNames.OBJECT);
-        } else
-        {
-            return null;
         }
+        return null;
     }
 
     @Override
@@ -141,7 +82,36 @@ public class ExperimentTypeSelectionWidget extends ComboBox<ExperimentTypeModel>
 
     void refresh()
     {
-        viewContext.getService().listExperimentTypes(
-                new ListExperimentTypesCallback(viewContext, allowEmpty));
+        viewContext.getService().listExperimentTypes(new ListExperimentTypesCallback(viewContext));
+    }
+
+    //
+    // Helper classes
+    //
+
+    public final class ListExperimentTypesCallback extends
+            AbstractAsyncCallback<List<ExperimentType>>
+    {
+        ListExperimentTypesCallback(final IViewContext<ICommonClientServiceAsync> viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        protected void process(final List<ExperimentType> result)
+        {
+            final ListStore<ExperimentTypeModel> experimentTypeStore = getStore();
+            experimentTypeStore.removeAll();
+            experimentTypeStore.add(ExperimentTypeModel.convert(result));
+            if (experimentTypeStore.getCount() > 0)
+            {
+                setEnabled(true);
+                setEmptyText("Choose experiment type...");
+            } else
+            {
+                setEmptyText("- No sample types found -");
+            }
+            applyEmptyText();
+        }
     }
 }

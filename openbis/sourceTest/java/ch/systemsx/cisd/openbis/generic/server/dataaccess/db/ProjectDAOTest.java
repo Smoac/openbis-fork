@@ -43,7 +43,7 @@ public class ProjectDAOTest extends AbstractDAOTest
 
     public static final String DEFAULT = "DEFAULT";
 
-    public static final String[] PRELOADED_PROJECTS =
+    static final String[] PRELOADED_PROJECTS =
         { DEFAULT, NEMO, NOE, TESTPROJ };
 
     @Test

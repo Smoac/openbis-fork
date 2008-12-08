@@ -18,9 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experi
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.Events;
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.google.gwt.user.client.Element;
@@ -39,36 +36,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
  * 
  * @author Izabela Adamczyk
  */
-public class ProjectSelectionWidget extends ComboBox<ProjectModel>
+public final class ProjectSelectionWidget extends ComboBox<ProjectModel>
 {
-    public final class ListProjectsCallback extends AbstractAsyncCallback<List<Project>>
-    {
-        ListProjectsCallback(final IViewContext<?> viewContext)
-        {
-            super(viewContext);
-        }
-
-        @Override
-        protected void process(final List<Project> result)
-        {
-            projectStore.removeAll();
-            projectStore.add(ProjectModel.convert(result));
-            if (projectStore.getCount() > 0)
-            {
-                setEnabled(true);
-                setValue(projectStore.getAt(0));
-            }
-            fireEvent(AppEvents.CALLBACK_FINISHED);
-        }
-    }
-
     private static final String PREFIX = "project-select";
 
     public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
-
-    private final ListStore<ProjectModel> projectStore;
 
     public ProjectSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
@@ -78,29 +52,26 @@ public class ProjectSelectionWidget extends ComboBox<ProjectModel>
         setDisplayField(ModelDataPropertyNames.PROJECT_WITH_GROUP);
         setEditable(false);
         setEnabled(false);
-        setWidth(250);
+        setWidth(200);
         setFieldLabel("Project");
-        projectStore = new ListStore<ProjectModel>();
-        setStore(projectStore);
-        addListener(Events.OnClick, new Listener<BaseEvent>()
-            {
-                public void handleEvent(final BaseEvent be)
-                {
-                    expand();
-                }
-            });
+        setStore(new ListStore<ProjectModel>());
     }
 
-    public Project tryGetSelected()
+    /**
+     * Returns the {@link Project} currently selected.
+     * 
+     * @return <code>null</code> if nothing is selected yet.
+     */
+    public final Project tryGetSelectedProject()
     {
         final List<ProjectModel> selection = getSelection();
-        if (selection.size() > 0)
+        final int size = selection.size();
+        if (size > 0)
         {
+            assert size == 1 : "Selection is empty.";
             return selection.get(0).get(ModelDataPropertyNames.OBJECT);
-        } else
-        {
-            return null;
         }
+        return null;
     }
 
     @Override
@@ -115,4 +86,29 @@ public class ProjectSelectionWidget extends ComboBox<ProjectModel>
         viewContext.getService().listProjects(new ListProjectsCallback(viewContext));
     }
 
+    //
+    // Helper classes
+    //
+
+    public final class ListProjectsCallback extends AbstractAsyncCallback<List<Project>>
+    {
+        ListProjectsCallback(final IViewContext<ICommonClientServiceAsync> viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        protected void process(final List<Project> result)
+        {
+            final ListStore<ProjectModel> projectStore = getStore();
+            projectStore.removeAll();
+            projectStore.add(ProjectModel.convert(result));
+            if (projectStore.getCount() > 0)
+            {
+                setEnabled(true);
+                setValue(projectStore.getAt(0));
+            }
+            fireEvent(AppEvents.CALLBACK_FINISHED);
+        }
+    }
 }

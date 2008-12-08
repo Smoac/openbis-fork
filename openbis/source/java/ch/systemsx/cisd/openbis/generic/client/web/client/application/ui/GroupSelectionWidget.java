@@ -18,9 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.Events;
-import com.extjs.gxt.ui.client.event.FieldEvent;
-import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.google.gwt.user.client.Element;
@@ -39,40 +36,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
  * 
  * @author Izabela Adamczyk
  */
-public class GroupSelectionWidget extends ComboBox<GroupModel>
+public final class GroupSelectionWidget extends ComboBox<GroupModel>
 {
-    public final class ListGroupsCallback extends AbstractAsyncCallback<List<Group>>
-    {
-        ListGroupsCallback(final IViewContext<?> viewContext)
-        {
-            super(viewContext);
-        }
-
-        //
-        // AbstractAsyncCallback
-        //
-
-        @Override
-        protected final void process(final List<Group> result)
-        {
-            groupStore.removeAll();
-            groupStore.add(GroupModel.convert(result));
-            if (groupStore.getCount() > 0)
-            {
-                setEnabled(true);
-                setValue(groupStore.getAt(0));
-            }
-            fireEvent(AppEvents.CALLBACK_FINISHED);
-        }
-    }
-
     private static final String PREFIX = "group-select";
 
     public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
-
-    private final ListStore<GroupModel> groupStore;
 
     public GroupSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
@@ -84,32 +54,24 @@ public class GroupSelectionWidget extends ComboBox<GroupModel>
         setEnabled(false);
         setWidth(150);
         setFieldLabel("Group");
-        groupStore = new ListStore<GroupModel>();
-        setStore(groupStore);
-        addListener(Events.OnClick, new Listener<FieldEvent>()
-            {
-
-                //
-                // Listener
-                //
-
-                public final void handleEvent(final FieldEvent be)
-                {
-                    expand();
-                }
-            });
+        setStore(new ListStore<GroupModel>());
     }
 
-    public final Group tryGetSelected()
+    /**
+     * Returns the {@link Group} currently selected.
+     * 
+     * @return <code>null</code> if nothing is selected yet.
+     */
+    public final Group tryGetSelectedGroup()
     {
         final List<GroupModel> selection = getSelection();
-        if (selection.size() > 0)
+        final int size = selection.size();
+        if (size > 0)
         {
+            assert size == 1 : "Only one item must be selected.";
             return selection.get(0).get(ModelDataPropertyNames.OBJECT);
-        } else
-        {
-            return null;
         }
+        return null;
     }
 
     void refresh()
@@ -128,4 +90,33 @@ public class GroupSelectionWidget extends ComboBox<GroupModel>
         refresh();
     }
 
+    //
+    // Helper classes
+    //
+
+    public final class ListGroupsCallback extends AbstractAsyncCallback<List<Group>>
+    {
+        ListGroupsCallback(final IViewContext<ICommonClientServiceAsync> viewContext)
+        {
+            super(viewContext);
+        }
+
+        //
+        // AbstractAsyncCallback
+        //
+
+        @Override
+        protected final void process(final List<Group> result)
+        {
+            final ListStore<GroupModel> groupStore = getStore();
+            groupStore.removeAll();
+            groupStore.add(GroupModel.convert(result));
+            if (groupStore.getCount() > 0)
+            {
+                setEnabled(true);
+                setValue(groupStore.getAt(0));
+            }
+            fireEvent(AppEvents.CALLBACK_FINISHED);
+        }
+    }
 }

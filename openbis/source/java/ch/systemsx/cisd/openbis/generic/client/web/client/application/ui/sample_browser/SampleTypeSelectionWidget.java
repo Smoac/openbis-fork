@@ -16,12 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.Events;
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.google.gwt.user.client.Element;
@@ -39,96 +35,42 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
  * 
  * @author Izabela Adamczyk
  */
-public class SampleTypeSelectionWidget extends ComboBox<SampleTypeModel>
+public final class SampleTypeSelectionWidget extends ComboBox<SampleTypeModel>
 {
-
-    public final class ListSampleTypesCallback extends AbstractAsyncCallback<List<SampleType>>
-    {
-        private final boolean allowEmptyCall;
-
-        ListSampleTypesCallback(final IViewContext<?> viewContext, final boolean allowEmpty)
-        {
-            super(viewContext);
-            allowEmptyCall = allowEmpty;
-        }
-
-        @Override
-        protected void process(final List<SampleType> result)
-        {
-            sampleTypeStore.removeAll();
-            sampleTypeStore.add(convert(result));
-            if (sampleTypeStore.getCount() > 0)
-            {
-                setEnabled(true);
-                if (allowEmptyCall == false)
-                {
-                    setValue(sampleTypeStore.getAt(0));
-                }
-            }
-        }
-
-        List<SampleTypeModel> convert(final List<SampleType> sampleTypes)
-        {
-            final List<SampleTypeModel> result = new ArrayList<SampleTypeModel>();
-            for (final SampleType st : sampleTypes)
-            {
-                result.add(new SampleTypeModel(st));
-            }
-            return result;
-        }
-    }
-
     private static final String PREFIX = "sample-type-select-";
 
     public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    private final ListStore<SampleTypeModel> sampleTypeStore;
-
-    private final boolean allowEmpty;
-
     public SampleTypeSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext,
             String idSuffix)
     {
-        this(viewContext, false, idSuffix);
-    }
-
-    public SampleTypeSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final boolean allowEmpty, String idSuffix)
-    {
         this.viewContext = viewContext;
-        this.allowEmpty = allowEmpty;
         setId(ID + idSuffix);
-        setEmptyText(allowEmpty ? "Choose sample type..." : "- No sample types found -");
         setEnabled(false);
         setDisplayField(ModelDataPropertyNames.CODE);
         setEditable(false);
         setWidth(150);
         setFieldLabel("Sample type");
-        sampleTypeStore = new ListStore<SampleTypeModel>();
-        setStore(sampleTypeStore);
-        addListener(Events.OnClick, new Listener<BaseEvent>()
-            {
-
-                public void handleEvent(final BaseEvent be)
-                {
-                    expand();
-                }
-            });
+        setStore(new ListStore<SampleTypeModel>());
     }
 
-    public SampleType tryGetSelected()
+    /**
+     * Returns the {@link SampleType} currently selected.
+     * 
+     * @return <code>null</code> if nothing is selected yet.
+     */
+    public final SampleType tryGetSelectedSampleType()
     {
-
         final List<SampleTypeModel> selection = getSelection();
-        if (selection.size() > 0)
+        final int size = selection.size();
+        if (size > 0)
         {
+            assert size == 1 : "Only one item must be selected.";
             return selection.get(0).get(ModelDataPropertyNames.OBJECT);
-        } else
-        {
-            return null;
         }
+        return null;
     }
 
     @Override
@@ -140,7 +82,36 @@ public class SampleTypeSelectionWidget extends ComboBox<SampleTypeModel>
 
     void refresh()
     {
-        viewContext.getService().listSampleTypes(
-                new ListSampleTypesCallback(viewContext, allowEmpty));
+        viewContext.getService().listSampleTypes(new ListSampleTypesCallback(viewContext));
+    }
+
+    //
+    // Helper classes
+    //
+
+    public final class ListSampleTypesCallback extends AbstractAsyncCallback<List<SampleType>>
+    {
+
+        ListSampleTypesCallback(final IViewContext<ICommonClientServiceAsync> viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        protected void process(final List<SampleType> result)
+        {
+            final ListStore<SampleTypeModel> sampleTypeStore = getStore();
+            sampleTypeStore.removeAll();
+            sampleTypeStore.add(SampleTypeModel.convert(result));
+            if (sampleTypeStore.getCount() > 0)
+            {
+                setEmptyText("Choose sample type...");
+                setEnabled(true);
+            } else
+            {
+                setEmptyText("- No sample types found -");
+            }
+            applyEmptyText();
+        }
     }
 }

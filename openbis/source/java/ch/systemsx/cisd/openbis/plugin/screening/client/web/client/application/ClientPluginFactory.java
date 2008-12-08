@@ -98,7 +98,8 @@ public final class ClientPluginFactory extends
         {
             final ScreeningSampleViewer sampleViewer =
                     new ScreeningSampleViewer(getViewContext(), sampleIdentifier);
-            return new ViewerTabItem(sampleIdentifier, sampleViewer);        }
+            return new ViewerTabItem(sampleIdentifier, sampleViewer);
+        }
 
         public final Widget createRegistrationForSampleType(final SampleType sampleTypeCode)
         {
@@ -111,8 +112,13 @@ public final class ClientPluginFactory extends
         }
     }
 
-    private final class ExperimentViewClientPlugin implements IExperimentViewClientPlugin
+    private final static class ExperimentViewClientPlugin implements IExperimentViewClientPlugin
     {
+
+        //
+        // IExperimentViewClientPlugin
+        //
+
         public final ITabItem createExperimentViewer(final String experimentIdentifier)
         {
             final DummyComponent experimentViewer = new DummyComponent();

@@ -22,6 +22,7 @@ import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ParentColumns;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyColumns;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
 /**
@@ -65,11 +66,11 @@ final class ToolbarController
     /**
      * Refreshes the <i>refresh</i> resp. <i>export</i> button.
      */
-    final void refreshButtons()
+    final void refreshButtons(final SampleType sampleTypeOrNull, final Group groupOrNull)
     {
-        final boolean sampleTypeSelected = sampleTypeSelectionWidget.tryGetSelected() != null;
+        final boolean sampleTypeSelected = sampleTypeOrNull != null;
         final boolean showGroupSamples = groupCheckbox.getValue();
-        final boolean groupChosen = groupSelectionWidget.tryGetSelected() != null;
+        final boolean groupChosen = groupOrNull != null;
         final boolean showInstanceSamples = instanceCheckbox.getValue();
         final boolean enable =
                 sampleTypeSelected && (showGroupSamples && groupChosen || showInstanceSamples);
@@ -95,7 +96,7 @@ final class ToolbarController
 
     final void redefineColumns()
     {
-        final SampleType type = sampleTypeSelectionWidget.tryGetSelected();
+        final SampleType type = sampleTypeSelectionWidget.tryGetSelectedSampleType();
         assert type != null : "Should not be null.";
         propertyColumns.define(type);
         parentColumns.define(type);

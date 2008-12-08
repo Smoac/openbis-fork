@@ -108,7 +108,7 @@ public class TopMenu extends LayoutContainer
     // Helper classes
     //
 
-    private final class LogoutButton extends TextToolItem
+    private final static class LogoutButton extends TextToolItem
     {
 
         LogoutButton(final CommonViewContext viewContext)

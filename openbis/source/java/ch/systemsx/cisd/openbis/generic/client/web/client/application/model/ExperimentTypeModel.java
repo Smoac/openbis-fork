@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 
@@ -35,6 +38,16 @@ public class ExperimentTypeModel extends BaseModelData
     {
         set(ModelDataPropertyNames.CODE, experimentType.getCode());
         set(ModelDataPropertyNames.OBJECT, experimentType);
+    }
+
+    public final static List<ExperimentTypeModel> convert(final List<ExperimentType> experimentTypes)
+    {
+        final List<ExperimentTypeModel> result = new ArrayList<ExperimentTypeModel>();
+        for (final ExperimentType st : experimentTypes)
+        {
+            result.add(new ExperimentTypeModel(st));
+        }
+        return result;
     }
 
 }
