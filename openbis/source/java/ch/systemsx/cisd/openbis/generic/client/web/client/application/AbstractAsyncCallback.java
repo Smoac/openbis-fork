@@ -34,29 +34,37 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.InvalidSessi
  */
 public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
 {
-    private static final ICallbackListener DUMMY_LISTENER = new ICallbackListener()
+    private static final ICallbackListener DEFAULT_LISTENER = new ICallbackListener()
         {
-            public void onFailureOf(AsyncCallback<Object> callback, String failureMessage,
-                    Throwable throwable)
+
+            //
+            // ICallbackListener
+            //
+
+            public final void onFailureOf(final AsyncCallback<Object> callback,
+                    final String failureMessage, final Throwable throwable)
             {
                 MessageBox.alert("Error", failureMessage, null);
             }
 
-            public void finishOnSuccessOf(AsyncCallback<Object> callback, Object result)
+            public final void finishOnSuccessOf(final AsyncCallback<Object> callback,
+                    final Object result)
             {
             }
         };
 
     private static final String PREFIX = "exception_";
 
-    private static ICallbackListener callbackListener = DUMMY_LISTENER;
+    private static ICallbackListener staticCallbackListener = DEFAULT_LISTENER;
 
     private static final List<AbstractAsyncCallback<?>> callbackObjects =
             new ArrayList<AbstractAsyncCallback<?>>();
 
     /**
-     * Sets all callback objects silent. Note: THIS METHOD SHOULD NEVER BE USED. It is only used
-     * inside the testing framework.
+     * Sets all callback objects silent.
+     * <p>
+     * <b>Note</b>: THIS METHOD SHOULD NEVER BE USED. It is only used inside the testing framework.
+     * </p>
      */
     public static void setAllCallbackObjectsSilent()
     {
@@ -68,43 +76,74 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
     }
 
     /**
-     * Sets the global callback listener. Note: THIS METHOD SHOULD NEVER BE USED. It is only used
-     * inside the testing framework.
+     * Sets the global callback listener.
+     * <p>
+     * Note: THIS METHOD SHOULD NEVER BE USED. It is only used inside the testing framework.
+     * </p>
      */
-    public static void setCallbackListener(final ICallbackListener listenerOrNull)
+    public static void setStaticCallbackListener(final ICallbackListener listenerOrNull)
     {
-        callbackListener = listenerOrNull == null ? DUMMY_LISTENER : listenerOrNull;
+        staticCallbackListener = listenerOrNull == null ? DEFAULT_LISTENER : listenerOrNull;
     }
 
     protected final IViewContext<?> viewContext;
 
     private boolean silent;
 
+    private final ICallbackListener callbackListener;
+
     /**
      * Creates an instance for the specified view context.
      */
     public AbstractAsyncCallback(final IViewContext<?> viewContext)
     {
+        this(viewContext, null);
+    }
+
+    /**
+     * Creates an instance for the specified view context.
+     */
+    public AbstractAsyncCallback(final IViewContext<?> viewContext,
+            final ICallbackListener callbackListenerOrNull)
+    {
         this.viewContext = viewContext;
-        if (callbackListener != DUMMY_LISTENER)
+        if (staticCallbackListener != DEFAULT_LISTENER)
         {
             callbackObjects.add(this);
+        }
+        if (callbackListenerOrNull != null)
+        {
+            callbackListener = callbackListenerOrNull;
+        } else
+        {
+            callbackListener = null;
         }
     }
 
     @SuppressWarnings("unchecked")
-    private AsyncCallback<Object> getThis()
+    private final AsyncCallback<Object> getThis()
     {
         return (AsyncCallback<Object>) this;
     }
 
     /**
-     * Terminates {@link #onFailure(Throwable)}. Default behavior does nothing. Override this in
-     * subclasses.
+     * Terminates {@link #onFailure(Throwable)}.
+     * <p>
+     * Default behavior does nothing. Override this in subclasses.
+     * </p>
      */
     protected void finishOnFailure(final Throwable caught)
     {
     }
+
+    /**
+     * Processes the specified result of an asynchronous method invocation.
+     */
+    protected abstract void process(final T result);
+
+    //
+    // AsyncCallback
+    //
 
     public final void onFailure(final Throwable caught)
     {
@@ -135,7 +174,14 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
                 msg = message;
             }
         }
-        callbackListener.onFailureOf(getThis(), msg, caught);
+        if (callbackListener != null)
+        {
+            callbackListener.onFailureOf(getThis(), msg, caught);
+        }
+        if (staticCallbackListener != DEFAULT_LISTENER || callbackListener == null)
+        {
+            staticCallbackListener.onFailureOf(getThis(), msg, caught);
+        }
         final IPageController pageController = viewContext.getPageController();
         if (caught instanceof InvalidSessionException)
         {
@@ -151,11 +197,13 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
             return;
         }
         process(result);
-        callbackListener.finishOnSuccessOf(getThis(), result);
+        if (callbackListener != null)
+        {
+            callbackListener.finishOnSuccessOf(getThis(), result);
+        }
+        if (staticCallbackListener != DEFAULT_LISTENER || callbackListener == null)
+        {
+            staticCallbackListener.finishOnSuccessOf(getThis(), result);
+        }
     }
-
-    /**
-     * Processes the specified result of an asynchronous method invocation.
-     */
-    protected abstract void process(T result);
 }

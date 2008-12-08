@@ -22,11 +22,13 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.util.Format;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
@@ -36,11 +38,14 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
+import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.ListBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ICallbackListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
@@ -60,7 +65,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  * 
  * @author Izabela Adamczyk
  */
-public final class GenericSampleRegistrationForm extends FormPanel
+public final class GenericSampleRegistrationForm extends LayoutContainer
 {
     private static final String PREFIX = "generic-sample-registration_";
 
@@ -100,6 +105,8 @@ public final class GenericSampleRegistrationForm extends FormPanel
 
     private InfoBox infoBox;
 
+    private FormPanel formPanel;
+
     private static final String MANDATORY_LABEL_SEPARATOR = ": *";
 
     static final int LABEL_WIDTH = 100;
@@ -109,27 +116,34 @@ public final class GenericSampleRegistrationForm extends FormPanel
     public GenericSampleRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext, final SampleType sampleType)
     {
+        setLayout(new FlowLayout(5));
         this.viewContext = viewContext;
         this.sampleType = sampleType;
-        configureForm();
-        createFormFields();
+        setScrollMode(Scroll.AUTO);
+        add(infoBox = createInfoBox());
+        add(formPanel = creatFormPanel());
+    }
+
+    private final static InfoBox createInfoBox()
+    {
+        final InfoBox infoBox = new InfoBox();
+        return infoBox;
     }
 
     private final void createFormFields()
     {
-        infoBox = new InfoBox();
         codeField = new CodeField(viewContext.getMessageProvider().getMessage("code"));
         codeField.setId(CODE_FIELD_ID);
-        codeField.addListener(Events.Focus, new Listener<BaseEvent>()
+        codeField.addListener(Events.Focus, new Listener<FieldEvent>()
             {
 
                 //
                 // Listener
                 //
 
-                public final void handleEvent(final BaseEvent be)
+                public final void handleEvent(final FieldEvent be)
                 {
-                    infoBox.fade();
+                    infoBox.reset();
                 }
             });
 
@@ -140,13 +154,13 @@ public final class GenericSampleRegistrationForm extends FormPanel
         sharedCheckbox.setId(SHARED_CHECKBOX_ID);
         sharedCheckbox.setBoxLabel("Shared");
         sharedCheckbox.setValue(SELECT_GROUP_BY_DEFAULT == false);
-        sharedCheckbox.addListener(Events.Change, new Listener<BaseEvent>()
+        sharedCheckbox.addListener(Events.Change, new Listener<FieldEvent>()
             {
                 //
                 // Listener
                 //
 
-                public final void handleEvent(final BaseEvent be)
+                public final void handleEvent(final FieldEvent be)
                 {
                     groupSelectionWidget
                             .setEnabled(sharedCheckbox.getValue().booleanValue() == false);
@@ -192,20 +206,21 @@ public final class GenericSampleRegistrationForm extends FormPanel
         }
     }
 
-    private final void configureForm()
+    private final FormPanel creatFormPanel()
     {
-        setHeaderVisible(false);
-        setBodyBorder(false);
-        setWidth(LABEL_WIDTH + FIELD_WIDTH + 40);
+        final FormPanel panel = new FormPanel();
+        panel.setHeaderVisible(false);
+        panel.setBodyBorder(false);
+        panel.setWidth(LABEL_WIDTH + FIELD_WIDTH + 40);
 
-        setLabelWidth(LABEL_WIDTH);
-        setFieldWidth(FIELD_WIDTH);
-        setButtonAlign(HorizontalAlignment.RIGHT);
+        panel.setLabelWidth(LABEL_WIDTH);
+        panel.setFieldWidth(FIELD_WIDTH);
+        panel.setButtonAlign(HorizontalAlignment.RIGHT);
         final Button saveButton =
                 new Button(viewContext.getMessageProvider().getMessage("button_save"));
         saveButton.setStyleAttribute("marginRight", "20px");
         saveButton.setId(SAVE_BUTTON_ID);
-        saveButton.addSelectionListener(new SelectionListener<ComponentEvent>()
+        saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
 
                 //
@@ -213,14 +228,14 @@ public final class GenericSampleRegistrationForm extends FormPanel
                 //
 
                 @Override
-                public final void componentSelected(final ComponentEvent ce)
+                public final void componentSelected(final ButtonEvent ce)
                 {
                     submitForm();
                 }
             });
         final Button resetButton =
                 new Button(viewContext.getMessageProvider().getMessage("button_reset"));
-        resetButton.addSelectionListener(new SelectionListener<ComponentEvent>()
+        resetButton.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
 
                 //
@@ -228,13 +243,14 @@ public final class GenericSampleRegistrationForm extends FormPanel
                 //
 
                 @Override
-                public final void componentSelected(final ComponentEvent ce)
+                public final void componentSelected(final ButtonEvent ce)
                 {
-                    reset();
+                    formPanel.reset();
                 }
             });
-        addButton(resetButton);
-        addButton(saveButton);
+        panel.addButton(resetButton);
+        panel.addButton(saveButton);
+        return panel;
     }
 
     private final String createSampleIdentifier()
@@ -281,7 +297,7 @@ public final class GenericSampleRegistrationForm extends FormPanel
 
     private final void submitForm()
     {
-        if (isValid())
+        if (formPanel.isValid())
         {
             final SampleToRegister sampleToRegister =
                     new SampleToRegister(createSampleIdentifier(), sampleType.getCode(),
@@ -302,25 +318,15 @@ public final class GenericSampleRegistrationForm extends FormPanel
         }
     }
 
-    private final void resetForm(final String info)
+    private final void addFormFields()
     {
-        createFormFields();
-        addFormFields();
-        infoBox.display(info);
-        layout();
-    }
-
-    public void addFormFields()
-    {
-        removeAll();
-        add(infoBox);
-        add(codeField);
-        add(groupMultiField);
-        add(parentGenerator);
-        add(parentContainer);
+        formPanel.add(codeField);
+        formPanel.add(groupMultiField);
+        formPanel.add(parentGenerator);
+        formPanel.add(parentContainer);
         for (final Field<?> propertyField : propertyFields)
         {
-            add(propertyField);
+            formPanel.add(propertyField);
         }
     }
 
@@ -369,6 +375,7 @@ public final class GenericSampleRegistrationForm extends FormPanel
     protected final void onRender(final Element target, final int index)
     {
         super.onRender(target, index);
+        createFormFields();
         addFormFields();
     }
 
@@ -380,7 +387,30 @@ public final class GenericSampleRegistrationForm extends FormPanel
     {
         RegisterSampleCallback(final IViewContext<?> viewContext)
         {
-            super(viewContext);
+            super(viewContext, new ICallbackListener()
+                {
+
+                    //
+                    // ICallbackListener
+                    //
+
+                    public final void finishOnSuccessOf(final AsyncCallback<Object> callback,
+                            final Object result)
+                    {
+                        final String message =
+                                createSuccessfullRegistrationInfo(sharedCheckbox.getValue(),
+                                        codeField.getValue(), groupSelectionWidget
+                                                .tryGetSelectedGroup());
+                        infoBox.displayInfo(message);
+                        formPanel.reset();
+                    }
+
+                    public final void onFailureOf(final AsyncCallback<Object> callback,
+                            final String failureMessage, final Throwable throwable)
+                    {
+                        infoBox.displayError(failureMessage);
+                    }
+                });
         }
 
         //
@@ -390,11 +420,6 @@ public final class GenericSampleRegistrationForm extends FormPanel
         @Override
         protected final void process(final Void result)
         {
-
-            final String message =
-                    createSuccessfullRegistrationInfo(sharedCheckbox.getValue(), codeField
-                            .getValue(), groupSelectionWidget.tryGetSelectedGroup());
-            resetForm(message);
         }
     }
 

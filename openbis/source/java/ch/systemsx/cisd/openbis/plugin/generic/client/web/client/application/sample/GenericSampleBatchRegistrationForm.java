@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sa
 
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.FormEvent;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -65,6 +66,7 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
             final IViewContext<IGenericClientServiceAsync> viewContext, final SampleType sampleType)
     {
         super(createLayout());
+        setScrollMode(Scroll.AUTO);
         this.viewContext = viewContext;
         add(createUI());
     }

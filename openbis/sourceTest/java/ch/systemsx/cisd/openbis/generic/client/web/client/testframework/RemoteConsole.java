@@ -56,7 +56,7 @@ public class RemoteConsole
     {
         this.testCase = testCase;
         commands = new ArrayList<ITestCommand>();
-        AbstractAsyncCallback.setCallbackListener(new ICallbackListener()
+        AbstractAsyncCallback.setStaticCallbackListener(new ICallbackListener()
             {
                 public void onFailureOf(AsyncCallback<Object> callback, String failureMessage,
                         Throwable throwable)
@@ -121,7 +121,7 @@ public class RemoteConsole
                 @Override
                 public void run()
                 {
-                    AbstractAsyncCallback.setCallbackListener(null);
+                    AbstractAsyncCallback.setStaticCallbackListener(null);
                     int numberOfUnexcutedCommands = commands.size() - entryIndex;
                     if (numberOfUnexcutedCommands > 0)
                     {

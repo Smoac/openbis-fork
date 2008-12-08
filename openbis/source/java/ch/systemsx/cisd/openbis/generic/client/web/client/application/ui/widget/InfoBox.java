@@ -16,48 +16,101 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget;
 
-import com.extjs.gxt.ui.client.widget.form.LabelField;
+import com.extjs.gxt.ui.client.util.TextMetrics;
+import com.extjs.gxt.ui.client.widget.Html;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 
 /**
+ * A {@link Html} extension that should be used as information panel.
+ * <p>
+ * It nicely informs the user about a certain action result. It should be used instead of a
+ * {@link MessageBox} in some cases.
+ * </p>
+ * 
  * @author Christian Ribeaud
  */
-public final class InfoBox extends LabelField
+public final class InfoBox extends Html
 {
 
     public InfoBox()
     {
-        setVisible(false);
         setStyleAttribute("textAlign", "center");
-        setPosition(-2, 0);
+        setStyleAttribute("borderStyle", "solid");
+        setStyleAttribute("borderWidth", "1px");
+        setHeight(computeHeight());
+        reset();
     }
 
-    private void setStrongStyle()
+    private final int computeHeight()
     {
-        setStyleAttribute("backgroundColor", "#feffbe");
-        setStyleAttribute("border", "1px solid #edee8b");
+        final TextMetrics textMetrics = TextMetrics.get();
+        textMetrics.bind(getElement());
+        return textMetrics.getHeight("X");
     }
 
-    private void setLightStyle()
+    /**
+     * Display given <var>text</var> as <i>error</i> text.
+     */
+    public final void displayError(final String text)
     {
-        setStyleAttribute("backgroundColor", "#feffdf");
-        setStyleAttribute("color", "gray");
-        setStyleAttribute("border", "1px solid #e7e7e7");
+        display(text, Type.ERROR);
     }
 
-    public void fade()
+    /**
+     * Display given <var>text</var> as <i>info</i> text.
+     */
+    public final void displayInfo(final String text)
     {
-        setLightStyle();
+        display(text, Type.INFO);
     }
 
-    public void display(final String text)
+    /**
+     * Displays given <var>text</var> of given <var>type</var>.
+     */
+    public final void display(final String text, final Type type)
     {
         if (StringUtils.isBlank(text) == false)
         {
-            setStrongStyle();
-            setVisible(true);
-            setText(text);
+            setStyleAttribute("backgroundColor", type.backgroundColor);
+            setStyleAttribute("borderColor", type.borderColor);
+            setHtml(text);
+        }
+    }
+
+    /**
+     * Resets the info box.
+     * <p>
+     * Background resp. border color are reset to <i>white</i>. And <i>HTML</i> text is reset to
+     * empty string.
+     * </p>
+     */
+    public final void reset()
+    {
+        setStyleAttribute("backgroundColor", "#ffffff");
+        setStyleAttribute("borderColor", "#ffffff");
+        setHtml("");
+    }
+
+    //
+    // Helper classes
+    //
+
+    private static enum Type
+    {
+
+        ERROR("#f6cece", "#f5a9a9"), INFO("#cef6ce", "#a9f5a9");
+
+        private final String backgroundColor;
+
+        private final String borderColor;
+
+        private Type(final String backgroundColor, final String borderColor)
+        {
+
+            this.backgroundColor = backgroundColor;
+            this.borderColor = borderColor;
         }
     }
 }
