@@ -1,6 +1,15 @@
 // Generic plugin dictionary
 var generic = {
 
+//
+  // Experiment Viewer
+  //
+  
+  file_name: "File name",
+  old_versions: "Old versions",
+  old_versions_template: "{0} available",
+  no_attachments_found: "There are no attachments in this experiment",
+
   //
   // Sample Viewer
   //

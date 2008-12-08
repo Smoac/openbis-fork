@@ -56,4 +56,27 @@ public final class GenericConstants
      * </p>
      */
     public final static String CODE_PATTERN = "^[a-zA-Z0-9_\\-]+$";
+
+    /** Name of the servlet to download an experiment attachment. */
+    public static final String EXPERIMENT_ATTACHMENT_DOWNLOAD_SERVLET_NAME =
+            createServicePath("experiment-attachment-download");
+
+    /** The HTTP URL parameter used to specify the version. */
+    public static final String VERSION_PARAMETER = "version";
+
+    /** The HTTP URL parameter used to specify the file name. */
+    public static final String FILE_NAME_PARAMETER = "fileName";
+
+    /** The HTTP URL parameter used to specify the project. */
+    public static final String PROJECT_PARAMETER = "project";
+
+    /** The HTTP URL parameter used to specify the experiment. */
+    public static final String EXPERIMENT_PARAMETER = "experiment";
+
+    /** The HTTP URL parameter used to specify the group. */
+    public static final String GROUP_PARAMETER = "group";
+
+    /** The HTTP URL parameter used to specify the database. */
+    public static final String DATABASE_PARAMETER = "database";
+
 }

@@ -22,11 +22,13 @@ import org.springframework.stereotype.Component;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.ParameterChecker;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -117,7 +119,18 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
         experimentBO.loadByExperimentIdentifier(identifier);
         experimentBO.enrichWithProperties();
+        experimentBO.enrichWithAttachments();
         final ExperimentPE experiment = experimentBO.getExperiment();
         return experiment;
+    }
+
+    public AttachmentPE getExperimentFileAttachment(final String sessionToken,
+            final ExperimentIdentifier experimentIdentifier, final String filename,
+            final int version) throws UserFailureException
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
+        experimentBO.loadByExperimentIdentifier(experimentIdentifier);
+        return experimentBO.getExperimentFileAttachment(filename, version);
     }
 }

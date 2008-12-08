@@ -17,11 +17,13 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.List;
+import java.util.Set;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
@@ -84,11 +86,16 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
 
     public final ExperimentPE getExperiment()
     {
+        checkExperimentLoaded();
+        return experiment;
+    }
+
+    private void checkExperimentLoaded()
+    {
         if (experiment == null)
         {
             throw new IllegalStateException("Unloaded experiment.");
         }
-        return experiment;
     }
 
     public final void loadByExperimentIdentifier(final ExperimentIdentifier identifier)
@@ -123,6 +130,31 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         {
             HibernateUtils.initialize(experiment.getProperties());
         }
+    }
+
+    public final void enrichWithAttachments()
+    {
+        if (experiment != null)
+        {
+            experiment.ensureAttachmentsLoaded();
+        }
+    }
+
+    public AttachmentPE getExperimentFileAttachment(final String filename, final int version)
+    {
+        checkExperimentLoaded();
+        experiment.ensureAttachmentsLoaded();
+        final Set<AttachmentPE> attachments = experiment.getAttachments();
+        for (AttachmentPE att : attachments)
+        {
+            if (att.getFileName().equals(filename) && att.getVersion() == version)
+            {
+                HibernateUtils.initialize(att.getAttachmentContent());
+                return att;
+            }
+        }
+        throw new UserFailureException("Attachment '" + filename + "' (version '" + version
+                + "') not found in experiment '" + experiment.getIdentifier() + "'.");
     }
 
 }

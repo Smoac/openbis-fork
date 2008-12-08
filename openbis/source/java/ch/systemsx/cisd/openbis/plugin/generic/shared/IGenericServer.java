@@ -18,11 +18,14 @@ package ch.systemsx.cisd.openbis.plugin.generic.shared;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleToRegisterDTOPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -62,4 +65,13 @@ public interface IGenericServer extends IServer
     @RolesAllowed(RoleSet.OBSERVER)
     public ExperimentPE getExperimentInfo(String sessionToken, ExperimentIdentifier identifier);
 
+    /**
+     * Returns attachment described by given experiment identifier, filename and version.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.OBSERVER)
+    public AttachmentPE getExperimentFileAttachment(String sessionToken,
+            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class)
+            ExperimentIdentifier experimentIdentifier, String filename, int version)
+            throws UserFailureException;
 }

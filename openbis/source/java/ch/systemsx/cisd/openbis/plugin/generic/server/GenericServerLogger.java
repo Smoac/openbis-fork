@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleToRegisterDTO;
@@ -64,6 +66,15 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
             final ExperimentIdentifier identifier)
     {
         logAccess(sessionToken, "get_experiment_info", "IDENTIFIER(%s)", identifier);
+        return null;
+    }
+
+    public AttachmentPE getExperimentFileAttachment(final String sessionToken,
+            final ExperimentIdentifier experimentIdentifier, final String filename,
+            final int version) throws UserFailureException
+    {
+        logAccess(sessionToken, "get_attachment", "EXPERIMENT_IDENTIFIER(%s) FILE(%s) VERSION(%s)",
+                experimentIdentifier, filename, version);
         return null;
     }
 }

@@ -44,6 +44,10 @@ public final class ModelDataPropertyNames
 
     public static final String CODE = "code";
 
+    public static final String FILE_NAME = "fileName";
+
+    public static final String VERSION = "version";
+
     public static final String DESCRIPTION = "description";
 
     public static final String EMAIL = "email";
@@ -147,6 +151,8 @@ public final class ModelDataPropertyNames
     public static final String PROJECT = "project";
 
     public static final String EXPERIMENT_IDENTIFIER = "experimentIdentifier";
+
+    public static final String OLD_VERSIONS = "oldVersions";
 
     private ModelDataPropertyNames()
     {

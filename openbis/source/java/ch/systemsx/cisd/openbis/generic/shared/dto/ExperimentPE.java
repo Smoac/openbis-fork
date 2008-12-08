@@ -110,6 +110,8 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
 
     private List<AttachmentPE> attachments = new ArrayList<AttachmentPE>();
 
+    private boolean attachmentsUnescaped = false;
+
     private List<ProcedurePE> procedures = new ArrayList<ProcedurePE>();
 
     private ProcessingInstructionDTO[] processingInstructions =
@@ -303,15 +305,19 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
     public final Set<AttachmentPE> getAttachments()
     {
         final Set<AttachmentPE> set = new HashSet<AttachmentPE>(getExperimentAttachments());
-        for (final Iterator<AttachmentPE> iter = set.iterator(); iter.hasNext(); /**/)
+        if (attachmentsUnescaped == false)
         {
-            final AttachmentPE property = iter.next();
-            final boolean isHiddenFile = isHiddenFile(property.getFileName());
-            if (isHiddenFile)
+            for (final Iterator<AttachmentPE> iter = set.iterator(); iter.hasNext(); /**/)
             {
-                iter.remove();
+                final AttachmentPE property = iter.next();
+                final boolean isHiddenFile = isHiddenFile(property.getFileName());
+                if (isHiddenFile)
+                {
+                    iter.remove();
+                }
+                unescapeFileName(property);
             }
-            unescapeFileName(property);
+            attachmentsUnescaped = true;
         }
         return set;
     }

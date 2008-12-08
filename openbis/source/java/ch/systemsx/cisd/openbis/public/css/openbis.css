@@ -3,6 +3,12 @@ body,div,td {
     font-size: 12px;
 }
 
+.link-style {
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
 /*****************************
  * Login
  *****************************/

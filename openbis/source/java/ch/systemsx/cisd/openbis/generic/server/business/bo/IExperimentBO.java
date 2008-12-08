@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
@@ -35,5 +36,13 @@ public interface IExperimentBO
 
     /** Adds properties */
     public void enrichWithProperties();
+
+    /** Adds attachments */
+    public void enrichWithAttachments();
+
+    /**
+     * Returns attachment (with content) given defined by filename and version.
+     */
+    public AttachmentPE getExperimentFileAttachment(String filename, int version);
 
 }

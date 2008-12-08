@@ -16,8 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 
@@ -29,13 +35,18 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 public final class ExperimentTranslator
 {
 
+    public enum LoadableFields
+    {
+        ATTACHMENTS, PROPERTIES
+    }
+
     private ExperimentTranslator()
     {
         // Can not be instantiated.
     }
 
     public final static Experiment translate(final ExperimentPE experiment,
-            final boolean withDetails)
+            final LoadableFields... withFields)
     {
         if (experiment == null)
         {
@@ -48,12 +59,20 @@ public final class ExperimentTranslator
         result.setProject(ProjectTranslator.translate(experiment.getProject()));
         result.setRegistrationDate(experiment.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(experiment.getRegistrator()));
-        if (withDetails)
+        result.setInvalidation(InvalidationTranslator.translate(experiment.getInvalidation()));
+        for (final LoadableFields field : withFields)
         {
-            result.setInvalidation(InvalidationTranslator.translate(experiment.getInvalidation()));
-            result
-                    .setProperties(ExperimentPropertyTranslator.translate(experiment
+            switch (field)
+            {
+                case PROPERTIES:
+                    result.setProperties(ExperimentPropertyTranslator.translate(experiment
                             .getProperties()));
+                    break;
+                case ATTACHMENTS:
+                    result.setAttachments(translate(experiment.getAttachments()));
+                default:
+                    break;
+            }
         }
         return result;
     }
@@ -65,6 +84,30 @@ public final class ExperimentTranslator
         result.setDescription(experimentType.getDescription());
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(experimentType
                 .getDatabaseInstance()));
+        return result;
+    }
+
+    public final static Attachment translate(final AttachmentPE attachment)
+    {
+        final Attachment result = new Attachment();
+        result.setRegistrator(PersonTranslator.translate(attachment.getRegistrator()));
+        result.setFileName(attachment.getFileName());
+        result.setVersion(attachment.getVersion());
+        result.setRegistrationDate(attachment.getRegistrationDate());
+        return result;
+    }
+
+    public final static List<Attachment> translate(final Set<AttachmentPE> set)
+    {
+        if (set == null)
+        {
+            return null;
+        }
+        final List<Attachment> result = new ArrayList<Attachment>();
+        for (final AttachmentPE attachment : set)
+        {
+            result.add(translate(attachment));
+        }
         return result;
     }
 

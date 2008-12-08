@@ -37,6 +37,8 @@ public class Experiment extends CodeWithRegistration<Experiment>
 
     private Invalidation invalidation;
 
+    private List<Attachment> attachments;
+
     public Project getProject()
     {
         return project;
@@ -95,5 +97,15 @@ public class Experiment extends CodeWithRegistration<Experiment>
     public void setInvalidation(final Invalidation invalidation)
     {
         this.invalidation = invalidation;
+    }
+
+    public List<Attachment> getAttachments()
+    {
+        return attachments;
+    }
+
+    public void setAttachments(final List<Attachment> attachments)
+    {
+        this.attachments = attachments;
     }
 }

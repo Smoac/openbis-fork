@@ -121,7 +121,9 @@ public final class GenericClientService extends AbstractClientService implements
                     new ExperimentIdentifierFactory(experimentIdentifier).createIdentifier();
             final ExperimentPE experiment =
                     genericServer.getExperimentInfo(getSessionToken(), identifier);
-            return ExperimentTranslator.translate(experiment, true);
+            return ExperimentTranslator.translate(experiment,
+                    ExperimentTranslator.LoadableFields.PROPERTIES,
+                    ExperimentTranslator.LoadableFields.ATTACHMENTS);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
