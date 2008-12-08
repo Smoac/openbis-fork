@@ -38,13 +38,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ICallbackL
  */
 public class RemoteConsole
 {
+
     private final AbstractGWTTestCase testCase;
 
     private final List<ITestCommand> commands;
 
     private final List<AsyncCallback<Object>> lastCallbackObjects =
             new ArrayList<AsyncCallback<Object>>();
-    
+
     private int entryIndex;
 
     private Timer timer;
@@ -56,54 +57,14 @@ public class RemoteConsole
     {
         this.testCase = testCase;
         commands = new ArrayList<ITestCommand>();
-        AbstractAsyncCallback.setStaticCallbackListener(new ICallbackListener()
-            {
-                public void onFailureOf(AsyncCallback<Object> callback, String failureMessage,
-                        Throwable throwable)
-                {
-                    lastCallbackObjects.add(callback);
-                    if (entryIndex < commands.size()
-                            && commands.get(entryIndex).validOnFailure(lastCallbackObjects,
-                                    failureMessage, throwable))
-                    {
-                        executeCommand();
-                    } else
-                    {
-                        Assert.fail("Failed callback " + callback + ": " + failureMessage + "["
-                                + throwable.getClass() + "]");
-                    }
-                }
-
-                public void finishOnSuccessOf(AsyncCallback<Object> callback, Object result)
-                {
-                    lastCallbackObjects.add(callback);
-                    if (entryIndex < commands.size()
-                            && commands.get(entryIndex).validOnSucess(lastCallbackObjects, result))
-                    {
-                        executeCommand();
-                    }
-                }
-
-                private void executeCommand()
-                {
-                    lastCallbackObjects.clear();
-                    ITestCommand testCommand = commands.get(entryIndex++);
-                    System.out.println("EXECUTE: " + testCommand);
-                    testCommand.execute();
-                    if (entryIndex == commands.size())
-                    {
-                        testCase.terminateTest();
-                    }
-                }
-
-            });
+        AbstractAsyncCallback.setStaticCallbackListener(new RemoteConsoleCallbackListener());
     }
 
     /**
      * Prepares the console with the specified command which will be executed if the specified
      * condition is fulfilled.
      */
-    public RemoteConsole prepare(ITestCommand command)
+    public RemoteConsole prepare(final ITestCommand command)
     {
         commands.add(command);
         return this;
@@ -114,20 +75,21 @@ public class RemoteConsole
      * 
      * @throws AssertionError if not all commands have been executed.
      */
-    public void finish(int delayInMilliseconds)
+    public void finish(final int delayInMilliseconds)
     {
         timer = new Timer()
             {
                 @Override
                 public void run()
                 {
-                    AbstractAsyncCallback.setStaticCallbackListener(null);
-                    int numberOfUnexcutedCommands = commands.size() - entryIndex;
+                    AbstractAsyncCallback
+                            .setStaticCallbackListener(AbstractAsyncCallback.DEFAULT_CALLBACK_LISTENER);
+                    final int numberOfUnexcutedCommands = commands.size() - entryIndex;
                     if (numberOfUnexcutedCommands > 0)
                     {
-                        StringBuffer buffer = new StringBuffer("Console not finished. Last ");
+                        final StringBuffer buffer = new StringBuffer("Console not finished. Last ");
                         buffer.append(numberOfUnexcutedCommands == 1 ? "command has"
-                                        : numberOfUnexcutedCommands + " commands have");
+                                : numberOfUnexcutedCommands + " commands have");
                         buffer.append(" not been executed. ");
                         if (lastCallbackObjects.size() == 0)
                         {
@@ -135,7 +97,7 @@ public class RemoteConsole
                         } else
                         {
                             buffer.append("Unmatched callback objects:");
-                            for (AsyncCallback<?> callback : lastCallbackObjects)
+                            for (final AsyncCallback<?> callback : lastCallbackObjects)
                             {
                                 buffer.append('\n').append(callback);
                             }
@@ -147,7 +109,7 @@ public class RemoteConsole
         timer.schedule(delayInMilliseconds);
         testCase.delayTestTermination(delayInMilliseconds + 1000);
     }
-    
+
     void cancelTimer()
     {
         if (timer != null)
@@ -156,6 +118,60 @@ public class RemoteConsole
         } else
         {
             Assert.fail("Missing preparation of the remote console with method finish().");
+        }
+    }
+
+    //
+    // Helper classes
+    //
+
+    private final class RemoteConsoleCallbackListener implements ICallbackListener
+    {
+        RemoteConsoleCallbackListener()
+        {
+        }
+
+        private final void executeCommand()
+        {
+            lastCallbackObjects.clear();
+            final ITestCommand testCommand = commands.get(entryIndex++);
+            System.out.println("EXECUTE: " + testCommand);
+            testCommand.execute();
+            if (entryIndex == commands.size())
+            {
+                testCase.terminateTest();
+            }
+        }
+
+        //
+        // ICallbackListener
+        //
+
+        public final void onFailureOf(final AsyncCallback<Object> callback,
+                final String failureMessage, final Throwable throwable)
+        {
+            lastCallbackObjects.add(callback);
+            if (entryIndex < commands.size()
+                    && commands.get(entryIndex).validOnFailure(lastCallbackObjects, failureMessage,
+                            throwable))
+            {
+                executeCommand();
+            } else
+            {
+                Assert.fail("Failed callback " + callback + ": " + failureMessage + "["
+                        + throwable.getClass() + "]");
+            }
+        }
+
+        public final void finishOnSuccessOf(final AsyncCallback<Object> callback,
+                final Object result)
+        {
+            lastCallbackObjects.add(callback);
+            if (entryIndex < commands.size()
+                    && commands.get(entryIndex).validOnSucess(lastCallbackObjects, result))
+            {
+                executeCommand();
+            }
         }
     }
 }

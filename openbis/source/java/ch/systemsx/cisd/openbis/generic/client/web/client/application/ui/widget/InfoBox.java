@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget;
 
-import com.extjs.gxt.ui.client.util.TextMetrics;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 
@@ -33,21 +32,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Strin
  */
 public final class InfoBox extends Html
 {
+    private static final String PLACEHOLDER_TEXT = "X";
+
+    private static final String WHITE = "#ffffff";
 
     public InfoBox()
     {
         setStyleAttribute("textAlign", "center");
         setStyleAttribute("borderStyle", "solid");
         setStyleAttribute("borderWidth", "1px");
-        setHeight(computeHeight());
         reset();
-    }
-
-    private final int computeHeight()
-    {
-        final TextMetrics textMetrics = TextMetrics.get();
-        textMetrics.bind(getElement());
-        return textMetrics.getHeight("X");
     }
 
     /**
@@ -73,6 +67,7 @@ public final class InfoBox extends Html
     {
         if (StringUtils.isBlank(text) == false)
         {
+            setStyleAttribute("color", "#000000");
             setStyleAttribute("backgroundColor", type.backgroundColor);
             setStyleAttribute("borderColor", type.borderColor);
             setHtml(text);
@@ -82,15 +77,17 @@ public final class InfoBox extends Html
     /**
      * Resets the info box.
      * <p>
-     * Background resp. border color are reset to <i>white</i>. And <i>HTML</i> text is reset to
-     * empty string.
+     * Background resp. border color are reset to <i>white</i>. And <i>HTML</i> text is reset to a
+     * placeholder default text.
      * </p>
      */
     public final void reset()
     {
-        setStyleAttribute("backgroundColor", "#ffffff");
-        setStyleAttribute("borderColor", "#ffffff");
-        setHtml("");
+        setStyleAttribute("backgroundColor", WHITE);
+        setStyleAttribute("borderColor", WHITE);
+        // Make placeholder text invisible.
+        setStyleAttribute("color", WHITE);
+        setHtml(PLACEHOLDER_TEXT);
     }
 
     //
