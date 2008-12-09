@@ -34,9 +34,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
 
     public final void testListMasterPlates()
     {
-        remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.SAMPLES,
-                CategoriesBuilder.MENU_ELEMENTS.LIST));
+        loginAndGotoListSamplesTab();
         remoteConsole.prepare(new ListSamples(true, true, "CISD", "MASTER_PLATE"));
         CheckSampleTable table = new CheckSampleTable();
         table.expectedRow(new SampleRow("MP001-1").identifier("CISD", "CISD").invalid()
@@ -47,36 +45,44 @@ public class SampleBrowserTest extends AbstractGWTTestCase
                 "PLATE_GEOMETRY", "384_WELLS_16X24"));
         remoteConsole.prepare(table.expectedSize(6));
 
-        remoteConsole.finish(20000);
-        client.onModuleLoad();
+        startAndWait();
     }
 
     public final void testListOnlySharedMasterPlates()
     {
-        remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.SAMPLES,
-                CategoriesBuilder.MENU_ELEMENTS.LIST));
+        loginAndGotoListSamplesTab();
         remoteConsole.prepare(new ListSamples(true, false, null, "MASTER_PLATE"));
         CheckSampleTable table = new CheckSampleTable();
-        table.expectedRow(new SampleRow("MP").identifier("CISD").valid().noExperiment().property(
-                "PLATE_GEOMETRY", "384_WELLS_16X24"));
+        SampleRow expectedRow =
+                new SampleRow("MP").identifier("CISD").valid().noExperiment().property(
+                        "PLATE_GEOMETRY", "384_WELLS_16X24");
+        table.expectedRow(expectedRow);
         remoteConsole.prepare(table.expectedSize(1));
 
-        remoteConsole.finish(20000);
-        client.onModuleLoad();
+        startAndWait();
     }
 
     public final void testListCellPlates()
     {
-        remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.SAMPLES,
-                CategoriesBuilder.MENU_ELEMENTS.LIST));
+        loginAndGotoListSamplesTab();
         remoteConsole.prepare(new ListSamples(true, true, "CISD", "CELL_PLATE"));
         CheckSampleTable table = new CheckSampleTable();
         table.expectedRow(new SampleRow("3VCP1").identifier("CISD", "CISD").invalid().experiment(
                 "NEMO", "EXP1").derivedFromAncestor("3V-123", 1).derivedFromAncestor("MP001-1", 2));
         remoteConsole.prepare(table.expectedSize(16));
 
+        startAndWait();
+    }
+
+    private void loginAndGotoListSamplesTab()
+    {
+        remoteConsole.prepare(new Login("test", "a"));
+        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.SAMPLES,
+                CategoriesBuilder.MENU_ELEMENTS.LIST));
+    }
+
+    private void startAndWait()
+    {
         remoteConsole.finish(20000);
         client.onModuleLoad();
     }
