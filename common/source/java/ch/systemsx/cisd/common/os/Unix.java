@@ -51,13 +51,17 @@ public class Unix
         if (operational)
         {
             init();
-        }
-        if (isProcessRunningProcFS(1))
-        {
-            processDetection = ProcessDetection.PROCFS;
-        } else if (isProcessRunningPS(1))
-        {
-            processDetection = ProcessDetection.PS;
+            final int myPid = getPid();
+            if (isProcessRunningProcFS(myPid))
+            {
+                processDetection = ProcessDetection.PROCFS;
+            } else if (isProcessRunningPS(myPid))
+            {
+                processDetection = ProcessDetection.PS;
+            } else
+            {
+                processDetection = ProcessDetection.NONE;
+            }
         } else
         {
             processDetection = ProcessDetection.NONE;
