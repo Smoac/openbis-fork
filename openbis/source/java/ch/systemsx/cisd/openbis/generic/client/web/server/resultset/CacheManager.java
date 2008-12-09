@@ -37,7 +37,7 @@ public class CacheManager<K, T>
     private final IResultSetKeyGenerator<K> keyProvider;
 
     private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, CachedResultSetManager.class);
+            LogFactory.getLogger(LogCategory.OPERATION, CacheManager.class);
 
     private final Map<K, T> results = new HashMap<K, T>();
 
