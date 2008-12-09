@@ -56,6 +56,7 @@ import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
+import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.UnmodifiableListDecorator;
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
@@ -77,6 +78,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
     { @UniqueConstraint(columnNames =
         { ColumnNames.CODE_COLUMN, ColumnNames.PROJECT_COLUMN }) })
 @Indexed
+@Friend(toClasses = AttachmentPE.class)
 public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyPE>,
         IIdAndCodeHolder, Comparable<ExperimentPE>, IMatchingEntity, Serializable
 {
