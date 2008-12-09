@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 
+import static junit.framework.Assert.assertTrue;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,20 +93,21 @@ public final class GWTTestUtil
     /**
      * Clicks on the {@link Button} with specified id.
      * 
-     * @throws AssertionError if not found or isn't a button.
+     * @throws AssertionError if not found, isn't a button or is not enabled.
      */
     public static void clickButtonWithID(final String id)
     {
         final Widget widget = tryToFindByID(id);
         assertWidgetFound("Button", id, widget);
-        Assert.assertTrue("Widget '" + id + "' isn't a Button: " + widget.getClass(),
+        assertTrue("Widget '" + id + "' isn't a Button: " + widget.getClass(),
                 widget instanceof Button);
-        ((Button) widget).fireEvent(Events.Select);
+        Button button = ((Button) widget);
+        assertTrue("Button '" + id + "' is not enabled.", button.isEnabled());
+        button.fireEvent(Events.Select);
     }
-    
 
     /**
-     * Sets the value of the {@link TextField} with specified id. 
+     * Sets the value of the {@link TextField} with specified id.
      * 
      * @param valueOrNull If <code>null</code> the text field value will not be changed.
      * @throws AssertionError if no widget found for <code>id</code> or isn't a text field.
