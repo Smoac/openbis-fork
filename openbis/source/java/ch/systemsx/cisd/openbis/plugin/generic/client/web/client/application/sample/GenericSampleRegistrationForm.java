@@ -27,7 +27,6 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.AdapterField;
@@ -524,7 +523,8 @@ public final class GenericSampleRegistrationForm extends LayoutContainer
             final String codePattern = GenericConstants.CODE_PATTERN;
             setRegex(codePattern);
             getMessages().setRegexText(
-                    Format.substitute("Value does not match pattern {0}.", codePattern));
+                    "Code contains invalid characters. Allowed characters are:"
+                            + " letters, numbers, hyphen (\"-\") and underscore (\"_\").");
         }
     }
 
