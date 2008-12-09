@@ -44,7 +44,7 @@ public final class GroupTranslator
         result.setInstance(DatabaseInstanceTranslator.translate(group.getDatabaseInstance()));
         result.setRegistrationDate(group.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(group.getRegistrator()));
-        result.setIdentifier(IdentifierHelper.createIdentifier(group).toString());
+        result.setIdentifier(IdentifierHelper.createGroupIdentifier(group).toString());
         return result;
     }
 }

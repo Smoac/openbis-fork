@@ -47,6 +47,9 @@ abstract class AbstractSampleIdentifierBusinessObject extends AbstractBusinessOb
         return sampleOwnerFinder;
     }
 
+    /**
+     * @return never <code>null</code> and prefers to throw an exception.
+     */
     final SamplePE getSampleByIdentifier(final SampleIdentifier sampleIdentifier)
             throws UserFailureException
     {

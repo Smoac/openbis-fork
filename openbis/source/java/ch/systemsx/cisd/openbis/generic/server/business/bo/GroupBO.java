@@ -57,7 +57,7 @@ public final class GroupBO extends AbstractBusinessObject implements IGroupBO
             getGroupDAO().createGroup(group);
         } catch (final DataAccessException e)
         {
-            throwException(e, "Group '" + IdentifierHelper.createIdentifier(group) + "'");
+            throwException(e, "Group '" + IdentifierHelper.createGroupIdentifier(group) + "'");
         }
     }
 

@@ -61,17 +61,17 @@ public final class GenericClientServiceTest
 
     private Session session;
 
-    private final static NewSample createSampleToRegister(final String sampleIdentifier,
-            final String type, final List<SampleProperty> properties, final String generatorParent,
-            final String containerParent)
+    private final static NewSample createNewSample(final String sampleIdentifier,
+            final String type, final List<SampleProperty> properties, final String parent,
+            final String container)
     {
-        final NewSample s = new NewSample();
-        s.setSampleIdentifier(sampleIdentifier);
-        s.setSampleTypeCode(type);
-        s.setProperties(properties);
-        s.setParent(generatorParent);
-        s.setContainer(containerParent);
-        return s;
+        final NewSample newSample = new NewSample();
+        newSample.setSampleIdentifier(sampleIdentifier);
+        newSample.setSampleTypeCode(type);
+        newSample.setProperties(properties);
+        newSample.setParent(parent);
+        newSample.setContainer(container);
+        return newSample;
     }
 
     private final void prepareGetSession(final Expectations expectations)
@@ -122,8 +122,8 @@ public final class GenericClientServiceTest
     public final void testRegisterSample()
     {
         final NewSample newSample =
-                createSampleToRegister("/group1/sample1", "MASTER_PLATE",
-                        new ArrayList<SampleProperty>(), null, null);
+                createNewSample("/group1/sample1", "MASTER_PLATE", new ArrayList<SampleProperty>(),
+                        null, null);
         context.checking(new Expectations()
             {
                 {

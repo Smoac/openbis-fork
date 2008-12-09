@@ -38,7 +38,7 @@ public final class IdentifierHelper
     /**
      * Creates a {@link GroupIdentifier} from given <var>groupPE</var>.
      */
-    public final static GroupIdentifier createIdentifier(final GroupPE groupPE)
+    public final static GroupIdentifier createGroupIdentifier(final GroupPE groupPE)
     {
         assert groupPE != null : "Unspecified group";
         assert groupPE.getDatabaseInstance() != null : "Any group must "
@@ -49,7 +49,7 @@ public final class IdentifierHelper
     /**
      * Creates a {@link GroupIdentifier} from given <var>groupPE</var>.
      */
-    public final static DatabaseInstanceIdentifier createIdentifier(
+    public final static DatabaseInstanceIdentifier createDatabaseInstanceIdentifier(
             final DatabaseInstancePE databaseInstancePE)
     {
         assert databaseInstancePE != null : "Unspecified database instance";
@@ -59,7 +59,7 @@ public final class IdentifierHelper
     /**
      * Creates a {@link SampleIdentifier} from given <var>samplePE</var>.
      */
-    public final static SampleIdentifier createIdentifier(final SamplePE samplePE)
+    public final static SampleIdentifier createSampleIdentifier(final SamplePE samplePE)
     {
         assert samplePE != null : "Unspecified sample";
         final DatabaseInstancePE databaseInstance = samplePE.getDatabaseInstance();
@@ -67,10 +67,11 @@ public final class IdentifierHelper
         final String sampleCode = samplePE.getCode();
         if (databaseInstance != null)
         {
-            return new SampleIdentifier(createIdentifier(databaseInstance), sampleCode);
+            return new SampleIdentifier(createDatabaseInstanceIdentifier(databaseInstance),
+                    sampleCode);
         } else if (group != null)
         {
-            return new SampleIdentifier(createIdentifier(group), samplePE.getCode());
+            return new SampleIdentifier(createGroupIdentifier(group), samplePE.getCode());
         } else
         {
             return SampleIdentifier.createHomeGroup(sampleCode);
@@ -80,7 +81,7 @@ public final class IdentifierHelper
     /**
      * Creates a {@link ProjectIdentifier} from given <var>project</var>.
      */
-    public final static ProjectIdentifier createIdentifier(final ProjectPE project)
+    public final static ProjectIdentifier createProjectIdentifier(final ProjectPE project)
     {
         assert project != null : "Unspecified project";
         final GroupPE group = project.getGroup();
@@ -94,12 +95,13 @@ public final class IdentifierHelper
     /**
      * Creates a {@link ExperimentIdentifier} from given <var>experiment</var>.
      */
-    public final static ExperimentIdentifier createIdentifier(final ExperimentPE experiment)
+    public final static ExperimentIdentifier createExperimentIdentifier(
+            final ExperimentPE experiment)
     {
         assert experiment != null : "Unspecified experiment";
         final ExperimentIdentifier experimentIdentifier =
-                new ExperimentIdentifier(createIdentifier(experiment.getProject()), experiment
-                        .getCode());
+                new ExperimentIdentifier(createProjectIdentifier(experiment.getProject()),
+                        experiment.getCode());
         return experimentIdentifier;
     }
 }

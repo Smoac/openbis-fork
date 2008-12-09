@@ -42,7 +42,7 @@ public final class DatabaseInstanceTranslator
         final DatabaseInstance result = new DatabaseInstance();
         result.setCode(databaseInstance.getCode());
         result.setUuid(databaseInstance.getUuid());
-        result.setIdentifier(IdentifierHelper.createIdentifier(databaseInstance).toString());
+        result.setIdentifier(IdentifierHelper.createDatabaseInstanceIdentifier(databaseInstance).toString());
         return result;
     }
 

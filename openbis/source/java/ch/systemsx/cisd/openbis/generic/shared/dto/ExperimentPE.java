@@ -508,7 +508,7 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
     {
         if (experimentIdentifier == null)
         {
-            experimentIdentifier = IdentifierHelper.createIdentifier(this);
+            experimentIdentifier = IdentifierHelper.createExperimentIdentifier(this);
         }
         return experimentIdentifier.toString();
     }

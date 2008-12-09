@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.DataAccessException;
 
 import ch.rinn.restrictions.Private;
@@ -124,37 +123,31 @@ public final class SampleBO extends AbstractSampleIdentifierBusinessObject imple
         sample.setDatabaseInstance(sampleOwner.tryGetDatabaseInstance());
         defineSampleProperties(newSample.getProperties().toArray(SampleProperty.EMPTY_ARRAY));
         final String parent = newSample.getParent();
-        if (StringUtils.isBlank(parent) == false)
+        if (parent != null)
         {
             final SamplePE parentPE = getSampleByIdentifier(SampleIdentifierFactory.parse(parent));
-            if (parentPE != null)
+            if (parentPE.getInvalidation() != null)
             {
-                if (parentPE.getInvalidation() != null)
-                {
-                    throw UserFailureException.fromTemplate(
-                            "Cannot register sample '%s': parent '%s' is invalid.",
-                            sampleIdentifier, parent);
-                }
-                sample.setGeneratedFrom(parentPE);
-                sample.setTop(parentPE.getTop() == null ? parentPE : parentPE.getTop());
+                throw UserFailureException.fromTemplate(
+                        "Cannot register sample '%s': parent '%s' is invalid.", sampleIdentifier,
+                        parent);
             }
+            sample.setGeneratedFrom(parentPE);
+            sample.setTop(parentPE.getTop() == null ? parentPE : parentPE.getTop());
         }
         final String container = newSample.getContainer();
-        if (StringUtils.isBlank(container) == false)
+        if (container != null)
         {
             final SamplePE containerPE =
                     getSampleByIdentifier(SampleIdentifierFactory.parse(container));
-            if (containerPE != null)
+            if (containerPE.getInvalidation() != null)
             {
-                if (containerPE.getInvalidation() != null)
-                {
-                    throw UserFailureException.fromTemplate(
-                            "Cannot register sample '%s': container '%s' is invalid.",
-                            sampleIdentifier, container);
-                }
-                sample.setContainer(containerPE);
-                sample.setTop(containerPE.getTop() == null ? containerPE : containerPE.getTop());
+                throw UserFailureException.fromTemplate(
+                        "Cannot register sample '%s': container '%s' is invalid.",
+                        sampleIdentifier, container);
             }
+            sample.setContainer(containerPE);
+            sample.setTop(containerPE.getTop() == null ? containerPE : containerPE.getTop());
         }
         SampleGenericBusinessRules.assertValidParents(sample);
         dataChanged = true;

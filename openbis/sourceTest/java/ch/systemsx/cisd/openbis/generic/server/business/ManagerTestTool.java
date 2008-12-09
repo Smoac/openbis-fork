@@ -189,7 +189,7 @@ public class ManagerTestTool
     {
         final GroupPE group = new GroupPE();
         group.setDatabaseInstance(EXAMPLE_DATABASE_INSTANCE);
-        group.setCode("MY GROUP");
+        group.setCode("MY_GROUP");
         group.setId(4242L);
         return group;
     }
@@ -198,7 +198,7 @@ public class ManagerTestTool
     {
         final ProjectPE project = new ProjectPE();
         project.setGroup(EXAMPLE_GROUP);
-        project.setCode("my great project");
+        project.setCode("MY_GREAT_PROJECT");
         project.setId(314L);
         return project;
     }
@@ -206,7 +206,7 @@ public class ManagerTestTool
     public final static DatabaseInstancePE createDatabaseInstance()
     {
         final DatabaseInstancePE databaseInstancePE = new DatabaseInstancePE();
-        databaseInstancePE.setCode("my database instance");
+        databaseInstancePE.setCode("MY_DATABASE_INSTANCE");
         databaseInstancePE.setId(841L);
         return databaseInstancePE;
     }

@@ -157,7 +157,7 @@ public class SamplePE implements IIdAndCodeHolder, Comparable<SamplePE>,
     {
         if (sampleIdentifier == null)
         {
-            sampleIdentifier = IdentifierHelper.createIdentifier(this);
+            sampleIdentifier = IdentifierHelper.createSampleIdentifier(this);
         }
         return sampleIdentifier;
     }

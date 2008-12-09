@@ -51,10 +51,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.D
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTerm;
@@ -93,9 +94,9 @@ public final class GenericSampleRegistrationForm extends LayoutContainer
 
     private ArrayList<Field<?>> propertyFields;
 
-    private TextField<String> parentContainer;
+    private TextField<String> container;
 
-    private TextField<String> parentGenerator;
+    private TextField<String> parent;
 
     private TextField<String> codeField;
 
@@ -189,15 +190,15 @@ public final class GenericSampleRegistrationForm extends LayoutContainer
                 }
             });
 
-        parentGenerator =
+        parent =
                 new VarcharField(viewContext.getMessageProvider().getMessage(
                         "generated_from_sample"), false);
-        parentGenerator.setId(PARENT_GENERATOR_FIELD_ID);
+        parent.setId(PARENT_GENERATOR_FIELD_ID);
 
-        parentContainer =
+        container =
                 new VarcharField(viewContext.getMessageProvider().getMessage("part_of_sample"),
                         false);
-        parentContainer.setId(PARENT_CONTAINER_FIELD_ID);
+        container.setId(PARENT_CONTAINER_FIELD_ID);
 
         propertyFields = new ArrayList<Field<?>>();
         for (final SampleTypePropertyType stpt : sampleType.getSampleTypePropertyTypes())
@@ -286,8 +287,9 @@ public final class GenericSampleRegistrationForm extends LayoutContainer
         if (formPanel.isValid())
         {
             final NewSample sampleToRegister =
-                    new NewSample(createSampleIdentifier(), sampleType.getCode(),
-                            parentGenerator.getValue(), parentContainer.getValue());
+                    new NewSample(createSampleIdentifier(), sampleType.getCode(), StringUtils
+                            .trimToNull(parent.getValue()), StringUtils.trimToNull(container
+                            .getValue()));
             for (final Field<?> field : propertyFields)
             {
                 if (field.getValue() != null)
@@ -308,8 +310,8 @@ public final class GenericSampleRegistrationForm extends LayoutContainer
     {
         formPanel.add(codeField);
         formPanel.add(groupMultiField);
-        formPanel.add(parentGenerator);
-        formPanel.add(parentContainer);
+        formPanel.add(parent);
+        formPanel.add(container);
         for (final Field<?> propertyField : propertyFields)
         {
             formPanel.add(propertyField);

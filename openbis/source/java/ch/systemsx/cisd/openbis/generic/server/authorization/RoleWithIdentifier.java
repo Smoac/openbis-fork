@@ -118,10 +118,10 @@ public final class RoleWithIdentifier extends Role
     {
         if (databaseInstanceOrNull != null)
         {
-            return IdentifierHelper.createIdentifier(databaseInstanceOrNull).toString();
+            return IdentifierHelper.createDatabaseInstanceIdentifier(databaseInstanceOrNull).toString();
         } else
         {
-            return IdentifierHelper.createIdentifier(groupOrNull).toString();
+            return IdentifierHelper.createGroupIdentifier(groupOrNull).toString();
         }
     }
 }

@@ -36,7 +36,7 @@ public final class NewSample implements IsSerializable
 
     private String container;
 
-    private List<SampleProperty> properties;
+    private List<SampleProperty> properties = new ArrayList<SampleProperty>();
 
     public NewSample()
     {
@@ -45,11 +45,10 @@ public final class NewSample implements IsSerializable
     public NewSample(final String sampleIdentifier, final String sampleTypeCode,
             final String parent, final String container)
     {
-        this.sampleIdentifier = sampleIdentifier;
-        this.sampleTypeCode = sampleTypeCode;
-        this.parent = parent;
-        this.container = container;
-        properties = new ArrayList<SampleProperty>();
+        setSampleIdentifier(sampleIdentifier);
+        setSampleTypeCode(sampleTypeCode);
+        setParent(parent);
+        setContainer(container);
     }
 
     public final String getSampleIdentifier()

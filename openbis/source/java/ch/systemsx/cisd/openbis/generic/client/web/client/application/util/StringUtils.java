@@ -36,4 +36,13 @@ public final class StringUtils
         return value == null || value.trim().length() == 0;
     }
 
+    /**
+     * Trims given <var>value</var> to <code>null</code>.
+     * 
+     * @return <code>null</code> if given <var>value</var> is blank.
+     */
+    public final static String trimToNull(final String value)
+    {
+        return isBlank(value) ? null : value.trim();
+    }
 }

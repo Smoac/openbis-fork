@@ -153,9 +153,9 @@ public final class SampleBOTest
         return new SampleIdentifier(new DatabaseInstanceIdentifier(DB), code);
     }
 
-    private final static SampleIdentifier getSampleIdentifier(final String code)
+    private final static SampleIdentifier getGroupSampleIdentifier(final String code)
     {
-        return new SampleIdentifier(IdentifierHelper.createIdentifier(EXAMPLE_GROUP), code);
+        return new SampleIdentifier(IdentifierHelper.createGroupIdentifier(EXAMPLE_GROUP), code);
     }
 
     private final SampleBO createSampleBO()
@@ -185,7 +185,7 @@ public final class SampleBOTest
         newSharedSample.setSampleIdentifier(sharedSampleIdentifier.toString());
         newSharedSample.setSampleTypeCode(SampleTypeCode.DILUTION_PLATE.getCode());
 
-        final SampleIdentifier parentGroupIdentifier = getSampleIdentifier("SAMPLE_GENERATOR");
+        final SampleIdentifier parentGroupIdentifier = getGroupSampleIdentifier("SAMPLE_GENERATOR");
         newSharedSample.setParent(parentGroupIdentifier.toString());
 
         newSharedSample.setProperties(Arrays.asList(SampleProperty.EMPTY_ARRAY));
@@ -232,15 +232,16 @@ public final class SampleBOTest
     @Test
     public final void testDefineSampleHappyCase()
     {
-        final SampleIdentifier sampleIdentifier = getSampleIdentifier(DEFAULT_SAMPLE_CODE);
+        final SampleIdentifier sampleIdentifier = getGroupSampleIdentifier(DEFAULT_SAMPLE_CODE);
         final NewSample newSample = new NewSample();
         newSample.setSampleIdentifier(sampleIdentifier.toString());
         newSample.setSampleTypeCode(SampleTypeCode.DILUTION_PLATE.getCode());
 
-        final SampleIdentifier generatedFromIdentifier = getSampleIdentifier("SAMPLE_GENERATOR");
+        final SampleIdentifier generatedFromIdentifier =
+                getGroupSampleIdentifier("SAMPLE_GENERATOR");
         newSample.setParent(generatedFromIdentifier.toString());
 
-        final SampleIdentifier containerIdentifier = getSampleIdentifier("SAMPLE_CONTAINER");
+        final SampleIdentifier containerIdentifier = getGroupSampleIdentifier("SAMPLE_CONTAINER");
         newSample.setContainer(containerIdentifier.toString());
 
         newSample.setProperties(Arrays.asList(SampleProperty.EMPTY_ARRAY));
@@ -311,7 +312,7 @@ public final class SampleBOTest
     {
         final NewSample newSample = new NewSample();
 
-        newSample.setSampleIdentifier(getSampleIdentifier(DEFAULT_SAMPLE_CODE).toString());
+        newSample.setSampleIdentifier(getGroupSampleIdentifier(DEFAULT_SAMPLE_CODE).toString());
         newSample.setSampleTypeCode(SampleTypeCode.MASTER_PLATE.getCode());
 
         final SampleTypePE sampleType = new SampleTypePE();
@@ -363,7 +364,7 @@ public final class SampleBOTest
                                         .getId());
                                 assertNull(sample.getDatabaseInstance());
                                 assertEquals(newSample.getSampleIdentifier(), sample
-                                        .getSampleIdentifier());
+                                        .getSampleIdentifier().toString());
                                 assertEquals(EXAMPLE_PERSON, sample.getRegistrator());
                                 return true;
                             }
@@ -385,12 +386,12 @@ public final class SampleBOTest
     }
 
     @Test
-    public final void testRegisterSampleWithUnknownContainerParent()
+    public final void testRegisterSampleWithUnknownContainer()
     {
         final NewSample sample = new NewSample();
-        sample.setSampleIdentifier(getSampleIdentifier(DEFAULT_SAMPLE_CODE).toString());
+        sample.setSampleIdentifier(getGroupSampleIdentifier(DEFAULT_SAMPLE_CODE).toString());
         sample.setSampleTypeCode(SampleTypeCode.DILUTION_PLATE.getCode());
-        sample.setContainer(getSampleIdentifier("").toString());
+        sample.setContainer(getGroupSampleIdentifier("DOES_NOT_EXIST").toString());
 
         context.checking(new Expectations()
             {
@@ -405,12 +406,14 @@ public final class SampleBOTest
                             SampleTypeCode.DILUTION_PLATE.getCode());
                     will(returnValue(new SampleTypePE()));
 
-                    one(propertiesConverter).convertProperties(null, null, EXAMPLE_PERSON);
+                    one(propertiesConverter).convertProperties(SampleProperty.EMPTY_ARRAY, null,
+                            EXAMPLE_PERSON);
 
                     one(daoFactory).getSampleDAO();
                     will(returnValue(sampleDAO));
 
-                    one(sampleDAO).tryFindByCodeAndGroup("", EXAMPLE_SESSION.tryGetHomeGroup());
+                    one(sampleDAO).tryFindByCodeAndGroup("DOES_NOT_EXIST",
+                            EXAMPLE_SESSION.tryGetHomeGroup());
                     will(returnValue(null));
                 }
             });
@@ -419,20 +422,19 @@ public final class SampleBOTest
             createSampleBO().define(sample);
         } catch (final UserFailureException ex)
         {
-            assertEquals(
-                    "No sample could be found for identifier \'my database instance:/MY GROUP/\'.",
-                    ex.getMessage());
+            assertEquals("No sample could be found for identifier "
+                    + "'MY_DATABASE_INSTANCE:/MY_GROUP/DOES_NOT_EXIST'.", ex.getMessage());
         }
         context.assertIsSatisfied();
     }
 
     @Test
-    public final void testRegisterSampleWithUnknownGeneratedFromSample()
+    public final void testRegisterSampleWithUnknownParent()
     {
         final NewSample sample = new NewSample();
-        sample.setSampleIdentifier(getSampleIdentifier(DEFAULT_SAMPLE_CODE).toString());
+        sample.setSampleIdentifier(getGroupSampleIdentifier(DEFAULT_SAMPLE_CODE).toString());
         sample.setSampleTypeCode(SampleTypeCode.DILUTION_PLATE.getCode());
-        sample.setParent(getSampleIdentifier("").toString());
+        sample.setParent(getGroupSampleIdentifier("DOES_NOT_EXIST").toString());
 
         context.checking(new Expectations()
             {
@@ -447,12 +449,14 @@ public final class SampleBOTest
                             SampleTypeCode.DILUTION_PLATE.getCode());
                     will(returnValue(new SampleTypePE()));
 
-                    one(propertiesConverter).convertProperties(null, null, EXAMPLE_PERSON);
+                    one(propertiesConverter).convertProperties(SampleProperty.EMPTY_ARRAY, null,
+                            EXAMPLE_PERSON);
 
                     one(daoFactory).getSampleDAO();
                     will(returnValue(sampleDAO));
 
-                    one(sampleDAO).tryFindByCodeAndGroup("", EXAMPLE_SESSION.tryGetHomeGroup());
+                    one(sampleDAO).tryFindByCodeAndGroup("DOES_NOT_EXIST",
+                            EXAMPLE_SESSION.tryGetHomeGroup());
                     will(returnValue(null));
                 }
             });
@@ -461,9 +465,8 @@ public final class SampleBOTest
             createSampleBO().define(sample);
         } catch (final UserFailureException ex)
         {
-            assertEquals(
-                    "No sample could be found for identifier \'my database instance:/MY GROUP/\'.",
-                    ex.getMessage());
+            assertEquals("No sample could be found for identifier "
+                    + "'MY_DATABASE_INSTANCE:/MY_GROUP/DOES_NOT_EXIST'.", ex.getMessage());
         }
         context.assertIsSatisfied();
     }
