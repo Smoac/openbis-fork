@@ -52,10 +52,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncC
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns.AbstractColumnsConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns.SampleModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.PagingToolBarWithoutRefresh;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GxtTranslator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;

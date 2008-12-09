@@ -20,7 +20,6 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns.IColumnDefinition;
 
 /**
  * Describes which entities should be exported, in which order and which columns should be present.

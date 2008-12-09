@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns;
+package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-
 /**
- * Describes column's metadata. Has the ability to render cell values.
+ * Describes table column's metadata. Has the ability to render cell values for the column given the
+ * row model.
  * 
  * @author Tomasz Pylak
  */
 public interface IColumnDefinition<T> extends IsSerializable
 {
     /** extracts value for the cell of the represented column */
-    String getValue(T entity);
+    String getValue(T rowModel);
 
     /** column's header */
     String getHeader();

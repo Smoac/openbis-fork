@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.csv;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 
 /**
  * Creates list of lines with tab separated columns;
