@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.server;
+package ch.systemsx.cisd.openbis.plugin.generic.client.web.server;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -24,7 +24,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.AbstractCommandController;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractFileDownloadServlet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
@@ -42,6 +44,18 @@ public class ExperimentAttachmentDownloadServlet extends AbstractFileDownloadSer
 
     @Resource(name = ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames.GENERIC_PLUGIN_SERVER)
     private IGenericServer server;
+
+    public ExperimentAttachmentDownloadServlet()
+    {
+
+    }
+
+    // For testing purposes only
+    @Private
+    public ExperimentAttachmentDownloadServlet(final IGenericServer server)
+    {
+        this.server = server;
+    }
 
     @Override
     protected FileContent getFileContent(final HttpServletRequest request) throws Exception

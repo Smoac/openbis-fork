@@ -41,10 +41,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDat
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetManager;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.GenericClientService;
 
 /**
- * Test cases for corresponding {@link GenericClientService} class.
+ * Test cases for corresponding {@link CommonClientService} class.
  * 
  * @author Christian Ribeaud
  */

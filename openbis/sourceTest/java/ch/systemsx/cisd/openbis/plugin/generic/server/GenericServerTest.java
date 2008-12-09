@@ -24,9 +24,12 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
@@ -106,6 +109,59 @@ public final class GenericServerTest extends AbstractServerTestCase
                 }
             });
         createServer().registerSample(SESSION_TOKEN, newSample);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetExperimentInfo() throws Exception
+    {
+        final Session session = prepareGetSession();
+        final ExperimentIdentifier experimentIdentifier =
+                CommonTestUtils.createExperimentIdentifier();
+        final ExperimentPE experimentPE = CommonTestUtils.createExperiment(experimentIdentifier);
+        context.checking(new Expectations()
+            {
+                {
+                    one(genericBusinessObjectFactory).createExperimentBO(session);
+                    will(returnValue(experimentBO));
+
+                    one(experimentBO).loadByExperimentIdentifier(experimentIdentifier);
+                    one(experimentBO).enrichWithProperties();
+                    one(experimentBO).enrichWithAttachments();
+
+                    one(experimentBO).getExperiment();
+                    will(returnValue(experimentPE));
+                }
+            });
+        assertEquals(experimentPE, createServer().getExperimentInfo(SESSION_TOKEN,
+                experimentIdentifier));
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetExperimentFileAttachment() throws Exception
+    {
+        final Session session = prepareGetSession();
+        final ExperimentIdentifier experimentIdentifier =
+                CommonTestUtils.createExperimentIdentifier();
+        final AttachmentPE attachmentPE = CommonTestUtils.createAttachment();
+        context.checking(new Expectations()
+            {
+                {
+                    one(genericBusinessObjectFactory).createExperimentBO(session);
+                    will(returnValue(experimentBO));
+
+                    one(experimentBO).loadByExperimentIdentifier(experimentIdentifier);
+
+                    one(experimentBO).getExperimentFileAttachment(attachmentPE.getFileName(),
+                            attachmentPE.getVersion());
+                    will(returnValue(attachmentPE));
+
+                }
+            });
+        assertEquals(attachmentPE, createServer().getExperimentFileAttachment(
+                session.getSessionToken(), experimentIdentifier, attachmentPE.getFileName(),
+                attachmentPE.getVersion()));
         context.assertIsSatisfied();
     }
 

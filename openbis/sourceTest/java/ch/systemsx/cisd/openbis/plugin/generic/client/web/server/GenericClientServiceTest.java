@@ -52,23 +52,51 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 @Friend(toClasses = GenericClientService.class)
 public final class GenericClientServiceTest
 {
-    private static final String SESSION_TOKEN = "session-token";
 
-    private Mockery context;
+    private MultipartFile multipartFile;
 
-    private IGenericServer genericServer;
+    static final String SESSION_TOKEN = "session-token";
+
+    protected Mockery context;
+
+    protected IGenericServer genericServer;
+
+    protected GenericClientService genericClientService;
+
+    protected HttpServletRequest servletRequest;
+
+    protected HttpSession httpSession;
+
+    protected Session session;
 
     private IRequestContextProvider requestContextProvider;
 
-    private GenericClientService genericClientService;
+    @BeforeMethod
+    public final void setUp()
+    {
+        context = new Mockery();
+        genericServer = context.mock(IGenericServer.class);
+        requestContextProvider = context.mock(IRequestContextProvider.class);
+        servletRequest = context.mock(HttpServletRequest.class);
+        httpSession = context.mock(HttpSession.class);
+        multipartFile = context.mock(MultipartFile.class);
+        genericClientService = new GenericClientService(genericServer, requestContextProvider);
+        session = createSessionMock();
+    }
 
-    private HttpServletRequest servletRequest;
+    @AfterMethod
+    public final void tearDown()
+    {
+        // To following line of code should also be called at the end of each test method.
+        // Otherwise one do not known which test failed.
+        context.assertIsSatisfied();
+    }
 
-    private HttpSession httpSession;
-
-    private Session session;
-
-    private MultipartFile multipartFile;
+    protected final Session createSessionMock()
+    {
+        return new Session("user", SESSION_TOKEN, new Principal("user", "FirstName", "LastName",
+                "email@users.ch"), "remote-host", System.currentTimeMillis() - 1);
+    }
 
     private final static NewSample createNewSample(final String sampleIdentifier,
             final String sampleTypeCode, final List<SampleProperty> properties,
@@ -91,7 +119,7 @@ public final class GenericClientServiceTest
         return sampleType;
     }
 
-    private final void prepareGetSession(final Expectations expectations)
+    protected final void prepareGetSession(final Expectations expectations)
     {
         expectations.allowing(requestContextProvider).getHttpServletRequest();
         expectations.will(Expectations.returnValue(servletRequest));
@@ -100,40 +128,13 @@ public final class GenericClientServiceTest
         expectations.will(Expectations.returnValue(httpSession));
     }
 
-    private final void prepareGetSessionToken(final Expectations expectations)
+    protected final void prepareGetSessionToken(final Expectations expectations)
     {
         prepareGetSession(expectations);
 
         expectations.allowing(httpSession).getAttribute(
                 SessionConstants.OPENBIS_SESSION_ATTRIBUTE_KEY);
         expectations.will(Expectations.returnValue(session));
-    }
-
-    private final Session createSessionMock()
-    {
-        return new Session("user", SESSION_TOKEN, new Principal("user", "FirstName", "LastName",
-                "email@users.ch"), "remote-host", System.currentTimeMillis() - 1);
-    }
-
-    @BeforeMethod
-    public final void setUp()
-    {
-        context = new Mockery();
-        genericServer = context.mock(IGenericServer.class);
-        requestContextProvider = context.mock(IRequestContextProvider.class);
-        servletRequest = context.mock(HttpServletRequest.class);
-        httpSession = context.mock(HttpSession.class);
-        multipartFile = context.mock(MultipartFile.class);
-        genericClientService = new GenericClientService(genericServer, requestContextProvider);
-        session = createSessionMock();
-    }
-
-    @AfterMethod
-    public final void tearDown()
-    {
-        // To following line of code should also be called at the end of each test method.
-        // Otherwise one do not known which test failed.
-        context.assertIsSatisfied();
     }
 
     @Test

@@ -17,7 +17,10 @@
 package ch.systemsx.cisd.openbis.generic.shared;
 
 import ch.systemsx.cisd.authentication.Principal;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentContentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -25,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
@@ -35,17 +39,25 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  */
 public class CommonTestUtils
 {
-    static final String HOME_DATABASE_INSTANCE_CODE = "HOME_DATABASE";
+    public final static String ATTACHMENT_CONTENT_TEXT = "Lorem ipsum...";
 
-    private static final String HOME_GROUP_CODE = "HOME_GROUP";
+    public final static String HOME_DATABASE_INSTANCE_CODE = "HOME_DATABASE";
+
+    public static final String HOME_GROUP_CODE = "HOME_GROUP";
 
     private static final String EXPERIMENT_TYPE = "EXPERIMENT_TYPE";
 
-    private static final String PROJECT_CODE = "PROJECT_EVOLUTION";
+    public static final String PROJECT_CODE = "PROJECT_EVOLUTION";
+
+    public static final String EXPERIMENT_CODE = "EXPERIMENT_ONECELL_ORGANISM";
 
     private static final String SAMPLE_CODE = "CP001";
 
     private static final String SAMPLE_TYPE = "SAMPLE_TYPE";
+
+    public static int VERSION_22 = 22;
+
+    public static String FILENAME = "oneCellOrganismData.txt";
 
     public static DatabaseInstancePE createDatabaseInstance(final String code)
     {
@@ -76,17 +88,15 @@ public class CommonTestUtils
     public static final ExperimentTypePE createExperimentType()
     {
         final ExperimentTypePE sampleTypePE = new ExperimentTypePE();
-        sampleTypePE.setCode(CommonTestUtils.EXPERIMENT_TYPE);
-        sampleTypePE
-                .setDatabaseInstance(createDatabaseInstance(CommonTestUtils.HOME_DATABASE_INSTANCE_CODE));
+        sampleTypePE.setCode(EXPERIMENT_TYPE);
+        sampleTypePE.setDatabaseInstance(createDatabaseInstance(HOME_DATABASE_INSTANCE_CODE));
         return sampleTypePE;
     }
 
     public static final ProjectIdentifier createProjectIdentifier()
     {
         final ProjectIdentifier identifier =
-                new ProjectIdentifier(CommonTestUtils.HOME_DATABASE_INSTANCE_CODE,
-                        CommonTestUtils.HOME_GROUP_CODE, CommonTestUtils.PROJECT_CODE);
+                new ProjectIdentifier(HOME_DATABASE_INSTANCE_CODE, HOME_GROUP_CODE, PROJECT_CODE);
         return identifier;
     }
 
@@ -126,5 +136,37 @@ public class CommonTestUtils
     }
 
     public static final String USER_ID = "test";
+
+    public static final ExperimentIdentifier createExperimentIdentifier()
+    {
+        final ExperimentIdentifier identifier =
+                new ExperimentIdentifier(createProjectIdentifier(), EXPERIMENT_CODE);
+        return identifier;
+    }
+
+    public static final ExperimentPE createExperiment(final ExperimentIdentifier ei)
+    {
+        final ExperimentPE exp = new ExperimentPE();
+        exp.setCode(ei.getExperimentCode());
+        exp.setProject(createProject(new ProjectIdentifier(ei.getDatabaseInstanceCode(), ei
+                .getGroupCode(), ei.getProjectCode())));
+        return exp;
+    }
+
+    public static AttachmentPE createAttachment()
+    {
+        final AttachmentPE attachmentPE = new AttachmentPE();
+        attachmentPE.setFileName(FILENAME);
+        attachmentPE.setVersion(VERSION_22);
+        attachmentPE.setAttachmentContent(createAttachmentContent(ATTACHMENT_CONTENT_TEXT));
+        return attachmentPE;
+    }
+
+    public static AttachmentContentPE createAttachmentContent(final String content)
+    {
+        final AttachmentContentPE attachmentContentPE = new AttachmentContentPE();
+        attachmentContentPE.setValue(content.getBytes());
+        return attachmentContentPE;
+    }
 
 }

@@ -25,6 +25,7 @@ import org.testng.annotations.BeforeMethod;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
@@ -48,7 +49,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
  */
 public abstract class AbstractServerTestCase extends AssertJUnit
 {
-    protected static final Principal PRINCIPAL = new Principal(CommonTestUtils.USER_ID, "john", "doe", "j@d");
+    protected static final Principal PRINCIPAL =
+            new Principal(CommonTestUtils.USER_ID, "john", "doe", "j@d");
 
     protected static final String SESSION_TOKEN = "session-token";
 
@@ -86,6 +88,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected IProjectDAO projectDAO;
 
+    protected IExperimentBO experimentBO;
+
     @BeforeMethod
     @SuppressWarnings("unchecked")
     public void setUp()
@@ -110,6 +114,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         experimentTypeDAO = context.mock(IEntityTypeDAO.class);
 
         projectDAO = context.mock(IProjectDAO.class);
+
+        experimentBO = context.mock(IExperimentBO.class);
 
         homeDatabaseInstance =
                 CommonTestUtils.createDatabaseInstance(CommonTestUtils.HOME_DATABASE_INSTANCE_CODE);

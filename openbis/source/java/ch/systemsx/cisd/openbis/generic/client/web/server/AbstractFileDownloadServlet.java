@@ -79,13 +79,13 @@ abstract public class AbstractFileDownloadServlet extends AbstractController
         return null;
     }
 
-    protected static class FileContent
+    public static class FileContent
     {
         private final byte[] content;
 
         private final String fileName;
 
-        public FileContent(byte[] content, String fileName)
+        public FileContent(final byte[] content, final String fileName)
         {
             this.content = content;
             this.fileName = fileName;
