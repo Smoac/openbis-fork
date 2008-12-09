@@ -49,7 +49,7 @@ public class AttachmentModel extends BaseModelData
                 .getRegistrator()));
         set(ModelDataPropertyNames.REGISTRATION_DATE, attachament.getRegistrationDate());
         set(ModelDataPropertyNames.OBJECT, attachament);
-        set(ModelDataPropertyNames.OLD_VERSIONS, oldVersions);
+        set(ModelDataPropertyNames.VERSIONS, oldVersions);
     }
 
     public final static List<AttachmentModel> convert(final List<Attachment> unprocessedAttachments)
@@ -68,7 +68,6 @@ public class AttachmentModel extends BaseModelData
         {
             List<Attachment> attachments = map.get(fileName);
             Attachment current = Collections.max(attachments);
-            attachments.remove(current);
             result.add(new AttachmentModel(current, attachments));
         }
         return result;

@@ -40,10 +40,17 @@ public class AttachmentVersionModel extends BaseModelData
 
     private AttachmentVersionModel(final Attachment attachament)
     {
+        set(ModelDataPropertyNames.VERSION_FILE_NAME, createDescription(attachament));
         set(ModelDataPropertyNames.VERSION, attachament.getVersion());
         set(ModelDataPropertyNames.REGISTRATOR, PersonRenderer.createPersonAnchor(attachament
                 .getRegistrator()));
         set(ModelDataPropertyNames.REGISTRATION_DATE, attachament.getRegistrationDate());
+        set(ModelDataPropertyNames.OBJECT, attachament);
+    }
+
+    private String createDescription(final Attachment att)
+    {
+        return att.getFileName() + " (" + att.getVersion() + ")";
     }
 
     public final static List<AttachmentVersionModel> convert(final List<Attachment> attachments)

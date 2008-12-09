@@ -22,11 +22,12 @@ import java.util.List;
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.grid.CellSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
@@ -40,7 +41,10 @@ import com.google.gwt.user.client.Window;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.AttachmentModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.AttachmentVersionModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
@@ -77,6 +81,14 @@ public class ExperimentAttachmentsSection extends SectionPanel
         }
     }
 
+    ContentPanel createVersionsPanel()
+    {
+        ContentPanel panel = new ContentPanel();
+        panel.setVisible(false);
+        panel.setCollapsible(true);
+        return panel;
+    }
+
     private Component createAttachmentsGrid()
     {
         final ListStore<AttachmentModel> attachmentStore = new ListStore<AttachmentModel>();
@@ -93,23 +105,92 @@ public class ExperimentAttachmentsSection extends SectionPanel
                 public void handleEvent(final GridEvent be)
                 {
                     String column = attachmentGrid.getColumnModel().getColumn(be.colIndex).getId();
+                    final AttachmentModel selectedItem =
+                            (AttachmentModel) be.grid.getStore().getAt(be.rowIndex);
+                    Attachment selectedAttachment =
+                            (Attachment) selectedItem.get(ModelDataPropertyNames.OBJECT);
+                    int version = selectedAttachment.getVersion();
+                    String fileName = selectedAttachment.getFileName();
+
                     if (ModelDataPropertyNames.FILE_NAME.equals(column))
                     {
-                        final AttachmentModel selectedItem =
-                                (AttachmentModel) be.grid.getStore().getAt(be.rowIndex);
+                        Window.open(createURL(version, fileName, experiment), "Download file", "");
+                    } else if (ModelDataPropertyNames.VERSIONS.equals(column))
+                    {
+                        List<Attachment> versions = cast(selectedItem);
+                        showVersionsPanel(fileName, versions);
+
+                    }
+                    attachmentGrid.getSelectionModel().deselectAll();
+                }
+
+                private void showVersionsPanel(final String fileName,
+                        final List<Attachment> allFiles)
+                {
+
+                    final String tabTitle = experiment.getExperimentIdentifier() + ">" + fileName;
+                    Dispatcher.get().dispatch(
+                            DispatcherHelper.createNaviEvent(new DefaultTabItem(tabTitle,
+                                    createVersionsPanel(allFiles, fileName))));
+
+                }
+
+                private List<Attachment> cast(final AttachmentModel selectedItem)
+                {
+                    List<Attachment> files = selectedItem.get(ModelDataPropertyNames.VERSIONS);
+                    return files;
+                }
+            });
+        return attachmentGrid;
+    }
+
+    private List<ColumnConfig> defineAttachmentVersionColumns()
+    {
+        final ArrayList<ColumnConfig> columns = new ArrayList<ColumnConfig>();
+        columns.add(createVersionFileName(messageProvider));
+        columns.add(ColumnConfigFactory.createRegistrationDateColumnConfig(messageProvider));
+        columns.add(ColumnConfigFactory.createRegistratorColumnConfig(messageProvider));
+        return columns;
+    }
+
+    private ContentPanel createVersionsPanel(final List<Attachment> oldVersions,
+            final String fileName)
+    {
+
+        ContentPanel panel = new ContentPanel();
+        panel.setHeading("Versions of file '" + fileName + "' from experiment '"
+                + experiment.getExperimentIdentifier() + "'");
+        final ListStore<AttachmentVersionModel> attachmentStore =
+                new ListStore<AttachmentVersionModel>();
+        attachmentStore.add(AttachmentVersionModel.convert(oldVersions));
+        final Grid<AttachmentVersionModel> attachmentGrid =
+                new Grid<AttachmentVersionModel>(attachmentStore, new ColumnModel(
+                        defineAttachmentVersionColumns()));
+        final CellSelectionModel<AttachmentVersionModel> selectionModel =
+                new CellSelectionModel<AttachmentVersionModel>();
+        attachmentGrid.setSelectionModel(selectionModel);
+        selectionModel.bindGrid(attachmentGrid);
+        attachmentGrid.addListener(Events.CellClick, new Listener<GridEvent>()
+            {
+                public void handleEvent(final GridEvent be)
+                {
+                    String column = attachmentGrid.getColumnModel().getColumn(be.colIndex).getId();
+                    if (ModelDataPropertyNames.VERSION_FILE_NAME.equals(column))
+                    {
+                        final AttachmentVersionModel selectedItem =
+                                (AttachmentVersionModel) be.grid.getStore().getAt(be.rowIndex);
                         Attachment selectedAttachment =
                                 (Attachment) selectedItem.get(ModelDataPropertyNames.OBJECT);
                         int version = selectedAttachment.getVersion();
-                        String fileName = selectedAttachment.getFileName();
                         Window.open(createURL(version, fileName, experiment), "Download file", "");
-                    } else if (ModelDataPropertyNames.OLD_VERSIONS.equals(column))
-                    {
-                        MessageBox.alert("old versions", column, null);
                     }
                     attachmentGrid.getSelectionModel().deselectAll();
                 }
             });
-        return attachmentGrid;
+        panel.setId(GenericConstants.ID_PREFIX + "attachent-versions-"
+                + experiment.getExperimentIdentifier() + "_" + fileName);
+        panel.add(attachmentGrid);
+        return panel;
     }
 
     final static String createURL(final int version, final String fileName, final Experiment exp)
@@ -151,14 +232,40 @@ public class ExperimentAttachmentsSection extends SectionPanel
     private List<ColumnConfig> defineAttachmentColumns()
     {
         final ArrayList<ColumnConfig> columns = new ArrayList<ColumnConfig>();
-        columns.add(createFileNameColumnConfig());
+        columns.add(createFileNameColumnConfig(messageProvider));
         columns.add(ColumnConfigFactory.createRegistrationDateColumnConfig(messageProvider));
         columns.add(ColumnConfigFactory.createRegistratorColumnConfig(messageProvider));
-        columns.add(createOlderVersionsColumnConfig());
+        columns.add(createOlderVersionsColumnConfig(messageProvider));
         return columns;
     }
 
-    private ColumnConfig createFileNameColumnConfig()
+    static private ColumnConfig createVersionFileName(final IMessageProvider messageProvider)
+    {
+        final ColumnConfig column =
+                ColumnConfigFactory.createDefaultColumnConfig(messageProvider
+                        .getMessage("version_file_name"), ModelDataPropertyNames.VERSION_FILE_NAME);
+        column.setWidth(200);
+        column.setRenderer(new GridCellRenderer<AttachmentVersionModel>()
+            {
+
+                @SuppressWarnings("unchecked")
+                public String render(final AttachmentVersionModel model, final String property,
+                        final ColumnData config, final int rowIndex, final int colIndex,
+                        final ListStore<AttachmentVersionModel> store)
+                {
+                    Object value = model.get(property);
+                    if (value == null)
+                    {
+                        return "";
+                    }
+                    return createLink((String) value);
+                }
+            });
+        return column;
+
+    }
+
+    static private ColumnConfig createFileNameColumnConfig(final IMessageProvider messageProvider)
     {
         final ColumnConfig column =
                 ColumnConfigFactory.createDefaultColumnConfig(messageProvider
@@ -182,11 +289,13 @@ public class ExperimentAttachmentsSection extends SectionPanel
         return column;
     }
 
-    private ColumnConfig createOlderVersionsColumnConfig()
+    static private ColumnConfig createOlderVersionsColumnConfig(
+            final IMessageProvider messageProvider)
     {
         final ColumnConfig column =
                 ColumnConfigFactory.createDefaultColumnConfig(messageProvider
-                        .getMessage("old_versions"), ModelDataPropertyNames.OLD_VERSIONS);
+                        .getMessage("versions"), ModelDataPropertyNames.VERSIONS);
+        column.setWidth(180);
 
         column.setRenderer(new GridCellRenderer<AttachmentModel>()
             {
@@ -208,8 +317,7 @@ public class ExperimentAttachmentsSection extends SectionPanel
                     } else
                     {
                         final String message =
-                                messageProvider
-                                        .getMessage("old_versions_template", versions.size());
+                                messageProvider.getMessage("versions_template", versions.size());
                         return createLink(message);
                     }
                 }
@@ -217,7 +325,7 @@ public class ExperimentAttachmentsSection extends SectionPanel
         return column;
     }
 
-    private String createLink(final String message)
+    static private String createLink(final String message)
     {
         final Element div = DOM.createDiv();
         div.setInnerText(message);

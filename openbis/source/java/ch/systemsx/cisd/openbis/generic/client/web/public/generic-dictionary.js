@@ -6,9 +6,12 @@ var generic = {
   //
   
   file_name: "File name",
-  old_versions: "Old versions",
-  old_versions_template: "{0} available",
+  version_file_name: "File version",
+  version: "Version",
+  versions: "Versions",
+  versions_template: "Show all versions ({0})",
   no_attachments_found: "There are no attachments in this experiment",
+  no_samples_found: "There are no samples in this experiment",
 
   //
   // Sample Viewer

@@ -152,7 +152,9 @@ public final class ModelDataPropertyNames
 
     public static final String EXPERIMENT_IDENTIFIER = "experimentIdentifier";
 
-    public static final String OLD_VERSIONS = "oldVersions";
+    public static final String VERSIONS = "versions";
+
+    public static final String VERSION_FILE_NAME = "versionsFileName";
 
     private ModelDataPropertyNames()
     {
