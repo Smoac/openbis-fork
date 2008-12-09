@@ -17,19 +17,25 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.server;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Component;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.parser.IParserObjectFactory;
+import ch.systemsx.cisd.common.parser.IParserObjectFactoryFactory;
+import ch.systemsx.cisd.common.parser.IPropertyMapper;
+import ch.systemsx.cisd.common.parser.ParserException;
+import ch.systemsx.cisd.common.parser.TabFileLoader;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleToRegister;
+import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.ExperimentTranslator;
-import ch.systemsx.cisd.openbis.generic.client.web.server.util.SampleToRegisterTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -98,18 +104,51 @@ public final class GenericClientService extends AbstractClientService implements
         }
     }
 
-    public final void registerSample(final SampleToRegister sample)
+    public final void registerSample(final NewSample newSample)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
-            genericServer
-                    .registerSample(sessionToken, SampleToRegisterTranslator.translate(sample));
+            genericServer.registerSample(sessionToken, newSample);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
+    }
+
+    // TODO 2008-12-09, Christian Ribeaud: Add sample type here. This means we will use the plugin
+    // architecture.
+    public final String registerSamples(final String sessionKey)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final HttpSession session = getHttpSession();
+            final UploadedFilesBean uploadedFiles =
+                    (UploadedFilesBean) session.getAttribute(sessionKey);
+            TabFileLoader<NewSample> fileLoader =
+                    new TabFileLoader<NewSample>(new IParserObjectFactoryFactory<NewSample>()
+                        {
+                            //
+                            // 
+                            //
+
+                            public IParserObjectFactory<NewSample> createFactory(
+                                    IPropertyMapper propertyMapper) throws ParserException
+                            {
+                                // TODO Auto-generated method stub
+                                return null;
+                            }
+                        });
+
+            session.removeAttribute(sessionKey);
+            return null;
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+
     }
 
     public Experiment getExperimentInfo(final String experimentIdentifier)
@@ -129,4 +168,5 @@ public final class GenericClientService extends AbstractClientService implements
             throw UserFailureExceptionTranslator.translate(e);
         }
     }
+
 }

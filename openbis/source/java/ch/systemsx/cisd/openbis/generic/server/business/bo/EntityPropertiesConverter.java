@@ -156,19 +156,28 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         return entityTypePropertyType;
     }
 
-    private final <T extends EntityPropertyPE, ET extends EntityType, ETPT extends EntityTypePropertyType<ET>> T convertProperty(
+    private final <T extends EntityPropertyPE, ET extends EntityType, ETPT extends EntityTypePropertyType<ET>> T tryConvertProperty(
             final PersonPE registrator, final EntityTypePE entityTypePE,
             final EntityProperty<ET, ETPT> property)
     {
-        final String propertyCode =
-                property.getEntityTypePropertyType().getPropertyType().getCode();
+        final ETPT entityTypePropertyType = property.getEntityTypePropertyType();
+        final String propertyCode = entityTypePropertyType.getPropertyType().getCode();
         final PropertyTypePE propertyType = getPropertyType(propertyCode);
-        final String value = property.getValue();
-        assert value != null : "Unspecified entity property value.";
-        propertyValueValidator.validatePropertyValue(propertyType, value);
-        final EntityTypePropertyTypePE entityTypePropertyType =
+        final String valueOrNull = property.getValue();
+        final EntityTypePropertyTypePE entityTypePropertyTypePE =
                 getEntityTypePropertyType(entityTypePE, propertyType);
-        return createEntityProperty(registrator, propertyType, entityTypePropertyType, value);
+        if (entityTypePropertyTypePE.isMandatory() && valueOrNull == null)
+        {
+            throw UserFailureException.fromTemplate("No entity property value for '%s'.",
+                    propertyCode);
+        }
+        if (valueOrNull != null)
+        {
+            propertyValueValidator.validatePropertyValue(propertyType, valueOrNull);
+            return createEntityProperty(registrator, propertyType, entityTypePropertyTypePE,
+                    valueOrNull);
+        }
+        return null;
     }
 
     private final <T extends EntityPropertyPE> T createEntityProperty(final PersonPE registrator,
@@ -202,8 +211,11 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         final List<T> list = new ArrayList<T>();
         for (final EntityProperty<ET, ETPT> property : properties)
         {
-            final T convertedProperty = convertProperty(registrator, entityTypePE, property);
-            list.add(convertedProperty);
+            final T convertedPropertyOrNull = tryConvertProperty(registrator, entityTypePE, property);
+            if (convertedPropertyOrNull != null)
+            {
+                list.add(convertedPropertyOrNull);
+            }
         }
         return list;
     }

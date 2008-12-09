@@ -18,9 +18,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.server;
 
 import java.util.Iterator;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindException;
@@ -30,18 +30,19 @@ import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequ
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractCommandController;
 
-import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * An {@link AbstractCommandController} extension for uploading files.
  * <p>
  * This can handle multiple files. When uploading is finished and successful, uploaded files are
- * available as session attribute {@link SessionConstants#OPENBIS_UPLOADED_FILES} in an object of
- * type {@link UploadedFilesBean}.<br />
+ * available as session attribute of type {@link UploadedFilesBean}. The key to access this session
+ * attribute must be defined in a form field named <code>sessionKey</code>.
+ * </p>
+ * <p>
  * This service is synchronized on the session object to serialize parallel invocations from the
- * same client.<br />
- * The <i>HTTP</i> response returns an empty string or <code>null</code> if the upload was
- * successful and is finished.
+ * same client. The <i>HTTP</i> response returns an empty string or <code>null</code> if the
+ * upload was successful and is finished.
  * </p>
  * <p>
  * <i>URL</i> mappings are: <code>/upload</code> and <code>/genericopenbis/upload</code>.
@@ -70,6 +71,8 @@ public final class UploadServiceServlet extends AbstractCommandController
     // AbstractCommandController
     //
 
+    // TODO 2008-12-09, Christian Ribeaud: Exception handling. See HandlerExceptionResolver and/or
+    // HandlerInterceptor.
     @Override
     protected final ModelAndView handle(final HttpServletRequest request,
             final HttpServletResponse response, final Object command, final BindException errors)
@@ -79,14 +82,14 @@ public final class UploadServiceServlet extends AbstractCommandController
                 + "of DefaultMultipartHttpServletRequest.";
         final DefaultMultipartHttpServletRequest multipartRequest =
                 (DefaultMultipartHttpServletRequest) request;
-        final HttpSession session = request.getSession(false);
-        UploadedFilesBean uploadedFiles =
-                (UploadedFilesBean) session.getAttribute(SessionConstants.OPENBIS_UPLOADED_FILES);
-        if (uploadedFiles == null)
+        final UploadedFilesBean uploadedFiles = (UploadedFilesBean) command;
+        final String sessionKey = uploadedFiles.getSessionKey();
+        if (sessionKey == null)
         {
-            uploadedFiles = (UploadedFilesBean) command;
-            session.setAttribute(SessionConstants.OPENBIS_UPLOADED_FILES, uploadedFiles);
+            throw new ServletException(
+                    "No form field 'sessionKey' could be found in the transmitted form.");
         }
+        request.getSession(false).setAttribute(sessionKey, uploadedFiles);
         for (final Iterator<String> iterator = cast(multipartRequest.getFileNames()); iterator
                 .hasNext(); /**/)
         {
@@ -96,6 +99,11 @@ public final class UploadServiceServlet extends AbstractCommandController
             {
                 uploadedFiles.addMultipartFile(multipartFile);
             }
+        }
+        if (uploadedFiles.getMultipartFiles().size() == 0)
+        {
+            throw UserFailureException.fromTemplate("No file has been uploaded, that is, "
+                    + "the chosen file(s) has no content.");
         }
         response.setContentType("text/html");
         response.setStatus(HttpServletResponse.SC_OK);

@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleToRegister;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
 /**
@@ -39,5 +39,5 @@ public interface IScreeningClientService extends IClientService
     /**
      * Registers a new sample.
      */
-    public void registerSample(final SampleToRegister sample) throws UserFailureException;
+    public void registerSample(final NewSample sample) throws UserFailureException;
 }

@@ -26,19 +26,22 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.HiddenField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
-import com.extjs.gxt.ui.client.widget.layout.TableLayout;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ICallbackListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
@@ -50,9 +53,11 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  */
 public final class GenericSampleBatchRegistrationForm extends LayoutContainer
 {
+    private static final String SESSION_KEY = "sample-batch-registration";
+
     private static final String FIELD_LABEL_TEMPLATE = "File {0}";
 
-    private static final String FIELD_NAME_TEMPLATE = "sample_batch_registration_{0}";
+    private static final String FIELD_NAME_TEMPLATE = SESSION_KEY + "_{0}";
 
     private static final int NUMBER_OF_FIELDS = 1;
 
@@ -62,20 +67,22 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
 
     private Button submitButton;
 
+    private final InfoBox infoBox;
+
     public GenericSampleBatchRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext, final SampleType sampleType)
     {
-        super(createLayout());
+        super(new FlowLayout(5));
         setScrollMode(Scroll.AUTO);
         this.viewContext = viewContext;
+        add(infoBox = createInfoBox());
         add(createUI());
     }
 
-    private final static TableLayout createLayout()
+    private final static InfoBox createInfoBox()
     {
-        final TableLayout tableLayout = new TableLayout();
-        tableLayout.setCellSpacing(10);
-        return tableLayout;
+        final InfoBox infoBox = new InfoBox();
+        return infoBox;
     }
 
     private final Component createUI()
@@ -119,6 +126,8 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
         panel.setEncoding(Encoding.MULTIPART);
         panel.setMethod(Method.POST);
         panel.setButtonAlign(HorizontalAlignment.RIGHT);
+        final HiddenField<String> sessionKeyField = createHiddenField();
+        panel.add(sessionKeyField);
         panel.addButton(button);
         // Does some action after the form has been successfully submitted. Note that the response
         // coming from the server could be an error message. Even in case of error on the server
@@ -132,21 +141,31 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
 
                 public final void handleEvent(final FormEvent be)
                 {
-                    // Was successful
                     final String msg = be.resultHtml;
-                    if (StringUtils.isBlank(msg))
+                    // Was not successful
+                    if (StringUtils.isBlank(msg) == false)
                     {
-                        // TODO 2008-12-03, Christian Ribeaud: Trigger the reading of uploaded files
-                        // here if the result returned by the server is fine. Afterwards do not
-                        // forget to enable the button again.
+                        infoBox.displayError(msg);
+                        // final Document document = XMLParser.parse(msg);
+                        // System.out.println(document.getElementsByTagName("message").item(0)
+                        // .getFirstChild().getNodeValue());
+                        setUploadEnabled(true);
                     } else
                     {
-                        MessageBox.alert(viewContext.getMessageProvider().getMessage(
-                                "messagebox_error"), msg, null);
+                        viewContext.getService().registerSamples(sessionKeyField.getValue(),
+                                new RegisterSamplesCallback(viewContext));
                     }
                 }
             });
         return panel;
+    }
+
+    private final static HiddenField<String> createHiddenField()
+    {
+        final HiddenField<String> hiddenField = new HiddenField<String>();
+        hiddenField.setName("sessionKey");
+        hiddenField.setValue(SESSION_KEY);
+        return hiddenField;
     }
 
     private final Button createButton()
@@ -165,7 +184,7 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
                 {
                     if (formPanel.isValid())
                     {
-                        submitButton.setEnabled(false);
+                        setUploadEnabled(false);
                         formPanel.submit();
                     }
                 }
@@ -181,5 +200,48 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
         file.setFieldLabel(Format.substitute(FIELD_LABEL_TEMPLATE, number));
         file.setName(Format.substitute(FIELD_NAME_TEMPLATE, number));
         return file;
+    }
+
+    private void setUploadEnabled(final boolean enabled)
+    {
+        submitButton.setEnabled(enabled);
+    }
+
+    //
+    // Helper classes
+    //
+
+    private final class RegisterSamplesCallback extends VoidAsyncCallback<String>
+    {
+        RegisterSamplesCallback(final IViewContext<IGenericClientServiceAsync> viewContext)
+        {
+            super(viewContext, new RegisterSamplesCallbackListener());
+        }
+    }
+
+    private final class RegisterSamplesCallbackListener implements ICallbackListener<String>
+    {
+        RegisterSamplesCallbackListener()
+        {
+        }
+
+        //
+        // ICallbackListener
+        //
+
+        public final void finishOnSuccessOf(final AsyncCallback<String> callback,
+                final String result)
+        {
+            // TODO 2008-12-09, Christian Ribeaud: Result could be something more
+            // complexe than just a String?
+            infoBox.displayInfo(result);
+        }
+
+        public final void onFailureOf(final AsyncCallback<String> callback,
+                final String failureMessage, final Throwable throwable)
+        {
+            infoBox.displayError(failureMessage);
+            setUploadEnabled(true);
+        }
     }
 }

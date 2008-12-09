@@ -30,14 +30,11 @@ public final class UploadedFilesBean
 {
     private List<MultipartFile> multipartFiles = new ArrayList<MultipartFile>();
 
-    public final void setMultipartFiles(final List<MultipartFile> multipartFiles)
-    {
-        assert multipartFiles != null : "Unspecified multipart files.";
-        for (final MultipartFile multipartFile : multipartFiles)
-        {
-            addMultipartFile(multipartFile);
-        }
-    }
+    /**
+     * The session key under which this <i>bean</i> can be found, to access the uploaded files, for
+     * instance.
+     */
+    private String sessionKey;
 
     public final void addMultipartFile(final MultipartFile multipartFile)
     {
@@ -49,4 +46,15 @@ public final class UploadedFilesBean
     {
         return multipartFiles;
     }
+
+    public final String getSessionKey()
+    {
+        return sessionKey;
+    }
+
+    public final void setSessionKey(final String sessionKey)
+    {
+        this.sessionKey = sessionKey;
+    }
+
 }

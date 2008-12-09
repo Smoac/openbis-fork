@@ -20,8 +20,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleToRegister;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
 /**
@@ -39,14 +39,20 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
             AsyncCallback<SampleGeneration> asyncCallback);
 
     /**
-     * @see IGenericClientService#registerSample(SampleToRegister)
+     * @see IGenericClientService#registerSample(NewSample)
      */
-    public void registerSample(final SampleToRegister sample,
-            final AsyncCallback<Void> asyncCallback) throws UserFailureException;
+    public void registerSample(final NewSample sample, final AsyncCallback<Void> asyncCallback)
+            throws UserFailureException;
 
     /**
      * @see IGenericClientService#getExperimentInfo(String)
      */
     public void getExperimentInfo(String experimentIdentifier,
             final AsyncCallback<Experiment> experimentInfoCallback);
+
+    /**
+     * @see IGenericClientService#registerSamples(String)
+     */
+    public void registerSamples(final String sessionKey, final AsyncCallback<String> asyncCallback)
+            throws UserFailureException;
 }

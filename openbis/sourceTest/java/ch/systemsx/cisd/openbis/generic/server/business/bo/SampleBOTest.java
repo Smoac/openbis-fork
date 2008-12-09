@@ -25,6 +25,8 @@ import static org.testng.AssertJUnit.assertSame;
 import static org.testng.AssertJUnit.fail;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -40,6 +42,7 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypePropertyType;
@@ -51,7 +54,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleToRegisterDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
@@ -179,14 +181,14 @@ public final class SampleBOTest
     {
         final SampleIdentifier sharedSampleIdentifier =
                 getSharedSampleIdentifier(DEFAULT_SAMPLE_CODE);
-        final SampleToRegisterDTO newSharedSample = new SampleToRegisterDTO();
-        newSharedSample.setSampleIdentifier(sharedSampleIdentifier);
+        final NewSample newSharedSample = new NewSample();
+        newSharedSample.setSampleIdentifier(sharedSampleIdentifier.toString());
         newSharedSample.setSampleTypeCode(SampleTypeCode.DILUTION_PLATE.getCode());
 
         final SampleIdentifier parentGroupIdentifier = getSampleIdentifier("SAMPLE_GENERATOR");
-        newSharedSample.setParent(parentGroupIdentifier);
+        newSharedSample.setParent(parentGroupIdentifier.toString());
 
-        newSharedSample.setProperties(SampleProperty.EMPTY_ARRAY);
+        newSharedSample.setProperties(Arrays.asList(SampleProperty.EMPTY_ARRAY));
 
         context.checking(new Expectations()
             {
@@ -216,7 +218,8 @@ public final class SampleBOTest
                     one(sampleTypeDAO).tryFindSampleTypeByCode(DILUTION_PLATE);
                     will(returnValue(sampleType));
 
-                    one(propertiesConverter).convertProperties(newSharedSample.getProperties(),
+                    one(propertiesConverter).convertProperties(
+                            newSharedSample.getProperties().toArray(SampleProperty.EMPTY_ARRAY),
                             DILUTION_PLATE, EXAMPLE_PERSON);
                     will(returnValue(new ArrayList<SamplePropertyPE>()));
                 }
@@ -230,17 +233,17 @@ public final class SampleBOTest
     public final void testDefineSampleHappyCase()
     {
         final SampleIdentifier sampleIdentifier = getSampleIdentifier(DEFAULT_SAMPLE_CODE);
-        final SampleToRegisterDTO newSample = new SampleToRegisterDTO();
-        newSample.setSampleIdentifier(sampleIdentifier);
+        final NewSample newSample = new NewSample();
+        newSample.setSampleIdentifier(sampleIdentifier.toString());
         newSample.setSampleTypeCode(SampleTypeCode.DILUTION_PLATE.getCode());
 
         final SampleIdentifier generatedFromIdentifier = getSampleIdentifier("SAMPLE_GENERATOR");
-        newSample.setParent(generatedFromIdentifier);
+        newSample.setParent(generatedFromIdentifier.toString());
 
         final SampleIdentifier containerIdentifier = getSampleIdentifier("SAMPLE_CONTAINER");
-        newSample.setContainer(containerIdentifier);
+        newSample.setContainer(containerIdentifier.toString());
 
-        newSample.setProperties(SampleProperty.EMPTY_ARRAY);
+        newSample.setProperties(Arrays.asList(SampleProperty.EMPTY_ARRAY));
 
         final SamplePE generatedFrom = new SamplePE();
         generatedFrom.setRegistrator(EXAMPLE_PERSON);
@@ -283,7 +286,8 @@ public final class SampleBOTest
                     one(sampleTypeDAO).tryFindSampleTypeByCode(DILUTION_PLATE);
                     will(returnValue(sampleType));
 
-                    one(propertiesConverter).convertProperties(newSample.getProperties(),
+                    one(propertiesConverter).convertProperties(
+                            newSample.getProperties().toArray(SampleProperty.EMPTY_ARRAY),
                             DILUTION_PLATE, EXAMPLE_PERSON);
                     will(returnValue(new ArrayList<SamplePropertyPE>()));
                 }
@@ -305,17 +309,16 @@ public final class SampleBOTest
     @Test
     public void testDefineAndSaveSampleWithProperties()
     {
-        final SampleToRegisterDTO newSample = new SampleToRegisterDTO();
+        final NewSample newSample = new NewSample();
 
-        newSample.setSampleIdentifier(getSampleIdentifier(DEFAULT_SAMPLE_CODE));
+        newSample.setSampleIdentifier(getSampleIdentifier(DEFAULT_SAMPLE_CODE).toString());
         newSample.setSampleTypeCode(SampleTypeCode.MASTER_PLATE.getCode());
 
         final SampleTypePE sampleType = new SampleTypePE();
         sampleType.setCode(MASTER_PLATE);
         sampleType.setId(new Long(21L));
         final SampleProperty sampleProperty = createSampleProperty();
-        newSample.setProperties(new SampleProperty[]
-            { sampleProperty });
+        newSample.setProperties(Collections.singletonList(sampleProperty));
         final SamplePropertyPE samplePropertyPE = new SamplePropertyPE();
         samplePropertyPE.setRegistrator(EXAMPLE_SESSION.tryGetPerson());
         final SampleTypePropertyTypePE sampleTypePropertyType = new SampleTypePropertyTypePE();
@@ -333,7 +336,8 @@ public final class SampleBOTest
                     one(sampleTypeDAO).tryFindSampleTypeByCode(MASTER_PLATE);
                     will(returnValue(sampleType));
 
-                    one(propertiesConverter).convertProperties(newSample.getProperties(),
+                    one(propertiesConverter).convertProperties(
+                            newSample.getProperties().toArray(SampleProperty.EMPTY_ARRAY),
                             MASTER_PLATE, EXAMPLE_PERSON);
                     final List<SamplePropertyPE> set = new ArrayList<SamplePropertyPE>();
                     set.add(samplePropertyPE);
@@ -383,10 +387,10 @@ public final class SampleBOTest
     @Test
     public final void testRegisterSampleWithUnknownContainerParent()
     {
-        final SampleToRegisterDTO sample = new SampleToRegisterDTO();
-        sample.setSampleIdentifier(getSampleIdentifier(DEFAULT_SAMPLE_CODE));
+        final NewSample sample = new NewSample();
+        sample.setSampleIdentifier(getSampleIdentifier(DEFAULT_SAMPLE_CODE).toString());
         sample.setSampleTypeCode(SampleTypeCode.DILUTION_PLATE.getCode());
-        sample.setContainer(getSampleIdentifier(""));
+        sample.setContainer(getSampleIdentifier("").toString());
 
         context.checking(new Expectations()
             {
@@ -425,10 +429,10 @@ public final class SampleBOTest
     @Test
     public final void testRegisterSampleWithUnknownGeneratedFromSample()
     {
-        final SampleToRegisterDTO sample = new SampleToRegisterDTO();
-        sample.setSampleIdentifier(getSampleIdentifier(DEFAULT_SAMPLE_CODE));
+        final NewSample sample = new NewSample();
+        sample.setSampleIdentifier(getSampleIdentifier(DEFAULT_SAMPLE_CODE).toString());
         sample.setSampleTypeCode(SampleTypeCode.DILUTION_PLATE.getCode());
-        sample.setParent(getSampleIdentifier(""));
+        sample.setParent(getSampleIdentifier("").toString());
 
         context.checking(new Expectations()
             {

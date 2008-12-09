@@ -31,10 +31,9 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleToRegister;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleToRegisterDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
@@ -62,11 +61,11 @@ public final class GenericClientServiceTest
 
     private Session session;
 
-    private final static SampleToRegister createSampleToRegister(final String sampleIdentifier,
+    private final static NewSample createSampleToRegister(final String sampleIdentifier,
             final String type, final List<SampleProperty> properties, final String generatorParent,
             final String containerParent)
     {
-        final SampleToRegister s = new SampleToRegister();
+        final NewSample s = new NewSample();
         s.setSampleIdentifier(sampleIdentifier);
         s.setSampleTypeCode(type);
         s.setProperties(properties);
@@ -122,7 +121,7 @@ public final class GenericClientServiceTest
     @Test
     public final void testRegisterSample()
     {
-        final SampleToRegister newSample =
+        final NewSample newSample =
                 createSampleToRegister("/group1/sample1", "MASTER_PLATE",
                         new ArrayList<SampleProperty>(), null, null);
         context.checking(new Expectations()
@@ -134,9 +133,9 @@ public final class GenericClientServiceTest
 
                 @SuppressWarnings(
                     { "unchecked" })
-                private final SampleToRegisterDTO getTranslatedSample()
+                private final NewSample getTranslatedSample()
                 {
-                    return with(any(SampleToRegisterDTO.class));
+                    return with(any(NewSample.class));
                 }
 
             });

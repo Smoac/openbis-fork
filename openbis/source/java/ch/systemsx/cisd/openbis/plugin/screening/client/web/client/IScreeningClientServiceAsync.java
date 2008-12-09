@@ -20,7 +20,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleToRegister;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
 
@@ -37,8 +37,8 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
             final AsyncCallback<SampleGeneration> callback);
 
     /**
-     * @see IGenericClientService#registerSample(SampleToRegister)
+     * @see IGenericClientService#registerSample(NewSample)
      */
-    public void registerSample(final SampleToRegister sample,
+    public void registerSample(final NewSample sample,
             final AsyncCallback<Void> asyncCallback) throws UserFailureException;
 }

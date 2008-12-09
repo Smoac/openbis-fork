@@ -18,9 +18,9 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleToRegister;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
 /**
@@ -40,10 +40,19 @@ public interface IGenericClientService extends IClientService
     /**
      * Registers a new sample.
      */
-    public void registerSample(final SampleToRegister sample) throws UserFailureException;
+    public void registerSample(final NewSample sample) throws UserFailureException;
+
+    /**
+     * Registers new samples from files which have been previously uploaded.
+     * <p>
+     * Uploaded files can be found as session attribute under given <var>sessionKey</var>.
+     * </p>
+     */
+    public String registerSamples(final String sessionKey) throws UserFailureException;
 
     /**
      * For given <var>experimentIdentifier</var> returns corresponding {@link Experiment}.
      */
-    public Experiment getExperimentInfo(String experimentIdentifier) throws UserFailureException;
+    public Experiment getExperimentInfo(final String experimentIdentifier)
+            throws UserFailureException;
 }

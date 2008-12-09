@@ -18,20 +18,22 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.DataAccessException;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.ParameterChecker;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleToRegisterDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -107,52 +109,51 @@ public final class SampleBO extends AbstractSampleIdentifierBusinessObject imple
         }
     }
 
-    public final void define(final SampleToRegisterDTO newSample)
+    public final void define(final NewSample newSample)
     {
-        final SampleIdentifier sampleIdentifier = newSample.getSampleIdentifier();
+        final SampleIdentifier sampleIdentifier =
+                SampleIdentifierFactory.parse(newSample.getSampleIdentifier());
         final String sampleTypeCode = newSample.getSampleTypeCode();
         ParameterChecker.checkIfNotNull(sampleTypeCode, "sample type");
-
         final SampleOwner sampleOwner = getSampleOwnerFinder().figureSampleOwner(sampleIdentifier);
-
         sample = new SamplePE();
         sample.setCode(sampleIdentifier.getSampleCode());
         sample.setRegistrator(findRegistrator());
         sample.setSampleType(getSampleType(sampleTypeCode));
         sample.setGroup(sampleOwner.tryGetGroup());
         sample.setDatabaseInstance(sampleOwner.tryGetDatabaseInstance());
-        defineSampleProperties(newSample.getProperties());
-        final SampleIdentifier generatorParentSampleIdentifier = newSample.getParent();
-        if (generatorParentSampleIdentifier != null)
+        defineSampleProperties(newSample.getProperties().toArray(SampleProperty.EMPTY_ARRAY));
+        final String parent = newSample.getParent();
+        if (StringUtils.isBlank(parent) == false)
         {
-            final SamplePE generatedFrom = getSampleByIdentifier(generatorParentSampleIdentifier);
-            if (generatedFrom != null)
+            final SamplePE parentPE = getSampleByIdentifier(SampleIdentifierFactory.parse(parent));
+            if (parentPE != null)
             {
-                if (generatedFrom.getInvalidation() != null)
+                if (parentPE.getInvalidation() != null)
                 {
                     throw UserFailureException.fromTemplate(
-                            "Cannot register sample '%s': generator parent '%s' is invalid.",
-                            sampleIdentifier, generatorParentSampleIdentifier);
+                            "Cannot register sample '%s': parent '%s' is invalid.",
+                            sampleIdentifier, parent);
                 }
-                sample.setGeneratedFrom(generatedFrom);
-                sample.setTop(generatedFrom.getTop() == null ? generatedFrom : generatedFrom
-                        .getTop());
+                sample.setGeneratedFrom(parentPE);
+                sample.setTop(parentPE.getTop() == null ? parentPE : parentPE.getTop());
             }
         }
-        final SampleIdentifier containerParentSampleIdentifier = newSample.getContainer();
-        if (containerParentSampleIdentifier != null)
+        final String container = newSample.getContainer();
+        if (StringUtils.isBlank(container) == false)
         {
-            final SamplePE contained = getSampleByIdentifier(containerParentSampleIdentifier);
-            if (contained != null)
+            final SamplePE containerPE =
+                    getSampleByIdentifier(SampleIdentifierFactory.parse(container));
+            if (containerPE != null)
             {
-                if (contained.getInvalidation() != null)
+                if (containerPE.getInvalidation() != null)
                 {
                     throw UserFailureException.fromTemplate(
-                            "Cannot register sample '%s': container parent '%s' is invalid.",
-                            sampleIdentifier, containerParentSampleIdentifier);
+                            "Cannot register sample '%s': container '%s' is invalid.",
+                            sampleIdentifier, container);
                 }
-                sample.setContainer(contained);
-                sample.setTop(contained.getTop() == null ? contained : contained.getTop());
+                sample.setContainer(containerPE);
+                sample.setTop(containerPE.getTop() == null ? containerPE : containerPE.getTop());
             }
         }
         SampleGenericBusinessRules.assertValidParents(sample);

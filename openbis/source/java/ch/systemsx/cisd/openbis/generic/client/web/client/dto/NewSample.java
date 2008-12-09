@@ -26,7 +26,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Christian Ribeaud
  */
-public final class SampleToRegister implements IsSerializable
+public final class NewSample implements IsSerializable
 {
     private String sampleIdentifier;
 
@@ -38,12 +38,12 @@ public final class SampleToRegister implements IsSerializable
 
     private List<SampleProperty> properties;
 
-    public SampleToRegister()
+    public NewSample()
     {
     }
 
-    public SampleToRegister(final String sampleIdentifier, final String sampleTypeCode, final String parent,
-            final String container)
+    public NewSample(final String sampleIdentifier, final String sampleTypeCode,
+            final String parent, final String container)
     {
         this.sampleIdentifier = sampleIdentifier;
         this.sampleTypeCode = sampleTypeCode;

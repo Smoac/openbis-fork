@@ -54,7 +54,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUt
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleToRegister;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTerm;
@@ -285,8 +285,8 @@ public final class GenericSampleRegistrationForm extends LayoutContainer
     {
         if (formPanel.isValid())
         {
-            final SampleToRegister sampleToRegister =
-                    new SampleToRegister(createSampleIdentifier(), sampleType.getCode(),
+            final NewSample sampleToRegister =
+                    new NewSample(createSampleIdentifier(), sampleType.getCode(),
                             parentGenerator.getValue(), parentContainer.getValue());
             for (final Field<?> field : propertyFields)
             {

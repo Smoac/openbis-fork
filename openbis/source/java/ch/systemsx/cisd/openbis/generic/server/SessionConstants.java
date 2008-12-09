@@ -35,6 +35,4 @@ public final class SessionConstants
     public static final String OPENBIS_RESULT_SET_MANAGER = "openbis-result-set-manager";
 
     public static final String OPENBIS_EXPORT_MANAGER = "openbis-export-manager";
-
-    public static final String OPENBIS_UPLOADED_FILES = "openbis-uploaded-files";
 }

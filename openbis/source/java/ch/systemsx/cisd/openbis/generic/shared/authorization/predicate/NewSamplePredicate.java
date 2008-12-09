@@ -16,18 +16,18 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.authorization.predicate;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleToRegisterDTO;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
 /**
- * An <code>IPredicate</code> implementation for {@link SampleToRegisterDTO}.
+ * An <code>IPredicate</code> implementation for {@link NewSample}.
  * 
  * @author Christian Ribeaud
  */
-public final class SampleToRegisterDTOPredicate extends
-        DelegatedPredicate<SampleOwnerIdentifier, SampleToRegisterDTO>
+public final class NewSamplePredicate extends DelegatedPredicate<SampleOwnerIdentifier, NewSample>
 {
-    public SampleToRegisterDTOPredicate()
+    public NewSamplePredicate()
     {
         super(new SampleOwnerIdentifierPredicate(false));
     }
@@ -37,15 +37,15 @@ public final class SampleToRegisterDTOPredicate extends
     //
 
     @Override
-    public final SampleOwnerIdentifier convert(final SampleToRegisterDTO value)
+    public final SampleOwnerIdentifier convert(final NewSample value)
     {
-        return value.getSampleIdentifier();
+        return SampleIdentifierFactory.parse(value.getSampleIdentifier());
     }
 
     @Override
     public final String getCandidateDescription()
     {
-        return "SampleToRegister";
+        return "new sample";
     }
 
 }
