@@ -125,6 +125,23 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         }
     }
 
+    @DataProvider(name = "queryEscaping")
+    protected Object[][] getQueriesToTest()
+    {
+        return new Object[][]
+            {
+                { "abc", "abc" },
+                { "code:CP registrator:Joe", "code\\:CP registrator\\:Joe" },
+                { "::", "\\:\\:" } };
+    }
+
+    @Test(dataProvider = "queryEscaping")
+    public final void testDisableAdvancedSearch(String unescapedQuery, String escapedQuery)
+    {
+        String query = HibernateSearchDAO.disableFieldQuery(unescapedQuery);
+        assertEquals(escapedQuery, query);
+    }
+
     private static void ensureContains(Set<MaterialPropertyPE> properties, String propertyValue)
     {
         boolean ok = false;

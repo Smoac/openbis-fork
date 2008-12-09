@@ -47,6 +47,7 @@ import org.springframework.jdbc.support.JdbcAccessor;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
@@ -117,7 +118,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
     }
 
     private final <T extends IMatchingEntity> List<SearchHit> doSearchEntitiesByTerm(
-            final Session session, final Class<T> entityClass, final String searchTerm)
+            final Session session, final Class<T> entityClass, final String userQuery)
             throws DataAccessException, ParseException
     {
         final FullTextSession fullTextSession = Search.createFullTextSession(session);
@@ -125,6 +126,8 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
 
         MyIndexReaderProvider<T> indexProvider =
                 new MyIndexReaderProvider<T>(fullTextSession, entityClass);
+        String searchQuery = disableFieldQuery(userQuery);
+
         try
         {
             List<SearchHit> result = new ArrayList<SearchHit>();
@@ -133,7 +136,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
             {
                 List<SearchHit> hits =
                         searchTermInField(fullTextSession, analyzer, entityClass, fieldName,
-                                searchTerm);
+                                searchQuery);
                 result.addAll(hits);
             }
             return result;
@@ -141,6 +144,26 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         {
             indexProvider.close();
         }
+    }
+
+    // disables field query by escaping all field separator characters.
+    @Private
+    static String disableFieldQuery(String userQuery)
+    {
+        char fieldSep = ':';
+        char escapeChar = '\\';
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < userQuery.length(); i++)
+        {
+            char ch = userQuery.charAt(i);
+            if (ch == fieldSep && (i == 0 || userQuery.charAt(i - 1) != escapeChar))
+            {
+                // add escape character to an unescaped field separator
+                sb.append(escapeChar);
+            }
+            sb.append(ch);
+        }
+        return sb.toString();
     }
 
     private final <T extends IMatchingEntity> List<SearchHit> searchTermInField(
