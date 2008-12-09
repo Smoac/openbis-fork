@@ -28,6 +28,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
  */
 public interface IResultSetConfig<K> extends IResultSetKeyHolder<K>
 {
+    public static final int NO_LIMIT = -1;
+
+    /** offset which should be used to start fetching from the first element */
+    public static final int FIRST_ELEM_OFFSET = 0;
+
     /**
      * The offset for the first record to retrieve.
      */
@@ -36,7 +41,7 @@ public interface IResultSetConfig<K> extends IResultSetKeyHolder<K>
     /**
      * The number of records being requested.
      * 
-     * @return -1 if no specified (meaning all).
+     * @return {@link #NO_LIMIT} if no specified (meaning all).
      */
     public int getLimit();
 

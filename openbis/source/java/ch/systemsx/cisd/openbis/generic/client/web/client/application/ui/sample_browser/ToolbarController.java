@@ -20,8 +20,8 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ParentColumns;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyColumns;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns.ParentColumnsConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns.PropertyColumnsConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
  * 
  * @author Izabela Adamczyk
  */
+// TODO 2008-12-05, Tomasz Pylak: use dictionary instead of hard coded strings
 final class ToolbarController
 {
     private final SampleTypeSelectionWidget sampleTypeSelectionWidget;
@@ -42,16 +43,16 @@ final class ToolbarController
 
     private final CheckBox groupCheckbox;
 
-    private final ParentColumns parentColumns;
+    private final ParentColumnsConfig parentColumns;
 
-    private final PropertyColumns propertyColumns;
+    private final PropertyColumnsConfig propertyColumns;
 
     private final Button exportButton;
 
     ToolbarController(final SampleTypeSelectionWidget sampleTypeSelectionWidget,
             final GroupSelectionWidget groupSelectionWidget, final CheckBox instanceCheckbox,
             final CheckBox groupCheckbox, final Button submitButton, final Button exportButton,
-            final ParentColumns parentColumns, final PropertyColumns propertyColumns)
+            final ParentColumnsConfig parentColumns, final PropertyColumnsConfig propertyColumns)
     {
         this.sampleTypeSelectionWidget = sampleTypeSelectionWidget;
         this.groupSelectionWidget = groupSelectionWidget;
@@ -66,7 +67,7 @@ final class ToolbarController
     /**
      * Refreshes the <i>refresh</i> resp. <i>export</i> button.
      */
-    final void refreshButtons(final SampleType sampleTypeOrNull, final Group groupOrNull)
+    final void refreshSubmitButtons(final SampleType sampleTypeOrNull, final Group groupOrNull)
     {
         final boolean sampleTypeSelected = sampleTypeOrNull != null;
         final boolean showGroupSamples = groupCheckbox.getValue();
@@ -75,18 +76,25 @@ final class ToolbarController
         final boolean enable =
                 sampleTypeSelected && (showGroupSamples && groupChosen || showInstanceSamples);
         submitButton.setEnabled(enable);
-        exportButton.setEnabled(enable);
         if (enable)
         {
             submitButton.setTitle("Load or update sample table");
-            exportButton.setTitle("Export sample table to excel file");
         } else
         {
-            final String msg = "HINT: To activate select group or shared checkbox";
-            submitButton.setTitle(msg);
-            exportButton.setTitle(msg);
+            submitButton.setTitle("HINT: To activate select group or shared checkbox");
         }
+    }
 
+    final void enableExportButton()
+    {
+        exportButton.setEnabled(true);
+        exportButton.setTitle("Export the sample table visible on the screen to an Excel file");
+    }
+
+    final void disableExportButton()
+    {
+        exportButton.setEnabled(false);
+        exportButton.setTitle("Refresh the data before exporting them.");
     }
 
     final void showOrHideGroupList()

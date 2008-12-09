@@ -27,6 +27,7 @@ import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
@@ -40,6 +41,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
+import ch.systemsx.cisd.openbis.generic.client.web.server.csv.TSVRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetManager;
@@ -97,6 +100,13 @@ public final class CommonClientService extends AbstractClientService implements
     {
         return (IResultSetManager<K>) getHttpSession().getAttribute(
                 SessionConstants.OPENBIS_RESULT_SET_MANAGER);
+    }
+
+    @SuppressWarnings("unchecked")
+    private final <T> CacheManager<String, T> getExportManager()
+    {
+        return (CacheManager<String, T>) getHttpSession().getAttribute(
+                SessionConstants.OPENBIS_EXPORT_MANAGER);
     }
 
     //
@@ -277,39 +287,114 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    public final String prepareExportSamples(final TableExportCriteria<Sample> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return prepareExportEntities(criteria);
+    }
+
+    /**
+     * Assumes that preparation of the export ({@link #prepareExportSamples(TableExportCriteria)}
+     * has been invoked before and returned with an exportDataKey passed here as a parameter.
+     */
+    public final String getExportSamplesTable(String exportDataKey)
+    {
+        TableExportCriteria<Sample> exportCriteria = getAndRemoveExportCriteria(exportDataKey);
+        List<Sample> samples = fetchCachedSamples(exportCriteria);
+        return TSVRenderer.createTable(samples, exportCriteria.getColumnDefs());
+    }
+
+    // returns and removes cached export criteria
+    private <T> TableExportCriteria<T> getAndRemoveExportCriteria(String exportDataKey)
+    {
+        CacheManager<String, TableExportCriteria<T>> exportManager = getExportManager();
+        TableExportCriteria<T> exportCriteria = exportManager.tryGetData(exportDataKey);
+        assert exportCriteria != null : "No export criteria found at key " + exportDataKey;
+        getExportManager().removeData(exportDataKey);
+        return exportCriteria;
+    }
+
+    // Saves the export criteria at the server side and returns a key to it.
+    // This parameter will be referenced later by a servlet serving the export result.
+    // The servlet needs to know just the key in the cache, we avoid serializing/deserializing
+    // export criteria in the URL.
+    private final <T> String prepareExportEntities(final TableExportCriteria<T> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        CacheManager<String, TableExportCriteria<T>> exportManager = getExportManager();
+        return exportManager.saveData(criteria);
+    }
+
+    private List<Sample> fetchCachedSamples(TableExportCriteria<Sample> exportCriteria)
+    {
+        ResultSet<Sample> samples =
+                listSamples(createExportListCriteria(exportCriteria),
+                        new IOriginalDataProvider<Sample>()
+                            {
+                                public List<Sample> getOriginalData() throws UserFailureException
+                                {
+                                    throw new IllegalStateException("Data not found in the cache");
+                                }
+                            });
+        return samples.getList();
+    }
+
+    private static ListSampleCriteria createExportListCriteria(
+            final TableExportCriteria<Sample> exportCriteria)
+    {
+        ListSampleCriteria criteria = new ListSampleCriteria();
+        criteria.setLimit(IResultSetConfig.NO_LIMIT);
+        criteria.setOffset(IResultSetConfig.FIRST_ELEM_OFFSET);
+        criteria.setSortInfo(exportCriteria.getSortInfo());
+        criteria.setResultSetKey(exportCriteria.getResultSetKey());
+        return criteria;
+    }
+
     public final ResultSet<Sample> listSamples(final ListSampleCriteria listCriteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return listSamples(listCriteria, createListSampleProvider(listCriteria));
+    }
+
+    private ResultSet<Sample> listSamples(final ListSampleCriteria listCriteria,
+            IOriginalDataProvider<Sample> dataProvider)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final IResultSetManager<String> resultSetManager = getResultSetManager();
             final IResultSet<String, Sample> result =
-                    resultSetManager.getResultSet(listCriteria, new IOriginalDataProvider<Sample>()
-                        {
-
-                            //
-                            // IDataRetriever
-                            //
-
-                            public final List<Sample> getOriginalData()
-                            {
-                                final List<SamplePE> samples =
-                                        commonServer.listSamples(getSessionToken(),
-                                                ListSampleCriteriaTranslator
-                                                        .translate(listCriteria));
-                                final List<Sample> list = new ArrayList<Sample>(samples.size());
-                                for (final SamplePE sample : samples)
-                                {
-                                    list.add(SampleTranslator.translate(sample));
-                                }
-                                return list;
-                            }
-                        });
+                    resultSetManager.getResultSet(listCriteria, dataProvider);
             return ResultSetTranslator.translate(result);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
+    }
+
+    private IOriginalDataProvider<Sample> createListSampleProvider(
+            final ListSampleCriteria listCriteria)
+    {
+        return new IOriginalDataProvider<Sample>()
+            {
+
+                //
+                // IDataRetriever
+                //
+
+                public final List<Sample> getOriginalData()
+                {
+                    final List<SamplePE> samples =
+                            commonServer.listSamples(getSessionToken(),
+                                    ListSampleCriteriaTranslator.translate(listCriteria));
+                    final List<Sample> list = new ArrayList<Sample>(samples.size());
+                    for (final SamplePE sample : samples)
+                    {
+                        list.add(SampleTranslator.translate(sample));
+                    }
+                    return list;
+                }
+            };
     }
 
     public final ResultSet<Experiment> listExperiments(final ListExperimentsCriteria listCriteria)
@@ -423,8 +508,7 @@ public final class CommonClientService extends AbstractClientService implements
     {
         try
         {
-            final IResultSetManager<String> resultSetManager = getResultSetManager();
-            resultSetManager.removeResultSet(resultSetKey);
+            getResultSetManager().removeResultSet(resultSetKey);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

@@ -22,7 +22,6 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
@@ -41,8 +40,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Grou
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ParentColumns;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyColumns;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.SampleBrowserGrid.IDataRefreshCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns.CommonColumnsConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns.ParentColumnsConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns.PropertyColumnsConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
@@ -87,8 +88,8 @@ final class SampleBrowserToolbar extends ToolBar
     private SampleType selectedSampleType;
 
     public SampleBrowserToolbar(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final SampleBrowserGrid sampleBrowserGrid, final CommonColumns commonColumns,
-            final ParentColumns parentColumns, final PropertyColumns propertyColumns)
+            final SampleBrowserGrid sampleBrowserGrid, final CommonColumnsConfig commonColumns,
+            final ParentColumnsConfig parentColumns, final PropertyColumnsConfig propertyColumns)
     {
         this.sampleBrowserGrid = sampleBrowserGrid;
         this.viewContext = viewContext;
@@ -109,6 +110,7 @@ final class SampleBrowserToolbar extends ToolBar
                 new ToolbarController(selectSampleTypeCombo, selectGroupCombo,
                         includeInstanceCheckbox, includeGroupCheckbox, submitButton, exportButton,
                         parentColumns, propertyColumns);
+        controller.disableExportButton();
         addSelectSampleTypeListeners();
         addSelectGroupListeners();
         addIncludeInstanceListeners();
@@ -125,8 +127,8 @@ final class SampleBrowserToolbar extends ToolBar
 
                 public final void handleEvent(final FieldEvent be)
                 {
-                    controller.refreshButtons(selectSampleTypeCombo.tryGetSelectedSampleType(),
-                            selectGroupCombo.tryGetSelectedGroup());
+                    controller.refreshSubmitButtons(selectSampleTypeCombo
+                            .tryGetSelectedSampleType(), selectGroupCombo.tryGetSelectedGroup());
                     controller.showOrHideGroupList();
                 }
             });
@@ -142,8 +144,8 @@ final class SampleBrowserToolbar extends ToolBar
 
                 public final void handleEvent(final FieldEvent be)
                 {
-                    controller.refreshButtons(selectSampleTypeCombo.tryGetSelectedSampleType(),
-                            selectGroupCombo.tryGetSelectedGroup());
+                    controller.refreshSubmitButtons(selectSampleTypeCombo
+                            .tryGetSelectedSampleType(), selectGroupCombo.tryGetSelectedGroup());
                 }
             });
     }
@@ -161,7 +163,8 @@ final class SampleBrowserToolbar extends ToolBar
                 public final void selectionChanged(final SelectionChangedEvent<GroupModel> se)
                 {
                     final GroupModel selectedItem = se.getSelectedItem();
-                    controller.refreshButtons(selectSampleTypeCombo.tryGetSelectedSampleType(),
+                    controller.refreshSubmitButtons(selectSampleTypeCombo
+                            .tryGetSelectedSampleType(),
                             selectedItem != null ? (Group) selectedItem
                                     .get(ModelDataPropertyNames.OBJECT) : null);
                 }
@@ -195,7 +198,7 @@ final class SampleBrowserToolbar extends ToolBar
                                 final SelectionChangedEvent<SampleTypeModel> se)
                         {
                             final SampleTypeModel selectedItem = se.getSelectedItem();
-                            controller.refreshButtons(
+                            controller.refreshSubmitButtons(
                                     selectedItem != null ? (SampleType) selectedItem
                                             .get(ModelDataPropertyNames.OBJECT) : null,
                                     selectGroupCombo.tryGetSelectedGroup());
@@ -252,7 +255,19 @@ final class SampleBrowserToolbar extends ToolBar
                                         selectedSampleType = selectedType;
                                     }
                                     sampleBrowserGrid.refresh(selectedType,
-                                            selectedGroup.getCode(), includeGroup, includeInstance);
+                                            selectedGroup.getCode(), includeGroup, includeInstance,
+                                            createPostRefreshCallback());
+                                }
+
+                                private IDataRefreshCallback createPostRefreshCallback()
+                                {
+                                    return new IDataRefreshCallback()
+                                        {
+                                            public void postRefresh()
+                                            {
+                                                controller.enableExportButton();
+                                            }
+                                        };
                                 }
                             });
         refreshButton.setId(REFRESH_BUTTON_ID);
@@ -265,15 +280,10 @@ final class SampleBrowserToolbar extends ToolBar
                 new Button(viewContext.getMessageProvider().getMessage("button_exportData"),
                         new SelectionListener<ButtonEvent>()
                             {
-                                //
-                                // SelectionListener
-                                //
-
                                 @Override
-                                public final void componentSelected(final ButtonEvent ce)
+                                public void componentSelected(ButtonEvent ce)
                                 {
-                                    MessageBox.alert(viewContext.getMessageProvider().getMessage(
-                                            "messagebox_warning"), "Not yet implemented!", null);
+                                    sampleBrowserGrid.export();
                                 }
                             });
         return button;

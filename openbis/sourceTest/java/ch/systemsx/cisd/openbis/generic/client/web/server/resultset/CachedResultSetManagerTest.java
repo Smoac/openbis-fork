@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo.SortDir;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager.TokenBasedResultSetKeyGenerator;
 
 /**
  * Test cases for corresponding {@link CachedResultSetManager} class.
@@ -97,7 +98,7 @@ public final class CachedResultSetManagerTest
     {
         final CachedResultSetManager<String> resultSetManager =
                 new CachedResultSetManager<String>(
-                        new CachedResultSetManager.TokenBasedResultSetKeyGenerator());
+                        new TokenBasedResultSetKeyGenerator());
         resultSetManager.results.put("1", createSampleList());
         return resultSetManager;
     }

@@ -21,7 +21,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.CheckSampleTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.ListSamples;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.SampleRow;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns.SampleRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 
 /**
@@ -50,7 +50,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         remoteConsole.finish(20000);
         client.onModuleLoad();
     }
-    
+
     public final void testListOnlySharedMasterPlates()
     {
         remoteConsole.prepare(new Login("test", "a"));
@@ -61,11 +61,11 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         table.expectedRow(new SampleRow("MP").identifier("CISD").valid().noExperiment().property(
                 "PLATE_GEOMETRY", "384_WELLS_16X24"));
         remoteConsole.prepare(table.expectedSize(1));
-        
+
         remoteConsole.finish(20000);
         client.onModuleLoad();
     }
-    
+
     public final void testListCellPlates()
     {
         remoteConsole.prepare(new Login("test", "a"));
@@ -76,9 +76,8 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         table.expectedRow(new SampleRow("3VCP1").identifier("CISD", "CISD").invalid().experiment(
                 "NEMO", "EXP1").derivedFromAncestor("3V-123", 1).derivedFromAncestor("MP001-1", 2));
         remoteConsole.prepare(table.expectedSize(16));
-        
+
         remoteConsole.finish(20000);
         client.onModuleLoad();
     }
-    
 }

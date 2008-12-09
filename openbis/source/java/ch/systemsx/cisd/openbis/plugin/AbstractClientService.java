@@ -30,7 +30,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.User;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CachedResultSetManager;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager.TokenBasedResultSetKeyGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
@@ -176,8 +178,9 @@ public abstract class AbstractClientService implements IClientService
             httpSession.setAttribute(SessionConstants.OPENBIS_SESSION_ATTRIBUTE_KEY, session);
             httpSession.setAttribute(SessionConstants.OPENBIS_SERVER_ATTRIBUTE_KEY, getServer());
             httpSession.setAttribute(SessionConstants.OPENBIS_RESULT_SET_MANAGER,
-                    new CachedResultSetManager<String>(
-                            new CachedResultSetManager.TokenBasedResultSetKeyGenerator()));
+                    createCachedResultSetManager());
+            httpSession.setAttribute(SessionConstants.OPENBIS_EXPORT_MANAGER, CacheManager
+                    .createCacheManager());
             return createSessionContext(session);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
@@ -189,6 +192,11 @@ public abstract class AbstractClientService implements IClientService
         }
     }
 
+    private CachedResultSetManager<String> createCachedResultSetManager()
+    {
+        return new CachedResultSetManager<String>(new TokenBasedResultSetKeyGenerator());
+    }
+
     public final void logout()
     {
         final HttpSession httpSession = getHttpSession();
@@ -198,6 +206,7 @@ public abstract class AbstractClientService implements IClientService
             httpSession.removeAttribute(SessionConstants.OPENBIS_SESSION_ATTRIBUTE_KEY);
             httpSession.removeAttribute(SessionConstants.OPENBIS_SERVER_ATTRIBUTE_KEY);
             httpSession.removeAttribute(SessionConstants.OPENBIS_RESULT_SET_MANAGER);
+            httpSession.removeAttribute(SessionConstants.OPENBIS_EXPORT_MANAGER);
             httpSession.invalidate();
             getServer().logout(session.getSessionToken());
         }

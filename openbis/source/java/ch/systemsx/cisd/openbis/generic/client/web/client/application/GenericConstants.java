@@ -79,4 +79,11 @@ public final class GenericConstants
     /** The HTTP URL parameter used to specify the database. */
     public static final String DATABASE_PARAMETER = "database";
 
+    /** Name of the servlet to export and download a file. */
+    public static final String FILE_EXPORTER_DOWNLOAD_SERVLET_NAME =
+            createServicePath("export-file-downloader");
+
+    /** The HTTP URL parameter used to specify the export criteria. */
+    public static final String EXPORT_CRITERIA_KEY_PARAMETER = "exportDataKey";
+
 }

@@ -5,10 +5,12 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.renderer.SimpleYesNoRenderer;
+
 /**
  * Renderer of {@link Boolean} value. Render <code>true</code> to <code>yes</code> and
  * <code>false</code> to <code>no</code>.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public final class YesNoRenderer implements GridCellRenderer<ModelData>
@@ -26,6 +28,6 @@ public final class YesNoRenderer implements GridCellRenderer<ModelData>
             return value.toString();
         }
         Boolean b = (Boolean) value;
-        return b.booleanValue() ? "yes" : "no";
+        return SimpleYesNoRenderer.render(b.booleanValue());
     }
 }

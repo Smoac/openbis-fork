@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns.CommonSampleColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns.ParentGeneratedFromSampleColDef;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns.PropertySampleColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 
@@ -28,13 +29,14 @@ public class SampleRow extends Row
 {
 
     private final String code;
+
     private String groupIdentifier;
 
     public SampleRow(String code)
     {
         super();
         this.code = code;
-        withCell(ModelDataPropertyNames.CODE, code);
+        withCell(CommonSampleColDefKind.CODE, code);
     }
 
     public SampleRow identifier(String instanceCode)
@@ -44,38 +46,36 @@ public class SampleRow extends Row
 
     public SampleRow identifier(String instanceCode, String groupCodeOrNull)
     {
-        withCell(ModelDataPropertyNames.DATABASE_INSTANCE, instanceCode);
+        withCell(CommonSampleColDefKind.DATABASE_INSTANCE, instanceCode);
         if (groupCodeOrNull == null)
         {
-            withCell(ModelDataPropertyNames.GROUP, "");
-            withCell(ModelDataPropertyNames.IS_GROUP_SAMPLE, Boolean.FALSE);
+            withCell(CommonSampleColDefKind.GROUP, "");
         } else
         {
-            withCell(ModelDataPropertyNames.GROUP, groupCodeOrNull);
-            withCell(ModelDataPropertyNames.IS_GROUP_SAMPLE, Boolean.TRUE);
+            withCell(CommonSampleColDefKind.GROUP, groupCodeOrNull);
         }
         groupIdentifier = createGroupIdentifier(instanceCode, groupCodeOrNull);
-        withCell(ModelDataPropertyNames.SAMPLE_IDENTIFIER, groupIdentifier + code);
+        withCell(CommonSampleColDefKind.SAMPLE_IDENTIFIER, groupIdentifier + code);
         return this;
     }
 
     public SampleRow experiment(String projectCode, String experimentCode)
     {
-        withCell(ModelDataPropertyNames.PROJECT_FOR_SAMPLE, projectCode);
-        withCell(ModelDataPropertyNames.EXPERIMENT_FOR_SAMPLE, experimentCode);
+        withCell(CommonSampleColDefKind.PROJECT_FOR_SAMPLE, projectCode);
+        withCell(CommonSampleColDefKind.EXPERIMENT_FOR_SAMPLE, experimentCode);
         String experimentIdentifier = groupIdentifier + projectCode + "/" + experimentCode;
-        withCell(ModelDataPropertyNames.EXPERIMENT_IDENTIFIER_FOR_SAMPLE, experimentIdentifier);
+        withCell(CommonSampleColDefKind.EXPERIMENT_IDENTIFIER_FOR_SAMPLE, experimentIdentifier);
         return this;
     }
-    
+
     public SampleRow noExperiment()
     {
-        withCell(ModelDataPropertyNames.PROJECT_FOR_SAMPLE, null);
-        withCell(ModelDataPropertyNames.EXPERIMENT_FOR_SAMPLE, null);
-        withCell(ModelDataPropertyNames.EXPERIMENT_IDENTIFIER_FOR_SAMPLE, null);
+        withCell(CommonSampleColDefKind.PROJECT_FOR_SAMPLE, null);
+        withCell(CommonSampleColDefKind.EXPERIMENT_FOR_SAMPLE, null);
+        withCell(CommonSampleColDefKind.EXPERIMENT_IDENTIFIER_FOR_SAMPLE, null);
         return this;
     }
-        
+
     private String createGroupIdentifier(String instanceCode, String groupCodeOrNull)
     {
         String identifier = instanceCode + ":/";
@@ -88,29 +88,44 @@ public class SampleRow extends Row
 
     public SampleRow invalid()
     {
-        withCell(ModelDataPropertyNames.IS_INVALID, Boolean.TRUE);
+        withCell(CommonSampleColDefKind.IS_INVALID, "yes");
+        // overwrite previous code
+        withCell(CommonSampleColDefKind.CODE, invalidCode(code));
         return this;
     }
 
     public SampleRow valid()
     {
-        withCell(ModelDataPropertyNames.IS_INVALID, Boolean.FALSE);
+        withCell(CommonSampleColDefKind.IS_INVALID, "no");
+        // just to be sure - overwrite previous code
+        withCell(CommonSampleColDefKind.CODE, code);
         return this;
     }
-    
+
+    public  static String invalidCode(String code)
+    {
+        return "<div class=\"invalid\">" + code + "</div>";
+    }
+
     public SampleRow derivedFromAncestor(String ancestorCode, int level)
     {
-        withCell(SampleModel.GENERATED_FROM_PARENT_PREFIX + level, ancestorCode);
+        String identifier = new ParentGeneratedFromSampleColDef(level, "dummy").getIdentifier();
+        withCell(identifier, ancestorCode);
         return this;
     }
-    
+
     public SampleRow property(String propertyCode, Object value)
     {
         PropertyType propertyType = new PropertyType();
         propertyType.setInternalNamespace(true);
         propertyType.setSimpleCode(propertyCode);
-        withCell(SampleModel.createID(propertyType), value);
+        String identifier = new PropertySampleColDef(propertyType, true).getIdentifier();
+        withCell(identifier, value);
         return this;
     }
 
+    private void withCell(CommonSampleColDefKind columnKind, String value)
+    {
+        withCell(columnKind.id(), value);
+    }
 }

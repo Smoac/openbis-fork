@@ -24,7 +24,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.ListSamples;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.ShowSample;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns.CommonSampleColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns.SampleRow;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns.ShowSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
@@ -59,8 +61,9 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         checkSample.property("Description").asProperty("test control layout");
 
         final CheckTableCommand componentsTable = checkSample.componentsTable().expectedSize(2);
-        componentsTable.expectedRow(new Row().withCell(CODE, "A01"));
-        componentsTable.expectedRow(new Row().withCell(CODE, "A03"));
+        String sampleCodeFieldIdent = CommonSampleColDefKind.CODE.id();
+        componentsTable.expectedRow(new Row().withCell(sampleCodeFieldIdent, "A01"));
+        componentsTable.expectedRow(new Row().withCell(sampleCodeFieldIdent, "A03"));
 
         checkSample.dataTable().expectedSize(0);
         remoteConsole.prepare(checkSample);
@@ -76,7 +79,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.SAMPLES,
                 CategoriesBuilder.MENU_ELEMENTS.LIST));
         remoteConsole.prepare(new ListSamples(true, true, "CISD", "CELL_PLATE"));
-        remoteConsole.prepare(new ShowSample(CELL_PLATE_EXAMPLE));
+        remoteConsole.prepare(new ShowSample(SampleRow.invalidCode(CELL_PLATE_EXAMPLE)));
         final CheckSample checkSample = new CheckSample(GROUP_IDENTIFIER, CELL_PLATE_EXAMPLE);
         checkSample.property("Sample").asString(CELL_PLATE_EXAMPLE);
         checkSample.property("Sample Type").asCode("CELL_PLATE");

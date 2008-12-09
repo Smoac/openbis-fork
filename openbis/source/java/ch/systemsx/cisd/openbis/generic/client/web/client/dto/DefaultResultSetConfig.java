@@ -25,7 +25,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public class DefaultResultSetConfig<K> implements IResultSetConfig<K>, IsSerializable
 {
-    private int limit = -1;
+    private int limit = NO_LIMIT;
 
     private int offset = 0;
 

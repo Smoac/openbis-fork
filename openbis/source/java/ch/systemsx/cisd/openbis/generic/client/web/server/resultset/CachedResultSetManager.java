@@ -30,7 +30,6 @@ import org.apache.log4j.Logger;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.TokenGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo.SortDir;
@@ -164,54 +163,6 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         {
             operationLog.debug(String.format("No result set for key '%s' could be found.",
                     resultSetKey));
-        }
-    }
-
-    //
-    // Helper classes
-    //
-
-    public final static class TokenBasedResultSetKeyGenerator implements
-            IResultSetKeyGenerator<String>
-    {
-
-        private static final long serialVersionUID = 1L;
-
-        private final TokenGenerator tokenGenerator;
-
-        public TokenBasedResultSetKeyGenerator()
-        {
-            this.tokenGenerator = new TokenGenerator();
-        }
-
-        //
-        // IResultSetKeyProvider
-        //
-
-        public final String createKey()
-        {
-            return tokenGenerator.getNewToken(System.currentTimeMillis());
-        }
-    }
-
-    public final static class CounterBasedResultSetKeyGenerator implements
-            IResultSetKeyGenerator<Integer>
-    {
-        private static final long serialVersionUID = 1L;
-
-        private int counter;
-
-        public CounterBasedResultSetKeyGenerator()
-        {
-        }
-
-        //
-        // IResultSetKeyProvider
-        //
-
-        public final Integer createKey()
-        {
-            return counter++;
         }
     }
 }

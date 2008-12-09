@@ -20,6 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
@@ -100,6 +101,19 @@ public interface ICommonClientService extends IClientService
      */
     public ResultSet<Sample> listSamples(final ListSampleCriteria criteria)
             throws UserFailureException;
+
+    /**
+     * Returns a key which can be used be the export servlet (and eventually
+     * {@link #getExportSamplesTable(String)}) to reference the export criteria in an easy
+     * way.
+     */
+    public String prepareExportSamples(final TableExportCriteria<Sample> criteria);
+
+    /**
+     * Assumes that preparation of the export ({@link #prepareExportSamples(TableExportCriteria)} has
+     * been invoked before and returned with an exportDataKey passed here as a parameter.
+     */
+    public String getExportSamplesTable(String exportDataKey);
 
     /**
      * Returns a list of experiments.

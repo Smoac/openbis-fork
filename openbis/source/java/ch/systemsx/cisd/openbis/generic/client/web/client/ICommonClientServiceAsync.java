@@ -21,6 +21,7 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
@@ -82,6 +83,17 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      */
     public void listSamples(final ListSampleCriteria criteria,
             AsyncCallback<ResultSet<Sample>> asyncCallback);
+
+    /**
+     * @see ICommonClientService#prepareExportSamples(TableExportCriteria)
+     */
+    public void prepareExportSamples(final TableExportCriteria<Sample> criteria,
+            AsyncCallback<String> asyncCallback);
+
+    /**
+     * @see ICommonClientService#getExportSamplesTable(String)
+     */
+    public void getExportSamplesTable(String exportDataKey, AsyncCallback<String> asyncCallback);
 
     /**
      * @see ICommonClientService#listExperiments(ListExperimentsCriteria)

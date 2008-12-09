@@ -131,12 +131,23 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
     {
         for (final Map.Entry<String, Object> entry : expectedRow.getColumnIDValuesMap().entrySet())
         {
-            if (TestUtil.isEqual(row.get(entry.getKey()), entry.getValue()) == false)
+            if (TestUtil.isEqual(row.get(entry.getKey()), wrapNull(entry.getValue())) == false)
             {
                 return false;
             }
         }
         return true;
+    }
+
+    private Object wrapNull(Object value)
+    {
+        if (value == null)
+        {
+            return "";
+        } else
+        {
+            return value;
+        }
     }
 
     @SuppressWarnings("unchecked")

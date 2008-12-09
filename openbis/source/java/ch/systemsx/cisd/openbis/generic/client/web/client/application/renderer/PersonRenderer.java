@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.renderer.SimplePersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DOMUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
@@ -44,42 +45,35 @@ public final class PersonRenderer
         // This class can not be instantiated
     }
 
-    private final static StringBuilder createPersonName(final Person person)
-    {
-        final StringBuilder builder = new StringBuilder();
-        final String lastName = person.getLastName();
-        final String firstName = person.getFirstName();
-        if (StringUtils.isBlank(lastName) == false)
-        {
-            builder.append(lastName);
-        }
-        if (StringUtils.isBlank(firstName) == false)
-        {
-            if (builder.length() > 0)
-            {
-                builder.append(", ");
-            }
-            builder.append(firstName);
-        }
-        return builder;
-    }
-
     /**
-     * Creates an <i>HTML</i> A element for given <var>person</var> representation.
+     * Creates an <i>HTML</i> A element for given <var>person</var>.
      */
     public final static String createPersonAnchor(final Person person)
     {
+        String personName = createPersonName(person).toString();
+        return createPersonAnchor(person, personName);
+    }
+
+    private static StringBuilder createPersonName(Person person)
+    {
+        return SimplePersonRenderer.createPersonName(person);
+    }
+
+    /**
+     * Creates an <i>HTML</i> A element for given <var>person</var> with a specified name.
+     */
+    public final static String createPersonAnchor(final Person person, String personName)
+    {
         assert person != null : "Unspecified person.";
         final String email = person.getEmail();
-        final String name = createPersonName(person).toString();
         if (StringUtils.isBlank(email) == false)
         {
             final Element anchor = DOMUtils.createAnchorElement(null, "mailto:" + email, email);
-            DOM.setInnerText(anchor, name);
+            DOM.setInnerText(anchor, personName);
             return DOM.toString(anchor);
         } else
         {
-            return name;
+            return personName;
         }
     }
 

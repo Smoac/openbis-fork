@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
@@ -33,11 +35,13 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -47,16 +51,17 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ParentColumns;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyColumns;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns.AbstractColumnsConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns.SampleModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.PagingToolBarWithoutRefresh;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GxtTranslator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo;
 
 /**
  * A {@link LayoutContainer} which contains the grid where the samples are displayed.
@@ -73,31 +78,39 @@ public final class SampleBrowserGrid extends LayoutContainer
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    private final CommonColumns commonColumns;
+    private final AbstractColumnsConfig commonColumns;
 
-    private final ParentColumns parentColumns;
+    private final AbstractColumnsConfig parentColumns;
 
-    private final PropertyColumns propertyColumns;
+    private final AbstractColumnsConfig propertyColumns;
+
+    private final PagingLoader<PagingLoadConfig> sampleLoader;
 
     private ContentPanel contentPanel;
 
     private Grid<SampleModel> grid;
 
-    private final PagingLoader<PagingLoadConfig> sampleLoader;
-
     private ListSampleCriteria criteria;
 
     private String resultSetKey;
 
+    private IDataRefreshCallback refreshCallback;
+
+    interface IDataRefreshCallback
+    {
+        // called after the grid is refreshed with new data
+        void postRefresh();
+    }
+
     SampleBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final CommonColumns commonColumns, final ParentColumns parentColumns,
-            final PropertyColumns propertyColumns)
+            final AbstractColumnsConfig commonColumns, final AbstractColumnsConfig parentColumns,
+            final AbstractColumnsConfig propertyColumns)
     {
         this.viewContext = viewContext;
         this.commonColumns = commonColumns;
         this.parentColumns = parentColumns;
         this.propertyColumns = propertyColumns;
-        sampleLoader = createSampleLoader();
+        this.sampleLoader = createSampleLoader();
         createUI();
     }
 
@@ -175,15 +188,13 @@ public final class SampleBrowserGrid extends LayoutContainer
                 {
                     final SampleModel sampleModel =
                             (SampleModel) be.grid.getStore().getAt(be.rowIndex);
-                    final SampleType sampleType =
-                            (SampleType) sampleModel.get(ModelDataPropertyNames.SAMPLE_TYPE);
-                    final String sampleIdentifier =
-                            sampleModel.get(ModelDataPropertyNames.SAMPLE_IDENTIFIER);
-                    final String code = sampleType.getCode();
+                    Sample sample = sampleModel.getSample();
+                    final String sampleIdentifier = sample.getSampleIdentifier();
+                    final String typeCode = sample.getSampleType().getCode();
                     final ITabItem tabView =
                             viewContext.getClientPluginFactoryProvider().getClientPluginFactory(
-                                    code).createViewClientForSampleType(code).createSampleViewer(
-                                    sampleIdentifier);
+                                    typeCode).createViewClientForSampleType(typeCode)
+                                    .createSampleViewer(sampleIdentifier);
                     Dispatcher.get().dispatch(DispatcherHelper.createNaviEvent(tabView));
                 }
             });
@@ -193,6 +204,27 @@ public final class SampleBrowserGrid extends LayoutContainer
     private final static PagingToolBar createPagingToolBar()
     {
         return new PagingToolBarWithoutRefresh(PAGE_SIZE);
+    }
+
+    private final Map<String/* column id */, IColumnDefinition<Sample>> getColumnDefs()
+    {
+        final List<IColumnDefinition<Sample>> defs = new ArrayList<IColumnDefinition<Sample>>();
+        defs.addAll(commonColumns.getColumnDefs());
+        defs.addAll(parentColumns.getColumnDefs());
+        defs.addAll(propertyColumns.getColumnDefs());
+        return asColumnIdMap(defs);
+    }
+
+    private static Map<String, IColumnDefinition<Sample>> asColumnIdMap(
+            List<IColumnDefinition<Sample>> defs)
+    {
+        Map<String, IColumnDefinition<Sample>> map =
+                new HashMap<String, IColumnDefinition<Sample>>();
+        for (IColumnDefinition<Sample> def : defs)
+        {
+            map.put(def.getIdentifier(), def);
+        }
+        return map;
     }
 
     private final ColumnModel createColumnModel()
@@ -236,7 +268,8 @@ public final class SampleBrowserGrid extends LayoutContainer
      * </p>
      */
     final void refresh(final SampleType selectedType, final String selectedGroupCode,
-            final Boolean includeGroup, final Boolean includeInstance)
+            final Boolean includeGroup, final Boolean includeInstance,
+            final IDataRefreshCallback newRefreshCallback)
     {
         if (resultSetKey != null)
         {
@@ -244,6 +277,7 @@ public final class SampleBrowserGrid extends LayoutContainer
                     new VoidAsyncCallback<Void>(viewContext));
             resultSetKey = null;
         }
+        this.refreshCallback = newRefreshCallback;
         criteria = new ListSampleCriteria();
         criteria.setSampleType(selectedType);
         criteria.setGroupCode(selectedGroupCode);
@@ -253,6 +287,41 @@ public final class SampleBrowserGrid extends LayoutContainer
                 includeInstance));
         grid.reconfigure(grid.getStore(), createColumnModel());
         sampleLoader.load(0, PAGE_SIZE);
+    }
+
+    final void export()
+    {
+        if (resultSetKey == null)
+        {
+            return;
+        }
+        List<IColumnDefinition<Sample>> columns = getSelectedColumnDefs();
+        SortInfo sortInfo = criteria.getSortInfo();
+        TableExportCriteria<Sample> exportCriteria =
+                new TableExportCriteria<Sample>(resultSetKey, sortInfo, columns);
+        viewContext.getService().prepareExportSamples(exportCriteria, new AsyncCallback<String>()
+            {
+                public void onFailure(Throwable caught)
+                {
+                    MessageBox.alert("Warning", "Export has failed!", null);
+                }
+
+                public void onSuccess(String exportDataKey)
+                {
+                    Window.open(createURL(exportDataKey), "Download of the exported file", null);
+                }
+
+                private String createURL(String exportDataKey)
+                {
+                    final StringBuffer sb = new StringBuffer();
+                    sb.append(GenericConstants.FILE_EXPORTER_DOWNLOAD_SERVLET_NAME);
+                    sb.append("?");
+                    sb.append(GenericConstants.EXPORT_CRITERIA_KEY_PARAMETER).append("=");
+                    sb.append(exportDataKey);
+                    return sb.toString();
+                }
+
+            });
     }
 
     /**
@@ -269,6 +338,25 @@ public final class SampleBrowserGrid extends LayoutContainer
     final ColumnModel getColumnModel()
     {
         return grid.getColumnModel();
+    }
+
+    private List<IColumnDefinition<Sample>> getSelectedColumnDefs()
+    {
+        Map<String, IColumnDefinition<Sample>> columns = getColumnDefs();
+
+        List<IColumnDefinition<Sample>> selectedColumnDefs =
+                new ArrayList<IColumnDefinition<Sample>>();
+        ColumnModel columnModel = grid.getColumnModel();
+        int columnCount = columnModel.getColumnCount();
+        for (int i = 0; i < columnCount; i++)
+        {
+            if (columnModel.isHidden(i) == false)
+            {
+                String columnId = columnModel.getColumnId(i);
+                selectedColumnDefs.add(columns.get(columnId));
+            }
+        }
+        return selectedColumnDefs;
     }
 
     //
@@ -319,7 +407,13 @@ public final class SampleBrowserGrid extends LayoutContainer
                     new BasePagingLoadResult<SampleModel>(sampleModels, offset, result
                             .getTotalLength());
             delegate.onSuccess(loadResult);
+            refreshCallback.postRefresh();
         }
+    }
+
+    protected boolean isExportEnabled()
+    {
+        return resultSetKey != null;
     }
 
 }

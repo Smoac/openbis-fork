@@ -14,27 +14,24 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns;
+
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 
 /**
- * Some session constants.
+ * Describes column's metadata. Has the ability to render cell values.
  * 
- * @author Christian Ribeaud
+ * @author Tomasz Pylak
  */
-public final class SessionConstants
+public interface IColumnDefinition<T> extends IsSerializable
 {
+    /** extracts value for the cell of the represented column */
+    String getValue(T entity);
 
-    private SessionConstants()
-    {
-    }
+    /** column's header */
+    String getHeader();
 
-    public static final String OPENBIS_SESSION_ATTRIBUTE_KEY = "openbis-session";
-
-    public static final String OPENBIS_SERVER_ATTRIBUTE_KEY = "openbis-server";
-
-    public static final String OPENBIS_RESULT_SET_MANAGER = "openbis-result-set-manager";
-
-    public static final String OPENBIS_EXPORT_MANAGER = "openbis-export-manager";
-
-    public static final String OPENBIS_UPLOADED_FILES = "openbis-uploaded-files";
+    /** unique identifier of the column */
+    String getIdentifier();
 }

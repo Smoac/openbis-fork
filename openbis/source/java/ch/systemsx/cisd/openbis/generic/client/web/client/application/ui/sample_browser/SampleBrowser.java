@@ -27,8 +27,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ParentColumns;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyColumns;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns.CommonColumnsConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns.ParentColumnsConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns.PropertyColumnsConfig;
 
 /**
  * Main view component of Sample Browser.
@@ -51,9 +52,9 @@ public final class SampleBrowser extends LayoutContainer implements Listener<Tab
         setId(ID);
         setLayout(new RowLayout());
 
-        final CommonColumns commonColumns = new CommonColumns(viewContext.getMessageProvider());
-        final ParentColumns parentColumns = new ParentColumns(viewContext.getMessageProvider());
-        final PropertyColumns propertyColumns = new PropertyColumns();
+        final CommonColumnsConfig commonColumns = new CommonColumnsConfig(viewContext.getMessageProvider());
+        final ParentColumnsConfig parentColumns = new ParentColumnsConfig(viewContext.getMessageProvider());
+        final PropertyColumnsConfig propertyColumns = new PropertyColumnsConfig();
 
         sampleBrowserGrid =
                 new SampleBrowserGrid(viewContext, commonColumns, parentColumns, propertyColumns);
