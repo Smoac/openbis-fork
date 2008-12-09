@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.server.csv;
+package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 
 import java.util.List;
 
