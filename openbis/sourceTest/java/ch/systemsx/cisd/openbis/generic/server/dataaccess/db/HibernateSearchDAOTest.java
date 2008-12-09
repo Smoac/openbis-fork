@@ -26,6 +26,7 @@ import java.util.Set;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -41,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
  */
 @Test(groups =
     { "db", "hibernateSearch" })
+@Friend(toClasses = HibernateSearchDAO.class)
 public final class HibernateSearchDAOTest extends AbstractDAOTest
 {
     @SuppressWarnings("unused")
