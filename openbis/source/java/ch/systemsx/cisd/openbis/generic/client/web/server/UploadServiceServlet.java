@@ -100,7 +100,7 @@ public final class UploadServiceServlet extends AbstractCommandController
                 uploadedFiles.addMultipartFile(multipartFile);
             }
         }
-        if (uploadedFiles.getMultipartFiles().size() == 0)
+        if (uploadedFiles.size() == 0)
         {
             throw UserFailureException.fromTemplate("No file has been uploaded, that is, "
                     + "the chosen file(s) has no content.");

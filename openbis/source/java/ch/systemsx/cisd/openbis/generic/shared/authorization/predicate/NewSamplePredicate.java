@@ -39,7 +39,7 @@ public final class NewSamplePredicate extends DelegatedPredicate<SampleOwnerIden
     @Override
     public final SampleOwnerIdentifier convert(final NewSample value)
     {
-        return SampleIdentifierFactory.parse(value.getSampleIdentifier());
+        return SampleIdentifierFactory.parse(value.getIdentifier());
     }
 
     @Override

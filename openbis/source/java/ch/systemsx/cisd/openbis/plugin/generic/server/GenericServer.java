@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
@@ -132,5 +134,13 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
         experimentBO.loadByExperimentIdentifier(experimentIdentifier);
         return experimentBO.getExperimentFileAttachment(filename, version);
+    }
+
+    public final void registerSamples(final String sessionToken, final List<NewSample> newSamples)
+            throws UserFailureException
+    {
+        // TODO 2008-12-09, Christian Ribeaud: Use plugin architecture.
+        final Session session = getSessionManager().getSession(sessionToken);
+
     }
 }

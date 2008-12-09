@@ -16,7 +16,11 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
+import java.util.List;
+
 import ch.systemsx.cisd.authentication.ISessionManager;
+import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.common.collections.IToStringConverter;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
@@ -59,7 +63,7 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     public void registerSample(final String sessionToken, final NewSample newSample)
     {
         logTracking(sessionToken, "register_sample", "SAMPLE_TYPE(%s) SAMPLE(%S)", newSample
-                .getSampleTypeCode(), newSample.getSampleIdentifier());
+                .getSampleType(), newSample.getIdentifier());
     }
 
     public ExperimentPE getExperimentInfo(final String sessionToken,
@@ -76,5 +80,22 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         logAccess(sessionToken, "get_attachment", "EXPERIMENT_IDENTIFIER(%s) FILE(%s) VERSION(%s)",
                 experimentIdentifier, filename, version);
         return null;
+    }
+
+    public final void registerSamples(final String sessionToken, final List<NewSample> newSamples)
+            throws UserFailureException
+    {
+        logAccess(sessionToken, "register_samples", "SAMPLES(%s)", CollectionUtils.abbreviate(
+                newSamples, 20, new IToStringConverter<NewSample>()
+                    {
+                        //
+                        // IToStringConverter
+                        //
+
+                        public final String toString(final NewSample value)
+                        {
+                            return value.getIdentifier();
+                        }
+                    }));
     }
 }

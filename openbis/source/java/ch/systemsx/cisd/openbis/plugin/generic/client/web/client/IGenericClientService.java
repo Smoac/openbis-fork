@@ -21,6 +21,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
 /**
@@ -48,7 +49,8 @@ public interface IGenericClientService extends IClientService
      * Uploaded files can be found as session attribute under given <var>sessionKey</var>.
      * </p>
      */
-    public String registerSamples(final String sessionKey) throws UserFailureException;
+    public String registerSamples(final SampleType sampleType, final String sessionKey)
+            throws UserFailureException;
 
     /**
      * For given <var>experimentIdentifier</var> returns corresponding {@link Experiment}.

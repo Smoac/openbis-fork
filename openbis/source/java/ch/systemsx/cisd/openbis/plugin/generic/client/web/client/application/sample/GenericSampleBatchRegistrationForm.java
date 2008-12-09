@@ -69,12 +69,15 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
 
     private final InfoBox infoBox;
 
+    private final SampleType sampleType;
+
     public GenericSampleBatchRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext, final SampleType sampleType)
     {
         super(new FlowLayout(5));
         setScrollMode(Scroll.AUTO);
         this.viewContext = viewContext;
+        this.sampleType = sampleType;
         add(infoBox = createInfoBox());
         add(createUI());
     }
@@ -152,7 +155,8 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
                         setUploadEnabled(true);
                     } else
                     {
-                        viewContext.getService().registerSamples(sessionKeyField.getValue(),
+                        viewContext.getService().registerSamples(sampleType,
+                                sessionKeyField.getValue(),
                                 new RegisterSamplesCallback(viewContext));
                     }
                 }

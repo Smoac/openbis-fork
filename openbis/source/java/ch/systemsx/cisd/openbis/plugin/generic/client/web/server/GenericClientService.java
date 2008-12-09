@@ -16,12 +16,19 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.server;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.parser.IParserObjectFactory;
 import ch.systemsx.cisd.common.parser.IParserObjectFactoryFactory;
@@ -33,6 +40,7 @@ import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ExperimentTranslator;
@@ -117,41 +125,51 @@ public final class GenericClientService extends AbstractClientService implements
         }
     }
 
-    // TODO 2008-12-09, Christian Ribeaud: Add sample type here. This means we will use the plugin
-    // architecture.
-    public final String registerSamples(final String sessionKey)
+    public final String registerSamples(final SampleType sampleType, final String sessionKey)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final HttpSession session = getHttpSession();
+            assert session.getAttribute(sessionKey) != null
+                    && session.getAttribute(sessionKey) instanceof UploadedFilesBean : String
+                    .format("No UploadedFilesBean object as session attribute '%s' found.",
+                            sessionKey);
             final UploadedFilesBean uploadedFiles =
                     (UploadedFilesBean) session.getAttribute(sessionKey);
-            TabFileLoader<NewSample> fileLoader =
+            final TabFileLoader<NewSample> fileLoader =
                     new TabFileLoader<NewSample>(new IParserObjectFactoryFactory<NewSample>()
                         {
                             //
-                            // 
+                            // IParserObjectFactoryFactory
                             //
 
-                            public IParserObjectFactory<NewSample> createFactory(
+                            public final IParserObjectFactory<NewSample> createFactory(
                                     IPropertyMapper propertyMapper) throws ParserException
                             {
-                                // TODO Auto-generated method stub
-                                return null;
+                                return new NewSampleParserObjectFactory(sampleType, propertyMapper);
                             }
                         });
-
+            final List<NewSample> newSamples = new ArrayList<NewSample>();
+            for (final MultipartFile multipartFile : uploadedFiles.iterable())
+            {
+                newSamples.addAll(fileLoader.load(new StringReader(new String(multipartFile
+                        .getBytes()))));
+            }
+            genericServer.registerSamples(getSessionToken(), newSamples);
             session.removeAttribute(sessionKey);
             return null;
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
+        } catch (final IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
 
     }
 
-    public Experiment getExperimentInfo(final String experimentIdentifier)
+    public final Experiment getExperimentInfo(final String experimentIdentifier)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try

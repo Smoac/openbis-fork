@@ -22,7 +22,6 @@ import org.springframework.dao.DataAccessException;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.utilities.ParameterChecker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
@@ -111,18 +110,16 @@ public final class SampleBO extends AbstractSampleIdentifierBusinessObject imple
     public final void define(final NewSample newSample)
     {
         final SampleIdentifier sampleIdentifier =
-                SampleIdentifierFactory.parse(newSample.getSampleIdentifier());
-        final String sampleTypeCode = newSample.getSampleTypeCode();
-        ParameterChecker.checkIfNotNull(sampleTypeCode, "sample type");
+                SampleIdentifierFactory.parse(newSample.getIdentifier());
         final SampleOwner sampleOwner = getSampleOwnerFinder().figureSampleOwner(sampleIdentifier);
         sample = new SamplePE();
         sample.setCode(sampleIdentifier.getSampleCode());
         sample.setRegistrator(findRegistrator());
-        sample.setSampleType(getSampleType(sampleTypeCode));
+        sample.setSampleType(getSampleType(newSample.getSampleType().getCode()));
         sample.setGroup(sampleOwner.tryGetGroup());
         sample.setDatabaseInstance(sampleOwner.tryGetDatabaseInstance());
         defineSampleProperties(newSample.getProperties().toArray(SampleProperty.EMPTY_ARRAY));
-        final String parent = newSample.getParent();
+        final String parent = newSample.getParentIdentifier();
         if (parent != null)
         {
             final SamplePE parentPE = getSampleByIdentifier(SampleIdentifierFactory.parse(parent));
@@ -135,7 +132,7 @@ public final class SampleBO extends AbstractSampleIdentifierBusinessObject imple
             sample.setGeneratedFrom(parentPE);
             sample.setTop(parentPE.getTop() == null ? parentPE : parentPE.getTop());
         }
-        final String container = newSample.getContainer();
+        final String container = newSample.getContainerIdentifier();
         if (container != null)
         {
             final SamplePE containerPE =

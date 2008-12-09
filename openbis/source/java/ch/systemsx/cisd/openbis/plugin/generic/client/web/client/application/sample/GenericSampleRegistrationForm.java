@@ -287,7 +287,7 @@ public final class GenericSampleRegistrationForm extends LayoutContainer
         if (formPanel.isValid())
         {
             final NewSample sampleToRegister =
-                    new NewSample(createSampleIdentifier(), sampleType.getCode(), StringUtils
+                    new NewSample(createSampleIdentifier(), sampleType, StringUtils
                             .trimToNull(parent.getValue()), StringUtils.trimToNull(container
                             .getValue()));
             for (final Field<?> field : propertyFields)

@@ -180,7 +180,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     public void registerSample(final String sessionToken, final NewSample newSample)
     {
         logTracking(sessionToken, "register_sample", "SAMPLE_TYPE(%s) SAMPLE(%S)", newSample
-                .getSampleTypeCode(), newSample.getSampleIdentifier());
+                .getSampleType(), newSample.getIdentifier());
     }
 
     public List<ExperimentPE> listExperiments(final String sessionToken,

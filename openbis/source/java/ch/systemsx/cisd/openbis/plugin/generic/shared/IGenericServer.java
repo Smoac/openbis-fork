@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.shared;
 
+import java.util.List;
+
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -73,5 +75,13 @@ public interface IGenericServer extends IServer
     public AttachmentPE getExperimentFileAttachment(String sessionToken,
             @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class)
             ExperimentIdentifier experimentIdentifier, String filename, int version)
+            throws UserFailureException;
+
+    /**
+     * Registers samples in batch.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.USER)
+    public void registerSamples(final String sessionToken, final List<NewSample> newSamples)
             throws UserFailureException;
 }

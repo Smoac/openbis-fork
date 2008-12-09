@@ -19,22 +19,26 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.common.annotation.BeanProperty;
 
 /**
  * A sample to register.
  * 
  * @author Christian Ribeaud
  */
-public final class NewSample implements IsSerializable
+public final class NewSample extends Identifier<NewSample>
 {
-    private String sampleIdentifier;
+    private SampleType sampleType;
 
-    private String sampleTypeCode;
+    /**
+     * The parent identifier.
+     */
+    private String parentIdentifier;
 
-    private String parent;
-
-    private String container;
+    /**
+     * The container identifier.
+     */
+    private String containerIdentifier;
 
     private List<SampleProperty> properties = new ArrayList<SampleProperty>();
 
@@ -42,53 +46,45 @@ public final class NewSample implements IsSerializable
     {
     }
 
-    public NewSample(final String sampleIdentifier, final String sampleTypeCode,
-            final String parent, final String container)
+    public NewSample(final String identifier, final SampleType sampleType,
+            final String parentIdentifier, final String containerIdentifier)
     {
-        setSampleIdentifier(sampleIdentifier);
-        setSampleTypeCode(sampleTypeCode);
-        setParent(parent);
-        setContainer(container);
+        setIdentifier(identifier);
+        setSampleType(sampleType);
+        setParentIdentifier(parentIdentifier);
+        setContainerIdentifier(containerIdentifier);
     }
 
-    public final String getSampleIdentifier()
+    public final SampleType getSampleType()
     {
-        return sampleIdentifier;
+        return sampleType;
     }
 
-    public final void setSampleIdentifier(final String sampleIdentifier)
+    public final void setSampleType(final SampleType sampleType)
     {
-        this.sampleIdentifier = sampleIdentifier;
+        this.sampleType = sampleType;
     }
 
-    public final String getSampleTypeCode()
+    public final String getParentIdentifier()
     {
-        return sampleTypeCode;
+        return parentIdentifier;
     }
 
-    public final void setSampleTypeCode(final String typeCode)
+    @BeanProperty(label = "parent")
+    public final void setParentIdentifier(final String parent)
     {
-        this.sampleTypeCode = typeCode;
+        this.parentIdentifier = parent;
     }
 
-    public final String getParent()
+    public final String getContainerIdentifier()
     {
-        return parent;
+        return containerIdentifier;
     }
 
-    public final void setParent(final String parent)
+    @BeanProperty(label = "container")
+    public final void setContainerIdentifier(final String container)
     {
-        this.parent = parent;
-    }
-
-    public final String getContainer()
-    {
-        return container;
-    }
-
-    public final void setContainer(final String container)
-    {
-        this.container = container;
+        this.containerIdentifier = container;
     }
 
     public final List<SampleProperty> getProperties()

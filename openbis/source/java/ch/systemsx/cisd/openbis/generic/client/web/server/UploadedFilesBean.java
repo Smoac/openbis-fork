@@ -42,9 +42,14 @@ public final class UploadedFilesBean
         multipartFiles.add(multipartFile);
     }
 
-    public final List<MultipartFile> getMultipartFiles()
+    public final Iterable<MultipartFile> iterable()
     {
         return multipartFiles;
+    }
+
+    public final int size()
+    {
+        return multipartFiles.size();
     }
 
     public final String getSessionKey()
@@ -56,5 +61,4 @@ public final class UploadedFilesBean
     {
         this.sessionKey = sessionKey;
     }
-
 }

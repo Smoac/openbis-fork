@@ -51,6 +51,6 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
     public void registerSample(final String sessionToken, final NewSample newSample)
     {
         logTracking(sessionToken, "register_plate", "PLATE_TYPE(%s) PLATE(%S)", newSample
-                .getSampleTypeCode(), newSample.getSampleIdentifier());
+                .getSampleType(), newSample.getIdentifier());
     }
 }

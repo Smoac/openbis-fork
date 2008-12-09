@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -182,11 +183,12 @@ public final class SampleBOTest
         final SampleIdentifier sharedSampleIdentifier =
                 getSharedSampleIdentifier(DEFAULT_SAMPLE_CODE);
         final NewSample newSharedSample = new NewSample();
-        newSharedSample.setSampleIdentifier(sharedSampleIdentifier.toString());
-        newSharedSample.setSampleTypeCode(SampleTypeCode.DILUTION_PLATE.getCode());
+        newSharedSample.setIdentifier(sharedSampleIdentifier.toString());
+        final SampleType sampleType = createSampleType(SampleTypeCode.DILUTION_PLATE);
+        newSharedSample.setSampleType(sampleType);
 
         final SampleIdentifier parentGroupIdentifier = getGroupSampleIdentifier("SAMPLE_GENERATOR");
-        newSharedSample.setParent(parentGroupIdentifier.toString());
+        newSharedSample.setParentIdentifier(parentGroupIdentifier.toString());
 
         newSharedSample.setProperties(Arrays.asList(SampleProperty.EMPTY_ARRAY));
 
@@ -210,9 +212,6 @@ public final class SampleBOTest
                             EXAMPLE_GROUP);
                     will(returnValue(groupParent));
 
-                    final SampleTypePE sampleType = new SampleTypePE();
-                    sampleType.setCode(DILUTION_PLATE);
-
                     one(daoFactory).getSampleTypeDAO();
                     will(returnValue(sampleTypeDAO));
                     one(sampleTypeDAO).tryFindSampleTypeByCode(DILUTION_PLATE);
@@ -229,20 +228,27 @@ public final class SampleBOTest
         sampleBO.define(newSharedSample);
     }
 
+    private SampleType createSampleType(final SampleTypeCode sampleTypeCode)
+    {
+        final SampleType sampleType = new SampleType();
+        sampleType.setCode(sampleTypeCode.getCode());
+        return sampleType;
+    }
+
     @Test
     public final void testDefineSampleHappyCase()
     {
         final SampleIdentifier sampleIdentifier = getGroupSampleIdentifier(DEFAULT_SAMPLE_CODE);
         final NewSample newSample = new NewSample();
-        newSample.setSampleIdentifier(sampleIdentifier.toString());
-        newSample.setSampleTypeCode(SampleTypeCode.DILUTION_PLATE.getCode());
+        newSample.setIdentifier(sampleIdentifier.toString());
+        newSample.setSampleType(createSampleType(SampleTypeCode.DILUTION_PLATE));
 
         final SampleIdentifier generatedFromIdentifier =
                 getGroupSampleIdentifier("SAMPLE_GENERATOR");
-        newSample.setParent(generatedFromIdentifier.toString());
+        newSample.setParentIdentifier(generatedFromIdentifier.toString());
 
         final SampleIdentifier containerIdentifier = getGroupSampleIdentifier("SAMPLE_CONTAINER");
-        newSample.setContainer(containerIdentifier.toString());
+        newSample.setContainerIdentifier(containerIdentifier.toString());
 
         newSample.setProperties(Arrays.asList(SampleProperty.EMPTY_ARRAY));
 
@@ -312,8 +318,8 @@ public final class SampleBOTest
     {
         final NewSample newSample = new NewSample();
 
-        newSample.setSampleIdentifier(getGroupSampleIdentifier(DEFAULT_SAMPLE_CODE).toString());
-        newSample.setSampleTypeCode(SampleTypeCode.MASTER_PLATE.getCode());
+        newSample.setIdentifier(getGroupSampleIdentifier(DEFAULT_SAMPLE_CODE).toString());
+        newSample.setSampleType(createSampleType(SampleTypeCode.MASTER_PLATE));
 
         final SampleTypePE sampleType = new SampleTypePE();
         sampleType.setCode(MASTER_PLATE);
@@ -363,7 +369,7 @@ public final class SampleBOTest
                                 assertEquals(EXAMPLE_SESSION.tryGetHomeGroupId(), sample.getGroup()
                                         .getId());
                                 assertNull(sample.getDatabaseInstance());
-                                assertEquals(newSample.getSampleIdentifier(), sample
+                                assertEquals(newSample.getIdentifier(), sample
                                         .getSampleIdentifier().toString());
                                 assertEquals(EXAMPLE_PERSON, sample.getRegistrator());
                                 return true;
@@ -389,9 +395,9 @@ public final class SampleBOTest
     public final void testRegisterSampleWithUnknownContainer()
     {
         final NewSample sample = new NewSample();
-        sample.setSampleIdentifier(getGroupSampleIdentifier(DEFAULT_SAMPLE_CODE).toString());
-        sample.setSampleTypeCode(SampleTypeCode.DILUTION_PLATE.getCode());
-        sample.setContainer(getGroupSampleIdentifier("DOES_NOT_EXIST").toString());
+        sample.setIdentifier(getGroupSampleIdentifier(DEFAULT_SAMPLE_CODE).toString());
+        sample.setSampleType(createSampleType(SampleTypeCode.DILUTION_PLATE));
+        sample.setContainerIdentifier(getGroupSampleIdentifier("DOES_NOT_EXIST").toString());
 
         context.checking(new Expectations()
             {
@@ -432,9 +438,9 @@ public final class SampleBOTest
     public final void testRegisterSampleWithUnknownParent()
     {
         final NewSample sample = new NewSample();
-        sample.setSampleIdentifier(getGroupSampleIdentifier(DEFAULT_SAMPLE_CODE).toString());
-        sample.setSampleTypeCode(SampleTypeCode.DILUTION_PLATE.getCode());
-        sample.setParent(getGroupSampleIdentifier("DOES_NOT_EXIST").toString());
+        sample.setIdentifier(getGroupSampleIdentifier(DEFAULT_SAMPLE_CODE).toString());
+        sample.setSampleType(createSampleType(SampleTypeCode.DILUTION_PLATE));
+        sample.setParentIdentifier(getGroupSampleIdentifier("DOES_NOT_EXIST").toString());
 
         context.checking(new Expectations()
             {
