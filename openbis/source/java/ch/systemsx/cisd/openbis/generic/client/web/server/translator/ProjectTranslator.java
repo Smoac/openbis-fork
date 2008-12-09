@@ -14,44 +14,37 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.server.util;
+package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**
  * A {@link Person} &lt;---&gt; {@link PersonPE} translator.
  * 
- * @author Franz-Josef Elmer
+ * @author Tomasz Pylak
  */
-public class PersonTranslator
+public final class ProjectTranslator
 {
-    private PersonTranslator()
+
+    private ProjectTranslator()
     {
         // Can not be instantiated.
     }
 
-    public final static Person translate(final PersonPE person)
+    public final static Project translate(final ProjectPE project)
     {
-        return translate(person, true);
-    }
-
-    private final static Person translate(final PersonPE person, final boolean recursively)
-    {
-        if (person == null)
+        if (project == null)
         {
             return null;
         }
-        final Person result = new Person();
-        result.setFirstName(person.getFirstName());
-        result.setLastName(person.getLastName());
-        result.setEmail(person.getEmail());
-        result.setUserId(person.getUserId());
-        result.setRegistrationDate(person.getRegistrationDate());
-        if (recursively)
-        {
-            result.setRegistrator(PersonTranslator.translate(person.getRegistrator(), false));
-        }
+        final Project result = new Project();
+        result.setCode(project.getCode());
+        result.setDescription(project.getDescription());
+        result.setGroup(GroupTranslator.translate(project.getGroup()));
+        result.setProjectLeader(PersonTranslator.translate(project.getProjectLeader()));
         return result;
     }
 
