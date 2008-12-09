@@ -287,7 +287,7 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
     }
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "parentInternal")
-    @IndexedEmbedded
+    @IndexedEmbedded(prefix = "")
     @Private
     // for Hibernate and bean conversion only
     public Set<AttachmentPE> getInternalAttachments()

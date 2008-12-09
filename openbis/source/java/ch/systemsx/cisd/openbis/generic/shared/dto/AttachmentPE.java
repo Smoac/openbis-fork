@@ -89,9 +89,8 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
         private static final String FIELD_PREFIX = "attachment: ";
 
         public void set(String name, Object/* AttachmentPE */value,
-                Document/* Lucene document */document,
-                org.apache.lucene.document.Field.Store store,
-                org.apache.lucene.document.Field.Index index, Float boost)
+                Document/* Lucene document */document, Field.Store store, Field.Index index,
+                Float boost)
         {
             AttachmentPE attachment = (AttachmentPE) value;
             String fieldName =
@@ -113,6 +112,7 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
     @Column(name = ColumnNames.FILE_NAME_COLUMN)
     @NotNull(message = ValidationMessages.FILE_NAME_NOT_NULL_MESSAGE)
     @Length(max = 100, message = ValidationMessages.FILE_NAME_LENGTH_MESSAGE)
+    @org.hibernate.search.annotations.Field(index = Index.TOKENIZED, name = "attachment name")
     public String getFileName()
     {
         return fileName;
