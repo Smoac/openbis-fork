@@ -27,15 +27,22 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
+import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * Test cases for corresponding {@link CommonServer} class.
@@ -110,7 +117,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         final String password = "password";
         final Session session = createExampleSession();
         final PersonPE systemPerson = createSystemUser();
-        final PersonPE person = createPersonFromPrincipal(PRINCIPAL);
+        final PersonPE person = CommonTestUtils.createPersonFromPrincipal(PRINCIPAL);
         final RoleAssignmentPE roleAssignment = new RoleAssignmentPE();
         roleAssignment.setPerson(person);
         roleAssignment.setDatabaseInstance(homeDatabaseInstance);
@@ -151,7 +158,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         final String password = "password";
         final Session session = createExampleSession();
         final PersonPE systemPerson = createSystemUser();
-        final PersonPE person = createPersonFromPrincipal(PRINCIPAL);
+        final PersonPE person = CommonTestUtils.createPersonFromPrincipal(PRINCIPAL);
         context.checking(new Expectations()
             {
                 {
@@ -185,7 +192,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         final String password = "password";
         final Session session = createExampleSession();
         final PersonPE systemPerson = createSystemUser();
-        final PersonPE person = createPersonFromPrincipal(PRINCIPAL);
+        final PersonPE person = CommonTestUtils.createPersonFromPrincipal(PRINCIPAL);
         context.checking(new Expectations()
             {
                 {
@@ -215,10 +222,10 @@ public final class CommonServerTest extends AbstractServerTestCase
     @Test
     public void testListGroups()
     {
-        final PersonPE person = createPersonFromPrincipal(PRINCIPAL);
+        final PersonPE person = CommonTestUtils.createPersonFromPrincipal(PRINCIPAL);
         final DatabaseInstanceIdentifier identifier = DatabaseInstanceIdentifier.createHome();
-        final GroupPE g1 = createGroup("g1", homeDatabaseInstance);
-        final GroupPE g2 = createGroup("g2", homeDatabaseInstance);
+        final GroupPE g1 = CommonTestUtils.createGroup("g1", homeDatabaseInstance);
+        final GroupPE g2 = CommonTestUtils.createGroup("g2", homeDatabaseInstance);
         final Session session = prepareGetSession();
         session.setPerson(person);
         person.setHomeGroup(g1);
@@ -268,7 +275,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     @Test
     public void testListPersons()
     {
-        final PersonPE person = createPersonFromPrincipal(PRINCIPAL);
+        final PersonPE person = CommonTestUtils.createPersonFromPrincipal(PRINCIPAL);
         prepareGetSession();
         context.checking(new Expectations()
             {
@@ -293,22 +300,22 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(personDAO).tryFindPersonByUserId(USER_ID);
+                    one(personDAO).tryFindPersonByUserId(CommonTestUtils.USER_ID);
                     will(returnValue(null));
 
                     final String applicationToken = "application-token";
                     one(authenticationService).authenticateApplication();
                     will(returnValue(applicationToken));
 
-                    one(authenticationService).getPrincipal(applicationToken, USER_ID);
+                    one(authenticationService).getPrincipal(applicationToken, CommonTestUtils.USER_ID);
                     will(returnValue(PRINCIPAL));
 
-                    final PersonPE person = createPersonFromPrincipal(PRINCIPAL);
+                    final PersonPE person = CommonTestUtils.createPersonFromPrincipal(PRINCIPAL);
                     one(personDAO).createPerson(person);
                 }
             });
 
-        createServer().registerPerson(SESSION_TOKEN, USER_ID);
+        createServer().registerPerson(SESSION_TOKEN, CommonTestUtils.USER_ID);
 
         context.assertIsSatisfied();
     }
@@ -320,18 +327,18 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(personDAO).tryFindPersonByUserId(USER_ID);
-                    will(returnValue(createPersonFromPrincipal(PRINCIPAL)));
+                    one(personDAO).tryFindPersonByUserId(CommonTestUtils.USER_ID);
+                    will(returnValue(CommonTestUtils.createPersonFromPrincipal(PRINCIPAL)));
                 }
             });
 
         try
         {
-            createServer().registerPerson(SESSION_TOKEN, USER_ID);
+            createServer().registerPerson(SESSION_TOKEN, CommonTestUtils.USER_ID);
             fail("UserFailureException expected");
         } catch (final UserFailureException e)
         {
-            assertEquals("Person '" + USER_ID + "' already exists.", e.getMessage());
+            assertEquals("Person '" + CommonTestUtils.USER_ID + "' already exists.", e.getMessage());
         }
 
         context.assertIsSatisfied();
@@ -344,25 +351,25 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(personDAO).tryFindPersonByUserId(USER_ID);
+                    one(personDAO).tryFindPersonByUserId(CommonTestUtils.USER_ID);
                     will(returnValue(null));
 
                     final String applicationToken = "application-token";
                     one(authenticationService).authenticateApplication();
                     will(returnValue(applicationToken));
 
-                    one(authenticationService).getPrincipal(applicationToken, USER_ID);
+                    one(authenticationService).getPrincipal(applicationToken, CommonTestUtils.USER_ID);
                     will(throwException(new IllegalArgumentException()));
                 }
             });
 
         try
         {
-            createServer().registerPerson(SESSION_TOKEN, USER_ID);
+            createServer().registerPerson(SESSION_TOKEN, CommonTestUtils.USER_ID);
             fail("UserFailureException expected");
         } catch (final UserFailureException e)
         {
-            assertEquals("Person '" + USER_ID + "' unknown by the authentication service.", e
+            assertEquals("Person '" + CommonTestUtils.USER_ID + "' unknown by the authentication service.", e
                     .getMessage());
         }
 
@@ -394,7 +401,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     public final void testListExternalData()
     {
         final Session session = prepareGetSession();
-        final SampleIdentifier sampleIdentifier = createSampleIdentifier();
+        final SampleIdentifier sampleIdentifier = CommonTestUtils.createSampleIdentifier();
         context.checking(new Expectations()
             {
                 {
@@ -411,4 +418,66 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void testListExperiments()
+    {
+        final Session session = prepareGetSession();
+        final ProjectIdentifier projectIdentifier = CommonTestUtils.createProjectIdentifier();
+        final ExperimentTypePE experimentType = CommonTestUtils.createExperimentType();
+        context.checking(new Expectations()
+            {
+                {
+                    one(commonBusinessObjectFactory).createExperimentTable(session);
+                    will(returnValue(experimentTable));
+
+                    one(experimentTable).load(experimentType.getCode(), projectIdentifier);
+
+                    one(experimentTable).enrichWithProperties();
+
+                    one(experimentTable).getExperiments();
+                    will(returnValue(new ArrayList<ExperimentPE>()));
+                }
+            });
+        createServer()
+                .listExperiments(session.getSessionToken(), experimentType, projectIdentifier);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testListExperimentTypes()
+    {
+        final Session session = prepareGetSession();
+        final List<EntityTypePE> types = new ArrayList<EntityTypePE>();
+        types.add(CommonTestUtils.createExperimentType());
+        context.checking(new Expectations()
+            {
+                {
+                    one(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
+                    will(returnValue(experimentTypeDAO));
+
+                    one(experimentTypeDAO).listEntityTypes();
+                    will(returnValue(types));
+                }
+            });
+        assertEquals(types, createServer().listExperimentTypes(session.getSessionToken()));
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testListProjects()
+    {
+        final Session session = prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(daoFactory).getProjectDAO();
+                    will(returnValue(projectDAO));
+
+                    one(projectDAO).listProjects();
+                    will(returnValue(new ArrayList<ProjectPE>()));
+                }
+            });
+        createServer().listProjects(session.getSessionToken());
+        context.assertIsSatisfied();
+    }
 }

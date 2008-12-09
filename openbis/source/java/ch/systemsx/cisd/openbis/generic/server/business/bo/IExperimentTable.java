@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
  * 
  * @author Izabela Adamczyk
  */
-public interface IExperimentTable extends IBusinessObject, Iterable<ExperimentPE>
+public interface IExperimentTable
 {
     /**
      * Loads all experiments of given type and from given project.
@@ -44,9 +44,4 @@ public interface IExperimentTable extends IBusinessObject, Iterable<ExperimentPE
     /** Returns the loaded {@link ExperimentPE}. */
     public List<ExperimentPE> getExperiments();
 
-    /**
-     * Enriches the experiments with their the date of registration of the last datasets attached to
-     * them.
-     */
-    public void enrichWithLastDataSetDates();
 }

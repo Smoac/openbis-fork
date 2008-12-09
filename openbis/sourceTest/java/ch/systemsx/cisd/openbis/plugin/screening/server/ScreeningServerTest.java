@@ -22,6 +22,7 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
+import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -59,8 +60,8 @@ public final class ScreeningServerTest extends AbstractServerTestCase
     public final void testGetSampleInfo()
     {
         final Session session = prepareGetSession();
-        final SampleIdentifier sampleIdentifier = createSampleIdentifier();
-        final SamplePE samplePE = createSample();
+        final SampleIdentifier sampleIdentifier = CommonTestUtils.createSampleIdentifier();
+        final SamplePE samplePE = CommonTestUtils.createSample();
         context.checking(new Expectations()
             {
                 {

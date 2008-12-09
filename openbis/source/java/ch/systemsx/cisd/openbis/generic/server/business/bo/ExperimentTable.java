@@ -16,24 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -117,17 +109,6 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
         }
     }
 
-    public final void save()
-    {
-        throw new UnsupportedOperationException("Experiment table can not be saved.");
-    }
-
-    public final Iterator<ExperimentPE> iterator()
-    {
-        return experiments == null ? Collections.<ExperimentPE> emptyList().iterator()
-                : experiments.iterator();
-    }
-
     public final void enrichWithProperties()
     {
         if (experiments != null)
@@ -143,77 +124,6 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
     {
         assert experiments != null : "Experiments have not been loaded.";
         return experiments;
-    }
-
-    public void enrichWithLastDataSetDates()
-    {
-        if (experiments == null)
-        {
-            return;
-        }
-
-        for (final ExperimentPE e : experiments)
-        {
-            setLastDatasetDate(e);
-        }
-
-    }
-
-    /**
-     * Helper method setting the last data set date for given experiment.
-     */
-    @Private
-    final void setLastDatasetDate(final ExperimentPE experiment)
-    {
-        final List<ProcedurePE> procedures = experiment.getProcedures();
-        if (procedures.isEmpty())
-        {
-            return;
-        }
-        Date soFarNewestDataSetDateFound = null;
-        for (final ProcedurePE procedure : procedures)
-        {
-            final Set<DataPE> dataPEs = procedure.getData();
-            if (dataPEs.isEmpty())
-            {
-                continue;
-            }
-            for (final DataPE dataPE : dataPEs)
-            {
-                final Date registrationDate = dataPE.getRegistrationDate();
-                if (isAttachedToValidSample(dataPE)
-                        && newerDataSetDateFound(soFarNewestDataSetDateFound, registrationDate))
-                {
-                    soFarNewestDataSetDateFound = registrationDate;
-                }
-            }
-        }
-        experiment.setLastDataSetDate(soFarNewestDataSetDateFound);
-
-    }
-
-    @Private
-    final boolean newerDataSetDateFound(final Date newestDataSetDateFound,
-            final Date registrationDate)
-    {
-        return newestDataSetDateFound == null || newestDataSetDateFound.before(registrationDate);
-    }
-
-    /**
-     * Helper method checking if given data set is attached to valid sample.
-     */
-    @Private
-    final boolean isAttachedToValidSample(final DataPE data)
-    {
-        boolean attachedSampleIsValid = false;
-        final SamplePE sampleAcquired = data.getSampleAcquiredFrom();
-        final SamplePE sampleDerived = data.getSampleDerivedFrom();
-        if (sampleAcquired != null && sampleAcquired.getInvalidation() == null
-                || sampleDerived != null && sampleDerived.getInvalidation() == null)
-        {
-            attachedSampleIsValid = true;
-        }
-        return attachedSampleIsValid;
     }
 
 }

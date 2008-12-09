@@ -21,6 +21,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import java.util.Collections;
 import java.util.List;
 
+import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -130,6 +131,32 @@ public class ExperimentDAOTest extends AbstractDAOTest
         experiments = daoFactory.getExperimentDAO().listExperiments(expType, projectDefault);
         Collections.sort(experiments);
         assertEquals(0, experiments.size());
+    }
+
+    @Test
+    public void testTryFindByCodeAndProject()
+    {
+        List<ExperimentPE> experiments = daoFactory.getExperimentDAO().listExperiments();
+        Collections.sort(experiments);
+        assertEquals(5, experiments.size());
+        final ExperimentPE templateExp = experiments.get(4);
+        assertEquals(CISD_CISD_NEMO_EXP11, templateExp.getIdentifier());
+
+        assertEquals(CISD_CISD_NEMO_EXP11, daoFactory.getExperimentDAO().tryFindByCodeAndProject(
+                templateExp.getProject(), templateExp.getCode()).getIdentifier());
+    }
+
+    @Test
+    public void testTryFindByCodeAndProjectNonexistent()
+    {
+        List<ExperimentPE> experiments = daoFactory.getExperimentDAO().listExperiments();
+        Collections.sort(experiments);
+        assertEquals(5, experiments.size());
+        final ExperimentPE templateExp = experiments.get(4);
+        assertEquals(CISD_CISD_NEMO_EXP11, templateExp.getIdentifier());
+
+        AssertJUnit.assertNull(daoFactory.getExperimentDAO().tryFindByCodeAndProject(
+                templateExp.getProject(), "nonexistent"));
     }
 
 }

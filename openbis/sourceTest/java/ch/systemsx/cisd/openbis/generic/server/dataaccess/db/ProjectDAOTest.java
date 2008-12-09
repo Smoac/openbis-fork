@@ -21,6 +21,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import java.util.Collections;
 import java.util.List;
 
+import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -47,7 +48,7 @@ public class ProjectDAOTest extends AbstractDAOTest
         { DEFAULT, NEMO, NOE, TESTPROJ };
 
     @Test
-    public void testListProjects() throws Exception
+    public void testListProjects()
     {
         final List<ProjectPE> projects = daoFactory.getProjectDAO().listProjects();
         Collections.sort(projects);
@@ -59,7 +60,7 @@ public class ProjectDAOTest extends AbstractDAOTest
     }
 
     @Test(dependsOnMethods = "testListProjects")
-    public void testListProjectsFromGroup() throws Exception
+    public void testListProjectsFromGroup()
     {
         final List<ProjectPE> allProjects = daoFactory.getProjectDAO().listProjects();
         Collections.sort(allProjects);
@@ -75,7 +76,7 @@ public class ProjectDAOTest extends AbstractDAOTest
     }
 
     @Test(dependsOnMethods = "testListProjects")
-    public void testListProjectsFromAnotherGroup() throws Exception
+    public void testListProjectsFromAnotherGroup()
     {
         final List<ProjectPE> allProjects = daoFactory.getProjectDAO().listProjects();
         Collections.sort(allProjects);
@@ -86,6 +87,45 @@ public class ProjectDAOTest extends AbstractDAOTest
         assertEquals(1, groupProjects.size());
         Collections.sort(groupProjects);
         assertEquals(groupProjects.get(0).getCode(), TESTPROJ);
+    }
+
+    @Test
+    public void testTryFindProject() throws Exception
+    {
+        final List<ProjectPE> allProjects = daoFactory.getProjectDAO().listProjects();
+        Collections.sort(allProjects);
+        final ProjectPE templateProject = allProjects.get(3);
+        assertEquals(templateProject.getCode(), TESTPROJ);
+
+        ProjectPE found =
+                daoFactory.getProjectDAO().tryFindProject(
+                        templateProject.getGroup().getDatabaseInstance().getCode(),
+                        templateProject.getGroup().getCode(), templateProject.getCode());
+        assertEquals(TESTPROJ, found.getCode());
+        assertEquals(templateProject.getGroup().getCode(), found.getGroup().getCode());
+        assertEquals(templateProject.getGroup().getDatabaseInstance().getCode(), found.getGroup()
+                .getDatabaseInstance().getCode());
+    }
+
+    @Test
+    public void testTryFindProjectNonexistent() throws Exception
+    {
+        final List<ProjectPE> allProjects = daoFactory.getProjectDAO().listProjects();
+        Collections.sort(allProjects);
+        final ProjectPE templateProject = allProjects.get(3);
+        assertEquals(templateProject.getCode(), TESTPROJ);
+
+        AssertJUnit.assertNull(daoFactory.getProjectDAO().tryFindProject(
+                templateProject.getGroup().getDatabaseInstance().getCode(),
+                templateProject.getGroup().getCode(), "nonexistent"));
+
+        AssertJUnit.assertNull(daoFactory.getProjectDAO().tryFindProject(
+                templateProject.getGroup().getDatabaseInstance().getCode(), "nonexistent",
+                templateProject.getCode()));
+
+        AssertJUnit.assertNull(daoFactory.getProjectDAO().tryFindProject("nonexistent",
+                templateProject.getGroup().getCode(), templateProject.getCode()));
+
     }
 
 }
