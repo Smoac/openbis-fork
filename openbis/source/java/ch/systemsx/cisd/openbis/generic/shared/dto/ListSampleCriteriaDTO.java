@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentif
  * 
  * @author Tomasz Pylak
  */
+// TODO 2008-12-09, Christian Ribeaud: Delete this class. Only use the GWT DTO 'ListSampleCriteria'.
 public class ListSampleCriteriaDTO extends AbstractHashable implements Serializable
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
