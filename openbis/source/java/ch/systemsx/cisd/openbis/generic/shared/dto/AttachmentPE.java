@@ -45,6 +45,7 @@ import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
@@ -150,25 +151,29 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
     @ManyToOne(fetch = FetchType.LAZY)
     @NotNull(message = ValidationMessages.EXPERIMENT_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN, updatable = false)
-    private ExperimentPE getParentInternal()
+    @Private
+    // for Hibernate and bean conversion only
+    public ExperimentPE getParentInternal()
     {
         return parent;
     }
 
-    void setParentInternal(final ExperimentPE parent)
+    @Private
+    // for Hibernate and bean conversion only
+    public void setParentInternal(final ExperimentPE parent)
     {
         this.parent = parent;
     }
 
     @Transient
+    /**
+     * Returns connected experiment.<br>
+     * 
+     * @see ExperimentPE#addAttachment(AttachmentPE) to set the connected experiment.
+     */
     public ExperimentPE getParent()
     {
         return getParentInternal();
-    }
-
-    public void setParent(final ExperimentPE parent)
-    {
-        parent.addAttachment(this);
     }
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)

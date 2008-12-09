@@ -108,7 +108,7 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
 
     private DataStorePE dataStore;
 
-    private List<AttachmentPE> attachments = new ArrayList<AttachmentPE>();
+    private Set<AttachmentPE> attachments = new HashSet<AttachmentPE>();
 
     private boolean attachmentsUnescaped = false;
 
@@ -288,7 +288,7 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
     @IndexedEmbedded
     @Private
     // for Hibernate and bean conversion only
-    public List<AttachmentPE> getExperimentAttachments()
+    public Set<AttachmentPE> getInternalAttachments()
     {
         return attachments;
     }
@@ -296,7 +296,7 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
     @SuppressWarnings("unused")
     @Private
     // for Hibernate and bean conversion only
-    public void setExperimentAttachments(final List<AttachmentPE> attachments)
+    public void setInternalAttachments(final Set<AttachmentPE> attachments)
     {
         this.attachments = attachments;
     }
@@ -304,7 +304,7 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
     @Transient
     public final Set<AttachmentPE> getAttachments()
     {
-        final Set<AttachmentPE> set = new HashSet<AttachmentPE>(getExperimentAttachments());
+        final Set<AttachmentPE> set = new HashSet<AttachmentPE>(getInternalAttachments());
         if (attachmentsUnescaped == false)
         {
             for (final Iterator<AttachmentPE> iter = set.iterator(); iter.hasNext(); /**/)
@@ -325,7 +325,7 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
     // Package visibility to avoid bean conversion which will call an uninitialized field.
     final void setAttachments(final Set<AttachmentPE> attachments)
     {
-        getExperimentAttachments().clear();
+        getInternalAttachments().clear();
         for (final AttachmentPE attachment : attachments)
         {
             addAttachment(attachment);
@@ -337,10 +337,10 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
         final ExperimentPE parent = child.getParent();
         if (parent != null)
         {
-            parent.getExperimentAttachments().remove(child);
+            parent.getInternalAttachments().remove(child);
         }
         child.setParentInternal(this);
-        getExperimentAttachments().add(child);
+        getInternalAttachments().add(child);
     }
 
     @Transient
@@ -527,6 +527,6 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
 
     public void ensureAttachmentsLoaded()
     {
-        HibernateUtils.initialize(getExperimentAttachments());
+        HibernateUtils.initialize(getInternalAttachments());
     }
 }
