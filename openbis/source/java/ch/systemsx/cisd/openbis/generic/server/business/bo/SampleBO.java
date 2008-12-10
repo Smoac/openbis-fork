@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import org.springframework.dao.DataAccessException;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -42,7 +41,6 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         super(daoFactory, session);
     }
 
-    @Private
     SampleBO(final IDAOFactory daoFactory, final Session session,
             final IEntityPropertiesConverter entityPropertiesConverter)
     {

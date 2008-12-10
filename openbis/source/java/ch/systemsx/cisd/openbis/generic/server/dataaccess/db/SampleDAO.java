@@ -217,7 +217,7 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
 
     public final void createSamples(final List<SamplePE> samples) throws DataAccessException
     {
-        // TODO Auto-generated method stub
+        assert samples != null && samples.size() > 0 : "Unspecified or empty samples.";
 
     }
 }
