@@ -30,10 +30,10 @@ public interface ISampleBO
 {
 
     /** Loads a sample given by its identifier. */
-    void loadBySampleIdentifier(final SampleIdentifier identifier);
+    void loadBySampleIdentifier(final SampleIdentifier identifier) throws UserFailureException;
 
     /** Returns the sample which has been loaded. */
-    SamplePE getSample();
+    SamplePE getSample() throws IllegalStateException;
 
     /**
      * Defines a new sample. After invocation of this method {@link IBusinessObject#save()} should
@@ -41,7 +41,7 @@ public interface ISampleBO
      * 
      * @throws UserFailureException if specified sample type code is not a valid one.
      */
-    void define(NewSample newSample);
+    void define(final NewSample newSample) throws UserFailureException;
 
     /**
      * Writes changed are added data to the Data Access Layers.

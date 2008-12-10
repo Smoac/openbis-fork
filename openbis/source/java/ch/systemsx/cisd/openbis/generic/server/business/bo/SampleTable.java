@@ -19,7 +19,10 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.dao.DataAccessException;
+
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
@@ -34,12 +37,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentif
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
+ * The unique {@link ISampleBO} implementation.
+ * 
  * @author Tomasz Pylak
  */
-public final class SampleTable extends AbstractSampleIdentifierBusinessObject implements
-        ISampleTable
+public final class SampleTable extends AbstractSampleBusinessObject implements ISampleTable
 {
     private List<SamplePE> samples;
+
+    private boolean dataChanged;
 
     public SampleTable(final IDAOFactory daoFactory, final Session session)
     {
@@ -147,5 +153,31 @@ public final class SampleTable extends AbstractSampleIdentifierBusinessObject im
     public final List<SamplePE> getSamples()
     {
         return samples;
+    }
+
+    public final void add(final NewSample newSample) throws UserFailureException
+    {
+        assert newSample != null : "Unspecified new sample.";
+        if (samples == null)
+        {
+            samples = new ArrayList<SamplePE>();
+        }
+        samples.add(createSample(newSample));
+        dataChanged = true;
+    }
+
+    public void save() throws UserFailureException
+    {
+        assert samples != null : "Samples not loaded.";
+        assert dataChanged : "Data have not been changed.";
+
+        try
+        {
+            getSampleDAO().createSamples(samples);
+        } catch (final DataAccessException ex)
+        {
+            throwException(ex, String.format("One of samples"));
+        }
+        dataChanged = false;
     }
 }

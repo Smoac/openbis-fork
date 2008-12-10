@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.openbis.plugin;
 
+import java.util.List;
+
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -37,6 +41,12 @@ public interface ISampleTypeSlaveServerPlugin
      * For given {@link SamplePE} returns the {@link SampleGenerationDTO}.
      */
     SampleGenerationDTO getSampleInfo(final IDAOFactory factory, final Session session,
-            final SamplePE sample);
+            final SamplePE sample) throws UserFailureException;
+
+    /**
+     * Registers given list of {@link NewSample NewSamples}.
+     */
+    void registerSamples(final IDAOFactory factory, final Session session,
+            final List<NewSample> newSamples) throws UserFailureException;
 
 }

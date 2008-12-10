@@ -93,4 +93,14 @@ public final class NewSample extends Identifier<NewSample>
     {
         this.properties = properties;
     }
+
+    //
+    // Object
+    //
+
+    @Override
+    public final String toString()
+    {
+        return getIdentifier();
+    }
 }

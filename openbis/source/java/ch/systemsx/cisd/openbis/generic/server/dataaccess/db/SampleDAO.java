@@ -215,4 +215,9 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
         return list;
     }
 
+    public final void createSamples(final List<SamplePE> samples) throws DataAccessException
+    {
+        // TODO Auto-generated method stub
+
+    }
 }

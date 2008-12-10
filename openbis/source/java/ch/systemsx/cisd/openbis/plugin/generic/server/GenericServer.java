@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
+import java.util.HashSet;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -24,23 +25,23 @@ import org.springframework.stereotype.Component;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
+import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.utilities.ParameterChecker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.plugin.ISampleServerPlugin;
+import ch.systemsx.cisd.openbis.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.plugin.SampleServerPluginRegistry;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
@@ -67,6 +68,12 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     {
         super(sessionManager, daoFactory);
         this.businessObjectFactory = businessObjectFactory;
+    }
+
+    private final ISampleTypeSlaveServerPlugin getSampleTypeSlaveServerPlugin(
+            final SampleTypePE sampleType)
+    {
+        return SampleServerPluginRegistry.getPlugin(this, sampleType).getSlaveServer();
     }
 
     //
@@ -98,19 +105,23 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     public final SampleGenerationDTO getSampleInfo(final String sessionToken,
             final SampleIdentifier identifier)
     {
+        assert sessionToken != null : "Unspecified session token.";
+        assert identifier != null : "Unspecified sample identifier.";
+
         final Session session = getSessionManager().getSession(sessionToken);
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.loadBySampleIdentifier(identifier);
         final SamplePE sample = sampleBO.getSample();
-        final ISampleServerPlugin plugin =
-                SampleServerPluginRegistry.getPlugin(this, sample.getSampleType());
-        return plugin.getSlaveServer().getSampleInfo(getDAOFactory(), session, sample);
+        return getSampleTypeSlaveServerPlugin(sample.getSampleType()).getSampleInfo(
+                getDAOFactory(), session, sample);
     }
 
     public final void registerSample(final String sessionToken, final NewSample newSample)
     {
+        assert sessionToken != null : "Unspecified session token.";
+        assert newSample != null : "Unspecified new sample.";
+
         final Session session = getSessionManager().getSession(sessionToken);
-        ParameterChecker.checkIfNotNull(newSample, "sample");
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.define(newSample);
         sampleBO.save();
@@ -141,8 +152,33 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     public final void registerSamples(final String sessionToken, final SampleType sampleType,
             final List<NewSample> newSamples) throws UserFailureException
     {
-        final Session session = getSessionManager().getSession(sessionToken);
-        final ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
+        assert sessionToken != null : "Unspecified session token.";
+        assert sampleType != null : "Unspecified sample type.";
+        assert newSamples != null : "Unspecified new samples.";
 
+        // Does nothing if samples list is empty.
+        if (newSamples.size() == 0)
+        {
+            return;
+        }
+        // Check uniqueness of given list based on sample identifier.
+        final HashSet<NewSample> sampleSet = new HashSet<NewSample>(newSamples);
+        if (sampleSet.size() != newSamples.size())
+        {
+            newSamples.removeAll(sampleSet);
+            throw UserFailureException.fromTemplate("Following samples '%s' are duplicated.",
+                    CollectionUtils.abbreviate(newSamples, 20));
+        }
+        final Session session = getSessionManager().getSession(sessionToken);
+        final String sampleTypeCode = sampleType.getCode();
+        final SampleTypePE sampleTypePE =
+                getDAOFactory().getSampleTypeDAO().tryFindSampleTypeByCode(sampleTypeCode);
+        if (sampleTypePE == null)
+        {
+            throw UserFailureException.fromTemplate("Sample type with code '%s' does not exist.",
+                    sampleTypeCode);
+        }
+        getSampleTypeSlaveServerPlugin(sampleTypePE).registerSamples(getDAOFactory(), session,
+                newSamples);
     }
 }

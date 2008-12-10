@@ -24,7 +24,6 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
-import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.plugin.generic.server.GenericSampleServerPlugin;
@@ -99,10 +98,6 @@ public final class SampleServerPluginRegistry
             final T server, final SampleTypePE sampleType)
     {
         assert sampleType != null : "Unspecified sample type.";
-        if (server instanceof ICommonServer)
-        {
-            return GENERIC_SAMPLE_SERVER_PLUGIN;
-        }
         final Technology technology = getTechnology(server.getClass());
         final ISampleServerPlugin sampleServerPlugin =
                 plugins.get(new TechnologySampleType(technology, sampleType.getCode()));

@@ -18,11 +18,15 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.List;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
+ * A generic sample <i>Business Object</i>.
+ * 
  * @author Tomasz Pylak
  */
 public interface ISampleTable
@@ -33,7 +37,7 @@ public interface ISampleTable
      * Container and generator fields will be initialized up to the specified nesting level.
      * </p>
      */
-    void loadSamplesByCriteria(ListSampleCriteriaDTO criteria);
+    void loadSamplesByCriteria(final ListSampleCriteriaDTO criteria);
 
     /**
      * Enriches the loaded samples with a valid {@link ProcedurePE}.
@@ -49,4 +53,15 @@ public interface ISampleTable
      * Enriches the samples loaded with their properties.
      */
     void enrichWithProperties();
+
+    /**
+     * Adds given <var>newSample</var> sample to this table.
+     */
+    public void add(final NewSample newSample) throws UserFailureException;
+
+    /**
+     * Writes changed are added data to the Data Access Layers.
+     */
+    public void save() throws UserFailureException;
+
 }

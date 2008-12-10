@@ -69,4 +69,9 @@ public interface ISampleDAO
      * Lists all {@link SamplePE}s which are part of the specified <var>container</var>.
      */
     List<SamplePE> listSamplesByContainer(final SamplePE container) throws DataAccessException;
+
+    /**
+     * Inserts given list of {@link SamplePE} into the database in one go.
+     */
+    void createSamples(List<SamplePE> samples) throws DataAccessException;
 }

@@ -18,8 +18,13 @@ package ch.systemsx.cisd.openbis.plugin.generic.server;
 
 import java.util.List;
 
+import javax.annotation.Resource;
+
 import org.springframework.stereotype.Component;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleHierarchyFiller;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
@@ -37,20 +42,39 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 @Component(ResourceNames.GENERIC_SAMPLE_TYPE_SLAVE_SERVER_PLUGIN)
 public final class GenericSampleTypeSlaveServerPlugin implements ISampleTypeSlaveServerPlugin
 {
+    @Resource(name = ResourceNames.GENERIC_BUSINESS_OBJECT_FACTORY)
+    private IGenericBusinessObjectFactory businessObjectFactory;
 
     //
     // ISlaveServerPlugin
     //
 
     public final SampleGenerationDTO getSampleInfo(final IDAOFactory daoFactory,
-            final Session session, final SamplePE sample)
+            final Session session, final SamplePE sample) throws UserFailureException
     {
+        assert daoFactory != null : "Unspecified DAO factory.";
+        assert session != null : "Unspecified session.";
         assert sample != null : "Unspecified sample.";
+
         HibernateUtils.initialize(sample.getProperties());
         SampleHierarchyFiller.enrichWithParentAndContainerHierarchy(sample);
         final List<SamplePE> generated =
                 daoFactory.getSampleDAO().listSamplesByGeneratedFrom(sample);
-        final SampleGenerationDTO sampleGenerationDTO = new SampleGenerationDTO(sample, generated);
-        return sampleGenerationDTO;
+        return new SampleGenerationDTO(sample, generated);
+    }
+
+    public final void registerSamples(final IDAOFactory daoFactory, final Session session,
+            final List<NewSample> newSamples) throws UserFailureException
+    {
+        assert daoFactory != null : "Unspecified DAO factory.";
+        assert session != null : "Unspecified session.";
+        assert newSamples != null && newSamples.size() > 0 : "Unspecified sample or empty samples.";
+
+        final ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
+        for (final NewSample newSample : newSamples)
+        {
+            sampleTable.add(newSample);
+        }
+        sampleTable.save();
     }
 }

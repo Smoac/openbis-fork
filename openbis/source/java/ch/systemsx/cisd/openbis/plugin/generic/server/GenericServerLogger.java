@@ -20,7 +20,6 @@ import java.util.List;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
-import ch.systemsx.cisd.common.collections.IToStringConverter;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
@@ -87,16 +86,6 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
             final List<NewSample> newSamples) throws UserFailureException
     {
         logAccess(sessionToken, "register_samples", "SAMPLE_TYPE(%s) SAMPLES(%s)", sampleType,
-                CollectionUtils.abbreviate(newSamples, 20, new IToStringConverter<NewSample>()
-                    {
-                        //
-                        // IToStringConverter
-                        //
-
-                        public final String toString(final NewSample value)
-                        {
-                            return value.getIdentifier();
-                        }
-                    }));
+                CollectionUtils.abbreviate(newSamples, 20));
     }
 }
