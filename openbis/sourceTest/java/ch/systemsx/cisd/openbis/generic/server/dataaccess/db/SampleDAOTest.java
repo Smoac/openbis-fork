@@ -21,8 +21,8 @@ import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
-import static org.testng.AssertJUnit.fail;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.hibernate.classic.Session;
@@ -137,14 +137,15 @@ public final class SampleDAOTest extends AbstractDAOTest
     public final void testListSamplesByContainer()
     {
         final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
+        boolean fail = true;
         try
         {
             sampleDAO.listSamplesByContainer(null);
-            fail("AssertionError expected");
         } catch (final AssertionError e)
         {
-            assertEquals("Unspecified container.", e.getMessage());
+            fail = false;
         }
+        assertFalse(fail);
         final String masterPlateCode = "MP";
         DatabaseInstancePE homeInstance = daoFactory.getHomeDatabaseInstance();
         final SamplePE sample =
@@ -175,9 +176,12 @@ public final class SampleDAOTest extends AbstractDAOTest
     private final void save(final SamplePE... samples)
     {
         final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
-        for (final SamplePE samplePE : samples)
+        if (samples.length > 1)
         {
-            sampleDAO.createSample(samplePE);
+            sampleDAO.createSamples(Arrays.asList(samples));
+        } else
+        {
+            sampleDAO.createSample(samples[0]);
         }
     }
 
@@ -189,6 +193,9 @@ public final class SampleDAOTest extends AbstractDAOTest
         return sampleType;
     }
 
+    /**
+     * Creates a group sample in the database.
+     */
     private final SamplePE createGroupSample()
     {
         final SampleTypePE sampleType = getSampleType(SampleTypeCode.MASTER_PLATE);

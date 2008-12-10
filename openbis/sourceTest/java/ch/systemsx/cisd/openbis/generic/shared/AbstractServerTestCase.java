@@ -25,6 +25,7 @@ import org.testng.annotations.BeforeMethod;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
+import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
@@ -39,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
@@ -90,14 +92,17 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected IExperimentBO experimentBO;
 
+    protected ISampleTypeDAO sampleTypeDAO;
+
     @BeforeMethod
     @SuppressWarnings("unchecked")
     public void setUp()
     {
+        LogInitializer.init();
         context = new Mockery();
         authenticationService = context.mock(IAuthenticationService.class);
         sessionManager = context.mock(ISessionManager.class);
-
+        // DAO
         daoFactory = context.mock(IDAOFactory.class);
         databaseInstanceDAO = context.mock(IDatabaseInstanceDAO.class);
         personDAO = context.mock(IPersonDAO.class);
@@ -105,18 +110,16 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         sampleDAO = context.mock(ISampleDAO.class);
         roleAssignmentDAO = context.mock(IRoleAssignmentDAO.class);
         externalDataDAO = context.mock(IExternalDataDAO.class);
-
+        experimentTypeDAO = context.mock(IEntityTypeDAO.class);
+        projectDAO = context.mock(IProjectDAO.class);
+        sampleTypeDAO = context.mock(ISampleTypeDAO.class);
+        // BO
         groupBO = context.mock(IGroupBO.class);
         sampleBO = context.mock(ISampleBO.class);
-        externalDataTable = context.mock(IExternalDataTable.class);
-
-        experimentTable = context.mock(IExperimentTable.class);
-        experimentTypeDAO = context.mock(IEntityTypeDAO.class);
-
-        projectDAO = context.mock(IProjectDAO.class);
-
         experimentBO = context.mock(IExperimentBO.class);
-
+        // Table
+        externalDataTable = context.mock(IExternalDataTable.class);
+        experimentTable = context.mock(IExperimentTable.class);
         homeDatabaseInstance =
                 CommonTestUtils.createDatabaseInstance(CommonTestUtils.HOME_DATABASE_INSTANCE_CODE);
         context.checking(new Expectations()
@@ -132,6 +135,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
                     will(returnValue(groupDAO));
                     allowing(daoFactory).getRoleAssignmentDAO();
                     will(returnValue(roleAssignmentDAO));
+                    allowing(daoFactory).getSampleTypeDAO();
+                    will(returnValue(sampleTypeDAO));
                 }
             });
     }

@@ -51,7 +51,6 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 @Friend(toClasses = GenericClientService.class)
 public final class GenericClientServiceTest
 {
-
     private MultipartFile multipartFile;
 
     static final String SESSION_TOKEN = "session-token";

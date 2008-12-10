@@ -58,21 +58,30 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     @Resource(name = ResourceNames.GENERIC_BUSINESS_OBJECT_FACTORY)
     private IGenericBusinessObjectFactory businessObjectFactory;
 
+    // For testing purpose.
+    private ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin;
+
     public GenericServer()
     {
     }
 
     @Private
     GenericServer(final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
-            final IGenericBusinessObjectFactory businessObjectFactory)
+            final IGenericBusinessObjectFactory businessObjectFactory,
+            final ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin)
     {
         super(sessionManager, daoFactory);
         this.businessObjectFactory = businessObjectFactory;
+        this.sampleTypeSlaveServerPlugin = sampleTypeSlaveServerPlugin;
     }
 
     private final ISampleTypeSlaveServerPlugin getSampleTypeSlaveServerPlugin(
             final SampleTypePE sampleType)
     {
+        if (sampleTypeSlaveServerPlugin != null)
+        {
+            return sampleTypeSlaveServerPlugin;
+        }
         return SampleServerPluginRegistry.getPlugin(this, sampleType).getSlaveServer();
     }
 

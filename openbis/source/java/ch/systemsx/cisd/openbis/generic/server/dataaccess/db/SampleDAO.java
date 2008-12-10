@@ -85,6 +85,18 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
         }
     }
 
+    private final void internalCreateSample(final SamplePE sample,
+            final HibernateTemplate hibernateTemplate)
+    {
+        validatePE(sample);
+        sample.setCode(CodeConverter.tryToDatabase(sample.getCode()));
+        hibernateTemplate.save(sample);
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("ADD: sample '%s'.", sample));
+        }
+    }
+
     //
     // ISampleDAO
     //
@@ -92,17 +104,10 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
     public final void createSample(final SamplePE sample) throws DataAccessException
     {
         assert sample != null : "Unspecified sample";
-        validatePE(sample);
-        sample.setCode(CodeConverter.tryToDatabase(sample.getCode()));
 
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
-        hibernateTemplate.save(sample);
+        internalCreateSample(sample, hibernateTemplate);
         hibernateTemplate.flush();
-
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info("ADD: sample " + sample);
-        }
     }
 
     public final List<SamplePE> listSamplesByTypeAndGroup(final SampleTypePE sampleType,
@@ -219,5 +224,11 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
     {
         assert samples != null && samples.size() > 0 : "Unspecified or empty samples.";
 
+        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+        for (final SamplePE samplePE : samples)
+        {
+            internalCreateSample(samplePE, hibernateTemplate);
+        }
+        hibernateTemplate.flush();
     }
 }

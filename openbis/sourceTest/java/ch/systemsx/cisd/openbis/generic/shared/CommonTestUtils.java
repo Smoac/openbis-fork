@@ -117,7 +117,7 @@ public class CommonTestUtils
         return identifier;
     }
 
-    protected static final SampleTypePE createSampleType()
+    public static final SampleTypePE createSampleType()
     {
         final SampleTypePE sampleTypePE = new SampleTypePE();
         sampleTypePE.setCode(CommonTestUtils.SAMPLE_TYPE);

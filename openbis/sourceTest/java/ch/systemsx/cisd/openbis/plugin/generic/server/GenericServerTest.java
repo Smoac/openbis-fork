@@ -16,21 +16,29 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 /**
@@ -43,9 +51,19 @@ public final class GenericServerTest extends AbstractServerTestCase
 {
     private IGenericBusinessObjectFactory genericBusinessObjectFactory;
 
+    private ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin;
+
     private final IGenericServer createServer()
     {
-        return new GenericServer(sessionManager, daoFactory, genericBusinessObjectFactory);
+        return new GenericServer(sessionManager, daoFactory, genericBusinessObjectFactory,
+                sampleTypeSlaveServerPlugin);
+    }
+
+    private final NewSample createNewSample(final String identifier)
+    {
+        final NewSample newSample = new NewSample();
+        newSample.setIdentifier(identifier);
+        return newSample;
     }
 
     //
@@ -58,6 +76,7 @@ public final class GenericServerTest extends AbstractServerTestCase
     {
         super.setUp();
         genericBusinessObjectFactory = context.mock(IGenericBusinessObjectFactory.class);
+        sampleTypeSlaveServerPlugin = context.mock(ISampleTypeSlaveServerPlugin.class);
     }
 
     @Test
@@ -66,6 +85,8 @@ public final class GenericServerTest extends AbstractServerTestCase
         final Session session = prepareGetSession();
         final SampleIdentifier sampleIdentifier = CommonTestUtils.createSampleIdentifier();
         final SamplePE samplePE = CommonTestUtils.createSample();
+        final SampleGenerationDTO sampleGenerationDTO = new SampleGenerationDTO();
+        sampleGenerationDTO.setGenerator(samplePE);
         context.checking(new Expectations()
             {
                 {
@@ -77,11 +98,8 @@ public final class GenericServerTest extends AbstractServerTestCase
                     one(sampleBO).getSample();
                     will(returnValue(samplePE));
 
-                    one(daoFactory).getSampleDAO();
-                    will(returnValue(sampleDAO));
-
-                    one(sampleDAO).listSamplesByGeneratedFrom(samplePE);
-                    will(returnValue(SamplePE.EMPTY_LIST));
+                    one(sampleTypeSlaveServerPlugin).getSampleInfo(daoFactory, session, samplePE);
+                    will(returnValue(sampleGenerationDTO));
                 }
             });
 
@@ -165,4 +183,66 @@ public final class GenericServerTest extends AbstractServerTestCase
         context.assertIsSatisfied();
     }
 
+    @Test
+    public final void testRegisterSamplesWithoutExpectations()
+    {
+        final IGenericServer server = createServer();
+        // Null values
+        boolean fail = true;
+        try
+        {
+            server.registerSamples(null, null, null);
+        } catch (final AssertionError e)
+        {
+            fail = false;
+        }
+        assertFalse(fail);
+        // Empty collection
+        server
+                .registerSamples(SESSION_TOKEN, new SampleType(), Collections
+                        .<NewSample> emptyList());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testRegisterSamplesWithDuplicatedNewSamples()
+    {
+        final IGenericServer server = createServer();
+        final List<NewSample> newSamples = new ArrayList<NewSample>();
+        newSamples.add(createNewSample("same"));
+        newSamples.add(createNewSample("same"));
+        try
+        {
+            server.registerSamples(SESSION_TOKEN, new SampleType(), newSamples);
+            fail(String.format("'%s' expected.", UserFailureException.class));
+        } catch (final UserFailureException ex)
+        {
+            // Nothing to do here.
+        }
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testRegisterSamples()
+    {
+        final Session session = prepareGetSession();
+        final SampleTypePE sampleTypePE = CommonTestUtils.createSampleType();
+        final SampleType sampleType = new SampleType();
+        sampleType.setCode(sampleTypePE.getCode());
+        final List<NewSample> newSamples = new ArrayList<NewSample>();
+        newSamples.add(createNewSample("one"));
+        newSamples.add(createNewSample("two"));
+        context.checking(new Expectations()
+            {
+                {
+                    one(sampleTypeDAO).tryFindSampleTypeByCode(sampleTypePE.getCode());
+                    will(returnValue(sampleTypePE));
+
+                    one(sampleTypeSlaveServerPlugin).registerSamples(daoFactory, session,
+                            newSamples);
+                }
+            });
+        createServer().registerSamples(session.getSessionToken(), sampleType, newSamples);
+        context.assertIsSatisfied();
+    }
 }

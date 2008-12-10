@@ -36,8 +36,13 @@ public final class SampleGenerationDTO implements Serializable
      */
     private SamplePE generator;
 
-    /** The <code>Sample</code> children. */
-    private SamplePE[] generated;
+    /**
+     * The <code>Sample</code> children.
+     * <p>
+     * Never <code>null</code> and default value is an empty array.
+     * </p>
+     */
+    private SamplePE[] generated = SamplePE.EMPTY_ARRAY;
 
     public SampleGenerationDTO()
     {
