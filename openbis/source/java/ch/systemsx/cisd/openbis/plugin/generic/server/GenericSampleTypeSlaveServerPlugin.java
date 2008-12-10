@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleHierarchyFiller;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -45,14 +46,20 @@ public final class GenericSampleTypeSlaveServerPlugin implements ISampleTypeSlav
     @Resource(name = ResourceNames.GENERIC_BUSINESS_OBJECT_FACTORY)
     private IGenericBusinessObjectFactory businessObjectFactory;
 
+    @Resource(name = ComponentNames.DAO_FACTORY)
+    private IDAOFactory daoFactory;
+
+    private GenericSampleTypeSlaveServerPlugin()
+    {
+    }
+
     //
     // ISlaveServerPlugin
     //
 
-    public final SampleGenerationDTO getSampleInfo(final IDAOFactory daoFactory,
-            final Session session, final SamplePE sample) throws UserFailureException
+    public final SampleGenerationDTO getSampleInfo(final Session session, final SamplePE sample)
+            throws UserFailureException
     {
-        assert daoFactory != null : "Unspecified DAO factory.";
         assert session != null : "Unspecified session.";
         assert sample != null : "Unspecified sample.";
 
@@ -63,10 +70,9 @@ public final class GenericSampleTypeSlaveServerPlugin implements ISampleTypeSlav
         return new SampleGenerationDTO(sample, generated);
     }
 
-    public final void registerSamples(final IDAOFactory daoFactory, final Session session,
-            final List<NewSample> newSamples) throws UserFailureException
+    public final void registerSamples(final Session session, final List<NewSample> newSamples)
+            throws UserFailureException
     {
-        assert daoFactory != null : "Unspecified DAO factory.";
         assert session != null : "Unspecified session.";
         assert newSamples != null && newSamples.size() > 0 : "Unspecified sample or empty samples.";
 

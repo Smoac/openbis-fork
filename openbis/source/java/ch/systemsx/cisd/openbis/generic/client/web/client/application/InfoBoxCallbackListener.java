@@ -16,26 +16,32 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
+
 /**
- * A {@link AbstractAsyncCallback} which are not interested in the result.
+ * A {@link ICallbackListener} which outputs the failure message to the specified {@link InfoBox}.
  * 
  * @author Christian Ribeaud
  */
-public final class VoidAsyncCallback<T> extends AbstractAsyncCallback<T>
+public class InfoBoxCallbackListener<T> extends CallbackListenerAdapter<T>
 {
-    public VoidAsyncCallback(final IViewContext<?> viewContext)
+    private final InfoBox infoBox;
+
+    public InfoBoxCallbackListener(final InfoBox infoBox)
     {
-        super(viewContext);
+        this.infoBox = infoBox;
     }
 
     //
-    // AbstractAsyncCallback
+    // ICallbackListener
     //
 
     @Override
-    protected final void process(final T result)
+    public final void onFailureOf(final AsyncCallback<T> callback, final String failureMessage,
+            final Throwable throwable)
     {
-
+        infoBox.displayError(failureMessage);
     }
-
 }

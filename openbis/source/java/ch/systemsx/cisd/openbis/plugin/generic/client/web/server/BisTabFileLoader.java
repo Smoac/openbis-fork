@@ -64,7 +64,8 @@ public final class BisTabFileLoader<T> extends TabFileLoader<T>
             final NamedReader namedReader)
     {
         final String message = ex.getMessage();
-        throw UserFailureException.fromTemplate(ERROR_IN_FILE_MESSAGE_FORMAT, namedReader, message);
+        throw UserFailureException.fromTemplate(ERROR_IN_FILE_MESSAGE_FORMAT, namedReader
+                .getReaderName(), message);
     }
 
     //

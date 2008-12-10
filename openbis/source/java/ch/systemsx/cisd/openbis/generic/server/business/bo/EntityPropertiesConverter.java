@@ -94,8 +94,8 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         final EntityTypePE entityType = entityTypesByCode.tryGet(entityTypeCode);
         if (entityType == null)
         {
-            throw UserFailureException.fromTemplate(
-                    "Entity type with the code '%s' does not exist!", entityTypeCode);
+            throw UserFailureException.fromTemplate("Entity type with code '%s' does not exist!",
+                    entityTypeCode);
         }
         return entityType;
     }
@@ -109,7 +109,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             if (propertyType == null)
             {
                 throw UserFailureException.fromTemplate(
-                        "Property type with the code '%s' does not exist!", propertyCode);
+                        "Property type with code '%s' does not exist!", propertyCode);
             }
             propertyTypesByCode.add(propertyType);
         }
@@ -211,7 +211,8 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         final List<T> list = new ArrayList<T>();
         for (final EntityProperty<ET, ETPT> property : properties)
         {
-            final T convertedPropertyOrNull = tryConvertProperty(registrator, entityTypePE, property);
+            final T convertedPropertyOrNull =
+                    tryConvertProperty(registrator, entityTypePE, property);
             if (convertedPropertyOrNull != null)
             {
                 list.add(convertedPropertyOrNull);

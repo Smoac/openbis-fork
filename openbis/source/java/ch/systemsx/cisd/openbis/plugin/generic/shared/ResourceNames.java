@@ -37,6 +37,8 @@ public final class ResourceNames
     public final static String GENERIC_SAMPLE_TYPE_SLAVE_SERVER_PLUGIN =
             "generic-sample-type-slave-server-plugin";
 
+    public final static String GENERIC_SAMPLE_SERVER_PLUGIN = "generic-sample-server-plugin";
+
     private ResourceNames()
     {
         // Can not be instantiated.

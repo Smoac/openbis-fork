@@ -20,6 +20,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -27,18 +31,26 @@ import ch.systemsx.cisd.common.utilities.AbstractHashable;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.plugin.generic.server.GenericSampleServerPlugin;
+import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
 /**
  * A sample server registry for plug-ins.
+ * <p>
+ * Note that it implements {@link BeanFactoryAware} interface and that is annotated with
+ * {@link Component} annotation. This way, <i>static</i> field
+ * <code>generiSampleServerPlugin</code> gets injected via {@link #setBeanFactory(BeanFactory)};
+ * because we do not want to instantiate {@link GenericSampleServerPlugin}. Otherwise we will have
+ * two instances of this class laying around.
+ * </p>
  * 
  * @author Christian Ribeaud
  */
-public final class SampleServerPluginRegistry
+@Component
+public final class SampleServerPluginRegistry implements BeanFactoryAware
 {
     private final static String PACKAGE_START = "ch.systemsx.cisd.openbis.plugin.";
 
-    private final static ISampleServerPlugin GENERIC_SAMPLE_SERVER_PLUGIN =
-            new GenericSampleServerPlugin();
+    private static ISampleServerPlugin generiSampleServerPlugin;
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, SampleServerPluginRegistry.class);
@@ -49,6 +61,27 @@ public final class SampleServerPluginRegistry
     private SampleServerPluginRegistry()
     {
         // Can not be instantiated.
+    }
+
+    private final static <T> Technology getTechnology(final Class<T> clazz)
+    {
+        final String packageName = clazz.getPackage().getName();
+        assert packageName.startsWith(PACKAGE_START) : String.format(
+                "Package name '%s' does not start as expected '%s'.", packageName, PACKAGE_START);
+        final int len = PACKAGE_START.length();
+        final String name = packageName.substring(len, packageName.indexOf('.', len));
+        return new Technology(name.toUpperCase());
+    }
+
+    //
+    // BeanFactoryAware
+    //
+
+    public final void setBeanFactory(final BeanFactory beanFactory) throws BeansException
+    {
+        SampleServerPluginRegistry.generiSampleServerPlugin =
+                (ISampleServerPlugin) beanFactory
+                        .getBean(ResourceNames.GENERIC_SAMPLE_SERVER_PLUGIN);
     }
 
     /**
@@ -78,16 +111,6 @@ public final class SampleServerPluginRegistry
         plugins.put(technologySampleType, plugin);
     }
 
-    private final static <T> Technology getTechnology(final Class<T> clazz)
-    {
-        final String packageName = clazz.getPackage().getName();
-        assert packageName.startsWith(PACKAGE_START) : String.format(
-                "Package name '%s' does not start as expected '%s'.", packageName, PACKAGE_START);
-        final int len = PACKAGE_START.length();
-        final String name = packageName.substring(len, packageName.indexOf('.', len));
-        return new Technology(name.toUpperCase());
-    }
-
     /**
      * Returns the appropriate plug-in for given sample type.
      * 
@@ -103,7 +126,7 @@ public final class SampleServerPluginRegistry
                 plugins.get(new TechnologySampleType(technology, sampleType.getCode()));
         if (sampleServerPlugin == null)
         {
-            return GENERIC_SAMPLE_SERVER_PLUGIN;
+            return generiSampleServerPlugin;
         }
         return sampleServerPlugin;
     }

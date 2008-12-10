@@ -20,7 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -28,9 +28,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 /**
  * The slave server plug-in for a <i>Sample Type</i>.
  * <p>
- * Each implementation should be stateless. Additionally, each method specified here should start
- * with {@link IDAOFactory} resp. {@link Session} parameter, in case where the implementing method
- * needs more business information to do its job.
+ * The implementation will give access to {@link DAOFactory} and appropriate business object
+ * factory. Each method specified here must start with {@link Session} parameter.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -40,13 +39,13 @@ public interface ISampleTypeSlaveServerPlugin
     /**
      * For given {@link SamplePE} returns the {@link SampleGenerationDTO}.
      */
-    SampleGenerationDTO getSampleInfo(final IDAOFactory factory, final Session session,
-            final SamplePE sample) throws UserFailureException;
+    SampleGenerationDTO getSampleInfo(final Session session, final SamplePE sample)
+            throws UserFailureException;
 
     /**
      * Registers given list of {@link NewSample NewSamples}.
      */
-    void registerSamples(final IDAOFactory factory, final Session session,
-            final List<NewSample> newSamples) throws UserFailureException;
+    void registerSamples(final Session session, final List<NewSample> newSamples)
+            throws UserFailureException;
 
 }

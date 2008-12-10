@@ -121,8 +121,8 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.loadBySampleIdentifier(identifier);
         final SamplePE sample = sampleBO.getSample();
-        return getSampleTypeSlaveServerPlugin(sample.getSampleType()).getSampleInfo(
-                getDAOFactory(), session, sample);
+        return getSampleTypeSlaveServerPlugin(sample.getSampleType())
+                .getSampleInfo(session, sample);
     }
 
     public final void registerSample(final String sessionToken, final NewSample newSample)
@@ -187,7 +187,6 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             throw UserFailureException.fromTemplate("Sample type with code '%s' does not exist.",
                     sampleTypeCode);
         }
-        getSampleTypeSlaveServerPlugin(sampleTypePE).registerSamples(getDAOFactory(), session,
-                newSamples);
+        getSampleTypeSlaveServerPlugin(sampleTypePE).registerSamples(session, newSamples);
     }
 }

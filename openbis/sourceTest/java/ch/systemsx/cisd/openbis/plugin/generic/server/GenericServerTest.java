@@ -98,7 +98,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                     one(sampleBO).getSample();
                     will(returnValue(samplePE));
 
-                    one(sampleTypeSlaveServerPlugin).getSampleInfo(daoFactory, session, samplePE);
+                    one(sampleTypeSlaveServerPlugin).getSampleInfo(session, samplePE);
                     will(returnValue(sampleGenerationDTO));
                 }
             });
@@ -238,8 +238,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                     one(sampleTypeDAO).tryFindSampleTypeByCode(sampleTypePE.getCode());
                     will(returnValue(sampleTypePE));
 
-                    one(sampleTypeSlaveServerPlugin).registerSamples(daoFactory, session,
-                            newSamples);
+                    one(sampleTypeSlaveServerPlugin).registerSamples(session, newSamples);
                 }
             });
         createServer().registerSamples(session.getSessionToken(), sampleType, newSamples);

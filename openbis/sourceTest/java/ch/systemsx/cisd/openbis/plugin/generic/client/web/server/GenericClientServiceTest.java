@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.server;
 
+import static org.testng.AssertJUnit.assertEquals;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -35,6 +37,7 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
@@ -169,6 +172,7 @@ public final class GenericClientServiceTest
         newSample.setContainerIdentifier("MP2");
         newSample.setParentIdentifier("MP3");
         final SampleType sampleType = createSampleType("MASTER_PLATE");
+        final String fileName = "originalFileName.txt";
         context.checking(new Expectations()
             {
                 {
@@ -184,14 +188,19 @@ public final class GenericClientServiceTest
                     will(returnValue("identifier\tcontainer\tparent\tprop1\tprop2\nMP1\tMP2\tMP3\tRED\t1"
                             .getBytes()));
 
-                    one(multipartFile).getOriginalFilename();
-                    will(returnValue("originalFileName.txt"));
+                    allowing(multipartFile).getOriginalFilename();
+                    will(returnValue(fileName));
 
                     one(genericServer).registerSamples(with(SESSION_TOKEN), with(sampleType),
                             with(new NewSampleListMatcher(Collections.singletonList(newSample))));
                 }
             });
-        genericClientService.registerSamples(sampleType, sessionKey);
+        final List<BatchRegistrationResult> result =
+                genericClientService.registerSamples(sampleType, sessionKey);
+        assertEquals(1, result.size());
+        final BatchRegistrationResult batchRegistrationResult = result.get(0);
+        assertEquals(fileName, batchRegistrationResult.getFileName());
+        assertEquals("1 sample(s) found and registered.", batchRegistrationResult.getMessage());
         context.assertIsSatisfied();
     }
 

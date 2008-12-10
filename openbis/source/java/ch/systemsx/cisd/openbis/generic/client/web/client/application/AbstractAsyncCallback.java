@@ -32,22 +32,18 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.InvalidSessi
 public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
 {
     public static final ICallbackListener<Object> DEFAULT_CALLBACK_LISTENER =
-            new ICallbackListener<Object>()
+            new CallbackListenerAdapter<Object>()
                 {
 
                     //
                     // ICallbackListener
                     //
 
+                    @Override
                     public final void onFailureOf(final AsyncCallback<Object> callback,
                             final String failureMessage, final Throwable throwable)
                     {
                         MessageBox.alert("Error", failureMessage, null);
-                    }
-
-                    public final void finishOnSuccessOf(final AsyncCallback<Object> callback,
-                            final Object result)
-                    {
                     }
                 };
 

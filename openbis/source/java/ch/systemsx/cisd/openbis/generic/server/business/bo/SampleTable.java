@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * 
  * @author Tomasz Pylak
  */
+// TODO 2008-12-10, Christian Ribeaud: Unit test for this class?
 public final class SampleTable extends AbstractSampleBusinessObject implements ISampleTable
 {
     private List<SamplePE> samples;

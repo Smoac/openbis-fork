@@ -39,13 +39,12 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.ListBox;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ICallbackListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
@@ -134,18 +133,7 @@ public final class GenericSampleRegistrationForm extends LayoutContainer
     {
         codeField = new CodeField(viewContext.getMessageProvider().getMessage("code"));
         codeField.setId(CODE_FIELD_ID);
-        codeField.addListener(Events.Focus, new Listener<FieldEvent>()
-            {
-
-                //
-                // Listener
-                //
-
-                public final void handleEvent(final FieldEvent be)
-                {
-                    infoBox.reset();
-                }
-            });
+        codeField.addListener(Events.Focus, new InfoBoxResetListener(infoBox));
 
         groupSelectionWidget = new GroupSelectionWidget(viewContext.getCommonViewContext());
         groupSelectionWidget.setEnabled(SELECT_GROUP_BY_DEFAULT);
@@ -372,17 +360,34 @@ public final class GenericSampleRegistrationForm extends LayoutContainer
     // Helper classes
     //
 
-    public final class RegisterSampleCallback extends VoidAsyncCallback<Void>
+    final static class InfoBoxResetListener implements Listener<FieldEvent>
+    {
+        private final InfoBox infoBox;
+
+        InfoBoxResetListener(final InfoBox infoBox)
+        {
+            assert infoBox != null : "Unspecified info box.";
+            this.infoBox = infoBox;
+        }
+
+        //
+        // Listener
+        //
+
+        public final void handleEvent(final FieldEvent be)
+        {
+            infoBox.reset();
+        }
+    }
+
+    public final class RegisterSampleCallback extends AbstractAsyncCallback<Void>
     {
 
         RegisterSampleCallback(final IViewContext<?> viewContext)
         {
-            super(viewContext, new RegisterSampleCallbackListener());
+            super(viewContext, new InfoBoxCallbackListener<Void>(infoBox));
         }
-    }
 
-    private final class RegisterSampleCallbackListener implements ICallbackListener<Void>
-    {
         private final String createSuccessfullRegistrationInfo(final boolean shared,
                 final String code, final Group group)
         {
@@ -398,22 +403,17 @@ public final class GenericSampleRegistrationForm extends LayoutContainer
         }
 
         //
-        // ICallbackListener
+        // AbstractAsyncCallback
         //
 
-        public final void finishOnSuccessOf(final AsyncCallback<Void> callback, final Void result)
+        @Override
+        protected final void process(final Void result)
         {
             final String message =
                     createSuccessfullRegistrationInfo(sharedCheckbox.getValue(), codeField
                             .getValue(), groupSelectionWidget.tryGetSelectedGroup());
             infoBox.displayInfo(message);
             formPanel.reset();
-        }
-
-        public final void onFailureOf(final AsyncCallback<Void> callback,
-                final String failureMessage, final Throwable throwable)
-        {
-            infoBox.displayError(failureMessage);
         }
     }
 

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
+import java.util.List;
+
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -35,16 +37,17 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ICallbackListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleRegistrationForm.InfoBoxResetListener;
 
 /**
  * The <i>generic</i> sample batch registration panel.
@@ -196,9 +199,10 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
         return button;
     }
 
-    private final static FileUploadField createFileUploadField(final int counter)
+    private final FileUploadField createFileUploadField(final int counter)
     {
         final FileUploadField file = new FileUploadField();
+        file.addListener(Events.OnClick, new InfoBoxResetListener(infoBox));
         file.setAllowBlank(counter > 0);
         final int number = counter + 1;
         file.setFieldLabel(Format.substitute(FIELD_LABEL_TEMPLATE, number));
@@ -215,37 +219,37 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
     // Helper classes
     //
 
-    private final class RegisterSamplesCallback extends VoidAsyncCallback<String>
+    private final class RegisterSamplesCallback extends
+            AbstractAsyncCallback<List<BatchRegistrationResult>>
     {
         RegisterSamplesCallback(final IViewContext<IGenericClientServiceAsync> viewContext)
         {
-            super(viewContext, new RegisterSamplesCallbackListener());
-        }
-    }
-
-    private final class RegisterSamplesCallbackListener implements ICallbackListener<String>
-    {
-        RegisterSamplesCallbackListener()
-        {
+            super(viewContext, new InfoBoxCallbackListener<List<BatchRegistrationResult>>(infoBox));
         }
 
         //
-        // ICallbackListener
+        // AbstractAsyncCallback
         //
 
-        public final void finishOnSuccessOf(final AsyncCallback<String> callback,
-                final String result)
+        @Override
+        protected final void process(final List<BatchRegistrationResult> result)
         {
-            // TODO 2008-12-09, Christian Ribeaud: Result could be something more
-            // complexe than just a String?
-            infoBox.displayInfo(result);
+            final StringBuilder builder = new StringBuilder();
+            for (final BatchRegistrationResult batchRegistrationResult : result)
+            {
+                builder.append("<b>" + batchRegistrationResult.getFileName() + "</b>:");
+                builder.append(batchRegistrationResult.getMessage());
+                builder.append("<br />");
+            }
+            infoBox.displayInfo(builder.toString());
+            formPanel.reset();
         }
 
-        public final void onFailureOf(final AsyncCallback<String> callback,
-                final String failureMessage, final Throwable throwable)
+        @Override
+        protected final void finishOnFailure(final Throwable caught)
         {
-            infoBox.displayError(failureMessage);
             setUploadEnabled(true);
         }
     }
+
 }

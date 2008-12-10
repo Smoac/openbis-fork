@@ -95,7 +95,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         final SamplePE sample = sampleBO.getSample();
         final ISampleServerPlugin plugin =
                 SampleServerPluginRegistry.getPlugin(this, sample.getSampleType());
-        return plugin.getSlaveServer().getSampleInfo(getDAOFactory(), session, sample);
+        return plugin.getSlaveServer().getSampleInfo(session, sample);
     }
 
     public final void registerSample(final String sessionToken, final NewSample newSample)

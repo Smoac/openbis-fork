@@ -35,6 +35,7 @@ import ch.systemsx.cisd.common.parser.ParserException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
@@ -123,7 +124,8 @@ public final class GenericClientService extends AbstractClientService implements
         }
     }
 
-    public final String registerSamples(final SampleType sampleType, final String sessionKey)
+    public final List<BatchRegistrationResult> registerSamples(final SampleType sampleType,
+            final String sessionKey)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         HttpSession session = null;
@@ -150,15 +152,21 @@ public final class GenericClientService extends AbstractClientService implements
                             }
                         });
             final List<NewSample> newSamples = new ArrayList<NewSample>();
+            final List<BatchRegistrationResult> results =
+                    new ArrayList<BatchRegistrationResult>(uploadedFiles.size());
             for (final IUncheckedMultipartFile multipartFile : uploadedFiles.iterable())
             {
                 final StringReader stringReader =
                         new StringReader(new String(multipartFile.getBytes()));
-                newSamples.addAll(tabFileLoader.load(new DelegatedReader(stringReader,
-                        multipartFile.getOriginalFilename())));
+                final List<NewSample> loadedSamples =
+                        tabFileLoader.load(new DelegatedReader(stringReader, multipartFile
+                                .getOriginalFilename()));
+                newSamples.addAll(loadedSamples);
+                results.add(new BatchRegistrationResult(multipartFile.getOriginalFilename(), String
+                        .format("%d sample(s) found and registered.", loadedSamples.size())));
             }
             genericServer.registerSamples(getSessionToken(), sampleType, newSamples);
-            return null;
+            return results;
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
