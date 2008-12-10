@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Authorizat
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ExperimentBrowserTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SampleBrowserTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SearchTest;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentViewerTest;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleRegistrationTest;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewerTest;
 
@@ -44,6 +45,7 @@ public class SystemTestSuite extends GWTTestSuite
         testSuite.addTestSuite(SearchTest.class);
         testSuite.addTestSuite(GenericSampleRegistrationTest.class);
         testSuite.addTestSuite(ExperimentBrowserTest.class);
+        testSuite.addTestSuite(GenericExperimentViewerTest.class);
         return testSuite;
     }
 }
