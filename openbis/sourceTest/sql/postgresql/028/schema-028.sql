@@ -491,19 +491,17 @@ CREATE SEQUENCE event_id_seq
     CACHE 1;
 SELECT pg_catalog.setval('event_id_seq', 1, false);
 CREATE SEQUENCE experiment_attachment_content_id_seq
-    START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('experiment_attachment_content_id_seq', 1, false);
+SELECT pg_catalog.setval('experiment_attachment_content_id_seq', 6, true);
 CREATE SEQUENCE experiment_attachment_id_seq
-    START WITH 1
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('experiment_attachment_id_seq', 1, false);
+SELECT pg_catalog.setval('experiment_attachment_id_seq', 6, true);
 CREATE SEQUENCE experiment_id_seq
     INCREMENT BY 1
     NO MAXVALUE
