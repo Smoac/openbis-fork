@@ -269,7 +269,6 @@ public class UnixTests extends AbstractFileSystemTestCase
     public void testDetectProcess()
     {
         assertTrue(Unix.canDetectProcesses());
-        assertTrue(Unix.isProcessRunningProcFS(Unix.getPid()));
         assertTrue(Unix.isProcessRunningPS(Unix.getPid()));
     }
     
