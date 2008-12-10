@@ -285,10 +285,11 @@ public final class GenericSampleRegistrationForm extends LayoutContainer
     {
         if (formPanel.isValid())
         {
-            final NewSample sampleToRegister =
+            final NewSample newSample =
                     new NewSample(createSampleIdentifier(), sampleType, StringUtils
                             .trimToNull(parent.getValue()), StringUtils.trimToNull(container
                             .getValue()));
+            final List<SampleProperty> properties = new ArrayList<SampleProperty>();
             for (final Field<?> field : propertyFields)
             {
                 if (field.getValue() != null)
@@ -297,10 +298,11 @@ public final class GenericSampleRegistrationForm extends LayoutContainer
                     final SampleProperty sampleProperty = new SampleProperty();
                     sampleProperty.setValue(valueToString(field.getValue()));
                     sampleProperty.setEntityTypePropertyType(stpt);
-                    sampleToRegister.addProperty(sampleProperty);
+                    properties.add(sampleProperty);
                 }
             }
-            viewContext.getService().registerSample(sampleToRegister,
+            newSample.setProperties(properties.toArray(SampleProperty.EMPTY_ARRAY));
+            viewContext.getService().registerSample(newSample,
                     new RegisterSampleCallback(viewContext));
         }
     }

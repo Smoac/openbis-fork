@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.server;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -99,8 +98,8 @@ public final class GenericClientServiceTest
     }
 
     private final static NewSample createNewSample(final String sampleIdentifier,
-            final String sampleTypeCode, final List<SampleProperty> properties,
-            final String parent, final String container)
+            final String sampleTypeCode, final SampleProperty[] properties, final String parent,
+            final String container)
     {
         final NewSample newSample = new NewSample();
         newSample.setIdentifier(sampleIdentifier);
@@ -141,7 +140,7 @@ public final class GenericClientServiceTest
     public final void testRegisterSample()
     {
         final NewSample newSample =
-                createNewSample("/group1/sample1", "MASTER_PLATE", new ArrayList<SampleProperty>(),
+                createNewSample("/group1/sample1", "MASTER_PLATE", SampleProperty.EMPTY_ARRAY,
                         null, null);
         context.checking(new Expectations()
             {
@@ -170,6 +169,7 @@ public final class GenericClientServiceTest
         newSample.setIdentifier("MP1");
         newSample.setContainerIdentifier("MP2");
         newSample.setParentIdentifier("MP3");
+        final SampleType sampleType = createSampleType("MASTER_PLATE");
         context.checking(new Expectations()
             {
                 {
@@ -182,13 +182,16 @@ public final class GenericClientServiceTest
                     allowing(httpSession).removeAttribute(sessionKey);
 
                     one(multipartFile).getBytes();
-                    will(returnValue("identifier\tcontainer\tparent\nMP1\tMP2\tMP3".getBytes()));
+                    will(returnValue("identifier\tcontainer\tparent\tprop1\tprop2\nMP1\tMP2\tMP3\tRED\t1"
+                            .getBytes()));
 
-                    one(genericServer).registerSamples(with(SESSION_TOKEN),
+                    one(multipartFile).getOriginalFilename();
+                    will(returnValue("originalFileName.txt"));
+
+                    one(genericServer).registerSamples(with(SESSION_TOKEN), with(sampleType),
                             with(new NewSampleListMatcher(Collections.singletonList(newSample))));
                 }
             });
-        final SampleType sampleType = createSampleType("MASTER_PLATE");
         genericClientService.registerSamples(sampleType, sessionKey);
         context.assertIsSatisfied();
     }

@@ -31,8 +31,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang.StringUtils;
 
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.WrappedIOException;
 import ch.systemsx.cisd.common.parser.filter.AlwaysAcceptLineFilter;
 import ch.systemsx.cisd.common.parser.filter.ILineFilter;
 
@@ -71,6 +70,7 @@ import ch.systemsx.cisd.common.parser.filter.ILineFilter;
  */
 public class TabFileLoader<T>
 {
+
     private static final String PREFIX = "#";
 
     private final IParserObjectFactoryFactory<T> factory;
@@ -87,9 +87,10 @@ public class TabFileLoader<T>
     /**
      * Loads from the specified tab file a list of objects of type <code>T</code>.
      * 
-     * @throws EnvironmentFailureException if a IOException occurred.
+     * @throws WrappedIOException if a {@link IOException} has occurred.
      */
-    public List<T> load(final File file)
+    public List<T> load(final File file) throws ParserException, ParsingException,
+            IllegalArgumentException, WrappedIOException
     {
         assert file != null : "Given file must not be null";
         assert file.isFile() : "Given file '" + file.getAbsolutePath() + "' is not a file.";
@@ -101,15 +102,7 @@ public class TabFileLoader<T>
             return load(reader);
         } catch (final IOException ex)
         {
-            throw new EnvironmentFailureException(ex.getMessage());
-        } catch (final ParserException ex)
-        {
-            throwParserException(ex, file);
-            throw new AssertionError("We should never reach this point.");
-        } catch (final ParsingException ex)
-        {
-            throwParsingException(ex, file);
-            throw new AssertionError("We should never reach this point.");
+            throw new WrappedIOException(ex);
         } finally
         {
             IOUtils.closeQuietly(reader);
@@ -119,8 +112,11 @@ public class TabFileLoader<T>
     /**
      * Loads data from the specified reader.
      */
-    public final List<T> load(final Reader reader)
+    public List<T> load(final Reader reader) throws ParserException, ParsingException,
+            IllegalArgumentException
     {
+        assert reader != null : "Unspecified reader";
+
         final List<T> result = new ArrayList<T>();
         final Iterator<Line> lineIterator = createLineIterator(reader);
         if (lineIterator.hasNext() == false)
@@ -141,10 +137,8 @@ public class TabFileLoader<T>
                 break;
             }
         }
-        @SuppressWarnings("null")
         final String headerLine =
                 previousLineHasColumnHeaders ? previousLine.getText().substring(1) : line.getText();
-
         final DefaultParser<T> parser = new DefaultParser<T>();
         final String[] tokens = StringUtils.split(headerLine, "\t");
         final int headerLength = tokens.length;
@@ -163,53 +157,8 @@ public class TabFileLoader<T>
     private Iterator<Line> createLineIterator(final Reader reader)
     {
         final LineIterator lineIterator = IOUtils.lineIterator(reader);
-        final Iterator<Line> iterator = new Iterator<Line>()
-            {
-                private int lineNumber;
-
-                public void remove()
-                {
-                    lineIterator.remove();
-                }
-
-                public Line next()
-                {
-                    return new Line(++lineNumber, lineIterator.nextLine());
-                }
-
-                public boolean hasNext()
-                {
-                    return lineIterator.hasNext();
-                }
-
-            };
+        final Iterator<Line> iterator = new TabFileLineIterator(lineIterator);
         return iterator;
-    }
-
-    /**
-     * Throws given <var>ex</var> or translates it into another kind of exception.
-     * <p>
-     * Default behavior just throws it.
-     * </p>
-     * 
-     * @param file the parsed file.
-     */
-    protected void throwParsingException(final ParsingException parsingException, final File file)
-    {
-        throw parsingException;
-    }
-
-    /**
-     * Throws given <var>ex</var> or translates it into another kind of exception.
-     * <p>
-     * Default behavior just throws it.
-     * </p>
-     * 
-     * @param file the parsed file.
-     */
-    protected void throwParserException(ParserException ex, File file)
-    {
-        throw ex;
     }
 
     /**
@@ -218,7 +167,7 @@ public class TabFileLoader<T>
      * Note that the search is case-insensitive.
      * </p>
      * 
-     * @throws UserFailureException if there is at least one duplicate in the given <var>tokens</var>.
+     * @throws IllegalArgumentException if there is at least one duplicate in the given <var>tokens</var>.
      */
     private final static void notUnique(final String[] tokens)
     {
@@ -231,6 +180,41 @@ public class TabFileLoader<T>
                 throw new IllegalArgumentException(String.format("Duplicated column name '%s'.",
                         token));
             }
+        }
+    }
+
+    //
+    // Helper classes
+    //
+
+    private final static class TabFileLineIterator implements Iterator<Line>
+    {
+        private final LineIterator lineIterator;
+
+        private int lineNumber;
+
+        TabFileLineIterator(final LineIterator lineIterator)
+        {
+            this.lineIterator = lineIterator;
+        }
+
+        //
+        // Iterator
+        //
+
+        public final void remove()
+        {
+            lineIterator.remove();
+        }
+
+        public final Line next()
+        {
+            return new Line(++lineNumber, lineIterator.nextLine());
+        }
+
+        public final boolean hasNext()
+        {
+            return lineIterator.hasNext();
         }
     }
 }

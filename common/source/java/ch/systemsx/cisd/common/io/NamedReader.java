@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 ETH Zuerich, CISD
+ * Copyright 2008 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,19 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.parser;
+package ch.systemsx.cisd.common.io;
 
-import ch.systemsx.cisd.common.exceptions.HighLevelException;
+import java.io.Reader;
 
 /**
- * A top level exception for the parser.
+ * A {@link Reader} with a name.
  * 
  * @author Christian Ribeaud
  */
-public class ParserException extends HighLevelException
+public abstract class NamedReader extends Reader
 {
-    private static final long serialVersionUID = 1L;
-
-    public ParserException(final String message, final Throwable cause)
-    {
-        super(message, cause);
-    }
-
-    public ParserException(final String message)
-    {
-        super(message);
-    }
+    /**
+     * Returns the name associated with this reader.
+     */
+    public abstract String getReaderName();
 }

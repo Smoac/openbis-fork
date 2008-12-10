@@ -25,8 +25,6 @@ import static org.testng.AssertJUnit.assertSame;
 import static org.testng.AssertJUnit.fail;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -40,6 +38,7 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
@@ -190,7 +189,7 @@ public final class SampleBOTest
         final SampleIdentifier parentGroupIdentifier = getGroupSampleIdentifier("SAMPLE_GENERATOR");
         newSharedSample.setParentIdentifier(parentGroupIdentifier.toString());
 
-        newSharedSample.setProperties(Arrays.asList(SampleProperty.EMPTY_ARRAY));
+        newSharedSample.setProperties(SampleProperty.EMPTY_ARRAY);
 
         context.checking(new Expectations()
             {
@@ -215,10 +214,9 @@ public final class SampleBOTest
                     one(daoFactory).getSampleTypeDAO();
                     will(returnValue(sampleTypeDAO));
                     one(sampleTypeDAO).tryFindSampleTypeByCode(DILUTION_PLATE);
-                    will(returnValue(sampleType));
+                    will(returnValue(BeanUtils.createBean(SampleTypePE.class, sampleType)));
 
-                    one(propertiesConverter).convertProperties(
-                            newSharedSample.getProperties().toArray(SampleProperty.EMPTY_ARRAY),
+                    one(propertiesConverter).convertProperties(newSharedSample.getProperties(),
                             DILUTION_PLATE, EXAMPLE_PERSON);
                     will(returnValue(new ArrayList<SamplePropertyPE>()));
                 }
@@ -250,7 +248,7 @@ public final class SampleBOTest
         final SampleIdentifier containerIdentifier = getGroupSampleIdentifier("SAMPLE_CONTAINER");
         newSample.setContainerIdentifier(containerIdentifier.toString());
 
-        newSample.setProperties(Arrays.asList(SampleProperty.EMPTY_ARRAY));
+        newSample.setProperties(SampleProperty.EMPTY_ARRAY);
 
         final SamplePE generatedFrom = new SamplePE();
         generatedFrom.setRegistrator(EXAMPLE_PERSON);
@@ -293,8 +291,7 @@ public final class SampleBOTest
                     one(sampleTypeDAO).tryFindSampleTypeByCode(DILUTION_PLATE);
                     will(returnValue(sampleType));
 
-                    one(propertiesConverter).convertProperties(
-                            newSample.getProperties().toArray(SampleProperty.EMPTY_ARRAY),
+                    one(propertiesConverter).convertProperties(newSample.getProperties(),
                             DILUTION_PLATE, EXAMPLE_PERSON);
                     will(returnValue(new ArrayList<SamplePropertyPE>()));
                 }
@@ -325,7 +322,8 @@ public final class SampleBOTest
         sampleType.setCode(MASTER_PLATE);
         sampleType.setId(new Long(21L));
         final SampleProperty sampleProperty = createSampleProperty();
-        newSample.setProperties(Collections.singletonList(sampleProperty));
+        newSample.setProperties(new SampleProperty[]
+            { sampleProperty });
         final SamplePropertyPE samplePropertyPE = new SamplePropertyPE();
         samplePropertyPE.setRegistrator(EXAMPLE_SESSION.tryGetPerson());
         final SampleTypePropertyTypePE sampleTypePropertyType = new SampleTypePropertyTypePE();
@@ -343,8 +341,7 @@ public final class SampleBOTest
                     one(sampleTypeDAO).tryFindSampleTypeByCode(MASTER_PLATE);
                     will(returnValue(sampleType));
 
-                    one(propertiesConverter).convertProperties(
-                            newSample.getProperties().toArray(SampleProperty.EMPTY_ARRAY),
+                    one(propertiesConverter).convertProperties(newSample.getProperties(),
                             MASTER_PLATE, EXAMPLE_PERSON);
                     final List<SamplePropertyPE> set = new ArrayList<SamplePropertyPE>();
                     set.add(samplePropertyPE);

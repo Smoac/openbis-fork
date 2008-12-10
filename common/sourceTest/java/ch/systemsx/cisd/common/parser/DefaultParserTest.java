@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.parser;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.fail;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -86,7 +87,7 @@ public final class DefaultParserTest
     }
 
     @Test
-    public final void testCreateObjectWithException()
+    public final void testCreateObjectWithParserException()
     {
         final IParser<String[]> parser = new DefaultParser<String[]>()
             {
@@ -95,15 +96,16 @@ public final class DefaultParserTest
                 //
 
                 @Override
-                protected final String[] createObject(final String[] tokens)
+                protected final String[] createObject(final String[] tokens) throws ParserException
                 {
-                    throw new ArrayIndexOutOfBoundsException();
+                    throw new ParserException("");
                 }
             };
         parser.setObjectFactory(IParserObjectFactory.STRING_ARRAY_OBJECT_FACTORY);
         try
         {
             parser.parse(createLineIterator(), new HeaderLineFilter(2), HEADER_LENGTH);
+            fail(String.format("'%s' exception expected.", ParsingException.class));
         } catch (final ParsingException ex)
         {
             assertEquals(

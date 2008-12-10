@@ -21,6 +21,9 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
+import ch.systemsx.cisd.common.spring.MultipartFileAdapter;
+
 /**
  * A bean that contains the uploaded files.
  * 
@@ -28,7 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public final class UploadedFilesBean
 {
-    private List<MultipartFile> multipartFiles = new ArrayList<MultipartFile>();
+    private List<IUncheckedMultipartFile> multipartFiles = new ArrayList<IUncheckedMultipartFile>();
 
     /**
      * The session key under which this <i>bean</i> can be found, to access the uploaded files, for
@@ -39,10 +42,10 @@ public final class UploadedFilesBean
     public final void addMultipartFile(final MultipartFile multipartFile)
     {
         assert multipartFile != null : "Unspecified multipart file.";
-        multipartFiles.add(multipartFile);
+        multipartFiles.add(new MultipartFileAdapter(multipartFile));
     }
 
-    public final Iterable<MultipartFile> iterable()
+    public final Iterable<IUncheckedMultipartFile> iterable()
     {
         return multipartFiles;
     }

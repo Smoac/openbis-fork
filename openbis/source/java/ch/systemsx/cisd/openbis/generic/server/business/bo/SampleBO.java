@@ -118,7 +118,7 @@ public final class SampleBO extends AbstractSampleIdentifierBusinessObject imple
         sample.setSampleType(getSampleType(newSample.getSampleType().getCode()));
         sample.setGroup(sampleOwner.tryGetGroup());
         sample.setDatabaseInstance(sampleOwner.tryGetDatabaseInstance());
-        defineSampleProperties(newSample.getProperties().toArray(SampleProperty.EMPTY_ARRAY));
+        defineSampleProperties(newSample.getProperties());
         final String parent = newSample.getParentIdentifier();
         if (parent != null)
         {

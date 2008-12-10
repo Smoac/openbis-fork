@@ -27,9 +27,11 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.ParameterChecker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -136,11 +138,11 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         return experimentBO.getExperimentFileAttachment(filename, version);
     }
 
-    public final void registerSamples(final String sessionToken, final List<NewSample> newSamples)
-            throws UserFailureException
+    public final void registerSamples(final String sessionToken, final SampleType sampleType,
+            final List<NewSample> newSamples) throws UserFailureException
     {
-        // TODO 2008-12-09, Christian Ribeaud: Use plugin architecture.
         final Session session = getSessionManager().getSession(sessionToken);
+        final ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
 
     }
 }

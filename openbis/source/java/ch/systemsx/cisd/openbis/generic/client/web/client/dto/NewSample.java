@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ch.systemsx.cisd.common.annotation.BeanProperty;
 
 /**
@@ -40,7 +37,7 @@ public final class NewSample extends Identifier<NewSample>
      */
     private String containerIdentifier;
 
-    private List<SampleProperty> properties = new ArrayList<SampleProperty>();
+    private SampleProperty[] properties = SampleProperty.EMPTY_ARRAY;
 
     public NewSample()
     {
@@ -70,7 +67,7 @@ public final class NewSample extends Identifier<NewSample>
         return parentIdentifier;
     }
 
-    @BeanProperty(label = "parent")
+    @BeanProperty(label = "parent", optional = true)
     public final void setParentIdentifier(final String parent)
     {
         this.parentIdentifier = parent;
@@ -81,24 +78,19 @@ public final class NewSample extends Identifier<NewSample>
         return containerIdentifier;
     }
 
-    @BeanProperty(label = "container")
+    @BeanProperty(label = "container", optional = true)
     public final void setContainerIdentifier(final String container)
     {
         this.containerIdentifier = container;
     }
 
-    public final List<SampleProperty> getProperties()
+    public final SampleProperty[] getProperties()
     {
         return properties;
     }
 
-    public final void setProperties(final List<SampleProperty> properties)
+    public final void setProperties(final SampleProperty[] properties)
     {
         this.properties = properties;
-    }
-
-    public final void addProperty(final SampleProperty property)
-    {
-        properties.add(property);
     }
 }

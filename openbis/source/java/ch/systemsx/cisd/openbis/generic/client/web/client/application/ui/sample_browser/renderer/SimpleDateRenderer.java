@@ -74,7 +74,6 @@ public class SimpleDateRenderer
      * Generate GMT timezone string for given date.
      * 
      * @param buf where timezone string will be appended to
-     * @param date whose value being evaluated
      */
     private static void appendGMT(StringBuffer buf, int timezoneOffset)
     {

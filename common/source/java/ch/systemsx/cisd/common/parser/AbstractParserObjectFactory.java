@@ -46,6 +46,8 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
     /** Analyzes specified <code>beanClass</code> for its mandatory resp. optional properties. */
     private final BeanAnalyzer<E> beanAnalyzer;
 
+    private Set<String> unmatchedProperties;
+
     protected AbstractParserObjectFactory(final Class<E> beanClass,
             final IPropertyMapper propertyMapper)
     {
@@ -86,7 +88,7 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
     }
 
     /** For given property code returns corresponding <code>IPropertyModel</code>. */
-    private final IPropertyModel tryGetPropertyModel(final String code)
+    protected final IPropertyModel tryGetPropertyModel(final String code)
     {
         if (propertyMapper.containsPropertyCode(code))
         {
@@ -127,14 +129,15 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
         {
             throw new MandatoryPropertyMissingException(mandatoryPropertyCodes, missingProperties);
         }
-        if (propertyCodes.size() > 0)
+        if (propertyCodes.size() > 0 && ignoreUnmatchedProperties() == false)
         {
             throw new UnmatchedPropertiesException(mandatoryPropertyCodes, beanAnalyzer
                     .getOptionalProperties(), propertyCodes);
         }
+        unmatchedProperties = propertyCodes;
     }
 
-    private final String getPropertyValue(final String[] lineTokens,
+    protected final String getPropertyValue(final String[] lineTokens,
             final IPropertyModel propertyModel)
     {
         final int column = propertyModel.getColumn();
@@ -143,6 +146,26 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
             throw new IndexOutOfBoundsException(column, lineTokens);
         }
         return lineTokens[column];
+    }
+
+    /**
+     * Whether unmatched properties should be ignored or not.Default is <code>false</code>.
+     * <p>
+     * If <code>true</code> and if some unmatched properties are found, a
+     * {@link UnmatchedPropertiesException} will be thrown.
+     * </p>
+     */
+    protected boolean ignoreUnmatchedProperties()
+    {
+        return false;
+    }
+
+    /**
+     * Returns the unmatched properties.
+     */
+    protected final Set<String> getUnmatchedProperties()
+    {
+        return unmatchedProperties;
     }
 
     //

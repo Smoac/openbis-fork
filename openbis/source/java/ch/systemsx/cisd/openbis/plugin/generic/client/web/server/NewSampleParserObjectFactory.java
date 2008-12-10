@@ -16,11 +16,20 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.server;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.common.parser.AbstractParserObjectFactory;
 import ch.systemsx.cisd.common.parser.IPropertyMapper;
+import ch.systemsx.cisd.common.parser.IPropertyModel;
 import ch.systemsx.cisd.common.parser.ParserException;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypePropertyType;
 
 /**
  * A {@link AbstractParserObjectFactory} extension for creating {@link NewSample}.
@@ -37,15 +46,50 @@ final class NewSampleParserObjectFactory extends AbstractParserObjectFactory<New
         this.sampleType = sampleType;
     }
 
+    private final SampleTypePropertyType createSampleTypePropertyType(final String propertyTypeCode)
+    {
+        final SampleTypePropertyType sampleTypePropertyType = new SampleTypePropertyType();
+        final PropertyType propertyType = new PropertyType();
+        propertyType.setCode(propertyTypeCode);
+        sampleTypePropertyType.setPropertyType(propertyType);
+        sampleTypePropertyType.setEntityType(sampleType);
+        return sampleTypePropertyType;
+    }
+
+    private final void setProperties(final NewSample newSample, final String[] lineTokens)
+    {
+        final List<SampleProperty> properties = new ArrayList<SampleProperty>();
+        for (final String unmatchedProperty : getUnmatchedProperties())
+        {
+            final IPropertyModel propertyModel = tryGetPropertyModel(unmatchedProperty);
+            final String propertyValue = getPropertyValue(lineTokens, propertyModel);
+            if (StringUtils.isEmpty(propertyValue) == false)
+            {
+                final SampleProperty property = new SampleProperty();
+                property.setEntityTypePropertyType(createSampleTypePropertyType(unmatchedProperty));
+                property.setValue(propertyValue);
+                properties.add(property);
+            }
+        }
+        newSample.setProperties(properties.toArray(SampleProperty.EMPTY_ARRAY));
+    }
+
     //
     // AbstractParserObjectFactory
     //
+
+    @Override
+    protected final boolean ignoreUnmatchedProperties()
+    {
+        return true;
+    }
 
     @Override
     public final NewSample createObject(final String[] lineTokens) throws ParserException
     {
         final NewSample newSample = super.createObject(lineTokens);
         newSample.setSampleType(sampleType);
+        setProperties(newSample, lineTokens);
         return newSample;
     }
 }

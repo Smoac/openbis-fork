@@ -23,6 +23,7 @@ import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.collections.IToStringConverter;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -82,11 +83,11 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         return null;
     }
 
-    public final void registerSamples(final String sessionToken, final List<NewSample> newSamples)
-            throws UserFailureException
+    public final void registerSamples(final String sessionToken, final SampleType sampleType,
+            final List<NewSample> newSamples) throws UserFailureException
     {
-        logAccess(sessionToken, "register_samples", "SAMPLES(%s)", CollectionUtils.abbreviate(
-                newSamples, 20, new IToStringConverter<NewSample>()
+        logAccess(sessionToken, "register_samples", "SAMPLE_TYPE(%s) SAMPLES(%s)", sampleType,
+                CollectionUtils.abbreviate(newSamples, 20, new IToStringConverter<NewSample>()
                     {
                         //
                         // IToStringConverter
