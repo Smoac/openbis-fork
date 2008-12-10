@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 
 /**
@@ -39,9 +40,12 @@ public final class ScreeningServerTest extends AbstractServerTestCase
 {
     private IScreeningBusinessObjectFactory screeningBusinessObjectFactory;
 
+    private ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin;
+
     private final IScreeningServer createServer()
     {
-        return new ScreeningServer(sessionManager, daoFactory, screeningBusinessObjectFactory);
+        return new ScreeningServer(sessionManager, daoFactory, screeningBusinessObjectFactory,
+                sampleTypeSlaveServerPlugin);
     }
 
     //
@@ -53,6 +57,7 @@ public final class ScreeningServerTest extends AbstractServerTestCase
     public final void setUp()
     {
         super.setUp();
+        sampleTypeSlaveServerPlugin = context.mock(ISampleTypeSlaveServerPlugin.class);
         screeningBusinessObjectFactory = context.mock(IScreeningBusinessObjectFactory.class);
     }
 
@@ -62,6 +67,8 @@ public final class ScreeningServerTest extends AbstractServerTestCase
         final Session session = prepareGetSession();
         final SampleIdentifier sampleIdentifier = CommonTestUtils.createSampleIdentifier();
         final SamplePE samplePE = CommonTestUtils.createSample();
+        final SampleGenerationDTO sampleGenerationDTO = new SampleGenerationDTO();
+        sampleGenerationDTO.setGenerator(samplePE);
         context.checking(new Expectations()
             {
                 {
@@ -73,11 +80,8 @@ public final class ScreeningServerTest extends AbstractServerTestCase
                     one(sampleBO).getSample();
                     will(returnValue(samplePE));
 
-                    one(daoFactory).getSampleDAO();
-                    will(returnValue(sampleDAO));
-
-                    one(sampleDAO).listSamplesByGeneratedFrom(samplePE);
-                    will(returnValue(SamplePE.EMPTY_LIST));
+                    one(sampleTypeSlaveServerPlugin).getSampleInfo(session, samplePE);
+                    will(returnValue(sampleGenerationDTO));
                 }
             });
 

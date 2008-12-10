@@ -29,7 +29,6 @@ import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -41,8 +40,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.plugin.AbstractPluginServer;
 import ch.systemsx.cisd.openbis.plugin.ISampleTypeSlaveServerPlugin;
-import ch.systemsx.cisd.openbis.plugin.SampleServerPluginRegistry;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
@@ -52,14 +51,11 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
  * @author Franz-Josef Elmer
  */
 @Component(ResourceNames.GENERIC_PLUGIN_SERVER)
-public final class GenericServer extends AbstractServer<IGenericServer> implements
+public final class GenericServer extends AbstractPluginServer<IGenericServer> implements
         ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer
 {
     @Resource(name = ResourceNames.GENERIC_BUSINESS_OBJECT_FACTORY)
     private IGenericBusinessObjectFactory businessObjectFactory;
-
-    // For testing purpose.
-    private ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin;
 
     public GenericServer()
     {
@@ -70,19 +66,8 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             final IGenericBusinessObjectFactory businessObjectFactory,
             final ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin)
     {
-        super(sessionManager, daoFactory);
+        super(sessionManager, daoFactory, sampleTypeSlaveServerPlugin);
         this.businessObjectFactory = businessObjectFactory;
-        this.sampleTypeSlaveServerPlugin = sampleTypeSlaveServerPlugin;
-    }
-
-    private final ISampleTypeSlaveServerPlugin getSampleTypeSlaveServerPlugin(
-            final SampleTypePE sampleType)
-    {
-        if (sampleTypeSlaveServerPlugin != null)
-        {
-            return sampleTypeSlaveServerPlugin;
-        }
-        return SampleServerPluginRegistry.getPlugin(this, sampleType).getSlaveServer();
     }
 
     //
