@@ -46,7 +46,7 @@ public class ProjectModel extends BaseModelData
         set(ModelDataPropertyNames.OBJECT, project);
     }
 
-    String renderProjectWithGroup(final Project p)
+    private String renderProjectWithGroup(final Project p)
     {
         return p.getCode() + " (" + p.getGroup().getCode() + ")";
     }
