@@ -17,13 +17,16 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment_browser.ListExperiments;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment_browser.ShowExperiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IValueAssertion;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 
 /**
  * A {@link AbstractGWTTestCase} extension to test {@link GenericExperimentViewer}.
@@ -33,13 +36,24 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IValueAs
 public class GenericExperimentViewerTest extends AbstractGWTTestCase
 {
 
+    private static final String DEFAULT = "DEFAULT";
+
+    private static final String EXP_REUSE = "EXP-REUSE";
+
     private static final String CISD_CISD_DEFAULT = "CISD:/CISD/DEFAULT";
+
     private static final String EXP_X = "EXP-X";
+
     private static final String A_SIMPLE_EXPERIMENT = "A simple experiment";
+
     private static final String DOE_JOHN = "Doe, John";
+
     private static final String CISD_CISD_NEMO = "CISD:/CISD/NEMO";
+
     private static final String SIRNA_HCS = "SIRNA_HCS";
+
     private static final String NEMO = "NEMO";
+
     private static final String EXP1 = "EXP1";
 
     public final void testShowExperimentDetails()
@@ -49,13 +63,17 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
                 CategoriesBuilder.MENU_ELEMENTS.LIST));
         remoteConsole.prepare(new ListExperiments(NEMO, SIRNA_HCS));
         remoteConsole.prepare(new ShowExperiment(EXP1));
-        final CheckExperiment checkSample = new CheckExperiment(CISD_CISD_NEMO, EXP1);
-        checkSample.property("Experiment").asString(EXP1);
-        checkSample.property("Experiment type").asCode(SIRNA_HCS);
-        checkSample.property("Registrator").asPerson(DOE_JOHN);
-        checkSample.property("Description").asProperty(A_SIMPLE_EXPERIMENT);
-        checkSample.property("Gender").asProperty("MALE");
-        remoteConsole.prepare(checkSample);
+        final CheckExperiment checkExperiment = new CheckExperiment(CISD_CISD_NEMO, EXP1);
+        checkExperiment.property("Experiment").asString(EXP1);
+        checkExperiment.property("Experiment type").asCode(SIRNA_HCS);
+        checkExperiment.property("Registrator").asPerson(DOE_JOHN);
+        checkExperiment.property("Description").asProperty(A_SIMPLE_EXPERIMENT);
+        checkExperiment.property("Gender").asProperty("MALE");
+        final CheckTableCommand attachmentsTable =
+                checkExperiment.attachmentsTable().expectedSize(1);
+        attachmentsTable.expectedRow(new Row().withCell(ModelDataPropertyNames.FILE_NAME,
+                "exampleExperiments.txt").withCell(ModelDataPropertyNames.VERSION, 4));
+        remoteConsole.prepare(checkExperiment);
 
         remoteConsole.finish(60000);
         client.onModuleLoad();
@@ -66,13 +84,13 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         remoteConsole.prepare(new Login("test", "a"));
         remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.EXPERIMENTS,
                 CategoriesBuilder.MENU_ELEMENTS.LIST));
-        remoteConsole.prepare(new ListExperiments("DEFAULT", SIRNA_HCS));
+        remoteConsole.prepare(new ListExperiments(DEFAULT, SIRNA_HCS));
         remoteConsole.prepare(new ShowExperiment(EXP_X));
-        final CheckExperiment checkSample = new CheckExperiment(CISD_CISD_DEFAULT, EXP_X);
-        checkSample.property("Experiment").asString(EXP_X);
-        checkSample.property("Experiment type").asCode(SIRNA_HCS);
-        checkSample.property("Registrator").asPerson(DOE_JOHN);
-        checkSample.property("Invalidation").by(new IValueAssertion<Invalidation>()
+        final CheckExperiment checkExperiment = new CheckExperiment(CISD_CISD_DEFAULT, EXP_X);
+        checkExperiment.property("Experiment").asString(EXP_X);
+        checkExperiment.property("Experiment type").asCode(SIRNA_HCS);
+        checkExperiment.property("Registrator").asPerson(DOE_JOHN);
+        checkExperiment.property("Invalidation").by(new IValueAssertion<Invalidation>()
             {
                 public void assertValue(final Invalidation invalidation)
                 {
@@ -80,10 +98,32 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
                     assertNull(invalidation.getReason());
                 }
             });
-        checkSample.property("Description").asProperty(A_SIMPLE_EXPERIMENT);
-        remoteConsole.prepare(checkSample);
+        checkExperiment.property("Description").asProperty(A_SIMPLE_EXPERIMENT);
+        remoteConsole.prepare(checkExperiment);
 
         remoteConsole.finish(60000);
         client.onModuleLoad();
     }
+
+    public final void testListOfAttachments()
+    {
+        remoteConsole.prepare(new Login("test", "a"));
+        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.EXPERIMENTS,
+                CategoriesBuilder.MENU_ELEMENTS.LIST));
+        remoteConsole.prepare(new ListExperiments(DEFAULT, SIRNA_HCS));
+        remoteConsole.prepare(new ShowExperiment(EXP_REUSE));
+        final CheckExperiment checkExperiment = new CheckExperiment(CISD_CISD_DEFAULT, EXP_REUSE);
+        checkExperiment.property("Experiment").asString(EXP_REUSE);
+        final CheckTableCommand attachmentsTable =
+                checkExperiment.attachmentsTable().expectedSize(2);
+        attachmentsTable.expectedRow(new Row().withCell(ModelDataPropertyNames.FILE_NAME,
+                "exampleExperiments.txt").withCell(ModelDataPropertyNames.VERSION, 1));
+        attachmentsTable.expectedRow(new Row().withCell(ModelDataPropertyNames.FILE_NAME,
+                "cellPlates.txt").withCell(ModelDataPropertyNames.VERSION, 1));
+        remoteConsole.prepare(checkExperiment);
+
+        remoteConsole.finish(60000);
+        client.onModuleLoad();
+    }
+
 }

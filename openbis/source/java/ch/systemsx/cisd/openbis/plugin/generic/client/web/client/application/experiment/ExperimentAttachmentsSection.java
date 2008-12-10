@@ -58,7 +58,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
  */
 public class ExperimentAttachmentsSection extends SectionPanel
 {
-    public static final String PROPERTIES_ID_PREFIX =
+    public static final String ATTACHMENTS_ID_PREFIX =
             GenericConstants.ID_PREFIX + "experiment-attachment-section_";
 
     private final Experiment experiment;
@@ -141,6 +141,7 @@ public class ExperimentAttachmentsSection extends SectionPanel
                     return files;
                 }
             });
+        attachmentGrid.setId(ATTACHMENTS_ID_PREFIX + experiment.getExperimentIdentifier());
         return attachmentGrid;
     }
 

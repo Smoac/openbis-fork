@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IPropertyChecker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IValueAssertion;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.PropertyCheckingManager;
@@ -32,6 +33,8 @@ public class CheckExperiment extends AbstractDefaultTestCommand implements
     private final String identifier;
 
     private final PropertyCheckingManager propertyCheckingManager;
+
+    private CheckTableCommand attachmentsSection;
 
     public CheckExperiment(final String identifierPrefix, final String code)
     {
@@ -55,6 +58,14 @@ public class CheckExperiment extends AbstractDefaultTestCommand implements
     {
         propertyCheckingManager.assertPropertiesOf(ExperimentPropertiesSection.PROPERTIES_ID_PREFIX
                 + identifier);
+    }
+
+    public CheckTableCommand attachmentsTable()
+    {
+        attachmentsSection =
+                new CheckTableCommand(ExperimentAttachmentsSection.ATTACHMENTS_ID_PREFIX
+                        + identifier);
+        return attachmentsSection;
     }
 
 }

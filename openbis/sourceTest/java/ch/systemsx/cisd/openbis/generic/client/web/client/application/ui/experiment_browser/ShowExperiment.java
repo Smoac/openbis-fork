@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestU
  * 
  * @author Franz-Josef Elmer
  */
-public final class ShowExperiment extends AbstractDefaultTestCommand
+public class ShowExperiment extends AbstractDefaultTestCommand
 {
     private final String code;
 
