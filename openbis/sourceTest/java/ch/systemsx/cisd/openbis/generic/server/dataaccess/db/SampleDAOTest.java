@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
@@ -80,7 +81,7 @@ public final class SampleDAOTest extends AbstractDAOTest
         save(superContainer, container, well);
 
         // clear session to avoid using samples from first level cache
-        Session currentSession = sessionFactory.getCurrentSession();
+        final Session currentSession = sessionFactory.getCurrentSession();
         currentSession.flush();
         currentSession.clear();
 
@@ -106,15 +107,16 @@ public final class SampleDAOTest extends AbstractDAOTest
         boolean fail = true;
         try
         {
-            sampleDAO.tryFindByCodeAndDatabaseInstance(null, null);
+            sampleDAO.tryFindByCodeAndDatabaseInstance(null, null, HierarchyType.CHILD);
         } catch (final AssertionError e)
         {
             fail = false;
         }
         assertFalse(fail);
         assertEquals(sample, sampleDAO.tryFindByCodeAndDatabaseInstance(sample.getCode(),
-                homeDatabaseInstance));
-        assertNull(sampleDAO.tryFindByCodeAndDatabaseInstance("", homeDatabaseInstance));
+                homeDatabaseInstance, HierarchyType.CHILD));
+        assertNull(sampleDAO.tryFindByCodeAndDatabaseInstance("", homeDatabaseInstance,
+                HierarchyType.CHILD));
     }
 
     @Test
@@ -125,14 +127,15 @@ public final class SampleDAOTest extends AbstractDAOTest
         boolean fail = true;
         try
         {
-            sampleDAO.tryFindByCodeAndGroup(null, null);
+            sampleDAO.tryFindByCodeAndGroup(null, null, HierarchyType.CHILD);
         } catch (final AssertionError e)
         {
             fail = false;
         }
         assertFalse(fail);
-        assertEquals(sample, sampleDAO.tryFindByCodeAndGroup(sample.getCode(), sample.getGroup()));
-        assertNull(sampleDAO.tryFindByCodeAndGroup("", sample.getGroup()));
+        assertEquals(sample, sampleDAO.tryFindByCodeAndGroup(sample.getCode(), sample.getGroup(),
+                HierarchyType.CHILD));
+        assertNull(sampleDAO.tryFindByCodeAndGroup("", sample.getGroup(), HierarchyType.CHILD));
     }
 
     @Test
@@ -149,22 +152,43 @@ public final class SampleDAOTest extends AbstractDAOTest
         }
         assertFalse(fail);
         final String masterPlateCode = "MP";
-        DatabaseInstancePE homeInstance = daoFactory.getHomeDatabaseInstance();
+        final DatabaseInstancePE homeInstance = daoFactory.getHomeDatabaseInstance();
         final SamplePE sample =
-                sampleDAO.tryFindByCodeAndDatabaseInstance(masterPlateCode, homeInstance);
+                sampleDAO.tryFindByCodeAndDatabaseInstance(masterPlateCode, homeInstance,
+                        HierarchyType.CHILD);
         assertNotNull(sample);
         final List<SamplePE> samples = sampleDAO.listSamplesByContainer(sample);
         assertEquals(320, samples.size());
     }
 
     @Test
-    public void testListSamplesByExperiment() throws Exception
+    public final void testListSamplesByExperiment()
     {
-        ProjectPE projectNemo = daoFactory.getProjectDAO().tryFindProject("CISD", "CISD", "NEMO");
-        ExperimentPE experiment1 =
+        final ProjectPE projectNemo =
+                daoFactory.getProjectDAO().tryFindProject("CISD", "CISD", "NEMO");
+        final ExperimentPE experiment1 =
                 daoFactory.getExperimentDAO().tryFindByCodeAndProject(projectNemo, "EXP1");
-        List<SamplePE> samples = daoFactory.getSampleDAO().listSamplesByExperiment(experiment1);
+        final List<SamplePE> samples =
+                daoFactory.getSampleDAO().listSamplesByExperiment(experiment1);
         assertEquals(3, samples.size());
+    }
+
+    @Test
+    public final void testTryFindCodeAndDatabaseInstanceWithUniqueResult()
+    {
+        final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
+        final SamplePE samplePE = new SamplePE();
+        final String sampleCode = "A03";
+        samplePE.setCode(sampleCode);
+        samplePE.setSampleType(daoFactory.getSampleTypeDAO().tryFindSampleTypeByCode(
+                SampleTypeCode.DILUTION_PLATE.getCode()));
+        final DatabaseInstancePE homeDatabaseInstance = daoFactory.getHomeDatabaseInstance();
+        samplePE.setDatabaseInstance(homeDatabaseInstance);
+        samplePE.setRegistrator(getSystemPerson());
+        sampleDAO.createSample(samplePE);
+        // Following line throws a NonUniqueResultException if sample code not unique.
+        sampleDAO.tryFindByCodeAndDatabaseInstance(sampleCode, homeDatabaseInstance,
+                HierarchyType.CHILD);
     }
 
     //

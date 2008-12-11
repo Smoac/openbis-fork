@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
@@ -206,7 +207,7 @@ public final class SampleBOTest
                     groupParent.setGroup(EXAMPLE_GROUP);
                     groupParent.setCode("SAMPLE_GENERATOR");
                     one(sampleDAO).tryFindByCodeAndGroup(parentGroupIdentifier.getSampleCode(),
-                            EXAMPLE_GROUP);
+                            EXAMPLE_GROUP, HierarchyType.CHILD);
                     will(returnValue(groupParent));
 
                     one(daoFactory).getSampleTypeDAO();
@@ -277,11 +278,11 @@ public final class SampleBOTest
                             databaseInstanceDAO);
 
                     one(sampleDAO).tryFindByCodeAndGroup(generatedFromIdentifier.getSampleCode(),
-                            EXAMPLE_GROUP);
+                            EXAMPLE_GROUP, HierarchyType.CHILD);
                     will(returnValue(generatedFrom));
 
                     one(sampleDAO).tryFindByCodeAndGroup(containerIdentifier.getSampleCode(),
-                            EXAMPLE_GROUP);
+                            EXAMPLE_GROUP, HierarchyType.CHILD);
                     will(returnValue(container));
 
                     one(daoFactory).getSampleTypeDAO();
@@ -414,7 +415,7 @@ public final class SampleBOTest
                     will(returnValue(sampleDAO));
 
                     one(sampleDAO).tryFindByCodeAndGroup("DOES_NOT_EXIST",
-                            EXAMPLE_SESSION.tryGetHomeGroup());
+                            EXAMPLE_SESSION.tryGetHomeGroup(), HierarchyType.CHILD);
                     will(returnValue(null));
                 }
             });
@@ -457,7 +458,7 @@ public final class SampleBOTest
                     will(returnValue(sampleDAO));
 
                     one(sampleDAO).tryFindByCodeAndGroup("DOES_NOT_EXIST",
-                            EXAMPLE_SESSION.tryGetHomeGroup());
+                            EXAMPLE_SESSION.tryGetHomeGroup(), HierarchyType.CHILD);
                     will(returnValue(null));
                 }
             });

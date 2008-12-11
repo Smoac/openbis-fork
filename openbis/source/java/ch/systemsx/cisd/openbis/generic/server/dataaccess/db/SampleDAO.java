@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 
@@ -148,7 +149,7 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
     }
 
     public final SamplePE tryFindByCodeAndDatabaseInstance(final String sampleCode,
-            final DatabaseInstancePE databaseInstance)
+            final DatabaseInstancePE databaseInstance, final HierarchyType hierarchyType)
     {
         assert sampleCode != null : "Unspecified sample code.";
         assert databaseInstance != null : "Unspecified database instance.";
@@ -156,6 +157,8 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
         final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
         criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(sampleCode)));
         criteria.add(Restrictions.eq("databaseInstance", databaseInstance));
+        criteria.add(Restrictions.isNull(hierarchyType.getOppositeHierarchyType()
+                .getParentFieldName()));
         final SamplePE sample = (SamplePE) criteria.uniqueResult();
         if (operationLog.isDebugEnabled())
         {
@@ -167,7 +170,8 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
         return sample;
     }
 
-    public final SamplePE tryFindByCodeAndGroup(final String sampleCode, final GroupPE group)
+    public final SamplePE tryFindByCodeAndGroup(final String sampleCode,
+            final GroupPE group, final HierarchyType hierarchyType)
     {
         assert sampleCode != null : "Unspecified sample code.";
         assert group != null : "Unspecified group.";
@@ -175,6 +179,8 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
         final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
         criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(sampleCode)));
         criteria.add(Restrictions.eq("group", group));
+        criteria.add(Restrictions.isNull(hierarchyType.getOppositeHierarchyType()
+                .getParentFieldName()));
         final SamplePE sample = (SamplePE) criteria.uniqueResult();
         if (operationLog.isDebugEnabled())
         {
@@ -240,7 +246,8 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
 
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
         final String hql =
-                String.format("select s from %s s join s.procedures p where p.experimentInternal = ?",
+                String.format(
+                        "select s from %s s join s.procedures p where p.experimentInternal = ?",
                         TABLE_NAME);
         final List<SamplePE> list = cast(hibernateTemplate.find(hql, toArray(experiment)));
         if (operationLog.isDebugEnabled())

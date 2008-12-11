@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
@@ -128,7 +129,8 @@ public final class ExternalDataTableTest
                     one(databaseInstanceDAO).tryFindDatabaseInstanceByCode(dbCode);
                     will(returnValue(databaseInstancePE));
 
-                    one(sampleDAO).tryFindByCodeAndDatabaseInstance(sampleCode, databaseInstancePE);
+                    one(sampleDAO).tryFindByCodeAndDatabaseInstance(sampleCode, databaseInstancePE,
+                            HierarchyType.CHILD);
                 }
             });
         try
@@ -169,7 +171,8 @@ public final class ExternalDataTableTest
                     one(databaseInstanceDAO).tryFindDatabaseInstanceByCode(dbCode);
                     will(returnValue(databaseInstancePE));
 
-                    one(sampleDAO).tryFindByCodeAndDatabaseInstance(sampleCode, databaseInstancePE);
+                    one(sampleDAO).tryFindByCodeAndDatabaseInstance(sampleCode, databaseInstancePE,
+                            HierarchyType.CHILD);
                     will(returnValue(sample));
 
                     one(externalDataDAO).listExternalData(sample, SourceType.DERIVED);

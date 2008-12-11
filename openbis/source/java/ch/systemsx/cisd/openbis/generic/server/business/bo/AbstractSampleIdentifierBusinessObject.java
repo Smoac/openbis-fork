@@ -21,6 +21,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwnerFinder;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -62,11 +63,13 @@ abstract class AbstractSampleIdentifierBusinessObject extends AbstractBusinessOb
         {
             sample =
                     sampleDAO.tryFindByCodeAndDatabaseInstance(sampleCode, sampleOwner
-                            .tryGetDatabaseInstance());
+                            .tryGetDatabaseInstance(), HierarchyType.CHILD);
         } else
         {
             assert sampleOwner.isGroupLevel() : "Must be of group level.";
-            sample = sampleDAO.tryFindByCodeAndGroup(sampleCode, sampleOwner.tryGetGroup());
+            sample =
+                    sampleDAO.tryFindByCodeAndGroup(sampleCode, sampleOwner.tryGetGroup(),
+                            HierarchyType.CHILD);
         }
         if (sample == null)
         {

@@ -23,6 +23,7 @@ import org.springframework.dao.DataAccessException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 
@@ -53,13 +54,14 @@ public interface ISampleDAO
      * Returns the sample specified by given <var>sampleCode</var> and given <var>databaseInstance</var>.
      */
     SamplePE tryFindByCodeAndDatabaseInstance(final String sampleCode,
-            final DatabaseInstancePE databaseInstance) throws DataAccessException;
+            final DatabaseInstancePE databaseInstance, final HierarchyType hierarchyType)
+            throws DataAccessException;
 
     /**
      * Returns the sample specified by given <var>sampleCode</var> and given <var>group</var>.
      */
-    SamplePE tryFindByCodeAndGroup(final String sampleCode, final GroupPE group)
-            throws DataAccessException;
+    SamplePE tryFindByCodeAndGroup(final String sampleCode, final GroupPE group,
+            final HierarchyType hierarchyType) throws DataAccessException;
 
     /**
      * For given <var>sample</var> returns all {@link SamplePE}s that are generated from it.

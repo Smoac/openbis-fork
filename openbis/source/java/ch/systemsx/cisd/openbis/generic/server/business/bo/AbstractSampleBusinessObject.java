@@ -91,8 +91,8 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             if (parentPE.getInvalidation() != null)
             {
                 throw UserFailureException.fromTemplate(
-                        "Cannot register sample '%s': parent '%s' is invalid.", sampleIdentifier,
-                        parent);
+                        "Cannot register sample '%s': parent '%s' has been invalidated.",
+                        sampleIdentifier, parent);
             }
             samplePE.setGeneratedFrom(parentPE);
             samplePE.setTop(parentPE.getTop() == null ? parentPE : parentPE.getTop());
@@ -105,7 +105,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             if (containerPE.getInvalidation() != null)
             {
                 throw UserFailureException.fromTemplate(
-                        "Cannot register sample '%s': container '%s' is invalid.",
+                        "Cannot register sample '%s': container '%s' has been invalidated.",
                         sampleIdentifier, container);
             }
             samplePE.setContainer(containerPE);
