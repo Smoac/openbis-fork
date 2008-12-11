@@ -373,6 +373,11 @@ public final class PropertyUtils
             return null;
         }
 
+        public final boolean toBoolean()
+        {
+            return toBoolean(this);
+        }
+
         public final static boolean toBoolean(final Boolean bool)
         {
             if (bool == TRUE)

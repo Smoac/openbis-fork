@@ -18,16 +18,20 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.time.DateUtils;
 
-import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.common.collections.IToStringConverter;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.common.utilities.PropertyUtils.Boolean;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
@@ -40,10 +44,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
  */
 public final class PropertyValidator implements IPropertyValueValidator
 {
-    @Private
-    static final String EXCEPTION_TEMPLATE =
-            "Value '%s' has improper format. It should be of type '%s'.";
-
     public static final String DAYS_DATE_PATTERN = "yyyy-MM-dd";
 
     public static final String MINUTES_DATE_PATTERN = "yyyy-MM-dd HH:mm";
@@ -84,7 +84,7 @@ public final class PropertyValidator implements IPropertyValueValidator
     // IPropertyValidator
     //
 
-    public final void validatePropertyValue(final PropertyTypePE propertyType, final String value)
+    public final String validatePropertyValue(final PropertyTypePE propertyType, final String value)
             throws UserFailureException
     {
         assert propertyType != null : "Unspecified property type.";
@@ -98,12 +98,7 @@ public final class PropertyValidator implements IPropertyValueValidator
             ((ControlledVocabularyValidator) dataTypeValidator).setVocabulary(propertyType
                     .getVocabulary());
         }
-        if (dataTypeValidator.isValid(value))
-        {
-            return;
-        }
-        throw UserFailureException.fromTemplate(EXCEPTION_TEMPLATE, value, entityDataType
-                .getNiceRepresentation());
+        return dataTypeValidator.validate(value);
     }
 
     //
@@ -113,9 +108,12 @@ public final class PropertyValidator implements IPropertyValueValidator
     private static interface IDataTypeValidator
     {
         /**
-         * Whether given <var>value</var> is valid.
+         * Validates given <var>value</var> according to this data type.
+         * 
+         * @return the validated value. Note that it can differ from the given one.
+         * @throws UserFailureException if given <var>value</var> is not valid.
          */
-        public boolean isValid(final String value);
+        public String validate(final String value) throws UserFailureException;
     }
 
     private final static class BooleanValidator implements IDataTypeValidator
@@ -125,10 +123,16 @@ public final class PropertyValidator implements IPropertyValueValidator
         // IDataTypeValidator
         //
 
-        public final boolean isValid(final String value)
+        public final String validate(final String value) throws UserFailureException
         {
             assert value != null : "Unspecified value.";
-            return PropertyUtils.Boolean.getBoolean(value) != null;
+            final Boolean bool = PropertyUtils.Boolean.getBoolean(value);
+            if (bool == null)
+            {
+                throw UserFailureException.fromTemplate("Boolean value '%s' has improper format. "
+                        + "It should be either 'true' or 'false'.", value);
+            }
+            return java.lang.Boolean.toString(bool.toBoolean());
         }
     }
 
@@ -139,10 +143,10 @@ public final class PropertyValidator implements IPropertyValueValidator
         // IDataTypeValidator
         //
 
-        public final boolean isValid(final String value)
+        public final String validate(final String value) throws UserFailureException
         {
             assert value != null : "Unspecified value.";
-            return true;
+            return value;
         }
     }
 
@@ -153,16 +157,18 @@ public final class PropertyValidator implements IPropertyValueValidator
         // IDataTypeValidator
         //
 
-        public final boolean isValid(final String value)
+        public final String validate(final String value) throws UserFailureException
         {
             assert value != null : "Unspecified value.";
             try
             {
                 DateUtils.parseDate(value, DATE_PATTERNS);
-                return true;
+                return value;
             } catch (final ParseException ex)
             {
-                return false;
+                throw UserFailureException.fromTemplate(
+                        "Date value '%s' has improper format. It must be one of '%s'.", value,
+                        Arrays.toString(DATE_PATTERNS));
             }
         }
     }
@@ -174,16 +180,17 @@ public final class PropertyValidator implements IPropertyValueValidator
         // IDataTypeValidator
         //
 
-        public final boolean isValid(final String value)
+        public final String validate(final String value) throws UserFailureException
         {
             assert value != null : "Unspecified value.";
             try
             {
                 Integer.parseInt(value);
-                return true;
+                return value;
             } catch (final NumberFormatException ex)
             {
-                return false;
+                throw UserFailureException.fromTemplate("Integer value '%s' has improper format.",
+                        value);
             }
         }
     }
@@ -195,16 +202,17 @@ public final class PropertyValidator implements IPropertyValueValidator
         // IDataTypeValidator
         //
 
-        public final boolean isValid(final String value)
+        public final String validate(final String value) throws UserFailureException
         {
             assert value != null : "Unspecified value.";
             try
             {
                 Double.parseDouble(value);
-                return true;
+                return value;
             } catch (final NumberFormatException ex)
             {
-                return false;
+                throw UserFailureException.fromTemplate("Double value '%s' has improper format.",
+                        value);
             }
         }
     }
@@ -223,18 +231,32 @@ public final class PropertyValidator implements IPropertyValueValidator
         // IDataTypeValidator
         //
 
-        public final boolean isValid(final String value)
+        public final String validate(final String value) throws UserFailureException
         {
             assert value != null : "Unspecified value.";
             assert vocabulary != null : "Unspecified vocabulary.";
-            for (final VocabularyTermPE term : vocabulary.getTerms())
+            final Set<VocabularyTermPE> terms = vocabulary.getTerms();
+            for (final VocabularyTermPE term : terms)
             {
                 if (term.getCode().equals(value))
                 {
-                    return true;
+                    return value;
                 }
             }
-            return false;
+            throw UserFailureException.fromTemplate("Vocabulary value '%s' has improper format. "
+                    + "It must be one of '%s'.", value, CollectionUtils.abbreviate(terms, -1,
+                    new IToStringConverter<VocabularyTermPE>()
+                        {
+
+                            //
+                            // IToStringConverter
+                            //
+
+                            public final String toString(final VocabularyTermPE term)
+                            {
+                                return term.getCode();
+                            }
+                        }));
         }
     }
 }

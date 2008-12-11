@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.fail;
 
@@ -178,8 +177,7 @@ public final class PropertyValidatorTest
             fail(String.format("'%s' expected.", UserFailureException.class.getSimpleName()));
         } catch (final UserFailureException ex)
         {
-            assertEquals(String.format(PropertyValidator.EXCEPTION_TEMPLATE, value, propertyType
-                    .getType().getCode()), ex.getMessage());
+            // Nothing to do here.
         }
     }
 }

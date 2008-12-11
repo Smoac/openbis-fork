@@ -173,9 +173,10 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         }
         if (valueOrNull != null)
         {
-            propertyValueValidator.validatePropertyValue(propertyType, valueOrNull);
+            final String validated =
+                    propertyValueValidator.validatePropertyValue(propertyType, valueOrNull);
             return createEntityProperty(registrator, propertyType, entityTypePropertyTypePE,
-                    valueOrNull);
+                    validated);
         }
         return null;
     }
