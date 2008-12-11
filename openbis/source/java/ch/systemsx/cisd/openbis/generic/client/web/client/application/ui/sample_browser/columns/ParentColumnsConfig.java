@@ -28,8 +28,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
  * @author Izabela Adamczyk
  * @author Tomasz Pylak
  */
-// TODO 2008-11-13, Christian Ribeaud: Make these columns sortable. It is not just about turning on
-// a flag. There is more to do on the server side...
 public final class ParentColumnsConfig extends AbstractColumnsConfig
 {
     private final IMessageProvider messageProvider;
