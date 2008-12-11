@@ -26,6 +26,7 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.PersonsView;
 
 /**
@@ -35,6 +36,21 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.PersonsVie
  */
 public class AddPersonDialog extends Window
 {
+    public final class RegisterPersonCallback extends AbstractAsyncCallback<Void>
+    {
+        private RegisterPersonCallback(IViewContext<?> viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        public final void process(final Void result)
+        {
+            hide();
+            personList.refresh();
+        }
+    }
+
     private static final String PREFIX = "add-person_";
 
     static final String CODE_FIELD_ID = GenericConstants.ID_PREFIX + PREFIX + "code-field";
@@ -96,19 +112,7 @@ public class AddPersonDialog extends Window
                 public final void componentSelected(final ComponentEvent ce)
                 {
                     viewContext.getService().registerPerson(codeField.getValue(),
-                            new AbstractAsyncCallback<Void>(viewContext)
-                                {
-                                    //
-                                    // AbstractAsyncCallback
-                                    //
-
-                                    @Override
-                                    public final void process(final Void result)
-                                    {
-                                        hide();
-                                        personList.refresh();
-                                    }
-                                });
+                            new RegisterPersonCallback(viewContext));
                 }
             });
         button.setId(SAVE_BUTTON_ID);

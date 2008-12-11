@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddPersonDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CheckGroup;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CheckPerson;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CheckRole;
@@ -27,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.Cre
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CreateRole;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.RoleListBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.FailureExpectation;
 
 /**
  * A {@link AbstractGWTTestCase} extension to test <i>AMC</i>.
@@ -66,7 +68,7 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
         remoteConsole.finish(20000);
         client.onModuleLoad();
     }
-
+    
     public final void testCreateRole()
     {
         remoteConsole.prepare(new Login("test", "a"));
@@ -77,6 +79,23 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
         remoteConsole
                 .prepare(new CheckRole(TEST_GROUP.toUpperCase(), USER_ID, RoleListBox.OBSERVER));
 
+        remoteConsole.finish(20000);
+        client.onModuleLoad();
+    }
+    
+    public final void testCreatePersonByAnAuthorizedUser()
+    {
+        remoteConsole.prepare(new Login("o", "o"));
+        final String userId = "some user";
+        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.PERSONS,
+                CategoriesBuilder.MENU_ELEMENTS.LIST));
+        remoteConsole.prepare(new CreatePerson(userId));
+        FailureExpectation failureExpectation =
+                new FailureExpectation(AddPersonDialog.RegisterPersonCallback.class)
+                        .with("Authorization failure: None of method roles '[INSTANCE.ADMIN]' "
+                                + "could be found in roles of user 'o'.");
+        remoteConsole.prepare(failureExpectation);
+        
         remoteConsole.finish(20000);
         client.onModuleLoad();
     }

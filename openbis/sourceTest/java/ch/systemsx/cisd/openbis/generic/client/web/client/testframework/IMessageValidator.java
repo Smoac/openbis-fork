@@ -23,5 +23,5 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
  */
 public interface IMessageValidator
 {
-    public boolean valid(String message);
+    public void assertValid(String message);
 }

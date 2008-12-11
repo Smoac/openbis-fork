@@ -30,9 +30,8 @@ public class FailureExpectation extends AbstractDefaultTestCommand
 
     private IMessageValidator messageValidator = new IMessageValidator()
         {
-            public boolean valid(String message)
+            public void assertValid(String message)
             {
-                return true;
             }
         };
         
@@ -47,9 +46,9 @@ public class FailureExpectation extends AbstractDefaultTestCommand
     {
         return with(new IMessageValidator()
             {
-                public boolean valid(String message)
+                public void assertValid(String message)
                 {
-                    return failureMessage.equals(message);
+                    assertEquals(failureMessage, message);
                 }
             });
     }
@@ -74,10 +73,7 @@ public class FailureExpectation extends AbstractDefaultTestCommand
         {
             return false;
         }
-        if (messageValidator.valid(failureMessage) == false)
-        {
-            return false;
-        }
+        messageValidator.assertValid(failureMessage);
         if (expectedThrowableClassOrNull == null)
         {
             return true;
