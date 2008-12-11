@@ -16,21 +16,28 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server;
 
+import java.io.IOException;
 import java.util.Iterator;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequest;
+import org.springframework.web.multipart.support.AbstractMultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractCommandController;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.WrappedIOException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.Message;
 
 /**
  * An {@link AbstractCommandController} extension for uploading files.
@@ -42,7 +49,8 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
  * <p>
  * This service is synchronized on the session object to serialize parallel invocations from the
  * same client. The <i>HTTP</i> response returns an empty string or <code>null</code> if the
- * upload was successful and is finished.
+ * upload was successful and is finished. Otherwise it returns a {@link Message} as <i>XML</i>
+ * string in case of exception.
  * </p>
  * <p>
  * <i>URL</i> mappings are: <code>/upload</code> and <code>/genericopenbis/upload</code>.
@@ -55,6 +63,9 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
     { "/upload", "/genericopenbis/upload" })
 public final class UploadServiceServlet extends AbstractCommandController
 {
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, UploadServiceServlet.class);
+
     public UploadServiceServlet()
     {
         super(UploadedFilesBean.class);
@@ -67,46 +78,86 @@ public final class UploadServiceServlet extends AbstractCommandController
         return iterator;
     }
 
+    private final void sendResponse(final HttpServletResponse response, final String textOrNull)
+    {
+        response.setContentType("text/html");
+        response.setStatus(HttpServletResponse.SC_OK);
+        if (textOrNull != null)
+        {
+            try
+            {
+                response.getWriter().write(textOrNull);
+            } catch (final IOException ex)
+            {
+                throw new WrappedIOException(ex);
+            }
+        }
+    }
+
     //
     // AbstractCommandController
     //
 
-    // TODO 2008-12-09, Christian Ribeaud: Exception handling. See HandlerExceptionResolver and/or
-    // HandlerInterceptor.
+    @Override
+    protected ModelAndView handleRequestInternal(final HttpServletRequest request,
+            final HttpServletResponse response) throws Exception
+    {
+        try
+        {
+            return super.handleRequestInternal(request, response);
+        } catch (final Throwable th)
+        {
+            operationLog.error("Error handling request.", th);
+            if (th instanceof Error)
+            {
+                throw (Error) th;
+            } else
+            {
+                String msg = th.getMessage();
+                if (StringUtils.isBlank(msg))
+                {
+                    msg = String.format("Error handling request: %s.", th.getClass().getName());
+                }
+                sendResponse(response, Message.createErrorMessage(msg).toXml());
+                return null;
+            }
+        }
+    }
+
     @Override
     protected final ModelAndView handle(final HttpServletRequest request,
             final HttpServletResponse response, final Object command, final BindException errors)
             throws Exception
     {
-        assert request instanceof DefaultMultipartHttpServletRequest : "HttpServletRequest not an instance "
-                + "of DefaultMultipartHttpServletRequest.";
-        final DefaultMultipartHttpServletRequest multipartRequest =
-                (DefaultMultipartHttpServletRequest) request;
-        final UploadedFilesBean uploadedFiles = (UploadedFilesBean) command;
-        final String sessionKey = uploadedFiles.getSessionKey();
-        if (sessionKey == null)
+        if (request instanceof AbstractMultipartHttpServletRequest)
         {
-            throw new ServletException(
-                    "No form field 'sessionKey' could be found in the transmitted form.");
-        }
-        request.getSession(false).setAttribute(sessionKey, uploadedFiles);
-        for (final Iterator<String> iterator = cast(multipartRequest.getFileNames()); iterator
-                .hasNext(); /**/)
-        {
-            final String fileName = iterator.next();
-            final MultipartFile multipartFile = multipartRequest.getFile(fileName);
-            if (multipartFile.isEmpty() == false)
+            final AbstractMultipartHttpServletRequest multipartRequest =
+                    (AbstractMultipartHttpServletRequest) request;
+            final UploadedFilesBean uploadedFiles = (UploadedFilesBean) command;
+            final String sessionKey = uploadedFiles.getSessionKey();
+            if (sessionKey == null)
             {
-                uploadedFiles.addMultipartFile(multipartFile);
+                throw new ServletException(
+                        "No form field 'sessionKey' could be found in the transmitted form.");
             }
+            for (final Iterator<String> iterator = cast(multipartRequest.getFileNames()); iterator
+                    .hasNext(); /**/)
+            {
+                final String fileName = iterator.next();
+                final MultipartFile multipartFile = multipartRequest.getFile(fileName);
+                if (multipartFile.isEmpty() == false)
+                {
+                    uploadedFiles.addMultipartFile(multipartFile);
+                }
+            }
+            if (uploadedFiles.size() == 0)
+            {
+                throw UserFailureException.fromTemplate("No file has been uploaded, that is, "
+                        + "the chosen file(s) has no content.");
+            }
+            request.getSession(false).setAttribute(sessionKey, uploadedFiles);
+            sendResponse(response, null);
         }
-        if (uploadedFiles.size() == 0)
-        {
-            throw UserFailureException.fromTemplate("No file has been uploaded, that is, "
-                    + "the chosen file(s) has no content.");
-        }
-        response.setContentType("text/html");
-        response.setStatus(HttpServletResponse.SC_OK);
         return null;
     }
 }
