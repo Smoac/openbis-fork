@@ -22,6 +22,7 @@ import java.util.Iterator;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -70,6 +71,7 @@ public final class UploadServiceServlet extends AbstractCommandController
     {
         super(UploadedFilesBean.class);
         setSynchronizeOnSession(true);
+        setRequireSession(true);
     }
 
     @SuppressWarnings("unchecked")
@@ -155,7 +157,11 @@ public final class UploadServiceServlet extends AbstractCommandController
                 throw UserFailureException.fromTemplate("No file has been uploaded, that is, "
                         + "the chosen file(s) has no content.");
             }
-            request.getSession(false).setAttribute(sessionKey, uploadedFiles);
+            // We must have a session reaching this point. See the constructor where we set
+            // 'setRequireSession(true)'.
+            final HttpSession session = request.getSession(false);
+            assert session != null : "Session must be specified.";
+            session.setAttribute(sessionKey, uploadedFiles);
             sendResponse(response, null);
         }
         return null;

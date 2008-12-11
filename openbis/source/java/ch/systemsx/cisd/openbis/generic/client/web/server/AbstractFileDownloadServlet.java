@@ -22,6 +22,7 @@ import java.io.PrintWriter;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
@@ -37,16 +38,25 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
  */
 abstract public class AbstractFileDownloadServlet extends AbstractController
 {
+    protected AbstractFileDownloadServlet()
+    {
+        setRequireSession(true);
+    }
+
     abstract protected FileContent getFileContent(final HttpServletRequest request)
             throws Exception;
 
-    protected String getSessionToken(final HttpServletRequest request)
+    protected final String getSessionToken(final HttpServletRequest request)
     {
-        return ((Session) request.getSession(false).getAttribute(
-                SessionConstants.OPENBIS_SESSION_ATTRIBUTE_KEY)).getSessionToken();
+        // We must have a session reaching this point. See the constructor where we set
+        // 'setRequireSession(true)'.
+        final HttpSession session = request.getSession(false);
+        assert session != null : "Session must be specified.";
+        return ((Session) session.getAttribute(SessionConstants.OPENBIS_SESSION_ATTRIBUTE_KEY))
+                .getSessionToken();
     }
 
-    protected void writeResponse(final HttpServletResponse response, final String value)
+    protected final void writeResponse(final HttpServletResponse response, final String value)
             throws IOException
     {
         final PrintWriter writer = response.getWriter();
@@ -55,8 +65,12 @@ abstract public class AbstractFileDownloadServlet extends AbstractController
         writer.close();
     }
 
+    //
+    // AbstractController
+    //
+
     @Override
-    protected ModelAndView handleRequestInternal(final HttpServletRequest request,
+    protected final ModelAndView handleRequestInternal(final HttpServletRequest request,
             final HttpServletResponse response) throws Exception
     {
         try
@@ -79,7 +93,11 @@ abstract public class AbstractFileDownloadServlet extends AbstractController
         return null;
     }
 
-    public static class FileContent
+    //
+    // Helper classes
+    //
+
+    public final static class FileContent
     {
         private final byte[] content;
 
@@ -91,12 +109,12 @@ abstract public class AbstractFileDownloadServlet extends AbstractController
             this.fileName = fileName;
         }
 
-        public byte[] getContent()
+        public final byte[] getContent()
         {
             return content;
         }
 
-        public String getFileName()
+        public final String getFileName()
         {
             return fileName;
         }
