@@ -1,0 +1,1 @@
+kill `cat cc.pid`
