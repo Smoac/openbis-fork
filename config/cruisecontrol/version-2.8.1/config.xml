@@ -17,7 +17,7 @@
       <svn localWorkingCopy="${project.trunk}"/>
     </modificationset>
     <schedule interval="60">
-      <ant buildfile="${project.trunk}/build/build.xml" target="ci" anthome="apache-ant-1.6.5"/>
+      <ant buildfile="${project.trunk}/build/build.xml" target="ci" anthome="apache-ant"/>
     </schedule>
     <log>
       <merge dir="${project.trunk}/targets/test-output"/>
@@ -53,7 +53,7 @@
       <svn localWorkingCopy="${lims.nightly-build.dir}"/>
     </modificationset>
     <schedule interval="60">
-      <ant target="nightly-build" time="0100" buildfile="${lims.nightly-build.dir}/build/build.xml" anthome="apache-ant-1.6.5"/>
+      <ant target="nightly-build" time="0100" buildfile="${lims.nightly-build.dir}/build/build.xml" anthome="apache-ant"/>
     </schedule>
     <log>
       <merge dir="${lims.nightly-build.dir}/targets/playground/openBIS-client" pattern="test-report*.xml"/>
@@ -87,7 +87,7 @@
       <svn localWorkingCopy="${openbis.nightly-build.dir}"/>
     </modificationset>
     <schedule interval="60">
-      <ant target="nightly-build" time="0300" buildfile="${openbis.nightly-build.dir}/build/build.xml" anthome="apache-ant-1.6.5"/>
+      <ant target="nightly-build" time="0300" buildfile="${openbis.nightly-build.dir}/build/build.xml" anthome="apache-ant"/>
     </schedule>
     <log>
       <merge dir="${openbis.nightly-build.dir}/targets/test-output"/>
@@ -118,7 +118,7 @@
       <svn localWorkingCopy="${project.trunk}"/>
     </modificationset>
     <schedule interval="60">
-      <ant target="nightly-build" time="0200" buildfile="${project.trunk}/build/build.xml" anthome="apache-ant-1.6.5"/>
+      <ant target="nightly-build" time="0200" buildfile="${project.trunk}/build/build.xml" anthome="apache-ant"/>
     </schedule>
   </project>
   
