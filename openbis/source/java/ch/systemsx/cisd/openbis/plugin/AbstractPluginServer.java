@@ -37,6 +37,7 @@ public abstract class AbstractPluginServer<T extends IServer> extends AbstractSe
     {
     }
 
+    // For testing purpose.
     protected AbstractPluginServer(final ISessionManager<Session> sessionManager,
             final IDAOFactory daoFactory,
             final ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin)
