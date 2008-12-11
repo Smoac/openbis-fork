@@ -153,6 +153,7 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
     {
         assert sampleCode != null : "Unspecified sample code.";
         assert databaseInstance != null : "Unspecified database instance.";
+        assert hierarchyType != null : "Unspecified hierarchy type.";
 
         final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
         criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(sampleCode)));
@@ -170,11 +171,12 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
         return sample;
     }
 
-    public final SamplePE tryFindByCodeAndGroup(final String sampleCode,
-            final GroupPE group, final HierarchyType hierarchyType)
+    public final SamplePE tryFindByCodeAndGroup(final String sampleCode, final GroupPE group,
+            final HierarchyType hierarchyType)
     {
         assert sampleCode != null : "Unspecified sample code.";
         assert group != null : "Unspecified group.";
+        assert hierarchyType != null : "Unspecified hierarchy type.";
 
         final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
         criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(sampleCode)));
