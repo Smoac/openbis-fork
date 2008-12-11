@@ -37,6 +37,9 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
+import com.google.gwt.xml.client.Document;
+import com.google.gwt.xml.client.Node;
+import com.google.gwt.xml.client.XMLParser;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -138,32 +141,7 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
         // Does some action after the form has been successfully submitted. Note that the response
         // coming from the server could be an error message. Even in case of error on the server
         // side this listener will be informed.
-        panel.addListener(Events.Submit, new Listener<FormEvent>()
-            {
-
-                //
-                // Listener
-                //
-
-                public final void handleEvent(final FormEvent be)
-                {
-                    final String msg = be.resultHtml;
-                    // Was not successful
-                    if (StringUtils.isBlank(msg) == false)
-                    {
-                        infoBox.displayError(msg);
-                        // final Document document = XMLParser.parse(msg);
-                        // System.out.println(document.getElementsByTagName("message").item(0)
-                        // .getFirstChild().getNodeValue());
-                        setUploadEnabled(true);
-                    } else
-                    {
-                        viewContext.getService().registerSamples(sampleType,
-                                sessionKeyField.getValue(),
-                                new RegisterSamplesCallback(viewContext));
-                    }
-                }
-            });
+        panel.addListener(Events.Submit, new FormPanelListener());
         return panel;
     }
 
@@ -249,6 +227,61 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
         protected final void finishOnFailure(final Throwable caught)
         {
             setUploadEnabled(true);
+        }
+    }
+
+    private final class FormPanelListener implements Listener<FormEvent>
+    {
+
+        FormPanelListener()
+        {
+        }
+
+        private final void extractAndDisplay(final String msg)
+        {
+            final Document document = XMLParser.parse(msg);
+            final Node message = document.getFirstChild();
+            final Node typeNode = message.getAttributes().getNamedItem("type");
+            final String messageText = message.getFirstChild().getNodeValue();
+            final String type = typeNode.getNodeValue();
+            if ("info".equals(type))
+            {
+                infoBox.displayInfo(messageText);
+            } else
+            {
+                infoBox.displayError(messageText);
+            }
+        }
+
+        //
+        // Listener
+        //
+
+        public final void handleEvent(final FormEvent be)
+        {
+            final String msg = be.resultHtml;
+            // Was not successful
+            if (StringUtils.isBlank(msg) == false)
+            {
+                if (msg.startsWith("<message"))
+                {
+                    if (msg.indexOf("<![CDATA[") > -1 && XMLParser.supportsCDATASection() == false)
+                    {
+                        infoBox.displayError(msg.replaceAll("<", "&lt;"));
+                    } else
+                    {
+                        extractAndDisplay(msg);
+                    }
+                } else
+                {
+                    infoBox.displayError(msg);
+                }
+                setUploadEnabled(true);
+            } else
+            {
+                viewContext.getService().registerSamples(sampleType, SESSION_KEY,
+                        new RegisterSamplesCallback(viewContext));
+            }
         }
     }
 
