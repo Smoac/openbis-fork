@@ -5,4 +5,5 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 export JAVA_HOME=/usr/java/jdk5_32
-svn co svn+ssh://source.systemsx.ch/repos/cisd/$1/trunk projects/cisd/trunk/$1
+rm -rf projects/cisd/trunk/$1
+svn co http://source.systemsx.ch/repos/cisd/$1/trunk projects/cisd/trunk/$1
