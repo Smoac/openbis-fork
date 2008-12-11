@@ -22,6 +22,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment_browser.ListExperiments;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment_browser.ShowExperiment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns.SampleRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
@@ -120,6 +121,29 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
                 "exampleExperiments.txt").withCell(ModelDataPropertyNames.VERSION, 1));
         attachmentsTable.expectedRow(new Row().withCell(ModelDataPropertyNames.FILE_NAME,
                 "cellPlates.txt").withCell(ModelDataPropertyNames.VERSION, 1));
+        remoteConsole.prepare(checkExperiment);
+
+        remoteConsole.finish(60000);
+        client.onModuleLoad();
+    }
+
+    public final void testListOfSamples()
+    {
+        remoteConsole.prepare(new Login("test", "a"));
+        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.EXPERIMENTS,
+                CategoriesBuilder.MENU_ELEMENTS.LIST));
+        remoteConsole.prepare(new ListExperiments(DEFAULT, SIRNA_HCS));
+        remoteConsole.prepare(new ShowExperiment(EXP_REUSE));
+        final CheckExperiment checkExperiment = new CheckExperiment(CISD_CISD_DEFAULT, EXP_REUSE);
+        checkExperiment.property("Experiment").asString(EXP_REUSE);
+        final CheckTableCommand sampleTable = checkExperiment.sampleTable().expectedSize(7);
+        sampleTable.expectedRow(new SampleRow("RP1-A2X"));
+        sampleTable.expectedRow(new SampleRow("RP1-B1X"));
+        sampleTable.expectedRow(new SampleRow("RP2-A1X"));
+        sampleTable.expectedRow(new SampleRow("CP1-A1"));
+        sampleTable.expectedRow(new SampleRow("CP1-A2"));
+        sampleTable.expectedRow(new SampleRow("CP1-B1"));
+        sampleTable.expectedRow(new SampleRow("CP2-A1"));
         remoteConsole.prepare(checkExperiment);
 
         remoteConsole.finish(60000);

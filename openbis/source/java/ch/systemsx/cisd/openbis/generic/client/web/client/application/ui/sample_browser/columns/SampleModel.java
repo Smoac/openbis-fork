@@ -45,6 +45,8 @@ public final class SampleModel extends BaseModelData
     public SampleModel(final Sample sample)
     {
         set(ModelDataPropertyNames.OBJECT, sample);
+        set(ModelDataPropertyNames.SAMPLE_TYPE, sample.getSampleType() != null ? sample
+                .getSampleType().getCode() : null);
 
         List<ISampleColDefUI> columnsSchema = createColumnsSchema(sample);
         for (IColumnDefinition<Sample> column : columnsSchema)

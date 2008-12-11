@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  * 
  * @author Izabela Adamczyk
  */
-public final class CommonColumnsConfig extends AbstractColumnsConfig
+public class CommonColumnsConfig extends AbstractColumnsConfig
 {
     private final IMessageProvider messageProvider;
 

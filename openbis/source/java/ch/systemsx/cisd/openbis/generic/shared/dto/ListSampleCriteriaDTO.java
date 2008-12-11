@@ -21,6 +21,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
@@ -41,6 +42,8 @@ public class ListSampleCriteriaDTO extends AbstractHashable implements Serializa
     private SampleTypePE sampleType;
 
     private SampleIdentifier containerIdentifier;
+
+    private ExperimentIdentifier experimentIdentifier;
 
     public final SampleIdentifier getContainerIdentifier()
     {
@@ -70,5 +73,15 @@ public class ListSampleCriteriaDTO extends AbstractHashable implements Serializa
     public final void setSampleType(final SampleTypePE sampleType)
     {
         this.sampleType = sampleType;
+    }
+
+    public ExperimentIdentifier getExperimentIdentifier()
+    {
+        return experimentIdentifier;
+    }
+
+    public void setExperimentIdentifier(final ExperimentIdentifier experimentIdentifier)
+    {
+        this.experimentIdentifier = experimentIdentifier;
     }
 }

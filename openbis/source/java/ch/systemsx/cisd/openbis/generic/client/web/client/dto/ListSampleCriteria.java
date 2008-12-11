@@ -37,6 +37,8 @@ public final class ListSampleCriteria extends DefaultResultSetConfig<String> imp
 
     private String containerIdentifier;
 
+    private String experimentIdentifier;
+
     public final String getContainerIdentifier()
     {
         return containerIdentifier;
@@ -85,5 +87,15 @@ public final class ListSampleCriteria extends DefaultResultSetConfig<String> imp
     public void setIncludeInstance(final boolean includeInstance)
     {
         this.includeInstance = includeInstance;
+    }
+
+    public String getExperimentIdentifier()
+    {
+        return experimentIdentifier;
+    }
+
+    public void setExperimentIdentifier(final String experimentIdentifier)
+    {
+        this.experimentIdentifier = experimentIdentifier;
     }
 }

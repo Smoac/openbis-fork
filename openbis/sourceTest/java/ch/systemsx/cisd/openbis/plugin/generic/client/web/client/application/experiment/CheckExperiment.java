@@ -21,6 +21,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTab
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IPropertyChecker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IValueAssertion;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.PropertyCheckingManager;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.ExperimentSamplesSection.ListSamplesCallback;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentViewer.ExperimentInfoCallback;
 
 /**
@@ -36,11 +37,14 @@ public class CheckExperiment extends AbstractDefaultTestCommand implements
 
     private CheckTableCommand attachmentsSection;
 
+    private CheckTableCommand sampleSection;
+
     public CheckExperiment(final String identifierPrefix, final String code)
     {
         this.identifier = identifierPrefix + "/" + code;
         propertyCheckingManager = new PropertyCheckingManager();
         addCallbackClass(ExperimentInfoCallback.class);
+        addCallbackClass(ListSamplesCallback.class);
     }
 
     public Property property(final String name)
@@ -66,6 +70,12 @@ public class CheckExperiment extends AbstractDefaultTestCommand implements
                 new CheckTableCommand(ExperimentAttachmentsSection.ATTACHMENTS_ID_PREFIX
                         + identifier);
         return attachmentsSection;
+    }
+
+    public CheckTableCommand sampleTable()
+    {
+        sampleSection = new CheckTableCommand(ExperimentSamplesSection.ID_PREFIX + identifier);
+        return sampleSection;
     }
 
 }

@@ -28,9 +28,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Procedure;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 
-class CommonSampleColDef extends AbstractSampleColDef
+public class CommonSampleColDef extends AbstractSampleColDef
 {
-    private CommonSampleColDefKind columnKind;
+    protected CommonSampleColDefKind columnKind;
 
     // GWT
     public CommonSampleColDef()
@@ -38,7 +38,7 @@ class CommonSampleColDef extends AbstractSampleColDef
         this.columnKind = null;
     }
 
-    public CommonSampleColDef(CommonSampleColDefKind columnKind, String headerText)
+    public CommonSampleColDef(final CommonSampleColDefKind columnKind, final String headerText)
     {
         super(headerText, columnKind.getWidth(), columnKind.isHidden());
         this.columnKind = columnKind;
@@ -55,7 +55,7 @@ class CommonSampleColDef extends AbstractSampleColDef
     }
 
     @Override
-    protected String tryGetValue(Sample sample)
+    protected String tryGetValue(final Sample sample)
     {
         final Experiment exp = tryToGetExperiment(sample);
         switch (columnKind)
@@ -87,17 +87,17 @@ class CommonSampleColDef extends AbstractSampleColDef
         }
     }
 
-    private static String renderDate(Date date)
+    private static String renderDate(final Date date)
     {
         return SimpleDateRenderer.renderDate(date);
     }
 
-    private static String renderPerson(Person person)
+    private static String renderPerson(final Person person)
     {
         return SimplePersonRenderer.createPersonName(person).toString();
     }
 
-    private static String fromBoolean(boolean b)
+    private static String fromBoolean(final boolean b)
     {
         return SimpleYesNoRenderer.render(b);
     }

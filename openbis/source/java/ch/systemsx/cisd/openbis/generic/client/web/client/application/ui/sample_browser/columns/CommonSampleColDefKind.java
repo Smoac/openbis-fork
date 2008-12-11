@@ -55,8 +55,8 @@ public enum CommonSampleColDefKind implements IsSerializable
 
     private boolean isHidden;
 
-    private CommonSampleColDefKind(String sortField, String headerMsgKey, int width,
-            boolean isHidden)
+    private CommonSampleColDefKind(final String sortField, final String headerMsgKey,
+            final int width, final boolean isHidden)
     {
         this.sortField = sortField;
         this.headerMsgKey = headerMsgKey;
@@ -64,12 +64,13 @@ public enum CommonSampleColDefKind implements IsSerializable
         this.isHidden = isHidden;
     }
 
-    private CommonSampleColDefKind(String sortField, String headerMsgKey, boolean isHidden)
+    private CommonSampleColDefKind(final String sortField, final String headerMsgKey,
+            final boolean isHidden)
     {
         this(sortField, headerMsgKey, AbstractSampleColDef.DEFAULT_COLUMN_WIDTH, isHidden);
     }
 
-    private CommonSampleColDefKind(String sortField, String headerMsgKey)
+    private CommonSampleColDefKind(final String sortField, final String headerMsgKey)
     {
         this(sortField, headerMsgKey, false);
     }

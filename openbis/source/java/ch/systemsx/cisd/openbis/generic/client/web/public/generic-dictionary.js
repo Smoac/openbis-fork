@@ -12,6 +12,7 @@ var generic = {
   versions_template: "Show all versions ({0})",
   no_attachments_found: "There are no attachments in this experiment",
   no_samples_found: "There are no samples in this experiment",
+  procedure: "Procedure",
 
   //
   // Sample Viewer
@@ -24,6 +25,7 @@ var generic = {
   invalidation_template: "Invalidated by: {0}<br>Invalidation Date: {1}<br>Invalidation Reason: {2}",
   location: "Location",
   file_format_type: "File Format",
+  
   
   //
   // Sample Registration

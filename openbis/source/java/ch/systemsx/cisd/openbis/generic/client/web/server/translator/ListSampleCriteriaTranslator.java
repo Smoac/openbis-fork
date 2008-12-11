@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
@@ -43,7 +44,12 @@ public final class ListSampleCriteriaTranslator
     {
         final ListSampleCriteriaDTO criteria = new ListSampleCriteriaDTO();
         final String containerIdentifier = listCriteria.getContainerIdentifier();
-        if (containerIdentifier != null)
+        final String experimentIdentifier = listCriteria.getExperimentIdentifier();
+        if (experimentIdentifier != null)
+        {
+            criteria.setExperimentIdentifier(new ExperimentIdentifierFactory(experimentIdentifier)
+                    .createIdentifier());
+        } else if (containerIdentifier != null)
         {
             criteria.setContainerIdentifier(SampleIdentifierFactory.parse(containerIdentifier));
         } else
@@ -61,7 +67,6 @@ public final class ListSampleCriteriaTranslator
         final List<SampleOwnerIdentifier> ownerIdentifiers = new ArrayList<SampleOwnerIdentifier>();
         final DatabaseInstanceIdentifier databaseIdentifier = getDatabaseIdentifier(listCriteria);
         if (listCriteria.isIncludeGroup())
-
         {
             ownerIdentifiers.add(new SampleOwnerIdentifier(new GroupIdentifier(databaseIdentifier,
                     listCriteria.getGroupCode())));

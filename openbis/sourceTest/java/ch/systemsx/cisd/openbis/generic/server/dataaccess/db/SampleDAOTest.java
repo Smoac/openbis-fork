@@ -31,7 +31,9 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
@@ -153,6 +155,16 @@ public final class SampleDAOTest extends AbstractDAOTest
         assertNotNull(sample);
         final List<SamplePE> samples = sampleDAO.listSamplesByContainer(sample);
         assertEquals(320, samples.size());
+    }
+
+    @Test
+    public void testListSamplesByExperiment() throws Exception
+    {
+        ProjectPE projectNemo = daoFactory.getProjectDAO().tryFindProject("CISD", "CISD", "NEMO");
+        ExperimentPE experiment1 =
+                daoFactory.getExperimentDAO().tryFindByCodeAndProject(projectNemo, "EXP1");
+        List<SamplePE> samples = daoFactory.getSampleDAO().listSamplesByExperiment(experiment1);
+        assertEquals(3, samples.size());
     }
 
     //

@@ -29,9 +29,11 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -112,7 +114,19 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
     public final void loadSamplesByCriteria(final ListSampleCriteriaDTO criteria)
     {
         final SampleIdentifier containerIdentifier = criteria.getContainerIdentifier();
-        if (containerIdentifier != null)
+        final ExperimentIdentifier experimentIdentifier = criteria.getExperimentIdentifier();
+        if (experimentIdentifier != null)
+        {
+            ProjectPE project =
+                    getProjectDAO().tryFindProject(experimentIdentifier.getDatabaseInstanceCode(),
+                            experimentIdentifier.getGroupCode(),
+                            experimentIdentifier.getProjectCode());
+            ExperimentPE experiment =
+                    getExperimentDAO().tryFindByCodeAndProject(project,
+                            experimentIdentifier.getExperimentCode());
+            samples = getSampleDAO().listSamplesByExperiment(experiment);
+            enrichWithHierarchy();
+        } else if (containerIdentifier != null)
         {
             final SamplePE container = getSampleByIdentifier(containerIdentifier);
             samples = getSampleDAO().listSamplesByContainer(container);
@@ -180,5 +194,34 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
             throwException(ex, String.format("One of samples"));
         }
         dataChanged = false;
+    }
+
+    private void enrichWithHierarchy()
+    {
+        assert samples != null : "Samples not loaded.";
+        for (SamplePE s : samples)
+        {
+            enrichParents(s);
+        }
+    }
+
+    private final static void enrichParents(final SamplePE sample)
+    {
+        SamplePE container = sample;
+        int containerHierarchyDepth = sample.getSampleType().getContainerHierarchyDepth();
+        while (containerHierarchyDepth > 0 && container != null)
+        {
+            container = container.getContainer();
+            HibernateUtils.initialize(container);
+            containerHierarchyDepth--;
+        }
+        SamplePE generator = sample;
+        int generatorHierarchyDepth = sample.getSampleType().getGeneratedFromHierarchyDepth();
+        while (generatorHierarchyDepth > 0 && generator != null)
+        {
+            generator = generator.getGeneratedFrom();
+            HibernateUtils.initialize(generator);
+            generatorHierarchyDepth--;
+        }
     }
 }

@@ -156,6 +156,8 @@ public final class ModelDataPropertyNames
 
     public static final String VERSION_FILE_NAME = "versionsFileName";
 
+    public static final String PROCEDURE = "procedure";
+
     private ModelDataPropertyNames()
     {
         // Can not be instantiated.
