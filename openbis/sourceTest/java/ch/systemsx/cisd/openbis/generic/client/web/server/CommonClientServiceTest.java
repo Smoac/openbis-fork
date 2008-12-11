@@ -21,16 +21,10 @@ import static org.testng.AssertJUnit.assertEquals;
 import java.util.Collections;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
 import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -38,8 +32,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DefaultResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetManager;
-import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 
 /**
@@ -47,21 +39,11 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
  * 
  * @author Christian Ribeaud
  */
-public final class CommonClientServiceTest
+public final class CommonClientServiceTest extends AbstractClientServiceTest
 {
-    private Mockery context;
-
-    private ICommonServer commonServer;
-
-    private IRequestContextProvider requestContextProvider;
-
     private CommonClientService commonClientService;
 
-    private HttpServletRequest servletRequest;
-
-    private HttpSession httpSession;
-
-    private IResultSetManager<String> resultSetManager;
+    private ICommonServer commonServer;
 
     private final static ListSampleCriteria createListCriteria()
     {
@@ -81,45 +63,22 @@ public final class CommonClientServiceTest
         return sampleType;
     }
 
-    private final void prepareGetSession(final Expectations expectations)
-    {
-        expectations.one(requestContextProvider).getHttpServletRequest();
-        expectations.will(Expectations.returnValue(servletRequest));
-
-        expectations.one(servletRequest).getSession(false);
-        expectations.will(Expectations.returnValue(httpSession));
-    }
-
-    private final void prepareGetResultSetManager(final Expectations expectations)
-    {
-        expectations.one(httpSession).getAttribute(SessionConstants.OPENBIS_RESULT_SET_MANAGER);
-        expectations.will(Expectations.returnValue(resultSetManager));
-    }
-
     private final static List<Sample> createSampleList()
     {
         return Collections.emptyList();
     }
 
+    //
+    // AbstractClientServiceTest
+    //
+
+    @Override
     @BeforeMethod
-    @SuppressWarnings("unchecked")
     public final void setUp()
     {
-        context = new Mockery();
-        commonServer = context.mock(ICommonServer.class);
-        requestContextProvider = context.mock(IRequestContextProvider.class);
-        servletRequest = context.mock(HttpServletRequest.class);
-        httpSession = context.mock(HttpSession.class);
-        resultSetManager = context.mock(IResultSetManager.class);
+        super.setUp();
         commonClientService = new CommonClientService(commonServer, requestContextProvider);
-    }
-
-    @AfterMethod
-    public final void tearDown()
-    {
-        // To following line of code should also be called at the end of each test method.
-        // Otherwise one do not known which test failed.
-        context.assertIsSatisfied();
+        commonServer = context.mock(ICommonServer.class);
     }
 
     @Test
@@ -133,6 +92,7 @@ public final class CommonClientServiceTest
             {
                 {
                     prepareGetSession(this);
+                    prepareGetSessionToken(this);
                     prepareGetResultSetManager(this);
 
                     one(resultSetManager).getResultSet(with(listCriteria),

@@ -81,9 +81,10 @@ public final class ScreeningClientService extends AbstractClientService implemen
     {
         try
         {
+            final String sessionToken = getSessionToken();
             final SampleIdentifier identifier = SampleIdentifierFactory.parse(sampleIdentifier);
             final SampleGenerationDTO sampleGeneration =
-                    screeningServer.getSampleInfo(getSessionToken(), identifier);
+                    screeningServer.getSampleInfo(sessionToken, identifier);
             return BeanUtils.createBean(SampleGeneration.class, sampleGeneration, DtoConverters
                     .getSampleConverter());
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)

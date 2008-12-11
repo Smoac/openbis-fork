@@ -27,7 +27,6 @@ import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
@@ -41,20 +40,18 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetManager;
-import ch.systemsx.cisd.openbis.generic.client.web.server.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.GroupTranslator;
-import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ListSampleCriteriaTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.PersonTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ProjectTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ResultSetTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.RoleAssignmentTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.RoleCodeTranslator;
-import ch.systemsx.cisd.openbis.generic.client.web.server.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.SearchableEntityTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
@@ -62,18 +59,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.util.TSVRenderer;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.plugin.AbstractClientService;
@@ -86,7 +80,8 @@ import ch.systemsx.cisd.openbis.plugin.AbstractClientService;
 public final class CommonClientService extends AbstractClientService implements
         ICommonClientService
 {
-    private final ICommonServer commonServer;
+
+    final ICommonServer commonServer;
 
     public CommonClientService(final ICommonServer commonServer,
             final IRequestContextProvider requestContextProvider)
@@ -109,9 +104,44 @@ public final class CommonClientService extends AbstractClientService implements
                 SessionConstants.OPENBIS_EXPORT_MANAGER);
     }
 
-    //
-    // AbstractClientService
-    //
+    /**
+     * Returns and removes cached export criteria.
+     */
+    private final <T> TableExportCriteria<T> getAndRemoveExportCriteria(final String exportDataKey)
+    {
+        final CacheManager<String, TableExportCriteria<T>> exportManager = getExportManager();
+        final TableExportCriteria<T> exportCriteria = exportManager.tryGetData(exportDataKey);
+        assert exportCriteria != null : "No export criteria found at key " + exportDataKey;
+        getExportManager().removeData(exportDataKey);
+        return exportCriteria;
+    }
+
+    private final List<Sample> fetchCachedSamples(final TableExportCriteria<Sample> exportCriteria)
+    {
+        final IResultSetManager<String> resultSetManager = getResultSetManager();
+        final IResultSet<String, Sample> result =
+                resultSetManager.getResultSet(createExportListCriteria(exportCriteria),
+                        new IOriginalDataProvider<Sample>()
+                            {
+                                public List<Sample> getOriginalData() throws UserFailureException
+                                {
+                                    throw new IllegalStateException("Data not found in the cache");
+                                }
+                            });
+        final ResultSet<Sample> samples = ResultSetTranslator.translate(result);
+        return samples.getList();
+    }
+
+    private static ListSampleCriteria createExportListCriteria(
+            final TableExportCriteria<Sample> exportCriteria)
+    {
+        final ListSampleCriteria criteria = new ListSampleCriteria();
+        criteria.setLimit(IResultSetConfig.NO_LIMIT);
+        criteria.setOffset(IResultSetConfig.FIRST_ELEM_OFFSET);
+        criteria.setSortInfo(exportCriteria.getSortInfo());
+        criteria.setResultSetKey(exportCriteria.getResultSetKey());
+        return criteria;
+    }
 
     @Override
     protected final IServer getServer()
@@ -127,10 +157,11 @@ public final class CommonClientService extends AbstractClientService implements
     {
         try
         {
+            final String sessionToken = getSessionToken();
             final DatabaseInstanceIdentifier identifier =
                     new DatabaseInstanceIdentifier(databaseInstanceCode);
             final List<Group> result = new ArrayList<Group>();
-            final List<GroupPE> groups = commonServer.listGroups(getSessionToken(), identifier);
+            final List<GroupPE> groups = commonServer.listGroups(sessionToken, identifier);
             for (final GroupPE group : groups)
             {
                 result.add(GroupTranslator.translate(group));
@@ -162,8 +193,9 @@ public final class CommonClientService extends AbstractClientService implements
 
         try
         {
+            final String sessionToken = getSessionToken();
             final List<Person> result = new ArrayList<Person>();
-            final List<PersonPE> persons = commonServer.listPersons(getSessionToken());
+            final List<PersonPE> persons = commonServer.listPersons(sessionToken);
             for (final PersonPE person : persons)
             {
                 result.add(PersonTranslator.translate(person));
@@ -192,8 +224,9 @@ public final class CommonClientService extends AbstractClientService implements
     {
         try
         {
+            final String sessionToken = getSessionToken();
             final List<RoleAssignment> result = new ArrayList<RoleAssignment>();
-            final List<RoleAssignmentPE> roles = commonServer.listRoles(getSessionToken());
+            final List<RoleAssignmentPE> roles = commonServer.listRoles(sessionToken);
             for (final RoleAssignmentPE role : roles)
             {
                 result.add(RoleAssignmentTranslator.translate(role));
@@ -211,9 +244,9 @@ public final class CommonClientService extends AbstractClientService implements
     {
         try
         {
+            final String sessionToken = getSessionToken();
             final GroupIdentifier groupIdentifier =
                     new GroupIdentifier(DatabaseInstanceIdentifier.HOME, group);
-            final String sessionToken = getSessionToken();
             commonServer.registerGroupRole(sessionToken, RoleCodeTranslator.translate(roleSetCode),
                     groupIdentifier, person);
         } catch (final UserFailureException e)
@@ -242,9 +275,9 @@ public final class CommonClientService extends AbstractClientService implements
     {
         try
         {
+            final String sessionToken = getSessionToken();
             final GroupIdentifier groupIdentifier =
                     new GroupIdentifier(DatabaseInstanceIdentifier.HOME, group);
-            final String sessionToken = getSessionToken();
             commonServer.deleteGroupRole(sessionToken, RoleCodeTranslator.translate(roleSetCode),
                     groupIdentifier, person);
         } catch (final UserFailureException e)
@@ -274,7 +307,8 @@ public final class CommonClientService extends AbstractClientService implements
     {
         try
         {
-            final List<SampleTypePE> sampleTypes = commonServer.listSampleTypes(getSessionToken());
+            final String sessionToken = getSessionToken();
+            final List<SampleTypePE> sampleTypes = commonServer.listSampleTypes(sessionToken);
             final List<SampleType> result = new ArrayList<SampleType>();
             for (final SampleTypePE sampleTypePE : sampleTypes)
             {
@@ -290,81 +324,50 @@ public final class CommonClientService extends AbstractClientService implements
     public final String prepareExportSamples(final TableExportCriteria<Sample> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return prepareExportEntities(criteria);
+        try
+        {
+            // Not directly needed but this refreshes the session.
+            getSessionToken();
+            final CacheManager<String, TableExportCriteria<Sample>> exportManager =
+                    getExportManager();
+            return exportManager.saveData(criteria);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
     }
 
     /**
      * Assumes that preparation of the export ({@link #prepareExportSamples(TableExportCriteria)}
      * has been invoked before and returned with an exportDataKey passed here as a parameter.
      */
-    public final String getExportSamplesTable(String exportDataKey)
+    public final String getExportSamplesTable(final String exportDataKey)
     {
-        TableExportCriteria<Sample> exportCriteria = getAndRemoveExportCriteria(exportDataKey);
-        List<Sample> samples = fetchCachedSamples(exportCriteria);
-        return TSVRenderer.createTable(samples, exportCriteria.getColumnDefs());
-    }
-
-    // returns and removes cached export criteria
-    private <T> TableExportCriteria<T> getAndRemoveExportCriteria(String exportDataKey)
-    {
-        CacheManager<String, TableExportCriteria<T>> exportManager = getExportManager();
-        TableExportCriteria<T> exportCriteria = exportManager.tryGetData(exportDataKey);
-        assert exportCriteria != null : "No export criteria found at key " + exportDataKey;
-        getExportManager().removeData(exportDataKey);
-        return exportCriteria;
-    }
-
-    // Saves the export criteria at the server side and returns a key to it.
-    // This parameter will be referenced later by a servlet serving the export result.
-    // The servlet needs to know just the key in the cache, we avoid serializing/deserializing
-    // export criteria in the URL.
-    private final <T> String prepareExportEntities(final TableExportCriteria<T> criteria)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
-    {
-        CacheManager<String, TableExportCriteria<T>> exportManager = getExportManager();
-        return exportManager.saveData(criteria);
-    }
-
-    private List<Sample> fetchCachedSamples(TableExportCriteria<Sample> exportCriteria)
-    {
-        ResultSet<Sample> samples =
-                listSamples(createExportListCriteria(exportCriteria),
-                        new IOriginalDataProvider<Sample>()
-                            {
-                                public List<Sample> getOriginalData() throws UserFailureException
-                                {
-                                    throw new IllegalStateException("Data not found in the cache");
-                                }
-                            });
-        return samples.getList();
-    }
-
-    private static ListSampleCriteria createExportListCriteria(
-            final TableExportCriteria<Sample> exportCriteria)
-    {
-        ListSampleCriteria criteria = new ListSampleCriteria();
-        criteria.setLimit(IResultSetConfig.NO_LIMIT);
-        criteria.setOffset(IResultSetConfig.FIRST_ELEM_OFFSET);
-        criteria.setSortInfo(exportCriteria.getSortInfo());
-        criteria.setResultSetKey(exportCriteria.getResultSetKey());
-        return criteria;
+        try
+        {
+            // Not directly needed but this refreshes the session.
+            getSessionToken();
+            final TableExportCriteria<Sample> exportCriteria =
+                    getAndRemoveExportCriteria(exportDataKey);
+            final List<Sample> samples = fetchCachedSamples(exportCriteria);
+            return TSVRenderer.createTable(samples, exportCriteria.getColumnDefs());
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
     }
 
     public final ResultSet<Sample> listSamples(final ListSampleCriteria listCriteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listSamples(listCriteria, createListSampleProvider(listCriteria));
-    }
-
-    private ResultSet<Sample> listSamples(final ListSampleCriteria listCriteria,
-            IOriginalDataProvider<Sample> dataProvider)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
-    {
         try
         {
+            final String sessionToken = getSessionToken();
             final IResultSetManager<String> resultSetManager = getResultSetManager();
             final IResultSet<String, Sample> result =
-                    resultSetManager.getResultSet(listCriteria, dataProvider);
+                    resultSetManager.getResultSet(listCriteria,
+                            new ListSamplesOriginalDataProvider(commonServer, sessionToken,
+                                    listCriteria));
             return ResultSetTranslator.translate(result);
         } catch (final UserFailureException e)
         {
@@ -372,63 +375,17 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    private IOriginalDataProvider<Sample> createListSampleProvider(
-            final ListSampleCriteria listCriteria)
-    {
-        return new IOriginalDataProvider<Sample>()
-            {
-
-                //
-                // IDataRetriever
-                //
-
-                public final List<Sample> getOriginalData()
-                {
-                    final List<SamplePE> samples =
-                            commonServer.listSamples(getSessionToken(),
-                                    ListSampleCriteriaTranslator.translate(listCriteria));
-                    final List<Sample> list = new ArrayList<Sample>(samples.size());
-                    for (final SamplePE sample : samples)
-                    {
-                        list.add(SampleTranslator.translate(sample));
-                    }
-                    return list;
-                }
-            };
-    }
-
     public final ResultSet<Experiment> listExperiments(final ListExperimentsCriteria listCriteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
+            final String sessionToken = getSessionToken();
             final IResultSetManager<String> resultSetManager = getResultSetManager();
             final IResultSet<String, Experiment> result =
                     resultSetManager.getResultSet(listCriteria,
-                            new IOriginalDataProvider<Experiment>()
-                                {
-                                    public final List<Experiment> getOriginalData()
-                                    {
-                                        final List<ExperimentPE> experiments =
-                                                commonServer.listExperiments(getSessionToken(),
-                                                        ExperimentTranslator.translate(listCriteria
-                                                                .getExperimentType()),
-                                                        new ProjectIdentifier(listCriteria
-                                                                .getGroupCode(), listCriteria
-                                                                .getProjectCode()));
-                                        final List<Experiment> list =
-                                                new ArrayList<Experiment>(experiments.size());
-                                        for (final ExperimentPE experiment : experiments)
-                                        {
-                                            list
-                                                    .add(ExperimentTranslator
-                                                            .translate(
-                                                                    experiment,
-                                                                    ExperimentTranslator.LoadableFields.PROPERTIES));
-                                        }
-                                        return list;
-                                    }
-                                });
+                            new ListExperimentsOriginalDataProvider(commonServer, listCriteria,
+                                    sessionToken));
             return ResultSetTranslator.translate(result);
         } catch (final UserFailureException e)
         {
@@ -441,9 +398,10 @@ public final class CommonClientService extends AbstractClientService implements
     {
         try
         {
+            final String sessionToken = getSessionToken();
             final SampleIdentifier identifier = SampleIdentifierFactory.parse(sampleIdentifier);
             final List<ExternalDataPE> externalData =
-                    commonServer.listExternalData(getSessionToken(), identifier);
+                    commonServer.listExternalData(sessionToken, identifier);
             return BeanUtils.createBeanList(ExternalData.class, externalData);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
@@ -456,6 +414,8 @@ public final class CommonClientService extends AbstractClientService implements
     {
         try
         {
+            // Not directly needed but this refreshes the session.
+            getSessionToken();
             final List<SearchableEntity> searchableEntities =
                     BeanUtils.createBeanList(SearchableEntity.class, Arrays
                             .asList(ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity
@@ -475,27 +435,14 @@ public final class CommonClientService extends AbstractClientService implements
     {
         try
         {
+            final String sessionToken = getSessionToken();
             final ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity[] matchingEntities =
                     SearchableEntityTranslator.translate(searchableEntityOrNull);
             final IResultSetManager<String> resultSetManager = getResultSetManager();
             final IResultSet<String, MatchingEntity> result =
                     resultSetManager.getResultSet(resultSetConfig,
-                            new IOriginalDataProvider<MatchingEntity>()
-                                {
-
-                                    //
-                                    // IDataRetriever
-                                    //
-
-                                    public final List<MatchingEntity> getOriginalData()
-                                    {
-                                        return BeanUtils.createBeanList(MatchingEntity.class,
-                                                commonServer.listMatchingEntities(
-                                                        getSessionToken(), matchingEntities,
-                                                        queryText), DtoConverters
-                                                        .getMatchingEntityConverter());
-                                    }
-                                });
+                            new ListMatchingEntitiesOriginalDataProvider(commonServer,
+                                    sessionToken, matchingEntities, queryText));
             return ResultSetTranslator.translate(result);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
@@ -508,6 +455,8 @@ public final class CommonClientService extends AbstractClientService implements
     {
         try
         {
+            // Not directly needed but this refreshes the session.
+            getSessionToken();
             getResultSetManager().removeResultSet(resultSetKey);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
@@ -520,8 +469,9 @@ public final class CommonClientService extends AbstractClientService implements
     {
         try
         {
+            final String sessionToken = getSessionToken();
             final List<Project> result = new ArrayList<Project>();
-            final List<ProjectPE> projects = commonServer.listProjects(getSessionToken());
+            final List<ProjectPE> projects = commonServer.listProjects(sessionToken);
             for (final ProjectPE project : projects)
             {
                 result.add(ProjectTranslator.translate(project));
@@ -538,9 +488,9 @@ public final class CommonClientService extends AbstractClientService implements
     {
         try
         {
+            final String sessionToken = getSessionToken();
             final List<ExperimentType> result = new ArrayList<ExperimentType>();
-            final List<ExperimentTypePE> projects =
-                    commonServer.listExperimentTypes(getSessionToken());
+            final List<ExperimentTypePE> projects = commonServer.listExperimentTypes(sessionToken);
             for (final ExperimentTypePE expType : projects)
             {
                 result.add(ExperimentTranslator.translate(expType));

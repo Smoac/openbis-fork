@@ -20,7 +20,6 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
@@ -34,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
 /**
@@ -104,16 +104,16 @@ public interface ICommonClientService extends IClientService
 
     /**
      * Returns a key which can be used be the export servlet (and eventually
-     * {@link #getExportSamplesTable(String)}) to reference the export criteria in an easy
-     * way.
+     * {@link #getExportSamplesTable(String)}) to reference the export criteria in an easy way.
      */
-    public String prepareExportSamples(final TableExportCriteria<Sample> criteria);
+    public String prepareExportSamples(final TableExportCriteria<Sample> criteria)
+            throws UserFailureException;
 
     /**
-     * Assumes that preparation of the export ({@link #prepareExportSamples(TableExportCriteria)} has
-     * been invoked before and returned with an exportDataKey passed here as a parameter.
+     * Assumes that preparation of the export ({@link #prepareExportSamples(TableExportCriteria)}
+     * has been invoked before and returned with an exportDataKey passed here as a parameter.
      */
-    public String getExportSamplesTable(String exportDataKey);
+    public String getExportSamplesTable(String exportDataKey) throws UserFailureException;
 
     /**
      * Returns a list of experiments.

@@ -22,28 +22,20 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.springframework.web.multipart.MultipartFile;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.authentication.Principal;
-import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientServiceTest;
 import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
-import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 /**
@@ -52,51 +44,26 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
  * @author Christian Ribeaud
  */
 @Friend(toClasses = GenericClientService.class)
-public final class GenericClientServiceTest
+public final class GenericClientServiceTest extends AbstractClientServiceTest
 {
     private MultipartFile multipartFile;
-
-    static final String SESSION_TOKEN = "session-token";
-
-    protected Mockery context;
 
     protected IGenericServer genericServer;
 
     protected GenericClientService genericClientService;
 
-    protected HttpServletRequest servletRequest;
+    //
+    // AbstractClientServiceTest
+    //
 
-    protected HttpSession httpSession;
-
-    protected Session session;
-
-    private IRequestContextProvider requestContextProvider;
-
+    @Override
     @BeforeMethod
     public final void setUp()
     {
-        context = new Mockery();
+        super.setUp();
         genericServer = context.mock(IGenericServer.class);
-        requestContextProvider = context.mock(IRequestContextProvider.class);
-        servletRequest = context.mock(HttpServletRequest.class);
-        httpSession = context.mock(HttpSession.class);
         multipartFile = context.mock(MultipartFile.class);
         genericClientService = new GenericClientService(genericServer, requestContextProvider);
-        session = createSessionMock();
-    }
-
-    @AfterMethod
-    public final void tearDown()
-    {
-        // To following line of code should also be called at the end of each test method.
-        // Otherwise one do not known which test failed.
-        context.assertIsSatisfied();
-    }
-
-    protected final Session createSessionMock()
-    {
-        return new Session("user", SESSION_TOKEN, new Principal("user", "FirstName", "LastName",
-                "email@users.ch"), "remote-host", System.currentTimeMillis() - 1);
     }
 
     private final static NewSample createNewSample(final String sampleIdentifier,
@@ -118,24 +85,6 @@ public final class GenericClientServiceTest
         final SampleType sampleType = new SampleType();
         sampleType.setCode(sampleTypeCode);
         return sampleType;
-    }
-
-    protected final void prepareGetSession(final Expectations expectations)
-    {
-        expectations.allowing(requestContextProvider).getHttpServletRequest();
-        expectations.will(Expectations.returnValue(servletRequest));
-
-        expectations.allowing(servletRequest).getSession(false);
-        expectations.will(Expectations.returnValue(httpSession));
-    }
-
-    protected final void prepareGetSessionToken(final Expectations expectations)
-    {
-        prepareGetSession(expectations);
-
-        expectations.allowing(httpSession).getAttribute(
-                SessionConstants.OPENBIS_SESSION_ATTRIBUTE_KEY);
-        expectations.will(Expectations.returnValue(session));
     }
 
     @Test

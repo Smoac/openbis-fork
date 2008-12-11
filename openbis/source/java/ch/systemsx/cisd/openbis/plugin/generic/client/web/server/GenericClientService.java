@@ -100,9 +100,10 @@ public final class GenericClientService extends AbstractClientService implements
     {
         try
         {
+            final String sessionToken = getSessionToken();
             final SampleIdentifier identifier = SampleIdentifierFactory.parse(sampleIdentifier);
             final SampleGenerationDTO sampleGeneration =
-                    genericServer.getSampleInfo(getSessionToken(), identifier);
+                    genericServer.getSampleInfo(sessionToken, identifier);
             return BeanUtils.createBean(SampleGeneration.class, sampleGeneration, DtoConverters
                     .getSampleConverter());
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
@@ -131,6 +132,7 @@ public final class GenericClientService extends AbstractClientService implements
         HttpSession session = null;
         try
         {
+            final String sessionToken = getSessionToken();
             session = getHttpSession();
             assert session.getAttribute(sessionKey) != null
                     && session.getAttribute(sessionKey) instanceof UploadedFilesBean : String
@@ -165,7 +167,7 @@ public final class GenericClientService extends AbstractClientService implements
                 results.add(new BatchRegistrationResult(multipartFile.getOriginalFilename(), String
                         .format("%d sample(s) found and registered.", loadedSamples.size())));
             }
-            genericServer.registerSamples(getSessionToken(), sampleType, newSamples);
+            genericServer.registerSamples(sessionToken, sampleType, newSamples);
             return results;
         } catch (final UserFailureException e)
         {
@@ -184,10 +186,11 @@ public final class GenericClientService extends AbstractClientService implements
     {
         try
         {
+            final String sessionToken = getSessionToken();
             final ExperimentIdentifier identifier =
                     new ExperimentIdentifierFactory(experimentIdentifier).createIdentifier();
             final ExperimentPE experiment =
-                    genericServer.getExperimentInfo(getSessionToken(), identifier);
+                    genericServer.getExperimentInfo(sessionToken, identifier);
             return ExperimentTranslator.translate(experiment,
                     ExperimentTranslator.LoadableFields.PROPERTIES,
                     ExperimentTranslator.LoadableFields.ATTACHMENTS);
