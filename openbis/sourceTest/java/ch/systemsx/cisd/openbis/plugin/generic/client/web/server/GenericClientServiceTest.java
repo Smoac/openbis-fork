@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.StringUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.jmock.Expectations;
@@ -32,8 +34,10 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientServiceTest;
 import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
@@ -48,23 +52,9 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
 {
     private MultipartFile multipartFile;
 
-    protected IGenericServer genericServer;
+    private IGenericServer genericServer;
 
-    protected GenericClientService genericClientService;
-
-    //
-    // AbstractClientServiceTest
-    //
-
-    @Override
-    @BeforeMethod
-    public final void setUp()
-    {
-        super.setUp();
-        genericServer = context.mock(IGenericServer.class);
-        multipartFile = context.mock(MultipartFile.class);
-        genericClientService = new GenericClientService(genericServer, requestContextProvider);
-    }
+    private GenericClientService genericClientService;
 
     private final static NewSample createNewSample(final String sampleIdentifier,
             final String sampleTypeCode, final SampleProperty[] properties, final String parent,
@@ -85,6 +75,33 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
         final SampleType sampleType = new SampleType();
         sampleType.setCode(sampleTypeCode);
         return sampleType;
+    }
+
+    private final static SampleProperty createSampleProperty(final String propertyTypeCode,
+            final String value)
+    {
+        final SampleProperty sampleProperty = new SampleProperty();
+        sampleProperty.setValue(value);
+        final SampleTypePropertyType sampleTypePropertyType = new SampleTypePropertyType();
+        final PropertyType propertyType = new PropertyType();
+        propertyType.setCode(propertyTypeCode);
+        sampleTypePropertyType.setPropertyType(propertyType);
+        sampleProperty.setEntityTypePropertyType(sampleTypePropertyType);
+        return sampleProperty;
+    }
+
+    //
+    // AbstractClientServiceTest
+    //
+
+    @Override
+    @BeforeMethod
+    public final void setUp()
+    {
+        super.setUp();
+        genericServer = context.mock(IGenericServer.class);
+        multipartFile = context.mock(MultipartFile.class);
+        genericClientService = new GenericClientService(genericServer, requestContextProvider);
     }
 
     @Test
@@ -120,6 +137,8 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
         newSample.setIdentifier("MP1");
         newSample.setContainerIdentifier("MP2");
         newSample.setParentIdentifier("MP3");
+        newSample.setProperties(new SampleProperty[]
+            { createSampleProperty("prop1", "RED"), createSampleProperty("prop2", "1") });
         final SampleType sampleType = createSampleType("MASTER_PLATE");
         final String fileName = "originalFileName.txt";
         context.checking(new Expectations()
@@ -157,6 +176,11 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
     // Helper classes
     //
 
+    /**
+     * A {@link BaseMatcher} extension for checking the list of {@link NewSample NewSamples}.
+     * 
+     * @author Christian Ribeaud
+     */
     private final static class NewSampleListMatcher extends BaseMatcher<List<NewSample>>
     {
         private final List<NewSample> newSamples;
@@ -166,12 +190,35 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
             this.newSamples = newSamples;
         }
 
+        private final boolean equals(final SampleProperty[] properties,
+                final SampleProperty[] sampleProperties)
+        {
+            int i = -1;
+            for (final SampleProperty sampleProperty : sampleProperties)
+            {
+                if (StringUtils.equals(sampleProperty.getValue(), properties[++i].getValue()) == false
+                        || StringUtils.equals(getPropertyTypeCode(sampleProperty),
+                                getPropertyTypeCode(properties[i])) == false)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private final static String getPropertyTypeCode(final SampleProperty sampleProperty)
+        {
+            return sampleProperty.getEntityTypePropertyType().getPropertyType().getCode();
+        }
+
         private final boolean equals(final NewSample newSample, final NewSample thatNewSample)
         {
-            return thatNewSample.equals(newSample)
-                    && newSample.getContainerIdentifier().equals(
-                            thatNewSample.getContainerIdentifier())
-                    && newSample.getParentIdentifier().equals(thatNewSample.getParentIdentifier());
+            return ObjectUtils.equals(newSample, thatNewSample)
+                    && StringUtils.equals(newSample.getContainerIdentifier(), thatNewSample
+                            .getContainerIdentifier())
+                    && StringUtils.equals(newSample.getParentIdentifier(), thatNewSample
+                            .getParentIdentifier())
+                    && equals(newSample.getProperties(), thatNewSample.getProperties());
         }
 
         //
