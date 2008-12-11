@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget
 
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment.HorizontalAlignmentConstant;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 
@@ -26,6 +28,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Strin
  * <p>
  * It nicely informs the user about a certain action result. It should be used instead of a
  * {@link MessageBox} in some cases.
+ * </p>
+ * <p>
+ * Do not directly use {@link #setHtml(String)} method. Instead use one of the display methods
+ * specified.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -36,11 +42,20 @@ public final class InfoBox extends Html
 
     private static final String WHITE = "#ffffff";
 
+    /**
+     * Default constructor with {@link HasHorizontalAlignment#ALIGN_CENTER}.
+     */
     public InfoBox()
     {
-        setStyleAttribute("textAlign", "center");
+        this(HasHorizontalAlignment.ALIGN_DEFAULT);
+    }
+
+    public InfoBox(final HorizontalAlignmentConstant horizontalAlignmentConstant)
+    {
+        setStyleAttribute("textAlign", horizontalAlignmentConstant.getTextAlignString());
         setStyleAttribute("borderStyle", "solid");
         setStyleAttribute("borderWidth", "1px");
+        setStyleAttribute("padding", "3px");
         reset();
     }
 
