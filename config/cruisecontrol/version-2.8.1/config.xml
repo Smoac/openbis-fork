@@ -150,7 +150,7 @@
     </modificationset>
   </project>
   
-  <project name="hdf5">
+  <project name="jhdf5">
     <modificationset quietperiod="${quiet-period}">
       <buildstatus logdir="logs/build_resources"/>
       <buildstatus logdir="logs/libraries"/>
