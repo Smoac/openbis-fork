@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
@@ -153,4 +154,9 @@ public interface ICommonClientService extends IClientService
      * Returns a list of all experiment types.
      */
     public List<ExperimentType> listExperimentTypes() throws UserFailureException;
+
+    /**
+     * Returns a list of all property types.
+     */
+    public List<PropertyType> listPropertyTypes() throws UserFailureException;
 }

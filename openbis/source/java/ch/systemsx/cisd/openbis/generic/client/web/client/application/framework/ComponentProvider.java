@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.RolesView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SampleBatchRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SampleRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment_browser.ExperimentBrowser;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type_browser.PropertyTypeBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.SampleBrowser;
 
 /**
@@ -51,6 +52,8 @@ final class ComponentProvider
 
     private final ExperimentBrowser experimentBrowser;
 
+    private final PropertyTypeBrowser propertyTypesBrowser;
+
     ComponentProvider(final CommonViewContext viewContext)
     {
         sampleBrowser = new SampleBrowser(viewContext);
@@ -61,6 +64,7 @@ final class ComponentProvider
         sampleRegistration = new SampleRegistrationPanel(viewContext);
         sampleBatchRegistration = new SampleBatchRegistrationPanel(viewContext);
         experimentBrowser = new ExperimentBrowser(viewContext);
+        propertyTypesBrowser = new PropertyTypeBrowser(viewContext);
     }
 
     public final ITabItem getSampleBrowser()
@@ -101,5 +105,10 @@ final class ComponentProvider
     public ITabItem getExperimentBrowser()
     {
         return new DefaultTabItem("Experiment browser", experimentBrowser, experimentBrowser);
+    }
+
+    public ITabItem getPropertyTypeBrowser()
+    {
+        return new DefaultTabItem("Property type browser", propertyTypesBrowser);
     }
 }

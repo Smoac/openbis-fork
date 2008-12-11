@@ -44,6 +44,7 @@ public final class PropertyTypeTranslator
         result.setLabel(propertyType.getLabel());
         result.setDataType(DataTypeTranslator.translate(propertyType.getType()));
         result.setVocabulary(VocabularyTranslator.translate(propertyType.getVocabulary()));
+        result.setDescription(propertyType.getDescription());
         return result;
     }
 

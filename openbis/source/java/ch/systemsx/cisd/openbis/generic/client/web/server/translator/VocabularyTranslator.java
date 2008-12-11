@@ -50,6 +50,7 @@ public class VocabularyTranslator
             }
         }
         result.setTerms(list);
+        result.setCode(vocabulary.getCode());
         return result;
     }
 

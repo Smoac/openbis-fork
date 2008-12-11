@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns.CommonSampleColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns.ParentGeneratedFromSampleColDef;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns.PropertySampleColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 
@@ -102,7 +99,7 @@ public class SampleRow extends Row
         return this;
     }
 
-    public  static String invalidCode(String code)
+    public static String invalidCode(String code)
     {
         return "<div class=\"invalid\">" + code + "</div>";
     }

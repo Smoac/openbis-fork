@@ -16,8 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
+import java.util.List;
+
 import org.springframework.dao.DataAccessException;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 
 /**
@@ -32,4 +35,19 @@ public interface IPropertyTypeDAO
      * Returns the property type for the specified code.
      */
     public PropertyTypePE tryFindPropertyTypeByCode(String code) throws DataAccessException;
+
+    /**
+     * Returns all property types including internally managed.
+     */
+    public List<PropertyTypePE> listAllPropertyTypes();
+
+    /**
+     * Returns property types excluding those which are internally managed.
+     */
+    public List<PropertyTypePE> listPropertyTypes() throws DataAccessException;
+
+    /**
+     * Lists the data types registered in the database.
+     */
+    public List<DataTypePE> listDataTypes();
 }

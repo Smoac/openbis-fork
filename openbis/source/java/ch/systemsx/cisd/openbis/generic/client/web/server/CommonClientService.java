@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
@@ -49,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ExperimentT
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.GroupTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.PersonTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ProjectTranslator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.translator.PropertyTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ResultSetTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.RoleAssignmentTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.RoleCodeTranslator;
@@ -64,6 +66,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
@@ -494,6 +497,25 @@ public final class CommonClientService extends AbstractClientService implements
             for (final ExperimentTypePE expType : projects)
             {
                 result.add(ExperimentTranslator.translate(expType));
+            }
+            return result;
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public List<PropertyType> listPropertyTypes()
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            final List<PropertyType> result = new ArrayList<PropertyType>();
+            final List<PropertyTypePE> propertyTypes = commonServer.listPropertyTypes(sessionToken);
+            for (final PropertyTypePE propType : propertyTypes)
+            {
+                result.add(PropertyTypeTranslator.translate(propType));
             }
             return result;
         } catch (final UserFailureException e)

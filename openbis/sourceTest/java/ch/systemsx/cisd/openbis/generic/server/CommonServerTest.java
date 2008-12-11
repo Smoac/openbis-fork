@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -307,7 +308,8 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(authenticationService).authenticateApplication();
                     will(returnValue(applicationToken));
 
-                    one(authenticationService).getPrincipal(applicationToken, CommonTestUtils.USER_ID);
+                    one(authenticationService).getPrincipal(applicationToken,
+                            CommonTestUtils.USER_ID);
                     will(returnValue(PRINCIPAL));
 
                     final PersonPE person = CommonTestUtils.createPersonFromPrincipal(PRINCIPAL);
@@ -358,7 +360,8 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(authenticationService).authenticateApplication();
                     will(returnValue(applicationToken));
 
-                    one(authenticationService).getPrincipal(applicationToken, CommonTestUtils.USER_ID);
+                    one(authenticationService).getPrincipal(applicationToken,
+                            CommonTestUtils.USER_ID);
                     will(throwException(new IllegalArgumentException()));
                 }
             });
@@ -369,8 +372,8 @@ public final class CommonServerTest extends AbstractServerTestCase
             fail("UserFailureException expected");
         } catch (final UserFailureException e)
         {
-            assertEquals("Person '" + CommonTestUtils.USER_ID + "' unknown by the authentication service.", e
-                    .getMessage());
+            assertEquals("Person '" + CommonTestUtils.USER_ID
+                    + "' unknown by the authentication service.", e.getMessage());
         }
 
         context.assertIsSatisfied();
@@ -478,6 +481,26 @@ public final class CommonServerTest extends AbstractServerTestCase
                 }
             });
         createServer().listProjects(session.getSessionToken());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testPropertyTypes()
+    {
+        final Session session = prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(commonBusinessObjectFactory).createPropertyTypeTable(session);
+                    will(returnValue(propertyTypeTable));
+
+                    one(propertyTypeTable).load();
+
+                    one(propertyTypeTable).getPropertyTypes();
+                    will(returnValue(new ArrayList<PropertyTypePE>()));
+                }
+            });
+        createServer().listPropertyTypes(session.getSessionToken());
         context.assertIsSatisfied();
     }
 }

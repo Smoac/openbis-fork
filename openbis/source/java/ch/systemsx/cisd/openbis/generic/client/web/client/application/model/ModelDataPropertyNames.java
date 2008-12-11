@@ -158,6 +158,14 @@ public final class ModelDataPropertyNames
 
     public static final String PROCEDURE = "procedure";
 
+    public static final String MATERIAL_TYPE = "materialType";
+
+    public static final String LABEL = "label";
+
+    public static final String DATA_TYPE = "dataType";
+
+    public static final String CONTROLLED_VOCABULARY = "controlledVocabulary";
+
     private ModelDataPropertyNames()
     {
         // Can not be instantiated.

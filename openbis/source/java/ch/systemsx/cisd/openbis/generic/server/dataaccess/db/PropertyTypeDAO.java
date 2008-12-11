@@ -28,6 +28,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 
@@ -74,5 +75,45 @@ final class PropertyTypeDAO extends AbstractDAO implements IPropertyTypeDAO
                     .getName(), code, entity));
         }
         return entity;
+    }
+
+    public List<PropertyTypePE> listAllPropertyTypes()
+    {
+        final List<PropertyTypePE> list =
+                cast(getHibernateTemplate().loadAll(PropertyTypePE.class));
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%s(): %d property types(s) have been found.",
+                    MethodUtils.getCurrentMethod().getName(), list.size()));
+        }
+        return list;
+    }
+
+    public final List<PropertyTypePE> listPropertyTypes() throws DataAccessException
+    {
+        final List<PropertyTypePE> list =
+                cast(getHibernateTemplate().find(
+                        String.format("from %s v where v.managedInternally = false"
+                                + " and v.databaseInstance = ?", PropertyTypePE.class
+                                .getSimpleName()), toArray(getDatabaseInstance())));
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%s(): %d property types(s) have been found.",
+                    MethodUtils.getCurrentMethod().getName(), list.size()));
+        }
+        return list;
+    }
+
+    public final List<DataTypePE> listDataTypes() throws DataAccessException
+    {
+        final List<DataTypePE> list =
+                cast(getHibernateTemplate().find(
+                        String.format("from %s dt", DataTypePE.class.getSimpleName())));
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%s(): %d data types(s) have been found.", MethodUtils
+                    .getCurrentMethod().getName(), list.size()));
+        }
+        return list;
     }
 }

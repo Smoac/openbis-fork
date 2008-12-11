@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObject
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
@@ -50,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -296,6 +298,15 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
                 businessObjectFactory.createExternalDataTable(session);
         externalDataTable.loadBySampleIdentifier(identifier);
         return externalDataTable.getExternalData();
+    }
+
+    public final List<PropertyTypePE> listPropertyTypes(final String sessionToken)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IPropertyTypeTable propertyTypeTable =
+                businessObjectFactory.createPropertyTypeTable(session);
+        propertyTypeTable.load();
+        return propertyTypeTable.getPropertyTypes();
     }
 
     public final List<SearchHit> listMatchingEntities(final String sessionToken,

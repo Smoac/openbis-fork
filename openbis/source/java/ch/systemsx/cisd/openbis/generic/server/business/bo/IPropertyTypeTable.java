@@ -14,47 +14,26 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
+package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 
 /**
- * Controlled vocabulary.
+ * A <i>Business Object</i> to load a list of {@link PropertyTypePE}.
  * 
  * @author Izabela Adamczyk
  */
-public class Vocabulary implements IsSerializable
+public interface IPropertyTypeTable
 {
+    /**
+     * Loads the internal {@link PropertyTypePE}s.
+     */
+    void load();
 
-    String code;
-
-    private List<VocabularyTerm> terms = new ArrayList<VocabularyTerm>();
-
-    public Vocabulary()
-    {
-    }
-
-    public List<VocabularyTerm> getTerms()
-    {
-        return terms;
-    }
-
-    public void setTerms(List<VocabularyTerm> terms)
-    {
-        this.terms = terms;
-    }
-
-    public String getCode()
-    {
-        return code;
-    }
-
-    public void setCode(String code)
-    {
-        this.code = code;
-    }
-
+    /**
+     * Returns the loaded {@link PropertyTypePE}s.
+     */
+    List<PropertyTypePE> getPropertyTypes();
 }

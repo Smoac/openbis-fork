@@ -154,7 +154,8 @@ public class CategoriesBuilder
     private MenuCategory createPropertyTypesCategory()
     {
         final List<MenuElement> elements = new ArrayList<MenuElement>();
-        elements.add(new MenuElement(MENU_ELEMENTS.LIST, "List", provider.getDummyComponent()));
+        elements
+                .add(new MenuElement(MENU_ELEMENTS.LIST, "List", provider.getPropertyTypeBrowser()));
         elements.add(new MenuElement(MENU_ELEMENTS.REGISTER, "Register", provider
                 .getDummyComponent()));
         return new MenuCategory(CATEGORIES.PROPERTY_TYPES, "Property types", elements);

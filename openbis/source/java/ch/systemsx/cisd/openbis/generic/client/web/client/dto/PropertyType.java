@@ -33,6 +33,8 @@ public class PropertyType extends Code<PropertyType> implements IsSerializable
 
     private Vocabulary vocabulary;
 
+    private String description;
+
     public String getSimpleCode()
     {
         return simpleCode;
@@ -81,6 +83,16 @@ public class PropertyType extends Code<PropertyType> implements IsSerializable
     public void setVocabulary(final Vocabulary vocabulary)
     {
         this.vocabulary = vocabulary;
+    }
+
+    public String getDescription()
+    {
+        return description;
+    }
+
+    public void setDescription(String description)
+    {
+        this.description = description;
     }
 
 }
