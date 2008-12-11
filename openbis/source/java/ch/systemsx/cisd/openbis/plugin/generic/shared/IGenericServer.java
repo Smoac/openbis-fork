@@ -84,5 +84,6 @@ public interface IGenericServer extends IServer
     @Transactional
     @RolesAllowed(RoleSet.USER)
     public void registerSamples(final String sessionToken, SampleType sampleType,
+            @AuthorizationGuard(guardClass = NewSamplePredicate.class)
             final List<NewSample> newSamples) throws UserFailureException;
 }
