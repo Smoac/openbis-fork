@@ -21,6 +21,8 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
  * 
  * @author Christian Ribeaud
  */
+// TODO 2008-12-12, Tomasz Pylak: Move to different package. This object allows BO and DAO layers to
+// communicate, there is no need to put it in the client-visible DTO package.
 public enum HierarchyType
 {
     CHILD("generatedFrom")
