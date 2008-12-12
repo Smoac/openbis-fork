@@ -89,4 +89,10 @@ public class MaterialTypePropertyTypePE extends EntityTypePropertyTypePE
     {
         return id;
     }
+
+    @Override
+    public void setPropertyType(PropertyTypePE propertyType)
+    {
+        propertyType.addMaterialTypePropertyType(this);
+    }
 }

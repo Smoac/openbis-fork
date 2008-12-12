@@ -106,4 +106,10 @@ public class SampleTypePropertyTypePE extends EntityTypePropertyTypePE
         return id;
     }
 
+    @Override
+    public void setPropertyType(PropertyTypePE propertyType)
+    {
+        propertyType.addSampleTypePropertyType(this);
+    }
+
 }

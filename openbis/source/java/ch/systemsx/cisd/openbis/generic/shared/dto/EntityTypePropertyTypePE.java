@@ -23,6 +23,7 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.Transient;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -71,15 +72,23 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
     @NotNull(message = ValidationMessages.PROPERTY_TYPE_NOT_NULL_MESSAGE)
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.PROPERTY_TYPE_COLUMN, updatable = false)
-    public PropertyTypePE getPropertyType()
+    private PropertyTypePE getPropertyTypeInternal()
     {
         return propertyType;
     }
 
-    public void setPropertyType(final PropertyTypePE propertyType)
+    @Transient
+    public PropertyTypePE getPropertyType()
+    {
+        return getPropertyTypeInternal();
+    }
+
+    void setPropertyTypeInternal(final PropertyTypePE propertyType)
     {
         this.propertyType = propertyType;
     }
+
+    abstract public void setPropertyType(final PropertyTypePE propertyType);
 
     @SuppressWarnings("unused")
     // for Hibernate only

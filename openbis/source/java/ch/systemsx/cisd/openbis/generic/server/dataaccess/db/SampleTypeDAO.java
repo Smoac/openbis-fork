@@ -71,7 +71,7 @@ final class SampleTypeDAO extends AbstractTypeDAO<SampleTypePE> implements ISamp
         criteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
         criteria.setFetchMode("sampleTypePropertyTypesInternal", FetchMode.JOIN);
         criteria.setFetchMode(
-                "sampleTypePropertyTypesInternal.propertyType.vocabulary.vocabularyTerms",
+                "sampleTypePropertyTypesInternal.propertyTypeInternal.vocabulary.vocabularyTerms",
                 FetchMode.JOIN);
         criteria.setResultTransformer(DetachedCriteria.DISTINCT_ROOT_ENTITY);
         if (onlyListable)

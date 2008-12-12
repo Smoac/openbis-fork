@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -24,6 +28,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -35,6 +40,7 @@ import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
+import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 
 /**
@@ -75,6 +81,15 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
     private transient Long id;
 
     private DatabaseInstancePE databaseInstance;
+
+    private Set<MaterialTypePropertyTypePE> materialTypePropertyTypes =
+            new HashSet<MaterialTypePropertyTypePE>();
+
+    private Set<ExperimentTypePropertyTypePE> experimentTypePropertyTypes =
+            new HashSet<ExperimentTypePropertyTypePE>();
+
+    private Set<SampleTypePropertyTypePE> sampleTypePropertyTypes =
+            new HashSet<SampleTypePropertyTypePE>();
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.CONTROLLED_VOCABULARY_COLUMN, updatable = false)
@@ -257,4 +272,129 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
     {
         return getCode();
     }
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "propertyTypeInternal")
+    private Set<SampleTypePropertyTypePE> getSampleTypePropertyTypesInternal()
+    {
+        return sampleTypePropertyTypes;
+    }
+
+    // Required by Hibernate.
+    @SuppressWarnings("unused")
+    private void setSampleTypePropertyTypesInternal(
+            Set<SampleTypePropertyTypePE> sampleTypePropertyTypes)
+    {
+        this.sampleTypePropertyTypes = sampleTypePropertyTypes;
+    }
+
+    @Transient
+    public Set<SampleTypePropertyTypePE> getSampleTypePropertyTypes()
+    {
+        return new UnmodifiableSetDecorator<SampleTypePropertyTypePE>(
+                getSampleTypePropertyTypesInternal());
+    }
+
+    public final void setSampleTypePropertyTypes(final Iterable<SampleTypePropertyTypePE> childs)
+    {
+        getSampleTypePropertyTypesInternal().clear();
+        for (final SampleTypePropertyTypePE child : childs)
+        {
+            addSampleTypePropertyType(child);
+        }
+    }
+
+    public void addSampleTypePropertyType(final SampleTypePropertyTypePE child)
+    {
+        final PropertyTypePE parent = child.getPropertyType();
+        if (parent != null)
+        {
+            parent.getSampleTypePropertyTypesInternal().remove(child);
+        }
+        child.setPropertyTypeInternal(this);
+        getSampleTypePropertyTypesInternal().add(child);
+    }
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "propertyTypeInternal")
+    private Set<ExperimentTypePropertyTypePE> getExperimentTypePropertyTypesInternal()
+    {
+        return experimentTypePropertyTypes;
+    }
+
+    // Required by Hibernate.
+    @SuppressWarnings("unused")
+    private void setExperimentTypePropertyTypesInternal(
+            Set<ExperimentTypePropertyTypePE> experimentTypePropertyTypes)
+    {
+        this.experimentTypePropertyTypes = experimentTypePropertyTypes;
+    }
+
+    @Transient
+    public Set<ExperimentTypePropertyTypePE> getExperimentTypePropertyTypes()
+    {
+        return new UnmodifiableSetDecorator<ExperimentTypePropertyTypePE>(
+                getExperimentTypePropertyTypesInternal());
+    }
+
+    public final void setExperimentTypePropertyTypes(
+            final Iterable<ExperimentTypePropertyTypePE> childs)
+    {
+        getExperimentTypePropertyTypesInternal().clear();
+        for (final ExperimentTypePropertyTypePE child : childs)
+        {
+            addExperimentTypePropertyType(child);
+        }
+    }
+
+    public void addExperimentTypePropertyType(final ExperimentTypePropertyTypePE child)
+    {
+        final PropertyTypePE parent = child.getPropertyType();
+        if (parent != null)
+        {
+            parent.getExperimentTypePropertyTypesInternal().remove(child);
+        }
+        child.setPropertyTypeInternal(this);
+        getExperimentTypePropertyTypesInternal().add(child);
+    }
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "propertyTypeInternal")
+    private Set<MaterialTypePropertyTypePE> getMaterialTypePropertyTypesInternal()
+    {
+        return materialTypePropertyTypes;
+    }
+
+    // Required by Hibernate.
+    @SuppressWarnings("unused")
+    private void setMaterialTypePropertyTypesInternal(
+            Set<MaterialTypePropertyTypePE> materialTypePropertyTypes)
+    {
+        this.materialTypePropertyTypes = materialTypePropertyTypes;
+    }
+
+    @Transient
+    public Set<MaterialTypePropertyTypePE> getMaterialTypePropertyTypes()
+    {
+        return new UnmodifiableSetDecorator<MaterialTypePropertyTypePE>(
+                getMaterialTypePropertyTypesInternal());
+    }
+
+    public final void setMaterialTypePropertyTypes(final Iterable<MaterialTypePropertyTypePE> childs)
+    {
+        getMaterialTypePropertyTypesInternal().clear();
+        for (final MaterialTypePropertyTypePE child : childs)
+        {
+            addMaterialTypePropertyType(child);
+        }
+    }
+
+    public void addMaterialTypePropertyType(final MaterialTypePropertyTypePE child)
+    {
+        final PropertyTypePE parent = child.getPropertyType();
+        if (parent != null)
+        {
+            parent.getMaterialTypePropertyTypesInternal().remove(child);
+        }
+        child.setPropertyTypeInternal(this);
+        getMaterialTypePropertyTypesInternal().add(child);
+    }
+
 }
