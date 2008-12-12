@@ -21,6 +21,9 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.ListBox;
 
 /**
@@ -99,4 +102,24 @@ public final class GWTUtils
         comboBox.setSelection(selection);
     }
 
+    /**
+     * Calls {@link Grid#setAutoExpandColumn(String)} on the last column visible.
+     * <p>
+     * Does nothing if all columns are hidden.
+     * </p>
+     */
+    public final static <T extends ModelData> void setAutoExpandOnLastVisibleColumn(
+            final Grid<T> grid)
+    {
+        final ColumnModel columnModel = grid.getColumnModel();
+        for (int i = columnModel.getColumnCount(); --i >= 0;)
+        {
+            final ColumnConfig columnConfig = columnModel.getColumn(i);
+            if (columnConfig.isHidden() == false)
+            {
+                grid.setAutoExpandColumn(columnConfig.getId());
+                return;
+            }
+        }
+    }
 }

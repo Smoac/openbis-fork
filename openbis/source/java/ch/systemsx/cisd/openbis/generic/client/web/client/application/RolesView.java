@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Role
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnFilter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddRoleDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 
@@ -126,6 +127,7 @@ public class RolesView extends ContentPanel
         grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         grid.setBorders(true);
         grid.setId(TABLE_ID);
+        GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
 
         cp.add(grid);
 

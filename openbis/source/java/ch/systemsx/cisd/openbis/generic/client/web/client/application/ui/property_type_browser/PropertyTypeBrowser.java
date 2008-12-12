@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.PropertyTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 
 /**
@@ -74,6 +75,7 @@ public class PropertyTypeBrowser extends ContentPanel
         final Grid<PropertyTypeModel> grid = new Grid<PropertyTypeModel>(store, cm);
         grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         grid.setId(GRID_ID);
+        GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
         add(grid);
         layout();
     }

@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.D
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnFilter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddPersonDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 
 /**
@@ -138,6 +139,7 @@ public class PersonsView extends ContentPanel
         grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         grid.setId(TABLE_ID);
         grid.setBorders(true);
+        GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
         cp.add(grid);
 
         final Button addPersonButton =

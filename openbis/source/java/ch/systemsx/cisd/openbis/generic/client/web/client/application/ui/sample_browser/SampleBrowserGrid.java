@@ -54,14 +54,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns.AbstractColumnsConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns.SampleModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.PagingToolBarWithoutRefresh;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GxtTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 
 /**
  * A {@link LayoutContainer} which contains the grid where the samples are displayed.
@@ -285,7 +286,9 @@ public final class SampleBrowserGrid extends LayoutContainer
         criteria.setIncludeInstance(includeInstance);
         contentPanel.setHeading(createHeader(selectedType, selectedGroupCode, includeGroup,
                 includeInstance));
-        grid.reconfigure(grid.getStore(), createColumnModel());
+        final ColumnModel columnModel = createColumnModel();
+        grid.reconfigure(grid.getStore(), columnModel);
+        GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
         sampleLoader.load(0, PAGE_SIZE);
     }
 

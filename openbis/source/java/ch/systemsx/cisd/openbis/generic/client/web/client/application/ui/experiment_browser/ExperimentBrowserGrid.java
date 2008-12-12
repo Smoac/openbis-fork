@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.Y
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.InvalidableWithCodeRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.PagingToolBarWithoutRefresh;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GxtTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentType;
@@ -243,6 +244,7 @@ public final class ExperimentBrowserGrid extends LayoutContainer
         criteria.setGroupCode(selectedProject.getGroup().getCode());
         contentPanel.setHeading(createHeader(selectedType, selectedProject));
         grid.reconfigure(grid.getStore(), createColumnModel());
+        GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
         experimentLoader.load(0, PAGE_SIZE);
     }
 

@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.D
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnFilter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddGroupDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 
 /**
@@ -149,6 +150,7 @@ public class GroupsView extends ContentPanel
         grid.addPlugin(expander);
         grid.setBorders(true);
         grid.setId(TABLE_ID);
+        GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
 
         cp.add(grid);
         final Button addGroupButton =

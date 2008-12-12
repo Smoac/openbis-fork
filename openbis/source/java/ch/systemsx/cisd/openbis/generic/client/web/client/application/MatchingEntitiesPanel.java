@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Matc
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.PagingToolBarWithoutRefresh;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GxtTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
@@ -179,6 +180,7 @@ final class MatchingEntitiesPanel extends ContentPanel implements Listener<TabPa
                     }
                 }
             });
+        GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
         return grid;
     }
 
