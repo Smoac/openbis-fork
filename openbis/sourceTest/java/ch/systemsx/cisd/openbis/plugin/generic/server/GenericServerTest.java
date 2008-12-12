@@ -186,6 +186,7 @@ public final class GenericServerTest extends AbstractServerTestCase
     @Test
     public final void testRegisterSamplesWithoutExpectations()
     {
+        prepareGetSession();
         final IGenericServer server = createServer();
         // Null values
         boolean fail = true;
@@ -207,6 +208,7 @@ public final class GenericServerTest extends AbstractServerTestCase
     @Test
     public final void testRegisterSamplesWithDuplicatedNewSamples()
     {
+        prepareGetSession();
         final IGenericServer server = createServer();
         final List<NewSample> newSamples = new ArrayList<NewSample>();
         newSamples.add(createNewSample("same"));

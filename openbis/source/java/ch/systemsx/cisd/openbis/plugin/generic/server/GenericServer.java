@@ -150,6 +150,7 @@ public final class GenericServer extends AbstractPluginServer<IGenericServer> im
         assert sampleType != null : "Unspecified sample type.";
         assert newSamples != null : "Unspecified new samples.";
 
+        final Session session = getSessionManager().getSession(sessionToken);
         // Does nothing if samples list is empty.
         if (newSamples.size() == 0)
         {
@@ -163,7 +164,6 @@ public final class GenericServer extends AbstractPluginServer<IGenericServer> im
             throw UserFailureException.fromTemplate("Following samples '%s' are duplicated.",
                     CollectionUtils.abbreviate(newSamples, 20));
         }
-        final Session session = getSessionManager().getSession(sessionToken);
         final String sampleTypeCode = sampleType.getCode();
         final SampleTypePE sampleTypePE =
                 getDAOFactory().getSampleTypeDAO().tryFindSampleTypeByCode(sampleTypeCode);

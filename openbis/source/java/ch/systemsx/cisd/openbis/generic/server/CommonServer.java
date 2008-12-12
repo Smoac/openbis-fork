@@ -27,22 +27,18 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.utilities.ParameterChecker;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -163,6 +159,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public final List<RoleAssignmentPE> listRoles(final String sessionToken)
     {
+        // Not needed but just to refresh/check the session.
         getSessionManager().getSession(sessionToken);
         return getDAOFactory().getRoleAssignmentDAO().listRoleAssignments();
     }
@@ -259,6 +256,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public final List<PersonPE> listPersons(final String sessionToken)
     {
+        // Not needed but just to refresh/check the session.
         getSessionManager().getSession(sessionToken);
         final List<PersonPE> persons = getDAOFactory().getPersonDAO().listPersons();
         Collections.sort(persons);
@@ -267,6 +265,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public final List<ProjectPE> listProjects(final String sessionToken)
     {
+        // Not needed but just to refresh/check the session.
         getSessionManager().getSession(sessionToken);
         final List<ProjectPE> projects = getDAOFactory().getProjectDAO().listProjects();
         Collections.sort(projects);
@@ -275,8 +274,12 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public final List<SampleTypePE> listSampleTypes(final String sessionToken)
     {
+        // Not needed but just to refresh/check the session.
         getSessionManager().getSession(sessionToken);
-        return getDAOFactory().getSampleTypeDAO().listSampleTypes(true);
+        final List<SampleTypePE> sampleTypes =
+                getDAOFactory().getSampleTypeDAO().listSampleTypes(true);
+        Collections.sort(sampleTypes);
+        return sampleTypes;
     }
 
     public final List<SamplePE> listSamples(final String sessionToken,
@@ -287,7 +290,9 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         sampleTable.loadSamplesByCriteria(criteria);
         sampleTable.enrichWithValidProcedure();
         sampleTable.enrichWithProperties();
-        return sampleTable.getSamples();
+        final List<SamplePE> samples = sampleTable.getSamples();
+        Collections.sort(samples);
+        return samples;
     }
 
     public final List<ExternalDataPE> listExternalData(final String sessionToken,
@@ -297,7 +302,9 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         final IExternalDataTable externalDataTable =
                 businessObjectFactory.createExternalDataTable(session);
         externalDataTable.loadBySampleIdentifier(identifier);
-        return externalDataTable.getExternalData();
+        final List<ExternalDataPE> externalData = externalDataTable.getExternalData();
+        Collections.sort(externalData);
+        return externalData;
     }
 
     public final List<PropertyTypePE> listPropertyTypes(final String sessionToken)
@@ -306,12 +313,15 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         final IPropertyTypeTable propertyTypeTable =
                 businessObjectFactory.createPropertyTypeTable(session);
         propertyTypeTable.load();
-        return propertyTypeTable.getPropertyTypes();
+        final List<PropertyTypePE> propertyTypes = propertyTypeTable.getPropertyTypes();
+        Collections.sort(propertyTypes);
+        return propertyTypes;
     }
 
     public final List<SearchHit> listMatchingEntities(final String sessionToken,
             final SearchableEntity[] searchableEntities, final String queryText)
     {
+        // Not needed but just to refresh/check the session.
         getSessionManager().getSession(sessionToken);
         final List<SearchHit> list = new ArrayList<SearchHit>();
         try
@@ -330,16 +340,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         return list;
     }
 
-    public final void registerSample(final String sessionToken, final NewSample newSample)
-    {
-        final Session session = getSessionManager().getSession(sessionToken);
-        ParameterChecker.checkIfNotNull(newSample, "sample");
-        final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
-        sampleBO.define(newSample);
-        sampleBO.save();
-    }
-
-    public List<ExperimentPE> listExperiments(final String sessionToken,
+    public final List<ExperimentPE> listExperiments(final String sessionToken,
             final ExperimentTypePE experimentType, final ProjectIdentifier projectIdentifier)
     {
         final Session session = getSessionManager().getSession(sessionToken);
@@ -352,18 +353,13 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         return experiments;
     }
 
-    public List<ExperimentTypePE> listExperimentTypes(final String sessionToken)
+    public final List<ExperimentTypePE> listExperimentTypes(final String sessionToken)
     {
+        // Not needed but just to refresh/check the session.
         getSessionManager().getSession(sessionToken);
         final List<ExperimentTypePE> experimentTypes =
-                cast(getDAOFactory().getEntityTypeDAO(EntityKind.EXPERIMENT).listEntityTypes());
+                getDAOFactory().getEntityTypeDAO(EntityKind.EXPERIMENT).listEntityTypes();
         Collections.sort(experimentTypes);
         return experimentTypes;
-    }
-
-    @SuppressWarnings("unchecked")
-    private List<ExperimentTypePE> cast(final List<? extends EntityTypePE> experimentTypes)
-    {
-        return (List<ExperimentTypePE>) experimentTypes;
     }
 }

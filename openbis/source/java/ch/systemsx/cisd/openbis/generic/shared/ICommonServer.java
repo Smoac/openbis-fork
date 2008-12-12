@@ -55,7 +55,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 public interface ICommonServer extends IServer
 {
     /**
-     * Returns all groups which belong to the specified database instance.
+     * Returns all groups which belong to the specified database instance. *
+     * 
+     * @return a sorted list of {@link GroupPE}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
@@ -72,6 +74,8 @@ public interface ICommonServer extends IServer
 
     /**
      * Returns all persons from current instance.
+     * 
+     * @return a sorted list of {@link PersonPE}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
@@ -79,6 +83,8 @@ public interface ICommonServer extends IServer
 
     /**
      * Returns all projects.
+     * 
+     * @return a sorted list of {@link ProjectPE}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
@@ -133,13 +139,17 @@ public interface ICommonServer extends IServer
 
     /**
      * Lists sample types which are appropriate for listing.
+     * 
+     * @return a sorted list of {@link SampleTypePE}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     public List<SampleTypePE> listSampleTypes(String sessionToken);
 
     /**
-     * Lists samples using given configuration.No properties are loaded.
+     * Lists samples using given configuration.
+     * 
+     * @return a sorted list of {@link SamplePE}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
@@ -148,6 +158,8 @@ public interface ICommonServer extends IServer
 
     /**
      * Lists experiments.
+     * 
+     * @return a sorted list of {@link ExperimentPE}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
@@ -158,6 +170,8 @@ public interface ICommonServer extends IServer
 
     /**
      * For given {@link SampleIdentifier} returns the corresponding list of {@link ExternalDataPE}.
+     * 
+     * @return a sorted list of {@link ExternalDataPE}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
@@ -175,6 +189,8 @@ public interface ICommonServer extends IServer
 
     /**
      * List experiment types.
+     * 
+     * @return a sorted list of {@link ExperimentTypePE}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
@@ -182,6 +198,8 @@ public interface ICommonServer extends IServer
 
     /**
      * List property types.
+     * 
+     * @return a sorted list of {@link PropertyTypePE}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)

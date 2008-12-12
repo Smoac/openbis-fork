@@ -33,7 +33,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 final class EntityTypeDAO extends AbstractTypeDAO<EntityTypePE> implements IEntityTypeDAO
 {
-
     private final EntityKind entityKind;
 
     EntityTypeDAO(final EntityKind entityKind, final SessionFactory sessionFactory,
@@ -63,9 +62,9 @@ final class EntityTypeDAO extends AbstractTypeDAO<EntityTypePE> implements IEnti
         return super.tryFindTypeByCode(code);
     }
 
-    public final List<EntityTypePE> listEntityTypes() throws DataAccessException
+    public final <T extends EntityTypePE> List<T> listEntityTypes() throws DataAccessException
     {
-        return super.listTypes();
+        return cast(super.listTypes());
     }
 
 }

@@ -42,6 +42,6 @@ public interface IEntityTypeDAO
     /**
      * Returns a list of all entity types.
      */
-    public List<EntityTypePE> listEntityTypes() throws DataAccessException;
+    public <T extends EntityTypePE> List<T> listEntityTypes() throws DataAccessException;
 
 }

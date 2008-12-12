@@ -25,7 +25,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
  * Implements {@link HttpSessionListener} and allows to perform chosen actions when session is being
- * created or destroyed
+ * created or destroyed.
+ * <p>
+ * This ensures that the corresponding {@link Session} gets removed when a {@link HttpSession} gets
+ * destroyed.
+ * </p>
  * 
  * @author Izabela Adamczyk
  */
@@ -48,7 +52,8 @@ public final class GenericHttpSessionListener implements HttpSessionListener
         if (session != null)
         {
             final IServer server =
-                    (IServer) httpSession.getAttribute(SessionConstants.OPENBIS_SERVER_ATTRIBUTE_KEY);
+                    (IServer) httpSession
+                            .getAttribute(SessionConstants.OPENBIS_SERVER_ATTRIBUTE_KEY);
             if (server != null)
             {
                 server.logout(session.getSessionToken());
