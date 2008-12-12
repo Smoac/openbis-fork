@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.List;
 
+import org.hibernate.Hibernate;
+
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
@@ -84,35 +86,47 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         samplePE.setGroup(sampleOwner.tryGetGroup());
         samplePE.setDatabaseInstance(sampleOwner.tryGetDatabaseInstance());
         defineSampleProperties(samplePE, newSample.getProperties());
-        final String parent = newSample.getParentIdentifier();
-        if (parent != null)
+        final SamplePE parentPE =
+                tryGetValidSample(newSample.getParentIdentifier(), sampleIdentifier);
+        if (parentPE != null)
         {
-            final SamplePE parentPE = getSampleByIdentifier(SampleIdentifierFactory.parse(parent));
-            if (parentPE.getInvalidation() != null)
-            {
-                throw UserFailureException.fromTemplate(
-                        "Cannot register sample '%s': parent '%s' has been invalidated.",
-                        sampleIdentifier, parent);
-            }
             samplePE.setGeneratedFrom(parentPE);
             samplePE.setTop(parentPE.getTop() == null ? parentPE : parentPE.getTop());
         }
-        final String container = newSample.getContainerIdentifier();
-        if (container != null)
+        final SamplePE containerPE =
+                tryGetValidSample(newSample.getContainerIdentifier(), sampleIdentifier);
+        if (containerPE != null)
         {
-            final SamplePE containerPE =
-                    getSampleByIdentifier(SampleIdentifierFactory.parse(container));
-            if (containerPE.getInvalidation() != null)
-            {
-                throw UserFailureException.fromTemplate(
-                        "Cannot register sample '%s': container '%s' has been invalidated.",
-                        sampleIdentifier, container);
-            }
             samplePE.setContainer(containerPE);
-            samplePE.setTop(containerPE.getTop() == null ? containerPE : containerPE.getTop());
         }
         SampleGenericBusinessRules.assertValidParents(samplePE);
         return samplePE;
+    }
+
+    private SamplePE tryGetValidSample(final String parentIdentifierOrNull,
+            final SampleIdentifier sampleIdentifier)
+    {
+        if (parentIdentifierOrNull == null)
+        {
+            return null;
+        }
+        final SamplePE parentPE =
+                getSampleByIdentifier(SampleIdentifierFactory.parse(parentIdentifierOrNull));
+        if (parentPE.getInvalidation() != null)
+        {
+            throw UserFailureException.fromTemplate(
+                    "Cannot register sample '%s': parent '%s' has been invalidated.",
+                    sampleIdentifier, parentIdentifierOrNull);
+        }
+        System.out.println("is container init.: "
+                + Hibernate.isInitialized(parentPE.getContainer()));
+        if (parentPE.getContainer() != null)
+        {
+            throw UserFailureException.fromTemplate(
+                    "Cannot register sample '%s': parent '%s' is part of another sample.",
+                    sampleIdentifier, parentIdentifierOrNull);
+        }
+        return parentPE;
     }
 
     final SampleTypePE getSampleType(final String code) throws UserFailureException

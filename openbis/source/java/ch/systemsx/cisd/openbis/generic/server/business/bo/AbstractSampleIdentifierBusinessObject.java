@@ -49,6 +49,10 @@ abstract class AbstractSampleIdentifierBusinessObject extends AbstractBusinessOb
     }
 
     /**
+     * Finds a sample with the given identifier.<br>
+     * Note: this method will never return samples which are contained (part-of relation) in another
+     * sample.
+     * 
      * @return never <code>null</code> and prefers to throw an exception.
      */
     final SamplePE getSampleByIdentifier(final SampleIdentifier sampleIdentifier)
