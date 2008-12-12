@@ -21,7 +21,6 @@ import java.util.Iterator;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
-import com.extjs.gxt.ui.client.widget.Component;
 
 /**
  * A helper for using {@link Dispatcher}.
@@ -33,15 +32,6 @@ public final class DispatcherHelper
     private DispatcherHelper()
     {
         // Can not be instantiated.
-    }
-
-    /**
-     * Create an event of type {@link AppEvents#NAVI_EVENT}.
-     */
-    public final static AppEvent<ITabItem> createNaviEvent(final String title,
-            final Component component)
-    {
-        return createNaviEvent(new DefaultTabItem(title, component));
     }
 
     /**
