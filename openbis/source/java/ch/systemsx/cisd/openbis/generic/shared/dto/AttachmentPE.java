@@ -88,13 +88,15 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
     {
         private static final String FIELD_PREFIX = "attachment: ";
 
+        private static final String FILE_NAME_PREFIX = "attachment name: ";
+
         public void set(String name, Object/* AttachmentPE */value,
                 Document/* Lucene document */document, Field.Store store, Field.Index index,
                 Float boost)
         {
             AttachmentPE attachment = (AttachmentPE) value;
-            String fieldName =
-                    FIELD_PREFIX + attachment.getFileName() + ", ver. " + attachment.getVersion();
+            String attachmentName = attachment.getFileName();
+            String fieldName = FIELD_PREFIX + attachmentName + ", ver. " + attachment.getVersion();
             byte[] byteContent = attachment.getAttachmentContent().getValue();
             String fieldValue = new String(byteContent);
             Field field = new Field(fieldName, fieldValue, store, index);
@@ -102,6 +104,12 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
             {
                 field.setBoost(boost);
             }
+            document.add(field);
+
+            // index the file name. Make the field code unique, so that we can recognize which field
+            // has matched the query later on
+            String attachmentNameFieldName = FILE_NAME_PREFIX + attachmentName;
+            field = new Field(attachmentNameFieldName, attachmentName, Field.Store.YES, index);
             document.add(field);
         }
     }
@@ -112,7 +120,6 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
     @Column(name = ColumnNames.FILE_NAME_COLUMN)
     @NotNull(message = ValidationMessages.FILE_NAME_NOT_NULL_MESSAGE)
     @Length(max = 100, message = ValidationMessages.FILE_NAME_LENGTH_MESSAGE)
-    @org.hibernate.search.annotations.Field(index = Index.TOKENIZED, name = "attachment name")
     public String getFileName()
     {
         return fileName;

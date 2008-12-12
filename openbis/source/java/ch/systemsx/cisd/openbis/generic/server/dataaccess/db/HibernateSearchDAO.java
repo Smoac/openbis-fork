@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,13 +25,19 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexReader.FieldOption;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.highlight.Highlighter;
+import org.apache.lucene.search.highlight.QueryScorer;
+import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
+import org.apache.lucene.search.highlight.TokenSources;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -135,8 +142,8 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
             for (String fieldName : fields)
             {
                 List<SearchHit> hits =
-                        searchTermInField(fullTextSession, analyzer, entityClass, fieldName,
-                                searchQuery);
+                        searchTermInField(fullTextSession, fieldName, searchQuery, entityClass,
+                                analyzer, indexProvider.getReader());
                 result.addAll(hits);
             }
             return result;
@@ -167,19 +174,37 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
     }
 
     private final <T extends IMatchingEntity> List<SearchHit> searchTermInField(
-            final FullTextSession fullTextSession, Analyzer analyzer, final Class<T> entityClass,
-            final String fieldName, final String searchTerm) throws DataAccessException,
-            ParseException
+            final FullTextSession fullTextSession, final String fieldName, final String searchTerm,
+            final Class<T> entityClass, Analyzer analyzer, IndexReader indexReader)
+            throws DataAccessException, ParseException
     {
         Query query = createLuceneQuery(fieldName, searchTerm, analyzer);
+        query = rewriteQuery(indexReader, query);
         final FullTextQuery hibernateQuery =
                 fullTextSession.createFullTextQuery(query, entityClass);
-        hibernateQuery.setResultTransformer(createResultTransformer(fieldName));
+        hibernateQuery.setProjection(FullTextQuery.THIS, FullTextQuery.DOCUMENT_ID,
+                FullTextQuery.DOCUMENT);
+
+        MyHighlighter highlighter = new MyHighlighter(query, indexReader, analyzer);
+        hibernateQuery.setResultTransformer(createResultTransformer(fieldName, highlighter));
         return AbstractDAO.cast(hibernateQuery.list());
     }
 
-    private static <T extends IMatchingEntity> ResultTransformer createResultTransformer(
-            final String fieldName)
+    // we need this for higlighter when wildcards are used
+    private static Query rewriteQuery(IndexReader indexReader, Query query)
+    {
+        try
+        {
+            return query.rewrite(indexReader);
+        } catch (IOException ex)
+        {
+            logSearchHighlightingError(ex);
+            return query;
+        }
+    }
+
+    private static ResultTransformer createResultTransformer(final String fieldName,
+            final MyHighlighter highlighter)
     {
         return new ResultTransformer()
             {
@@ -188,23 +213,38 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                 @SuppressWarnings("unchecked")
                 public List transformList(List collection)
                 {
-                    List<SearchHit> result = new ArrayList<SearchHit>();
-                    List<T> originalList = collection;
-                    for (T elem : originalList)
-                    {
-                        // TODO 2008-11-27, Tomasz Pylak: find the text which is matching
-                        String matchingText = "?";
-                        result.add(new SearchHit(elem, fieldName, matchingText));
-                    }
-                    return result;
+                    throw new IllegalStateException("This method should not be called");
                 }
 
                 public Object transformTuple(Object[] tuple, String[] aliases)
                 {
-                    return new IllegalStateException("This method should not be called");
-                }
+                    IMatchingEntity entity = (IMatchingEntity) tuple[0];
+                    int documentId = (Integer) tuple[1];
+                    Document doc = (Document) tuple[2];
 
+                    String matchingText = null;
+                    try
+                    {
+                        String content = doc.get(fieldName);
+                        if (content != null)
+                        {
+                            // NOTE: this may be imprecise if there are multiple fields with the
+                            // same code. The first value will be taken.
+                            matchingText =
+                                    highlighter.getBestFragment(content, fieldName, documentId);
+                        }
+                    } catch (IOException ex)
+                    {
+                        logSearchHighlightingError(ex);
+                    }
+                    return new SearchHit(entity, fieldName, matchingText);
+                }
             };
+    }
+
+    private static void logSearchHighlightingError(IOException ex)
+    {
+        operationLog.error("error during search result highlighting: " + ex.getMessage());
     }
 
     private Query createLuceneQuery(final String fieldName, final String searchTerm,
@@ -214,6 +254,36 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         parser.setAllowLeadingWildcard(true);
         BooleanQuery.setMaxClauseCount(Integer.MAX_VALUE);
         return parser.parse(searchTerm);
+    }
+
+    private static final class MyHighlighter
+    {
+        private final IndexReader indexReader;
+
+        private final Analyzer analyzer;
+
+        private final Highlighter highlighter;
+
+        public MyHighlighter(Query query, IndexReader indexReader, Analyzer analyzer)
+        {
+            this.highlighter = createHighlighter(query);
+            this.indexReader = indexReader;
+            this.analyzer = analyzer;
+        }
+
+        private static Highlighter createHighlighter(Query query)
+        {
+            SimpleHTMLFormatter htmlFormatter = new SimpleHTMLFormatter();
+            return new Highlighter(htmlFormatter, new QueryScorer(query));
+        }
+
+        public String getBestFragment(String fieldContent, String fieldName, int documentId)
+                throws IOException
+        {
+            TokenStream tokenStream =
+                    TokenSources.getAnyTokenStream(indexReader, documentId, fieldName, analyzer);
+            return highlighter.getBestFragment(tokenStream, fieldContent);
+        }
     }
 
     private static final class MyIndexReaderProvider<T>
@@ -241,8 +311,8 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         public String[] getIndexedFields()
         {
             Collection<?> fieldNames = indexReader.getFieldNames(FieldOption.INDEXED);
-            // TODO 2008-11-27, Tomasz Pylak: is there a nicer way to remove id field without
-            // hardcoding its name?
+            // TODO 2008-11-27, Tomasz Pylak: get rid of hard-coded name. Specify the same name
+            // attribute for all DocumentId fields.
             fieldNames.remove("id");
             fieldNames.remove(DocumentBuilder.CLASS_FIELDNAME);
             return fieldNames.toArray(new String[fieldNames.size()]);

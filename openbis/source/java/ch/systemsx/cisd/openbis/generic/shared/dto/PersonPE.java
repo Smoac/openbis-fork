@@ -40,6 +40,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Store;
 import org.hibernate.validator.Email;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
@@ -92,7 +93,7 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
 
     @Column(name = ColumnNames.FIRST_NAME_COLUMN)
     @Length(max = 30, message = ValidationMessages.FIRST_NAME_LENGTH_MESSAGE)
-    @Field(index = Index.TOKENIZED, name = "First Name")
+    @Field(index = Index.TOKENIZED, name = "First Name", store = Store.YES)
     public final String getFirstName()
     {
         return firstName;
@@ -105,7 +106,7 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
 
     @Column(name = ColumnNames.LAST_NAME_COLUMN)
     @Length(max = 30, message = ValidationMessages.LAST_NAME_LENGTH_MESSAGE)
-    @Field(index = Index.TOKENIZED, name = "Last Name")
+    @Field(index = Index.TOKENIZED, name = "Last Name", store = Store.YES)
     public final String getLastName()
     {
         return lastName;

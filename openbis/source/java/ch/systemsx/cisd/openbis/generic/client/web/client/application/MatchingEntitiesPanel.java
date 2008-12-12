@@ -191,44 +191,48 @@ final class MatchingEntitiesPanel extends ContentPanel implements Listener<TabPa
         configs.add(ColumnConfigFactory.createRegistratorColumnConfig(viewContext
                 .getMessageProvider()));
         configs.add(createMatchedFieldColumnConfig());
-        // configs.add(createMatchedTextColumnConfig());
+        configs.add(createMatchedTextColumnConfig());
         final ColumnModel columnModel = new ColumnModel(configs);
         return columnModel;
     }
 
-    // private final ColumnConfig createMatchedTextColumnConfig()
-    // {
-    // return createColumnConfig(ModelDataPropertyNames.MATCHING_TEXT, "matching_text");
-    // }
+    private final ColumnConfig createMatchedTextColumnConfig()
+    {
+        ColumnConfig config = createColumnConfig("matching_text", ModelDataPropertyNames.MATCHING_TEXT);
+        config.setWidth(200);
+        return config;
+    }
 
     private final ColumnConfig createMatchedFieldColumnConfig()
     {
         ColumnConfig config =
-                ColumnConfigFactory.createDefaultColumnConfig(viewContext.getMessageProvider()
-        .getMessage("matching_field"), ModelDataPropertyNames.MATCHING_FIELD);
+                createColumnConfig("matching_field", ModelDataPropertyNames.MATCHING_FIELD);
         config.setWidth(140);
         return config;
     }
 
     private final ColumnConfig createEntityKindColumnConfig()
     {
-        return ColumnConfigFactory.createDefaultColumnConfig(viewContext.getMessageProvider()
-        .getMessage("entity_kind"), ModelDataPropertyNames.ENTITY_KIND);
+        return createColumnConfig("entity_kind", ModelDataPropertyNames.ENTITY_KIND);
     }
 
     private final ColumnConfig createIdentifierColumnConfig()
     {
         final ColumnConfig columnConfig =
-                ColumnConfigFactory.createDefaultColumnConfig(viewContext.getMessageProvider()
-                        .getMessage("identifier"), ModelDataPropertyNames.IDENTIFIER);
+                createColumnConfig("identifier", ModelDataPropertyNames.IDENTIFIER);
         columnConfig.setWidth(140);
         return columnConfig;
     }
 
     private final ColumnConfig createEntityTypeColumnConfig()
     {
+        return createColumnConfig("entity_type", ModelDataPropertyNames.ENTITY_TYPE);
+    }
+
+    private final ColumnConfig createColumnConfig(String headerMsgKey, String colId)
+    {
         return ColumnConfigFactory.createDefaultColumnConfig(viewContext.getMessageProvider()
-        .getMessage("entity_type"), ModelDataPropertyNames.ENTITY_TYPE);
+                .getMessage(headerMsgKey), colId);
     }
 
     private final static PagingToolBar createPagingToolBar()
