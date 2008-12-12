@@ -40,7 +40,7 @@ public abstract class AbstractSampleServerPlugin implements ISampleServerPlugin
 
     protected AbstractSampleServerPlugin()
     {
-        SampleServerPluginRegistry.registerPlugin(this);
+        SampleServerPluginRegistry.getInstance().registerPlugin(this);
     }
 
     protected final ISampleTypeSlaveServerPlugin getGenericSampleTypeSlaveServerPlugin()

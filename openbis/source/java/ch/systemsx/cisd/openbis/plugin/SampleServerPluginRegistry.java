@@ -23,44 +23,48 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
-import ch.systemsx.cisd.openbis.plugin.generic.server.GenericSampleServerPlugin;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
 /**
  * A sample server registry for plug-ins.
  * <p>
- * Note that it implements {@link BeanFactoryAware} interface and that is annotated with
- * {@link Component} annotation. This way, <i>static</i> field
- * <code>generiSampleServerPlugin</code> gets injected via {@link #setBeanFactory(BeanFactory)};
- * because we do not want to instantiate {@link GenericSampleServerPlugin}. Otherwise we will have
- * two instances of this class laying around.
+ * Note that this class is instantiated via following <i>Spring</i> configuration entry:
+ * 
+ * <pre>
+ * &lt;bean class=&quot;ch.systemsx.cisd.openbis.plugin.SampleServerPluginRegistry&quot;
+ *   factory-method=&quot;getInstance&quot; /&gt;
+ * </pre>
+ * 
+ * making sure that we have one and only one instance of this class.
+ * </p>
+ * <p>
+ * It implements {@link BeanFactoryAware} to set the field <code>generiSampleServerPlugin</code>.
  * </p>
  * 
  * @author Christian Ribeaud
  */
-@Component
 public final class SampleServerPluginRegistry implements BeanFactoryAware
 {
     private final static String PACKAGE_START = "ch.systemsx.cisd.openbis.plugin.";
 
-    private static ISampleServerPlugin generiSampleServerPlugin;
-
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, SampleServerPluginRegistry.class);
 
-    private final static Map<TechnologySampleType, ISampleServerPlugin> plugins =
-            new HashMap<TechnologySampleType, ISampleServerPlugin>();
+    private static final SampleServerPluginRegistry instance = new SampleServerPluginRegistry();
+
+    private final Map<TechnologySampleType, ISampleServerPlugin> plugins;
+
+    private ISampleServerPlugin generiSampleServerPlugin;
 
     private SampleServerPluginRegistry()
     {
-        // Can not be instantiated.
+        plugins = new HashMap<TechnologySampleType, ISampleServerPlugin>();
     }
 
     private final static <T> Technology getTechnology(final Class<T> clazz)
@@ -73,13 +77,21 @@ public final class SampleServerPluginRegistry implements BeanFactoryAware
         return new Technology(name.toUpperCase());
     }
 
+    /**
+     * Returns the unique instance of this class.
+     */
+    public final static synchronized SampleServerPluginRegistry getInstance()
+    {
+        return instance;
+    }
+
     //
     // BeanFactoryAware
     //
 
     public final void setBeanFactory(final BeanFactory beanFactory) throws BeansException
     {
-        SampleServerPluginRegistry.generiSampleServerPlugin =
+        generiSampleServerPlugin =
                 (ISampleServerPlugin) beanFactory
                         .getBean(ResourceNames.GENERIC_SAMPLE_SERVER_PLUGIN);
     }
@@ -87,7 +99,7 @@ public final class SampleServerPluginRegistry implements BeanFactoryAware
     /**
      * Register given {@link ISampleServerPlugin}.
      */
-    public final static synchronized void registerPlugin(final ISampleServerPlugin plugin)
+    public final synchronized void registerPlugin(final ISampleServerPlugin plugin)
     {
         assert plugin != null : "Unspecified plugin.";
         final String sampleTypeCode = plugin.getSampleTypeCode();
@@ -117,8 +129,8 @@ public final class SampleServerPluginRegistry implements BeanFactoryAware
      * @return never <code>null</code> but could return the <i>generic</i> implementation if none
      *         has been found for given sample type.
      */
-    public final static synchronized <T extends IServer> ISampleServerPlugin getPlugin(
-            final T server, final SampleTypePE sampleType)
+    public final synchronized <T extends IServer> ISampleServerPlugin getPlugin(final T server,
+            final SampleTypePE sampleType)
     {
         assert sampleType != null : "Unspecified sample type.";
         final Technology technology = getTechnology(server.getClass());

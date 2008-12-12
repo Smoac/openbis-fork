@@ -132,4 +132,5 @@
             expression="org.springframework.stereotype.Controller" />
     </plugins:component-scan>
 
+    <bean class="ch.systemsx.cisd.openbis.plugin.SampleServerPluginRegistry" factory-method="getInstance" /> 
 </beans>

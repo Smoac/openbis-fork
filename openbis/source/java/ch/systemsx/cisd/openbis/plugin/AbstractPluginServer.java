@@ -53,7 +53,8 @@ public abstract class AbstractPluginServer<T extends IServer> extends AbstractSe
         {
             return sampleTypeSlaveServerPlugin;
         }
-        return SampleServerPluginRegistry.getPlugin(this, sampleType).getSlaveServer();
+        return SampleServerPluginRegistry.getInstance().getPlugin(this, sampleType)
+                .getSlaveServer();
     }
 
 }
