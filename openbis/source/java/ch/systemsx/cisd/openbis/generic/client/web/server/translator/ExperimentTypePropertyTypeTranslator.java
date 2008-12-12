@@ -16,15 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * A {@link ExperimentTypePropertyType} &lt;---&gt; {@link ExperimentTypePropertyTypePE} translator.
@@ -48,24 +41,4 @@ public final class ExperimentTypePropertyTypeTranslator
                 .getPropertyType()));
         return result;
     }
-
-    public final static List<ExperimentTypePropertyType> translate(
-            final Set<ExperimentTypePropertyTypePE> expTypePropertyTypes,
-            final ExperimentType expType)
-    {
-        if (HibernateUtils.isInitialized(expTypePropertyTypes) == false)
-        {
-            return DtoConverters.createUnmodifiableEmptyList();
-        }
-        final List<ExperimentTypePropertyType> result = new ArrayList<ExperimentTypePropertyType>();
-        for (final ExperimentTypePropertyTypePE etpt : expTypePropertyTypes)
-        {
-            final ExperimentTypePropertyType etptTranslated = translate(etpt);
-            etptTranslated.setEntityType(expType);
-            result.add(etptTranslated);
-        }
-        Collections.sort(result);
-        return result;
-    }
-
 }
