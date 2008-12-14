@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import java.util.List;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
@@ -34,6 +36,12 @@ public class PropertyType extends Code<PropertyType> implements IsSerializable
     private Vocabulary vocabulary;
 
     private String description;
+
+    private List<SampleTypePropertyType> sampleTypePropertyTypes;
+
+    private List<MaterialTypePropertyType> materialTypePropertyTypes;
+
+    private List<ExperimentTypePropertyType> experimentTypePropertyTypes;
 
     public String getSimpleCode()
     {
@@ -93,6 +101,38 @@ public class PropertyType extends Code<PropertyType> implements IsSerializable
     public void setDescription(String description)
     {
         this.description = description;
+    }
+
+    public List<SampleTypePropertyType> getSampleTypePropertyTypes()
+    {
+        return sampleTypePropertyTypes;
+    }
+
+    public void setSampleTypePropertyTypes(List<SampleTypePropertyType> sampleTypePropertyTypes)
+    {
+        this.sampleTypePropertyTypes = sampleTypePropertyTypes;
+    }
+
+    public List<MaterialTypePropertyType> getMaterialTypePropertyTypes()
+    {
+        return materialTypePropertyTypes;
+    }
+
+    public void setMaterialTypePropertyTypes(
+            List<MaterialTypePropertyType> materialTypePropertyTypes)
+    {
+        this.materialTypePropertyTypes = materialTypePropertyTypes;
+    }
+
+    public List<ExperimentTypePropertyType> getExperimentTypePropertyTypes()
+    {
+        return experimentTypePropertyTypes;
+    }
+
+    public void setExperimentTypePropertyTypes(
+            List<ExperimentTypePropertyType> experimentTypePropertyTypes)
+    {
+        this.experimentTypePropertyTypes = experimentTypePropertyTypes;
     }
 
 }

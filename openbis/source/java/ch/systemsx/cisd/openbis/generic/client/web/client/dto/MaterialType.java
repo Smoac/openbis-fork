@@ -14,31 +14,16 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.business.bo;
+package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import java.util.List;
-
-import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 
 /**
- * A <i>Business Object</i> to load a list of {@link PropertyTypePE}.
+ * The <i>GWT</i> equivalent to {@link MaterialTypePE}.
  * 
  * @author Izabela Adamczyk
  */
-public interface IPropertyTypeTable
+public class MaterialType extends EntityType
 {
-    /**
-     * Loads the internal {@link PropertyTypePE}s.
-     */
-    void load();
 
-    /**
-     * Returns the loaded {@link PropertyTypePE}s.
-     */
-    List<PropertyTypePE> getPropertyTypes();
-
-    /**
-     * Enriches loaded property types with entity type property type relations.
-     */
-    public void enrichWithRelations();
 }

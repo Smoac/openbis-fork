@@ -21,14 +21,12 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
- * The only productive implementation of {@link IExternalDataTable}.
- * <p>
- * We are using an interface here to keep the system testable.
- * </p>
+ * The only productive implementation of {@link IPropertyTypeTable}.
  * 
- * @author Christian Ribeaud
+ * @author Izabela Adamczyk
  */
 public final class PropertyTypeTable extends AbstractBusinessObject implements IPropertyTypeTable
 {
@@ -51,6 +49,20 @@ public final class PropertyTypeTable extends AbstractBusinessObject implements I
     public void load()
     {
         propertyTypes = getPropertyTypeDAO().listAllPropertyTypes();
+    }
+
+    public final void enrichWithRelations()
+    {
+        if (propertyTypes == null)
+        {
+            throw new IllegalStateException("Unloaded property types.");
+        }
+        for (final PropertyTypePE pt : propertyTypes)
+        {
+            HibernateUtils.initialize(pt.getMaterialTypePropertyTypes());
+            HibernateUtils.initialize(pt.getSampleTypePropertyTypes());
+            HibernateUtils.initialize(pt.getExperimentTypePropertyTypes());
+        }
     }
 
 }

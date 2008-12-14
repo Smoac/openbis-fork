@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonView
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.PropertyTypeModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.ETPTRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
@@ -77,6 +78,7 @@ public class PropertyTypeBrowser extends ContentPanel
         grid.setId(GRID_ID);
         GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
         add(grid);
+
         layout();
     }
 
@@ -94,7 +96,34 @@ public class PropertyTypeBrowser extends ContentPanel
                         ModelDataPropertyNames.CONTROLLED_VOCABULARY));
         configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext.getMessageProvider()
                 .getMessage("description"), ModelDataPropertyNames.DESCRIPTION));
+        configs.add(defineSampleTypesColumn());
+        configs.add(defineExperimentTypesColumn());
+        configs.add(defineMaterialTypesColumn());
         return new ColumnModel(configs);
+    }
+
+    private ColumnConfig defineSampleTypesColumn()
+    {
+        return defineEtptColumn("sample_types", ModelDataPropertyNames.SAMPLE_TYPES);
+    }
+
+    private ColumnConfig defineExperimentTypesColumn()
+    {
+        return defineEtptColumn("experiment_types", ModelDataPropertyNames.EXPERIMENT_TYPES);
+    }
+
+    private ColumnConfig defineMaterialTypesColumn()
+    {
+        return defineEtptColumn("material_types", ModelDataPropertyNames.MATERIAL_TYPES);
+    }
+
+    private ColumnConfig defineEtptColumn(String dictCode, String id)
+    {
+        final ColumnConfig column =
+                ColumnConfigFactory.createDefaultColumnConfig(viewContext.getMessageProvider()
+                        .getMessage(dictCode), id);
+        column.setRenderer(new ETPTRenderer());
+        return column;
     }
 
     List<PropertyTypeModel> getPropertyTypeModels(final List<PropertyType> propertyTypes)

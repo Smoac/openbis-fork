@@ -313,6 +313,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         final IPropertyTypeTable propertyTypeTable =
                 businessObjectFactory.createPropertyTypeTable(session);
         propertyTypeTable.load();
+        propertyTypeTable.enrichWithRelations();
         final List<PropertyTypePE> propertyTypes = propertyTypeTable.getPropertyTypes();
         Collections.sort(propertyTypes);
         return propertyTypes;

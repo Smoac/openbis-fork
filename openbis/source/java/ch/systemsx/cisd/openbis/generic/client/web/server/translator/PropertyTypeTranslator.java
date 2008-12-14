@@ -45,6 +45,12 @@ public final class PropertyTypeTranslator
         result.setDataType(DataTypeTranslator.translate(propertyType.getType()));
         result.setVocabulary(VocabularyTranslator.translate(propertyType.getVocabulary()));
         result.setDescription(propertyType.getDescription());
+        result.setSampleTypePropertyTypes(SampleTypePropertyTypeTranslator.translate(propertyType
+                .getSampleTypePropertyTypes(), result));
+        result.setMaterialTypePropertyTypes(MaterialTypePropertyTypeTranslator.translate(
+                propertyType.getMaterialTypePropertyTypes(), result));
+        result.setExperimentTypePropertyTypes(ExperimentTypePropertyTypeTranslator.translate(
+                propertyType.getExperimentTypePropertyTypes(), result));
         return result;
     }
 

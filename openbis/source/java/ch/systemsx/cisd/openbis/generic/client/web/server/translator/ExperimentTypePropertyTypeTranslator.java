@@ -16,7 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
+import java.util.List;
+import java.util.Set;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePropertyTypePE;
 
 /**
@@ -31,14 +38,39 @@ public final class ExperimentTypePropertyTypeTranslator
         // Can not be instantiated.
     }
 
-    public final static ExperimentTypePropertyType translate(
-            final ExperimentTypePropertyTypePE expTypePropertyType)
+    static private class ExperimentTypePropertyTypeTranslatorHelper
+            extends
+            AbstractEntityTypePropertyTypeTranslator<ExperimentType, ExperimentTypePropertyType, ExperimentTypePropertyTypePE>
     {
-        final ExperimentTypePropertyType result = new ExperimentTypePropertyType();
-        result.setManagedInternally(expTypePropertyType.isManagedInternally());
-        result.setMandatory(expTypePropertyType.isMandatory());
-        result.setPropertyType(PropertyTypeTranslator.translate(expTypePropertyType
-                .getPropertyType()));
-        return result;
+        @Override
+        void setSpecificFields(ExperimentTypePropertyType result,
+                ExperimentTypePropertyTypePE etptPE)
+        {
+        }
+
+        @Override
+        ExperimentType translate(EntityTypePE entityTypePE)
+        {
+            return ExperimentTranslator.translate((ExperimentTypePE) entityTypePE);
+        }
+
+        @Override
+        ExperimentTypePropertyType create()
+        {
+            return new ExperimentTypePropertyType();
+        }
+    }
+
+    public static List<ExperimentTypePropertyType> translate(
+            Set<ExperimentTypePropertyTypePE> materialTypePropertyTypes, PropertyType result)
+    {
+        return new ExperimentTypePropertyTypeTranslatorHelper().translate(
+                materialTypePropertyTypes, result);
+    }
+
+    public static ExperimentTypePropertyType translate(
+            ExperimentTypePropertyTypePE entityTypePropertyType)
+    {
+        return new ExperimentTypePropertyTypeTranslatorHelper().translate(entityTypePropertyType);
     }
 }

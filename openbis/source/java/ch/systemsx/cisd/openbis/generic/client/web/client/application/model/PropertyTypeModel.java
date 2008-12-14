@@ -38,6 +38,9 @@ public class PropertyTypeModel extends BaseModelData
                 propertyType.getVocabulary() != null ? propertyType.getVocabulary().getCode()
                         : null);
         set(ModelDataPropertyNames.DESCRIPTION, propertyType.getDescription());
+        set(ModelDataPropertyNames.EXPERIMENT_TYPES, propertyType.getExperimentTypePropertyTypes());
+        set(ModelDataPropertyNames.MATERIAL_TYPES, propertyType.getMaterialTypePropertyTypes());
+        set(ModelDataPropertyNames.SAMPLE_TYPES, propertyType.getSampleTypePropertyTypes());
     }
 
     private static final long serialVersionUID = 1L;

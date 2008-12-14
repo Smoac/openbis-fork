@@ -166,6 +166,12 @@ public final class ModelDataPropertyNames
 
     public static final String CONTROLLED_VOCABULARY = "controlledVocabulary";
 
+    public static final String EXPERIMENT_TYPES = "experimentTypes";
+
+    public static final String MATERIAL_TYPES = "materialTypes";
+
+    public static final String SAMPLE_TYPES = "sampleTypes";
+
     private ModelDataPropertyNames()
     {
         // Can not be instantiated.

@@ -495,6 +495,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(propertyTypeTable));
 
                     one(propertyTypeTable).load();
+                    one(propertyTypeTable).enrichWithRelations();
 
                     one(propertyTypeTable).getPropertyTypes();
                     will(returnValue(new ArrayList<PropertyTypePE>()));

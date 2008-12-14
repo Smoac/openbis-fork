@@ -110,6 +110,9 @@ var common = {
   data_type: "Data type",
   controlled_vocabulary: "Controlled vocabulary",
   description: "Description",
+  sample_types: "Sample types",
+  material_types: "Material types",
+  experiment_types: "Experiment types",
 
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

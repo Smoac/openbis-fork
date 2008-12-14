@@ -16,15 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * A {@link SampleTypePropertyType} &lt;---&gt; {@link SampleTypePropertyTypePE} translator.
@@ -32,40 +32,54 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * @author Franz-Josef Elmer
  */
 public final class SampleTypePropertyTypeTranslator
+
 {
     private SampleTypePropertyTypeTranslator()
     {
         // Can not be instantiated.
     }
 
-    public final static SampleTypePropertyType translate(
-            final SampleTypePropertyTypePE sampleTypePropertyType)
+    static private class SampleTypePropertyTypeTranslatorHelper
+            extends
+            AbstractEntityTypePropertyTypeTranslator<SampleType, SampleTypePropertyType, SampleTypePropertyTypePE>
     {
-        final SampleTypePropertyType result = new SampleTypePropertyType();
-        result.setDisplayed(sampleTypePropertyType.isDisplayed());
-        result.setManagedInternally(sampleTypePropertyType.isManagedInternally());
-        result.setMandatory(sampleTypePropertyType.isMandatory());
-        result.setPropertyType(PropertyTypeTranslator.translate(sampleTypePropertyType
-                .getPropertyType()));
-        return result;
+        @Override
+        void setSpecificFields(SampleTypePropertyType result, SampleTypePropertyTypePE etptPE)
+        {
+            result.setDisplayed(etptPE.isDisplayed());
+        }
+
+        @Override
+        SampleType translate(EntityTypePE entityTypePE)
+        {
+            return SampleTypeTranslator.translate((SampleTypePE) entityTypePE);
+        }
+
+        @Override
+        SampleTypePropertyType create()
+        {
+            return new SampleTypePropertyType();
+        }
+
     }
 
-    public final static List<SampleTypePropertyType> translate(
-            final Set<SampleTypePropertyTypePE> sampleTypePropertyTypes, final SampleType sampleType)
+    public static List<SampleTypePropertyType> translate(
+            Set<SampleTypePropertyTypePE> sampleTypePropertyTypes, SampleType result)
     {
-        if (HibernateUtils.isInitialized(sampleTypePropertyTypes) == false)
-        {
-            return DtoConverters.createUnmodifiableEmptyList();
-        }
-        final List<SampleTypePropertyType> result = new ArrayList<SampleTypePropertyType>();
-        for (final SampleTypePropertyTypePE sampleTypePropertyType : sampleTypePropertyTypes)
-        {
-            final SampleTypePropertyType stpt = translate(sampleTypePropertyType);
-            stpt.setEntityType(sampleType);
-            result.add(stpt);
-        }
-        Collections.sort(result);
-        return result;
+        return new SampleTypePropertyTypeTranslatorHelper().translate(sampleTypePropertyTypes,
+                result);
+    }
+
+    public static SampleTypePropertyType translate(SampleTypePropertyTypePE entityTypePropertyType)
+    {
+        return new SampleTypePropertyTypeTranslatorHelper().translate(entityTypePropertyType);
+    }
+
+    public static List<SampleTypePropertyType> translate(
+            Set<SampleTypePropertyTypePE> sampleTypePropertyTypes, PropertyType result)
+    {
+        return new SampleTypePropertyTypeTranslatorHelper().translate(sampleTypePropertyTypes,
+                result);
     }
 
 }
