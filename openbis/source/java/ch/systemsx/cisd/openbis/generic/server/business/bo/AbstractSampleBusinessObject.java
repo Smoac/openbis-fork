@@ -18,8 +18,6 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.List;
 
-import org.hibernate.Hibernate;
-
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
@@ -118,8 +116,6 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
                     "Cannot register sample '%s': parent '%s' has been invalidated.",
                     sampleIdentifier, parentIdentifierOrNull);
         }
-        System.out.println("is container init.: "
-                + Hibernate.isInitialized(parentPE.getContainer()));
         if (parentPE.getContainer() != null)
         {
             throw UserFailureException.fromTemplate(
