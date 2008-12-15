@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.Cre
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.RoleListBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.FailureExpectation;
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 
 /**
  * A {@link AbstractGWTTestCase} extension to test <i>AMC</i>.
@@ -83,10 +84,14 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
         client.onModuleLoad();
     }
     
-    public final void testCreatePersonByAnAuthorizedUser()
+    /**
+     * Tests that authorization annotations of {@link ICommonServer#registerPerson(String, String)}
+     * are obeyed.
+     */
+    public final void testCreatePersonByAnUnauthorizedUser()
     {
         remoteConsole.prepare(new Login("o", "o"));
-        final String userId = "some user";
+        final String userId = "u";
         remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.PERSONS,
                 CategoriesBuilder.MENU_ELEMENTS.LIST));
         remoteConsole.prepare(new CreatePerson(userId));
