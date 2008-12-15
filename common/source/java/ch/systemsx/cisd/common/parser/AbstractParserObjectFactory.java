@@ -174,6 +174,7 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
 
     public E createObject(final String[] lineTokens) throws ParserException
     {
+        assert lineTokens != null : "Unspecified line tokens";
         final E object = ClassUtils.createInstance(beanClass);
         for (final Map.Entry<String, Method> entry : beanAnalyzer.getLabelToWriteMethods()
                 .entrySet())

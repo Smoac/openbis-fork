@@ -91,7 +91,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
                             .listEntityTypes(), KeyExtractorFactory
                             .getEntityTypeByCodeKeyExtractor());
         }
-        final EntityTypePE entityType = entityTypesByCode.tryGet(entityTypeCode);
+        final EntityTypePE entityType = entityTypesByCode.tryGet(entityTypeCode.toUpperCase());
         if (entityType == null)
         {
             throw UserFailureException.fromTemplate("Entity type with code '%s' does not exist!",

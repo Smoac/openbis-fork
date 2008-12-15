@@ -127,14 +127,19 @@ public final class EntityPropertiesConverterTest
         return sampleType;
     }
 
-    private final static SampleProperty createVarcharSampleProperty()
+    private final static SampleProperty createVarcharSampleProperty(final boolean lowerCase)
     {
         final SampleProperty sampleProperty = new SampleProperty();
         sampleProperty.setValue("blue");
         final SampleTypePropertyType sampleTypePropertyType = new SampleTypePropertyType();
         final PropertyType propertyType = new PropertyType();
-        propertyType.setLabel(VARCHAR_PROPERTY_TYPE_CODE);
-        propertyType.setCode(VARCHAR_PROPERTY_TYPE_CODE);
+        String code = VARCHAR_PROPERTY_TYPE_CODE;
+        if (lowerCase)
+        {
+            code = code.toLowerCase();
+        }
+        propertyType.setLabel(code);
+        propertyType.setCode(code);
         final DataType dataType = new DataType();
         dataType.setCode(DataTypeCode.VARCHAR);
         propertyType.setDataType(dataType);
@@ -143,10 +148,10 @@ public final class EntityPropertiesConverterTest
         return sampleProperty;
     }
 
-    private final SampleProperty[] createSampleProperties()
+    private final SampleProperty[] createSampleProperties(final boolean lowerCase)
     {
         return new SampleProperty[]
-            { createVarcharSampleProperty() };
+            { createVarcharSampleProperty(lowerCase) };
     }
 
     @Test
@@ -196,10 +201,35 @@ public final class EntityPropertiesConverterTest
                     one(propertyValueValidator).validatePropertyValue(propertyTypePE, "blue");
                 }
             });
-        final SampleProperty[] properties = createSampleProperties();
+        final SampleProperty[] properties = createSampleProperties(false);
         final List<EntityPropertyPE> convertedProperties =
                 entityPropertiesConverter.convertProperties(properties, SAMPLE_TYPE_CODE,
                         ManagerTestTool.EXAMPLE_PERSON);
+        assertEquals(1, convertedProperties.size());
+    }
+
+    @Test
+    public final void testConvertPropertiesWithLowerCase()
+    {
+        final IEntityPropertiesConverter entityPropertiesConverter =
+                createEntityPropertiesConverter(EntityKind.SAMPLE);
+        final PropertyTypePE propertyTypePE = new PropertyTypePE();
+        propertyTypePE.setCode(VARCHAR_PROPERTY_TYPE_CODE.toLowerCase());
+        context.checking(new Expectations()
+            {
+                {
+                    prepareForConvertion(this);
+
+                    one(propertyTypeDAO).tryFindPropertyTypeByCode(VARCHAR_PROPERTY_TYPE_CODE);
+                    will(returnValue(propertyTypePE));
+
+                    one(propertyValueValidator).validatePropertyValue(propertyTypePE, "blue");
+                }
+            });
+        final SampleProperty[] properties = createSampleProperties(true);
+        final List<EntityPropertyPE> convertedProperties =
+                entityPropertiesConverter.convertProperties(properties, SAMPLE_TYPE_CODE
+                        .toLowerCase(), ManagerTestTool.EXAMPLE_PERSON);
         assertEquals(1, convertedProperties.size());
     }
 }

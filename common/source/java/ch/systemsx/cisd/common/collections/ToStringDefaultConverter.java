@@ -45,7 +45,7 @@ public final class ToStringDefaultConverter implements IToStringConverter<Object
 
     public final String toString(final Object value)
     {
-        return value.toString();
+        return String.valueOf(value);
     }
 
 }
