@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.springframework.dao.DataAccessException;
@@ -65,6 +66,7 @@ public final class PersonDAO extends AbstractDAO implements IPersonDAO
         {
             person.setDatabaseInstance(getDatabaseInstance());
         }
+        person.setEmail(StringUtils.trim(person.getEmail()));
         validatePE(person);
 
         final HibernateTemplate template = getHibernateTemplate();

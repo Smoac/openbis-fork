@@ -20,6 +20,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -52,6 +53,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.UuidUtil;
     { AbstractDAO.class })
 public abstract class AbstractDAOTest extends AbstractTransactionalTestNGSpringContextTests
 {
+    static final String EXCEED_40_CHARACTERS = StringUtils.repeat("A", 41);
+
     static
     {
         LogInitializer.init();
@@ -63,13 +66,13 @@ public abstract class AbstractDAOTest extends AbstractTransactionalTestNGSpringC
         System.setProperty("mass-upload-folder", "sourceTest/sql/postgresql");
     }
 
-    protected static final Long ANOTHER_DATABASE_INSTANCE_ID = new Long(3);
+    static final Long ANOTHER_DATABASE_INSTANCE_ID = new Long(3);
 
-    protected IDAOFactory daoFactory;
+    IDAOFactory daoFactory;
 
-    protected SessionFactory sessionFactory;
+    SessionFactory sessionFactory;
 
-    protected HibernateSearchContext hibernateSearchContext;
+    HibernateSearchContext hibernateSearchContext;
 
     private Long origDatabaseInstanceId;
 
