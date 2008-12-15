@@ -90,7 +90,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.SAMPLES,
                 CategoriesBuilder.MENU_ELEMENTS.REGISTER));
         remoteConsole.prepare(new ChooseTypeOfNewSample(CONTROL_LAYOUT));
-        remoteConsole.prepare(new FillSampleRegistrationForm(false, "CISD", GROUP_CL + "1"));
+        remoteConsole.prepare(new FillSampleRegistrationForm(true, null, SHARED_CL + "1"));
         FailureExpectation failureExpectation =
                 new FailureExpectation(GenericSampleRegistrationForm.RegisterSampleCallback.class)
                         .with("Authorization failure: None of method roles "
