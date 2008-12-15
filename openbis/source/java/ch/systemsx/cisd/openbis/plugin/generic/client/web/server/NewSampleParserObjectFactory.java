@@ -90,6 +90,9 @@ final class NewSampleParserObjectFactory extends AbstractParserObjectFactory<New
         final NewSample newSample = super.createObject(lineTokens);
         newSample.setSampleType(sampleType);
         setProperties(newSample, lineTokens);
+        newSample
+                .setContainerIdentifier(StringUtils.trimToNull(newSample.getContainerIdentifier()));
+        newSample.setParentIdentifier(StringUtils.trimToNull(newSample.getParentIdentifier()));
         return newSample;
     }
 }

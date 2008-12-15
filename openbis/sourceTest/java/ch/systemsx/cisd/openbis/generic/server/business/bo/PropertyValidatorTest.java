@@ -139,6 +139,7 @@ public final class PropertyValidatorTest
                         { createRealPropertyType(), "1" },
                         { createRealPropertyType(), "1.1" },
                         { createControlledVocabularyPropertyType(), "RED" },
+                        { createControlledVocabularyPropertyType(), "red" },
                         { createBooleanPropertyType(), "yes" },
                         { createBooleanPropertyType(), "1" },
                         { createBooleanPropertyType(), "true" } };

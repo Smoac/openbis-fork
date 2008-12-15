@@ -235,17 +235,19 @@ public final class PropertyValidator implements IPropertyValueValidator
         {
             assert value != null : "Unspecified value.";
             assert vocabulary != null : "Unspecified vocabulary.";
+
+            final String upperCaseValue = value.toUpperCase();
             final Set<VocabularyTermPE> terms = vocabulary.getTerms();
             for (final VocabularyTermPE term : terms)
             {
-                if (term.getCode().equals(value))
+                if (term.getCode().equals(upperCaseValue))
                 {
-                    return value;
+                    return upperCaseValue;
                 }
             }
             throw UserFailureException.fromTemplate("Vocabulary value '%s' has improper format. "
-                    + "It must be one of '%s'.", value, CollectionUtils.abbreviate(terms, -1,
-                    new IToStringConverter<VocabularyTermPE>()
+                    + "It must be one of '%s'.", upperCaseValue, CollectionUtils.abbreviate(terms,
+                    -1, new IToStringConverter<VocabularyTermPE>()
                         {
 
                             //
