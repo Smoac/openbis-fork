@@ -579,7 +579,7 @@ CREATE SEQUENCE person_id_seq
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('person_id_seq', 2, true);
+SELECT pg_catalog.setval('person_id_seq', 3, true);
 CREATE SEQUENCE procedure_id_seq
     INCREMENT BY 1
     NO MAXVALUE
@@ -609,7 +609,7 @@ CREATE SEQUENCE role_assignment_id_seq
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('role_assignment_id_seq', 5, true);
+SELECT pg_catalog.setval('role_assignment_id_seq', 6, true);
 CREATE SEQUENCE sample_id_seq
     INCREMENT BY 1
     NO MAXVALUE
