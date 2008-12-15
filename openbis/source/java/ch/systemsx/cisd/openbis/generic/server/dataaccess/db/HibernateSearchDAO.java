@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,7 +24,6 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexReader.FieldOption;
@@ -33,10 +31,6 @@ import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.highlight.Highlighter;
-import org.apache.lucene.search.highlight.QueryScorer;
-import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
-import org.apache.lucene.search.highlight.TokenSources;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -178,32 +172,17 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
             throws DataAccessException, ParseException
     {
         Query query = createLuceneQuery(fieldName, searchTerm, analyzer);
-        query = rewriteQuery(indexReader, query);
+        // query = rewriteQuery(indexReader, query);
         final FullTextQuery hibernateQuery =
                 fullTextSession.createFullTextQuery(query, entityClass);
         // hibernateQuery.setProjection(FullTextQuery.THIS, FullTextQuery.DOCUMENT_ID,
         // FullTextQuery.DOCUMENT);
 
-        MyHighlighter highlighter = new MyHighlighter(query, indexReader, analyzer);
-        hibernateQuery.setResultTransformer(createResultTransformer(fieldName, highlighter));
+        hibernateQuery.setResultTransformer(createResultTransformer(fieldName));
         return AbstractDAO.cast(hibernateQuery.list());
     }
 
-    // we need this for higlighter when wildcards are used
-    private static Query rewriteQuery(IndexReader indexReader, Query query)
-    {
-        try
-        {
-            return query.rewrite(indexReader);
-        } catch (IOException ex)
-        {
-            logSearchHighlightingError(ex);
-            return query;
-        }
-    }
-
-    private static ResultTransformer createResultTransformer(final String fieldName,
-            final MyHighlighter highlighter)
+    private static ResultTransformer createResultTransformer(final String fieldName)
     {
         return new ResultTransformer()
             {
@@ -215,7 +194,9 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                     List result = new ArrayList<SearchHit>();
                     for (Object elem : collection)
                     {
-                        result.add(new SearchHit((IMatchingEntity) elem, fieldName, "?"));
+                        IMatchingEntity entity = (IMatchingEntity) elem;
+                        System.out.println("debug found entity: " + entity.getIdentifier());
+                        result.add(new SearchHit(entity, fieldName, "?"));
                     }
                     return result;
                 }
@@ -227,11 +208,6 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
             };
     }
 
-    private static void logSearchHighlightingError(IOException ex)
-    {
-        operationLog.error("error during search result highlighting: " + ex.getMessage());
-    }
-
     private Query createLuceneQuery(final String fieldName, final String searchTerm,
             Analyzer analyzer) throws ParseException
     {
@@ -239,36 +215,6 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         parser.setAllowLeadingWildcard(true);
         BooleanQuery.setMaxClauseCount(Integer.MAX_VALUE);
         return parser.parse(searchTerm);
-    }
-
-    private static final class MyHighlighter
-    {
-        private final IndexReader indexReader;
-
-        private final Analyzer analyzer;
-
-        private final Highlighter highlighter;
-
-        public MyHighlighter(Query query, IndexReader indexReader, Analyzer analyzer)
-        {
-            this.highlighter = createHighlighter(query);
-            this.indexReader = indexReader;
-            this.analyzer = analyzer;
-        }
-
-        private static Highlighter createHighlighter(Query query)
-        {
-            SimpleHTMLFormatter htmlFormatter = new SimpleHTMLFormatter();
-            return new Highlighter(htmlFormatter, new QueryScorer(query));
-        }
-
-        public String getBestFragment(String fieldContent, String fieldName, int documentId)
-                throws IOException
-        {
-            TokenStream tokenStream =
-                    TokenSources.getAnyTokenStream(indexReader, documentId, fieldName, analyzer);
-            return highlighter.getBestFragment(tokenStream, fieldContent);
-        }
     }
 
     private static final class MyIndexReaderProvider<T>
