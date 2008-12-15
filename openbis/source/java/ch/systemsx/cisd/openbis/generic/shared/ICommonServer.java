@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnVa
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.GroupValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.MatchingEntityValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ProjectValidator;
@@ -176,6 +177,7 @@ public interface ICommonServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     public List<ExternalDataPE> listExternalData(final String sessionToken,
+            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
             final SampleIdentifier identifier);
 
     /**

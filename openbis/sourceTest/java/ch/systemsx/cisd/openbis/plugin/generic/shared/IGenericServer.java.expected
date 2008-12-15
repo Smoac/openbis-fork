@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.IPluginCommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
@@ -31,42 +31,24 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIden
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSamplePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
  * Definition of the client-server interface.
  * 
  * @author Franz-Josef Elmer
  */
-public interface IGenericServer extends IServer
+public interface IGenericServer extends IPluginCommonServer
 {
-
-    /**
-     * For given {@link SampleIdentifier} returns the corresponding {@link SamplePE}.
-     */
-    @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
-    public SampleGenerationDTO getSampleInfo(final String sessionToken,
-            final SampleIdentifier identifier);
-
-    /**
-     * Registers a new sample.
-     */
-    @Transactional
-    @RolesAllowed(RoleSet.USER)
-    public void registerSample(final String sessionToken,
-            @AuthorizationGuard(guardClass = NewSamplePredicate.class)
-            final NewSample newSample);
 
     /**
      * For given {@link ExperimentIdentifier} returns the corresponding {@link ExperimentPE}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public ExperimentPE getExperimentInfo(String sessionToken, ExperimentIdentifier identifier);
+    public ExperimentPE getExperimentInfo(String sessionToken,
+            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class)
+            ExperimentIdentifier identifier);
 
     /**
      * Returns attachment described by given experiment identifier, filename and version.

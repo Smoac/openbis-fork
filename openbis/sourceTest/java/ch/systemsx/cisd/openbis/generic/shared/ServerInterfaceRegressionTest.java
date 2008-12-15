@@ -31,4 +31,10 @@ public class ServerInterfaceRegressionTest extends RegressionTestCase
     {
         assertNormalizedSourceFilesAreEqual(ICommonServer.class);
     }
+    
+    @Test
+    public void testIPluginCommonServer()
+    {
+        assertNormalizedSourceFilesAreEqual(IPluginCommonServer.class);
+    }
 }

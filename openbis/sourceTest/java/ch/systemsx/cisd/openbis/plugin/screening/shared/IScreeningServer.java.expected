@@ -16,47 +16,13 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared;
 
-import org.springframework.transaction.annotation.Transactional;
-
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.IServer;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSamplePredicate;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.IPluginCommonServer;
 
 /**
  * The <i>screening</i> server.
  * 
  * @author Christian Ribeaud
  */
-public interface IScreeningServer extends IServer
+public interface IScreeningServer extends IPluginCommonServer
 {
-
-    /**
-     * For given <var>sampleIdentifier</var> returns the {@link SamplePE} and its children.
-     * 
-     * @return never <code>null</code>.
-     * @throws UserFailureException if given <var>sessionToken</var> is invalid or whether sample
-     *             uniquely identified by given <var>sampleIdentifier</var> does not exist.
-     */
-    @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.OBSERVER)
-    SampleGenerationDTO getSampleInfo(final String sessionToken,
-            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
-            final SampleIdentifier sampleIdentifier) throws UserFailureException;
-
-    /**
-     * Registers a new sample.
-     */
-    @Transactional
-    @RolesAllowed(RoleSet.USER)
-    public void registerSample(final String sessionToken,
-            @AuthorizationGuard(guardClass = NewSamplePredicate.class)
-            final NewSample newSample);
 }
