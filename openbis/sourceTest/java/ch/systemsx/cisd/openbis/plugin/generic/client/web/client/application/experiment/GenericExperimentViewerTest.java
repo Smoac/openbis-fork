@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.SessionContextCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
@@ -23,11 +27,17 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment_browser.ListExperiments;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment_browser.ShowExperiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns.SampleRow;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.FailureExpectation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IValueAssertion;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 /**
  * A {@link AbstractGWTTestCase} extension to test {@link GenericExperimentViewer}.
@@ -36,7 +46,20 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
  */
 public class GenericExperimentViewerTest extends AbstractGWTTestCase
 {
+    private static final class GetExperimentInfoCallback extends AbstractAsyncCallback<Experiment>
+    {
+        public GetExperimentInfoCallback(IViewContext<?> viewContext)
+        {
+            super(viewContext);
+        }
 
+        @Override
+        protected void process(Experiment result)
+        {
+            fail("Failure expected.");
+        }
+    }
+    
     private static final String DEFAULT = "DEFAULT";
 
     private static final String EXP_REUSE = "EXP-REUSE";
@@ -57,6 +80,36 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
 
     private static final String EXP1 = "EXP1";
 
+    /**
+     * Tests that authorization annotations of
+     * {@link IGenericServer#getExperimentInfo(String, ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier)}
+     * are obeyed. This is done by a direct invocation of
+     * {@link IGenericClientServiceAsync#getExperimentInfo(String, com.google.gwt.user.client.rpc.AsyncCallback)}
+     * because the normal GUI only list experiments which are accessible by the user.
+     */
+    public final void testDirectInvocationOfGetExperimentInfoByAnUnauthorizedUser()
+    {
+        remoteConsole.prepare(new Login("observer", "observer"));
+        remoteConsole.prepare(new AbstractDefaultTestCommand(SessionContextCallback.class)
+            {
+                public void execute()
+                {
+                    IViewContext<ICommonClientServiceAsync> viewContext =
+                            client.tryToGetViewContext();
+                    IGenericClientServiceAsync service =
+                            new GenericViewContext(viewContext).getService();
+                    service.getExperimentInfo(CISD_CISD_NEMO + "/" + EXP1,
+                            new GetExperimentInfoCallback(viewContext));
+                }
+            });
+        remoteConsole.prepare(new FailureExpectation(GetExperimentInfoCallback.class)
+                .with("Authorization failure: User 'observer' does not have enough privileges"
+                        + " to access data in the group 'CISD:/CISD'."));
+
+        remoteConsole.finish(20000);
+        client.onModuleLoad();
+    }
+
     public final void testShowExperimentDetails()
     {
         remoteConsole.prepare(new Login("test", "a"));
@@ -71,15 +124,15 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         checkExperiment.property("Description").asProperty(A_SIMPLE_EXPERIMENT);
         checkExperiment.property("Gender").asProperty("MALE");
         final CheckTableCommand attachmentsTable =
-                checkExperiment.attachmentsTable().expectedSize(1);
+            checkExperiment.attachmentsTable().expectedSize(1);
         attachmentsTable.expectedRow(new Row().withCell(ModelDataPropertyNames.FILE_NAME,
                 "exampleExperiments.txt").withCell(ModelDataPropertyNames.VERSION, 4));
         remoteConsole.prepare(checkExperiment);
-
+        
         remoteConsole.finish(60000);
         client.onModuleLoad();
     }
-
+    
     public final void testShowInvalidExperimentDetails()
     {
         remoteConsole.prepare(new Login("test", "a"));
