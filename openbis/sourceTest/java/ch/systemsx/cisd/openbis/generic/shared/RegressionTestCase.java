@@ -21,6 +21,7 @@ import java.io.File;
 import org.testng.AssertJUnit;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.test.JavaCodeNormalizer;
 
 /**
  * 
@@ -38,7 +39,7 @@ public class RegressionTestCase extends AssertJUnit
         
         public String normalize(String notNormalizedText)
         {
-            return notNormalizedText;
+            return JavaCodeNormalizer.normalizeJavaCode(notNormalizedText);
         }
     }
     
