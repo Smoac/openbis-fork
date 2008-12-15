@@ -22,6 +22,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.SampleRenderer;
@@ -127,12 +128,13 @@ public final class SampleModel extends BaseModelData
         List<ISampleColDefUI> list = new ArrayList<ISampleColDefUI>();
         for (int depth = 1; depth <= sampleType.getGeneratedFromHierarchyDepth(); depth++)
         {
-            String headerText = getParentColumnHeader(msgProviderOrNull, "generated_from", depth);
+            String headerText =
+                    getParentColumnHeader(msgProviderOrNull, Dict.GENERATED_FROM, depth);
             list.add(new ParentGeneratedFromSampleColDef(depth, headerText));
         }
         for (int depth = 1; depth <= sampleType.getPartOfHierarchyDepth(); depth++)
         {
-            String headerText = getParentColumnHeader(msgProviderOrNull, "part_of", depth);
+            String headerText = getParentColumnHeader(msgProviderOrNull, Dict.PART_OF, depth);
             list.add(new ParentContainerSampleColDef(depth, headerText));
         }
         return list;

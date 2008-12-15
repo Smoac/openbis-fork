@@ -42,6 +42,7 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.ListBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
@@ -131,7 +132,7 @@ public final class GenericSampleRegistrationForm extends LayoutContainer
 
     private final void createFormFields()
     {
-        codeField = new CodeField(viewContext.getMessageProvider().getMessage("code"));
+        codeField = new CodeField(viewContext.getMessage(Dict.CODE));
         codeField.setId(CODE_FIELD_ID);
         codeField.addListener(Events.Focus, new InfoBoxResetListener(infoBox));
 
@@ -156,7 +157,7 @@ public final class GenericSampleRegistrationForm extends LayoutContainer
             });
 
         groupMultiField = new MultiField<Field<?>>();
-        groupMultiField.setFieldLabel(viewContext.getMessageProvider().getMessage("group"));
+        groupMultiField.setFieldLabel(viewContext.getMessage(Dict.GROUP));
         groupMultiField.add(sharedCheckbox);
         groupMultiField.add(groupSelectionWidget);
         groupMultiField.setLabelSeparator(MANDATORY_LABEL_SEPARATOR);
@@ -177,14 +178,10 @@ public final class GenericSampleRegistrationForm extends LayoutContainer
                 }
             });
 
-        parent =
-                new VarcharField(viewContext.getMessageProvider().getMessage(
-                        "generated_from_sample"), false);
+        parent = new VarcharField(viewContext.getMessage(Dict.GENERATED_FROM_SAMPLE), false);
         parent.setId(PARENT_GENERATOR_FIELD_ID);
 
-        container =
-                new VarcharField(viewContext.getMessageProvider().getMessage("part_of_sample"),
-                        false);
+        container = new VarcharField(viewContext.getMessage(Dict.PART_OF_SAMPLE), false);
         container.setId(PARENT_CONTAINER_FIELD_ID);
 
         propertyFields = new ArrayList<Field<?>>();
@@ -204,8 +201,7 @@ public final class GenericSampleRegistrationForm extends LayoutContainer
         panel.setLabelWidth(LABEL_WIDTH);
         panel.setFieldWidth(FIELD_WIDTH);
         panel.setButtonAlign(HorizontalAlignment.RIGHT);
-        final Button saveButton =
-                new Button(viewContext.getMessageProvider().getMessage("button_save"));
+        final Button saveButton = new Button(viewContext.getMessage(Dict.BUTTON_SAVE));
         saveButton.setStyleAttribute("marginRight", "20px");
         saveButton.setId(SAVE_BUTTON_ID);
         saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
@@ -221,8 +217,7 @@ public final class GenericSampleRegistrationForm extends LayoutContainer
                     submitForm();
                 }
             });
-        final Button resetButton =
-                new Button(viewContext.getMessageProvider().getMessage("button_reset"));
+        final Button resetButton = new Button(viewContext.getMessage(Dict.BUTTON_RESET));
         resetButton.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
 

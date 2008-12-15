@@ -52,8 +52,8 @@ public final class SampleBrowser extends LayoutContainer implements Listener<Tab
         setId(ID);
         setLayout(new RowLayout());
 
-        final CommonColumnsConfig commonColumns = new CommonColumnsConfig(viewContext.getMessageProvider());
-        final ParentColumnsConfig parentColumns = new ParentColumnsConfig(viewContext.getMessageProvider());
+        final CommonColumnsConfig commonColumns = new CommonColumnsConfig(viewContext);
+        final ParentColumnsConfig parentColumns = new ParentColumnsConfig(viewContext);
         final PropertyColumnsConfig propertyColumns = new PropertyColumnsConfig();
 
         sampleBrowserGrid =

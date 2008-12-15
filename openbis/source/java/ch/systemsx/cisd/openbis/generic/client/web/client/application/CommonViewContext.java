@@ -57,11 +57,6 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
     // IViewContext
     //
 
-    public final IMessageProvider getMessageProvider()
-    {
-        return messageProvider;
-    }
-
     public final ICommonClientServiceAsync getService()
     {
         return service;
@@ -90,5 +85,23 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
     public final IViewContext<ICommonClientServiceAsync> getCommonViewContext()
     {
         return this;
+    }
+
+    /** @see IMessageProvider#containsKey(String) */
+    public boolean containsKey(String key)
+    {
+        return messageProvider.containsKey(key);
+    }
+
+    /** @see IMessageProvider#getMessage(String, Object...) */
+    public String getMessage(String key, Object... parameters)
+    {
+        return messageProvider.getMessage(key, parameters);
+    }
+
+    /** @see IMessageProvider#getName() */
+    public String getName()
+    {
+        return messageProvider.getName();
     }
 }

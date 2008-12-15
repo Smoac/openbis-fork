@@ -28,6 +28,7 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.DOM;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 
@@ -69,7 +70,7 @@ public class MainTabPanel extends TabPanel
     {
         final Element div = DOM.createDiv();
         div.setClassName("intro-tab");
-        div.setInnerText(viewContext.getMessageProvider().getMessage("welcome"));
+        div.setInnerText(viewContext.getMessage(Dict.WELCOME));
         return div.getString();
     }
 

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
@@ -38,13 +39,13 @@ public final class ColumnConfigFactory
     public final static ColumnConfig createRegistratorColumnConfig(
             final IMessageProvider messageProvider)
     {
-        return createDefaultColumnConfig(messageProvider.getMessage("registrator"),
+        return createDefaultColumnConfig(messageProvider.getMessage(Dict.REGISTRATOR),
                 ModelDataPropertyNames.REGISTRATOR);
     }
 
     public final static ColumnConfig createCodeColumnConfig(final IMessageProvider messageProvider)
     {
-        return createDefaultColumnConfig(messageProvider.getMessage("code"),
+        return createDefaultColumnConfig(messageProvider.getMessage(Dict.CODE),
                 ModelDataPropertyNames.CODE);
     }
 
@@ -52,7 +53,7 @@ public final class ColumnConfigFactory
             final IMessageProvider messageProvider)
     {
         final ColumnConfig registrationDateColumnConfig =
-                createDefaultColumnConfig(messageProvider.getMessage("registration_date"),
+                createDefaultColumnConfig(messageProvider.getMessage(Dict.REGISTRATION_DATE),
                         ModelDataPropertyNames.REGISTRATION_DATE);
         registrationDateColumnConfig.setWidth(200);
         return registrationDateColumnConfig;

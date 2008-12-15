@@ -30,6 +30,7 @@ import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.PropertyTypeModel;
@@ -85,17 +86,16 @@ public class PropertyTypeBrowser extends ContentPanel
     private ColumnModel createColumns()
     {
         final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-        configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext.getMessageProvider()
-                .getMessage("label"), ModelDataPropertyNames.LABEL));
-        configs.add(ColumnConfigFactory.createCodeColumnConfig(viewContext.getMessageProvider()));
-        configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext.getMessageProvider()
-                .getMessage("data_type"), ModelDataPropertyNames.DATA_TYPE));
-        configs
-                .add(ColumnConfigFactory.createDefaultColumnConfig(viewContext.getMessageProvider()
-                        .getMessage("controlled_vocabulary"),
-                        ModelDataPropertyNames.CONTROLLED_VOCABULARY));
-        configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext.getMessageProvider()
-                .getMessage("description"), ModelDataPropertyNames.DESCRIPTION));
+        configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext
+                .getMessage(Dict.LABEL), ModelDataPropertyNames.LABEL));
+        configs.add(ColumnConfigFactory.createCodeColumnConfig(viewContext));
+        configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext
+                .getMessage(Dict.DATA_TYPE), ModelDataPropertyNames.DATA_TYPE));
+        configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext
+                .getMessage(Dict.CONTROLLED_VOCABULARY),
+                ModelDataPropertyNames.CONTROLLED_VOCABULARY));
+        configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext
+                .getMessage(Dict.DESCRIPTION), ModelDataPropertyNames.DESCRIPTION));
         configs.add(defineSampleTypesColumn());
         configs.add(defineExperimentTypesColumn());
         configs.add(defineMaterialTypesColumn());
@@ -104,24 +104,23 @@ public class PropertyTypeBrowser extends ContentPanel
 
     private ColumnConfig defineSampleTypesColumn()
     {
-        return defineEtptColumn("sample_types", ModelDataPropertyNames.SAMPLE_TYPES);
+        return defineEtptColumn(Dict.SAMPLE_TYPES, ModelDataPropertyNames.SAMPLE_TYPES);
     }
 
     private ColumnConfig defineExperimentTypesColumn()
     {
-        return defineEtptColumn("experiment_types", ModelDataPropertyNames.EXPERIMENT_TYPES);
+        return defineEtptColumn(Dict.EXPERIMENT_TYPES, ModelDataPropertyNames.EXPERIMENT_TYPES);
     }
 
     private ColumnConfig defineMaterialTypesColumn()
     {
-        return defineEtptColumn("material_types", ModelDataPropertyNames.MATERIAL_TYPES);
+        return defineEtptColumn(Dict.MATERIAL_TYPES, ModelDataPropertyNames.MATERIAL_TYPES);
     }
 
     private ColumnConfig defineEtptColumn(String dictCode, String id)
     {
         final ColumnConfig column =
-                ColumnConfigFactory.createDefaultColumnConfig(viewContext.getMessageProvider()
-                        .getMessage(dictCode), id);
+                ColumnConfigFactory.createDefaultColumnConfig(viewContext.getMessage(dictCode), id);
         column.setRenderer(new ETPTRenderer());
         return column;
     }

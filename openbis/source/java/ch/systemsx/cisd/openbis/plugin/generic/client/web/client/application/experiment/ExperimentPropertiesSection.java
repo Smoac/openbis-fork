@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ex
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
@@ -55,19 +56,18 @@ public class ExperimentPropertiesSection extends SectionPanel
 
     private final PropertyGrid createPropertyGrid()
     {
-        final IMessageProvider messageProvider = viewContext.getMessageProvider();
-        final Map<String, Object> properties = createProperties(messageProvider);
-        final PropertyGrid propertyGrid = new PropertyGrid(messageProvider, properties.size());
+        final Map<String, Object> properties = createProperties(viewContext);
+        final PropertyGrid propertyGrid = new PropertyGrid(viewContext, properties.size());
         propertyGrid.getElement()
                 .setId(PROPERTIES_ID_PREFIX + experiment.getExperimentIdentifier());
         propertyGrid.registerPropertyValueRenderer(Person.class, PropertyValueRenderers
-                .createPersonPropertyValueRenderer(messageProvider));
+                .createPersonPropertyValueRenderer(viewContext));
         propertyGrid.registerPropertyValueRenderer(ExperimentType.class, PropertyValueRenderers
-                .createExperimentTypePropertyValueRenderer(messageProvider));
+                .createExperimentTypePropertyValueRenderer(viewContext));
         propertyGrid.registerPropertyValueRenderer(Invalidation.class, PropertyValueRenderers
-                .createInvalidationPropertyValueRenderer(messageProvider));
+                .createInvalidationPropertyValueRenderer(viewContext));
         propertyGrid.registerPropertyValueRenderer(ExperimentProperty.class, PropertyValueRenderers
-                .createExperimentPropertyPropertyValueRenderer(messageProvider));
+                .createExperimentPropertyPropertyValueRenderer(viewContext));
         propertyGrid.setProperties(properties);
         return propertyGrid;
     }
@@ -77,14 +77,14 @@ public class ExperimentPropertiesSection extends SectionPanel
         final Map<String, Object> properties = new LinkedHashMap<String, Object>();
         final ExperimentType experimentType = experiment.getExperimentType();
         final Invalidation invalidation = experiment.getInvalidation();
-        properties.put(messageProvider.getMessage("experiment"), experiment.getCode());
-        properties.put(messageProvider.getMessage("experiment_type"), experimentType);
-        properties.put(messageProvider.getMessage("registrator"), experiment.getRegistrator());
-        properties.put(messageProvider.getMessage("registration_date"), experiment
+        properties.put(messageProvider.getMessage(Dict.EXPERIMENT), experiment.getCode());
+        properties.put(messageProvider.getMessage(Dict.EXPERIMENT_TYPE), experimentType);
+        properties.put(messageProvider.getMessage(Dict.REGISTRATOR), experiment.getRegistrator());
+        properties.put(messageProvider.getMessage(Dict.REGISTRATION_DATE), experiment
                 .getRegistrationDate());
         if (invalidation != null)
         {
-            properties.put(messageProvider.getMessage("invalidation"), invalidation);
+            properties.put(messageProvider.getMessage(Dict.INVALIDATION), invalidation);
         }
         for (final ExperimentProperty property : experiment.getProperties())
         {

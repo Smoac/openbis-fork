@@ -32,7 +32,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EnterKeyListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ButtonWithLoadingMask;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
@@ -154,9 +153,8 @@ final class SearchWidget extends LayoutContainer
             }
             if (onlyWildcard)
             {
-                final IMessageProvider messageProvider = viewContext.getMessageProvider();
-                MessageBox.alert(messageProvider.getMessage("messagebox_warning"), messageProvider
-                        .getMessage("too_generic", queryText), null);
+                MessageBox.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING), viewContext.getMessage(
+                        Dict.TOO_GENERIC, queryText), null);
                 return;
             }
             enableSearch(false);
@@ -180,8 +178,7 @@ final class SearchWidget extends LayoutContainer
     private final ButtonWithLoadingMask createSearchButton()
     {
         final ButtonWithLoadingMask button =
-                new ButtonWithLoadingMask(viewContext.getMessageProvider().getMessage(
-                        "search_button"), SUBMIT_BUTTON_ID)
+                new ButtonWithLoadingMask(viewContext.getMessage(Dict.SEARCH_BUTTON), SUBMIT_BUTTON_ID)
                     {
                         //
                         // ButtonWithLoadingMask
@@ -238,9 +235,8 @@ final class SearchWidget extends LayoutContainer
             final List<MatchingEntity> entities = result.getList();
             if (entities.size() == 0)
             {
-                final IMessageProvider messageProvider = viewContext.getMessageProvider();
-                MessageBox.alert(messageProvider.getMessage("messagebox_warning"), messageProvider
-                        .getMessage("no_match", queryText), null);
+                MessageBox.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING), viewContext.getMessage(
+                        Dict.NO_MATCH, queryText), null);
                 return;
             }
             textField.reset();
@@ -250,8 +246,8 @@ final class SearchWidget extends LayoutContainer
             final MatchingEntitiesPanel matchingEntitiesPanel =
                     new MatchingEntitiesPanel(castViewContext(), searchableEntityOrNull, queryText);
             event.data =
-                    new DefaultTabItem(viewContext.getMessageProvider().getMessage("global_search",
-                            selectedText, queryText), matchingEntitiesPanel, matchingEntitiesPanel);
+                    new DefaultTabItem(viewContext.getMessage(Dict.GLOBAL_SEARCH, selectedText,
+                            queryText), matchingEntitiesPanel, matchingEntitiesPanel);
             matchingEntitiesPanel.setFirstResulSet(result);
             Dispatcher.get().dispatch(event);
         }

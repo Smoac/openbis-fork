@@ -31,10 +31,10 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 
 /**
@@ -66,7 +66,8 @@ public class LoginWidget extends VerticalPanel
     public LoginWidget(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         setSpacing(10);
-        add(new Text(viewContext.getMessageProvider().getMessage(PREFIX + "invitation")));
+
+        add(new Text(viewContext.getMessage(Dict.LOGIN_INVITATION)));
         formPanel = createFormPanel();
         userField = createUserField(viewContext);
         formPanel.add(userField);
@@ -93,7 +94,7 @@ public class LoginWidget extends VerticalPanel
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         final TextField<String> field = new TextField<String>();
-        field.setFieldLabel(viewContext.getMessageProvider().getMessage(PREFIX + "userLabel"));
+        field.setFieldLabel(viewContext.getMessage(Dict.LOGIN_USER_LABEL));
         field.setSelectOnFocus(true);
         field.setAllowBlank(false);
         field.setValidateOnBlur(true);
@@ -123,7 +124,7 @@ public class LoginWidget extends VerticalPanel
         final TextField<String> field = new TextField<String>();
         field.setPassword(true);
         field.setAllowBlank(false);
-        field.setFieldLabel(viewContext.getMessageProvider().getMessage(PREFIX + "passwordLabel"));
+        field.setFieldLabel(viewContext.getMessage(Dict.LOGIN_PASSWORD_LABEL));
         field.setId(PASSWORD_FIELD_ID);
         field.setValidateOnBlur(true);
         addEnterKeyListener(field, viewContext);
@@ -132,8 +133,7 @@ public class LoginWidget extends VerticalPanel
 
     private final Button createButton(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        final Button b =
-                new Button(viewContext.getMessageProvider().getMessage(PREFIX + "buttonLabel"));
+        final Button b = new Button(viewContext.getMessage(Dict.LOGIN_BUTTON_LABEL));
         b.setId(BUTTON_ID);
         b.addSelectionListener(new SelectionListener<ComponentEvent>()
             {
@@ -204,11 +204,10 @@ public class LoginWidget extends VerticalPanel
         @Override
         public final void process(final SessionContext sessionContext)
         {
-            final IMessageProvider messageProvider = viewContext.getMessageProvider();
             if (sessionContext == null)
             {
-                MessageBox.alert(messageProvider.getMessage("messagebox_warning"), messageProvider
-                        .getMessage("login_failed"), new Listener<WindowEvent>()
+                MessageBox.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING), viewContext
+                        .getMessage(Dict.LOGIN_FAILED), new Listener<WindowEvent>()
                     {
 
                         //

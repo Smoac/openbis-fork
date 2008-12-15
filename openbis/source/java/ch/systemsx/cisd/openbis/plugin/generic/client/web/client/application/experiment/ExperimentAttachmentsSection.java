@@ -39,6 +39,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
@@ -56,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
  * 
  * @author Izabela Adamczyk
  */
+// TODO 2008-12-15, Tomasz Pylak: use dictionary to access localized messaged!
 public class ExperimentAttachmentsSection extends SectionPanel
 {
     public static final String ATTACHMENTS_ID_PREFIX =
@@ -70,14 +72,14 @@ public class ExperimentAttachmentsSection extends SectionPanel
     {
         super("Experiment attachments");
         this.experiment = experiment;
-        messageProvider = viewContext.getMessageProvider();
+        messageProvider = viewContext;
         if (experiment.getAttachments().size() > 0)
         {
             add(createAttachmentsGrid());
         } else
         {
-            add(new Html(messageProvider.getMessage("no_attachments_found")), new RowData(-1, -1,
-                    new Margins(3)));
+            add(new Html(messageProvider.getMessage(Dict.NO_ATTACHMENTS_FOUND)), new RowData(-1,
+                    -1, new Margins(3)));
         }
     }
 
@@ -244,7 +246,8 @@ public class ExperimentAttachmentsSection extends SectionPanel
     {
         final ColumnConfig column =
                 ColumnConfigFactory.createDefaultColumnConfig(messageProvider
-                        .getMessage("version_file_name"), ModelDataPropertyNames.VERSION_FILE_NAME);
+                        .getMessage(Dict.VERSION_FILE_NAME),
+                        ModelDataPropertyNames.VERSION_FILE_NAME);
         column.setWidth(200);
         column.setRenderer(new GridCellRenderer<AttachmentVersionModel>()
             {
@@ -270,7 +273,7 @@ public class ExperimentAttachmentsSection extends SectionPanel
     {
         final ColumnConfig column =
                 ColumnConfigFactory.createDefaultColumnConfig(messageProvider
-                        .getMessage("file_name"), ModelDataPropertyNames.FILE_NAME);
+                        .getMessage(Dict.FILE_NAME), ModelDataPropertyNames.FILE_NAME);
         column.setRenderer(new GridCellRenderer<AttachmentModel>()
             {
 
@@ -295,7 +298,7 @@ public class ExperimentAttachmentsSection extends SectionPanel
     {
         final ColumnConfig column =
                 ColumnConfigFactory.createDefaultColumnConfig(messageProvider
-                        .getMessage("versions"), ModelDataPropertyNames.VERSIONS);
+                        .getMessage(Dict.VERSIONS), ModelDataPropertyNames.VERSIONS);
         column.setWidth(180);
 
         column.setRenderer(new GridCellRenderer<AttachmentModel>()
@@ -318,7 +321,7 @@ public class ExperimentAttachmentsSection extends SectionPanel
                     } else
                     {
                         final String message =
-                                messageProvider.getMessage("versions_template", versions.size());
+                                messageProvider.getMessage(Dict.VERSIONS_TEMPLATE, versions.size());
                         return createLink(message);
                     }
                 }

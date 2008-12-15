@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  * 
  * @author Christian Ribeaud
  */
-public interface IViewContext<T extends IClientServiceAsync>
+public interface IViewContext<T extends IClientServiceAsync> extends IMessageProvider
 {
     public T getService();
 
@@ -34,8 +34,6 @@ public interface IViewContext<T extends IClientServiceAsync>
     public IGenericImageBundle getImageBundle();
 
     public IPageController getPageController();
-
-    public IMessageProvider getMessageProvider();
 
     public IClientPluginFactoryProvider getClientPluginFactoryProvider();
 

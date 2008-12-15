@@ -22,7 +22,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
@@ -50,8 +49,8 @@ public final class ScreeningSampleViewer extends AbstractViewer<IScreeningClient
 
     private final Widget createUI(final SampleGeneration sampleGeneration)
     {
-        final IMessageProvider messageProvider = viewContext.getMessageProvider();
-        return GenericSampleViewer.createPropertyGrid(sampleIdentifier, sampleGeneration, messageProvider);
+        return GenericSampleViewer.createPropertyGrid(sampleIdentifier, sampleGeneration,
+                viewContext);
     }
 
     /**

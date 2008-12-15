@@ -18,32 +18,33 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 
 public enum CommonSampleColDefKind implements IsSerializable
 {
-    DATABASE_INSTANCE(ModelDataPropertyNames.DATABASE_INSTANCE, "database_instance", true),
+    DATABASE_INSTANCE(ModelDataPropertyNames.DATABASE_INSTANCE, Dict.DATABASE_INSTANCE, true),
 
-    GROUP(ModelDataPropertyNames.GROUP, "group"),
+    GROUP(ModelDataPropertyNames.GROUP, Dict.GROUP),
 
-    CODE(ModelDataPropertyNames.CODE, "code"),
+    CODE(ModelDataPropertyNames.CODE, Dict.CODE),
 
-    SAMPLE_IDENTIFIER(ModelDataPropertyNames.SAMPLE_IDENTIFIER, "sample_identifier", 150, true),
+    SAMPLE_IDENTIFIER(ModelDataPropertyNames.SAMPLE_IDENTIFIER, Dict.SAMPLE_IDENTIFIER, 150, true),
 
-    IS_INSTANCE_SAMPLE(ModelDataPropertyNames.IS_INSTANCE_SAMPLE, "is_instance_sample", true),
+    IS_INSTANCE_SAMPLE(ModelDataPropertyNames.IS_INSTANCE_SAMPLE, Dict.IS_INSTANCE_SAMPLE, true),
 
-    REGISTRATOR(ModelDataPropertyNames.REGISTRATOR, "registrator", true),
+    REGISTRATOR(ModelDataPropertyNames.REGISTRATOR, Dict.REGISTRATOR, true),
 
-    REGISTRATION_DATE(ModelDataPropertyNames.REGISTRATION_DATE, "registration_date", 200, true),
+    REGISTRATION_DATE(ModelDataPropertyNames.REGISTRATION_DATE, Dict.REGISTRATION_DATE, 200, true),
 
-    IS_INVALID(ModelDataPropertyNames.IS_INVALID, "is_invalid", true),
+    IS_INVALID(ModelDataPropertyNames.IS_INVALID, Dict.IS_INVALID, true),
 
-    PROJECT_FOR_SAMPLE(ModelDataPropertyNames.PROJECT_FOR_SAMPLE, "project"),
+    PROJECT_FOR_SAMPLE(ModelDataPropertyNames.PROJECT_FOR_SAMPLE, Dict.PROJECT),
 
-    EXPERIMENT_FOR_SAMPLE(ModelDataPropertyNames.EXPERIMENT_FOR_SAMPLE, "experiment"),
+    EXPERIMENT_FOR_SAMPLE(ModelDataPropertyNames.EXPERIMENT_FOR_SAMPLE, Dict.EXPERIMENT),
 
     EXPERIMENT_IDENTIFIER_FOR_SAMPLE(ModelDataPropertyNames.EXPERIMENT_IDENTIFIER_FOR_SAMPLE,
-            "experiment_identifier", 200, true);
+            Dict.EXPERIMENT_IDENTIFIER, 200, true);
 
     // TODO 2008-12-08, Tomasz Pylak: refactor the code to remove this field. It has to have the
     // same name as the Sample field because grid sorting was implemented in that ugly way.

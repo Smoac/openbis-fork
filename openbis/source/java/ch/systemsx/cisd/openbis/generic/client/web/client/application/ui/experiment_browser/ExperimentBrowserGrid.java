@@ -42,6 +42,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
@@ -192,26 +193,23 @@ public final class ExperimentBrowserGrid extends LayoutContainer
     private final ColumnModel createColumnModel()
     {
         final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-        final ColumnConfig codeColumn =
-                ColumnConfigFactory.createCodeColumnConfig(viewContext.getMessageProvider());
+        final ColumnConfig codeColumn = ColumnConfigFactory.createCodeColumnConfig(viewContext);
         codeColumn.setRenderer(new InvalidableWithCodeRenderer());
         configs.add(codeColumn);
 
-        configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext.getMessageProvider()
-                .getMessage("experiment_type"),
+        configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext
+                .getMessage(Dict.EXPERIMENT_TYPE),
                 ModelDataPropertyNames.EXPERIMENT_TYPE_CODE_FOR_EXPERIMENT));
-        configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext.getMessageProvider()
-                .getMessage("group"), ModelDataPropertyNames.GROUP_FOR_EXPERIMENT));
-        configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext.getMessageProvider()
-                .getMessage("project"), ModelDataPropertyNames.PROJECT));
+        configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext
+                .getMessage(Dict.GROUP), ModelDataPropertyNames.GROUP_FOR_EXPERIMENT));
+        configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext
+                .getMessage(Dict.PROJECT), ModelDataPropertyNames.PROJECT));
 
-        configs.add(ColumnConfigFactory.createRegistratorColumnConfig(viewContext
-                .getMessageProvider()));
-        configs.add(ColumnConfigFactory.createRegistrationDateColumnConfig(viewContext
-                .getMessageProvider()));
+        configs.add(ColumnConfigFactory.createRegistratorColumnConfig(viewContext));
+        configs.add(ColumnConfigFactory.createRegistrationDateColumnConfig(viewContext));
         final ColumnConfig isInvalidColumn =
-                ColumnConfigFactory.createDefaultColumnConfig(viewContext.getMessageProvider()
-                        .getMessage("is_invalid"), ModelDataPropertyNames.IS_INVALID);
+                ColumnConfigFactory.createDefaultColumnConfig(viewContext
+                        .getMessage(Dict.IS_INVALID), ModelDataPropertyNames.IS_INVALID);
         isInvalidColumn.setRenderer(new YesNoRenderer());
         configs.add(isInvalidColumn);
         return new ColumnModel(configs);

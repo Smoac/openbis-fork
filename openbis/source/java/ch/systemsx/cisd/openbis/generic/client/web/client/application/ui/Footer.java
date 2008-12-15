@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 import com.extjs.gxt.ui.client.widget.Text;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 
 /**
@@ -30,8 +31,8 @@ public final class Footer extends Text
 {
     public Footer(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(viewContext.getMessageProvider().getMessage("footer",
-                viewContext.getModel().getApplicationInfo().getVersion()));
+        super(viewContext.getMessage(Dict.FOOTER, viewContext.getModel().getApplicationInfo()
+                .getVersion()));
         setStyleName("footer");
         setBorders(true);
     }

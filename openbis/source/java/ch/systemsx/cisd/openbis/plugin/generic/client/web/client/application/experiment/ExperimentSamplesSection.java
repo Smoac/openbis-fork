@@ -34,13 +34,13 @@ import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.YesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns.SampleModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -82,23 +82,21 @@ public class ExperimentSamplesSection extends SectionPanel
     private final ColumnModel createColumnModel()
     {
         final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-        final IMessageProvider messageProvider = viewContext.getMessageProvider();
-        final ColumnConfig codeColumn =
-                ColumnConfigFactory.createCodeColumnConfig(viewContext.getMessageProvider());
+        final ColumnConfig codeColumn = ColumnConfigFactory.createCodeColumnConfig(viewContext);
         configs.add(codeColumn);
 
-        configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext.getMessageProvider()
-                .getMessage("sample_type"), ModelDataPropertyNames.SAMPLE_TYPE));
-        configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext.getMessageProvider()
-                .getMessage("group"), ModelDataPropertyNames.GROUP));
+        configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext
+                .getMessage(Dict.SAMPLE_TYPE), ModelDataPropertyNames.SAMPLE_TYPE));
+        configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext
+                .getMessage(Dict.GROUP), ModelDataPropertyNames.GROUP));
         final ColumnConfig isInvalidColumn =
-                ColumnConfigFactory.createDefaultColumnConfig(viewContext.getMessageProvider()
-                        .getMessage("is_invalid"), ModelDataPropertyNames.IS_INVALID);
+                ColumnConfigFactory.createDefaultColumnConfig(viewContext
+                        .getMessage(Dict.IS_INVALID), ModelDataPropertyNames.IS_INVALID);
         isInvalidColumn.setRenderer(new YesNoRenderer());
         configs.add(isInvalidColumn);
 
-        configs.add(ColumnConfigFactory.createRegistrationDateColumnConfig(messageProvider));
-        configs.add(ColumnConfigFactory.createRegistratorColumnConfig(messageProvider));
+        configs.add(ColumnConfigFactory.createRegistrationDateColumnConfig(viewContext));
+        configs.add(ColumnConfigFactory.createRegistratorColumnConfig(viewContext));
 
         return new ColumnModel(configs);
     }

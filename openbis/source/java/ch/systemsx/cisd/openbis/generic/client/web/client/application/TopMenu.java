@@ -81,14 +81,10 @@ public class TopMenu extends LayoutContainer
         final String fullInfo;
         if (homeGroup == null)
         {
-            fullInfo =
-                    viewContext.getMessageProvider().getMessage("header_userWithoutHomegroup",
-                            userName);
+            fullInfo = viewContext.getMessage(Dict.HEADER_USER_WITHOUT_HOMEGROUP, userName);
         } else
         {
-            fullInfo =
-                    viewContext.getMessageProvider().getMessage("header_userWithHomegroup",
-                            userName, homeGroup);
+            fullInfo = viewContext.getMessage(Dict.HEADER_USER_WITH_HOMEGROUP, userName, homeGroup);
         }
         final Html html = new Html(fullInfo);
         html.setStyleAttribute("marginRight", "7px");
@@ -98,8 +94,7 @@ public class TopMenu extends LayoutContainer
     private final Html createTitleHeader()
     {
 
-        final Html titleHeader =
-                new Html(viewContext.getMessageProvider().getMessage("applicationName"));
+        final Html titleHeader = new Html(viewContext.getMessage(Dict.APPLICATION_NAME));
         titleHeader.setStyleAttribute("margin", "0 1em 0 1em");
         return titleHeader;
     }
@@ -113,7 +108,7 @@ public class TopMenu extends LayoutContainer
 
         LogoutButton(final CommonViewContext viewContext)
         {
-            super(viewContext.getMessageProvider().getMessage("header_logoutButtonLabel"));
+            super(viewContext.getMessage(Dict.HEADER_LOGOUT_BUTTON_LABEL));
             final SelectionListener<ComponentEvent> listener =
                     new SelectionListener<ComponentEvent>()
                         {

@@ -35,9 +35,9 @@ public abstract class AbstractPluginViewContext<T extends IClientServiceAsync> i
         IViewContext<T>
 {
     private final IViewContext<ICommonClientServiceAsync> commonViewContext;
-    
+
     private final IMessageProvider messageProvider;
-    
+
     private final T service;
 
     public AbstractPluginViewContext(final IViewContext<ICommonClientServiceAsync> commonViewContext)
@@ -46,20 +46,20 @@ public abstract class AbstractPluginViewContext<T extends IClientServiceAsync> i
         String technology = getTechnology();
         messageProvider =
                 new CompositeMessageProvider(new DictonaryBasedMessageProvider(technology),
-                        commonViewContext.getMessageProvider());
+                        commonViewContext);
         service = createClientServiceAsync();
         final ServiceDefTarget endpoint = (ServiceDefTarget) service;
         endpoint.setServiceEntryPoint(GenericConstants.createServicePath(technology));
     }
-    
+
     /**
      * Returns the name of the technology.
      */
     protected abstract String getTechnology();
-    
+
     /**
-     * Creates the service. Implementations will usually invoke {@link GWT#create(Class)}
-     * with the corresponding synchronous service interface.
+     * Creates the service. Implementations will usually invoke {@link GWT#create(Class)} with the
+     * corresponding synchronous service interface.
      */
     protected abstract T createClientServiceAsync();
 
@@ -70,11 +70,6 @@ public abstract class AbstractPluginViewContext<T extends IClientServiceAsync> i
     public final T getService()
     {
         return service;
-    }
-    
-    public final IMessageProvider getMessageProvider()
-    {
-        return messageProvider;
     }
 
     public final IViewContext<ICommonClientServiceAsync> getCommonViewContext()
@@ -100,6 +95,24 @@ public abstract class AbstractPluginViewContext<T extends IClientServiceAsync> i
     public final IGenericImageBundle getImageBundle()
     {
         return commonViewContext.getImageBundle();
+    }
+
+    /** @see IMessageProvider#containsKey(String) */
+    public boolean containsKey(String key)
+    {
+        return messageProvider.containsKey(key);
+    }
+
+    /** @see IMessageProvider#getMessage(String, Object...) */
+    public String getMessage(String key, Object... parameters)
+    {
+        return messageProvider.getMessage(key, parameters);
+    }
+
+    /** @see IMessageProvider#getName() */
+    public String getName()
+    {
+        return messageProvider.getName();
     }
 
 }

@@ -47,8 +47,6 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
                     }
                 };
 
-    private static final String PREFIX = "exception_";
-
     private static ICallbackListener<?> staticCallbackListener = DEFAULT_CALLBACK_LISTENER;
 
     private static final AsyncCallbackCollection asyncCallbacks = new AsyncCallbackCollection();
@@ -151,7 +149,7 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
         {
             if (StringUtils.isBlank(caught.getMessage()))
             {
-                msg = viewContext.getMessageProvider().getMessage(PREFIX + "invocationMessage");
+                msg = viewContext.getMessage(Dict.EXCEPTION_INVOCATION_MESSAGE);
             } else
             {
                 msg = caught.getMessage();
@@ -162,8 +160,8 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
             if (StringUtils.isBlank(message))
             {
                 msg =
-                        viewContext.getMessageProvider().getMessage(PREFIX + "withoutMessage",
-                                caught.getClass().getName());
+                        viewContext.getMessage(Dict.EXCEPTION_WITHOUT_MESSAGE, caught.getClass()
+                                .getName());
             } else
             {
                 msg = message;

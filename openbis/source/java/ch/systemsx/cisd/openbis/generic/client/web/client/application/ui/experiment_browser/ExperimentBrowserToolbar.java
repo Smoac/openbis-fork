@@ -31,6 +31,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExperimentTypeModel;
@@ -161,7 +162,7 @@ class ExperimentBrowserToolbar extends ToolBar
     private Button createSubmitButton()
     {
         final Button refreshButton =
-                new Button(viewContext.getMessageProvider().getMessage("button_refresh"),
+                new Button(viewContext.getMessage(Dict.BUTTON_REFRESH),
                         new SelectionListener<ButtonEvent>()
                             {
                                 //
@@ -196,8 +197,8 @@ class ExperimentBrowserToolbar extends ToolBar
                 @Override
                 public final void componentSelected(final ComponentEvent ce)
                 {
-                    MessageBox.alert(viewContext.getMessageProvider().getMessage(
-                            "messagebox_warning"), "Not yet implemented!", null);
+                    MessageBox.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING),
+                            "Not yet implemented!", null);
                 }
             });
         return button;

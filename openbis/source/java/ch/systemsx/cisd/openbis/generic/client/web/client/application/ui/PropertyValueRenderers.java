@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.AbstractPropertyValueRenderer;
@@ -209,7 +210,7 @@ public final class PropertyValueRenderers
         @Override
         public final String renderNotNull(final Invalidation invalidation)
         {
-            return getMessageProvider().getMessage("invalidation_template",
+            return getMessageProvider().getMessage(Dict.INVALIDATION_TEMPLATE,
                     rendererPerson(invalidation.getRegistrator()),
                     DateRenderer.renderDate(invalidation.getRegistrationDate()),
                     invalidation.getReason());

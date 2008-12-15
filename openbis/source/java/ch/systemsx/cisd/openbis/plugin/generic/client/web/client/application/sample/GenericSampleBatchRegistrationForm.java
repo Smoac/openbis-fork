@@ -42,6 +42,7 @@ import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.XMLParser;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
@@ -155,8 +156,7 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
 
     private final Button createButton()
     {
-        final Button button =
-                new Button(viewContext.getMessageProvider().getMessage("button_submit"));
+        final Button button = new Button(viewContext.getMessage(Dict.BUTTON_SUBMIT));
         button.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
 

@@ -46,6 +46,7 @@ import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExternalDataModel;
@@ -110,8 +111,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         final LayoutContainer container = new LayoutContainer();
         container.setLayout(new RowLayout());
         // 'Part of' samples
-        final IMessageProvider messageProvider = viewContext.getMessageProvider();
-        ContentPanel panel = createContentPanel(messageProvider.getMessage("part_of_heading"));
+        ContentPanel panel = createContentPanel(viewContext.getMessage(Dict.PART_OF_HEADING));
         final ListLoader<BaseListLoadConfig> sampleLoader =
                 createListLoader(createRpcProxyForPartOfSamples());
         final ListStore<SampleModel> sampleListStore = createListStore(sampleLoader);
@@ -123,7 +123,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         panel.add(partOfSamplesGrid);
         container.add(panel, new RowData(1, 0.5, new Margins(0, 5, 5, 0)));
         // External data
-        panel = createContentPanel(messageProvider.getMessage("external_data_heading"));
+        panel = createContentPanel(viewContext.getMessage(Dict.EXTERNAL_DATA_HEADING));
         final ListLoader<BaseListLoadConfig> externalDataLoader =
                 createListLoader(createRpcProxyForExternalData());
         final ListStore<ExternalDataModel> externalDataListStore =
@@ -205,20 +205,18 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     private final ColumnModel createPartOfSamplesColumnModel()
     {
         final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-        final IMessageProvider messageProvider = viewContext.getMessageProvider();
-        configs.add(ColumnConfigFactory.createCodeColumnConfig(messageProvider));
-        configs.add(ColumnConfigFactory.createRegistrationDateColumnConfig(messageProvider));
-        configs.add(ColumnConfigFactory.createRegistratorColumnConfig(messageProvider));
+        configs.add(ColumnConfigFactory.createCodeColumnConfig(viewContext));
+        configs.add(ColumnConfigFactory.createRegistrationDateColumnConfig(viewContext));
+        configs.add(ColumnConfigFactory.createRegistratorColumnConfig(viewContext));
         return new ColumnModel(configs);
     }
 
     private final ColumnModel createExternalDataColumnModel()
     {
         final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-        final IMessageProvider messageProvider = viewContext.getMessageProvider();
-        configs.add(ColumnConfigFactory.createCodeColumnConfig(messageProvider));
-        configs.add(ColumnConfigFactory.createRegistrationDateColumnConfig(messageProvider));
-        configs.add(ColumnConfigFactory.createRegistratorColumnConfig(messageProvider));
+        configs.add(ColumnConfigFactory.createCodeColumnConfig(viewContext));
+        configs.add(ColumnConfigFactory.createRegistrationDateColumnConfig(viewContext));
+        configs.add(ColumnConfigFactory.createRegistratorColumnConfig(viewContext));
         configs.add(createLocationColumnConfig());
         configs.add(createFileFormatTypeColumnConfig());
         return new ColumnModel(configs);
@@ -227,16 +225,17 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     private final ColumnConfig createFileFormatTypeColumnConfig()
     {
         final ColumnConfig columnConfig =
-                ColumnConfigFactory.createDefaultColumnConfig(viewContext.getMessageProvider()
-                        .getMessage("file_format_type"), ModelDataPropertyNames.FILE_FORMAT_TYPE);
+                ColumnConfigFactory
+                        .createDefaultColumnConfig(viewContext.getMessage(Dict.FILE_FORMAT_TYPE),
+                                ModelDataPropertyNames.FILE_FORMAT_TYPE);
         return columnConfig;
     }
 
     private final ColumnConfig createLocationColumnConfig()
     {
         final ColumnConfig columnConfig =
-                ColumnConfigFactory.createDefaultColumnConfig(viewContext.getMessageProvider()
-                        .getMessage("location"), ModelDataPropertyNames.LOCATION);
+                ColumnConfigFactory.createDefaultColumnConfig(
+                        viewContext.getMessage(Dict.LOCATION), ModelDataPropertyNames.LOCATION);
         return columnConfig;
     }
 
@@ -258,23 +257,23 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         final SampleType sampleType = sample.getSampleType();
         final Invalidation invalidation = sample.getInvalidation();
         final Sample[] generated = sampleGeneration.getGenerated();
-        properties.put(messageProvider.getMessage("sample"), sample.getCode());
-        properties.put(messageProvider.getMessage("sample_type"), sampleType);
-        properties.put(messageProvider.getMessage("registrator"), sample.getRegistrator());
-        properties.put(messageProvider.getMessage("registration_date"), sample
+        properties.put(messageProvider.getMessage(Dict.SAMPLE), sample.getCode());
+        properties.put(messageProvider.getMessage(Dict.SAMPLE_TYPE), sampleType);
+        properties.put(messageProvider.getMessage(Dict.REGISTRATOR), sample.getRegistrator());
+        properties.put(messageProvider.getMessage(Dict.REGISTRATION_DATE), sample
                 .getRegistrationDate());
         if (generated.length > 0)
         {
-            properties.put(messageProvider.getMessage("generated_samples"), generated);
+            properties.put(messageProvider.getMessage(Dict.GENERATED_SAMPLES), generated);
         }
         if (invalidation != null)
         {
-            properties.put(messageProvider.getMessage("invalidation"), invalidation);
+            properties.put(messageProvider.getMessage(Dict.INVALIDATION), invalidation);
         }
         Sample generatedFrom = sample.getGeneratedFrom();
         for (int i = 0; i < sampleType.getGeneratedFromHierarchyDepth() && generatedFrom != null; i++)
         {
-            properties.put(messageProvider.getMessage("generated_from", i + 1), generatedFrom);
+            properties.put(messageProvider.getMessage(Dict.GENERATED_FROM, i + 1), generatedFrom);
             generatedFrom = generatedFrom.getGeneratedFrom();
         }
         for (final SampleProperty property : sample.getProperties())
@@ -290,9 +289,8 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     {
         final ContentPanel panel = new ContentPanel();
         panel.setScrollMode(Scroll.AUTOY);
-        IMessageProvider messageProvider = viewContext.getMessageProvider();
-        panel.setHeading(messageProvider.getMessage("sample_properties_heading"));
-        panel.add(createPropertyGrid(sampleIdentifier, sampleGeneration, messageProvider));
+        panel.setHeading(viewContext.getMessage(Dict.SAMPLE_PROPERTIES_HEADING));
+        panel.add(createPropertyGrid(sampleIdentifier, sampleGeneration, viewContext));
         return panel;
     }
 

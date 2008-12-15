@@ -33,6 +33,7 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
@@ -229,7 +230,7 @@ final class SampleBrowserToolbar extends ToolBar
     private Button createSubmitButton()
     {
         final Button refreshButton =
-                new Button(viewContext.getMessageProvider().getMessage("button_refresh"),
+                new Button(viewContext.getMessage(Dict.BUTTON_REFRESH),
                         new SelectionListener<ButtonEvent>()
                             {
                                 //
@@ -277,7 +278,7 @@ final class SampleBrowserToolbar extends ToolBar
     private Button createExportButton()
     {
         final Button button =
-                new Button(viewContext.getMessageProvider().getMessage("button_exportData"),
+                new Button(viewContext.getMessage(Dict.BUTTON_EXPORT_DATA),
                         new SelectionListener<ButtonEvent>()
                             {
                                 @Override
