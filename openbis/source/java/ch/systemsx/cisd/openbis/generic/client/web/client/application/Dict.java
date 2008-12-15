@@ -177,11 +177,11 @@ public class Dict
 
     public static final String DESCRIPTION = "description";
 
-    public static final String SAMPLE_TYPES = "Sample types";
+    public static final String SAMPLE_TYPES = "sample_types";
 
-    public static final String MATERIAL_TYPES = "Material types";
+    public static final String MATERIAL_TYPES = "material_types";
 
-    public static final String EXPERIMENT_TYPES = "Experiment types";
+    public static final String EXPERIMENT_TYPES = "experiment_types";
 
     // -------- generic plugin dictionary -------------------
 
