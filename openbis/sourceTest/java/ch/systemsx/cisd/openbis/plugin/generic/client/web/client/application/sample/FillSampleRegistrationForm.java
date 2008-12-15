@@ -86,7 +86,7 @@ public final class FillSampleRegistrationForm extends AbstractDefaultTestCommand
         {
             GWTTestUtil.setTextFieldValue(GenericSampleRegistrationForm.PARENT_FIELD_ID, parent);
         }
-        if (StringUtils.isBlank(container))
+        if (StringUtils.isBlank(container) == false)
         {
             GWTTestUtil.setTextFieldValue(GenericSampleRegistrationForm.CONTAINER_FIELD_ID,
                     container);

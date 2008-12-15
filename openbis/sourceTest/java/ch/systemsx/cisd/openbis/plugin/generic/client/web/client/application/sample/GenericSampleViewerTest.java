@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
  */
 public class GenericSampleViewerTest extends AbstractGWTTestCase
 {
-    private static final String GROUP_IDENTIFIER = "CISD:/CISD";
+    static final String GROUP_IDENTIFIER = "CISD:/CISD";
 
     private static final String CONTROL_LAYOUT_EXAMPLE = "CL1";
 
