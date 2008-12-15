@@ -19,9 +19,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment_browser.CheckExperimentTable;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment_browser.ExperimentRow;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment_browser.ListExperiments;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.CheckExperimentTable;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentRow;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ListExperiments;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 
 /**

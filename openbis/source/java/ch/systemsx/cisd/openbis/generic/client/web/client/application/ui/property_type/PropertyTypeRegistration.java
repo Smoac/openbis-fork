@@ -21,6 +21,7 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 
 /**
  * A {@link LayoutContainer} extension for registering a new property type.
