@@ -17,10 +17,10 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ChooseTypeOfNewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.CheckSampleTable;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ChooseTypeOfNewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ListSamples;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleRow;

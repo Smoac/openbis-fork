@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleTypeModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
 /**
@@ -66,14 +67,7 @@ public final class SampleTypeSelectionWidget extends ComboBox<SampleTypeModel>
      */
     public final SampleType tryGetSelectedSampleType()
     {
-        final List<SampleTypeModel> selection = getSelection();
-        final int size = selection.size();
-        if (size > 0)
-        {
-            assert size == 1 : "Only one item must be selected.";
-            return selection.get(0).get(ModelDataPropertyNames.OBJECT);
-        }
-        return null;
+        return GWTUtils.tryGetSingleSelected(this);
     }
 
     @Override

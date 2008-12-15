@@ -20,13 +20,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonView
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GroupsView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.PersonsView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.RolesView;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SampleBatchRegistrationPanel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SampleRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeAssignmentBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeRegistration;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBatchRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowser;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleRegistrationPanel;
 
 /**
  * Creates and provides GUI modules/components (such as sample browser).

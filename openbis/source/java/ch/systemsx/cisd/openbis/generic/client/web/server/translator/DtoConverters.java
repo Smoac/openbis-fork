@@ -22,6 +22,9 @@ import java.util.Set;
 
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
+import ch.systemsx.cisd.common.utilities.BeanUtils.Converter;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityType;
@@ -31,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IMatchingEntity;
@@ -68,6 +72,14 @@ public class DtoConverters
     public final static BeanUtils.Converter getMatchingEntityConverter()
     {
         return MatchingEntityConverter.INSTANCE;
+    }
+
+    /**
+     * Returns the {@link DataTypePE} converter.
+     */
+    public final static Converter getDataTypeConverter()
+    {
+        return DataTypeConverter.INSTANCE;
     }
 
     /**
@@ -258,4 +270,26 @@ public class DtoConverters
 
     }
 
+    /**
+     * A {@link BeanUtils.Converter} for converting {@link DataTypePE} into {@link DataType}.
+     * 
+     * @author Christian Ribeaud
+     */
+    private final static class DataTypeConverter implements BeanUtils.Converter
+    {
+        static final DataTypeConverter INSTANCE = new DataTypeConverter();
+
+        private DataTypeConverter()
+        {
+        }
+
+        //
+        // BeanUtils.Converter
+        //
+
+        public final DataTypeCode convertToCode(final DataTypePE dataType)
+        {
+            return DataTypeCode.valueOf(dataType.getCode().name());
+        }
+    }
 }

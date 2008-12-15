@@ -14,96 +14,100 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type;
 
 import java.util.List;
 
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DataTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ProjectModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataType;
 
 /**
- * {@link ComboBox} containing list of projects loaded from the server.
+ * A {@link ComboBox} extension for selecting a {@link DataType}.
  * 
- * @author Izabela Adamczyk
+ * @author Christian Ribeaud
  */
-public final class ProjectSelectionWidget extends ComboBox<ProjectModel>
+public final class DataTypeSelectionWidget extends ComboBox<DataTypeModel>
 {
-    private static final String PREFIX = "project-select";
+    private static final String PREFIX = "data-type-select_";
 
     public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    public ProjectSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext)
+    public DataTypeSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         this.viewContext = viewContext;
-        setId(ID);
-        setEmptyText("- No projects found -");
-        setDisplayField(ModelDataPropertyNames.PROJECT_WITH_GROUP);
+        setEmptyText("- No data types found -");
+        setDisplayField(ModelDataPropertyNames.CODE);
         setEditable(false);
         setEnabled(false);
-        setWidth(200);
-        setFieldLabel("Project");
-        setStore(new ListStore<ProjectModel>());
+        setWidth(100);
+        setFieldLabel("Data type");
+        setStore(new ListStore<DataTypeModel>());
     }
 
     /**
-     * Returns the {@link Project} currently selected.
+     * Returns the {@link DataType} currently selected.
      * 
      * @return <code>null</code> if nothing is selected yet.
      */
-    public final Project tryGetSelectedProject()
+    public final DataType tryGetSelectedDataType()
     {
         return GWTUtils.tryGetSingleSelected(this);
     }
 
-    @Override
-    protected void onRender(final Element parent, final int pos)
+    private final void loadDataTypes()
     {
-        super.onRender(parent, pos);
-        refresh();
+        viewContext.getService().listDataTypes(new ListDataTypesCallback(viewContext));
     }
 
-    void refresh()
+    //
+    // ComboBox
+    //
+
+    @Override
+    protected final void afterRender()
     {
-        viewContext.getService().listProjects(new ListProjectsCallback(viewContext));
+        super.afterRender();
+        loadDataTypes();
     }
 
     //
     // Helper classes
     //
 
-    public final class ListProjectsCallback extends AbstractAsyncCallback<List<Project>>
+    public final class ListDataTypesCallback extends AbstractAsyncCallback<List<DataType>>
     {
-        ListProjectsCallback(final IViewContext<ICommonClientServiceAsync> viewContext)
+        ListDataTypesCallback(final IViewContext<ICommonClientServiceAsync> viewContext)
         {
             super(viewContext);
         }
 
+        //
+        // AbstractAsyncCallback
+        //
+
         @Override
-        protected void process(final List<Project> result)
+        protected final void process(final List<DataType> result)
         {
-            final ListStore<ProjectModel> projectStore = getStore();
-            projectStore.removeAll();
-            projectStore.add(ProjectModel.convert(result));
-            if (projectStore.getCount() > 0)
+            final ListStore<DataTypeModel> dataTypeStore = getStore();
+            dataTypeStore.removeAll();
+            dataTypeStore.add(DataTypeModel.convert(result));
+            if (dataTypeStore.getCount() > 0)
             {
                 setEnabled(true);
-                setValue(projectStore.getAt(0));
-                setEmptyText("Choose project...");
+                setValue(dataTypeStore.getAt(0));
+                setEmptyText("Choose data type...");
             }
-            fireEvent(AppEvents.CALLBACK_FINISHED);
         }
     }
 }

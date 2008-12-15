@@ -39,7 +39,7 @@ public final class DataTypeModel extends BaseModelData
         set(ModelDataPropertyNames.OBJECT, dataType);
     }
 
-    public final static List<DataTypeModel> asDataTypeModels(final List<DataType> dataTypes)
+    public final static List<DataTypeModel> convert(final List<DataType> dataTypes)
     {
         assert dataTypes != null : "Unspecified data types.";
         final List<DataTypeModel> dataTypeModels = new ArrayList<DataTypeModel>(dataTypes.size());

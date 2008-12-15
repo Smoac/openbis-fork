@@ -50,7 +50,7 @@ final class SearchCommand extends AbstractDefaultTestCommand
 
     SearchCommand(final String selectedEntityOrNull, final String searchString)
     {
-        super(EntityChooser.ListSearchableEntities.class);
+        super(SearchableEntitySelectionWidget.ListSearchableEntities.class);
         this.selectedEntity = selectedEntityOrNull == null ? "All" : selectedEntityOrNull;
         this.searchString = searchString;
     }

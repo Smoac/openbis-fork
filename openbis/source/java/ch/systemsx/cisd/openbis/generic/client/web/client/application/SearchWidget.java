@@ -61,7 +61,7 @@ final class SearchWidget extends LayoutContainer
 
     static final String ENTITY_CHOOSER_ID = PREFIX + "entity-chooser";
 
-    private final EntityChooser entityChooser;
+    private final SearchableEntitySelectionWidget entityChooser;
 
     private final TextField<String> textField;
 
@@ -103,9 +103,9 @@ final class SearchWidget extends LayoutContainer
         searchButton.setEnabled(enable);
     }
 
-    private final EntityChooser createEntityChooser()
+    private final SearchableEntitySelectionWidget createEntityChooser()
     {
-        final EntityChooser comboBox = new EntityChooser(viewContext);
+        final SearchableEntitySelectionWidget comboBox = new SearchableEntitySelectionWidget(viewContext);
         comboBox.setStyleAttribute("marginRight", "3px");
         comboBox.setId(ENTITY_CHOOSER_ID);
         return comboBox;

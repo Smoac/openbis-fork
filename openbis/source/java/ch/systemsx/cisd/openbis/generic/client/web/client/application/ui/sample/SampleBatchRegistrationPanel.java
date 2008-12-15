@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -27,28 +27,25 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
 /**
- * The {@link LayoutContainer} extension for registering a sample.
+ * The {@link LayoutContainer} extension for batch registering a sample.
  * 
- * @author Izabela Adamczyk
+ * @author Christian Ribeaud
  */
-public final class SampleRegistrationPanel extends LayoutContainer
+public final class SampleBatchRegistrationPanel extends LayoutContainer
 {
+    private static final String ID = "sample-batch-registration";
+
     private final SampleTypeSelectionWidget sampleTypeSelection;
 
-    public static final String ID = "sample-registration";
-
-    public SampleRegistrationPanel(final CommonViewContext viewContext)
+    public SampleBatchRegistrationPanel(final CommonViewContext viewContext)
     {
         setId(GenericConstants.ID_PREFIX + ID);
         setScrollMode(Scroll.AUTO);
         sampleTypeSelection = new SampleTypeSelectionWidget(viewContext, ID, false);
-        final ToolBar toolBar = new ToolBar();
-        toolBar.add(new LabelToolItem("Sample type:"));
-        toolBar.add(new AdapterToolItem(sampleTypeSelection));
+        final ToolBar toolBar = createToolBar();
         add(toolBar);
         sampleTypeSelection.addSelectionChangedListener(new SelectionChangedListener<ModelData>()
             {
@@ -58,20 +55,28 @@ public final class SampleRegistrationPanel extends LayoutContainer
                 //
 
                 @Override
-                public void selectionChanged(final SelectionChangedEvent<ModelData> se)
+                public final void selectionChanged(final SelectionChangedEvent<ModelData> se)
                 {
-                    final SampleType selectedType = sampleTypeSelection.tryGetSelectedSampleType();
-                    if (selectedType != null)
+                    final SampleType sampleType = sampleTypeSelection.tryGetSelectedSampleType();
+                    if (sampleType != null)
                     {
                         removeAll();
                         add(toolBar);
                         add(viewContext.getClientPluginFactoryProvider().getClientPluginFactory(
-                                selectedType.getCode()).createViewClientForSampleType(
-                                selectedType.getCode()).createRegistrationForSampleType(
-                                selectedType));
+                                sampleType.getCode()).createViewClientForSampleType(
+                                sampleType.getCode()).createBatchRegistrationForSampleType(
+                                sampleType));
                         layout();
                     }
                 }
             });
+    }
+
+    private final ToolBar createToolBar()
+    {
+        final ToolBar toolBar = new ToolBar();
+        toolBar.add(new LabelToolItem("Sample type:"));
+        toolBar.add(new AdapterToolItem(sampleTypeSelection));
+        return toolBar;
     }
 }

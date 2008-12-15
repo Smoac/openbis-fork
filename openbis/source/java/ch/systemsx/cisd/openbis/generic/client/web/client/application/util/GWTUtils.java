@@ -26,6 +26,8 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.ListBox;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+
 /**
  * Some utility methods around <i>GWT</i>.
  * 
@@ -121,5 +123,22 @@ public final class GWTUtils
                 return;
             }
         }
+    }
+
+    /**
+     * Tries to return the selected object (saved as {@link ModelDataPropertyNames#OBJECT} in the
+     * model) from the given {@link ComboBox}.
+     */
+    public final static <T extends ModelData, O> O tryGetSingleSelected(final ComboBox<T> comboBox)
+    {
+        assert comboBox != null : "Unspecified combo box.";
+        final List<T> selection = comboBox.getSelection();
+        final int size = selection.size();
+        if (size > 0)
+        {
+            assert size == 1 : "Only one item must be selected.";
+            return selection.get(0).get(ModelDataPropertyNames.OBJECT);
+        }
+        return null;
     }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -27,26 +27,27 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
 /**
- * The {@link LayoutContainer} extension for batch registering a sample.
+ * The {@link LayoutContainer} extension for registering a sample.
  * 
- * @author Christian Ribeaud
+ * @author Izabela Adamczyk
  */
-public final class SampleBatchRegistrationPanel extends LayoutContainer
+public final class SampleRegistrationPanel extends LayoutContainer
 {
-    private static final String ID = "sample-batch-registration";
-
     private final SampleTypeSelectionWidget sampleTypeSelection;
 
-    public SampleBatchRegistrationPanel(final CommonViewContext viewContext)
+    public static final String ID = "sample-registration";
+
+    public SampleRegistrationPanel(final CommonViewContext viewContext)
     {
         setId(GenericConstants.ID_PREFIX + ID);
         setScrollMode(Scroll.AUTO);
         sampleTypeSelection = new SampleTypeSelectionWidget(viewContext, ID, false);
-        final ToolBar toolBar = createToolBar();
+        final ToolBar toolBar = new ToolBar();
+        toolBar.add(new LabelToolItem("Sample type:"));
+        toolBar.add(new AdapterToolItem(sampleTypeSelection));
         add(toolBar);
         sampleTypeSelection.addSelectionChangedListener(new SelectionChangedListener<ModelData>()
             {
@@ -56,28 +57,20 @@ public final class SampleBatchRegistrationPanel extends LayoutContainer
                 //
 
                 @Override
-                public final void selectionChanged(final SelectionChangedEvent<ModelData> se)
+                public void selectionChanged(final SelectionChangedEvent<ModelData> se)
                 {
-                    final SampleType sampleType = sampleTypeSelection.tryGetSelectedSampleType();
-                    if (sampleType != null)
+                    final SampleType selectedType = sampleTypeSelection.tryGetSelectedSampleType();
+                    if (selectedType != null)
                     {
                         removeAll();
                         add(toolBar);
                         add(viewContext.getClientPluginFactoryProvider().getClientPluginFactory(
-                                sampleType.getCode()).createViewClientForSampleType(
-                                sampleType.getCode()).createBatchRegistrationForSampleType(
-                                sampleType));
+                                selectedType.getCode()).createViewClientForSampleType(
+                                selectedType.getCode()).createRegistrationForSampleType(
+                                selectedType));
                         layout();
                     }
                 }
             });
-    }
-
-    private final ToolBar createToolBar()
-    {
-        final ToolBar toolBar = new ToolBar();
-        toolBar.add(new LabelToolItem("Sample type:"));
-        toolBar.add(new AdapterToolItem(sampleTypeSelection));
-        return toolBar;
     }
 }

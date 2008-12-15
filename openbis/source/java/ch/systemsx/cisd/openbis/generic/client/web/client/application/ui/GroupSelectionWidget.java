@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.GroupModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 
 /**
@@ -64,14 +65,7 @@ public final class GroupSelectionWidget extends ComboBox<GroupModel>
      */
     public final Group tryGetSelectedGroup()
     {
-        final List<GroupModel> selection = getSelection();
-        final int size = selection.size();
-        if (size > 0)
-        {
-            assert size == 1 : "Only one item must be selected.";
-            return selection.get(0).get(ModelDataPropertyNames.OBJECT);
-        }
-        return null;
+        return GWTUtils.tryGetSingleSelected(this);
     }
 
     void refresh()
@@ -115,6 +109,7 @@ public final class GroupSelectionWidget extends ComboBox<GroupModel>
             {
                 setEnabled(true);
                 setValue(groupStore.getAt(0));
+                setEmptyText("Choose group...");
             }
             fireEvent(AppEvents.CALLBACK_FINISHED);
         }

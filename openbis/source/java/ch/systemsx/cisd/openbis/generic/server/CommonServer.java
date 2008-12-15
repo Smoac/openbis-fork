@@ -369,6 +369,8 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         assert sessionToken != null : "Unspecified session token";
         // Not needed but just to refresh/check the session.
         getSessionManager().getSession(sessionToken);
-        return getDAOFactory().getPropertyTypeDAO().listDataTypes();
+        final List<DataTypePE> dataTypes = getDAOFactory().getPropertyTypeDAO().listDataTypes();
+        Collections.sort(dataTypes);
+        return dataTypes;
     }
 }

@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetManager;
+import ch.systemsx.cisd.openbis.generic.client.web.server.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.GroupTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.PersonTranslator;
@@ -525,14 +526,15 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public List<DataType> listDataTypes()
+    public final List<DataType> listDataTypes()
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
             final List<DataTypePE> dataTypes = commonServer.listDataTypes(sessionToken);
-            return BeanUtils.createBeanList(DataType.class, dataTypes);
+            return BeanUtils.createBeanList(DataType.class, dataTypes, DtoConverters
+                    .getDataTypeConverter());
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

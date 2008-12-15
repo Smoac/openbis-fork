@@ -32,11 +32,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
  * 
  * @author Christian Ribeaud
  */
-final class EntityChooser extends ComboBox<SearchableEntityModel>
+final class SearchableEntitySelectionWidget extends ComboBox<SearchableEntityModel>
 {
     private final IViewContext<ICommonClientServiceAsync> commonContext;
 
-    EntityChooser(final IViewContext<ICommonClientServiceAsync> commonContext)
+    SearchableEntitySelectionWidget(final IViewContext<ICommonClientServiceAsync> commonContext)
     {
         this.commonContext = commonContext;
         setEditable(false);

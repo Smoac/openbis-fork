@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExperimentTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentType;
 
 /**
@@ -63,14 +64,7 @@ public final class ExperimentTypeSelectionWidget extends ComboBox<ExperimentType
      */
     public final ExperimentType tryGetSelectedExperimentType()
     {
-        final List<ExperimentTypeModel> selection = getSelection();
-        final int size = selection.size();
-        if (size > 0)
-        {
-            assert size == 1 : "Selection is empty.";
-            return selection.get(0).get(ModelDataPropertyNames.OBJECT);
-        }
-        return null;
+        return GWTUtils.tryGetSingleSelected(this);
     }
 
     @Override
