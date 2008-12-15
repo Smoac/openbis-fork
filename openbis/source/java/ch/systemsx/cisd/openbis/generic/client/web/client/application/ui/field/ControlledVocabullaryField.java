@@ -25,19 +25,21 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUt
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTerm;
 
 /**
+ * A {@link AdapterField} extension for selecting a vocabulary term from a list.
+ * 
  * @author Christian Ribeaud
  */
 public final class ControlledVocabullaryField extends AdapterField
 {
 
-    public ControlledVocabullaryField(final String label, final boolean mandatory,
+    public ControlledVocabullaryField(final String labelField, final boolean mandatory,
             final List<VocabularyTerm> terms)
     {
         super(createListBox(terms, mandatory));
-        setFieldLabel(label);
+        setFieldLabel(labelField);
         if (mandatory)
         {
-            setLabelSeparator(BasicTextField.MANDATORY_LABEL_SEPARATOR);
+            setLabelSeparator(VarcharField.MANDATORY_LABEL_SEPARATOR);
         }
     }
 

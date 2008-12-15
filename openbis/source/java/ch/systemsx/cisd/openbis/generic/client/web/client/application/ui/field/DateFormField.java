@@ -17,24 +17,23 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
 import com.extjs.gxt.ui.client.widget.form.DateField;
+import com.google.gwt.i18n.client.DateTimeFormat;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 
 /**
+ * A {@link DateField} extension suitable for registering a date.
+ * 
  * @author Christian Ribeaud
  */
 public final class DateFormField extends DateField
 {
-    public DateFormField(final String label, final boolean mandatory)
+    public DateFormField(final String fieldLabel, final boolean mandatory)
     {
-        setFieldLabel(label);
-        setValidateOnBlur(true);
-        setAutoValidate(true);
-        getPropertyEditor().setFormat(DateRenderer.SHORT_DATE_TIME_FORMAT);
-        if (mandatory)
-        {
-            setLabelSeparator(BasicTextField.MANDATORY_LABEL_SEPARATOR);
-            setAllowBlank(false);
-        }
+        VarcharField.configureField(this, fieldLabel, mandatory);
+        setFieldLabel(fieldLabel);
+        final DateTimeFormat dateTimeFormat = DateRenderer.SHORT_DATE_TIME_FORMAT;
+        getPropertyEditor().setFormat(dateTimeFormat);
+        setEmptyText(DateRenderer.SHORT_DATE_FORMAT_PATTERN.toUpperCase());
     }
 }

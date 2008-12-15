@@ -20,6 +20,7 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
@@ -127,11 +128,15 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void removeResultSet(final String resultSetKey, final AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#listProjects() */
-    public void listProjects(AsyncCallback<List<Project>> asyncCallback);
+    public void listProjects(final AsyncCallback<List<Project>> asyncCallback);
 
     /** @see ICommonClientService#listExperimentTypes() */
-    public void listExperimentTypes(AsyncCallback<List<ExperimentType>> listExperimentTypesCallback);
+    public void listExperimentTypes(
+            final AsyncCallback<List<ExperimentType>> listExperimentTypesCallback);
 
     /** @see ICommonClientService#listPropertyTypes() */
-    public void listPropertyTypes(AsyncCallback<List<PropertyType>> asyncCallback);
+    public void listPropertyTypes(final AsyncCallback<List<PropertyType>> asyncCallback);
+
+    /** @see ICommonClientService#listDataTypes() */
+    public void listDataTypes(final AsyncCallback<List<DataType>> asyncCallback);
 }

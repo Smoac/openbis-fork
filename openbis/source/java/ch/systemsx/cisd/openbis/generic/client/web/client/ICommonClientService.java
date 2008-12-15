@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
@@ -159,4 +160,9 @@ public interface ICommonClientService extends IClientService
      * Returns a list of all property types.
      */
     public List<PropertyType> listPropertyTypes() throws UserFailureException;
+
+    /**
+     * Returns a list of all data types.
+     */
+    public List<DataType> listDataTypes() throws UserFailureException;
 }

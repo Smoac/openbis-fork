@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
@@ -361,5 +362,13 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
                 getDAOFactory().getEntityTypeDAO(EntityKind.EXPERIMENT).listEntityTypes();
         Collections.sort(experimentTypes);
         return experimentTypes;
+    }
+
+    public final List<DataTypePE> listDataTypes(final String sessionToken)
+    {
+        assert sessionToken != null : "Unspecified session token";
+        // Not needed but just to refresh/check the session.
+        getSessionManager().getSession(sessionToken);
+        return getDAOFactory().getPropertyTypeDAO().listDataTypes();
     }
 }

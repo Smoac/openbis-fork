@@ -25,6 +25,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
@@ -61,6 +62,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.util.TSVRenderer;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
@@ -83,8 +85,7 @@ import ch.systemsx.cisd.openbis.plugin.AbstractClientService;
 public final class CommonClientService extends AbstractClientService implements
         ICommonClientService
 {
-
-    final ICommonServer commonServer;
+    private final ICommonServer commonServer;
 
     public CommonClientService(final ICommonServer commonServer,
             final IRequestContextProvider requestContextProvider)
@@ -518,6 +519,20 @@ public final class CommonClientService extends AbstractClientService implements
                 result.add(PropertyTypeTranslator.translate(propType));
             }
             return result;
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public List<DataType> listDataTypes()
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            final List<DataTypePE> dataTypes = commonServer.listDataTypes(sessionToken);
+            return BeanUtils.createBeanList(DataType.class, dataTypes);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

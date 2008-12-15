@@ -49,14 +49,6 @@ public final class GenericConstants
                 + serviceName;
     }
 
-    /**
-     * The pattern for a correct code.
-     * <p>
-     * Note that this one accepts letters in lower case.
-     * </p>
-     */
-    public final static String CODE_PATTERN = "^[a-zA-Z0-9_\\-]+$";
-
     /** Name of the servlet to download an experiment attachment. */
     public static final String EXPERIMENT_ATTACHMENT_DOWNLOAD_SERVLET_NAME =
             createServicePath("experiment-attachment-download");

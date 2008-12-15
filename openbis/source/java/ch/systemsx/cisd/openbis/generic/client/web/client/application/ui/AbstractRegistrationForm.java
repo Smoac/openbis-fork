@@ -88,7 +88,10 @@ public abstract class AbstractRegistrationForm extends LayoutContainer
                 @Override
                 public final void componentSelected(final ButtonEvent ce)
                 {
-                    submitForm();
+                    if (panel.isValid())
+                    {
+                        submitValidForm();
+                    }
                 }
             });
         final Button resetButton = new Button(messageProvider.getMessage(Dict.BUTTON_RESET));
@@ -110,7 +113,13 @@ public abstract class AbstractRegistrationForm extends LayoutContainer
         return panel;
     }
 
-    protected abstract void submitForm();
+    /**
+     * Submits a valid form.
+     * <p>
+     * This method only gets executed when the form has been successfully validated.
+     * </p>
+     */
+    protected abstract void submitValidForm();
 
     //
     // Helper classes

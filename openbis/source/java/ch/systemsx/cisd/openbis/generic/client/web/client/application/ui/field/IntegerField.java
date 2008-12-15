@@ -16,35 +16,21 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
-import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.form.Validator;
+import com.extjs.gxt.ui.client.widget.form.NumberField;
 
 /**
+ * A {@link NumberField} extension for registering an {@link Integer}.
+ * 
  * @author Christian Ribeaud
  */
-public final class IntegerField extends BasicTextField<Integer>
+public final class IntegerField extends NumberField
 {
-    public IntegerField(final String label, final boolean mandatory)
+    public IntegerField(final String fieldLabel, final boolean mandatory)
     {
-        super(label, mandatory);
-        setValidator(new Validator<Integer, Field<Integer>>()
-            {
-
-                //
-                // Validator
-                //
-
-                public final String validate(final Field<Integer> field, final String val)
-                {
-                    try
-                    {
-                        Integer.parseInt(val);
-                        return null;
-                    } catch (final NumberFormatException e)
-                    {
-                        return "Integer required";
-                    }
-                }
-            });
+        VarcharField.configureField(this, fieldLabel, mandatory);
+        getMessages().setBlankText("Integer required");
+        setPropertyEditorType(Integer.class);
+        setEmptyText("Integer value");
+        setAllowDecimals(false);
     }
 }

@@ -22,6 +22,7 @@ import java.util.List;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -203,9 +204,15 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
-    public List<PropertyTypePE> listPropertyTypes(String sessionToken)
+    public List<PropertyTypePE> listPropertyTypes(final String sessionToken)
     {
         logAccess(sessionToken, "list_property_types");
+        return null;
+    }
+
+    public final List<DataTypePE> listDataTypes(final String sessionToken)
+    {
+        logAccess(sessionToken, "list_data_types");
         return null;
     }
 }

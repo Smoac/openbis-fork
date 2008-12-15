@@ -16,32 +16,19 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
-import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.form.Validator;
+import com.extjs.gxt.ui.client.widget.form.NumberField;
 
-public final class RealField extends BasicTextField<Double>
+/**
+ * A {@link NumberField} extension for registering an {@link Double}.
+ * 
+ * @author Christian Ribeaud
+ */
+public final class RealField extends NumberField
 {
-    public RealField(final String label, final boolean mandatory)
+    public RealField(final String fieldLabel, final boolean mandatory)
     {
-        super(label, mandatory);
-        setValidator(new Validator<Double, Field<Double>>()
-            {
-
-                //
-                // Validator
-                //
-
-                public final String validate(final Field<Double> field, final String val)
-                {
-                    try
-                    {
-                        Double.parseDouble(val);
-                        return null;
-                    } catch (final NumberFormatException e)
-                    {
-                        return "Real number required";
-                    }
-                }
-            });
+        VarcharField.configureField(this, fieldLabel, mandatory);
+        getMessages().setBlankText("Real number required");
+        setEmptyText("Real number value");
     }
 }

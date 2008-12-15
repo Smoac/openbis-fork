@@ -16,18 +16,25 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-
 /**
+ * The {@link VarcharField} extension suitable for registering a code.
+ * 
  * @author Christian Ribeaud
  */
 public final class CodeField extends VarcharField
 {
+    /**
+     * The pattern for a correct code.
+     * <p>
+     * Note that this one accepts letters in lower case.
+     * </p>
+     */
+    public final static String CODE_PATTERN = "^[a-zA-Z0-9_\\-]+$";
+
     public CodeField(final String label)
     {
         super(label, true);
-        final String codePattern = GenericConstants.CODE_PATTERN;
-        setRegex(codePattern);
+        setRegex(CODE_PATTERN);
         getMessages().setRegexText(
                 "Code contains invalid characters. Allowed characters are:"
                         + " letters, numbers, hyphen (\"-\") and underscore (\"_\").");

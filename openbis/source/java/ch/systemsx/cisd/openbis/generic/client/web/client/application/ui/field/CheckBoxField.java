@@ -19,16 +19,18 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 
 /**
+ * A small {@link CheckBox} extension for registering a boolean.
+ * 
  * @author Christian Ribeaud
  */
 public final class CheckBoxField extends CheckBox
 {
-    public CheckBoxField(final String label, final boolean mandatory)
+    public CheckBoxField(final String labelField, final boolean mandatory)
     {
-        setFieldLabel(label);
+        setFieldLabel(labelField);
         if (mandatory)
         {
-            setLabelSeparator(BasicTextField.MANDATORY_LABEL_SEPARATOR);
+            setLabelSeparator(VarcharField.MANDATORY_LABEL_SEPARATOR);
         }
     }
 }

@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwn
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.GroupValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.MatchingEntityValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ProjectValidator;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -207,4 +208,12 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleSet.OBSERVER)
     public List<PropertyTypePE> listPropertyTypes(final String sessionToken);
 
+    /**
+     * List data types.
+     * 
+     * @return a sorted list of {@link DataTypePE}.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public List<DataTypePE> listDataTypes(final String sessionToken);
 }

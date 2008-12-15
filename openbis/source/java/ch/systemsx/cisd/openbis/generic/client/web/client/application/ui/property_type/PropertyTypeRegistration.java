@@ -16,12 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type;
 
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DataTypeModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
 
@@ -38,6 +42,8 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
+    private CodeField codeField;
+
     public PropertyTypeRegistration(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, ID_PREFIX);
@@ -47,7 +53,8 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
 
     private final void addFields()
     {
-        formPanel.add(new CodeField(viewContext.getMessage(Dict.CODE)));
+        formPanel.add(codeField = new CodeField(viewContext.getMessage(Dict.CODE)));
+        formPanel.add(new DataTypeSelectionWidget(viewContext));
     }
 
     //
@@ -55,8 +62,34 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
     //
 
     @Override
-    protected final void submitForm()
+    protected final void submitValidForm()
     {
+
+    }
+
+    //
+    // Helper classes
+    //
+
+    public final static class DataTypeSelectionWidget extends ComboBox<DataTypeModel>
+    {
+        private static final String PREFIX = "data-type-select_";
+
+        public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
+
+        private final IViewContext<ICommonClientServiceAsync> viewContext;
+
+        public DataTypeSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext)
+        {
+            this.viewContext = viewContext;
+            setEmptyText("- No data types found -");
+            setDisplayField(ModelDataPropertyNames.CODE);
+            setEditable(false);
+            setEnabled(false);
+            setWidth(150);
+            setFieldLabel("Data type");
+            setStore(new ListStore<DataTypeModel>());
+        }
 
     }
 }

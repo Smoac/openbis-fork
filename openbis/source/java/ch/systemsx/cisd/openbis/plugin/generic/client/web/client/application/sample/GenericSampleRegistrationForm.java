@@ -38,7 +38,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCal
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.BasicTextField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ControlledVocabullaryField;
@@ -135,7 +134,7 @@ public final class GenericSampleRegistrationForm extends AbstractRegistrationFor
         groupMultiField.setFieldLabel(viewContext.getMessage(Dict.GROUP));
         groupMultiField.add(sharedCheckbox);
         groupMultiField.add(groupSelectionWidget);
-        groupMultiField.setLabelSeparator(BasicTextField.MANDATORY_LABEL_SEPARATOR);
+        groupMultiField.setLabelSeparator(VarcharField.MANDATORY_LABEL_SEPARATOR);
         groupMultiField.setValidator(new Validator<Field<?>, MultiField<Field<?>>>()
             {
                 //
@@ -251,30 +250,25 @@ public final class GenericSampleRegistrationForm extends AbstractRegistrationFor
     //
 
     @Override
-    public final void submitForm()
+    public final void submitValidForm()
     {
-        if (formPanel.isValid())
+        final NewSample newSample =
+                new NewSample(createSampleIdentifier(), sampleType, StringUtils.trimToNull(parent
+                        .getValue()), StringUtils.trimToNull(container.getValue()));
+        final List<SampleProperty> properties = new ArrayList<SampleProperty>();
+        for (final Field<?> field : propertyFields)
         {
-            final NewSample newSample =
-                    new NewSample(createSampleIdentifier(), sampleType, StringUtils
-                            .trimToNull(parent.getValue()), StringUtils.trimToNull(container
-                            .getValue()));
-            final List<SampleProperty> properties = new ArrayList<SampleProperty>();
-            for (final Field<?> field : propertyFields)
+            if (field.getValue() != null)
             {
-                if (field.getValue() != null)
-                {
-                    final SampleTypePropertyType stpt = field.getData(ETPT);
-                    final SampleProperty sampleProperty = new SampleProperty();
-                    sampleProperty.setValue(valueToString(field.getValue()));
-                    sampleProperty.setEntityTypePropertyType(stpt);
-                    properties.add(sampleProperty);
-                }
+                final SampleTypePropertyType stpt = field.getData(ETPT);
+                final SampleProperty sampleProperty = new SampleProperty();
+                sampleProperty.setValue(valueToString(field.getValue()));
+                sampleProperty.setEntityTypePropertyType(stpt);
+                properties.add(sampleProperty);
             }
-            newSample.setProperties(properties.toArray(SampleProperty.EMPTY_ARRAY));
-            viewContext.getService().registerSample(newSample,
-                    new RegisterSampleCallback(viewContext));
         }
+        newSample.setProperties(properties.toArray(SampleProperty.EMPTY_ARRAY));
+        viewContext.getService().registerSample(newSample, new RegisterSampleCallback(viewContext));
     }
 
     @Override

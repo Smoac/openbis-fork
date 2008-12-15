@@ -16,13 +16,33 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
+import com.extjs.gxt.ui.client.widget.form.TextField;
+
 /**
+ * A basic {@link TextField} extension for registering text (<code>String</code>).
+ * 
  * @author Christian Ribeaud
  */
-public class VarcharField extends BasicTextField<String>
+public class VarcharField extends TextField<String>
 {
+    public static final String MANDATORY_LABEL_SEPARATOR = ": *";
+
     public VarcharField(final String label, final boolean mandatory)
     {
-        super(label, mandatory);
+        configureField(this, label, mandatory);
+    }
+
+    static <T> void configureField(final TextField<T> textField, final String fieldLabel,
+            final boolean mandatory)
+    {
+        textField.setFieldLabel(fieldLabel);
+        textField.setMaxLength(1024);
+        textField.setValidateOnBlur(true);
+        textField.setAutoValidate(true);
+        if (mandatory)
+        {
+            textField.setLabelSeparator(MANDATORY_LABEL_SEPARATOR);
+            textField.setAllowBlank(false);
+        }
     }
 }
