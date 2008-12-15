@@ -24,6 +24,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.ListSamples;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.columns.SampleRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.FailureExpectation;
+import ch.systemsx.cisd.openbis.generic.shared.IPluginCommonServer;
 
 /**
  * A {@link AbstractGWTTestCase} extension to test {@link GenericSampleRegistrationForm}.
@@ -59,7 +61,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ListSamples(true, true, "CISD", CONTROL_LAYOUT));
         remoteConsole.prepare(new CheckSampleTable().expectedRow(new SampleRow(SHARED_CL)
                 .identifier("CISD")));
-        remoteConsole.finish(20000);
+        remoteConsole.finish(30000);
         client.onModuleLoad();
     }
 
@@ -73,6 +75,28 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ListSamples(true, true, "CISD", CONTROL_LAYOUT));
         remoteConsole.prepare(new CheckSampleTable().expectedRow(new SampleRow(GROUP_CL)
                 .identifier("CISD", "CISD")));
+        remoteConsole.finish(20000);
+        client.onModuleLoad();
+    }
+    
+    /**
+     * Tests that authorization annotations of
+     * {@link IPluginCommonServer#registerSample(String, ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample)}
+     * are obeyed.
+     */
+    public final void testRegisterSampleByAnUnauthorizedUser()
+    {
+        remoteConsole.prepare(new Login("observer", "observer"));
+        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.SAMPLES,
+                CategoriesBuilder.MENU_ELEMENTS.REGISTER));
+        remoteConsole.prepare(new ChooseTypeOfNewSample(CONTROL_LAYOUT));
+        remoteConsole.prepare(new FillSampleRegistrationForm(false, "CISD", GROUP_CL + "1"));
+        FailureExpectation failureExpectation =
+                new FailureExpectation(GenericSampleRegistrationForm.RegisterSampleCallback.class)
+                        .with("Authorization failure: None of method roles "
+                                + "'[GROUP.USER, GROUP.ADMIN, INSTANCE.ADMIN]' "
+                                + "could be found in roles of user 'observer'.");
+        remoteConsole.prepare(failureExpectation);
         remoteConsole.finish(20000);
         client.onModuleLoad();
     }
