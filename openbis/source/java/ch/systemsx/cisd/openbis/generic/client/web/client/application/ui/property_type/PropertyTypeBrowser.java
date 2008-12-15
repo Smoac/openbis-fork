@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type_browser;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +66,6 @@ public class PropertyTypeBrowser extends ContentPanel
     {
         super.onRender(parent, pos);
         refresh();
-
     }
 
     private void display(final List<PropertyType> propertyTypes)
@@ -78,7 +77,6 @@ public class PropertyTypeBrowser extends ContentPanel
         final Grid<PropertyTypeModel> grid = new Grid<PropertyTypeModel>(store, cm);
         grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         grid.setId(GRID_ID);
-        grid.setHeight(300);
         GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
         add(grid);
 

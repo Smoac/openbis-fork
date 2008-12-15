@@ -161,7 +161,7 @@ public class CategoriesBuilder
         elements.add(new MenuElement(MENU_ELEMENTS.LIST_ASSIGNMENTS, "List assignments", provider
                 .getPropertyTypeAssignmentBrowser()));
         elements.add(new MenuElement(MENU_ELEMENTS.REGISTER, "Register", provider
-                .getDummyComponent()));
+                .getPropertyTypeRegistration()));
         return new MenuCategory(CATEGORIES.PROPERTY_TYPES, "Property types", elements);
     }
 

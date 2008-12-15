@@ -21,23 +21,15 @@ import java.util.Date;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Events;
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
-import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
-import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.ListBox;
 
@@ -48,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataTypeCode;
@@ -65,7 +57,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  * 
  * @author Izabela Adamczyk
  */
-public final class GenericSampleRegistrationForm extends LayoutContainer
+public final class GenericSampleRegistrationForm extends AbstractRegistrationForm
 {
     private static final String PREFIX = "generic-sample-registration_";
 
@@ -78,8 +70,6 @@ public final class GenericSampleRegistrationForm extends LayoutContainer
     public static final String CONTAINER_FIELD_ID = ID_PREFIX + "container";
 
     public static final String PARENT_FIELD_ID = ID_PREFIX + "parent";
-
-    public static final String SAVE_BUTTON_ID = ID_PREFIX + "save-button";
 
     private static final String ETPT = "PROPERTY_TYPE";
 
@@ -103,38 +93,22 @@ public final class GenericSampleRegistrationForm extends LayoutContainer
 
     private MultiField<Field<?>> groupMultiField;
 
-    private InfoBox infoBox;
-
-    private FormPanel formPanel;
-
     private static final String MANDATORY_LABEL_SEPARATOR = ": *";
-
-    static final int LABEL_WIDTH = 100;
-
-    static final int FIELD_WIDTH = 400;
 
     public GenericSampleRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext, final SampleType sampleType)
     {
-        setLayout(new FlowLayout(5));
+        super(viewContext, ID_PREFIX);
         this.viewContext = viewContext;
         this.sampleType = sampleType;
-        setScrollMode(Scroll.AUTO);
-        add(infoBox = createInfoBox());
-        add(formPanel = creatFormPanel());
-    }
-
-    private final static InfoBox createInfoBox()
-    {
-        final InfoBox infoBox = new InfoBox();
-        return infoBox;
     }
 
     private final void createFormFields()
     {
         codeField = new CodeField(viewContext.getMessage(Dict.CODE));
         codeField.setId(CODE_FIELD_ID);
-        codeField.addListener(Events.Focus, new InfoBoxResetListener(infoBox));
+        codeField.addListener(Events.Focus, new AbstractRegistrationForm.InfoBoxResetListener(
+                infoBox));
 
         groupSelectionWidget = new GroupSelectionWidget(viewContext.getCommonViewContext());
         groupSelectionWidget.setEnabled(SELECT_GROUP_BY_DEFAULT);
@@ -192,51 +166,6 @@ public final class GenericSampleRegistrationForm extends LayoutContainer
         }
     }
 
-    private final FormPanel creatFormPanel()
-    {
-        final FormPanel panel = new FormPanel();
-        panel.setHeaderVisible(false);
-        panel.setBodyBorder(false);
-        panel.setWidth(LABEL_WIDTH + FIELD_WIDTH + 40);
-
-        panel.setLabelWidth(LABEL_WIDTH);
-        panel.setFieldWidth(FIELD_WIDTH);
-        panel.setButtonAlign(HorizontalAlignment.RIGHT);
-        final Button saveButton = new Button(viewContext.getMessage(Dict.BUTTON_SAVE));
-        saveButton.setStyleAttribute("marginRight", "20px");
-        saveButton.setId(SAVE_BUTTON_ID);
-        saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
-            {
-
-                //
-                // SelectionListener
-                //
-
-                @Override
-                public final void componentSelected(final ButtonEvent ce)
-                {
-                    submitForm();
-                }
-            });
-        final Button resetButton = new Button(viewContext.getMessage(Dict.BUTTON_RESET));
-        resetButton.addSelectionListener(new SelectionListener<ButtonEvent>()
-            {
-
-                //
-                // SelectionListener
-                //
-
-                @Override
-                public final void componentSelected(final ButtonEvent ce)
-                {
-                    formPanel.reset();
-                }
-            });
-        panel.addButton(resetButton);
-        panel.addButton(saveButton);
-        return panel;
-    }
-
     private final String createSampleIdentifier()
     {
         final boolean shared = sharedCheckbox.getValue();
@@ -262,32 +191,6 @@ public final class GenericSampleRegistrationForm extends LayoutContainer
         } else
         {
             return value.toString();
-        }
-    }
-
-    private final void submitForm()
-    {
-        if (formPanel.isValid())
-        {
-            final NewSample newSample =
-                    new NewSample(createSampleIdentifier(), sampleType, StringUtils
-                            .trimToNull(parent.getValue()), StringUtils.trimToNull(container
-                            .getValue()));
-            final List<SampleProperty> properties = new ArrayList<SampleProperty>();
-            for (final Field<?> field : propertyFields)
-            {
-                if (field.getValue() != null)
-                {
-                    final SampleTypePropertyType stpt = field.getData(ETPT);
-                    final SampleProperty sampleProperty = new SampleProperty();
-                    sampleProperty.setValue(valueToString(field.getValue()));
-                    sampleProperty.setEntityTypePropertyType(stpt);
-                    properties.add(sampleProperty);
-                }
-            }
-            newSample.setProperties(properties.toArray(SampleProperty.EMPTY_ARRAY));
-            viewContext.getService().registerSample(newSample,
-                    new RegisterSampleCallback(viewContext));
         }
     }
 
@@ -343,8 +246,35 @@ public final class GenericSampleRegistrationForm extends LayoutContainer
     }
 
     //
-    // FormPanel
+    // AbstractRegistrationForm
     //
+
+    @Override
+    public final void submitForm()
+    {
+        if (formPanel.isValid())
+        {
+            final NewSample newSample =
+                    new NewSample(createSampleIdentifier(), sampleType, StringUtils
+                            .trimToNull(parent.getValue()), StringUtils.trimToNull(container
+                            .getValue()));
+            final List<SampleProperty> properties = new ArrayList<SampleProperty>();
+            for (final Field<?> field : propertyFields)
+            {
+                if (field.getValue() != null)
+                {
+                    final SampleTypePropertyType stpt = field.getData(ETPT);
+                    final SampleProperty sampleProperty = new SampleProperty();
+                    sampleProperty.setValue(valueToString(field.getValue()));
+                    sampleProperty.setEntityTypePropertyType(stpt);
+                    properties.add(sampleProperty);
+                }
+            }
+            newSample.setProperties(properties.toArray(SampleProperty.EMPTY_ARRAY));
+            viewContext.getService().registerSample(newSample,
+                    new RegisterSampleCallback(viewContext));
+        }
+    }
 
     @Override
     protected final void onRender(final Element target, final int index)
@@ -357,26 +287,6 @@ public final class GenericSampleRegistrationForm extends LayoutContainer
     //
     // Helper classes
     //
-
-    final static class InfoBoxResetListener implements Listener<FieldEvent>
-    {
-        private final InfoBox infoBox;
-
-        InfoBoxResetListener(final InfoBox infoBox)
-        {
-            assert infoBox != null : "Unspecified info box.";
-            this.infoBox = infoBox;
-        }
-
-        //
-        // Listener
-        //
-
-        public final void handleEvent(final FieldEvent be)
-        {
-            infoBox.reset();
-        }
-    }
 
     public final class RegisterSampleCallback extends AbstractAsyncCallback<Void>
     {

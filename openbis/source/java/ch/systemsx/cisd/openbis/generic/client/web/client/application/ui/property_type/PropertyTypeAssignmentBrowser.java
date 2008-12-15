@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type_browser;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type;
 
 import java.util.ArrayList;
 import java.util.List;

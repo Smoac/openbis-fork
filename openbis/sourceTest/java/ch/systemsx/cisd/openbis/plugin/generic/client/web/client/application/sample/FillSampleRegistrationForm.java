@@ -25,6 +25,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
@@ -111,7 +112,8 @@ public final class FillSampleRegistrationForm extends AbstractDefaultTestCommand
             assertTrue(widget instanceof Field);
             ((Field<?>) widget).setRawValue(property.getPropertyFieldValue());
         }
-        GWTTestUtil.clickButtonWithID(GenericSampleRegistrationForm.SAVE_BUTTON_ID);
+        GWTTestUtil.clickButtonWithID(GenericSampleRegistrationForm.ID_PREFIX
+                + AbstractRegistrationForm.SAVE_BUTTON);
     }
 
     //

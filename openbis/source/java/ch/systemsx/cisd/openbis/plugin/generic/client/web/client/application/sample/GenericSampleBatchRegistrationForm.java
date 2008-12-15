@@ -46,12 +46,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleRegistrationForm.InfoBoxResetListener;
 
 /**
  * The <i>generic</i> sample batch registration panel.
@@ -119,8 +119,8 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
     private final static FormLayout createFormLayout()
     {
         final FormLayout formLayout = new FormLayout();
-        formLayout.setLabelWidth(GenericSampleRegistrationForm.LABEL_WIDTH);
-        formLayout.setDefaultWidth(GenericSampleRegistrationForm.FIELD_WIDTH);
+        formLayout.setLabelWidth(AbstractRegistrationForm.LABEL_WIDTH);
+        formLayout.setDefaultWidth(AbstractRegistrationForm.FIELD_WIDTH);
         return formLayout;
     }
 
@@ -128,8 +128,8 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
     {
         final FormPanel panel = new FormPanel();
         panel.setLayout(new FlowLayout());
-        panel.setWidth(GenericSampleRegistrationForm.LABEL_WIDTH
-                + GenericSampleRegistrationForm.FIELD_WIDTH + 50);
+        panel.setWidth(AbstractRegistrationForm.LABEL_WIDTH + AbstractRegistrationForm.FIELD_WIDTH
+                + 50);
         panel.setHeaderVisible(false);
         panel.setBodyBorder(false);
         panel.setAction(GenericConstants.createServicePath("upload"));
@@ -180,7 +180,9 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
     private final FileUploadField createFileUploadField(final int counter)
     {
         final FileUploadField file = new FileUploadField();
-        file.addListener(Events.OnClick, new InfoBoxResetListener(infoBox));
+        file
+                .addListener(Events.OnClick, new AbstractRegistrationForm.InfoBoxResetListener(
+                        infoBox));
         file.setAllowBlank(counter > 0);
         final int number = counter + 1;
         file.setFieldLabel(Format.substitute(FIELD_LABEL_TEMPLATE, number));
