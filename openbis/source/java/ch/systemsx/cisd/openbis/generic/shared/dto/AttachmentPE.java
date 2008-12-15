@@ -42,6 +42,7 @@ import org.hibernate.search.annotations.ClassBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.FieldBridge;
+import org.hibernate.search.bridge.LuceneOptions;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 
@@ -91,25 +92,28 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
         private static final String FILE_NAME_PREFIX = "attachment name: ";
 
         public void set(String name, Object/* AttachmentPE */value,
-                Document/* Lucene document */document, Field.Store store, Field.Index index,
-                Float boost)
+                Document/* Lucene document */document, LuceneOptions luceneOptions)
         {
             AttachmentPE attachment = (AttachmentPE) value;
             String attachmentName = attachment.getFileName();
             String fieldName = FIELD_PREFIX + attachmentName + ", ver. " + attachment.getVersion();
             byte[] byteContent = attachment.getAttachmentContent().getValue();
             String fieldValue = new String(byteContent);
-            Field field = new Field(fieldName, fieldValue, store, index);
-            if (boost != null)
+            Field field =
+                    new Field(fieldName, fieldValue, luceneOptions.getStore(), luceneOptions
+                            .getIndex());
+            if (luceneOptions.getBoost() != null)
             {
-                field.setBoost(boost);
+                field.setBoost(luceneOptions.getBoost());
             }
             document.add(field);
 
             // index the file name. Make the field code unique, so that we can recognize which field
             // has matched the query later on
             String attachmentNameFieldName = FILE_NAME_PREFIX + attachmentName;
-            field = new Field(attachmentNameFieldName, attachmentName, Field.Store.YES, index);
+            field =
+                    new Field(attachmentNameFieldName, attachmentName, Field.Store.YES,
+                            luceneOptions.getIndex());
             document.add(field);
         }
     }

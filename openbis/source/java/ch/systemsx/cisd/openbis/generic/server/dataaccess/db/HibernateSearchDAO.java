@@ -128,7 +128,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
             final Session session, final Class<T> entityClass, final String userQuery)
             throws DataAccessException, ParseException
     {
-        final FullTextSession fullTextSession = Search.createFullTextSession(session);
+        final FullTextSession fullTextSession = Search.getFullTextSession(session);
         StandardAnalyzer analyzer = new StandardAnalyzer();
 
         MyIndexReaderProvider<T> indexProvider =
@@ -187,7 +187,8 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
 
         MyHighlighter highlighter = new MyHighlighter(query, indexReader, analyzer);
         hibernateQuery.setResultTransformer(createResultTransformer(fieldName, highlighter));
-        return AbstractDAO.cast(hibernateQuery.list());
+        List<SearchHit> result = AbstractDAO.cast(hibernateQuery.list());
+        return result;
     }
 
     // we need this for higlighter when wildcards are used

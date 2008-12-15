@@ -31,6 +31,7 @@ import org.hibernate.search.annotations.ClassBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.FieldBridge;
+import org.hibernate.search.bridge.LuceneOptions;
 import org.hibernate.validator.Length;
 
 import ch.systemsx.cisd.common.utilities.ClassUtils;
@@ -82,17 +83,17 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
         private static final String PROPERTY_FIELD_PREFIX = "property: ";
 
         public void set(String name, Object/* EntityPropertyPE */value,
-                Document/* Lucene document */document,
-                org.apache.lucene.document.Field.Store store,
-                org.apache.lucene.document.Field.Index index, Float boost)
+                Document/* Lucene document */document, LuceneOptions luceneOptions)
         {
             EntityPropertyPE entityProperty = (EntityPropertyPE) value;
             String fieldValue = entityProperty.tryGetUntypedValue();
             String fieldName = PROPERTY_FIELD_PREFIX + getPropertyFieldName(entityProperty);
-            Field field = new Field(fieldName, fieldValue, store, index);
-            if (boost != null)
+            Field field =
+                    new Field(fieldName, fieldValue, luceneOptions.getStore(), luceneOptions
+                            .getIndex());
+            if (luceneOptions.getBoost() != null)
             {
-                field.setBoost(boost);
+                field.setBoost(luceneOptions.getBoost());
             }
             document.add(field);
         }

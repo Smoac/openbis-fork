@@ -80,7 +80,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         assertFalse(fail);
     }
 
-    @Test(dataProvider = "registratorTerm", groups = "broken")
+    @Test(dataProvider = "registratorTerm")
     public final void testSearchEntitiesByRegistrator(final String term)
     {
         final IHibernateSearchDAO hibernateSearchDAO = daoFactory.getHibernateSearchDAO();

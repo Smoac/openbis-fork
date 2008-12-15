@@ -65,7 +65,7 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
     public final <T> void doFullTextIndex(final Session hibernateSession, final Class<T> clazz)
             throws DataAccessException
     {
-        final FullTextSession fullTextSession = Search.createFullTextSession(hibernateSession);
+        final FullTextSession fullTextSession = Search.getFullTextSession(hibernateSession);
         fullTextSession.setFlushMode(FlushMode.MANUAL);
         fullTextSession.setCacheMode(CacheMode.IGNORE);
         final Transaction transaction = hibernateSession.beginTransaction();
