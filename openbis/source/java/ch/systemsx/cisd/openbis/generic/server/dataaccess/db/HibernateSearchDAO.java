@@ -27,7 +27,6 @@ import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexReader.FieldOption;
 import org.apache.lucene.queryParser.ParseException;
@@ -182,8 +181,8 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         query = rewriteQuery(indexReader, query);
         final FullTextQuery hibernateQuery =
                 fullTextSession.createFullTextQuery(query, entityClass);
-        hibernateQuery.setProjection(FullTextQuery.THIS, FullTextQuery.DOCUMENT_ID,
-                FullTextQuery.DOCUMENT);
+        // hibernateQuery.setProjection(FullTextQuery.THIS, FullTextQuery.DOCUMENT_ID,
+        // FullTextQuery.DOCUMENT);
 
         MyHighlighter highlighter = new MyHighlighter(query, indexReader, analyzer);
         hibernateQuery.setResultTransformer(createResultTransformer(fieldName, highlighter));
@@ -213,31 +212,17 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                 @SuppressWarnings("unchecked")
                 public List transformList(List collection)
                 {
-                    throw new IllegalStateException("This method should not be called");
+                    List result = new ArrayList<SearchHit>();
+                    for (Object elem : collection)
+                    {
+                        result.add(new SearchHit((IMatchingEntity) elem, fieldName, "?"));
+                    }
+                    return result;
                 }
 
                 public Object transformTuple(Object[] tuple, String[] aliases)
                 {
-                    IMatchingEntity entity = (IMatchingEntity) tuple[0];
-                    int documentId = (Integer) tuple[1];
-                    Document doc = (Document) tuple[2];
-
-                    String matchingText = null;
-                    try
-                    {
-                        String content = doc.get(fieldName);
-                        if (content != null)
-                        {
-                            // NOTE: this may be imprecise if there are multiple fields with the
-                            // same code. The first value will be taken.
-                            matchingText =
-                                    highlighter.getBestFragment(content, fieldName, documentId);
-                        }
-                    } catch (IOException ex)
-                    {
-                        logSearchHighlightingError(ex);
-                    }
-                    return new SearchHit(entity, fieldName, matchingText);
+                    throw new IllegalStateException("This method should not be called");
                 }
             };
     }
