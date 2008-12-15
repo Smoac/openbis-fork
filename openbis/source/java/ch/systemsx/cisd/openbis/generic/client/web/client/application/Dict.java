@@ -183,6 +183,14 @@ public class Dict
 
     public static final String EXPERIMENT_TYPES = "experiment_types";
 
+    public static final String IS_MANDATORY = "is_mandatory";
+
+    public static final String PROPERTY_TYPE_CODE = "property_type_code";
+
+    public static final String ASSIGNED_TO = "assigned_to";
+
+    public static final String TYPE_OF = "type_of";
+
     // -------- generic plugin dictionary -------------------
 
     //

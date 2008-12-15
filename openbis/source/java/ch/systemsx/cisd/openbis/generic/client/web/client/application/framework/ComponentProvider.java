@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.RolesView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SampleBatchRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SampleRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment_browser.ExperimentBrowser;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type_browser.PropertyTypeAssignmentBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type_browser.PropertyTypeBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample_browser.SampleBrowser;
 
@@ -54,6 +55,8 @@ final class ComponentProvider
 
     private final PropertyTypeBrowser propertyTypesBrowser;
 
+    private final PropertyTypeAssignmentBrowser propertyTypeAssignmentBrowser;
+
     ComponentProvider(final CommonViewContext viewContext)
     {
         sampleBrowser = new SampleBrowser(viewContext);
@@ -65,6 +68,7 @@ final class ComponentProvider
         sampleBatchRegistration = new SampleBatchRegistrationPanel(viewContext);
         experimentBrowser = new ExperimentBrowser(viewContext);
         propertyTypesBrowser = new PropertyTypeBrowser(viewContext);
+        propertyTypeAssignmentBrowser = new PropertyTypeAssignmentBrowser(viewContext);
     }
 
     public final ITabItem getSampleBrowser()
@@ -110,5 +114,10 @@ final class ComponentProvider
     public ITabItem getPropertyTypeBrowser()
     {
         return new DefaultTabItem("Property type browser", propertyTypesBrowser);
+    }
+
+    public ITabItem getPropertyTypeAssignmentBrowser()
+    {
+        return new ViewerTabItem("Property type assignments", propertyTypeAssignmentBrowser);
     }
 }

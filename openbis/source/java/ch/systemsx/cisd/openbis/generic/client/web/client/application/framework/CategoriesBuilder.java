@@ -70,6 +70,8 @@ public class CategoriesBuilder
         public static final String REGISTER_FROM_FILE = "REGISTER_FROM_FILE";
 
         public static final String LIST = "LIST";
+
+        public static final String LIST_ASSIGNMENTS = "LIST_ASSIGNMENTS";
     }
 
     public final ComponentProvider provider;
@@ -156,6 +158,8 @@ public class CategoriesBuilder
         final List<MenuElement> elements = new ArrayList<MenuElement>();
         elements
                 .add(new MenuElement(MENU_ELEMENTS.LIST, "List", provider.getPropertyTypeBrowser()));
+        elements.add(new MenuElement(MENU_ELEMENTS.LIST_ASSIGNMENTS, "List assignments", provider
+                .getPropertyTypeAssignmentBrowser()));
         elements.add(new MenuElement(MENU_ELEMENTS.REGISTER, "Register", provider
                 .getDummyComponent()));
         return new MenuCategory(CATEGORIES.PROPERTY_TYPES, "Property types", elements);

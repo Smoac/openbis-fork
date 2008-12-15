@@ -24,6 +24,7 @@ import com.google.gwt.junit.tools.GWTTestSuite;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AuthenticationTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AuthorizationManagementConsolTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ExperimentBrowserTest;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.PropertyTypeAssignmentBrowserTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.PropertyTypeBrowserTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SampleBrowserTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SearchTest;
@@ -48,6 +49,7 @@ public class SystemTestSuite extends GWTTestSuite
         testSuite.addTestSuite(ExperimentBrowserTest.class);
         testSuite.addTestSuite(GenericExperimentViewerTest.class);
         testSuite.addTestSuite(PropertyTypeBrowserTest.class);
+        testSuite.addTestSuite(PropertyTypeAssignmentBrowserTest.class);
         return testSuite;
     }
 }

@@ -172,6 +172,12 @@ public final class ModelDataPropertyNames
 
     public static final String SAMPLE_TYPES = "sampleTypes";
 
+    public static final String IS_MANDATORY = "isMandatory";
+
+    public static final String PROPERTY_TYPE_CODE = "propertyTypeCode";
+
+    public static final String ENTITY_TYPE_CODE = "entityTypeCode";
+
     private ModelDataPropertyNames()
     {
         // Can not be instantiated.

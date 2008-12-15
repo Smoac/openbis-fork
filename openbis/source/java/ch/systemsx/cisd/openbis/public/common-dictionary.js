@@ -113,6 +113,10 @@ var common = {
   sample_types: "Sample types",
   material_types: "Material types",
   experiment_types: "Experiment types",
+  is_mandatory: "Mandatory?",
+  property_type_code: "Property type code",
+  assigned_to: "Assigned to",
+  type_of: "Type of",
 
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

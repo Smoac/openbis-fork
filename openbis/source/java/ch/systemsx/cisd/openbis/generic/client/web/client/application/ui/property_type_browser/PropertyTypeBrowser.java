@@ -66,6 +66,7 @@ public class PropertyTypeBrowser extends ContentPanel
     {
         super.onRender(parent, pos);
         refresh();
+
     }
 
     private void display(final List<PropertyType> propertyTypes)
@@ -77,6 +78,7 @@ public class PropertyTypeBrowser extends ContentPanel
         final Grid<PropertyTypeModel> grid = new Grid<PropertyTypeModel>(store, cm);
         grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         grid.setId(GRID_ID);
+        grid.setHeight(300);
         GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
         add(grid);
 
