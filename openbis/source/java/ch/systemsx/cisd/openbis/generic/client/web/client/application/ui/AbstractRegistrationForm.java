@@ -44,8 +44,6 @@ public abstract class AbstractRegistrationForm extends LayoutContainer
 
     public static final int FIELD_WIDTH = 400;
 
-    private final IMessageProvider messageProvider;
-
     private final String idPrefix;
 
     protected InfoBox infoBox;
@@ -55,12 +53,11 @@ public abstract class AbstractRegistrationForm extends LayoutContainer
     protected AbstractRegistrationForm(final IMessageProvider messageProvider, final String idPrefix)
     {
         setLayout(new FlowLayout(5));
-        this.messageProvider = messageProvider;
         this.idPrefix = idPrefix;
         setScrollMode(Scroll.AUTO);
         setId(idPrefix + "form");
         add(infoBox = createInfoBox());
-        add(formPanel = createBasicFormPanel());
+        add(formPanel = createFormPanel(messageProvider));
     }
 
     private final static InfoBox createInfoBox()
@@ -69,7 +66,7 @@ public abstract class AbstractRegistrationForm extends LayoutContainer
         return infoBox;
     }
 
-    protected final FormPanel createBasicFormPanel()
+    protected FormPanel createFormPanel(final IMessageProvider messageProvider)
     {
         final FormPanel panel = new FormPanel();
         panel.setHeaderVisible(false);

@@ -23,15 +23,12 @@ import java.util.List;
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
-import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.ui.ListBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -41,7 +38,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCal
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.BasicTextField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ControlledVocabullaryField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DateFormField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IntegerField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.RealField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
@@ -49,7 +53,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**
@@ -93,8 +96,6 @@ public final class GenericSampleRegistrationForm extends AbstractRegistrationFor
 
     private MultiField<Field<?>> groupMultiField;
 
-    private static final String MANDATORY_LABEL_SEPARATOR = ": *";
-
     public GenericSampleRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext, final SampleType sampleType)
     {
@@ -134,7 +135,7 @@ public final class GenericSampleRegistrationForm extends AbstractRegistrationFor
         groupMultiField.setFieldLabel(viewContext.getMessage(Dict.GROUP));
         groupMultiField.add(sharedCheckbox);
         groupMultiField.add(groupSelectionWidget);
-        groupMultiField.setLabelSeparator(MANDATORY_LABEL_SEPARATOR);
+        groupMultiField.setLabelSeparator(BasicTextField.MANDATORY_LABEL_SEPARATOR);
         groupMultiField.setValidator(new Validator<Field<?>, MultiField<Field<?>>>()
             {
                 //
@@ -322,173 +323,6 @@ public final class GenericSampleRegistrationForm extends AbstractRegistrationFor
                             .getValue(), groupSelectionWidget.tryGetSelectedGroup());
             infoBox.displayInfo(message);
             formPanel.reset();
-        }
-    }
-
-    private final static class CheckBoxField extends CheckBox
-    {
-        CheckBoxField(final String label, final boolean mandatory)
-        {
-            setFieldLabel(label);
-            if (mandatory)
-            {
-                setLabelSeparator(MANDATORY_LABEL_SEPARATOR);
-            }
-        }
-    }
-
-    private final static class DateFormField extends DateField
-    {
-        DateFormField(final String label, final boolean mandatory)
-        {
-            setFieldLabel(label);
-            setValidateOnBlur(true);
-            setAutoValidate(true);
-            getPropertyEditor().setFormat(DateRenderer.SHORT_DATE_TIME_FORMAT);
-            if (mandatory)
-            {
-                setLabelSeparator(MANDATORY_LABEL_SEPARATOR);
-                setAllowBlank(false);
-            }
-        }
-    }
-
-    private final static class ControlledVocabullaryField extends AdapterField
-    {
-
-        ControlledVocabullaryField(final String label, final boolean mandatory,
-                final List<VocabularyTerm> terms)
-        {
-            super(createListBox(terms, mandatory));
-            setFieldLabel(label);
-            if (mandatory)
-            {
-                setLabelSeparator(MANDATORY_LABEL_SEPARATOR);
-            }
-        }
-
-        private static final ListBox createListBox(final List<VocabularyTerm> terms,
-                final boolean mandatory)
-        {
-            final ListBox box = new ListBox();
-            if (mandatory == false)
-            {
-                box.addItem(GWTUtils.NONE_LIST_ITEM);
-            }
-            for (final VocabularyTerm term : terms)
-            {
-                box.addItem(term.getCode());
-            }
-            return box;
-        }
-
-        //
-        // AdapterField
-        //
-
-        @Override
-        public final Object getValue()
-        {
-            final String stringValue = super.getValue().toString();
-            if (GWTUtils.NONE_LIST_ITEM.equals(stringValue))
-            {
-                return null;
-            }
-            return stringValue;
-        }
-
-    }
-
-    private static class BasicTextField<T> extends TextField<T>
-    {
-
-        BasicTextField(final String label, final boolean mandatory)
-        {
-            setFieldLabel(label);
-            setMaxLength(1024);
-            setValidateOnBlur(true);
-            setAutoValidate(true);
-            if (mandatory)
-            {
-                setLabelSeparator(MANDATORY_LABEL_SEPARATOR);
-                setAllowBlank(false);
-            }
-        }
-    }
-
-    private static class VarcharField extends BasicTextField<String>
-    {
-        VarcharField(final String label, final boolean mandatory)
-        {
-            super(label, mandatory);
-        }
-    }
-
-    private final static class CodeField extends VarcharField
-    {
-
-        CodeField(final String label)
-        {
-            super(label, true);
-            final String codePattern = GenericConstants.CODE_PATTERN;
-            setRegex(codePattern);
-            getMessages().setRegexText(
-                    "Code contains invalid characters. Allowed characters are:"
-                            + " letters, numbers, hyphen (\"-\") and underscore (\"_\").");
-        }
-    }
-
-    private final static class RealField extends BasicTextField<Double>
-    {
-        RealField(final String label, final boolean mandatory)
-        {
-            super(label, mandatory);
-            setValidator(new Validator<Double, Field<Double>>()
-                {
-
-                    //
-                    // Validator
-                    //
-
-                    public final String validate(final Field<Double> field, final String val)
-                    {
-                        try
-                        {
-                            Double.parseDouble(val);
-                            return null;
-                        } catch (final NumberFormatException e)
-                        {
-                            return "Real number required";
-                        }
-                    }
-                });
-        }
-    }
-
-    private final static class IntegerField extends BasicTextField<Integer>
-    {
-        IntegerField(final String label, final boolean mandatory)
-        {
-            super(label, mandatory);
-            setValidator(new Validator<Integer, Field<Integer>>()
-                {
-
-                    //
-                    // Validator
-                    //
-
-                    public final String validate(final Field<Integer> field, final String val)
-                    {
-                        try
-                        {
-                            Integer.parseInt(val);
-                            return null;
-                        } catch (final NumberFormatException e)
-                        {
-                            return "Integer required";
-                        }
-                    }
-                });
         }
     }
 

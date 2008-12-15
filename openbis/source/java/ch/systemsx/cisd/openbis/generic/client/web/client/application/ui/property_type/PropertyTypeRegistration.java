@@ -19,9 +19,11 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.proper
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
 
 /**
  * A {@link LayoutContainer} extension for registering a new property type.
@@ -40,6 +42,12 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
     {
         super(viewContext, ID_PREFIX);
         this.viewContext = viewContext;
+        addFields();
+    }
+
+    private final void addFields()
+    {
+        formPanel.add(new CodeField(viewContext.getMessage(Dict.CODE)));
     }
 
     //
