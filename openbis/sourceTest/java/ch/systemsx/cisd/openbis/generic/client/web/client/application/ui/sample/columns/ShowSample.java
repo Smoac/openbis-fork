@@ -55,17 +55,24 @@ public final class ShowSample extends AbstractDefaultTestCommand
     private GridEvent createGridEvent(final Grid<SampleModel> table)
     {
         final ListStore<SampleModel> store = table.getStore();
+        String codes = "";
         for (int i = 0; i < store.getCount(); i++)
         {
             final SampleModel row = store.getAt(i);
-            if (code.equals(row.get(CommonSampleColDefKind.CODE.id())))
+            String rowCode = String.valueOf(row.get(CommonSampleColDefKind.CODE.id())).trim();
+            if (code.equalsIgnoreCase(rowCode))
             {
                 final GridEvent gridEvent = new GridEvent(table);
                 gridEvent.rowIndex = i;
                 return gridEvent;
             }
+            codes += rowCode;
+            if (i < store.getCount() - 1)
+            {
+                codes += ", ";
+            }
         }
-        fail("Sample '" + code + "' not found in store with " + store.getCount() + " rows.");
+        fail("Sample '" + code + "' not found in store with following codes: " + codes);
         return null; // just to make the compiler happy
     }
 

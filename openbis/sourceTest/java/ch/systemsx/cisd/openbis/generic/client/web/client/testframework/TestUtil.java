@@ -35,7 +35,12 @@ public class TestUtil
         {
             return false;
         }
-        return object1.equals(object2);
+        return normalize(object1).equals(normalize(object2));
+    }
+
+    private static String normalize(final Object object1)
+    {
+        return object1.toString().toLowerCase().trim();
     }
 
 }
