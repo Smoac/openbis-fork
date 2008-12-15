@@ -188,6 +188,19 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         MyHighlighter highlighter = new MyHighlighter(query, indexReader, analyzer);
         hibernateQuery.setResultTransformer(createResultTransformer(fieldName, highlighter));
         List<SearchHit> result = AbstractDAO.cast(hibernateQuery.list());
+        return filterNulls(result);
+    }
+
+    private static <T> List<T> filterNulls(List<T> list)
+    {
+        List<T> result = new ArrayList<T>();
+        for (T elem : list)
+        {
+            if (elem != null)
+            {
+                result.add(elem);
+            }
+        }
         return result;
     }
 
@@ -222,6 +235,10 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                     IMatchingEntity entity = (IMatchingEntity) tuple[0];
                     int documentId = (Integer) tuple[1];
                     Document doc = (Document) tuple[2];
+                    if (entity == null)
+                    {
+                        return null;
+                    }
 
                     String matchingText = null;
                     try
