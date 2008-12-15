@@ -16,7 +16,12 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.Field;
+import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
@@ -32,12 +37,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestU
  */
 public final class FillSampleRegistrationForm extends AbstractDefaultTestCommand
 {
-
     private final String code;
 
     private final String groupNameOrNull;
 
     private final boolean includeShared;
+
+    private final List<Property> properties;
 
     private String parent;
 
@@ -49,18 +55,26 @@ public final class FillSampleRegistrationForm extends AbstractDefaultTestCommand
         this.includeShared = includeShared;
         this.groupNameOrNull = groupNameOrNull;
         this.code = code;
+        this.properties = new ArrayList<Property>();
         addCallbackClass(GroupSelectionWidget.ListGroupsCallback.class);
     }
 
-    public FillSampleRegistrationForm parent(final String parentFieldValue)
+    public final FillSampleRegistrationForm parent(final String parentFieldValue)
     {
         this.parent = parentFieldValue;
         return this;
     }
 
-    public FillSampleRegistrationForm container(final String containerFieldValue)
+    public final FillSampleRegistrationForm container(final String containerFieldValue)
     {
         this.container = containerFieldValue;
+        return this;
+    }
+
+    public final FillSampleRegistrationForm addProperty(final Property property)
+    {
+        assert property != null : "Unspecified property";
+        properties.add(property);
         return this;
     }
 
@@ -91,6 +105,40 @@ public final class FillSampleRegistrationForm extends AbstractDefaultTestCommand
             GWTTestUtil.setTextFieldValue(GenericSampleRegistrationForm.CONTAINER_FIELD_ID,
                     container);
         }
+        for (final Property property : properties)
+        {
+            final Widget widget = GWTTestUtil.getWidgetWithID(property.getPropertyFieldId());
+            assertTrue(widget instanceof Field);
+            ((Field<?>) widget).setRawValue(property.getPropertyFieldValue());
+        }
         GWTTestUtil.clickButtonWithID(GenericSampleRegistrationForm.SAVE_BUTTON_ID);
+    }
+
+    //
+    // Helper classes
+    //
+
+    public final static class Property
+    {
+        private final String propertyFieldId;
+
+        private final String propertyFieldValue;
+
+        public Property(final String propertyFieldId, final String propertyFieldValue)
+        {
+            this.propertyFieldId = propertyFieldId;
+            this.propertyFieldValue = propertyFieldValue;
+        }
+
+        public final String getPropertyFieldId()
+        {
+            return propertyFieldId;
+        }
+
+        public final String getPropertyFieldValue()
+        {
+            return propertyFieldValue;
+        }
+
     }
 }

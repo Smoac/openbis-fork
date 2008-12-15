@@ -188,6 +188,7 @@ public final class GenericSampleRegistrationForm extends LayoutContainer
         for (final SampleTypePropertyType stpt : sampleType.getSampleTypePropertyTypes())
         {
             propertyFields.add(createProperty(stpt));
+
         }
     }
 
@@ -335,7 +336,9 @@ public final class GenericSampleRegistrationForm extends LayoutContainer
                 break;
         }
         field.setData(ETPT, stpt);
-        field.setTitle(stpt.getPropertyType().getCode());
+        final String propertyTypeCode = stpt.getPropertyType().getCode();
+        field.setTitle(propertyTypeCode);
+        field.setId(ID_PREFIX + propertyTypeCode.replace(".", "-").replace("_", "-"));
         return field;
     }
 
