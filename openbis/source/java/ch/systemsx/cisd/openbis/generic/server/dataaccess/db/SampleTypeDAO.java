@@ -64,8 +64,7 @@ final class SampleTypeDAO extends AbstractTypeDAO<SampleTypePE> implements ISamp
     // ISampleTypeDAO
     //
 
-    public final List<SampleTypePE> listSampleTypes(final boolean onlyListable)
-            throws DataAccessException
+    public final List<SampleTypePE> listSampleTypes() throws DataAccessException
     {
         final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
         criteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
@@ -74,15 +73,11 @@ final class SampleTypeDAO extends AbstractTypeDAO<SampleTypePE> implements ISamp
                 "sampleTypePropertyTypesInternal.propertyTypeInternal.vocabulary.vocabularyTerms",
                 FetchMode.JOIN);
         criteria.setResultTransformer(DetachedCriteria.DISTINCT_ROOT_ENTITY);
-        if (onlyListable)
-        {
-            criteria.add(Restrictions.eq("listable", true));
-        }
         final List<SampleTypePE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug(String.format("%s(%s): %d sample type(s) have been found.",
-                    MethodUtils.getCurrentMethod().getName(), onlyListable, list.size()));
+            operationLog.debug(String.format("%s: %d sample type(s) have been found.", MethodUtils
+                    .getCurrentMethod().getName(), list.size()));
         }
         return list;
     }

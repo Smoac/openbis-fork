@@ -21,6 +21,7 @@ import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
@@ -39,7 +40,7 @@ public final class FillSampleRegistrationForm extends AbstractDefaultTestCommand
     private final boolean includeShared;
 
     private String parent;
-    
+
     private String container;
 
     public FillSampleRegistrationForm(final boolean includeShared, final String groupNameOrNull,
@@ -50,19 +51,19 @@ public final class FillSampleRegistrationForm extends AbstractDefaultTestCommand
         this.code = code;
         addCallbackClass(GroupSelectionWidget.ListGroupsCallback.class);
     }
-    
-    public FillSampleRegistrationForm parent(String parentFieldValue)
+
+    public FillSampleRegistrationForm parent(final String parentFieldValue)
     {
         this.parent = parentFieldValue;
         return this;
     }
 
-    public FillSampleRegistrationForm container(String containerFieldValue)
+    public FillSampleRegistrationForm container(final String containerFieldValue)
     {
         this.container = containerFieldValue;
         return this;
     }
-    
+
     //
     // AbstractDefaultTestCommand
     //
@@ -71,22 +72,25 @@ public final class FillSampleRegistrationForm extends AbstractDefaultTestCommand
     public final void execute()
     {
         GWTTestUtil.setTextFieldValue(GenericSampleRegistrationForm.CODE_FIELD_ID, code);
-
         final CheckBox includeSharedCheckbox =
                 (CheckBox) GWTTestUtil
                         .getWidgetWithID(GenericSampleRegistrationForm.SHARED_CHECKBOX_ID);
         includeSharedCheckbox.setValue(includeShared);
-
         if (includeShared == false)
         {
             final GroupSelectionWidget groupSelector =
                     (GroupSelectionWidget) GWTTestUtil.getWidgetWithID(GroupSelectionWidget.ID);
             GWTUtils.setSelectedItem(groupSelector, ModelDataPropertyNames.CODE, groupNameOrNull);
         }
-        
-        GWTTestUtil.setTextFieldValue(GenericSampleRegistrationForm.PARENT_GENERATOR_FIELD_ID, parent);
-        GWTTestUtil.setTextFieldValue(GenericSampleRegistrationForm.PARENT_CONTAINER_FIELD_ID, container);
-
+        if (StringUtils.isBlank(parent) == false)
+        {
+            GWTTestUtil.setTextFieldValue(GenericSampleRegistrationForm.PARENT_FIELD_ID, parent);
+        }
+        if (StringUtils.isBlank(container))
+        {
+            GWTTestUtil.setTextFieldValue(GenericSampleRegistrationForm.CONTAINER_FIELD_ID,
+                    container);
+        }
         GWTTestUtil.clickButtonWithID(GenericSampleRegistrationForm.SAVE_BUTTON_ID);
     }
 }

@@ -45,7 +45,7 @@ public final class SampleBatchRegistrationPanel extends LayoutContainer
     {
         setId(GenericConstants.ID_PREFIX + ID);
         setScrollMode(Scroll.AUTO);
-        sampleTypeSelection = new SampleTypeSelectionWidget(viewContext, ID);
+        sampleTypeSelection = new SampleTypeSelectionWidget(viewContext, ID, false);
         final ToolBar toolBar = createToolBar();
         add(toolBar);
         sampleTypeSelection.addSelectionChangedListener(new SelectionChangedListener<ModelData>()

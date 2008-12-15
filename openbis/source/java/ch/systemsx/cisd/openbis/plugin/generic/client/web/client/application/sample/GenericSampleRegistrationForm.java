@@ -75,9 +75,9 @@ public final class GenericSampleRegistrationForm extends LayoutContainer
 
     public static final String SHARED_CHECKBOX_ID = ID_PREFIX + "shared";
 
-    public static final String PARENT_CONTAINER_FIELD_ID = ID_PREFIX + "parent-container";
+    public static final String CONTAINER_FIELD_ID = ID_PREFIX + "container";
 
-    public static final String PARENT_GENERATOR_FIELD_ID = ID_PREFIX + "parent-generator";
+    public static final String PARENT_FIELD_ID = ID_PREFIX + "parent";
 
     public static final String SAVE_BUTTON_ID = ID_PREFIX + "save-button";
 
@@ -179,10 +179,10 @@ public final class GenericSampleRegistrationForm extends LayoutContainer
             });
 
         parent = new VarcharField(viewContext.getMessage(Dict.GENERATED_FROM_SAMPLE), false);
-        parent.setId(PARENT_GENERATOR_FIELD_ID);
+        parent.setId(PARENT_FIELD_ID);
 
         container = new VarcharField(viewContext.getMessage(Dict.PART_OF_SAMPLE), false);
-        container.setId(PARENT_CONTAINER_FIELD_ID);
+        container.setId(CONTAINER_FIELD_ID);
 
         propertyFields = new ArrayList<Field<?>>();
         for (final SampleTypePropertyType stpt : sampleType.getSampleTypePropertyTypes())

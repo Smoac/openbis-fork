@@ -109,7 +109,7 @@ public final class SampleTypeDAOTest extends AbstractDAOTest
     public final void testListAllSampleTypes()
     {
         final ISampleTypeDAO sampleTypeDAO = daoFactory.getSampleTypeDAO();
-        final List<SampleTypePE> samples = sampleTypeDAO.listSampleTypes(false);
+        final List<SampleTypePE> samples = sampleTypeDAO.listSampleTypes();
         assert samples.size() > 0;
         for (final SampleTypePE sampleTypePE : samples)
         {
@@ -125,16 +125,8 @@ public final class SampleTypeDAOTest extends AbstractDAOTest
         }
         // Change database instance id.
         changeDatabaseInstanceId(sampleTypeDAO);
-        assertEquals(0, sampleTypeDAO.listSampleTypes(false).size());
+        assertEquals(0, sampleTypeDAO.listSampleTypes().size());
         resetDatabaseInstanceId(sampleTypeDAO);
-    }
-
-    @Test
-    public final void testListListableSampleTypes()
-    {
-        final ISampleTypeDAO sampleTypeDAO = daoFactory.getSampleTypeDAO();
-        final List<SampleTypePE> samples = sampleTypeDAO.listSampleTypes(true);
-        assert samples.size() > 0;
     }
 
     @Test

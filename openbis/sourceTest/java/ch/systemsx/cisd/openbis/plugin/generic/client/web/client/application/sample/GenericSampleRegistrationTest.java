@@ -33,18 +33,25 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Abstract
 public class GenericSampleRegistrationTest extends AbstractGWTTestCase
 {
 
+    private static final String DILUTION_PLATE = "DILUTION_PLATE";
+
     private static final String SHARED_CL = "SHARED_CL";
 
     private static final String GROUP_CL = "GROUP_CL";
 
     private static final String CONTROL_LAYOUT = "CONTROL_LAYOUT";
 
-    public final void testRegisterSharedSample()
+    private final void loginAndPreprareRegistration(final String sampleType)
     {
         remoteConsole.prepare(new Login("test", "a"));
         remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.SAMPLES,
                 CategoriesBuilder.MENU_ELEMENTS.REGISTER));
-        remoteConsole.prepare(new ChooseTypeOfNewSample(CONTROL_LAYOUT));
+        remoteConsole.prepare(new ChooseTypeOfNewSample(sampleType));
+    }
+
+    public final void testRegisterSharedSample()
+    {
+        loginAndPreprareRegistration(CONTROL_LAYOUT);
         remoteConsole.prepare(new FillSampleRegistrationForm(true, null, SHARED_CL));
         remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.SAMPLES,
                 CategoriesBuilder.MENU_ELEMENTS.LIST,
@@ -58,10 +65,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
 
     public final void testRegisterGroupSample()
     {
-        remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.SAMPLES,
-                CategoriesBuilder.MENU_ELEMENTS.REGISTER));
-        remoteConsole.prepare(new ChooseTypeOfNewSample(CONTROL_LAYOUT));
+        loginAndPreprareRegistration(CONTROL_LAYOUT);
         remoteConsole.prepare(new FillSampleRegistrationForm(false, "CISD", GROUP_CL));
         remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.SAMPLES,
                 CategoriesBuilder.MENU_ELEMENTS.LIST,
@@ -72,4 +76,27 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         remoteConsole.finish(20000);
         client.onModuleLoad();
     }
+
+    public final void testRegisterGroupSampleWithParent()
+    {
+        loginAndPreprareRegistration(DILUTION_PLATE);
+        final String sampleCode = "dp4";
+        remoteConsole.prepare(new FillSampleRegistrationForm(false, "CISD", sampleCode)
+                .parent("MP1-MIXED"));
+        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.SAMPLES,
+                CategoriesBuilder.MENU_ELEMENTS.LIST,
+                GenericSampleRegistrationForm.RegisterSampleCallback.class));
+        remoteConsole.prepare(new ListSamples(true, true, "CISD", DILUTION_PLATE));
+        remoteConsole.prepare(new CheckSampleTable().expectedRow(new SampleRow(sampleCode
+                .toUpperCase()).identifier("CISD", "CISD")));
+        remoteConsole.finish(20000);
+        client.onModuleLoad();
+    }
+
+    public final void testRegisterSampleWithContainer()
+    {
+        // loginAndPreprareRegistration("WELL");
+        // remoteConsole.prepare(new FillSampleRegistrationForm(false, "CISD", GROUP_CL));
+    }
+
 }

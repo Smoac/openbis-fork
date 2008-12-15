@@ -94,7 +94,7 @@ final class SampleBrowserToolbar extends ToolBar
     {
         this.sampleBrowserGrid = sampleBrowserGrid;
         this.viewContext = viewContext;
-        selectSampleTypeCombo = new SampleTypeSelectionWidget(viewContext, ID);
+        selectSampleTypeCombo = new SampleTypeSelectionWidget(viewContext, ID, true);
         selectGroupCombo = new GroupSelectionWidget(viewContext);
         includeInstanceCheckbox = new CheckBox();
         includeInstanceCheckbox.setId(INCLUDE_SHARED_CHECKBOX_ID);

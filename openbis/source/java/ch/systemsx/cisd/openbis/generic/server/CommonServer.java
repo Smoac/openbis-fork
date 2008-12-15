@@ -276,8 +276,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     {
         // Not needed but just to refresh/check the session.
         getSessionManager().getSession(sessionToken);
-        final List<SampleTypePE> sampleTypes =
-                getDAOFactory().getSampleTypeDAO().listSampleTypes(true);
+        final List<SampleTypePE> sampleTypes = getDAOFactory().getSampleTypeDAO().listSampleTypes();
         Collections.sort(sampleTypes);
         return sampleTypes;
     }

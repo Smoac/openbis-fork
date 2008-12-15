@@ -35,10 +35,8 @@ public interface ISampleTypeDAO
      * types).
      * 
      * @return The list of {@link SampleTypePE}s registered in the database.
-     * @param onlyListable if true, then only types appropriate to be listed are returned.
      */
-    public List<SampleTypePE> listSampleTypes(final boolean onlyListable)
-            throws DataAccessException;
+    public List<SampleTypePE> listSampleTypes() throws DataAccessException;
 
     /**
      * For given <var>code</var> returns corresponding {@link SampleTypePE}.
@@ -52,5 +50,6 @@ public interface ISampleTypeDAO
      * 
      * @return <code>null</code> if no type found for given <var>sampleType</var>.
      */
-    public SampleTypePE tryFindSampleTypeByExample(final SampleTypePE sampleType) throws DataAccessException;
+    public SampleTypePE tryFindSampleTypeByExample(final SampleTypePE sampleType)
+            throws DataAccessException;
 }

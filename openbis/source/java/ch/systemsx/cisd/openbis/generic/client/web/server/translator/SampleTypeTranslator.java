@@ -35,6 +35,7 @@ public class SampleTypeTranslator
     {
         final SampleType result = new SampleType();
         result.setCode(sampleTypePE.getCode());
+        result.setListable(sampleTypePE.isListable());
         result.setDescription(sampleTypePE.getDescription());
         result.setGeneratedFromHierarchyDepth(sampleTypePE.getGeneratedFromHierarchyDepth());
         result.setPartOfHierarchyDepth(sampleTypePE.getContainerHierarchyDepth());

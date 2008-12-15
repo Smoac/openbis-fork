@@ -40,12 +40,17 @@ public class SampleTypeModel extends BaseModelData
         set(ModelDataPropertyNames.OBJECT, sampleType);
     }
 
-    public final static List<SampleTypeModel> convert(final List<SampleType> sampleTypes)
+    public final static List<SampleTypeModel> convert(final List<SampleType> sampleTypes,
+            final boolean onlyListable)
     {
         final List<SampleTypeModel> result = new ArrayList<SampleTypeModel>();
-        for (final SampleType st : sampleTypes)
+        for (final SampleType sampleType : sampleTypes)
         {
-            result.add(new SampleTypeModel(st));
+            if (onlyListable && sampleType.isListable() == false)
+            {
+                continue;
+            }
+            result.add(new SampleTypeModel(sampleType));
         }
         return result;
     }

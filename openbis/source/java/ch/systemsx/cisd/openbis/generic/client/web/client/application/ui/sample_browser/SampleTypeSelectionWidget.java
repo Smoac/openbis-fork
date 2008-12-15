@@ -43,10 +43,13 @@ public final class SampleTypeSelectionWidget extends ComboBox<SampleTypeModel>
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
+    private final boolean onlyListable;
+
     public SampleTypeSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext,
-            String idSuffix)
+            final String idSuffix, final boolean onlyListable)
     {
         this.viewContext = viewContext;
+        this.onlyListable = onlyListable;
         setId(ID + idSuffix);
         setEnabled(false);
         setDisplayField(ModelDataPropertyNames.CODE);
@@ -102,7 +105,7 @@ public final class SampleTypeSelectionWidget extends ComboBox<SampleTypeModel>
         {
             final ListStore<SampleTypeModel> sampleTypeStore = getStore();
             sampleTypeStore.removeAll();
-            sampleTypeStore.add(SampleTypeModel.convert(result));
+            sampleTypeStore.add(SampleTypeModel.convert(result, onlyListable));
             if (sampleTypeStore.getCount() > 0)
             {
                 setEmptyText("Choose sample type...");

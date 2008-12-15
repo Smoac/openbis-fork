@@ -34,6 +34,8 @@ public final class SampleType extends EntityType implements IsSerializable
 
     private int partOfHierarchyDepth;
 
+    private boolean listable;
+
     private List<SampleTypePropertyType> sampleTypePropertyTypes;
 
     public final void setGeneratedFromHierarchyDepth(final int generatedFromHierarchyDepth)
@@ -66,6 +68,16 @@ public final class SampleType extends EntityType implements IsSerializable
             final List<SampleTypePropertyType> sampleTypePropertyTypes)
     {
         this.sampleTypePropertyTypes = sampleTypePropertyTypes;
+    }
+
+    public final boolean isListable()
+    {
+        return listable;
+    }
+
+    public final void setListable(final boolean listable)
+    {
+        this.listable = listable;
     }
 
 }
