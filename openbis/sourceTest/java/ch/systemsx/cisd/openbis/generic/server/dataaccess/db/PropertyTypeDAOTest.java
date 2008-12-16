@@ -19,16 +19,21 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 
 import java.util.List;
 
+import org.springframework.dao.DataIntegrityViolationException;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 
 /**
@@ -60,6 +65,24 @@ public final class PropertyTypeDAOTest extends AbstractDAOTest
         checkDataType(propertyTypeDTO.getType(), false);
     }
 
+    private final PropertyTypePE createPropertyType(final DataTypePE dataType, final String code,
+            final VocabularyPE vocabularyOrNull)
+    {
+        final PropertyTypePE propertyTypePE = new PropertyTypePE();
+        propertyTypePE.setCode(code);
+        propertyTypePE.setLabel(code);
+        propertyTypePE.setDescription(code);
+        propertyTypePE.setRegistrator(getSystemPerson());
+        propertyTypePE.setType(dataType);
+        propertyTypePE.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
+        if (EntityDataType.CONTROLLEDVOCABULARY.equals(dataType.getCode()))
+        {
+            assertNotNull(vocabularyOrNull);
+            propertyTypePE.setVocabulary(vocabularyOrNull);
+        }
+        return propertyTypePE;
+    }
+
     @Test
     public final void testListPropertyTypes()
     {
@@ -88,4 +111,61 @@ public final class PropertyTypeDAOTest extends AbstractDAOTest
         }
     }
 
+    @Test
+    public final void testTryFindDataTypeByCode()
+    {
+        final IPropertyTypeDAO propertyTypeDAO = daoFactory.getPropertyTypeDAO();
+        boolean fail = true;
+        try
+        {
+            propertyTypeDAO.getDataTypeByCode(null);
+        } catch (final AssertionError e)
+        {
+            fail = false;
+        }
+        assertFalse(fail);
+        assertNotNull(propertyTypeDAO.getDataTypeByCode(EntityDataType.INTEGER));
+    }
+
+    @SuppressWarnings("unused")
+    @DataProvider
+    private final Object[][] getEntityDataType()
+    {
+        return new Object[][]
+            {
+                { EntityDataType.BOOLEAN },
+                { EntityDataType.INTEGER },
+                { EntityDataType.REAL },
+                { EntityDataType.TIMESTAMP },
+                { EntityDataType.VARCHAR }, };
+    }
+
+    @Test(dataProvider = "getEntityDataType")
+    public final void testCreatePropertyType(final EntityDataType entityDataType)
+    {
+        final IPropertyTypeDAO propertyTypeDAO = daoFactory.getPropertyTypeDAO();
+        boolean fail = true;
+        try
+        {
+            propertyTypeDAO.createPropertyType(null);
+        } catch (final AssertionError e)
+        {
+            fail = false;
+        }
+        assertFalse(fail);
+        try
+        {
+            propertyTypeDAO.createPropertyType(createPropertyType(propertyTypeDAO
+                    .getDataTypeByCode(entityDataType), "code", null));
+            fail(String.format("'%s' expected.", DataIntegrityViolationException.class
+                    .getSimpleName()));
+        } catch (final DataIntegrityViolationException ex)
+        {
+            // Nothing to do here.
+        }
+        propertyTypeDAO.createPropertyType(createPropertyType(propertyTypeDAO
+                .getDataTypeByCode(entityDataType), "user.code", null));
+        assertNotNull(propertyTypeDAO.tryFindPropertyTypeByCode("user.code"));
+        assertNull(propertyTypeDAO.tryFindPropertyTypeByCode("code"));
+    }
 }

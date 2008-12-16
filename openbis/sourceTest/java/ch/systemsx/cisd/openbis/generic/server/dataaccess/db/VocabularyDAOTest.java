@@ -20,7 +20,9 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.fail;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
@@ -77,7 +79,7 @@ public final class VocabularyDAOTest extends AbstractDAOTest
         assertFalse(fail);
         final PersonPE registrator = getSystemPerson();
         final VocabularyPE vocabularyPE = new VocabularyPE();
-        final String vocabularyCode = "USER.FORMAT";
+        final String vocabularyCode = "FORMAT";
         vocabularyPE.setCode(vocabularyCode);
         vocabularyPE.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
         vocabularyPE.setDescription("The format description");
@@ -85,9 +87,21 @@ public final class VocabularyDAOTest extends AbstractDAOTest
         vocabularyPE.addTerm(createVocabularyTerm("SMALL"));
         vocabularyPE.addTerm(createVocabularyTerm("MEDIUM"));
         vocabularyPE.addTerm(createVocabularyTerm("BIG"));
+        try
+        {
+            vocabularyDAO.createVocabulary(vocabularyPE);
+            fail(String.format("'%s' expected.", DataIntegrityViolationException.class
+                    .getSimpleName()));
+        } catch (final DataIntegrityViolationException ex)
+        {
+            // Nothing to do here.
+        }
+        vocabularyPE.setCode("USER.FORMAT");
         vocabularyDAO.createVocabulary(vocabularyPE);
         // Check saved vocabulary.
-        final VocabularyPE savedVocabulary = vocabularyDAO.tryFindVocabularyByCode(vocabularyCode);
+        assertNull(vocabularyDAO.tryFindVocabularyByCode(vocabularyCode));
+        final VocabularyPE savedVocabulary =
+                vocabularyDAO.tryFindVocabularyByCode("USER." + vocabularyCode);
         assertNotNull(savedVocabulary);
         assertNotNull(savedVocabulary.getDescription());
         assertEquals(3, savedVocabulary.getTerms().size());

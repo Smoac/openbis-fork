@@ -28,6 +28,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
@@ -142,6 +143,22 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         final List<DataType> dataTypes = commonClientService.listDataTypes();
         assertEquals(1, dataTypes.size());
         assertDataTypeEquals(dataTypePE, dataTypes.get(0));
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testRegisterPropertyType()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    prepareGetSessionToken(this);
+
+                    one(commonServer).registerPropertyType(with(SESSION_TOKEN),
+                            with(aNonNull(PropertyType.class)));
+                }
+            });
+        commonClientService.registerPropertyType(new PropertyType());
         context.assertIsSatisfied();
     }
 }

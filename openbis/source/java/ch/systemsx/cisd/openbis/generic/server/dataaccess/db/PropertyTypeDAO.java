@@ -21,6 +21,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.support.JdbcAccessor;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
@@ -32,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 
 /**
  * <i>Data Access Object</i> implementation for {@link PropertyTypePE}.
@@ -53,6 +55,16 @@ final class PropertyTypeDAO extends AbstractDAO implements IPropertyTypeDAO
         super(sessionFactory, databaseInstance);
     }
 
+    private final static void checkType(final PropertyTypePE propertyType)
+    {
+        if (propertyType.isInternalNamespace())
+        {
+            throw new DataIntegrityViolationException(String.format(
+                    "Given code '%s' does not contain '%s' prefix.", propertyType.getCode(),
+                    CodeConverter.USER_PROPERTY_PREFIX));
+        }
+    }
+
     //
     // IPropertyTypeDAO
     //
@@ -62,14 +74,15 @@ final class PropertyTypeDAO extends AbstractDAO implements IPropertyTypeDAO
     {
         assert code != null : "Unspecified property type code";
 
+        final String mangledCode = CodeConverter.tryToDatabase(code);
+        final boolean internalNamespace = CodeConverter.isInternalNamespace(code);
         final List<PropertyTypePE> list =
                 cast(getHibernateTemplate().find(
                         String.format("select pt from %s pt where pt.simpleCode = ? "
                                 + "and pt.databaseInstance = ? and pt.internalNamespace = ?",
                                 PropertyTypePE.class.getSimpleName()),
-                        toArray(CodeConverter.tryToDatabase(code), getDatabaseInstance(),
-                                CodeConverter.isInternalNamespace(code))));
-        final PropertyTypePE entity = tryFindEntity(list, "property type");
+                        toArray(mangledCode, getDatabaseInstance(), internalNamespace)));
+        final PropertyTypePE entity = tryFindEntity(list, "property type", code);
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%s(%s): '%s'.", MethodUtils.getCurrentMethod()
@@ -118,16 +131,15 @@ final class PropertyTypeDAO extends AbstractDAO implements IPropertyTypeDAO
         return list;
     }
 
-    public final DataTypePE tryFindDataTypeByCode(final String code) throws DataAccessException
+    public final DataTypePE getDataTypeByCode(final EntityDataType code) throws DataAccessException
     {
-        assert code != null : "Unspecified property type code";
+        assert code != null : "Unspecified entity data type.";
 
         final List<DataTypePE> list =
                 cast(getHibernateTemplate().find(
-                        String.format("from %s dt where dt.code = ? and dt.databaseInstance = ?",
-                                PropertyTypePE.class.getSimpleName()),
-                        toArray(CodeConverter.tryToDatabase(code), getDatabaseInstance())));
-        final DataTypePE entity = tryFindEntity(list, "data type");
+                        String.format("from %s dt where dt.code = ?", DataTypePE.class
+                                .getSimpleName()), toArray(code)));
+        final DataTypePE entity = getEntity(list);
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%s(%s): '%s'.", MethodUtils.getCurrentMethod()
@@ -141,8 +153,8 @@ final class PropertyTypeDAO extends AbstractDAO implements IPropertyTypeDAO
     {
         assert propertyType != null : "Unspecified property type.";
         validatePE(propertyType);
+        checkType(propertyType);
 
-        propertyType.setSimpleCode(CodeConverter.tryToDatabase(propertyType.getSimpleCode()));
         final HibernateTemplate template = getHibernateTemplate();
         template.save(propertyType);
         template.flush();

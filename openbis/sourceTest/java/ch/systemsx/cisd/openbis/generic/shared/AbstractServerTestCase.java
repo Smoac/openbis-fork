@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -100,6 +101,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected IPropertyTypeDAO propertyTypeDAO;
 
+    protected IPropertyTypeBO propertyTypeBO;
+
     @BeforeMethod
     @SuppressWarnings("unchecked")
     public void setUp()
@@ -124,6 +127,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         groupBO = context.mock(IGroupBO.class);
         sampleBO = context.mock(ISampleBO.class);
         experimentBO = context.mock(IExperimentBO.class);
+        propertyTypeBO = context.mock(IPropertyTypeBO.class);
         // Table
         externalDataTable = context.mock(IExternalDataTable.class);
         experimentTable = context.mock(IExperimentTable.class);

@@ -26,6 +26,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
@@ -487,7 +488,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     }
 
     @Test
-    public void testPropertyTypes()
+    public void testListPropertyTypes()
     {
         final Session session = prepareGetSession();
         context.checking(new Expectations()
@@ -523,6 +524,24 @@ public final class CommonServerTest extends AbstractServerTestCase
             });
         final List<DataTypePE> dataTypes = createServer().listDataTypes(session.getSessionToken());
         assertEquals(0, dataTypes.size());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testRegisterPropertyType()
+    {
+        final Session session = prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(commonBusinessObjectFactory).createPropertyTypeBO(session);
+                    will(returnValue(propertyTypeBO));
+
+                    one(propertyTypeBO).define(with(aNonNull(PropertyType.class)));
+                    one(propertyTypeBO).save();
+                }
+            });
+        createServer().registerPropertyType(SESSION_TOKEN, new PropertyType());
         context.assertIsSatisfied();
     }
 }

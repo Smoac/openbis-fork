@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
  * 
  * @author Christian Ribeaud
  */
+// TODO 2008-12-16, Christian Ribeaud: Write an Unit test of this class.
 public final class PropertyTypeBO extends AbstractBusinessObject implements IPropertyTypeBO
 {
     private PropertyTypePE propertyTypePE;
@@ -52,12 +53,17 @@ public final class PropertyTypeBO extends AbstractBusinessObject implements IPro
         propertyTypePE.setLabel(propertyType.getLabel());
         propertyTypePE.setDescription(propertyType.getDescription());
         final String dataTypeCode = propertyType.getDataType().getCode().name();
-        final DataTypePE dataTypePE = getPropertyTypeDAO().tryFindDataTypeByCode(dataTypeCode);
-        if (dataTypePE == null)
+        DataTypePE dataTypePE = null;
+        try
+        {
+            dataTypePE =
+                    getPropertyTypeDAO().getDataTypeByCode(EntityDataType.valueOf(dataTypeCode));
+        } catch (final IllegalArgumentException e)
         {
             throw UserFailureException.fromTemplate(String.format("Unknow data type code '%s'."),
                     dataTypeCode);
         }
+        assert dataTypePE != null : "Can not be null reaching this point.";
         propertyTypePE.setType(dataTypePE);
         propertyTypePE.setRegistrator(findRegistrator());
         if (EntityDataType.CONTROLLEDVOCABULARY.equals(dataTypePE.getCode()))

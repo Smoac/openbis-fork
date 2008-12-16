@@ -54,10 +54,10 @@ public abstract class AbstractClientServiceTest
 
     protected final void prepareGetSession(final Expectations expectations)
     {
-        expectations.one(requestContextProvider).getHttpServletRequest();
+        expectations.allowing(requestContextProvider).getHttpServletRequest();
         expectations.will(Expectations.returnValue(servletRequest));
 
-        expectations.one(servletRequest).getSession(false);
+        expectations.allowing(servletRequest).getSession(false);
         expectations.will(Expectations.returnValue(httpSession));
     }
 

@@ -380,6 +380,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             String propertyTypeCode, String entityTypeCode, boolean isMandatory, String defaultValue)
     {
         assert sessionToken != null : "Unspecified session token";
+
         getSessionManager().getSession(sessionToken);
         throw new UserFailureException("Not implemented");
 
