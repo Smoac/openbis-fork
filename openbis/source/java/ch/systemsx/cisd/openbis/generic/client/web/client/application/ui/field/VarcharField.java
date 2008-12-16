@@ -32,8 +32,8 @@ public class VarcharField extends TextField<String>
         configureField(this, label, mandatory);
     }
 
-    static <T> void configureField(final TextField<T> textField, final String fieldLabel,
-            final boolean mandatory)
+    public final static <T> void configureField(final TextField<T> textField,
+            final String fieldLabel, final boolean mandatory)
     {
         textField.setFieldLabel(fieldLabel);
         textField.setMaxLength(1024);
