@@ -103,6 +103,16 @@ public class PredicateTestCase extends AuthorizationTestCase
     {
         return createGroup(ANOTHER_GROUP_CODE, createAnotherDatabaseInstance());
     }
+    
+    /**
+     * Creates a group based on the specified identifier.
+     */
+    protected GroupPE createGroup(GroupIdentifier identifier)
+    {
+        final String databaseInstanceCode = identifier.getDatabaseInstanceCode();
+        final DatabaseInstancePE instance = createDatabaseInstance(databaseInstanceCode);
+        return createGroup(identifier.getGroupCode(), instance);
+    }
 
     /**
      * Creates a group with specified group code and database instance.
@@ -138,6 +148,24 @@ public class PredicateTestCase extends AuthorizationTestCase
     }
 
     /**
+     * Prepares {@link #provider} to expect a query for the home database instance and groups.
+     */
+    protected final void prepareProvider(final DatabaseInstancePE databaseInstance,
+            final List<GroupPE> groups)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(provider).getHomeDatabaseInstance();
+                    will(returnValue(databaseInstance));
+
+                    allowing(provider).listGroups();
+                    will(returnValue(groups));
+                }
+            });
+    }
+    
+    /**
      * Prepares {@link #provider} to expect a query for the specified database instance code and
      * to return the specified database instance.
      */
@@ -145,12 +173,12 @@ public class PredicateTestCase extends AuthorizationTestCase
             final DatabaseInstancePE databaseInstance)
     {
         context.checking(new Expectations()
+        {
             {
-                {
-                    one(provider).tryFindDatabaseInstanceByCode(databaseInstanceCode);
-                    will(returnValue(databaseInstance));
-                }
-            });
+                allowing(provider).tryFindDatabaseInstanceByCode(databaseInstanceCode);
+                will(returnValue(databaseInstance));
+            }
+        });
     }
     
     /**
@@ -165,7 +193,7 @@ public class PredicateTestCase extends AuthorizationTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(provider).listGroups();
+                    allowing(provider).listGroups();
                     will(returnValue(groups));
                 }
             });

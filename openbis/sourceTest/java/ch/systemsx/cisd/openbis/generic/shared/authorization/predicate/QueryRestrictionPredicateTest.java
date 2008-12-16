@@ -18,7 +18,11 @@ package ch.systemsx.cisd.openbis.generic.shared.authorization.predicate;
 
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryRestriction;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
 /**
  * Test cases for corresponding {@link QueryRestrictionPredicate} class.
@@ -27,26 +31,120 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.QueryRestriction;
  */
 public final class QueryRestrictionPredicateTest extends PredicateTestCase
 {
-    private final QueryRestriction createQueryRestriction()
-    {
-        return new QueryRestriction();
-    }
-
     @Test
     public final void testWithoutInit()
     {
         final QueryRestrictionPredicate predicate = new QueryRestrictionPredicate();
-        boolean fail = true;
         try
         {
-            predicate.evaluate(createPerson(),
-                    createRoles(false),
-                    createQueryRestriction());
+            predicate.evaluate(createPerson(), createRoles(false), new QueryRestriction());
+            fail("AssertionError expected");
         } catch (final AssertionError e)
         {
-            fail = false;
+            assertEquals("Predicate has not been initialized", e.getMessage());
         }
-        assertFalse(fail);
+        
+        context.assertIsSatisfied();
     }
 
+    @Test
+    public void testHomeGroup()
+    {
+        QueryRestrictionPredicate predicate = new QueryRestrictionPredicate();
+        QueryRestriction queryRestriction = new QueryRestriction();
+        prepareProvider(createDatabaseInstance(), createGroups());
+        predicate.init(provider);
+        
+        PersonPE person = createPerson();
+        person.setHomeGroup(createGroup());
+        Status status = predicate.evaluate(person, createRoles(false), queryRestriction);
+        
+        assertEquals(false, status.isError());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testHomeGroupNotAllowed()
+    {
+        QueryRestrictionPredicate predicate = new QueryRestrictionPredicate();
+        QueryRestriction queryRestriction = new QueryRestriction();
+        prepareProvider(createAnotherDatabaseInstance(), createGroups());
+        predicate.init(provider);
+        
+        PersonPE person = createPerson();
+        person.setHomeGroup(createAnotherGroup());
+        Status status = predicate.evaluate(person, createRoles(false), queryRestriction);
+        
+        assertEquals(true, status.isError());
+        assertEquals("User 'megapixel' does not have enough privileges "
+                + "to access data in the group 'DB2:/G2'.", status.tryGetErrorMessage());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testAllowedGroup()
+    {
+        QueryRestrictionPredicate predicate = new QueryRestrictionPredicate();
+        QueryRestriction queryRestriction = new QueryRestriction();
+        GroupIdentifier groupIdentifier = new GroupIdentifier(INSTANCE_CODE, GROUP_CODE);
+        queryRestriction.setGroupIdentifier(groupIdentifier);
+        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
+        predicate.init(provider);
+        
+        Status status = predicate.evaluate(createPerson(), createRoles(false), queryRestriction);
+        
+        assertEquals(false, status.isError());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testGroupNotAllowed()
+    {
+        QueryRestrictionPredicate predicate = new QueryRestrictionPredicate();
+        QueryRestriction queryRestriction = new QueryRestriction();
+        GroupIdentifier groupIdentifier = new GroupIdentifier(ANOTHER_INSTANCE_CODE, ANOTHER_GROUP_CODE);
+        queryRestriction.setGroupIdentifier(groupIdentifier);
+        prepareProvider(ANOTHER_INSTANCE_CODE, createAnotherDatabaseInstance(), createGroups());
+        predicate.init(provider);
+        
+        Status status = predicate.evaluate(createPerson(), createRoles(false), queryRestriction);
+        
+        assertEquals(true, status.isError());
+        assertEquals("User 'megapixel' does not have enough privileges "
+                + "to access data in the group 'DB2:/G2'.", status.tryGetErrorMessage());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testAllowedProject()
+    {
+        QueryRestrictionPredicate predicate = new QueryRestrictionPredicate();
+        QueryRestriction queryRestriction = new QueryRestriction();
+        queryRestriction.setProjectIdentifier(new ProjectIdentifier(INSTANCE_CODE, GROUP_CODE, "p1"));
+        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
+        predicate.init(provider);
+        
+        Status status = predicate.evaluate(createPerson(), createRoles(false), queryRestriction);
+        
+        assertEquals(false, status.isError());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testProjectInWrongGroup()
+    {
+        QueryRestrictionPredicate predicate = new QueryRestrictionPredicate();
+        QueryRestriction queryRestriction = new QueryRestriction();
+        queryRestriction.setProjectIdentifier(new ProjectIdentifier(ANOTHER_INSTANCE_CODE,
+                ANOTHER_GROUP_CODE, "p1"));
+        prepareProvider(ANOTHER_INSTANCE_CODE, createAnotherDatabaseInstance(), createGroups());
+        predicate.init(provider);
+        
+        Status status = predicate.evaluate(createPerson(), createRoles(false), queryRestriction);
+        
+        assertEquals(true, status.isError());
+        assertEquals("User 'megapixel' does not have enough privileges "
+                + "to access data in the group 'DB2:/G2'.", status.tryGetErrorMessage());
+        context.assertIsSatisfied();
+    }
 }

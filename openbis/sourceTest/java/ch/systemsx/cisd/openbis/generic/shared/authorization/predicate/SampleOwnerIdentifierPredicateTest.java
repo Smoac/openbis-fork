@@ -43,7 +43,7 @@ public class SampleOwnerIdentifierPredicateTest extends PredicateTestCase
         prepareProvider(ANOTHER_INSTANCE_CODE, createAnotherDatabaseInstance(), createGroups());
         predicate.init(provider);
         
-        Status status = predicate.doEvaluation(person, roles, identifier);
+        Status status = predicate.evaluate(person, roles, identifier);
         
         assertEquals(false, status.isError());
         context.assertIsSatisfied();
@@ -59,7 +59,7 @@ public class SampleOwnerIdentifierPredicateTest extends PredicateTestCase
         prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
         predicate.init(provider);
         
-        Status status = predicate.doEvaluation(person, roles, identifier);
+        Status status = predicate.evaluate(person, roles, identifier);
         
         assertEquals(true, status.isError());
         assertEquals("User 'megapixel' does not have enough privileges to modify "
@@ -77,7 +77,7 @@ public class SampleOwnerIdentifierPredicateTest extends PredicateTestCase
         prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
         predicate.init(provider);
         
-        Status status = predicate.doEvaluation(person, roles, identifier);
+        Status status = predicate.evaluate(person, roles, identifier);
         
         assertEquals(false, status.isError());
         context.assertIsSatisfied();
@@ -93,7 +93,7 @@ public class SampleOwnerIdentifierPredicateTest extends PredicateTestCase
         prepareProvider(ANOTHER_INSTANCE_CODE, createAnotherDatabaseInstance(), createGroups());
         predicate.init(provider);
         
-        Status status = predicate.doEvaluation(person, roles, identifier);
+        Status status = predicate.evaluate(person, roles, identifier);
         
         assertEquals(true, status.isError());
         assertEquals("User 'megapixel' does not have enough privileges to read "
@@ -112,7 +112,7 @@ public class SampleOwnerIdentifierPredicateTest extends PredicateTestCase
         prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
         predicate.init(provider);
         
-        Status status = predicate.doEvaluation(person, roles, identifier);
+        Status status = predicate.evaluate(person, roles, identifier);
         
         assertEquals(false, status.isError());
         context.assertIsSatisfied();
@@ -129,7 +129,7 @@ public class SampleOwnerIdentifierPredicateTest extends PredicateTestCase
         prepareProvider(ANOTHER_INSTANCE_CODE, createAnotherDatabaseInstance(), createGroups());
         predicate.init(provider);
         
-        Status status = predicate.doEvaluation(person, roles, identifier);
+        Status status = predicate.evaluate(person, roles, identifier);
         
         assertEquals(true, status.isError());
         assertEquals("User 'megapixel' does not have enough privileges to access data "
