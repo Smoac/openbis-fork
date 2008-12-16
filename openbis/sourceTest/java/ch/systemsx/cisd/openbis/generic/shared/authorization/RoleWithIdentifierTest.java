@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.authorization;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,14 +24,11 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.Role;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.Role.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
 /**
@@ -43,46 +37,16 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
  * @author Christian Ribeaud
  */
 @Friend(toClasses = RoleWithIdentifier.class)
-public final class RoleWithIdentifierTest
+public final class RoleWithIdentifierTest extends AuthorizationTestCase
 {
-
-    private final DatabaseInstanceIdentifier identifier = new DatabaseInstanceIdentifier("DB1");
-
-    public static final RoleWithIdentifier createGroupRole(RoleCode roleCode,
-            GroupIdentifier groupIdentifier)
-    {
-        GroupPE groupPE = new GroupPE();
-        groupPE.setCode(groupIdentifier.getGroupCode());
-        DatabaseInstancePE instance = createDatabaseInstancePE(groupIdentifier);
-        groupPE.setDatabaseInstance(instance);
-        return new RoleWithIdentifier(RoleLevel.GROUP, roleCode, null, groupPE);
-    }
-
-    public static final RoleWithIdentifier createInstanceRole(RoleCode roleCode,
-            DatabaseInstanceIdentifier instanceIdentifier)
-    {
-        DatabaseInstancePE instance = createDatabaseInstancePE(instanceIdentifier);
-        return new RoleWithIdentifier(RoleLevel.INSTANCE, roleCode, instance, null);
-    }
-
-    private static DatabaseInstancePE createDatabaseInstancePE(
-            DatabaseInstanceIdentifier instanceIdentifier)
-    {
-        DatabaseInstancePE instance = new DatabaseInstancePE();
-        String code = instanceIdentifier.getDatabaseInstanceCode();
-        instance.setCode(code);
-        instance.setUuid("global_" + code);
-        return instance;
-    }
-
     @Test
     public final void testEqualityWithRole()
     {
         final Role role = new Role(RoleLevel.GROUP, RoleCode.ADMIN);
         RoleWithIdentifier roleWithCode =
-                createGroupRole(RoleCode.ADMIN, new GroupIdentifier(identifier, "CISD"));
+                createGroupRole(RoleCode.ADMIN, new GroupIdentifier(INSTANCE_IDENTIFIER, "CISD"));
         assertEquals(role, roleWithCode);
-        roleWithCode = createGroupRole(RoleCode.ADMIN, new GroupIdentifier(identifier, ""));
+        roleWithCode = createGroupRole(RoleCode.ADMIN, new GroupIdentifier(INSTANCE_IDENTIFIER, ""));
         assertEquals(role, roleWithCode);
     }
 
@@ -92,10 +56,10 @@ public final class RoleWithIdentifierTest
         final Set<Role> singleton =
                 Collections.singleton(new Role(RoleLevel.GROUP, RoleCode.ADMIN));
         final List<RoleWithIdentifier> list = new ArrayList<RoleWithIdentifier>();
-        list.add(createGroupRole(RoleCode.ADMIN, new GroupIdentifier(identifier, "CISD")));
-        list.add(createGroupRole(RoleCode.USER, new GroupIdentifier(identifier, "3V")));
-        list.add(createGroupRole(RoleCode.ADMIN, new GroupIdentifier(identifier, "IMSB")));
-        list.add(createInstanceRole(RoleCode.USER, identifier));
+        list.add(createGroupRole(RoleCode.ADMIN, new GroupIdentifier(INSTANCE_IDENTIFIER, "CISD")));
+        list.add(createGroupRole(RoleCode.USER, new GroupIdentifier(INSTANCE_IDENTIFIER, "3V")));
+        list.add(createGroupRole(RoleCode.ADMIN, new GroupIdentifier(INSTANCE_IDENTIFIER, "IMSB")));
+        list.add(createInstanceRole(RoleCode.USER, INSTANCE_IDENTIFIER));
         list.retainAll(singleton);
         assertEquals(2, list.size());
     }

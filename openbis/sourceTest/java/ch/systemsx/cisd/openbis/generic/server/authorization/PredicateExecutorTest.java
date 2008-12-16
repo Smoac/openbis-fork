@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization;
 
-import static org.testng.AssertJUnit.assertEquals;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -32,9 +30,9 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.utilities.StringUtilities;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifierTest;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.IPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
@@ -46,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
  * @author Christian Ribeaud
  */
 @Friend(toClasses = PredicateExecutor.class)
-public final class PredicateExecutorTest
+public final class PredicateExecutorTest extends AuthorizationTestCase
 {
 
     private Mockery context;
@@ -62,9 +60,9 @@ public final class PredicateExecutorTest
         return new PersonPE();
     }
 
-    private final static List<RoleWithIdentifier> createAllowedRoles()
+    private List<RoleWithIdentifier> createAllowedRoles()
     {
-        return Collections.singletonList(RoleWithIdentifierTest.createGroupRole(RoleCode.USER,
+        return Collections.singletonList(createGroupRole(RoleCode.USER,
                 new GroupIdentifier("DB1", "3V")));
     }
 

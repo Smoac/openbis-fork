@@ -16,11 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.authorization.predicate;
 
-import static org.testng.AssertJUnit.assertFalse;
-
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.QueryRestrictionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryRestriction;
 
 /**
@@ -28,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.QueryRestriction;
  * 
  * @author Christian Ribeaud
  */
-public final class QueryRestrictionPredicateTest
+public final class QueryRestrictionPredicateTest extends PredicateTestCase
 {
     private final QueryRestriction createQueryRestriction()
     {
@@ -42,8 +39,8 @@ public final class QueryRestrictionPredicateTest
         boolean fail = true;
         try
         {
-            predicate.evaluate(DatabaseInstanceIdentifierPredicateTest.createPerson(),
-                    DatabaseInstanceIdentifierPredicateTest.createAllowedRoles(false),
+            predicate.evaluate(createPerson(),
+                    createRoles(false),
                     createQueryRestriction());
         } catch (final AssertionError e)
         {
