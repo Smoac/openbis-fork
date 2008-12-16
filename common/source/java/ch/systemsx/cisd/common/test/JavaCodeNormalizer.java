@@ -59,7 +59,7 @@ public class JavaCodeNormalizer
                 return FIRST_LINE;
             } else if (trimmedLine.startsWith("/*"))
             {
-                return Comment.INSTANCE;
+                return trimmedLine.endsWith("*/") ? FIRST_LINE : Comment.INSTANCE;
             }
             if (firstLine)
             {

@@ -37,6 +37,7 @@ public class JavaCodeNormalizerTest extends AssertJUnit
           + "\n"
           + "import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;\n" 
           + "\n"
+          + "/* A one line block comment. */\n"
           + "public interface IGenericServer\n" 
           + "{\n" 
           + "    /**\n"
