@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.authorization;
 
 import org.testng.AssertJUnit;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.Role.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
@@ -30,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
  *
  * @author Franz-Josef Elmer
  */
+@Friend(toClasses = RoleWithIdentifier.class)
 public class AuthorizationTestCase extends AssertJUnit
 {
     protected static final String INSTANCE_CODE = "DB1";
