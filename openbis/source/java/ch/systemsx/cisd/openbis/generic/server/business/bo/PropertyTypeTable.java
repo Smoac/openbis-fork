@@ -62,6 +62,12 @@ public final class PropertyTypeTable extends AbstractBusinessObject implements I
             HibernateUtils.initialize(pt.getMaterialTypePropertyTypes());
             HibernateUtils.initialize(pt.getSampleTypePropertyTypes());
             HibernateUtils.initialize(pt.getExperimentTypePropertyTypes());
+            HibernateUtils.initialize(pt.getVocabulary());
+            if (pt.getVocabulary() != null)
+            {
+                HibernateUtils.initialize(pt.getVocabulary().getTerms());
+            }
+
         }
     }
 

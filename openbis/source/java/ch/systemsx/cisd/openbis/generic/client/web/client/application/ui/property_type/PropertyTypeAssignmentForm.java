@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.proper
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -27,6 +28,7 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.google.gwt.user.client.Element;
@@ -38,9 +40,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentTypeSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.PropertyFieldFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 
 /**
  * The property type assignment panel.
@@ -49,6 +53,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
  */
 public final class PropertyTypeAssignmentForm extends LayoutContainer
 {
+    private static final String DEFAULT_VALUE = "Default value";
+
     private static final String PREFIX = "property-type-assignment_";
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
@@ -72,6 +78,8 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer
     private ExperimentTypeSelectionWidget experimentTypeSelectionWidget;
 
     private PropertyTypeSelectionWidget propertyTypeSelectionWidget;
+
+    private Field<?> defaultValueField;
 
     private CheckBox mandatoryCheckbox;
 
@@ -115,6 +123,13 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer
             propertyTypeSelectionWidget.setAllowBlank(false);
             propertyTypeSelectionWidget
                     .setLabelSeparator(GenericConstants.MANDATORY_LABEL_SEPARATOR);
+            propertyTypeSelectionWidget.addListener(Events.Change, new Listener<BaseEvent>()
+                {
+                    public void handleEvent(BaseEvent be)
+                    {
+                        updateDefaultField();
+                    }
+                });
         }
         return propertyTypeSelectionWidget;
     }
@@ -193,6 +208,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer
                 public final void componentSelected(final ButtonEvent ce)
                 {
                     formPanel.reset();
+                    updateDefaultField();
                 }
             });
         panel.addButton(resetButton);
@@ -234,6 +250,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer
         formPanel.add(getPropertyTypeWidget());
         formPanel.add(getTypeSelectionWidget());
         formPanel.add(mandatoryCheckbox);
+        updateDefaultField();
     }
 
     //
@@ -300,7 +317,41 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer
                             getSelectedEntityCode());
             infoBox.displayInfo(message);
             formPanel.reset();
+            updateDefaultField();
         }
+    }
+
+    private void updateDefaultField()
+    {
+        final PropertyType propertyType = propertyTypeSelectionWidget.tryGetSelectedPropertyType();
+        if (propertyType == null)
+        {
+            hideDefaultValueField();
+        } else
+        {
+            updateDefaultValueField(PropertyFieldFactory.createField(propertyType, false,
+                    DEFAULT_VALUE, getId() + DEFAULT_VALUE_ID_PREFIX + propertyType.getCode()));
+        }
+    }
+
+    private void hideDefaultValueField()
+    {
+        if (defaultValueField != null)
+        {
+            defaultValueField.hide();
+            formPanel.remove(defaultValueField);
+            defaultValueField = null;
+            layout();
+        }
+    }
+
+    private void updateDefaultValueField(Field<?> field)
+    {
+        hideDefaultValueField();
+        defaultValueField = field;
+        defaultValueField.show();
+        formPanel.add(defaultValueField);
+        layout();
     }
 
 }
