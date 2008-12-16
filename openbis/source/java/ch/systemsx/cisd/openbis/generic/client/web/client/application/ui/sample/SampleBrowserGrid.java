@@ -302,24 +302,7 @@ public final class SampleBrowserGrid extends LayoutContainer
         TableExportCriteria<Sample> exportCriteria =
                 new TableExportCriteria<Sample>(resultSetKey, sortInfo, columns);
         viewContext.getService().prepareExportSamples(exportCriteria,
-                new AbstractAsyncCallback<String>(viewContext)
-                    {
-                        @Override
-                        protected void process(String exportDataKey)
-                        {
-                            Window.open(createURL(exportDataKey), "", null);
-                        }
-
-                        private String createURL(String exportDataKey)
-                        {
-                            final StringBuffer sb = new StringBuffer();
-                            sb.append(GenericConstants.FILE_EXPORTER_DOWNLOAD_SERVLET_NAME);
-                            sb.append("?");
-                            sb.append(GenericConstants.EXPORT_CRITERIA_KEY_PARAMETER).append("=");
-                            sb.append(exportDataKey);
-                            return sb.toString();
-                        }
-                    });
+                new ExportSamplesCallback(viewContext));
     }
 
     /**
@@ -409,6 +392,35 @@ public final class SampleBrowserGrid extends LayoutContainer
                             .getTotalLength());
             delegate.onSuccess(loadResult);
             refreshCallback.postRefresh();
+        }
+    }
+
+    public final class ExportSamplesCallback extends AbstractAsyncCallback<String>
+    {
+        private ExportSamplesCallback(IViewContext<ICommonClientServiceAsync> viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        protected void process(String exportDataKey)
+        {
+            openURL(createURL(exportDataKey));
+        }
+
+        private void openURL(String url)
+        {
+            Window.open(url, "", null);
+        }
+
+        private String createURL(String exportDataKey)
+        {
+            final StringBuffer sb = new StringBuffer();
+            sb.append(GenericConstants.FILE_EXPORTER_DOWNLOAD_SERVLET_NAME);
+            sb.append("?");
+            sb.append(GenericConstants.EXPORT_CRITERIA_KEY_PARAMETER).append("=");
+            sb.append(exportDataKey);
+            return sb.toString();
         }
     }
 
