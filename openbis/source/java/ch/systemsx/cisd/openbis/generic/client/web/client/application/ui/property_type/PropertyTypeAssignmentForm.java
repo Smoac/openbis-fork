@@ -53,23 +53,27 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
  */
 public final class PropertyTypeAssignmentForm extends LayoutContainer
 {
-    private static final String DEFAULT_VALUE = "Default value";
+    private static final String UNSUPPORTED_ENTITY_KIND = "Unsupported entity kind";
+
+    private static final int LABEL_WIDTH = 130;
+
+    private static final int FIELD_WIDTH = 400;
 
     private static final String PREFIX = "property-type-assignment_";
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
-    private static final String PROPERTY_TYPE_ID_SUFFIX = ID_PREFIX + "property_type";
+    private static final String PROPERTY_TYPE_ID_SUFFIX = "property_type";
 
     private static final String SAMPLE_TYPE_ID_SUFFIX = ID_PREFIX + "sample_type";
 
     private static final String EXPERIMENT_TYPE_ID_SUFFIX = ID_PREFIX + "experiment_type";
 
-    private static final String MANDATORY_CHECKBOX_ID_PREFIX = ID_PREFIX + "mandatory_checkbox";
+    private static final String MANDATORY_CHECKBOX_ID_SUFFIX = "mandatory_checkbox";
 
-    public static final String SAVE_BUTTON_ID_PREFIX = ID_PREFIX + "save-button";
+    public static final String SAVE_BUTTON_ID_SUFFIX = "save-button";
 
-    protected static final String DEFAULT_VALUE_ID_PREFIX = ID_PREFIX + "default_value";
+    protected static final String DEFAULT_VALUE_ID_PART = "default_value";
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
@@ -87,10 +91,6 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer
 
     private FormPanel formPanel;
 
-    static final int LABEL_WIDTH = 130;
-
-    static final int FIELD_WIDTH = 400;
-
     private EntityKind entityKind;
 
     public PropertyTypeAssignmentForm(final IViewContext<ICommonClientServiceAsync> viewContext,
@@ -102,7 +102,12 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer
         this.viewContext = viewContext;
         setScrollMode(Scroll.AUTO);
         add(infoBox = createInfoBox());
-        add(formPanel = creatFormPanel());
+        add(formPanel = createFormPanel());
+    }
+
+    private String createId(String childSuffix)
+    {
+        return getId() + childSuffix;
     }
 
     private final static InfoBox createInfoBox()
@@ -116,8 +121,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer
         if (propertyTypeSelectionWidget == null)
         {
             propertyTypeSelectionWidget =
-                    new PropertyTypeSelectionWidget(viewContext, PROPERTY_TYPE_ID_SUFFIX
-                            + entityKind.name());
+                    new PropertyTypeSelectionWidget(viewContext, createId(PROPERTY_TYPE_ID_SUFFIX));
             propertyTypeSelectionWidget
                     .addListener(Events.Focus, new InfoBoxResetListener(infoBox));
             propertyTypeSelectionWidget.setAllowBlank(false);
@@ -164,35 +168,35 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer
                 }
                 return sampleTypeSelectionWidget;
             default:
-                throw new IllegalArgumentException("Unsupported entity kind");
+                throw new IllegalArgumentException(UNSUPPORTED_ENTITY_KIND);
         }
-
     }
 
-    private final void createFormFields()
+    private CheckBox getMandatoryCheckbox()
     {
-        mandatoryCheckbox = new CheckBox();
-        mandatoryCheckbox.setId(MANDATORY_CHECKBOX_ID_PREFIX + entityKind.name());
-        mandatoryCheckbox.setFieldLabel("Mandatory");
-        mandatoryCheckbox.setValue(false);
-        mandatoryCheckbox.addListener(Events.Change, new InfoBoxResetListener(infoBox));
-        getTypeSelectionWidget();
-        getPropertyTypeWidget();
+        if (mandatoryCheckbox == null)
+        {
+            mandatoryCheckbox = new CheckBox();
+            mandatoryCheckbox.setId(createId(MANDATORY_CHECKBOX_ID_SUFFIX));
+            mandatoryCheckbox.setFieldLabel(viewContext.getMessage(Dict.MANDATORY));
+            mandatoryCheckbox.setValue(false);
+            mandatoryCheckbox.addListener(Events.Change, new InfoBoxResetListener(infoBox));
+        }
+        return mandatoryCheckbox;
     }
 
-    private final FormPanel creatFormPanel()
+    private final FormPanel createFormPanel()
     {
         final FormPanel panel = new FormPanel();
         panel.setHeaderVisible(false);
         panel.setBodyBorder(false);
         panel.setWidth(LABEL_WIDTH + FIELD_WIDTH + 40);
-
         panel.setLabelWidth(LABEL_WIDTH);
         panel.setFieldWidth(FIELD_WIDTH);
         panel.setButtonAlign(HorizontalAlignment.RIGHT);
         final Button saveButton = new Button(viewContext.getMessage(Dict.BUTTON_SAVE));
         saveButton.setStyleAttribute("marginRight", "20px");
-        saveButton.setId(SAVE_BUTTON_ID_PREFIX + entityKind.name());
+        saveButton.setId(createId(SAVE_BUTTON_ID_SUFFIX));
         saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
                 @Override
@@ -207,8 +211,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer
                 @Override
                 public final void componentSelected(final ButtonEvent ce)
                 {
-                    formPanel.reset();
-                    updateDefaultField();
+                    resetForm();
                 }
             });
         panel.addButton(resetButton);
@@ -216,19 +219,12 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer
         return panel;
     }
 
-    private final void submitForm()
-    {
-        if (formPanel.isValid())
-        {
-            viewContext.getService().assignPropertyType(entityKind,
-                    propertyTypeSelectionWidget.tryGetSelectedPropertyTypeCode(),
-                    getSelectedEntityCode(), mandatoryCheckbox.getValue(), getDefaultValue(),
-                    new AssignPropertyTypeCallback(viewContext));
-        }
-    }
-
     private String getDefaultValue()
     {
+        if (defaultValueField != null)
+        {
+            return PropertyFieldFactory.valueToString(defaultValueField.getValue());
+        }
         return null;
     }
 
@@ -241,7 +237,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer
             case SAMPLE:
                 return sampleTypeSelectionWidget.tryGetSelectedSampleType().getCode();
             default:
-                throw new IllegalArgumentException("Unsupported entity kind");
+                throw new IllegalArgumentException(UNSUPPORTED_ENTITY_KIND);
         }
     }
 
@@ -249,25 +245,16 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer
     {
         formPanel.add(getPropertyTypeWidget());
         formPanel.add(getTypeSelectionWidget());
-        formPanel.add(mandatoryCheckbox);
+        formPanel.add(getMandatoryCheckbox());
         updateDefaultField();
     }
-
-    //
-    // FormPanel
-    //
 
     @Override
     protected final void onRender(final Element target, final int index)
     {
         super.onRender(target, index);
-        createFormFields();
         addFormFields();
     }
-
-    //
-    // Helper classes
-    //
 
     final static class InfoBoxResetListener implements Listener<FieldEvent>
     {
@@ -279,10 +266,6 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer
             this.infoBox = infoBox;
         }
 
-        //
-        // Listener
-        //
-
         public final void handleEvent(final FieldEvent be)
         {
             infoBox.reset();
@@ -291,7 +274,6 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer
 
     public final class AssignPropertyTypeCallback extends AbstractAsyncCallback<Void>
     {
-
         AssignPropertyTypeCallback(final IViewContext<?> viewContext)
         {
             super(viewContext, new InfoBoxCallbackListener<Void>(infoBox));
@@ -304,10 +286,6 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer
                     + eKind.toLowerCase() + " <b>" + entityTypeCode + "</b>.";
         }
 
-        //
-        // AbstractAsyncCallback
-        //
-
         @Override
         protected final void process(final Void result)
         {
@@ -316,42 +294,52 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer
                             .tryGetSelectedPropertyTypeCode(), entityKind.name() + " type",
                             getSelectedEntityCode());
             infoBox.displayInfo(message);
-            formPanel.reset();
-            updateDefaultField();
+            resetForm();
         }
     }
 
     private void updateDefaultField()
     {
+        hideDefaultField();
         final PropertyType propertyType = propertyTypeSelectionWidget.tryGetSelectedPropertyType();
-        if (propertyType == null)
+        if (propertyType != null)
         {
-            hideDefaultValueField();
-        } else
-        {
-            updateDefaultValueField(PropertyFieldFactory.createField(propertyType, false,
-                    DEFAULT_VALUE, getId() + DEFAULT_VALUE_ID_PREFIX + propertyType.getCode()));
+            Field<?> field =
+                    PropertyFieldFactory.createField(propertyType, false, viewContext
+                            .getMessage(Dict.DEFAULT_VALUE), createId(DEFAULT_VALUE_ID_PART
+                            + propertyType.getCode()));
+            defaultValueField = field;
+            defaultValueField.show();
+            formPanel.add(defaultValueField);
         }
+        layout();
     }
 
-    private void hideDefaultValueField()
+    private void hideDefaultField()
     {
         if (defaultValueField != null)
         {
             defaultValueField.hide();
             formPanel.remove(defaultValueField);
             defaultValueField = null;
-            layout();
         }
     }
 
-    private void updateDefaultValueField(Field<?> field)
+    private final void submitForm()
     {
-        hideDefaultValueField();
-        defaultValueField = field;
-        defaultValueField.show();
-        formPanel.add(defaultValueField);
-        layout();
+        if (formPanel.isValid())
+        {
+            viewContext.getService().assignPropertyType(entityKind,
+                    propertyTypeSelectionWidget.tryGetSelectedPropertyTypeCode(),
+                    getSelectedEntityCode(), getMandatoryCheckbox().getValue(), getDefaultValue(),
+                    new AssignPropertyTypeCallback(viewContext));
+        }
+    }
+
+    private void resetForm()
+    {
+        formPanel.reset();
+        updateDefaultField();
     }
 
 }

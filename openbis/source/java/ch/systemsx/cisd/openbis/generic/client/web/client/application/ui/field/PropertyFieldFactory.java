@@ -16,8 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
+import java.util.Date;
+
 import com.extjs.gxt.ui.client.widget.form.Field;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 
@@ -59,5 +62,19 @@ public class PropertyFieldFactory
         }
         field.setId(fieldId);
         return field;
+    }
+
+    public static final String valueToString(final Object value)
+    {
+        if (value == null)
+        {
+            return null;
+        } else if (value instanceof Date)
+        {
+            return DateRenderer.renderDate((Date) value);
+        } else
+        {
+            return value.toString();
+        }
     }
 }

@@ -206,6 +206,10 @@ public class Dict
 
     public static final String VOCABULARY_TERMS_EMPTY = "vocabulary_terms_empty";
 
+    public static final String MANDATORY = "mandatory";
+
+    public static final String DEFAULT_VALUE = "default_value";
+
     // -------- generic plugin dictionary -------------------
 
     //

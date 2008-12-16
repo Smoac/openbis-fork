@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Events;
@@ -35,7 +34,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
@@ -175,20 +173,6 @@ public final class GenericSampleRegistrationForm extends AbstractRegistrationFor
         return builder.toString().toUpperCase();
     }
 
-    private final String valueToString(final Object value)
-    {
-        if (value == null)
-        {
-            return null;
-        } else if (value instanceof Date)
-        {
-            return DateRenderer.renderDate((Date) value);
-        } else
-        {
-            return value.toString();
-        }
-    }
-
     private final void addFormFields()
     {
         formPanel.add(codeField);
@@ -237,7 +221,7 @@ public final class GenericSampleRegistrationForm extends AbstractRegistrationFor
             {
                 final SampleTypePropertyType stpt = field.getData(ETPT);
                 final SampleProperty sampleProperty = new SampleProperty();
-                sampleProperty.setValue(valueToString(field.getValue()));
+                sampleProperty.setValue(PropertyFieldFactory.valueToString(field.getValue()));
                 sampleProperty.setEntityTypePropertyType(stpt);
                 properties.add(sampleProperty);
             }

@@ -128,6 +128,8 @@ var common = {
   type_of: "Type of",
   vocabulary_terms: "Terms",
   vocabulary_terms_empty: "White space or comma separated list",
+  mandatory: "Mandatory",
+  default_value: "Default value",
 
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma
