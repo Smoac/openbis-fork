@@ -16,18 +16,24 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import org.springframework.dao.DataAccessException;
+
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 
 /**
  * The only productive implementation of {@link IPropertyTypeBO}.
  * 
  * @author Christian Ribeaud
  */
-public class PropertyTypeBO extends AbstractBusinessObject implements IPropertyTypeBO
+public final class PropertyTypeBO extends AbstractBusinessObject implements IPropertyTypeBO
 {
+    private PropertyTypePE propertyTypePE;
 
     public PropertyTypeBO(final IDAOFactory daoFactory, final Session session)
     {
@@ -40,14 +46,36 @@ public class PropertyTypeBO extends AbstractBusinessObject implements IPropertyT
 
     public final void define(final PropertyType propertyType) throws UserFailureException
     {
-        // TODO Auto-generated method stub
-
+        propertyTypePE = new PropertyTypePE();
+        propertyTypePE.setDatabaseInstance(getHomeDatabaseInstance());
+        propertyTypePE.setCode(propertyType.getCode());
+        propertyTypePE.setLabel(propertyType.getLabel());
+        propertyTypePE.setDescription(propertyType.getDescription());
+        final String dataTypeCode = propertyType.getDataType().getCode().name();
+        final DataTypePE dataTypePE = getPropertyTypeDAO().tryFindDataTypeByCode(dataTypeCode);
+        if (dataTypePE == null)
+        {
+            throw UserFailureException.fromTemplate(String.format("Unknow data type code '%s'."),
+                    dataTypeCode);
+        }
+        propertyTypePE.setType(dataTypePE);
+        propertyTypePE.setRegistrator(findRegistrator());
+        if (EntityDataType.CONTROLLEDVOCABULARY.equals(dataTypePE.getCode()))
+        {
+            // propertyTypePE.setVocabulary(vocabulary);
+        }
     }
 
     public final void save() throws UserFailureException
     {
-        // TODO Auto-generated method stub
-
+        assert propertyTypePE != null : "Property type not defined.";
+        try
+        {
+            getPropertyTypeDAO().createPropertyType(propertyTypePE);
+        } catch (final DataAccessException e)
+        {
+            throwException(e, String.format("Property type '%s'.", propertyTypePE.getCode()));
+        }
     }
 
 }

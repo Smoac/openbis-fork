@@ -16,26 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
 /**
+ * A vocabulary term.
+ * 
  * @author Izabela Adamczyk
  */
-public class VocabularyTerm implements IsSerializable
+public final class VocabularyTerm extends Code<VocabularyTerm>
 {
-    private String code;
-
     public VocabularyTerm()
     {
-    }
-
-    public String getCode()
-    {
-        return code;
-    }
-
-    public void setCode(String code)
-    {
-        this.code = code;
     }
 }

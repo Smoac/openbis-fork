@@ -233,6 +233,6 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
             final PropertyType propertyType)
     {
         logTracking(sessionToken, "register_property_type", "PROPERTY_TYPE(%s)", CodeConverter
-                .tryToBusinessLayer(propertyType.getSimpleCode(), true));
+                .tryToBusinessLayer(propertyType.getCode(), true));
     }
 }

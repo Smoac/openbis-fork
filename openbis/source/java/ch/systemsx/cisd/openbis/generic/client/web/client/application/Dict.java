@@ -206,6 +206,8 @@ public class Dict
 
     public static final String VOCABULARY_TERMS_EMPTY = "vocabulary_terms_empty";
 
+    public static final String VOCABULARY_CODE = "vocabulary_code";
+
     // -------- generic plugin dictionary -------------------
 
     //

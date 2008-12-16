@@ -22,6 +22,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.support.JdbcAccessor;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -68,7 +69,7 @@ final class PropertyTypeDAO extends AbstractDAO implements IPropertyTypeDAO
                                 PropertyTypePE.class.getSimpleName()),
                         toArray(CodeConverter.tryToDatabase(code), getDatabaseInstance(),
                                 CodeConverter.isInternalNamespace(code))));
-        final PropertyTypePE entity = tryFindEntity(list, "type");
+        final PropertyTypePE entity = tryFindEntity(list, "property type");
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%s(%s): '%s'.", MethodUtils.getCurrentMethod()
@@ -116,4 +117,39 @@ final class PropertyTypeDAO extends AbstractDAO implements IPropertyTypeDAO
         }
         return list;
     }
+
+    public final DataTypePE tryFindDataTypeByCode(final String code) throws DataAccessException
+    {
+        assert code != null : "Unspecified property type code";
+
+        final List<DataTypePE> list =
+                cast(getHibernateTemplate().find(
+                        String.format("from %s dt where dt.code = ? and dt.databaseInstance = ?",
+                                PropertyTypePE.class.getSimpleName()),
+                        toArray(CodeConverter.tryToDatabase(code), getDatabaseInstance())));
+        final DataTypePE entity = tryFindEntity(list, "data type");
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%s(%s): '%s'.", MethodUtils.getCurrentMethod()
+                    .getName(), code, entity));
+        }
+        return entity;
+    }
+
+    public final void createPropertyType(final PropertyTypePE propertyType)
+            throws DataAccessException
+    {
+        assert propertyType != null : "Unspecified property type.";
+        validatePE(propertyType);
+
+        propertyType.setSimpleCode(CodeConverter.tryToDatabase(propertyType.getSimpleCode()));
+        final HibernateTemplate template = getHibernateTemplate();
+        template.save(propertyType);
+        template.flush();
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("ADD: property type '%s'.", propertyType));
+        }
+    }
+
 }

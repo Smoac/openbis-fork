@@ -19,22 +19,41 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
 /**
  * Controlled vocabulary.
  * 
  * @author Izabela Adamczyk
  */
-public class Vocabulary implements IsSerializable
+public final class Vocabulary extends Code<Vocabulary>
 {
-
-    String code;
-
     private List<VocabularyTerm> terms = new ArrayList<VocabularyTerm>();
+
+    private boolean managedInternally;
+
+    private boolean internalNamespace;
 
     public Vocabulary()
     {
+    }
+
+    public final boolean isManagedInternally()
+    {
+        return managedInternally;
+    }
+
+    public final void setManagedInternally(final boolean managedInternally)
+    {
+        this.managedInternally = managedInternally;
+    }
+
+    public final boolean isInternalNamespace()
+    {
+        return internalNamespace;
+    }
+
+    public final void setInternalNamespace(final boolean internalNamespace)
+    {
+        this.internalNamespace = internalNamespace;
     }
 
     public List<VocabularyTerm> getTerms()
@@ -42,19 +61,9 @@ public class Vocabulary implements IsSerializable
         return terms;
     }
 
-    public void setTerms(List<VocabularyTerm> terms)
+    public void setTerms(final List<VocabularyTerm> terms)
     {
         this.terms = terms;
-    }
-
-    public String getCode()
-    {
-        return code;
-    }
-
-    public void setCode(String code)
-    {
-        this.code = code;
     }
 
 }

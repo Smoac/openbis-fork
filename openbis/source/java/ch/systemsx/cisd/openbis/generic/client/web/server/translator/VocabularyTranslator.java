@@ -28,15 +28,22 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 /**
  * @author Izabela Adamczyk
  */
-public class VocabularyTranslator
+public final class VocabularyTranslator
 {
-    public static Vocabulary translate(VocabularyPE vocabulary)
+    private VocabularyTranslator()
+    {
+        // Can not be instantiated.
+    }
+
+    public final static Vocabulary translate(final VocabularyPE vocabulary)
     {
         if (vocabulary == null)
         {
             return null;
         }
-        Vocabulary result = new Vocabulary();
+        final Vocabulary result = new Vocabulary();
+        result.setInternalNamespace(vocabulary.isInternalNamespace());
+        result.setManagedInternally(vocabulary.isManagedInternally());
         List<VocabularyTerm> list;
         if (HibernateUtils.isInitialized(vocabulary.getTerms()) == false)
         {
@@ -44,7 +51,7 @@ public class VocabularyTranslator
         } else
         {
             list = new ArrayList<VocabularyTerm>();
-            for (VocabularyTermPE vt : vocabulary.getTerms())
+            for (final VocabularyTermPE vt : vocabulary.getTerms())
             {
                 list.add(VocabularyTermTranslator.translate(vt));
             }

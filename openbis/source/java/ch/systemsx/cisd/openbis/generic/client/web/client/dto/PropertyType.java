@@ -25,8 +25,6 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public class PropertyType extends Code<PropertyType> implements IsSerializable
 {
-    private String simpleCode;
-
     private String label;
 
     private boolean internalNamespace;
@@ -44,16 +42,6 @@ public class PropertyType extends Code<PropertyType> implements IsSerializable
     private List<MaterialTypePropertyType> materialTypePropertyTypes;
 
     private List<ExperimentTypePropertyType> experimentTypePropertyTypes;
-
-    public String getSimpleCode()
-    {
-        return simpleCode;
-    }
-
-    public void setSimpleCode(final String code)
-    {
-        this.simpleCode = code;
-    }
 
     public String getLabel()
     {

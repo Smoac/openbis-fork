@@ -32,7 +32,7 @@ class PropertySampleColDef extends AbstractSampleColDef implements IsSerializabl
 
     private boolean isInternalNamespace;
 
-    private String simpleCode;
+    private String code;
 
     // GWT only
     public PropertySampleColDef()
@@ -43,7 +43,7 @@ class PropertySampleColDef extends AbstractSampleColDef implements IsSerializabl
     {
         super(propertyType.getLabel(), PROPERTY_COLUMN_WIDTH, isDisplayedByDefault);
         this.isInternalNamespace = propertyType.isInternalNamespace();
-        this.simpleCode = propertyType.getSimpleCode();
+        this.code = propertyType.getCode();
     }
 
     @Override
@@ -64,11 +64,11 @@ class PropertySampleColDef extends AbstractSampleColDef implements IsSerializabl
     {
         PropertyType propertyType = prop.getEntityTypePropertyType().getPropertyType();
         return propertyType.isInternalNamespace() == isInternalNamespace
-                && propertyType.getSimpleCode().equals(simpleCode);
+                && propertyType.getCode().equals(code);
     }
 
     public String getIdentifier()
     {
-        return PROPERTY_PREFIX + isInternalNamespace + simpleCode;
+        return PROPERTY_PREFIX + isInternalNamespace + code;
     }
 }

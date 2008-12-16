@@ -61,6 +61,8 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
 
     private VarcharField descriptionField;
 
+    private CodeField vocabularyField;
+
     private DataTypeSelectionWidget dataTypeSelectionWidget;
 
     private TextArea vocabularyTermsField;
@@ -86,12 +88,21 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
         return terms;
     }
 
+    private final void enableVocabularyFields(final boolean visible)
+    {
+        vocabularyTermsField.setVisible(visible);
+        vocabularyTermsField.setAllowBlank(!visible);
+        vocabularyTermsField.reset();
+    }
+
     private final void addFields()
     {
         formPanel.add(codeField = new CodeField(viewContext, viewContext.getMessage(Dict.CODE)));
         formPanel.add(labelField = createLabelField());
         formPanel.add(descriptionField = createDescriptionField());
         formPanel.add(dataTypeSelectionWidget = new DataTypeSelectionWidget(viewContext));
+        formPanel.add(vocabularyField =
+                new CodeField(viewContext, viewContext.getMessage(Dict.VOCABULARY_CODE)));
         formPanel.add(vocabularyTermsField = createVocabularyTermsTextArea());
         dataTypeSelectionWidget
                 .addSelectionChangedListener(new SelectionChangedListener<DataTypeModel>()
@@ -106,20 +117,19 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
                                 final SelectionChangedEvent<DataTypeModel> se)
                         {
                             final DataTypeModel selectedItem = se.getSelectedItem();
-                            final boolean visible;
+                            final boolean enabled;
                             if (selectedItem != null)
                             {
-                                visible =
+                                enabled =
                                         selectedItem.get(ModelDataPropertyNames.CODE).equals(
                                                 DataTypeCode.CONTROLLEDVOCABULARY.name());
                             } else
                             {
-                                visible = false;
+                                enabled = false;
                             }
-                            vocabularyTermsField.setVisible(visible);
-                            vocabularyTermsField.setAllowBlank(!visible);
-                            vocabularyTermsField.reset();
+                            enableVocabularyFields(enabled);
                         }
+
                     });
     }
 
@@ -183,15 +193,14 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
     private final PropertyType createPropertyType()
     {
         final PropertyType propertyType = new PropertyType();
-        propertyType.setSimpleCode(codeField.getValue());
+        propertyType.setCode(codeField.getValue());
         propertyType.setLabel(labelField.getValue());
         propertyType.setDescription(descriptionField.getValue());
-        propertyType.setInternalNamespace(false);
-        propertyType.setManagedInternally(false);
         if (DataTypeCode.CONTROLLEDVOCABULARY.equals(dataTypeSelectionWidget
                 .tryGetSelectedDataType().getCode()))
         {
             final Vocabulary vocabulary = new Vocabulary();
+            vocabulary.setCode(vocabularyField.getValue());
             List<VocabularyTerm> vocabularyTerms = new ArrayList<VocabularyTerm>();
             for (final String termCode : getTerms(vocabularyTermsField.getValue()))
             {
@@ -234,8 +243,7 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
 
         private final String createMessage()
         {
-            return "Property type <b>" + propertyType.getSimpleCode()
-                    + "</b> successfully registered.";
+            return "Property type <b>" + propertyType.getCode() + "</b> successfully registered.";
         }
 
         //

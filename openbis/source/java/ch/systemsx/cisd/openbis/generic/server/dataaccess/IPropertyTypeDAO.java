@@ -34,12 +34,12 @@ public interface IPropertyTypeDAO
     /**
      * Returns the property type for the specified code.
      */
-    public PropertyTypePE tryFindPropertyTypeByCode(String code) throws DataAccessException;
+    public PropertyTypePE tryFindPropertyTypeByCode(final String code) throws DataAccessException;
 
     /**
      * Returns all property types including internally managed.
      */
-    public List<PropertyTypePE> listAllPropertyTypes();
+    public List<PropertyTypePE> listAllPropertyTypes() throws DataAccessException;
 
     /**
      * Returns property types excluding those which are internally managed.
@@ -49,5 +49,17 @@ public interface IPropertyTypeDAO
     /**
      * Lists the data types registered in the database.
      */
-    public List<DataTypePE> listDataTypes();
+    public List<DataTypePE> listDataTypes() throws DataAccessException;
+
+    /**
+     * Returns the {@link DataTypePE} for specified <var>code</var> or <code>null</code> if none
+     * could be found.
+     */
+    public DataTypePE tryFindDataTypeByCode(final String code) throws DataAccessException;
+
+    /**
+     * Creates a new property type based on given <var>propertyType</var>.
+     */
+    public void createPropertyType(final PropertyTypePE propertyType) throws DataAccessException;
+
 }

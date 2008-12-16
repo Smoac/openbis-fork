@@ -40,7 +40,7 @@ public final class ExperimentModel extends BaseModelData
 
     public static String createID(final PropertyType propertyType)
     {
-        return PROPERTY_PREFIX + propertyType.isInternalNamespace() + propertyType.getSimpleCode();
+        return PROPERTY_PREFIX + propertyType.isInternalNamespace() + propertyType.getCode();
     }
 
     public ExperimentModel(final Experiment experiment)

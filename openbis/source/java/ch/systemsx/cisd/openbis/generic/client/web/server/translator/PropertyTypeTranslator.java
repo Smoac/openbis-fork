@@ -38,7 +38,6 @@ public final class PropertyTypeTranslator
     public final static PropertyType translate(final PropertyTypePE propertyType)
     {
         final PropertyType result = new PropertyType();
-        result.setSimpleCode(propertyType.getSimpleCode());
         result.setCode(propertyType.getCode());
         result.setInternalNamespace(propertyType.isInternalNamespace());
         result.setManagedInternally(propertyType.isManagedInternally());
@@ -58,7 +57,7 @@ public final class PropertyTypeTranslator
     public final static PropertyTypePE translate(final PropertyType propertyType)
     {
         final PropertyTypePE result = new PropertyTypePE();
-        result.setSimpleCode(propertyType.getSimpleCode());
+        result.setCode(propertyType.getCode());
         result.setInternalNamespace(propertyType.isInternalNamespace());
         result.setLabel(propertyType.getLabel());
         return result;

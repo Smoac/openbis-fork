@@ -70,7 +70,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
                         userDescription)));
         prepareListingAfterRegistration(sampleTypeCode);
         remoteConsole.prepare(new CheckSampleTable().expectedRow(new SampleRow(SHARED_CL)
-                .identifier("CISD").property("DESCRIPTION", false, userDescription)));
+                .identifier("CISD").property("USER.DESCRIPTION", userDescription)));
         remoteConsole.finish(30000);
         client.onModuleLoad();
     }
