@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
@@ -63,6 +64,8 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
 
     private final IProjectDAO projectDAO;
 
+    private final IVocabularyDAO vocabularyDAO;
+
     public DAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory)
     {
@@ -75,6 +78,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         propertyTypeDAO = new PropertyTypeDAO(sessionFactory, databaseInstance);
         experimentDAO = new ExperimentDAO(sessionFactory, databaseInstance);
         projectDAO = new ProjectDAO(sessionFactory, databaseInstance);
+        vocabularyDAO = new VocabularyDAO(sessionFactory, databaseInstance);
         final EntityKind[] entityKinds = EntityKind.values();
         for (final EntityKind entityKind : entityKinds)
         {
@@ -133,5 +137,10 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     public final IProjectDAO getProjectDAO()
     {
         return projectDAO;
+    }
+
+    public final IVocabularyDAO getVocabularyDAO()
+    {
+        return vocabularyDAO;
     }
 }

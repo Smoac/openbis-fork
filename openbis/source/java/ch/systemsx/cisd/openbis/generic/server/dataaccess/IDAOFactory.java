@@ -70,4 +70,9 @@ public interface IDAOFactory extends IAuthorizationDAOFactory
      * @return The implementation of the {@link IProjectDAO}.
      */
     public IProjectDAO getProjectDAO();
+
+    /**
+     * @return The implementation of the {@link IVocabularyDAO}.
+     */
+    public IVocabularyDAO getVocabularyDAO();
 }
