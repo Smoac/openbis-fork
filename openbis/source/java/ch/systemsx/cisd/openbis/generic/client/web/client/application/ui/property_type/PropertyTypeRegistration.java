@@ -22,8 +22,10 @@ import java.util.List;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.Validator;
+import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -67,6 +69,8 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
 
     private TextArea vocabularyTermsField;
 
+    private FieldSet vocabularyFieldSet;
+
     public PropertyTypeRegistration(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, ID_PREFIX, DEFAULT_LABEL_WIDTH + 20, DEFAULT_FIELD_WIDTH);
@@ -88,11 +92,33 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
         return terms;
     }
 
-    private final void enableVocabularyFields(final boolean visible)
+    private final void setVocabularyFieldSetVisible(final boolean visible)
     {
+        vocabularyField.setVisible(visible);
+        vocabularyField.setAllowBlank(!visible);
+        vocabularyField.reset();
         vocabularyTermsField.setVisible(visible);
         vocabularyTermsField.setAllowBlank(!visible);
         vocabularyTermsField.reset();
+        vocabularyFieldSet.setVisible(visible);
+    }
+
+    private final FieldSet createFieldSet()
+    {
+        final FieldSet fieldSet = new FieldSet();
+        fieldSet.setHeading(viewContext.getMessage(Dict.CONTROLLED_VOCABULARY));
+        fieldSet.setLayout(createFormLayout());
+        fieldSet.setWidth(labelWidth + fieldWitdh);
+        fieldSet.setVisible(false);
+        return fieldSet;
+    }
+
+    private final FormLayout createFormLayout()
+    {
+        final FormLayout formLayout = new FormLayout();
+        formLayout.setLabelWidth(labelWidth);
+        formLayout.setDefaultWidth(fieldWitdh - 40);
+        return formLayout;
     }
 
     private final void addFields()
@@ -101,9 +127,10 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
         formPanel.add(labelField = createLabelField());
         formPanel.add(descriptionField = createDescriptionField());
         formPanel.add(dataTypeSelectionWidget = new DataTypeSelectionWidget(viewContext));
-        formPanel.add(vocabularyField =
+        formPanel.add(vocabularyFieldSet = createFieldSet());
+        vocabularyFieldSet.add(vocabularyField =
                 new CodeField(viewContext, viewContext.getMessage(Dict.VOCABULARY_CODE)));
-        formPanel.add(vocabularyTermsField = createVocabularyTermsTextArea());
+        vocabularyFieldSet.add(vocabularyTermsField = createVocabularyTermsTextArea());
         dataTypeSelectionWidget
                 .addSelectionChangedListener(new SelectionChangedListener<DataTypeModel>()
                     {
@@ -117,17 +144,17 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
                                 final SelectionChangedEvent<DataTypeModel> se)
                         {
                             final DataTypeModel selectedItem = se.getSelectedItem();
-                            final boolean enabled;
+                            final boolean visible;
                             if (selectedItem != null)
                             {
-                                enabled =
+                                visible =
                                         selectedItem.get(ModelDataPropertyNames.CODE).equals(
                                                 DataTypeCode.CONTROLLEDVOCABULARY.name());
                             } else
                             {
-                                enabled = false;
+                                visible = false;
                             }
-                            enableVocabularyFields(enabled);
+                            setVocabularyFieldSetVisible(visible);
                         }
 
                     });
@@ -155,8 +182,6 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
         final String fieldLabel = viewContext.getMessage(Dict.VOCABULARY_TERMS);
         VarcharField.configureField(textArea, fieldLabel, true);
         textArea.setEmptyText(viewContext.getMessage(Dict.VOCABULARY_TERMS_EMPTY));
-        textArea.setVisible(false);
-        textArea.setAllowBlank(true);
         textArea.setValidator(new Validator<String, TextArea>()
             {
 

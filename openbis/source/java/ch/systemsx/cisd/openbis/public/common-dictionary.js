@@ -127,6 +127,7 @@ var common = {
   assigned_to: "Assigned to",
   type_of: "Type of",
   vocabulary_terms: "Vocabulary terms",
+  vocabulary_code: "Vocabulary code",
   vocabulary_terms_empty: "White space or comma separated list",
 
   // LAST LINE: KEEP IT AT THE END
