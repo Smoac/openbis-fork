@@ -22,6 +22,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
@@ -32,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
  * 
  * @author Christian Ribeaud
  */
-public final class DatabaseInstanceIdentifierPredicateTest extends PredicateTestCase
+public final class DatabaseInstanceIdentifierPredicateTest extends AuthorizationTestCase
 {
 
     @Test

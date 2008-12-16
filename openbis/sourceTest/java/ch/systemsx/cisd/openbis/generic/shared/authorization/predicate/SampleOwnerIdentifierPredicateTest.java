@@ -21,6 +21,7 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
@@ -31,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentif
  *
  * @author Franz-Josef Elmer
  */
-public class SampleOwnerIdentifierPredicateTest extends PredicateTestCase
+public class SampleOwnerIdentifierPredicateTest extends AuthorizationTestCase
 {
     @Test
     public void testAllowedToModifyDatabase()

@@ -21,8 +21,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -47,18 +45,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 public final class PredicateExecutorTest extends AuthorizationTestCase
 {
 
-    private Mockery context;
-
     private IPredicate<String> stringPredicate;
 
     private IPredicateFactory predicateFactory;
 
     private IAuthorizationDAOFactory daoFactory;
-
-    private final static PersonPE createPerson()
-    {
-        return new PersonPE();
-    }
 
     private List<RoleWithIdentifier> createAllowedRoles()
     {
@@ -66,24 +57,17 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
                 new GroupIdentifier("DB1", "3V")));
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     @BeforeMethod
     public void setUp()
     {
-        context = new Mockery();
+        super.setUp();
         stringPredicate = context.mock(IPredicate.class);
         predicateFactory = context.mock(IPredicateFactory.class);
         daoFactory = context.mock(IAuthorizationDAOFactory.class);
         PredicateExecutor.setPredicateFactory(predicateFactory);
         PredicateExecutor.setDAOFactory(daoFactory);
-    }
-
-    @AfterMethod
-    public void tearDown()
-    {
-        // To following line of code should also be called at the end of each test method.
-        // Otherwise one do not known which test failed.
-        context.assertIsSatisfied();
     }
 
     @SuppressWarnings("unchecked")

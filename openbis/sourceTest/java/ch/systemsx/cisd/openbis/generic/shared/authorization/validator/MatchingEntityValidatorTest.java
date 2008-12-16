@@ -16,21 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.authorization.validator;
 
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertTrue;
-
-import java.util.HashSet;
-import java.util.Set;
-
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IMatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
 
@@ -40,49 +33,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
  * @author Christian Ribeaud
  */
 @Friend(toClasses = MatchingEntityValidator.class)
-public final class MatchingEntityValidatorTest
+public final class MatchingEntityValidatorTest extends AuthorizationTestCase
 {
-
-    private final static ExperimentPE createExperiment()
+    private static SearchHit asHit(IMatchingEntity matchingEntity)
     {
-        final ExperimentPE experiment = new ExperimentPE();
-        final ProjectPE projectPE = new ProjectPE();
-        projectPE.setGroup(GroupValidatorTest.createGroup());
-        experiment.setProject(projectPE);
-        return experiment;
+        return new SearchHit(matchingEntity, "unimportant", "?");
     }
-
-    private final static SamplePE createGroupSample()
-    {
-        final SamplePE sample = new SamplePE();
-        sample.setGroup(GroupValidatorTest.createGroup());
-        return sample;
-    }
-
-    private final static SamplePE createDatabaseSample()
-    {
-        final SamplePE sample = new SamplePE();
-        sample.setDatabaseInstance(GroupValidatorTest.createDatabaseInstance());
-        return sample;
-    }
-
-    final static PersonPE createPerson(final boolean withRoleAssignment)
-    {
-        final PersonPE person = new PersonPE();
-        if (withRoleAssignment)
-        {
-            final Set<RoleAssignmentPE> list = new HashSet<RoleAssignmentPE>();
-            // Group assignment
-            final RoleAssignmentPE assignment = new RoleAssignmentPE();
-            assignment.setRole(RoleCode.USER);
-            assignment.setPerson(person);
-            assignment.setGroup(GroupValidatorTest.createAnotherGroup());
-            list.add(assignment);
-            person.setRoleAssignments(list);
-        }
-        return person;
-    }
-
+    
     @Test
     public final void testIsValidFailed()
     {
@@ -98,36 +55,50 @@ public final class MatchingEntityValidatorTest
     }
 
     @Test
-    public final void testIsValidWithExperiment()
+    public final void testWithExperimentInTheRightGroup()
     {
-        final PersonPE person = createPerson(true);
-        final ExperimentPE experiment = createExperiment();
+        final PersonPE person = createPersonWithRoleAssignments();
+        final ExperimentPE experiment = createExperiment(createGroup());
         final MatchingEntityValidator validator = new MatchingEntityValidator();
-        // Different group
-        assertFalse(validator.isValid(person, asHit(experiment)));
-        // Same group
-        experiment.getProject().getGroup().setId(GroupValidatorTest.ANOTHER_GROUP_ID);
-        assertTrue(validator.isValid(person, asHit(experiment)));
-    }
-
-    private static SearchHit asHit(IMatchingEntity matchingEntity)
-    {
-        return new SearchHit(matchingEntity, "unimportant", "?");
+        assertEquals(true, validator.isValid(person, asHit(experiment)));
     }
 
     @Test
-    public final void testIsValidWithSample()
+    public final void testWithExperimentInTheWrongGroup()
     {
-        final PersonPE person = createPerson(true);
-        final SamplePE groupSample = createGroupSample();
+        final PersonPE person = createPersonWithRoleAssignments();
+        GroupPE group = createGroup("blabla", createAnotherDatabaseInstance());
+        final ExperimentPE experiment = createExperiment(group);
         final MatchingEntityValidator validator = new MatchingEntityValidator();
-        // Different group
-        assertFalse(validator.isValid(person, asHit(groupSample)));
-        // Same group
-        groupSample.getGroup().setId(GroupValidatorTest.ANOTHER_GROUP_ID);
-        assertTrue(validator.isValid(person, asHit(groupSample)));
-        // Database sample
-        final SamplePE databaseSample = createDatabaseSample();
-        assertTrue(validator.isValid(person, asHit(databaseSample)));
+        assertEquals(false, validator.isValid(person, asHit(experiment)));
     }
+    
+    @Test
+    public final void testWithSampleInTheRightGroup()
+    {
+        final PersonPE person = createPersonWithRoleAssignments();
+        final SamplePE sample = createSample(createGroup());
+        final MatchingEntityValidator validator = new MatchingEntityValidator();
+        assertEquals(true, validator.isValid(person, asHit(sample)));
+    }
+
+    @Test
+    public final void testWithSampleInTheWrongGroup()
+    {
+        final PersonPE person = createPersonWithRoleAssignments();
+        GroupPE group = createGroup("blabla", createAnotherDatabaseInstance());
+        final SamplePE sample = createSample(group);
+        final MatchingEntityValidator validator = new MatchingEntityValidator();
+        assertEquals(false, validator.isValid(person, asHit(sample)));
+    }
+    
+    @Test
+    public final void testWithInstanceSample()
+    {
+        final PersonPE person = createPersonWithRoleAssignments();
+        final SamplePE sample = createSample(createDatabaseInstance());
+        final MatchingEntityValidator validator = new MatchingEntityValidator();
+        assertEquals(true, validator.isValid(person, asHit(sample)));
+    }
+    
 }

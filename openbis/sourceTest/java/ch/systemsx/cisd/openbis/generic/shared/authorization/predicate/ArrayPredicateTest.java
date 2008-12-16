@@ -23,6 +23,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
@@ -31,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  *
  * @author Franz-Josef Elmer
  */
-public class ArrayPredicateTest extends PredicateTestCase
+public class ArrayPredicateTest extends AuthorizationTestCase
 {
     private IPredicate<String> predicate;
 

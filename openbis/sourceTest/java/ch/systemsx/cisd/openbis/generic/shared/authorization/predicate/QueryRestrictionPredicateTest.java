@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.authorization.predicate;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryRestriction;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
@@ -29,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
  * 
  * @author Christian Ribeaud
  */
-public final class QueryRestrictionPredicateTest extends PredicateTestCase
+public final class QueryRestrictionPredicateTest extends AuthorizationTestCase
 {
     @Test
     public final void testWithoutInit()

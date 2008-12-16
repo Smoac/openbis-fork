@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.authorization.predicate;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleFilter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierPattern;
@@ -28,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierPa
  *
  * @author Franz-Josef Elmer
  */
-public class SampleFilterPredicateTest extends PredicateTestCase
+public class SampleFilterPredicateTest extends AuthorizationTestCase
 {
     @Test
     public void testHomeDatabaseAllowed()

@@ -16,102 +16,57 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.authorization.validator;
 
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertTrue;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationTestCase;
 
 /**
  * Test cases for corresponding {@link GroupValidator} class.
  * 
  * @author Christian Ribeaud
  */
-public final class GroupValidatorTest
+public final class GroupValidatorTest extends AuthorizationTestCase
 {
-    static final long GROUP_ID = 123L;
-
-    static final long ANOTHER_GROUP_ID = 456L;
-
-    static final long INSTANCE_ID = 987L;
-
-    final static GroupPE createGroup()
-    {
-        final GroupPE group = new GroupPE();
-        group.setId(GROUP_ID);
-        group.setDatabaseInstance(createDatabaseInstance());
-        return group;
-    }
-
-    final static GroupPE createAnotherGroup()
-    {
-        final GroupPE group = new GroupPE();
-        group.setId(ANOTHER_GROUP_ID);
-        group.setDatabaseInstance(createDatabaseInstance());
-        return group;
-    }
-
-    final static DatabaseInstancePE createDatabaseInstance()
-    {
-        final DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
-        databaseInstance.setId(INSTANCE_ID);
-        return databaseInstance;
-    }
-
-    final static PersonPE createPerson(final boolean withRoleAssignment)
-    {
-        final PersonPE person = new PersonPE();
-        if (withRoleAssignment)
-        {
-            final Set<RoleAssignmentPE> list = new HashSet<RoleAssignmentPE>();
-            // Database assignment
-            RoleAssignmentPE assignment = new RoleAssignmentPE();
-            assignment.setRole(RoleCode.ADMIN);
-            assignment.setPerson(person);
-            assignment.setDatabaseInstance(createDatabaseInstance());
-            list.add(assignment);
-            // Group assignment
-            assignment = new RoleAssignmentPE();
-            assignment.setRole(RoleCode.USER);
-            assignment.setPerson(person);
-            assignment.setGroup(createAnotherGroup());
-            list.add(assignment);
-            person.setRoleAssignments(list);
-        }
-        return person;
-    }
-
     @Test
     public final void testIsValidWithNull()
     {
-        boolean fail = true;
         try
         {
             new GroupValidator().isValid(null, null);
+            fail("AssertionError expected");
         } catch (final AssertionError e)
         {
-            fail = false;
+            assertEquals("Unspecified person", e.getMessage());
         }
-        assertFalse(fail);
+        
+        context.assertIsSatisfied();
     }
 
     @Test
-    public final void testIsValid()
+    public final void testIsValidForAPersonWithoutAccessRights()
     {
         final GroupValidator groupValidator = new GroupValidator();
-        assertFalse(groupValidator.isValid(createPerson(false), createGroup()));
-        // Valid because another group is in the same database instance and the person has a role in
-        // it.
-        assertTrue(groupValidator.isValid(createPerson(true), createAnotherGroup()));
-        assertTrue(groupValidator.isValid(createPerson(true), createGroup()));
+        
+        assertFalse(groupValidator.isValid(createPerson(), createGroup()));
+
+        context.assertIsSatisfied();
     }
 
+    @Test
+    public final void testIsValidWithMatchingRoleAssignmentOnGroupLevel()
+    {
+        final GroupValidator groupValidator = new GroupValidator();
+        assertTrue(groupValidator.isValid(createPersonWithRoleAssignments(), createAnotherGroup()));
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public final void testIsValidWithMatchingRoleAssignmentOnDatabaseinstanceLevel()
+    {
+        final GroupValidator groupValidator = new GroupValidator();
+        assertTrue(groupValidator.isValid(createPersonWithRoleAssignments(), createGroup()));
+        context.assertIsSatisfied();
+    }
+    
 }
