@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceId
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * Definition of the client-server interface.
@@ -224,4 +225,14 @@ public interface ICommonServer extends IServer
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     public void registerPropertyType(final String sessionToken, final PropertyType propertyType);
+
+    /**
+     * Assigns property type to entity type.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    public void assignPropertyType(String sessionToken, EntityKind entityKind,
+            String propertyTypeCode, String entityTypeCode, boolean isMandatory, String defaultValue);
+
+
 }

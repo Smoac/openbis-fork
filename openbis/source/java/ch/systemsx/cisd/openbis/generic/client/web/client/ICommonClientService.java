@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
@@ -167,7 +168,15 @@ public interface ICommonClientService extends IClientService
     public List<DataType> listDataTypes() throws UserFailureException;
 
     /**
+     * Assigns property type to entity type.
+     */
+    public void assignPropertyType(EntityKind entityKind, String propertyTypeCode,
+            String entityTypeCode, boolean isMandatory, String defaultValue)
+            throws UserFailureException;
+
+    /**
      * Registers given {@link PropertyType}.
      */
     public void registerPropertyType(final PropertyType propertyType) throws UserFailureException;
+
 }

@@ -65,11 +65,17 @@ public class CategoriesBuilder
 
         public static final String ASSIGN = "ASSIGN";
 
+        public static final String ASSIGN_STPT = "ASSIGN_STPT";
+
+        public static final String ASSIGN_ETPT = "ASSIGN_ETPT";
+
         public static final String REGISTER = "REGISTER";
 
         public static final String REGISTER_FROM_FILE = "REGISTER_FROM_FILE";
 
         public static final String LIST = "LIST";
+
+        public static final String MANAGE = "MANAGE";
 
         public static final String LIST_ASSIGNMENTS = "LIST_ASSIGNMENTS";
     }
@@ -119,17 +125,15 @@ public class CategoriesBuilder
     private MenuCategory createRolesCategory()
     {
         final List<MenuElement> elements = new ArrayList<MenuElement>();
-        elements.add(new MenuElement(MENU_ELEMENTS.LIST, "List", provider.getRolesView()));
-        elements.add(new MenuElement(MENU_ELEMENTS.ASSIGN, "Assign", provider.getDummyComponent()));
+        elements
+                .add(new MenuElement(MENU_ELEMENTS.LIST, "List and Assign", provider.getRolesView()));
         return new MenuCategory(CATEGORIES.ROLES, "Roles", elements);
     }
 
     private MenuCategory createGroupsCategory()
     {
         final List<MenuElement> elements = new ArrayList<MenuElement>();
-        elements.add(new MenuElement(MENU_ELEMENTS.LIST, "List", provider.getGroupsView()));
-        elements.add(new MenuElement(MENU_ELEMENTS.REGISTER, "Register", provider
-                .getDummyComponent()));
+        elements.add(new MenuElement(MENU_ELEMENTS.LIST, "List and Add", provider.getGroupsView()));
         return new MenuCategory(CATEGORIES.GROUPS, "Groups", elements);
     }
 
@@ -145,11 +149,8 @@ public class CategoriesBuilder
     private MenuCategory createPersonsCategory()
     {
         final List<MenuElement> elements = new ArrayList<MenuElement>();
-        elements.add(new MenuElement(MENU_ELEMENTS.LIST, "List", provider.getPersonsView()));
-        elements.add(new MenuElement(MENU_ELEMENTS.REGISTER, "Register", provider
-                .getDummyComponent()));
-        elements.add(new MenuElement(MENU_ELEMENTS.ADD_ROLE, "Add role", provider
-                .getDummyComponent()));
+        elements
+                .add(new MenuElement(MENU_ELEMENTS.LIST, "List and Add", provider.getPersonsView()));
         return new MenuCategory(CATEGORIES.PERSONS, "Persons", elements);
     }
 
@@ -162,6 +163,10 @@ public class CategoriesBuilder
                 .getPropertyTypeAssignmentBrowser()));
         elements.add(new MenuElement(MENU_ELEMENTS.REGISTER, "Register", provider
                 .getPropertyTypeRegistration()));
+        elements.add(new MenuElement(MENU_ELEMENTS.ASSIGN_ETPT, "Assign to expriment type",
+                provider.getPropertyTypeExperimentTypeAssignmentForm()));
+        elements.add(new MenuElement(MENU_ELEMENTS.ASSIGN_STPT, "Assign to sample type", provider
+                .getPropertyTypeSampleTypeAssignmentForm()));
         return new MenuCategory(CATEGORIES.PROPERTY_TYPES, "Property types", elements);
     }
 

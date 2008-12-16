@@ -96,8 +96,9 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
         return new PropertyTypeTable(getDaoFactory(), session);
     }
 
-    public final IPropertyTypeBO createPropertyTypeBO(final Session session)
+  public final IPropertyTypeBO createPropertyTypeBO(final Session session)
     {
         return new PropertyTypeBO(getDaoFactory(), session);
     }
+
 }

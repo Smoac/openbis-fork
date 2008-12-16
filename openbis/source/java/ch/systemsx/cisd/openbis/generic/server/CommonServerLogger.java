@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceId
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * Logger class for {@link CommonServer} which creates readable logs of method invocations.
@@ -97,6 +98,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     public void registerPerson(final String sessionToken, final String userID)
     {
         logTracking(sessionToken, "register_person", "CODE(%s)", userID);
+
     }
 
     public List<RoleAssignmentPE> listRoles(final String sessionToken)
@@ -110,12 +112,14 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logTracking(sessionToken, "register_role", "ROLE(%s) GROUP(%s) PERSON(%s)", roleCode,
                 groupIdentifier, person);
+
     }
 
     public void registerInstanceRole(final String sessionToken, final RoleCode roleCode,
             final String person)
     {
         logTracking(sessionToken, "register_role", "ROLE(%s)  PERSON(%s)", roleCode, person);
+
     }
 
     public void deleteGroupRole(final String sessionToken, final RoleCode roleCode,
@@ -123,6 +127,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logTracking(sessionToken, "delete_role", "ROLE(%s) GROUP(%s) PERSON(%s)", roleCode,
                 groupIdentifier, person);
+
     }
 
     public void deleteInstanceRole(final String sessionToken, final RoleCode roleCode,
@@ -214,6 +219,16 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    public void assignPropertyType(String sessionToken, EntityKind entityKind,
+            String propertyTypeCode, String entityTypeCode, boolean isMandatory, String defaultValue)
+    {
+        String entityTypeFormat = entityKind.name() + "_TYPE(%S)";
+        logTracking(sessionToken, "assign_property_type", " PROPERTY_TYPE(%S) " + entityTypeFormat
+                + " MANDATORY(%S) DEFAULT(%S)", propertyTypeCode, entityTypeCode, isMandatory,
+                defaultValue);
+    }
+    
+    
     public final void registerPropertyType(final String sessionToken,
             final PropertyType propertyType)
     {

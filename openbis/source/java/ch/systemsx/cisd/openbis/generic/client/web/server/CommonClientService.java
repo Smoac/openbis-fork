@@ -26,6 +26,7 @@ import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
@@ -541,7 +542,23 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public final void registerPropertyType(final PropertyType propertyType)
+    public void assignPropertyType(EntityKind entityKind, String propertyTypeCode,
+            String entityTypeCode, boolean isMandatory, String defaultValue)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            commonServer.assignPropertyType(sessionToken, DtoConverters
+                    .convertEntityKind(entityKind), propertyTypeCode, entityTypeCode, isMandatory,
+                    defaultValue);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+    
+       public final void registerPropertyType(final PropertyType propertyType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         assert propertyType != null : "Unspecified property type.";
@@ -554,4 +571,5 @@ public final class CommonClientService extends AbstractClientService implements
             throw UserFailureExceptionTranslator.translate(e);
         }
     }
+
 }

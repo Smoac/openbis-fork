@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
 import com.extjs.gxt.ui.client.widget.form.TextField;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+
 /**
  * A basic {@link TextField} extension for registering text (<code>String</code>).
  * 
@@ -25,8 +27,6 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
  */
 public class VarcharField extends TextField<String>
 {
-    public static final String MANDATORY_LABEL_SEPARATOR = ": *";
-
     public VarcharField(final String label, final boolean mandatory)
     {
         configureField(this, label, mandatory);
@@ -40,7 +40,7 @@ public class VarcharField extends TextField<String>
         textField.setAutoValidate(true);
         if (mandatory)
         {
-            textField.setLabelSeparator(MANDATORY_LABEL_SEPARATOR);
+            textField.setLabelSeparator(GenericConstants.MANDATORY_LABEL_SEPARATOR);
             textField.setAllowBlank(false);
         }
     }

@@ -25,6 +25,8 @@ import com.google.gwt.core.client.GWT;
  */
 public final class GenericConstants
 {
+    public static final String MANDATORY_LABEL_SEPARATOR = ": *";
+
     private GenericConstants()
     {
         // Can not be instantiated.

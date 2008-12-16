@@ -21,6 +21,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.google.gwt.user.client.ui.ListBox;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTerm;
 
@@ -39,7 +40,7 @@ public final class ControlledVocabullaryField extends AdapterField
         setFieldLabel(labelField);
         if (mandatory)
         {
-            setLabelSeparator(VarcharField.MANDATORY_LABEL_SEPARATOR);
+            setLabelSeparator(GenericConstants.MANDATORY_LABEL_SEPARATOR);
         }
     }
 

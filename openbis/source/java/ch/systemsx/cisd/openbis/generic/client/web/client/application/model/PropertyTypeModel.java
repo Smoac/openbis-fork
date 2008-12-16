@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 
@@ -41,8 +44,19 @@ public class PropertyTypeModel extends BaseModelData
         set(ModelDataPropertyNames.EXPERIMENT_TYPES, propertyType.getExperimentTypePropertyTypes());
         set(ModelDataPropertyNames.MATERIAL_TYPES, propertyType.getMaterialTypePropertyTypes());
         set(ModelDataPropertyNames.SAMPLE_TYPES, propertyType.getSampleTypePropertyTypes());
+        set(ModelDataPropertyNames.OBJECT, propertyType);
     }
 
     private static final long serialVersionUID = 1L;
+
+    public final static List<PropertyTypeModel> convert(final List<PropertyType> types)
+    {
+        final List<PropertyTypeModel> result = new ArrayList<PropertyTypeModel>();
+        for (final PropertyType st : types)
+        {
+            result.add(new PropertyTypeModel(st));
+        }
+        return result;
+    }
 
 }

@@ -376,6 +376,15 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         return dataTypes;
     }
 
+    public void assignPropertyType(String sessionToken, EntityKind entityKind,
+            String propertyTypeCode, String entityTypeCode, boolean isMandatory, String defaultValue)
+    {
+        assert sessionToken != null : "Unspecified session token";
+        getSessionManager().getSession(sessionToken);
+        throw new UserFailureException("Not implemented");
+
+    }
+
     public final void registerPropertyType(final String sessionToken,
             final PropertyType propertyType)
     {
@@ -387,4 +396,5 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         propertyTypeBO.define(propertyType);
         propertyTypeBO.save();
     }
+
 }

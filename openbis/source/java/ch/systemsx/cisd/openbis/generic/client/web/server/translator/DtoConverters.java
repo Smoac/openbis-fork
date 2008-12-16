@@ -58,6 +58,13 @@ public class DtoConverters
         // Can not be instantiated.
     }
 
+    public static final ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind convertEntityKind(
+            final EntityKind entityKind)
+    {
+        return ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.valueOf(entityKind
+                .name());
+    }
+
     /**
      * Returns the {@link SamplePE} converter.
      */

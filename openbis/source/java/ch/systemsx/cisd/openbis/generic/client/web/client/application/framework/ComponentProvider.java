@@ -22,11 +22,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.PersonsVie
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.RolesView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeAssignmentBrowser;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeAssignmentForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeRegistration;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBatchRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleRegistrationPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
 
 /**
  * Creates and provides GUI modules/components (such as sample browser).
@@ -60,6 +62,10 @@ final class ComponentProvider
 
     private final PropertyTypeAssignmentBrowser propertyTypeAssignmentBrowser;
 
+    private PropertyTypeAssignmentForm propertyTypeExperimentTypeAssignmentForm;
+
+    private PropertyTypeAssignmentForm propertyTypeSampleTypeAssignmentForm;
+
     ComponentProvider(final CommonViewContext viewContext)
     {
         sampleBrowser = new SampleBrowser(viewContext);
@@ -73,6 +79,10 @@ final class ComponentProvider
         propertyTypesBrowser = new PropertyTypeBrowser(viewContext);
         propertyTypeRegistration = new PropertyTypeRegistration(viewContext);
         propertyTypeAssignmentBrowser = new PropertyTypeAssignmentBrowser(viewContext);
+        propertyTypeExperimentTypeAssignmentForm =
+                new PropertyTypeAssignmentForm(viewContext, EntityKind.EXPERIMENT);
+        propertyTypeSampleTypeAssignmentForm =
+                new PropertyTypeAssignmentForm(viewContext, EntityKind.SAMPLE);
     }
 
     public final ITabItem getSampleBrowser()
@@ -117,7 +127,7 @@ final class ComponentProvider
 
     public ITabItem getPropertyTypeBrowser()
     {
-        return new DefaultTabItem("Property type browser", propertyTypesBrowser);
+        return new DefaultTabItem("Property types", propertyTypesBrowser);
     }
 
     public ITabItem getPropertyTypeRegistration()
@@ -130,4 +140,15 @@ final class ComponentProvider
         return new ViewerTabItem("Property type assignments", propertyTypeAssignmentBrowser);
     }
 
+    public ITabItem getPropertyTypeExperimentTypeAssignmentForm()
+    {
+        return new DefaultTabItem("Assign experiment property type",
+                propertyTypeExperimentTypeAssignmentForm);
+    }
+
+    public ITabItem getPropertyTypeSampleTypeAssignmentForm()
+    {
+        return new DefaultTabItem("Assign sample property type",
+                propertyTypeSampleTypeAssignmentForm);
+    }
 }

@@ -38,15 +38,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCal
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ControlledVocabullaryField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DateFormField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IntegerField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.RealField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.PropertyFieldFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
@@ -134,7 +129,7 @@ public final class GenericSampleRegistrationForm extends AbstractRegistrationFor
         groupMultiField.setFieldLabel(viewContext.getMessage(Dict.GROUP));
         groupMultiField.add(sharedCheckbox);
         groupMultiField.add(groupSelectionWidget);
-        groupMultiField.setLabelSeparator(VarcharField.MANDATORY_LABEL_SEPARATOR);
+        groupMultiField.setLabelSeparator(GenericConstants.MANDATORY_LABEL_SEPARATOR);
         groupMultiField.setValidator(new Validator<Field<?>, MultiField<Field<?>>>()
             {
                 //
@@ -209,39 +204,14 @@ public final class GenericSampleRegistrationForm extends AbstractRegistrationFor
     private final Field<?> createProperty(final SampleTypePropertyType stpt)
     {
         final Field<?> field;
-        final DataTypeCode dataType = stpt.getPropertyType().getDataType().getCode();
         final boolean isMandatory = stpt.isMandatory();
         final String label = stpt.getPropertyType().getLabel();
-        switch (dataType)
-        {
-            case BOOLEAN:
-                field = new CheckBoxField(label, isMandatory);
-                break;
-            case VARCHAR:
-                field = new VarcharField(label, isMandatory);
-                break;
-            case TIMESTAMP:
-                field = new DateFormField(label, isMandatory);
-                break;
-            case CONTROLLEDVOCABULARY:
-                field =
-                        new ControlledVocabullaryField(label, isMandatory, stpt.getPropertyType()
-                                .getVocabulary().getTerms());
-                break;
-            case INTEGER:
-                field = new IntegerField(label, isMandatory);
-                break;
-            case REAL:
-                field = new RealField(label, isMandatory);
-                break;
-            default:
-                field = new VarcharField(label, isMandatory);
-                break;
-        }
-        field.setData(ETPT, stpt);
         final String propertyTypeCode = stpt.getPropertyType().getCode();
+        field =
+                PropertyFieldFactory.createField(stpt.getPropertyType(), isMandatory, label,
+                        createFormFieldId(propertyTypeCode));
+        field.setData(ETPT, stpt);
         field.setTitle(propertyTypeCode);
-        field.setId(createFormFieldId(propertyTypeCode));
         return field;
     }
 

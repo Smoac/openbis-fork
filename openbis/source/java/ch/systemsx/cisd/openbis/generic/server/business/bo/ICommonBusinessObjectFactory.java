@@ -56,6 +56,7 @@ public interface ICommonBusinessObjectFactory
      */
     public IPropertyTypeTable createPropertyTypeTable(final Session session);
 
+
     /**
      * Creates a {@link IPropertyTypeBO} <i>Business Object</i>.
      */
