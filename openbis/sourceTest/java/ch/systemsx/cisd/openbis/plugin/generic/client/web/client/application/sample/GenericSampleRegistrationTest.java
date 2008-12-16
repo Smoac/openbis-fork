@@ -63,10 +63,14 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
     {
         final String sampleTypeCode = SampleTypeCode.CONTROL_LAYOUT.getCode();
         loginAndPreprareRegistration(sampleTypeCode);
-        remoteConsole.prepare(new FillSampleRegistrationForm(true, null, SHARED_CL));
+        final String userDescription = "A very nice control layout.";
+        remoteConsole.prepare(new FillSampleRegistrationForm(true, null, SHARED_CL)
+                .addProperty(new FillSampleRegistrationForm.Property(
+                        GenericSampleRegistrationForm.ID_PREFIX + "user-description",
+                        userDescription)));
         prepareListingAfterRegistration(sampleTypeCode);
         remoteConsole.prepare(new CheckSampleTable().expectedRow(new SampleRow(SHARED_CL)
-                .identifier("CISD")));
+                .identifier("CISD").property("DESCRIPTION", false, userDescription)));
         remoteConsole.finish(30000);
         client.onModuleLoad();
     }

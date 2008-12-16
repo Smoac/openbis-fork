@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.CommonSampleColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ParentGeneratedFromSampleColDef;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.PropertySampleColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 
@@ -32,19 +29,19 @@ public class SampleRow extends Row
 
     private String groupIdentifier;
 
-    public SampleRow(String code)
+    public SampleRow(final String code)
     {
         super();
         this.code = code;
         withCell(CommonSampleColDefKind.CODE, code);
     }
 
-    public SampleRow identifier(String instanceCode)
+    public SampleRow identifier(final String instanceCode)
     {
         return identifier(instanceCode, null);
     }
 
-    public SampleRow identifier(String instanceCode, String groupCodeOrNull)
+    public SampleRow identifier(final String instanceCode, final String groupCodeOrNull)
     {
         withCell(CommonSampleColDefKind.DATABASE_INSTANCE, instanceCode);
         if (groupCodeOrNull == null)
@@ -59,11 +56,11 @@ public class SampleRow extends Row
         return this;
     }
 
-    public SampleRow experiment(String projectCode, String experimentCode)
+    public SampleRow experiment(final String projectCode, final String experimentCode)
     {
         withCell(CommonSampleColDefKind.PROJECT_FOR_SAMPLE, projectCode);
         withCell(CommonSampleColDefKind.EXPERIMENT_FOR_SAMPLE, experimentCode);
-        String experimentIdentifier = groupIdentifier + projectCode + "/" + experimentCode;
+        final String experimentIdentifier = groupIdentifier + projectCode + "/" + experimentCode;
         withCell(CommonSampleColDefKind.EXPERIMENT_IDENTIFIER_FOR_SAMPLE, experimentIdentifier);
         return this;
     }
@@ -76,7 +73,7 @@ public class SampleRow extends Row
         return this;
     }
 
-    private String createGroupIdentifier(String instanceCode, String groupCodeOrNull)
+    private String createGroupIdentifier(final String instanceCode, final String groupCodeOrNull)
     {
         String identifier = instanceCode + ":/";
         if (groupCodeOrNull != null)
@@ -102,29 +99,55 @@ public class SampleRow extends Row
         return this;
     }
 
-    public static String invalidCode(String code)
+    public static String invalidCode(final String code)
     {
         return "<div class=\"invalid\">" + code + "</div>";
     }
 
-    public SampleRow derivedFromAncestor(String ancestorCode, int level)
+    public SampleRow derivedFromAncestor(final String ancestorCode, final int level)
     {
-        String identifier = new ParentGeneratedFromSampleColDef(level, "dummy").getIdentifier();
+        final String identifier =
+                new ParentGeneratedFromSampleColDef(level, "dummy").getIdentifier();
         withCell(identifier, ancestorCode);
         return this;
     }
 
-    public SampleRow property(String propertyCode, Object value)
+    /**
+     * Creates a {@link SampleRow} with given <var>propertyCode</var> associated to given <i>value</i>.
+     * <p>
+     * Note that we assume that computed {@link PropertyType} is from internal namespace.
+     * </p>
+     */
+    public final SampleRow property(final String propertyCode, final Object value)
     {
-        PropertyType propertyType = new PropertyType();
-        propertyType.setInternalNamespace(true);
-        propertyType.setSimpleCode(propertyCode);
-        String identifier = new PropertySampleColDef(propertyType, true).getIdentifier();
+        final PropertyType propertyType = createPropertyType(propertyCode, true);
+        final String identifier = new PropertySampleColDef(propertyType, true).getIdentifier();
         withCell(identifier, value);
         return this;
     }
 
-    private void withCell(CommonSampleColDefKind columnKind, String value)
+    /**
+     * Creates a {@link SampleRow} with given <var>propertyCode</var> associated to given <i>value</i>.
+     */
+    public final SampleRow property(final String propertyCode, final boolean internalNamespace,
+            final Object value)
+    {
+        final PropertyType propertyType = createPropertyType(propertyCode, internalNamespace);
+        final String identifier = new PropertySampleColDef(propertyType, true).getIdentifier();
+        withCell(identifier, value);
+        return this;
+    }
+
+    private final static PropertyType createPropertyType(final String propertyCode,
+            final boolean internalNamespace)
+    {
+        final PropertyType propertyType = new PropertyType();
+        propertyType.setInternalNamespace(internalNamespace);
+        propertyType.setSimpleCode(propertyCode);
+        return propertyType;
+    }
+
+    private final void withCell(final CommonSampleColDefKind columnKind, final String value)
     {
         withCell(columnKind.id(), value);
     }

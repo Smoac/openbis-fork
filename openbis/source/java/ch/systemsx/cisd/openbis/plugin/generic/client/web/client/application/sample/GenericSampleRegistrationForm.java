@@ -241,8 +241,13 @@ public final class GenericSampleRegistrationForm extends AbstractRegistrationFor
         field.setData(ETPT, stpt);
         final String propertyTypeCode = stpt.getPropertyType().getCode();
         field.setTitle(propertyTypeCode);
-        field.setId(ID_PREFIX + propertyTypeCode.replace(".", "-").replace("_", "-"));
+        field.setId(createFormFieldId(propertyTypeCode));
         return field;
+    }
+
+    private final static String createFormFieldId(final String propertyTypeCode)
+    {
+        return ID_PREFIX + propertyTypeCode.toLowerCase().replace(".", "-").replace("_", "-");
     }
 
     //
