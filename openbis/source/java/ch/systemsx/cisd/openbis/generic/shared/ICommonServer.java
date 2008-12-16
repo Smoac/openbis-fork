@@ -234,5 +234,4 @@ public interface ICommonServer extends IServer
     public void assignPropertyType(String sessionToken, EntityKind entityKind,
             String propertyTypeCode, String entityTypeCode, boolean isMandatory, String defaultValue);
 
-
 }
