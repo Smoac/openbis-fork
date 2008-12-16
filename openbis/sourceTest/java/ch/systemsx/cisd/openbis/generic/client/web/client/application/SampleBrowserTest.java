@@ -20,6 +20,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.CheckSampleTable;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ExportSamplesTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ListSamples;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
@@ -48,6 +49,19 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         startAndWait();
     }
 
+    public final void testExportMasterPlates()
+    {
+        loginAndGotoListSamplesTab();
+        remoteConsole.prepare(new ListSamples(true, true, "CISD", "MASTER_PLATE"));
+        ExportSamplesTestCommand exportCommand = new ExportSamplesTestCommand(client);
+        remoteConsole.prepare(exportCommand);
+        String header = "Group\tCode\tProject\tExperiment\tPlate Geometry";
+        String firstLine = "\tMP\t\t\t384_WELLS_16X24";
+        remoteConsole.prepare(exportCommand.createCheckExportCommand(header, firstLine, 7));
+
+        startAndWait();
+    }
+
     public final void testListOnlySharedMasterPlates()
     {
         loginAndGotoListSamplesTab();
@@ -58,6 +72,19 @@ public class SampleBrowserTest extends AbstractGWTTestCase
                         "PLATE_GEOMETRY", "384_WELLS_16X24");
         table.expectedRow(expectedRow);
         remoteConsole.prepare(table.expectedSize(1));
+
+        startAndWait();
+    }
+
+    public final void testExportCellPlates()
+    {
+        loginAndGotoListSamplesTab();
+        remoteConsole.prepare(new ListSamples(true, true, "CISD", "CELL_PLATE"));
+        ExportSamplesTestCommand exportCommand = new ExportSamplesTestCommand(client);
+        remoteConsole.prepare(exportCommand);
+        String header = "Group\tCode\tProject\tExperiment\tParent 1\tParent 2";
+        String firstLine = "CISD\t3VCP1\tNEMO\tEXP1\t3V-123\tMP001-1";
+        remoteConsole.prepare(exportCommand.createCheckExportCommand(header, firstLine, 17));
 
         startAndWait();
     }

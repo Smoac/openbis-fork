@@ -74,6 +74,8 @@ public final class SampleBrowserGrid extends LayoutContainer
 
     private static final String PREFIX = "sample-browser-grid_";
 
+    public static final String BROWSER_ID = GenericConstants.ID_PREFIX + PREFIX + "sample_browser";
+
     public static final String GRID_ID = GenericConstants.ID_PREFIX + PREFIX + "grid";
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
@@ -124,6 +126,7 @@ public final class SampleBrowserGrid extends LayoutContainer
         toolBar.bind(sampleLoader);
         contentPanel.setBottomComponent(toolBar);
         add(contentPanel);
+        setId(BROWSER_ID);
     }
 
     private final PagingLoader<PagingLoadConfig> createSampleLoader()
@@ -267,7 +270,7 @@ public final class SampleBrowserGrid extends LayoutContainer
      * <code>resultSetKey</code> will be removed.
      * </p>
      */
-    final void refresh(final SampleType selectedType, final String selectedGroupCode,
+    public final void refresh(final SampleType selectedType, final String selectedGroupCode,
             final Boolean includeGroup, final Boolean includeInstance,
             final IDataRefreshCallback newRefreshCallback)
     {
@@ -291,7 +294,13 @@ public final class SampleBrowserGrid extends LayoutContainer
         sampleLoader.load(0, PAGE_SIZE);
     }
 
-    final void export()
+    public final void export()
+    {
+        export(new ExportSamplesCallback(viewContext));
+    }
+
+    // for tests
+    final void export(AbstractAsyncCallback<String> callback)
     {
         if (resultSetKey == null)
         {
@@ -301,8 +310,7 @@ public final class SampleBrowserGrid extends LayoutContainer
         SortInfo sortInfo = criteria.getSortInfo();
         TableExportCriteria<Sample> exportCriteria =
                 new TableExportCriteria<Sample>(resultSetKey, sortInfo, columns);
-        viewContext.getService().prepareExportSamples(exportCriteria,
-                new ExportSamplesCallback(viewContext));
+        viewContext.getService().prepareExportSamples(exportCriteria, callback);
     }
 
     /**
@@ -405,23 +413,24 @@ public final class SampleBrowserGrid extends LayoutContainer
         @Override
         protected void process(String exportDataKey)
         {
-            openURL(createURL(exportDataKey));
+            String url = createExportWindowURL(exportDataKey);
+            openURL(url);
         }
 
         private void openURL(String url)
         {
             Window.open(url, "", null);
         }
+    }
 
-        private String createURL(String exportDataKey)
-        {
-            final StringBuffer sb = new StringBuffer();
-            sb.append(GenericConstants.FILE_EXPORTER_DOWNLOAD_SERVLET_NAME);
-            sb.append("?");
-            sb.append(GenericConstants.EXPORT_CRITERIA_KEY_PARAMETER).append("=");
-            sb.append(exportDataKey);
-            return sb.toString();
-        }
+    private static String createExportWindowURL(String exportDataKey)
+    {
+        final StringBuffer sb = new StringBuffer();
+        sb.append(GenericConstants.FILE_EXPORTER_DOWNLOAD_SERVLET_NAME);
+        sb.append("?");
+        sb.append(GenericConstants.EXPORT_CRITERIA_KEY_PARAMETER).append("=");
+        sb.append(exportDataKey);
+        return sb.toString();
     }
 
     protected boolean isExportEnabled()

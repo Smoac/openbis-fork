@@ -36,8 +36,7 @@ public class TSVRenderer
      * @param columnDefs column definitions. Each definition know column's header and is able to
      *            extract an appropriate value from the entity.
      */
-    public static <T> String createTable(List<T> entities,
-            List<IColumnDefinition<T>> columnDefs)
+    public static <T> String createTable(List<T> entities, List<IColumnDefinition<T>> columnDefs)
     {
         StringBuffer sb = new StringBuffer();
         appendHeader(columnDefs, sb);
@@ -51,20 +50,34 @@ public class TSVRenderer
     private static <T> void appendEntity(T entity, List<IColumnDefinition<T>> columnDefs,
             StringBuffer sb)
     {
+        boolean isFirst = true;
         for (IColumnDefinition<T> column : columnDefs)
         {
+            if (isFirst == false)
+            {
+                sb.append(TAB);
+            } else
+            {
+                isFirst = false;
+            }
             sb.append(column.getValue(entity));
-            sb.append(TAB);
         }
         sb.append(NEWLINE);
     }
 
     private static <T> void appendHeader(List<IColumnDefinition<T>> columnDefs, StringBuffer sb)
     {
+        boolean isFirst = true;
         for (IColumnDefinition<T> column : columnDefs)
         {
+            if (isFirst == false)
+            {
+                sb.append(TAB);
+            } else
+            {
+                isFirst = false;
+            }
             sb.append(column.getHeader());
-            sb.append(TAB);
         }
         sb.append(NEWLINE);
     }
