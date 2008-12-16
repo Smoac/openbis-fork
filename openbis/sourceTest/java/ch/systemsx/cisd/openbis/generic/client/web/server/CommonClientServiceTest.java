@@ -25,6 +25,7 @@ import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -33,6 +34,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DefaultResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 
 /**
  * Test cases for corresponding {@link CommonClientService} class.
@@ -68,6 +71,13 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         return Collections.emptyList();
     }
 
+    private final static void assertDataTypeEquals(final DataTypePE dataTypePE,
+            final DataType dataType)
+    {
+        assertEquals(dataTypePE.getCode().name(), dataType.getCode().name());
+        assertEquals(dataTypePE.getDescription(), dataType.getDescription());
+    }
+
     //
     // AbstractClientServiceTest
     //
@@ -77,8 +87,8 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
     public final void setUp()
     {
         super.setUp();
-        commonClientService = new CommonClientService(commonServer, requestContextProvider);
         commonServer = context.mock(ICommonServer.class);
+        commonClientService = new CommonClientService(commonServer, requestContextProvider);
     }
 
     @Test
@@ -114,4 +124,24 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         context.assertIsSatisfied();
     }
 
+    @Test
+    public final void testListDataTypes()
+    {
+        final DataTypePE dataTypePE = new DataTypePE();
+        dataTypePE.setCode(EntityDataType.INTEGER);
+        dataTypePE.setDescription("The description");
+        context.checking(new Expectations()
+            {
+                {
+                    prepareGetSessionToken(this);
+
+                    one(commonServer).listDataTypes(SESSION_TOKEN);
+                    will(returnValue(Collections.singletonList(dataTypePE)));
+                }
+            });
+        final List<DataType> dataTypes = commonClientService.listDataTypes();
+        assertEquals(1, dataTypes.size());
+        assertDataTypeEquals(dataTypePE, dataTypes.get(0));
+        context.assertIsSatisfied();
+    }
 }

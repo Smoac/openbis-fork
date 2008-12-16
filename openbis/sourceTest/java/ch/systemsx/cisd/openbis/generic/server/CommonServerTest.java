@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.jmock.Expectations;
@@ -30,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
@@ -502,6 +504,25 @@ public final class CommonServerTest extends AbstractServerTestCase
                 }
             });
         createServer().listPropertyTypes(session.getSessionToken());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testListDataTypes()
+    {
+        final Session session = prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(daoFactory).getPropertyTypeDAO();
+                    will(returnValue(propertyTypeDAO));
+
+                    one(propertyTypeDAO).listDataTypes();
+                    will(returnValue(Collections.emptyList()));
+                }
+            });
+        final List<DataTypePE> dataTypes = createServer().listDataTypes(session.getSessionToken());
+        assertEquals(0, dataTypes.size());
         context.assertIsSatisfied();
     }
 }
