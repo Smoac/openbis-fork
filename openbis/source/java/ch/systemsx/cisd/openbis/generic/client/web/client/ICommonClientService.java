@@ -165,4 +165,9 @@ public interface ICommonClientService extends IClientService
      * Returns a list of all data types.
      */
     public List<DataType> listDataTypes() throws UserFailureException;
+
+    /**
+     * Registers given {@link PropertyType}.
+     */
+    public void registerPropertyType(final PropertyType propertyType) throws UserFailureException;
 }

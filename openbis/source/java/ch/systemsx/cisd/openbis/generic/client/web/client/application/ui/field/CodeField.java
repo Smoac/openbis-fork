@@ -37,6 +37,7 @@ public final class CodeField extends VarcharField
     public CodeField(final IMessageProvider messageProvider, final String label)
     {
         super(label, true);
+        setMaxLength(40);
         setRegex(CODE_PATTERN);
         getMessages().setRegexText(messageProvider.getMessage(Dict.INVALID_CODE_MESSAGE, "Code"));
     }

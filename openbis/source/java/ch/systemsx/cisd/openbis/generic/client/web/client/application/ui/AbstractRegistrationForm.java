@@ -40,9 +40,9 @@ public abstract class AbstractRegistrationForm extends LayoutContainer
 {
     public static final String SAVE_BUTTON = "save-button";
 
-    public static final int LABEL_WIDTH = 100;
+    public static final int DEFAULT_LABEL_WIDTH = 100;
 
-    public static final int FIELD_WIDTH = 400;
+    public static final int DEFAULT_FIELD_WIDTH = 400;
 
     private final String idPrefix;
 
@@ -50,8 +50,20 @@ public abstract class AbstractRegistrationForm extends LayoutContainer
 
     protected FormPanel formPanel;
 
+    protected final int labelWidth;
+
+    protected final int fieldWitdh;
+
     protected AbstractRegistrationForm(final IMessageProvider messageProvider, final String idPrefix)
     {
+        this(messageProvider, idPrefix, DEFAULT_LABEL_WIDTH, DEFAULT_FIELD_WIDTH);
+    }
+
+    protected AbstractRegistrationForm(final IMessageProvider messageProvider,
+            final String idPrefix, final int labelWidth, final int fieldWidth)
+    {
+        this.labelWidth = labelWidth;
+        this.fieldWitdh = fieldWidth;
         setLayout(new FlowLayout(5));
         this.idPrefix = idPrefix;
         setScrollMode(Scroll.AUTO);
@@ -71,9 +83,9 @@ public abstract class AbstractRegistrationForm extends LayoutContainer
         final FormPanel panel = new FormPanel();
         panel.setHeaderVisible(false);
         panel.setBodyBorder(false);
-        panel.setWidth(LABEL_WIDTH + FIELD_WIDTH + 40);
-        panel.setLabelWidth(LABEL_WIDTH);
-        panel.setFieldWidth(FIELD_WIDTH);
+        panel.setWidth(labelWidth + fieldWitdh + 40);
+        panel.setLabelWidth(labelWidth);
+        panel.setFieldWidth(fieldWitdh);
         panel.setButtonAlign(HorizontalAlignment.RIGHT);
         final Button saveButton = new Button(messageProvider.getMessage(Dict.BUTTON_SAVE));
         saveButton.setStyleAttribute("marginRight", "20px");

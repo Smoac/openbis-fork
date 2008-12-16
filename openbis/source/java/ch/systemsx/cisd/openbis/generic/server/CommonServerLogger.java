@@ -21,7 +21,9 @@ import java.util.List;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
@@ -95,7 +97,6 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     public void registerPerson(final String sessionToken, final String userID)
     {
         logTracking(sessionToken, "register_person", "CODE(%s)", userID);
-
     }
 
     public List<RoleAssignmentPE> listRoles(final String sessionToken)
@@ -109,14 +110,12 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logTracking(sessionToken, "register_role", "ROLE(%s) GROUP(%s) PERSON(%s)", roleCode,
                 groupIdentifier, person);
-
     }
 
     public void registerInstanceRole(final String sessionToken, final RoleCode roleCode,
             final String person)
     {
         logTracking(sessionToken, "register_role", "ROLE(%s)  PERSON(%s)", roleCode, person);
-
     }
 
     public void deleteGroupRole(final String sessionToken, final RoleCode roleCode,
@@ -124,7 +123,6 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logTracking(sessionToken, "delete_role", "ROLE(%s) GROUP(%s) PERSON(%s)", roleCode,
                 groupIdentifier, person);
-
     }
 
     public void deleteInstanceRole(final String sessionToken, final RoleCode roleCode,
@@ -214,5 +212,12 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logAccess(sessionToken, "list_data_types");
         return null;
+    }
+
+    public final void registerPropertyType(final String sessionToken,
+            final PropertyType propertyType)
+    {
+        logTracking(sessionToken, "register_property_type", "PROPERTY_TYPE(%s)", CodeConverter
+                .tryToBusinessLayer(propertyType.getSimpleCode(), true));
     }
 }

@@ -31,6 +31,7 @@ public final class IntegerField extends NumberField
         getMessages().setBlankText("Integer required");
         setPropertyEditorType(Integer.class);
         setEmptyText("Integer value");
+        setMaxLength(String.valueOf(Integer.MAX_VALUE).length());
         setAllowDecimals(false);
     }
 }

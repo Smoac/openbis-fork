@@ -27,10 +27,12 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
@@ -372,5 +374,17 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         final List<DataTypePE> dataTypes = getDAOFactory().getPropertyTypeDAO().listDataTypes();
         Collections.sort(dataTypes);
         return dataTypes;
+    }
+
+    public final void registerPropertyType(final String sessionToken,
+            final PropertyType propertyType)
+    {
+        assert sessionToken != null : "Unspecified session token";
+        assert propertyType != null : "Unspecified property type";
+
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IPropertyTypeBO propertyTypeBO = businessObjectFactory.createPropertyTypeBO(session);
+        propertyTypeBO.define(propertyType);
+        propertyTypeBO.save();
     }
 }

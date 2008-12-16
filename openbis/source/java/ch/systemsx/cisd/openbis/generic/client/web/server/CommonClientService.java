@@ -540,4 +540,18 @@ public final class CommonClientService extends AbstractClientService implements
             throw UserFailureExceptionTranslator.translate(e);
         }
     }
+
+    public final void registerPropertyType(final PropertyType propertyType)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        assert propertyType != null : "Unspecified property type.";
+        try
+        {
+            final String sessionToken = getSessionToken();
+            commonServer.registerPropertyType(sessionToken, propertyType);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
 }

@@ -31,6 +31,8 @@ public class PropertyType extends Code<PropertyType> implements IsSerializable
 
     private boolean internalNamespace;
 
+    private boolean managedInternally;
+
     private DataType dataType;
 
     private Vocabulary vocabulary;
@@ -98,7 +100,7 @@ public class PropertyType extends Code<PropertyType> implements IsSerializable
         return description;
     }
 
-    public void setDescription(String description)
+    public void setDescription(final String description)
     {
         this.description = description;
     }
@@ -108,7 +110,8 @@ public class PropertyType extends Code<PropertyType> implements IsSerializable
         return sampleTypePropertyTypes;
     }
 
-    public void setSampleTypePropertyTypes(List<SampleTypePropertyType> sampleTypePropertyTypes)
+    public void setSampleTypePropertyTypes(
+            final List<SampleTypePropertyType> sampleTypePropertyTypes)
     {
         this.sampleTypePropertyTypes = sampleTypePropertyTypes;
     }
@@ -119,7 +122,7 @@ public class PropertyType extends Code<PropertyType> implements IsSerializable
     }
 
     public void setMaterialTypePropertyTypes(
-            List<MaterialTypePropertyType> materialTypePropertyTypes)
+            final List<MaterialTypePropertyType> materialTypePropertyTypes)
     {
         this.materialTypePropertyTypes = materialTypePropertyTypes;
     }
@@ -130,9 +133,19 @@ public class PropertyType extends Code<PropertyType> implements IsSerializable
     }
 
     public void setExperimentTypePropertyTypes(
-            List<ExperimentTypePropertyType> experimentTypePropertyTypes)
+            final List<ExperimentTypePropertyType> experimentTypePropertyTypes)
     {
         this.experimentTypePropertyTypes = experimentTypePropertyTypes;
+    }
+
+    public final boolean isManagedInternally()
+    {
+        return managedInternally;
+    }
+
+    public final void setManagedInternally(final boolean managedInternally)
+    {
+        this.managedInternally = managedInternally;
     }
 
 }

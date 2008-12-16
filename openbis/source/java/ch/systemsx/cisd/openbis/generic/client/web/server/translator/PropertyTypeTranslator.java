@@ -41,6 +41,7 @@ public final class PropertyTypeTranslator
         result.setSimpleCode(propertyType.getSimpleCode());
         result.setCode(propertyType.getCode());
         result.setInternalNamespace(propertyType.isInternalNamespace());
+        result.setManagedInternally(propertyType.isManagedInternally());
         result.setLabel(propertyType.getLabel());
         result.setDataType(DataTypeTranslator.translate(propertyType.getType()));
         result.setVocabulary(VocabularyTranslator.translate(propertyType.getVocabulary()));

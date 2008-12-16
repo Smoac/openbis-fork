@@ -36,7 +36,6 @@ public class VarcharField extends TextField<String>
             final String fieldLabel, final boolean mandatory)
     {
         textField.setFieldLabel(fieldLabel);
-        textField.setMaxLength(1024);
         textField.setValidateOnBlur(true);
         textField.setAutoValidate(true);
         if (mandatory)

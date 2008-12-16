@@ -26,9 +26,11 @@ import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.Validator;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DataTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
@@ -36,6 +38,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.C
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTerm;
 
 /**
  * A {@link LayoutContainer} extension for registering a new property type.
@@ -44,7 +49,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataTypeCode;
  */
 public final class PropertyTypeRegistration extends AbstractRegistrationForm
 {
-    private static final String PREFIX = "property-type-registration_";
+    private static final String PREFIX = "property-type-registration";
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
@@ -52,13 +57,17 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
 
     private CodeField codeField;
 
+    private VarcharField labelField;
+
+    private VarcharField descriptionField;
+
     private DataTypeSelectionWidget dataTypeSelectionWidget;
 
-    private TextArea vocabularyTerms;
+    private TextArea vocabularyTermsField;
 
     public PropertyTypeRegistration(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(viewContext, ID_PREFIX);
+        super(viewContext, ID_PREFIX, DEFAULT_LABEL_WIDTH + 20, DEFAULT_FIELD_WIDTH);
         this.viewContext = viewContext;
         addFields();
     }
@@ -80,8 +89,10 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
     private final void addFields()
     {
         formPanel.add(codeField = new CodeField(viewContext, viewContext.getMessage(Dict.CODE)));
+        formPanel.add(labelField = createLabelField());
+        formPanel.add(descriptionField = createDescriptionField());
         formPanel.add(dataTypeSelectionWidget = new DataTypeSelectionWidget(viewContext));
-        formPanel.add(vocabularyTerms = createTextArea());
+        formPanel.add(vocabularyTermsField = createVocabularyTermsTextArea());
         dataTypeSelectionWidget
                 .addSelectionChangedListener(new SelectionChangedListener<DataTypeModel>()
                     {
@@ -105,14 +116,30 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
                             {
                                 visible = false;
                             }
-                            vocabularyTerms.setVisible(visible);
-                            vocabularyTerms.setAllowBlank(!visible);
-                            vocabularyTerms.reset();
+                            vocabularyTermsField.setVisible(visible);
+                            vocabularyTermsField.setAllowBlank(!visible);
+                            vocabularyTermsField.reset();
                         }
                     });
     }
 
-    private final TextArea createTextArea()
+    private final VarcharField createDescriptionField()
+    {
+        final VarcharField varcharField =
+                new VarcharField(viewContext.getMessage(Dict.DESCRIPTION), true);
+        varcharField.setMaxLength(80);
+        return varcharField;
+    }
+
+    private final VarcharField createLabelField()
+    {
+        final VarcharField varcharField =
+                new VarcharField(viewContext.getMessage(Dict.LABEL), true);
+        varcharField.setMaxLength(40);
+        return varcharField;
+    }
+
+    private final TextArea createVocabularyTermsTextArea()
     {
         final TextArea textArea = new TextArea();
         final String fieldLabel = viewContext.getMessage(Dict.VOCABULARY_TERMS);
@@ -153,6 +180,31 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
         return textArea;
     }
 
+    private final PropertyType createPropertyType()
+    {
+        final PropertyType propertyType = new PropertyType();
+        propertyType.setSimpleCode(codeField.getValue());
+        propertyType.setLabel(labelField.getValue());
+        propertyType.setDescription(descriptionField.getValue());
+        propertyType.setInternalNamespace(false);
+        propertyType.setManagedInternally(false);
+        if (DataTypeCode.CONTROLLEDVOCABULARY.equals(dataTypeSelectionWidget
+                .tryGetSelectedDataType().getCode()))
+        {
+            final Vocabulary vocabulary = new Vocabulary();
+            List<VocabularyTerm> vocabularyTerms = new ArrayList<VocabularyTerm>();
+            for (final String termCode : getTerms(vocabularyTermsField.getValue()))
+            {
+                final VocabularyTerm vocabularyTerm = new VocabularyTerm();
+                vocabularyTerm.setCode(termCode);
+                vocabularyTerms.add(vocabularyTerm);
+            }
+            vocabulary.setTerms(vocabularyTerms);
+            propertyType.setVocabulary(vocabulary);
+        }
+        return propertyType;
+    }
+
     //
     // AbstractRegistrationForm
     //
@@ -160,6 +212,42 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
     @Override
     protected final void submitValidForm()
     {
-
+        final PropertyType propertyType = createPropertyType();
+        viewContext.getService().registerPropertyType(propertyType,
+                new PropertyTypeRegistrationCallback(viewContext, propertyType));
     }
+
+    //
+    // Helper classes
+    //
+
+    private final class PropertyTypeRegistrationCallback extends AbstractAsyncCallback<Void>
+    {
+        private final PropertyType propertyType;
+
+        PropertyTypeRegistrationCallback(final IViewContext<?> viewContext,
+                final PropertyType propertyType)
+        {
+            super(viewContext, new InfoBoxCallbackListener<Void>(infoBox));
+            this.propertyType = propertyType;
+        }
+
+        private final String createMessage()
+        {
+            return "Property type <b>" + propertyType.getSimpleCode()
+                    + "</b> successfully registered.";
+        }
+
+        //
+        // AbstractAsyncCallback
+        //
+
+        @Override
+        protected final void process(final Void result)
+        {
+            infoBox.displayInfo(createMessage());
+            formPanel.reset();
+        }
+    }
+
 }

@@ -119,8 +119,8 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
     private final static FormLayout createFormLayout()
     {
         final FormLayout formLayout = new FormLayout();
-        formLayout.setLabelWidth(AbstractRegistrationForm.LABEL_WIDTH);
-        formLayout.setDefaultWidth(AbstractRegistrationForm.FIELD_WIDTH);
+        formLayout.setLabelWidth(AbstractRegistrationForm.DEFAULT_LABEL_WIDTH);
+        formLayout.setDefaultWidth(AbstractRegistrationForm.DEFAULT_FIELD_WIDTH);
         return formLayout;
     }
 
@@ -128,7 +128,7 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
     {
         final FormPanel panel = new FormPanel();
         panel.setLayout(new FlowLayout());
-        panel.setWidth(AbstractRegistrationForm.LABEL_WIDTH + AbstractRegistrationForm.FIELD_WIDTH
+        panel.setWidth(AbstractRegistrationForm.DEFAULT_LABEL_WIDTH + AbstractRegistrationForm.DEFAULT_FIELD_WIDTH
                 + 50);
         panel.setHeaderVisible(false);
         panel.setBodyBorder(false);
