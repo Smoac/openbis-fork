@@ -345,18 +345,21 @@ public final class SampleBrowserGrid extends LayoutContainer
 
     private List<IColumnDefinition<Sample>> getSelectedColumnDefs()
     {
-        Map<String, IColumnDefinition<Sample>> columns = getColumnDefs();
-
-        List<IColumnDefinition<Sample>> selectedColumnDefs =
-                new ArrayList<IColumnDefinition<Sample>>();
         ColumnModel columnModel = grid.getColumnModel();
+        return getSelectedColumnDefs(getColumnDefs(), columnModel);
+    }
+
+    private static <T> List<IColumnDefinition<T>> getSelectedColumnDefs(
+            Map<String, IColumnDefinition<T>> columnsDef, ColumnModel columnModel)
+    {
+        List<IColumnDefinition<T>> selectedColumnDefs = new ArrayList<IColumnDefinition<T>>();
         int columnCount = columnModel.getColumnCount();
         for (int i = 0; i < columnCount; i++)
         {
             if (columnModel.isHidden(i) == false)
             {
                 String columnId = columnModel.getColumnId(i);
-                selectedColumnDefs.add(columns.get(columnId));
+                selectedColumnDefs.add(columnsDef.get(columnId));
             }
         }
         return selectedColumnDefs;
