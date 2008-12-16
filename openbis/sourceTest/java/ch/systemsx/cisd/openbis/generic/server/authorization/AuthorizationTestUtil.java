@@ -271,11 +271,11 @@ public final class AuthorizationTestUtil
     }
 
     public final static RoleAssignmentPE createGroupRoleAssignment(final RoleCode roleCode,
-            final String instanceCode, final String groupCode, final Long groupIdOrNull)
+            final String instanceCode, final String groupCode)
     {
         final RoleAssignmentPE roleAssignment = new RoleAssignmentPE();
         roleAssignment.setRole(roleCode);
-        final GroupPE group = createGroup(instanceCode, groupCode, groupIdOrNull);
+        final GroupPE group = createGroup(instanceCode, groupCode);
         roleAssignment.setGroup(group);
         return roleAssignment;
     }
@@ -289,13 +289,11 @@ public final class AuthorizationTestUtil
         return databaseInstance;
     }
 
-    public final static GroupPE createGroup(final String dbCode, final String groupCode,
-            final Long groupIdOrNull)
+    public final static GroupPE createGroup(final String dbCode, final String groupCode)
     {
         final GroupPE group = new GroupPE();
         group.setCode(CodeConverter.tryToDatabase(groupCode));
         group.setDatabaseInstance(createDatabaseInstance(dbCode));
-        group.setId(groupIdOrNull);
         return group;
     }
 
