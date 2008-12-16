@@ -31,14 +31,6 @@ public class Dict
     public static final String FOOTER = "footer";
 
     //
-    // Combo Box
-    //
-
-    public static final String COMBO_BOX_EMPTY = "combobox_empty";
-
-    public static final String COMBO_BOX_CHOOSE = "combobox_choose";
-
-    //
     // Common Labels
     // 
 
@@ -47,6 +39,16 @@ public class Dict
     public static final String REGISTRATOR = "registrator";
 
     public static final String REGISTRATION_DATE = "registration_date";
+
+    //
+    // Field
+    //
+
+    public static final String COMBO_BOX_EMPTY = "combobox_empty";
+
+    public static final String COMBO_BOX_CHOOSE = "combobox_choose";
+
+    public static final String INVALID_CODE_MESSAGE = "invalid_code_message";
 
     //
     // MessageBox
@@ -199,6 +201,10 @@ public class Dict
     public static final String ASSIGNED_TO = "assigned_to";
 
     public static final String TYPE_OF = "type_of";
+
+    public static final String VOCABULARY_TERMS = "vocabulary_terms";
+
+    public static final String VOCABULARY_TERMS_EMPTY = "vocabulary_terms_empty";
 
     // -------- generic plugin dictionary -------------------
 

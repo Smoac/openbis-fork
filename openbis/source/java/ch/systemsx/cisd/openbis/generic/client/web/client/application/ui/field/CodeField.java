@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+
 /**
  * The {@link VarcharField} extension suitable for registering a code.
  * 
@@ -31,12 +34,10 @@ public final class CodeField extends VarcharField
      */
     public final static String CODE_PATTERN = "^[a-zA-Z0-9_\\-]+$";
 
-    public CodeField(final String label)
+    public CodeField(final IMessageProvider messageProvider, final String label)
     {
         super(label, true);
         setRegex(CODE_PATTERN);
-        getMessages().setRegexText(
-                "Code contains invalid characters. Allowed characters are:"
-                        + " letters, numbers, hyphen (\"-\") and underscore (\"_\").");
+        getMessages().setRegexText(messageProvider.getMessage(Dict.INVALID_CODE_MESSAGE, "Code"));
     }
 }

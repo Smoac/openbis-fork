@@ -105,7 +105,7 @@ public final class GenericSampleRegistrationForm extends AbstractRegistrationFor
 
     private final void createFormFields()
     {
-        codeField = new CodeField(viewContext.getMessage(Dict.CODE));
+        codeField = new CodeField(viewContext, viewContext.getMessage(Dict.CODE));
         codeField.setId(CODE_FIELD_ID);
         codeField.addListener(Events.Focus, new AbstractRegistrationForm.InfoBoxResetListener(
                 infoBox));

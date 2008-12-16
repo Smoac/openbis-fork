@@ -4,8 +4,6 @@ var common = {
   applicationName: "openBIS",
   welcome: "Welcome to openBIS",
   footer: "openBIS (Version {0})",
-  combobox_empty: "- No {0} found -",
-  combobox_choose: "Choose {0}...",
   
   //
   // Common Labels
@@ -14,6 +12,14 @@ var common = {
   code: "Code",
   registrator: "Registrator",
   registration_date: "Registration Date",
+  
+  //
+  // Field
+  //
+  
+  combobox_empty: "- No {0} found -",
+  combobox_choose: "Choose {0}...",
+  invalid_code_message: "{0} contains invalid characters. Allowed characters are: letters, numbers, hyphen (\"-\") and underscore (\"_\").",
   
   //
   // MessageBox
@@ -120,6 +126,8 @@ var common = {
   property_type_code: "Property type code",
   assigned_to: "Assigned to",
   type_of: "Type of",
+  vocabulary_terms: "Vocabulary terms",
+  vocabulary_terms_empty: "White space or comma separated list",
 
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma
