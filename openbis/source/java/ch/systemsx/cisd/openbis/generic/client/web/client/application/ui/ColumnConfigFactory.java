@@ -63,7 +63,7 @@ public final class ColumnConfigFactory
     // Default ColumnConfig
     //
 
-    public final static ColumnConfig createDefaultColumnConfig(final String id)
+    private final static ColumnConfig createDefaultColumnConfig(final String id)
     {
         final ColumnConfig columnConfig = new ColumnConfig();
         columnConfig.setId(id);
