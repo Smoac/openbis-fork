@@ -31,6 +31,14 @@ public class Dict
     public static final String FOOTER = "footer";
 
     //
+    // Combo Box
+    //
+
+    public static final String COMBO_BOX_EMPTY = "combobox_empty";
+
+    public static final String COMBO_BOX_CHOOSE = "combobox_choose";
+
+    //
     // Common Labels
     // 
 
@@ -169,6 +177,7 @@ public class Dict
     //
     // Property Type Browser
     //
+
     public static final String LABEL = "label";
 
     public static final String DATA_TYPE = "data_type";
@@ -196,6 +205,7 @@ public class Dict
     //
     // Experiment Viewer
     //
+
     public static final String FILE_NAME = "file_name";
 
     public static final String VERSION_FILE_NAME = "version_file_name";

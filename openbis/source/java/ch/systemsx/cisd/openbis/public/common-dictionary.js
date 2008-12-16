@@ -4,6 +4,8 @@ var common = {
   applicationName: "openBIS",
   welcome: "Welcome to openBIS",
   footer: "openBIS (Version {0})",
+  combobox_empty: "- No {0} found -",
+  combobox_choose: "Choose {0}...",
   
   //
   // Common Labels
@@ -106,6 +108,7 @@ var common = {
   //
   // Property Type Browser
   //
+  
   label: "Label",
   data_type: "Data type",
   controlled_vocabulary: "Controlled vocabulary",

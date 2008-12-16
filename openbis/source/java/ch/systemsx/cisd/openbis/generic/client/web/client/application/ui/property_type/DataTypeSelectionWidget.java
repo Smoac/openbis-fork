@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DataTypeModel;
@@ -37,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataType;
  */
 public final class DataTypeSelectionWidget extends ComboBox<DataTypeModel>
 {
-    private static final String PREFIX = "data-type-select_";
+    private static final String PREFIX = "data-type-select";
 
     public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
 
@@ -46,12 +47,13 @@ public final class DataTypeSelectionWidget extends ComboBox<DataTypeModel>
     public DataTypeSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         this.viewContext = viewContext;
-        setEmptyText("- No data types found -");
+        setId(ID);
+        setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_EMPTY, "data types"));
         setDisplayField(ModelDataPropertyNames.CODE);
         setEditable(false);
         setEnabled(false);
         setWidth(100);
-        setFieldLabel("Data type");
+        setFieldLabel(viewContext.getMessage(Dict.DATA_TYPE));
         setStore(new ListStore<DataTypeModel>());
     }
 
@@ -106,7 +108,7 @@ public final class DataTypeSelectionWidget extends ComboBox<DataTypeModel>
             {
                 setEnabled(true);
                 setValue(dataTypeStore.getAt(0));
-                setEmptyText("Choose data type...");
+                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, "data type"));
             }
         }
     }

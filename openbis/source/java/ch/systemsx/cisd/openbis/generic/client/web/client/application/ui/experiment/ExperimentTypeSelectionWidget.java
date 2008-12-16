@@ -24,6 +24,7 @@ import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExperimentTypeModel;
@@ -38,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentType;
  */
 public final class ExperimentTypeSelectionWidget extends ComboBox<ExperimentTypeModel>
 {
-    private static final String PREFIX = "experiment-type-select-";
+    private static final String PREFIX = "experiment-type-select_";
 
     public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
 
@@ -53,7 +54,7 @@ public final class ExperimentTypeSelectionWidget extends ComboBox<ExperimentType
         setDisplayField(ModelDataPropertyNames.CODE);
         setEditable(false);
         setWidth(180);
-        setFieldLabel("Experiment type");
+        setFieldLabel(viewContext.getMessage(Dict.EXPERIMENT_TYPE));
         setStore(new ListStore<ExperimentTypeModel>());
     }
 
@@ -100,10 +101,10 @@ public final class ExperimentTypeSelectionWidget extends ComboBox<ExperimentType
             if (experimentTypeStore.getCount() > 0)
             {
                 setEnabled(true);
-                setEmptyText("Choose experiment type...");
+                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, "experiment type"));
             } else
             {
-                setEmptyText("- No sample types found -");
+                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_EMPTY, "experiment types"));
             }
             applyEmptyText();
         }

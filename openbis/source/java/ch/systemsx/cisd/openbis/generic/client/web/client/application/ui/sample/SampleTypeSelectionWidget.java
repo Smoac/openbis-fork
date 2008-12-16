@@ -24,6 +24,7 @@ import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
@@ -38,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
  */
 public final class SampleTypeSelectionWidget extends ComboBox<SampleTypeModel>
 {
-    private static final String PREFIX = "sample-type-select-";
+    private static final String PREFIX = "sample-type-select_";
 
     public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
 
@@ -56,7 +57,7 @@ public final class SampleTypeSelectionWidget extends ComboBox<SampleTypeModel>
         setDisplayField(ModelDataPropertyNames.CODE);
         setEditable(false);
         setWidth(150);
-        setFieldLabel("Sample type");
+        setFieldLabel(viewContext.getMessage(Dict.SAMPLE_TYPE));
         setStore(new ListStore<SampleTypeModel>());
     }
 
@@ -102,11 +103,11 @@ public final class SampleTypeSelectionWidget extends ComboBox<SampleTypeModel>
             sampleTypeStore.add(SampleTypeModel.convert(result, onlyListable));
             if (sampleTypeStore.getCount() > 0)
             {
-                setEmptyText("Choose sample type...");
+                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, "sample type"));
                 setEnabled(true);
             } else
             {
-                setEmptyText("- No sample types found -");
+                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_EMPTY, "sample types"));
             }
             applyEmptyText();
         }

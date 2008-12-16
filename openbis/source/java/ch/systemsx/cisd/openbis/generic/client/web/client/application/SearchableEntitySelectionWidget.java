@@ -34,11 +34,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
  */
 final class SearchableEntitySelectionWidget extends ComboBox<SearchableEntityModel>
 {
+    private static final String PREFIX = "seachable-entity-select";
+
+    public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
+
     private final IViewContext<ICommonClientServiceAsync> commonContext;
 
     SearchableEntitySelectionWidget(final IViewContext<ICommonClientServiceAsync> commonContext)
     {
         this.commonContext = commonContext;
+        setId(ID);
         setEditable(false);
         setDisplayField(ModelDataPropertyNames.DESCRIPTION);
         setWidth(100);

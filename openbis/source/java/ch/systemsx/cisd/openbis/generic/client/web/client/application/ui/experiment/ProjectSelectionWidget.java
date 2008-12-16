@@ -24,6 +24,7 @@ import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
@@ -49,12 +50,12 @@ public final class ProjectSelectionWidget extends ComboBox<ProjectModel>
     {
         this.viewContext = viewContext;
         setId(ID);
-        setEmptyText("- No projects found -");
+        setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_EMPTY, "projects"));
         setDisplayField(ModelDataPropertyNames.PROJECT_WITH_GROUP);
         setEditable(false);
         setEnabled(false);
         setWidth(200);
-        setFieldLabel("Project");
+        setFieldLabel(viewContext.getMessage(Dict.PROJECT));
         setStore(new ListStore<ProjectModel>());
     }
 
@@ -101,7 +102,7 @@ public final class ProjectSelectionWidget extends ComboBox<ProjectModel>
             {
                 setEnabled(true);
                 setValue(projectStore.getAt(0));
-                setEmptyText("Choose project...");
+                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, "project"));
             }
             fireEvent(AppEvents.CALLBACK_FINISHED);
         }

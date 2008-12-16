@@ -24,6 +24,7 @@ import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
@@ -49,12 +50,12 @@ public final class GroupSelectionWidget extends ComboBox<GroupModel>
     {
         this.viewContext = viewContext;
         setId(ID);
-        setEmptyText("- No groups found -");
+        setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_EMPTY, "groups"));
         setDisplayField(ModelDataPropertyNames.CODE);
         setEditable(false);
         setEnabled(false);
         setWidth(150);
-        setFieldLabel("Group");
+        setFieldLabel(viewContext.getMessage(Dict.GROUP));
         setStore(new ListStore<GroupModel>());
     }
 
@@ -109,7 +110,7 @@ public final class GroupSelectionWidget extends ComboBox<GroupModel>
             {
                 setEnabled(true);
                 setValue(groupStore.getAt(0));
-                setEmptyText("Choose group...");
+                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, "group"));
             }
             fireEvent(AppEvents.CALLBACK_FINISHED);
         }
