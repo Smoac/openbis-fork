@@ -35,7 +35,6 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -302,29 +301,25 @@ public final class SampleBrowserGrid extends LayoutContainer
         SortInfo sortInfo = criteria.getSortInfo();
         TableExportCriteria<Sample> exportCriteria =
                 new TableExportCriteria<Sample>(resultSetKey, sortInfo, columns);
-        viewContext.getService().prepareExportSamples(exportCriteria, new AsyncCallback<String>()
-            {
-                public void onFailure(Throwable caught)
-                {
-                    MessageBox.alert("Warning", "Export has failed!", null);
-                }
+        viewContext.getService().prepareExportSamples(exportCriteria,
+                new AbstractAsyncCallback<String>(viewContext)
+                    {
+                        @Override
+                        protected void process(String exportDataKey)
+                        {
+                            Window.open(createURL(exportDataKey), "", null);
+                        }
 
-                public void onSuccess(String exportDataKey)
-                {
-                    Window.open(createURL(exportDataKey), "Download of the exported file", null);
-                }
-
-                private String createURL(String exportDataKey)
-                {
-                    final StringBuffer sb = new StringBuffer();
-                    sb.append(GenericConstants.FILE_EXPORTER_DOWNLOAD_SERVLET_NAME);
-                    sb.append("?");
-                    sb.append(GenericConstants.EXPORT_CRITERIA_KEY_PARAMETER).append("=");
-                    sb.append(exportDataKey);
-                    return sb.toString();
-                }
-
-            });
+                        private String createURL(String exportDataKey)
+                        {
+                            final StringBuffer sb = new StringBuffer();
+                            sb.append(GenericConstants.FILE_EXPORTER_DOWNLOAD_SERVLET_NAME);
+                            sb.append("?");
+                            sb.append(GenericConstants.EXPORT_CRITERIA_KEY_PARAMETER).append("=");
+                            sb.append(exportDataKey);
+                            return sb.toString();
+                        }
+                    });
     }
 
     /**
