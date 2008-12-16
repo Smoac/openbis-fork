@@ -58,6 +58,7 @@ public final class VocabularyTranslator
         }
         result.setTerms(list);
         result.setCode(vocabulary.getCode());
+        result.setDescription(vocabulary.getDescription());
         return result;
     }
 

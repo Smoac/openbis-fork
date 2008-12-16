@@ -28,6 +28,8 @@ public final class Vocabulary extends Code<Vocabulary>
 {
     private List<VocabularyTerm> terms = new ArrayList<VocabularyTerm>();
 
+    private String description;
+
     private boolean managedInternally;
 
     private boolean internalNamespace;
@@ -56,14 +58,24 @@ public final class Vocabulary extends Code<Vocabulary>
         this.internalNamespace = internalNamespace;
     }
 
-    public List<VocabularyTerm> getTerms()
+    public final List<VocabularyTerm> getTerms()
     {
         return terms;
     }
 
-    public void setTerms(final List<VocabularyTerm> terms)
+    public final void setTerms(final List<VocabularyTerm> terms)
     {
         this.terms = terms;
+    }
+
+    public final void setDescription(final String description)
+    {
+        this.description = description;
+    }
+
+    public final String getDescription()
+    {
+        return description;
     }
 
 }

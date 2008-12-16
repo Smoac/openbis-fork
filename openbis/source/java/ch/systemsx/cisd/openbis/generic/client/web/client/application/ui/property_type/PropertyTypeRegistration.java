@@ -65,6 +65,8 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
 
     private CodeField vocabularyField;
 
+    private VarcharField vocabularyDescription;
+
     private DataTypeSelectionWidget dataTypeSelectionWidget;
 
     private TextArea vocabularyTermsField;
@@ -100,6 +102,8 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
         vocabularyTermsField.setVisible(visible);
         vocabularyTermsField.setAllowBlank(!visible);
         vocabularyTermsField.reset();
+        vocabularyDescription.setVisible(visible);
+        vocabularyDescription.reset();
         vocabularyFieldSet.setVisible(visible);
     }
 
@@ -125,11 +129,14 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
     {
         formPanel.add(codeField = new CodeField(viewContext, viewContext.getMessage(Dict.CODE)));
         formPanel.add(labelField = createLabelField());
-        formPanel.add(descriptionField = createDescriptionField());
+        formPanel.add(descriptionField =
+                createDescriptionField(viewContext.getMessage(Dict.DESCRIPTION), true));
         formPanel.add(dataTypeSelectionWidget = new DataTypeSelectionWidget(viewContext));
         formPanel.add(vocabularyFieldSet = createFieldSet());
         vocabularyFieldSet.add(vocabularyField =
-                new CodeField(viewContext, viewContext.getMessage(Dict.VOCABULARY_CODE)));
+                new CodeField(viewContext, viewContext.getMessage(Dict.CODE)));
+        vocabularyFieldSet.add(vocabularyDescription =
+                createDescriptionField(viewContext.getMessage(Dict.DESCRIPTION), false));
         vocabularyFieldSet.add(vocabularyTermsField = createVocabularyTermsTextArea());
         dataTypeSelectionWidget
                 .addSelectionChangedListener(new SelectionChangedListener<DataTypeModel>()
@@ -160,10 +167,10 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
                     });
     }
 
-    private final VarcharField createDescriptionField()
+    private final VarcharField createDescriptionField(final String descriptionLabel,
+            final boolean mandatory)
     {
-        final VarcharField varcharField =
-                new VarcharField(viewContext.getMessage(Dict.DESCRIPTION), true);
+        final VarcharField varcharField = new VarcharField(descriptionLabel, mandatory);
         varcharField.setMaxLength(80);
         return varcharField;
     }
@@ -226,6 +233,7 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
         {
             final Vocabulary vocabulary = new Vocabulary();
             vocabulary.setCode(vocabularyField.getValue());
+            vocabulary.setDescription(StringUtils.trimToNull(vocabularyDescription.getValue()));
             List<VocabularyTerm> vocabularyTerms = new ArrayList<VocabularyTerm>();
             for (final String termCode : getTerms(vocabularyTermsField.getValue()))
             {

@@ -59,7 +59,7 @@ final class VocabularyDAO extends AbstractDAO implements IVocabularyDAO
     // IVocabularyDAO
     //
 
-    public final void create(final VocabularyPE vocabularyPE)
+    public final void createVocabulary(final VocabularyPE vocabularyPE)
     {
         assert vocabularyPE != null : "Given vocabulary can not be null.";
         validatePE(vocabularyPE);
