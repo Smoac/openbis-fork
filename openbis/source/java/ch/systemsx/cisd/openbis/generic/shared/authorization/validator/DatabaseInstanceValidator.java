@@ -41,7 +41,7 @@ public final class DatabaseInstanceValidator extends AbstractValidator<DatabaseI
         for (final RoleAssignmentPE roleAssignment : roleAssignments)
         {
             final DatabaseInstancePE databaseInstance = roleAssignment.getDatabaseInstance();
-            if (databaseInstance != null && databaseInstance.getId().equals(value.getId()))
+            if (databaseInstance != null && databaseInstance.equals(value))
             {
                 return true;
             }

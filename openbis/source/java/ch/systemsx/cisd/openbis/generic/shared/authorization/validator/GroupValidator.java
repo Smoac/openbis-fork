@@ -48,7 +48,7 @@ public final class GroupValidator extends AbstractValidator<GroupPE>
         for (final RoleAssignmentPE roleAssignment : roleAssignments)
         {
             final GroupPE group = roleAssignment.getGroup();
-            if (group != null && group.getId().equals(value.getId()))
+            if (group != null && group.equals(value))
             {
                 return true;
             }
