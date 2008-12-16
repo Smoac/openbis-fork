@@ -96,7 +96,7 @@ public final class DefaultAccessController implements IAccessController
         }
     }
 
-    final Set<Role> getMethodRoles(final Method method)
+    private Set<Role> getMethodRoles(final Method method)
     {
         synchronized (methodRolesCache)
         {
