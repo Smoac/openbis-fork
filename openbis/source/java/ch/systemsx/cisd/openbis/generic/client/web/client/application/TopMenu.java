@@ -26,6 +26,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
@@ -93,8 +94,9 @@ public class TopMenu extends LayoutContainer
 
     private final Html createTitleHeader()
     {
-
-        final Html titleHeader = new Html(viewContext.getMessage(Dict.APPLICATION_NAME));
+        final Element boldElement = DOM.createElement("b");
+        boldElement.setInnerHTML(viewContext.getMessage(Dict.APPLICATION_NAME));
+        final Html titleHeader = new Html(DOM.toString(boldElement));
         titleHeader.setStyleAttribute("margin", "0 1em 0 1em");
         return titleHeader;
     }
