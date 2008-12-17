@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 
@@ -39,6 +36,7 @@ public final class PropertyTypeTranslator
     {
         final PropertyType result = new PropertyType();
         result.setCode(propertyType.getCode());
+        result.setSimpleCode(propertyType.getSimpleCode());
         result.setInternalNamespace(propertyType.isInternalNamespace());
         result.setManagedInternally(propertyType.isManagedInternally());
         result.setLabel(propertyType.getLabel());
@@ -53,24 +51,4 @@ public final class PropertyTypeTranslator
                 propertyType.getExperimentTypePropertyTypes(), result));
         return result;
     }
-
-    public final static PropertyTypePE translate(final PropertyType propertyType)
-    {
-        final PropertyTypePE result = new PropertyTypePE();
-        result.setCode(propertyType.getCode());
-        result.setInternalNamespace(propertyType.isInternalNamespace());
-        result.setLabel(propertyType.getLabel());
-        return result;
-    }
-
-    public final static List<PropertyTypePE> translate(final List<PropertyType> propertyCodes)
-    {
-        final List<PropertyTypePE> result = new ArrayList<PropertyTypePE>();
-        for (final PropertyType s : propertyCodes)
-        {
-            result.add(translate(s));
-        }
-        return result;
-    }
-
 }

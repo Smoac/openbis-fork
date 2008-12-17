@@ -143,7 +143,7 @@ public class SampleRow extends Row
     {
         final PropertyType propertyType = new PropertyType();
         propertyType.setInternalNamespace(internalNamespace);
-        propertyType.setCode(propertyCode);
+        propertyType.setSimpleCode(propertyCode);
         return propertyType;
     }
 

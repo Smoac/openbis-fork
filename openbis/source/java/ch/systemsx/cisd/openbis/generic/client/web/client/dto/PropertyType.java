@@ -25,6 +25,15 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public class PropertyType extends Code<PropertyType> implements IsSerializable
 {
+    /**
+     * Only used for displaying/viewing. With <code>managedInternally</code> is unambiguous
+     * (meaning that <code>simpleCode</code> alone could be not unique).
+     * <p>
+     * We have to use it, partly because <i>Javascript</i> handle '.' in an object-oriented way.
+     * </p>
+     */
+    private String simpleCode;
+
     private String label;
 
     private boolean internalNamespace;
@@ -42,6 +51,16 @@ public class PropertyType extends Code<PropertyType> implements IsSerializable
     private List<MaterialTypePropertyType> materialTypePropertyTypes;
 
     private List<ExperimentTypePropertyType> experimentTypePropertyTypes;
+
+    public String getSimpleCode()
+    {
+        return simpleCode;
+    }
+
+    public void setSimpleCode(final String simpleCode)
+    {
+        this.simpleCode = simpleCode;
+    }
 
     public String getLabel()
     {
