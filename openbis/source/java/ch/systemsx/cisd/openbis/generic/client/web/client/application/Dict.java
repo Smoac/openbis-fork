@@ -17,13 +17,23 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 /**
- * Contains keys of the localized messages. Use these constants instead of accessing messages with
- * hard coded keys!
+ * Contains keys of the localized messages.
+ * <p>
+ * Use these constants instead of accessing messages with hard coded keys! Consider extending this
+ * class for plugin specific keys. Currently this class contains message keys of the <i>common</i>
+ * and <i>generic</i> technology.
+ * </p>
  * 
  * @author Tomasz Pylak
  */
-public class Dict
+public abstract class Dict
 {
+
+    protected Dict()
+    {
+        // Can not be instantiated.
+    }
+
     public static final String APPLICATION_NAME = "applicationName";
 
     public static final String WELCOME = "welcome";
