@@ -20,10 +20,14 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 
 /**
@@ -39,6 +43,21 @@ public final class PropertyTypeBO extends AbstractBusinessObject implements IPro
     public PropertyTypeBO(final IDAOFactory daoFactory, final Session session)
     {
         super(daoFactory, session);
+    }
+
+    private final VocabularyPE createVocabulary(final Vocabulary vocabulary)
+    {
+        final VocabularyPE vocabularyPE = new VocabularyPE();
+        vocabularyPE.setCode(vocabulary.getCode());
+        vocabularyPE.setDescription(vocabulary.getDescription());
+        vocabularyPE.setDatabaseInstance(getHomeDatabaseInstance());
+        for (final VocabularyTerm term : vocabulary.getTerms())
+        {
+            final VocabularyTermPE vocabularyTermPE = new VocabularyTermPE();
+            vocabularyTermPE.setCode(term.getCode());
+            vocabularyPE.addTerm(vocabularyTermPE);
+        }
+        return null;
     }
 
     //
@@ -68,7 +87,14 @@ public final class PropertyTypeBO extends AbstractBusinessObject implements IPro
         propertyTypePE.setRegistrator(findRegistrator());
         if (EntityDataType.CONTROLLEDVOCABULARY.equals(dataTypePE.getCode()))
         {
-            // propertyTypePE.setVocabulary(vocabulary);
+            VocabularyPE vocabularyPE =
+                    getVocabularyDAO().tryFindVocabularyByCode(
+                            propertyType.getVocabulary().getCode());
+            if (vocabularyPE == null)
+            {
+                vocabularyPE = createVocabulary(propertyType.getVocabulary());
+            }
+            propertyTypePE.setVocabulary(vocabularyPE);
         }
     }
 

@@ -23,7 +23,6 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
-import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
@@ -227,12 +226,11 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 + " MANDATORY(%S) DEFAULT(%S)", propertyTypeCode, entityTypeCode, isMandatory,
                 defaultValue);
     }
-    
-    
+
     public final void registerPropertyType(final String sessionToken,
             final PropertyType propertyType)
     {
-        logTracking(sessionToken, "register_property_type", "PROPERTY_TYPE(%s)", CodeConverter
-                .tryToBusinessLayer(propertyType.getCode(), true));
+        logTracking(sessionToken, "register_property_type", "PROPERTY_TYPE(%s)", propertyType
+                .getCode());
     }
 }

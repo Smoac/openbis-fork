@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Abstrac
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Vocabulary;
@@ -49,8 +50,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTerm;
  * 
  * @author Christian Ribeaud
  */
+// TODO 2008-12-16, Christian Ribeaud: Reset info box when starting to input something.
 public final class PropertyTypeRegistration extends AbstractRegistrationForm
 {
+    private final static String DOT_EXTENDED_CODE_PATTERN = "^[a-zA-Z0-9_\\-\\.]+$";
+
     private static final String PREFIX = "property-type-registration";
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
@@ -125,16 +129,21 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
         return formLayout;
     }
 
+    private final CodeField createCodeField()
+    {
+        return new CodeField(viewContext, viewContext.getMessage(Dict.CODE),
+                DOT_EXTENDED_CODE_PATTERN);
+    }
+
     private final void addFields()
     {
-        formPanel.add(codeField = new CodeField(viewContext, viewContext.getMessage(Dict.CODE)));
+        formPanel.add(codeField = createCodeField());
         formPanel.add(labelField = createLabelField());
         formPanel.add(descriptionField =
                 createDescriptionField(viewContext.getMessage(Dict.DESCRIPTION), true));
         formPanel.add(dataTypeSelectionWidget = new DataTypeSelectionWidget(viewContext));
         formPanel.add(vocabularyFieldSet = createFieldSet());
-        vocabularyFieldSet.add(vocabularyField =
-                new CodeField(viewContext, viewContext.getMessage(Dict.CODE)));
+        vocabularyFieldSet.add(vocabularyField = createCodeField());
         vocabularyFieldSet.add(vocabularyDescription =
                 createDescriptionField(viewContext.getMessage(Dict.DESCRIPTION), false));
         vocabularyFieldSet.add(vocabularyTermsField = createVocabularyTermsTextArea());
@@ -228,8 +237,9 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
         propertyType.setCode(codeField.getValue());
         propertyType.setLabel(labelField.getValue());
         propertyType.setDescription(descriptionField.getValue());
-        if (DataTypeCode.CONTROLLEDVOCABULARY.equals(dataTypeSelectionWidget
-                .tryGetSelectedDataType().getCode()))
+        final DataType selectedDataType = dataTypeSelectionWidget.tryGetSelectedDataType();
+        propertyType.setDataType(selectedDataType);
+        if (DataTypeCode.CONTROLLEDVOCABULARY.equals(selectedDataType.getCode()))
         {
             final Vocabulary vocabulary = new Vocabulary();
             vocabulary.setCode(vocabularyField.getValue());
