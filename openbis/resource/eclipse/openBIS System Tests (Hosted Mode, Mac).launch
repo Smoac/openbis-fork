@@ -25,5 +25,5 @@
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="ch.systemsx.cisd.openbis.generic.SystemTestSuite"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-out targets/www-test"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="openbis"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-XstartOnFirstThread&#10;-Dauthentication-service=file-authentication-service&#10;-Ddatabase.create-from-scratch=true&#10;-Ddatabase.kind=system_test&#10;-Dscript-folder=sourceTest&#10;-Dmass-upload-folder=sourceTest/sql/postgresql&#10;-Dhibernate.search.index-base=sourceTest/lucene/indices&#10;-Dhibernate.search.index-mode=NO_INDEX&#10;-Dlog4j.configuration=etc/log_system_test.xml&#10;-Xmx512M&#10;-ea"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-XstartOnFirstThread&#10;-Dauthentication-service=file-authentication-service&#10;-Ddatabase.create-from-scratch=true&#10;-Ddatabase.kind=system_test&#10;-Dscript-folder=sourceTest&#10;-Dmass-upload-folder=sourceTest/sql/postgresql&#10;-Dhibernate.search.index-base=sourceTest/lucene/indices&#10;-Dhibernate.search.index-mode=NO_INDEX&#10;-Dlog4j.configuration=etc/log_system_test.xml&#10;-Dhibernate.search.indexing_strategy=manual&#13;-Xmx512M&#10;-ea"/>
 </launchConfiguration>

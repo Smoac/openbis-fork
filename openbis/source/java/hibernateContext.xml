@@ -71,6 +71,10 @@
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.MaterialBatchPE</value>
             </list>
         </property>
+        <!-- 
+            Note that for all these properties you do not have to define a new property in the
+            'service.properties' file. You might just use the System properties.
+        -->
         <property name="hibernateProperties">
             <props>
                 <!-- Uncomment this if you want to disable globally the second-level cache. 
@@ -87,6 +91,12 @@
                 <prop key="hibernate.search.default.optimizer.operation_limit.max">1000</prop>
                 <prop key="hibernate.search.default.optimizer.transaction_limit.max">100</prop>
                 <prop key="hibernate.search.worker.batch_size">${hibernate.search.batch-size}</prop>
+                <!-- Disabling Hibernate Search. Possible values are [true, false].
+                    <prop key="hibernate.search.autoregister_listeners">false</prop>
+                -->
+                <!-- Disabling automatic indexing. Possible values are [event, manual].
+                    <prop key="hibernate.search.indexing_strategy">manual</prop>
+                -->
                 <!--  Uncomment this for debugging the Hibernate sql queries
                     <prop key="hibernate.show_sql">true</prop>
                     <prop key="hibernate.format_sql">true</prop>
