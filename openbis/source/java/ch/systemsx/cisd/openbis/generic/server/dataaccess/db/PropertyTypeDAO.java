@@ -21,7 +21,6 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.support.JdbcAccessor;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
@@ -53,16 +52,6 @@ final class PropertyTypeDAO extends AbstractDAO implements IPropertyTypeDAO
     PropertyTypeDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance)
     {
         super(sessionFactory, databaseInstance);
-    }
-
-    private final static void checkType(final PropertyTypePE propertyType)
-    {
-        if (propertyType.isInternalNamespace())
-        {
-            throw new DataIntegrityViolationException(String.format(
-                    "Given code '%s' does not contain '%s' prefix.", propertyType.getCode(),
-                    CodeConverter.USER_PROPERTY_PREFIX));
-        }
     }
 
     //
@@ -153,7 +142,6 @@ final class PropertyTypeDAO extends AbstractDAO implements IPropertyTypeDAO
     {
         assert propertyType != null : "Unspecified property type.";
         validatePE(propertyType);
-        checkType(propertyType);
 
         final HibernateTemplate template = getHibernateTemplate();
         template.save(propertyType);

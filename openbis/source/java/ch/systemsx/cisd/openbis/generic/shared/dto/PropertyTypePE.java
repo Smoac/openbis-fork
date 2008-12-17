@@ -42,6 +42,7 @@ import org.hibernate.validator.Pattern;
 
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.InternalNamespace;
 
 /**
  * Persistence entity representing property type.
@@ -199,6 +200,7 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
 
     @NotNull
     @Column(name = ColumnNames.IS_INTERNAL_NAMESPACE)
+    @InternalNamespace(message = ValidationMessages.CODE_NOT_USER_NAMESPACE)
     public boolean isInternalNamespace()
     {
         return internalNamespace;

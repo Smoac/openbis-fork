@@ -16,33 +16,36 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto.hibernate;
 
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
+import java.io.Serializable;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.hibernate.validator.Validator;
 
-import org.hibernate.validator.ValidatorClass;
+import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 
 /**
- * <code>String</code> value has to be a location.
+ * Checks a field annotated with {@link InternalNamespace}.
  * 
  * @author Christian Ribeaud
  */
-@Target(
-    { METHOD, FIELD })
-@Retention(RetentionPolicy.RUNTIME)
-@Documented
-@ValidatorClass(LocationValidator.class)
-public @interface Location
+public final class InternalNamespaceValidator implements Validator<InternalNamespace>, Serializable
 {
 
-    /**
-     * Whether given location must be relative or not. Default is <code>true</code>.
-     */
-    boolean relative() default true;
+    private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
-    String message() default "{validator.location}";
+    private boolean internalNamespace;
+
+    //
+    // Validator
+    //
+
+    public final void initialize(final InternalNamespace annotation)
+    {
+        this.internalNamespace = annotation.value();
+    }
+
+    public final boolean isValid(final Object value)
+    {
+        return ((Boolean) value) == internalNamespace;
+    }
+
 }

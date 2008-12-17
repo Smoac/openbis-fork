@@ -45,6 +45,7 @@ import org.hibernate.validator.Pattern;
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.InternalNamespace;
 
 /**
  * Persistence entity representing controlled vocabulary.
@@ -185,6 +186,7 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
     }
 
     @Column(name = ColumnNames.IS_INTERNAL_NAMESPACE, nullable = false)
+    @InternalNamespace(message = ValidationMessages.CODE_NOT_USER_NAMESPACE)
     public boolean isInternalNamespace()
     {
         return internalNamespace;

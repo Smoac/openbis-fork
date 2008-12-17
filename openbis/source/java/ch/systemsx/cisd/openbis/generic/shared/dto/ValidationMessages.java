@@ -102,6 +102,9 @@ public final class ValidationMessages
 
     public static final String LOCATION_NOT_RELATIVE = "Location is not relative";
 
+    public static final String CODE_NOT_USER_NAMESPACE =
+            "Code does not contain '" + CodeConverter.USER_PROPERTY_PREFIX + "' prefix.";
+
     public static final String LOCATOR_TYPE_NOT_NULL_MESSAGE = "Locator type" + CAN_NOT_BE_NULL;
 
     public static final String MATERIAL_NOT_NULL_MESSAGE = "Material" + CAN_NOT_BE_NULL;

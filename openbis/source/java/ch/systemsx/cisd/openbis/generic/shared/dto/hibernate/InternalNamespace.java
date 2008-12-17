@@ -27,7 +27,8 @@ import java.lang.annotation.Target;
 import org.hibernate.validator.ValidatorClass;
 
 /**
- * <code>String</code> value has to be a location.
+ * <code>boolean</code> value has to be <code>false</code> for entities that must not be in the
+ * internal namespace.
  * 
  * @author Christian Ribeaud
  */
@@ -35,14 +36,17 @@ import org.hibernate.validator.ValidatorClass;
     { METHOD, FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@ValidatorClass(LocationValidator.class)
-public @interface Location
+@ValidatorClass(InternalNamespaceValidator.class)
+public @interface InternalNamespace
 {
 
     /**
-     * Whether given location must be relative or not. Default is <code>true</code>.
+     * Whether given entity must be located in the internal namespace or not.
+     * <p>
+     * Default is <code>false</code>.
+     * </p>
      */
-    boolean relative() default true;
+    boolean value() default false;
 
-    String message() default "{validator.location}";
+    String message() default "{validator.internalnamespace}";
 }

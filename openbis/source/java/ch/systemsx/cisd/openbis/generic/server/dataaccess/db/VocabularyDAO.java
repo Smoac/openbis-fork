@@ -20,7 +20,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.support.JdbcAccessor;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
@@ -56,17 +55,6 @@ final class VocabularyDAO extends AbstractDAO implements IVocabularyDAO
         super(sessionFactory, databaseInstance);
     }
 
-    private final static void checkIsUserNamespace(final VocabularyPE vocabulary)
-    {
-        if (vocabulary.isInternalNamespace())
-        {
-            throw new DataIntegrityViolationException(String.format(
-                    "User defined vocabulary must begin with prefix "
-                            + "'%s'. Provided code was: '%s'.", CodeConverter.USER_PROPERTY_PREFIX,
-                    vocabulary.getCode()));
-        }
-    }
-
     //
     // IVocabularyDAO
     //
@@ -75,7 +63,6 @@ final class VocabularyDAO extends AbstractDAO implements IVocabularyDAO
     {
         assert vocabularyPE != null : "Given vocabulary can not be null.";
         validatePE(vocabularyPE);
-        checkIsUserNamespace(vocabularyPE);
 
         final HibernateTemplate template = getHibernateTemplate();
         template.save(vocabularyPE);
