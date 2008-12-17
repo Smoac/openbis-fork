@@ -55,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.PagingToolBarWithoutRefresh;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GxtTranslator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -413,24 +414,12 @@ public final class SampleBrowserGrid extends LayoutContainer
         @Override
         protected void process(String exportDataKey)
         {
-            String url = createExportWindowURL(exportDataKey);
-            openURL(url);
+            URLMethodWithParameters methodWithParameters =
+                    new URLMethodWithParameters(GenericConstants.FILE_EXPORTER_DOWNLOAD_SERVLET_NAME);
+            methodWithParameters.addParameter(GenericConstants.EXPORT_CRITERIA_KEY_PARAMETER,
+                    exportDataKey);
+            Window.open(methodWithParameters.toString(), "", null);
         }
-
-        private void openURL(String url)
-        {
-            Window.open(url, "", null);
-        }
-    }
-
-    private static String createExportWindowURL(String exportDataKey)
-    {
-        final StringBuffer sb = new StringBuffer();
-        sb.append(GenericConstants.FILE_EXPORTER_DOWNLOAD_SERVLET_NAME);
-        sb.append("?");
-        sb.append(GenericConstants.EXPORT_CRITERIA_KEY_PARAMETER).append("=");
-        sb.append(exportDataKey);
-        return sb.toString();
     }
 
     protected boolean isExportEnabled()

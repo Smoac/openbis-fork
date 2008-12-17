@@ -49,8 +49,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Atta
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Attachment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 
 /**
  * {@link SectionPanel} containing experiment attachments.
@@ -116,7 +120,7 @@ public class ExperimentAttachmentsSection extends SectionPanel
 
                     if (ModelDataPropertyNames.FILE_NAME.equals(column))
                     {
-                        Window.open(createURL(version, fileName, experiment), "Download file", "");
+                        downloadAttachment(fileName, version);
                     } else if (ModelDataPropertyNames.VERSIONS.equals(column))
                     {
                         List<Attachment> versions = cast(selectedItem);
@@ -185,7 +189,7 @@ public class ExperimentAttachmentsSection extends SectionPanel
                         Attachment selectedAttachment =
                                 (Attachment) selectedItem.get(ModelDataPropertyNames.OBJECT);
                         int version = selectedAttachment.getVersion();
-                        Window.open(createURL(version, fileName, experiment), "Download file", "");
+                        downloadAttachment(fileName, version);
                     }
                     attachmentGrid.getSelectionModel().deselectAll();
                 }
@@ -196,40 +200,26 @@ public class ExperimentAttachmentsSection extends SectionPanel
         return panel;
     }
 
-    final static String createURL(final int version, final String fileName, final Experiment exp)
+    private void downloadAttachment(String fileName, int version)
     {
-        final StringBuffer buffer = new StringBuffer();
-        final String projectCode = exp.getProject().getCode();
-        final String groupCode = exp.getProject().getGroup().getCode();
-        final String experimentCode = exp.getCode();
-        final String instanceCode = exp.getProject().getGroup().getInstance().getCode();
-        buffer.append(GenericConstants.EXPERIMENT_ATTACHMENT_DOWNLOAD_SERVLET_NAME)
-
-        .append("?")
-
-        .append(GenericConstants.VERSION_PARAMETER).append("=").append(version)
-
-        .append("&")
-
-        .append(GenericConstants.FILE_NAME_PARAMETER).append("=").append(fileName)
-
-        .append("&")
-
-        .append(GenericConstants.PROJECT_PARAMETER).append("=").append(projectCode)
-
-        .append("&")
-
-        .append(GenericConstants.GROUP_PARAMETER).append("=").append(groupCode)
-
-        .append("&")
-
-        .append(GenericConstants.EXPERIMENT_PARAMETER).append("=").append(experimentCode)
-
-        .append("&")
-
-        .append(GenericConstants.DATABASE_PARAMETER).append("=").append(instanceCode);
-
-        return buffer.toString();
+        Window.open(createURL(version, fileName, experiment), "", null);
+    }
+    
+    private final static String createURL(final int version, final String fileName, final Experiment exp)
+    {
+        Project project = exp.getProject();
+        Group group = project.getGroup();
+        DatabaseInstance instance = group.getInstance();
+        URLMethodWithParameters methodWithParameters =
+                new URLMethodWithParameters(
+                        GenericConstants.EXPERIMENT_ATTACHMENT_DOWNLOAD_SERVLET_NAME);
+        methodWithParameters.addParameter(GenericConstants.VERSION_PARAMETER, version);
+        methodWithParameters.addParameter(GenericConstants.FILE_NAME_PARAMETER, fileName);
+        methodWithParameters.addParameter(GenericConstants.PROJECT_PARAMETER, project.getCode());
+        methodWithParameters.addParameter(GenericConstants.GROUP_PARAMETER, group.getCode());
+        methodWithParameters.addParameter(GenericConstants.EXPERIMENT_PARAMETER, exp.getCode());
+        methodWithParameters.addParameter(GenericConstants.DATABASE_PARAMETER, instance.getCode());
+        return methodWithParameters.toString();
     }
 
     private List<ColumnConfig> defineAttachmentColumns()
