@@ -30,7 +30,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -176,17 +175,6 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
         this.parent = parent;
     }
 
-    @Transient
-    /**
-     * Returns connected experiment.<br>
-     * 
-     * @see ExperimentPE#addAttachment(AttachmentPE) to set the connected experiment.
-     */
-    public ExperimentPE getParent()
-    {
-        return getParentInternal();
-    }
-
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @NotNull(message = ValidationMessages.ATTACHMENT_CONTENT_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.EXPERIMENT_ATTACHMENT_CONTENT_COLUMN, updatable = false)
@@ -217,7 +205,7 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(getFileName(), that.getFileName());
         builder.append(getVersion(), that.getVersion());
-        builder.append(getParent(), that.getParent());
+        builder.append(getParentInternal(), that.getParentInternal());
         return builder.isEquals();
     }
 
@@ -227,7 +215,7 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(getFileName());
         builder.append(getVersion());
-        builder.append(getParent());
+        builder.append(getParentInternal());
         return builder.toHashCode();
     }
 
@@ -239,7 +227,7 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
                         ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
         builder.append("fileName", getFileName());
         builder.append("version", getVersion());
-        builder.append("parent", getParent());
+        builder.append("parent", getParentInternal());
         return builder.toString();
     }
 

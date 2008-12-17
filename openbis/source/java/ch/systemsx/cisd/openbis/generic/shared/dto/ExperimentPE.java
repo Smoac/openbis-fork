@@ -336,7 +336,7 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
 
     public void addAttachment(final AttachmentPE child)
     {
-        final ExperimentPE parent = child.getParent();
+        final ExperimentPE parent = child.getParentInternal();
         if (parent != null)
         {
             parent.getInternalAttachments().remove(child);
