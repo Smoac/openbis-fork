@@ -100,6 +100,7 @@ public final class GenericSampleRegistrationForm extends AbstractRegistrationFor
     {
         codeField = new CodeField(viewContext, viewContext.getMessage(Dict.CODE));
         codeField.setId(CODE_FIELD_ID);
+        // TODO 2008-12-28, Christian Ribeaud: Find a generic way to handle this.
         codeField.addListener(Events.Focus, new AbstractRegistrationForm.InfoBoxResetListener(
                 infoBox));
 

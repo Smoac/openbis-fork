@@ -51,13 +51,22 @@ public final class PropertyTypeBO extends AbstractBusinessObject implements IPro
         vocabularyPE.setCode(vocabulary.getCode());
         vocabularyPE.setDescription(vocabulary.getDescription());
         vocabularyPE.setDatabaseInstance(getHomeDatabaseInstance());
+        vocabularyPE.setRegistrator(findRegistrator());
         for (final VocabularyTerm term : vocabulary.getTerms())
         {
             final VocabularyTermPE vocabularyTermPE = new VocabularyTermPE();
             vocabularyTermPE.setCode(term.getCode());
+            vocabularyTermPE.setRegistrator(findRegistrator());
             vocabularyPE.addTerm(vocabularyTermPE);
         }
-        return null;
+        try
+        {
+            getVocabularyDAO().createVocabulary(vocabularyPE);
+        } catch (final DataAccessException e)
+        {
+            throwException(e, String.format("Property type '%s'.", propertyTypePE.getCode()));
+        }
+        return vocabularyPE;
     }
 
     //

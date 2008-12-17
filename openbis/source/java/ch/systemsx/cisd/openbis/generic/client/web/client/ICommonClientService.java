@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
 /**
@@ -166,6 +167,11 @@ public interface ICommonClientService extends IClientService
      * Returns a list of all data types.
      */
     public List<DataType> listDataTypes() throws UserFailureException;
+
+    /**
+     * Returns a list of all vocabularies.
+     */
+    public List<Vocabulary> listVocabularies() throws UserFailureException;
 
     /**
      * Assigns property type to entity type.

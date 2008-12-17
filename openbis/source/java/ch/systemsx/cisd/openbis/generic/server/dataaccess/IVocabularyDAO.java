@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 
@@ -38,4 +40,10 @@ public interface IVocabularyDAO
      * <code>null</code>, if it doesn't exist.
      */
     VocabularyPE tryFindVocabularyByCode(final String vocabularyCode);
+
+    /**
+     * Return all available vocabularies which have <code>internalNamespace</code> set to
+     * <code>false</code>.
+     */
+    List<VocabularyPE> listVocabularies();
 }

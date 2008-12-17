@@ -119,7 +119,7 @@ public final class GWTUtils
             final ColumnConfig columnConfig = columnModel.getColumn(i);
             if (columnConfig.isHidden() == false)
             {
-                // TODO 2008-12-17, Christian Ribeaud: This sometimes throws an exception.
+                // TODO 2008-12-28, Christian Ribeaud: This sometimes throws an exception.
                 // grid.setAutoExpandColumn(columnConfig.getId());
                 return;
             }

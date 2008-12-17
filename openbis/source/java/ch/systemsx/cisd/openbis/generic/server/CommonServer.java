@@ -58,6 +58,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
@@ -374,6 +375,16 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         final List<DataTypePE> dataTypes = getDAOFactory().getPropertyTypeDAO().listDataTypes();
         Collections.sort(dataTypes);
         return dataTypes;
+    }
+
+    public final List<VocabularyPE> listVocabularies(final String sessionToken)
+    {
+        assert sessionToken != null : "Unspecified session token";
+        // Not needed but just to refresh/check the session.
+        getSessionManager().getSession(sessionToken);
+        final List<VocabularyPE> vocabularies = getDAOFactory().getVocabularyDAO().listVocabularies();
+        Collections.sort(vocabularies);
+        return vocabularies;
     }
 
     public void assignPropertyType(String sessionToken, EntityKind entityKind,

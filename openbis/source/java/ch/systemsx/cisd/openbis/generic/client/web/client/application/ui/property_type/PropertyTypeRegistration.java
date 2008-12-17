@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.proper
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -50,7 +51,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTerm;
  * 
  * @author Christian Ribeaud
  */
-// TODO 2008-12-16, Christian Ribeaud: Reset info box when starting to input something.
+// TODO 2008-12-28, Christian Ribeaud: Add 'USER.' as label just before the field.
 public final class PropertyTypeRegistration extends AbstractRegistrationForm
 {
     private final static String DOT_EXTENDED_CODE_PATTERN = "^[a-zA-Z0-9_\\-\\.]+$";
@@ -138,6 +139,9 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
     private final void addFields()
     {
         formPanel.add(codeField = createCodeField());
+        // TODO 2008-12-28, Christian Ribeaud: Find a generic way to handle this.
+        codeField.addListener(Events.Focus, new AbstractRegistrationForm.InfoBoxResetListener(
+                infoBox));
         formPanel.add(labelField = createLabelField());
         formPanel.add(descriptionField =
                 createDescriptionField(viewContext.getMessage(Dict.DESCRIPTION), true));
@@ -231,10 +235,19 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
         return textArea;
     }
 
+    private final static String appendUserOrNot(final String value)
+    {
+        if (value.toLowerCase().startsWith("user."))
+        {
+            return value;
+        }
+        return "USER." + value;
+    }
+
     private final PropertyType createPropertyType()
     {
         final PropertyType propertyType = new PropertyType();
-        propertyType.setCode(codeField.getValue());
+        propertyType.setCode(appendUserOrNot(codeField.getValue()));
         propertyType.setLabel(labelField.getValue());
         propertyType.setDescription(descriptionField.getValue());
         final DataType selectedDataType = dataTypeSelectionWidget.tryGetSelectedDataType();
@@ -242,7 +255,7 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
         if (DataTypeCode.CONTROLLEDVOCABULARY.equals(selectedDataType.getCode()))
         {
             final Vocabulary vocabulary = new Vocabulary();
-            vocabulary.setCode(vocabularyField.getValue());
+            vocabulary.setCode(appendUserOrNot(vocabularyField.getValue()));
             vocabulary.setDescription(StringUtils.trimToNull(vocabularyDescription.getValue()));
             List<VocabularyTerm> vocabularyTerms = new ArrayList<VocabularyTerm>();
             for (final String termCode : getTerms(vocabularyTermsField.getValue()))

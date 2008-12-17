@@ -107,4 +107,18 @@ final class VocabularyDAO extends AbstractDAO implements IVocabularyDAO
         }
         return entity;
     }
+
+    public final List<VocabularyPE> listVocabularies()
+    {
+        final List<VocabularyPE> list =
+                cast(getHibernateTemplate().find(
+                        String.format("from %s v where v.internalNamespace = false "
+                                + "and v.databaseInstance = ?", TABLE_NAME),
+                        toArray(getDatabaseInstance())));
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(list.size() + " vocabulary(ies) have been found.");
+        }
+        return list;
+    }
 }

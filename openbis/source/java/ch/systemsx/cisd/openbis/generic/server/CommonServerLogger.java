@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
@@ -215,6 +216,12 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     public final List<DataTypePE> listDataTypes(final String sessionToken)
     {
         logAccess(sessionToken, "list_data_types");
+        return null;
+    }
+
+    public final List<VocabularyPE> listVocabularies(String sessionToken)
+    {
+        logAccess(sessionToken, "list_vocabularies");
         return null;
     }
 
