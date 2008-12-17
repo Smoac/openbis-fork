@@ -83,27 +83,6 @@ public class CacheManager<K, T>
         }
     }
 
-    public static final class CounterBasedResultSetKeyGenerator implements
-            IResultSetKeyGenerator<Integer>
-    {
-        private static final long serialVersionUID = 1L;
-
-        private int counter;
-
-        public CounterBasedResultSetKeyGenerator()
-        {
-        }
-
-        //
-        // IResultSetKeyProvider
-        //
-
-        public final Integer createKey()
-        {
-            return counter++;
-        }
-    }
-
     public static final class TokenBasedResultSetKeyGenerator implements
             IResultSetKeyGenerator<String>
     {

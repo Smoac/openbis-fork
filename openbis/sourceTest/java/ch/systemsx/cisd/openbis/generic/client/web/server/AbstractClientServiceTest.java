@@ -52,7 +52,7 @@ public abstract class AbstractClientServiceTest
 
     protected Session session;
 
-    protected final void prepareGetSession(final Expectations expectations)
+    protected final void prepareGetHttpSession(final Expectations expectations)
     {
         expectations.allowing(requestContextProvider).getHttpServletRequest();
         expectations.will(Expectations.returnValue(servletRequest));
@@ -75,7 +75,7 @@ public abstract class AbstractClientServiceTest
 
     protected final void prepareGetSessionToken(final Expectations expectations)
     {
-        prepareGetSession(expectations);
+        prepareGetHttpSession(expectations);
 
         expectations.allowing(httpSession).getAttribute(
                 SessionConstants.OPENBIS_SESSION_ATTRIBUTE_KEY);

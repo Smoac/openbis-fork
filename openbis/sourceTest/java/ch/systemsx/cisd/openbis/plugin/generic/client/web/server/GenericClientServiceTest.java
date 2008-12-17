@@ -144,7 +144,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
         context.checking(new Expectations()
             {
                 {
-                    prepareGetSession(this);
+                    prepareGetHttpSession(this);
                     prepareGetSessionToken(this);
 
                     allowing(httpSession).getAttribute(sessionKey);

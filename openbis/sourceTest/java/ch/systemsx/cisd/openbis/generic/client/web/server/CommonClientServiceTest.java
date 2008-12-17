@@ -32,8 +32,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DefaultResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetKeyGenerator;
+import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
@@ -102,21 +106,14 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         context.checking(new Expectations()
             {
                 {
-                    prepareGetSession(this);
+                    prepareGetHttpSession(this);
                     prepareGetSessionToken(this);
                     prepareGetResultSetManager(this);
 
                     one(resultSetManager).getResultSet(with(listCriteria),
-                            getOriginalDataProvider());
+                            getAnyOriginalDataProvider(this));
                     will(returnValue(defaultResultSet));
                 }
-
-                @SuppressWarnings("unchecked")
-                private final IOriginalDataProvider<Sample> getOriginalDataProvider()
-                {
-                    return with(any(IOriginalDataProvider.class));
-                }
-
             });
         final ResultSet<Sample> resultSet = commonClientService.listSamples(listCriteria);
         assertEquals(0, resultSet.getList().size());
@@ -144,6 +141,58 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         assertEquals(1, dataTypes.size());
         assertDataTypeEquals(dataTypePE, dataTypes.get(0));
         context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testPrepareExportSamples()
+    {
+        final TableExportCriteria<Sample> criteria = new TableExportCriteria<Sample>();
+        final CacheManager<String, TableExportCriteria<Sample>> manager = createCacheManager();
+        context.checking(new Expectations()
+            {
+                {
+                    prepareGetSessionToken(this);
+                    prepareGetCacheManager(this, manager);
+                }
+            });
+        final String key = commonClientService.prepareExportSamples(criteria);
+        assertEquals("" + CounterBasedResultSetKeyGenerator.INIT_VALUE, key);
+        assertEquals(criteria, manager.tryGetData(key));
+        context.assertIsSatisfied();
+    }
+
+    private void prepareGetCacheManager(Expectations exp,
+            CacheManager<String, TableExportCriteria<Sample>> manager)
+    {
+        prepareGetHttpSession(exp);
+        exp.allowing(httpSession).getAttribute(SessionConstants.OPENBIS_EXPORT_MANAGER);
+        exp.will(Expectations.returnValue(manager));
+    }
+
+    @SuppressWarnings("unchecked")
+    private final IOriginalDataProvider<Sample> getAnyOriginalDataProvider(Expectations exp)
+    {
+        return exp.with(Expectations.any(IOriginalDataProvider.class));
+    }
+
+    private <T> CacheManager<String, T> createCacheManager()
+    {
+        return new CacheManager<String, T>(new CounterBasedResultSetKeyGenerator());
+    }
+
+    private static final class CounterBasedResultSetKeyGenerator implements
+            IResultSetKeyGenerator<String>
+    {
+        public static final int INIT_VALUE = 123;
+
+        private static final long serialVersionUID = 1L;
+
+        private int counter = INIT_VALUE;
+
+        public final String createKey()
+        {
+            return "" + counter++;
+        }
     }
 
     @Test
