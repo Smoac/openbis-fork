@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -524,6 +525,26 @@ public final class CommonServerTest extends AbstractServerTestCase
             });
         final List<DataTypePE> dataTypes = createServer().listDataTypes(session.getSessionToken());
         assertEquals(0, dataTypes.size());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testListVocabularies()
+    {
+        final Session session = prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(daoFactory).getVocabularyDAO();
+                    will(returnValue(vocabularyDAO));
+
+                    one(vocabularyDAO).listVocabularies();
+                    will(returnValue(Collections.emptyList()));
+                }
+            });
+        final List<VocabularyPE> vocabularies =
+                createServer().listVocabularies(session.getSessionToken());
+        assertEquals(0, vocabularies.size());
         context.assertIsSatisfied();
     }
 

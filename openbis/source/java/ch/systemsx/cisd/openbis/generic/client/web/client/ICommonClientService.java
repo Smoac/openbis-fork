@@ -170,6 +170,9 @@ public interface ICommonClientService extends IClientService
 
     /**
      * Returns a list of all vocabularies.
+     * <p>
+     * Note that the vocabulary terms are included/loaded.
+     * </p>
      */
     public List<Vocabulary> listVocabularies() throws UserFailureException;
 

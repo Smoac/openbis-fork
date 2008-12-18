@@ -64,6 +64,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * Implementation of client-server interface.
@@ -382,7 +383,12 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         assert sessionToken != null : "Unspecified session token";
         // Not needed but just to refresh/check the session.
         getSessionManager().getSession(sessionToken);
-        final List<VocabularyPE> vocabularies = getDAOFactory().getVocabularyDAO().listVocabularies();
+        final List<VocabularyPE> vocabularies =
+                getDAOFactory().getVocabularyDAO().listVocabularies();
+        for (final VocabularyPE vocabularyPE : vocabularies)
+        {
+            HibernateUtils.initialize(vocabularyPE.getTerms());
+        }
         Collections.sort(vocabularies);
         return vocabularies;
     }

@@ -22,6 +22,8 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.fail;
 
+import java.util.List;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.annotations.Test;
 
@@ -29,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * Test cases for corresponding {@link VocabularyDAO} class.
@@ -107,4 +110,13 @@ public final class VocabularyDAOTest extends AbstractDAOTest
         assertEquals(3, savedVocabulary.getTerms().size());
     }
 
+    @Test
+    public final void testListVocabularies()
+    {
+        final IVocabularyDAO vocabularyDAO = daoFactory.getVocabularyDAO();
+        final List<VocabularyPE> vocabularies = vocabularyDAO.listVocabularies();
+        assertEquals(3, vocabularies.size());
+        final VocabularyPE vocabularyPE = vocabularies.get(0);
+        assertFalse(HibernateUtils.isInitialized(vocabularyPE.getTerms()));
+    }
 }

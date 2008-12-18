@@ -212,7 +212,7 @@ public interface ICommonServer extends IServer
     public List<PropertyTypePE> listPropertyTypes(final String sessionToken);
 
     /**
-     * List data types.
+     * Lists data types.
      * 
      * @return a sorted list of {@link DataTypePE}.
      */
@@ -221,9 +221,10 @@ public interface ICommonServer extends IServer
     public List<DataTypePE> listDataTypes(final String sessionToken);
 
     /**
-     * List data types.
+     * Lists vocabularies.
      * 
-     * @return a sorted list of {@link VocabularyPE}.
+     * @return a sorted list of {@link VocabularyPE}. Note that the vocabulary terms are
+     *         included/loaded.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)

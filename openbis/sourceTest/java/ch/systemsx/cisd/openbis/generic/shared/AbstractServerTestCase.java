@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
@@ -103,6 +104,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected IPropertyTypeBO propertyTypeBO;
 
+    protected IVocabularyDAO vocabularyDAO;
+
     @BeforeMethod
     @SuppressWarnings("unchecked")
     public void setUp()
@@ -123,6 +126,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         projectDAO = context.mock(IProjectDAO.class);
         sampleTypeDAO = context.mock(ISampleTypeDAO.class);
         propertyTypeDAO = context.mock(IPropertyTypeDAO.class);
+        vocabularyDAO = context.mock(IVocabularyDAO.class);
         // BO
         groupBO = context.mock(IGroupBO.class);
         sampleBO = context.mock(ISampleBO.class);
