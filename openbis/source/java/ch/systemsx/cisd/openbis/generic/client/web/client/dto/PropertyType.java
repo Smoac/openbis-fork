@@ -20,11 +20,18 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+
 /**
+ * The <i>GWT</i> pendant to {@link PropertyTypePE}.
+ * 
  * @author Izabela Adamczyk
  */
 public class PropertyType extends Code<PropertyType> implements IsSerializable
 {
+
+    public final static String USER_NAMESPACE_CODE_PREPEND = "USER.";
+
     /**
      * Only used for displaying/viewing. With <code>managedInternally</code> is unambiguous
      * (meaning that <code>simpleCode</code> alone could be not unique).

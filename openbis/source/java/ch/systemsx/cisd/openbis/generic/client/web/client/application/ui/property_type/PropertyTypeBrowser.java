@@ -92,7 +92,7 @@ public class PropertyTypeBrowser extends ContentPanel
         configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext
                 .getMessage(Dict.DATA_TYPE), ModelDataPropertyNames.DATA_TYPE));
         configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext
-                .getMessage(Dict.CONTROLLED_VOCABULARY),
+                .getMessage(Dict.VOCABULARY),
                 ModelDataPropertyNames.CONTROLLED_VOCABULARY));
         configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext
                 .getMessage(Dict.DESCRIPTION), ModelDataPropertyNames.DESCRIPTION));

@@ -20,14 +20,11 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Vocabulary;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 
 /**
@@ -35,8 +32,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
  * 
  * @author Christian Ribeaud
  */
-// TODO 2008-12-16, Christian Ribeaud: Write an Unit test of this class.
-public final class PropertyTypeBO extends AbstractBusinessObject implements IPropertyTypeBO
+public final class PropertyTypeBO extends AbstractVocabularyBusinessObject implements
+        IPropertyTypeBO
 {
     private PropertyTypePE propertyTypePE;
 
@@ -45,32 +42,8 @@ public final class PropertyTypeBO extends AbstractBusinessObject implements IPro
         super(daoFactory, session);
     }
 
-    private final VocabularyPE createVocabulary(final Vocabulary vocabulary)
-    {
-        final VocabularyPE vocabularyPE = new VocabularyPE();
-        vocabularyPE.setCode(vocabulary.getCode());
-        vocabularyPE.setDescription(vocabulary.getDescription());
-        vocabularyPE.setDatabaseInstance(getHomeDatabaseInstance());
-        vocabularyPE.setRegistrator(findRegistrator());
-        for (final VocabularyTerm term : vocabulary.getTerms())
-        {
-            final VocabularyTermPE vocabularyTermPE = new VocabularyTermPE();
-            vocabularyTermPE.setCode(term.getCode());
-            vocabularyTermPE.setRegistrator(findRegistrator());
-            vocabularyPE.addTerm(vocabularyTermPE);
-        }
-        try
-        {
-            getVocabularyDAO().createVocabulary(vocabularyPE);
-        } catch (final DataAccessException e)
-        {
-            throwException(e, String.format("Property type '%s'.", propertyTypePE.getCode()));
-        }
-        return vocabularyPE;
-    }
-
     //
-    // IPropertyTypeBO
+    // AbstractVocabularyBusinessObject
     //
 
     public final void define(final PropertyType propertyType) throws UserFailureException

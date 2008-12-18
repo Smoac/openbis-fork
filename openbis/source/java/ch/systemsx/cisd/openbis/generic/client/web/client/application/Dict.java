@@ -194,8 +194,6 @@ public abstract class Dict
 
     public static final String DATA_TYPE = "data_type";
 
-    public static final String CONTROLLED_VOCABULARY = "controlled_vocabulary";
-
     public static final String DESCRIPTION = "description";
 
     public static final String SAMPLE_TYPES = "sample_types";
@@ -206,11 +204,15 @@ public abstract class Dict
 
     public static final String IS_MANDATORY = "is_mandatory";
 
+    public static final String PROPERTY_TYPE = "property_type";
+
     public static final String PROPERTY_TYPE_CODE = "property_type_code";
 
     public static final String ASSIGNED_TO = "assigned_to";
 
     public static final String TYPE_OF = "type_of";
+
+    public static final String VOCABULARY = "vocabulary";
 
     public static final String VOCABULARY_TERMS = "vocabulary_terms";
 

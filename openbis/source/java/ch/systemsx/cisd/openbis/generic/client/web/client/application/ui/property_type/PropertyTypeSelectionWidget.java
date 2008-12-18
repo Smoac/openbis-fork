@@ -24,10 +24,12 @@ import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.PropertyTypeModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 
 /**
@@ -51,25 +53,14 @@ public final class PropertyTypeSelectionWidget extends ComboBox<PropertyTypeMode
         setDisplayField(ModelDataPropertyNames.CODE);
         setEditable(false);
         setWidth(180);
-        setFieldLabel("Property type");
+        setFieldLabel(viewContext.getMessage(Dict.PROPERTY_TYPE));
         setStore(new ListStore<PropertyTypeModel>());
     }
 
-    /**
-     * Returns the property type code currently selected.
-     * 
-     * @return <code>null</code> if nothing is selected yet.
-     */
     public final String tryGetSelectedPropertyTypeCode()
     {
-        final List<PropertyTypeModel> selection = getSelection();
-        final int size = selection.size();
-        if (size > 0)
-        {
-            assert size == 1 : "Selection is empty.";
-            return selection.get(0).get(ModelDataPropertyNames.CODE);
-        }
-        return null;
+        final PropertyType propertyType = tryGetSelectedPropertyType();
+        return propertyType == null ? null : propertyType.getCode();
     }
 
     /**
@@ -79,14 +70,7 @@ public final class PropertyTypeSelectionWidget extends ComboBox<PropertyTypeMode
      */
     public final PropertyType tryGetSelectedPropertyType()
     {
-        final List<PropertyTypeModel> selection = getSelection();
-        final int size = selection.size();
-        if (size > 0)
-        {
-            assert size == 1 : "Selection is empty.";
-            return selection.get(0).get(ModelDataPropertyNames.OBJECT);
-        }
-        return null;
+        return GWTUtils.tryGetSingleSelected(this);
     }
 
     @Override
@@ -121,10 +105,10 @@ public final class PropertyTypeSelectionWidget extends ComboBox<PropertyTypeMode
             if (propertyTypeStore.getCount() > 0)
             {
                 setEnabled(true);
-                setEmptyText("Choose property type...");
+                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, "property type"));
             } else
             {
-                setEmptyText("- No property types found -");
+                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_EMPTY, "property types"));
             }
             applyEmptyText();
         }

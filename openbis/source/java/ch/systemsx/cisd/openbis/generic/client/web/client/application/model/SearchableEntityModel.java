@@ -36,7 +36,7 @@ public final class SearchableEntityModel extends BaseModelData
 
     private static final long serialVersionUID = 1L;
 
-    public SearchableEntityModel()
+    private SearchableEntityModel()
     {
     }
 

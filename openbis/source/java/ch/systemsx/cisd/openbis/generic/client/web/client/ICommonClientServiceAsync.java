@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Vocabulary;
 
 /**
  * Asynchronous version of {@link ICommonClientService}.
@@ -142,7 +143,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void listDataTypes(final AsyncCallback<List<DataType>> asyncCallback);
 
     /** @see ICommonClientService#listDataTypes() */
-    public void listVocabularies(final AsyncCallback<List<DataType>> asyncCallback);
+    public void listVocabularies(final AsyncCallback<List<Vocabulary>> asyncCallback);
 
     /** @see ICommonClientService#assignPropertyType(EntityKind, String, String, boolean, String) */
     public void assignPropertyType(EntityKind entityKind, String propertyTypeCode,

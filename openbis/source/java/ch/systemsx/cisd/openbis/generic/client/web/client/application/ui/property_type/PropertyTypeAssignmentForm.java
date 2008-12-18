@@ -81,7 +81,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer
 
     private ExperimentTypeSelectionWidget experimentTypeSelectionWidget;
 
-    private PropertyTypeSelectionWidget propertyTypeSelectionWidget;
+    PropertyTypeSelectionWidget propertyTypeSelectionWidget;
 
     private Field<?> defaultValueField;
 
@@ -320,8 +320,8 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer
         if (formPanel.isValid())
         {
             viewContext.getService().assignPropertyType(entityKind,
-                    propertyTypeSelectionWidget.tryGetSelectedPropertyTypeCode(),
-                    getSelectedEntityCode(), getMandatoryCheckbox().getValue(), getDefaultValue(),
+                    propertyTypeSelectionWidget.tryGetSelectedPropertyTypeCode(), getSelectedEntityCode(),
+                    getMandatoryCheckbox().getValue(), getDefaultValue(),
                     new AssignPropertyTypeCallback(viewContext));
         }
     }

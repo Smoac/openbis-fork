@@ -39,7 +39,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
  */
 public final class GroupBOTest
 {
-
     private BufferedAppender logRecorder;
 
     private Mockery context;

@@ -119,18 +119,18 @@ public final class GWTUtils
             final ColumnConfig columnConfig = columnModel.getColumn(i);
             if (columnConfig.isHidden() == false)
             {
-                // TODO 2008-12-28, Christian Ribeaud: This sometimes throws an exception.
-                // grid.setAutoExpandColumn(columnConfig.getId());
+                grid.setAutoExpandColumn(columnConfig.getId());
                 return;
             }
         }
     }
 
     /**
-     * Tries to return the selected object (saved as {@link ModelDataPropertyNames#OBJECT} in the
-     * model) from the given {@link ComboBox}.
+     * Tries to return the selected {@link ModelData} from the given {@link ComboBox}.
+     * 
+     * @returns <code>null</code> if nothing is selected.
      */
-    public final static <T extends ModelData, O> O tryGetSingleSelected(final ComboBox<T> comboBox)
+    public final static <T extends ModelData> T tryGetSingleSelectedModel(final ComboBox<T> comboBox)
     {
         assert comboBox != null : "Unspecified combo box.";
         final List<T> selection = comboBox.getSelection();
@@ -138,8 +138,21 @@ public final class GWTUtils
         if (size > 0)
         {
             assert size == 1 : "Only one item must be selected.";
-            return selection.get(0).get(ModelDataPropertyNames.OBJECT);
+            return selection.get(0);
         }
         return null;
+    }
+
+    /**
+     * Tries to return the selected object (saved as {@link ModelDataPropertyNames#OBJECT} in the
+     * model) from the given {@link ComboBox}.
+     * 
+     * @returns <code>null</code> if nothing is selected.
+     */
+    @SuppressWarnings("unchecked")
+    public final static <T extends ModelData, O> O tryGetSingleSelected(final ComboBox<T> comboBox)
+    {
+        final T selectedModel = tryGetSingleSelectedModel(comboBox);
+        return (O) (selectedModel != null ? selectedModel.get(ModelDataPropertyNames.OBJECT) : null);
     }
 }

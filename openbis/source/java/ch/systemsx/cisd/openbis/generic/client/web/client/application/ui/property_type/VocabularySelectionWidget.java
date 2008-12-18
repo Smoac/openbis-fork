@@ -26,55 +26,68 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DataTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Vocabulary;
 
 /**
- * A {@link ComboBox} extension for selecting a {@link DataType}.
+ * A {@link ComboBox} extension for selecting a {@link Vocabulary}.
  * 
  * @author Christian Ribeaud
  */
-public final class DataTypeSelectionWidget extends ComboBox<DataTypeModel>
+public class VocabularySelectionWidget extends ComboBox<VocabularyModel>
 {
-    private static final String PREFIX = "data-type-select";
+    private static final String PREFIX = "vocabulary-select";
 
     public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    public DataTypeSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final boolean mandatory)
+    public VocabularySelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         this.viewContext = viewContext;
         setId(ID);
         setDisplayField(ModelDataPropertyNames.CODE);
-        setEditable(false);
         setEnabled(false);
+        setEditable(false);
         setWidth(100);
-        setFieldLabel(viewContext.getMessage(Dict.DATA_TYPE));
-        if (mandatory)
-        {
-            setLabelSeparator(GenericConstants.MANDATORY_LABEL_SEPARATOR);
-            setAllowBlank(false);
-        }
-        setStore(new ListStore<DataTypeModel>());
+        setFieldLabel(viewContext.getMessage(Dict.VOCABULARY));
+        setStore(new ListStore<VocabularyModel>());
     }
 
     /**
-     * Returns the {@link DataType} currently selected.
+     * Returns the {@link Vocabulary} currently selected.
      * 
      * @return <code>null</code> if nothing is selected yet.
      */
-    public final DataType tryGetSelectedDataType()
+    public final Vocabulary tryGetSelectedVocabulary()
     {
         return GWTUtils.tryGetSingleSelected(this);
     }
 
-    private final void loadDataTypes()
+    private final void loadVocabularies()
     {
-        viewContext.getService().listDataTypes(new ListDataTypesCallback(viewContext));
+        viewContext.getService().listVocabularies(new ListVocabulariesCallback(viewContext));
+    }
+
+    /**
+     * Refreshes the store with given list of {@link Vocabulary}.
+     */
+    protected void refreshStore(final List<Vocabulary> result)
+    {
+        final ListStore<VocabularyModel> vocabularyStore = getStore();
+        vocabularyStore.removeAll();
+        vocabularyStore.add(VocabularyModel.convert(result));
+        setEnabled(true);
+        if (vocabularyStore.getCount() > 0)
+        {
+            setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, "vocabulary"));
+        } else
+        {
+            setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_EMPTY, "vocabularies"));
+        }
+        applyEmptyText();
     }
 
     //
@@ -85,16 +98,16 @@ public final class DataTypeSelectionWidget extends ComboBox<DataTypeModel>
     protected final void afterRender()
     {
         super.afterRender();
-        loadDataTypes();
+        loadVocabularies();
     }
 
     //
     // Helper classes
     //
 
-    public final class ListDataTypesCallback extends AbstractAsyncCallback<List<DataType>>
+    public final class ListVocabulariesCallback extends AbstractAsyncCallback<List<Vocabulary>>
     {
-        ListDataTypesCallback(final IViewContext<ICommonClientServiceAsync> viewContext)
+        ListVocabulariesCallback(final IViewContext<ICommonClientServiceAsync> viewContext)
         {
             super(viewContext);
         }
@@ -104,20 +117,10 @@ public final class DataTypeSelectionWidget extends ComboBox<DataTypeModel>
         //
 
         @Override
-        protected final void process(final List<DataType> result)
+        protected final void process(final List<Vocabulary> result)
         {
-            final ListStore<DataTypeModel> dataTypeStore = getStore();
-            dataTypeStore.removeAll();
-            dataTypeStore.add(DataTypeModel.convert(result));
-            setEnabled(true);
-            if (dataTypeStore.getCount() > 0)
-            {
-                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, "data type"));
-            } else
-            {
-                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_EMPTY, "data types"));
-            }
-            applyEmptyText();
+            refreshStore(result);
         }
+
     }
 }
