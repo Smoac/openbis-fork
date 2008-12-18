@@ -130,6 +130,7 @@ public final class GenericClientService extends AbstractClientService implements
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         HttpSession session = null;
+        UploadedFilesBean uploadedFiles = null;
         try
         {
             final String sessionToken = getSessionToken();
@@ -138,8 +139,7 @@ public final class GenericClientService extends AbstractClientService implements
                     && session.getAttribute(sessionKey) instanceof UploadedFilesBean : String
                     .format("No UploadedFilesBean object as session attribute '%s' found.",
                             sessionKey);
-            final UploadedFilesBean uploadedFiles =
-                    (UploadedFilesBean) session.getAttribute(sessionKey);
+            uploadedFiles = (UploadedFilesBean) session.getAttribute(sessionKey);
             final BisTabFileLoader<NewSample> tabFileLoader =
                     new BisTabFileLoader<NewSample>(new IParserObjectFactoryFactory<NewSample>()
                         {
@@ -174,6 +174,10 @@ public final class GenericClientService extends AbstractClientService implements
             throw UserFailureExceptionTranslator.translate(e);
         } finally
         {
+            if (uploadedFiles != null)
+            {
+                uploadedFiles.deleteTransferredFiles();
+            }
             if (session != null)
             {
                 session.removeAttribute(sessionKey);
