@@ -20,26 +20,31 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DefaultResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetKeyGenerator;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
+import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 
 /**
@@ -65,9 +70,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
     {
         final SampleType sampleType = new SampleType();
         sampleType.setCode(code);
-        final DatabaseInstance databaseInstance = new DatabaseInstance();
-        databaseInstance.setCode(dbCode);
-        sampleType.setDatabaseInstance(databaseInstance);
+        sampleType.setDatabaseInstance(createDatabaseInstance(dbCode));
         return sampleType;
     }
 
@@ -81,6 +84,37 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
     {
         assertEquals(dataTypePE.getCode().name(), dataType.getCode().name());
         assertEquals(dataTypePE.getDescription(), dataType.getDescription());
+    }
+
+    private final static VocabularyPE createVocabulary()
+    {
+        final VocabularyPE vocabularyPE = new VocabularyPE();
+        vocabularyPE.setCode("USER.COLOR");
+        vocabularyPE.setDescription("Vocabulary color");
+        vocabularyPE.setRegistrator(ManagerTestTool.EXAMPLE_PERSON);
+        vocabularyPE.setDatabaseInstance(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE);
+        vocabularyPE.addTerm(createVocabularyTerm("RED"));
+        vocabularyPE.addTerm(createVocabularyTerm("BLACK"));
+        vocabularyPE.addTerm(createVocabularyTerm("WHITE"));
+        return vocabularyPE;
+    }
+
+    private final static VocabularyTermPE createVocabularyTerm(final String code)
+    {
+        final VocabularyTermPE vocabularyTermPE = new VocabularyTermPE();
+        vocabularyTermPE.setCode(code);
+        vocabularyTermPE.setRegistrator(ManagerTestTool.EXAMPLE_PERSON);
+        return vocabularyTermPE;
+    }
+
+    private final static void assertVocabularyEquals(final VocabularyPE vocabularyPE,
+            final Vocabulary vocabulary)
+    {
+        assertEquals(vocabulary.getCode(), vocabularyPE.getCode());
+        assertEquals(vocabulary.getDescription(), vocabularyPE.getDescription());
+        final List<VocabularyTerm> terms = vocabulary.getTerms();
+        final Set<VocabularyTermPE> termPEs = vocabularyPE.getTerms();
+        assertEquals(terms.size(), termPEs.size());
     }
 
     //
@@ -161,8 +195,8 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         context.assertIsSatisfied();
     }
 
-    private void prepareGetCacheManager(Expectations exp,
-            CacheManager<String, TableExportCriteria<Sample>> manager)
+    private void prepareGetCacheManager(final Expectations exp,
+            final CacheManager<String, TableExportCriteria<Sample>> manager)
     {
         prepareGetHttpSession(exp);
         exp.allowing(httpSession).getAttribute(SessionConstants.OPENBIS_EXPORT_MANAGER);
@@ -170,7 +204,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
     }
 
     @SuppressWarnings("unchecked")
-    private final IOriginalDataProvider<Sample> getAnyOriginalDataProvider(Expectations exp)
+    private final IOriginalDataProvider<Sample> getAnyOriginalDataProvider(final Expectations exp)
     {
         return exp.with(Expectations.any(IOriginalDataProvider.class));
     }
@@ -208,6 +242,25 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                 }
             });
         commonClientService.registerPropertyType(new PropertyType());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testListVocabularies()
+    {
+        final VocabularyPE vocabularyPE = createVocabulary();
+        context.checking(new Expectations()
+            {
+                {
+                    prepareGetSessionToken(this);
+
+                    one(commonServer).listVocabularies(SESSION_TOKEN);
+                    will(returnValue(Collections.singletonList(vocabularyPE)));
+                }
+            });
+        final List<Vocabulary> vocabularies = commonClientService.listVocabularies();
+        assertEquals(1, vocabularies.size());
+        assertVocabularyEquals(vocabularyPE, vocabularies.get(0));
         context.assertIsSatisfied();
     }
 }

@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.common.annotation.CollectionMapping;
+
 /**
  * Controlled vocabulary.
  * 
@@ -63,6 +65,7 @@ public final class Vocabulary extends Code<Vocabulary>
         return terms;
     }
 
+    @CollectionMapping(collectionClass = ArrayList.class, elementClass = VocabularyTerm.class)
     public final void setTerms(final List<VocabularyTerm> terms)
     {
         this.terms = terms;
