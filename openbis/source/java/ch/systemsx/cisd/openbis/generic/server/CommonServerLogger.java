@@ -225,13 +225,14 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
-    public void assignPropertyType(String sessionToken, EntityKind entityKind,
+    public String assignPropertyType(String sessionToken, EntityKind entityKind,
             String propertyTypeCode, String entityTypeCode, boolean isMandatory, String defaultValue)
     {
         String entityTypeFormat = entityKind.name() + "_TYPE(%S)";
         logTracking(sessionToken, "assign_property_type", " PROPERTY_TYPE(%S) " + entityTypeFormat
                 + " MANDATORY(%S) DEFAULT(%S)", propertyTypeCode, entityTypeCode, isMandatory,
                 defaultValue);
+        return null;
     }
 
     public final void registerPropertyType(final String sessionToken,

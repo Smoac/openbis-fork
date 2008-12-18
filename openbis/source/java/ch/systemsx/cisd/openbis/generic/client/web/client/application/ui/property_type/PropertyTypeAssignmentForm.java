@@ -63,13 +63,13 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
-    private static final String PROPERTY_TYPE_ID_SUFFIX = "property_type";
+    public static final String PROPERTY_TYPE_ID_SUFFIX = "property_type";
 
-    private static final String SAMPLE_TYPE_ID_SUFFIX = ID_PREFIX + "sample_type";
+    public static final String SAMPLE_TYPE_ID_SUFFIX = ID_PREFIX + "sample_type";
 
-    private static final String EXPERIMENT_TYPE_ID_SUFFIX = ID_PREFIX + "experiment_type";
+    public static final String EXPERIMENT_TYPE_ID_SUFFIX = ID_PREFIX + "experiment_type";
 
-    private static final String MANDATORY_CHECKBOX_ID_SUFFIX = "mandatory_checkbox";
+    public static final String MANDATORY_CHECKBOX_ID_SUFFIX = "mandatory_checkbox";
 
     public static final String SAVE_BUTTON_ID_SUFFIX = "save-button";
 
@@ -127,13 +127,14 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer
             propertyTypeSelectionWidget.setAllowBlank(false);
             propertyTypeSelectionWidget
                     .setLabelSeparator(GenericConstants.MANDATORY_LABEL_SEPARATOR);
-            propertyTypeSelectionWidget.addListener(Events.Change, new Listener<BaseEvent>()
-                {
-                    public void handleEvent(BaseEvent be)
-                    {
-                        updateDefaultField();
-                    }
-                });
+            propertyTypeSelectionWidget.addListener(Events.SelectionChange,
+                    new Listener<BaseEvent>()
+                        {
+                            public void handleEvent(BaseEvent be)
+                            {
+                                updateDefaultField();
+                            }
+                        });
         }
         return propertyTypeSelectionWidget;
     }
@@ -272,28 +273,17 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer
         }
     }
 
-    public final class AssignPropertyTypeCallback extends AbstractAsyncCallback<Void>
+    public final class AssignPropertyTypeCallback extends AbstractAsyncCallback<String>
     {
         AssignPropertyTypeCallback(final IViewContext<?> viewContext)
         {
-            super(viewContext, new InfoBoxCallbackListener<Void>(infoBox));
-        }
-
-        private final String createSuccessfullAssignmentInfo(String propertyTypeCode, String eKind,
-                String entityTypeCode)
-        {
-            return "Property type <b>" + propertyTypeCode + "</b> successfully assigned to "
-                    + eKind.toLowerCase() + " <b>" + entityTypeCode + "</b>.";
+            super(viewContext, new InfoBoxCallbackListener<String>(infoBox));
         }
 
         @Override
-        protected final void process(final Void result)
+        protected final void process(final String result)
         {
-            final String message =
-                    createSuccessfullAssignmentInfo(propertyTypeSelectionWidget
-                            .tryGetSelectedPropertyTypeCode(), entityKind.name() + " type",
-                            getSelectedEntityCode());
-            infoBox.displayInfo(message);
+            infoBox.displayInfo(result);
             resetForm();
         }
     }
@@ -307,7 +297,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer
             Field<?> field =
                     PropertyFieldFactory.createField(propertyType, false, viewContext
                             .getMessage(Dict.DEFAULT_VALUE), createId(DEFAULT_VALUE_ID_PART
-                            + propertyType.getCode()));
+                            + propertyType.isInternalNamespace() + propertyType.getSimpleCode()));
             defaultValueField = field;
             defaultValueField.show();
             formPanel.add(defaultValueField);

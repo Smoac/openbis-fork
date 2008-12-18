@@ -242,7 +242,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
-    public void assignPropertyType(String sessionToken, EntityKind entityKind,
+    public String assignPropertyType(String sessionToken, EntityKind entityKind,
             String propertyTypeCode, String entityTypeCode, boolean isMandatory, String defaultValue);
 
 }
