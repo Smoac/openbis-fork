@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.server;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -127,11 +128,10 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(groups = "broken")
     public final void testRegisterSamples() throws IOException
     {
         final UploadedFilesBean uploadedFilesBean = new UploadedFilesBean();
-        uploadedFilesBean.addMultipartFile(multipartFile);
         final String sessionKey = "uploaded-files";
         final NewSample newSample = new NewSample();
         newSample.setIdentifier("MP1");
@@ -156,13 +156,16 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                     will(returnValue("identifier\tcontainer\tparent\tprop1\tprop2\nMP1\tMP2\tMP3\tRED\t1"
                             .getBytes()));
 
-                    allowing(multipartFile).getOriginalFilename();
+                    one(multipartFile).getOriginalFilename();
                     will(returnValue(fileName));
+
+                    one(multipartFile).transferTo(with(any(File.class)));
 
                     one(genericServer).registerSamples(with(SESSION_TOKEN), with(sampleType),
                             with(new NewSampleListMatcher(Collections.singletonList(newSample))));
                 }
             });
+        uploadedFilesBean.addMultipartFile(multipartFile);
         final List<BatchRegistrationResult> result =
                 genericClientService.registerSamples(sampleType, sessionKey);
         assertEquals(1, result.size());
