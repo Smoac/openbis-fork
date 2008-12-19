@@ -246,6 +246,22 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
     }
 
     @Test
+    public final void testRegisterVocabulary()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    prepareGetSessionToken(this);
+
+                    one(commonServer).registerVocabulary(with(SESSION_TOKEN),
+                            with(aNonNull(Vocabulary.class)));
+                }
+            });
+        commonClientService.registerVocabulary(new Vocabulary());
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public final void testListVocabularies()
     {
         final VocabularyPE vocabularyPE = createVocabulary();

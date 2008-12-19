@@ -27,6 +27,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
@@ -563,6 +564,24 @@ public final class CommonServerTest extends AbstractServerTestCase
                 }
             });
         createServer().registerPropertyType(SESSION_TOKEN, new PropertyType());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testRegisterVocabulary()
+    {
+        final Session session = prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(commonBusinessObjectFactory).createVocabularyBO(session);
+                    will(returnValue(vocabularyBO));
+
+                    one(vocabularyBO).define(with(aNonNull(Vocabulary.class)));
+                    one(vocabularyBO).save();
+                }
+            });
+        createServer().registerVocabulary(SESSION_TOKEN, new Vocabulary());
         context.assertIsSatisfied();
     }
 }
