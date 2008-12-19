@@ -37,6 +37,7 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.XMLParser;
@@ -48,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ClickableFormPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.HelpHtml;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
@@ -61,7 +63,11 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  */
 public final class GenericSampleBatchRegistrationForm extends LayoutContainer
 {
-    private static final String SESSION_KEY = "sample-batch-registration";
+    private static final String PREFIX = "sample-batch-registration";
+
+    public final static String ID = GenericConstants.ID_PREFIX + PREFIX;
+
+    private static final String SESSION_KEY = PREFIX;
 
     private static final String FIELD_LABEL_TEMPLATE = "File";
 
@@ -88,6 +94,12 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
         this.sampleType = sampleType;
         add(infoBox = createInfoBox());
         add(createUI());
+        add(createHelp());
+    }
+
+    private final static HTML createHelp()
+    {
+        return new HelpHtml(PREFIX);
     }
 
     private final static InfoBox createInfoBox()
@@ -148,6 +160,12 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
         return panel;
     }
 
+    /**
+     * Field specifying the session key needed by the file uploader on the server side.
+     * <p>
+     * This key is the session attribute key where you can access the uploaded files.
+     * </p>
+     */
     private final static HiddenField<String> createHiddenField()
     {
         final HiddenField<String> hiddenField = new HiddenField<String>();
