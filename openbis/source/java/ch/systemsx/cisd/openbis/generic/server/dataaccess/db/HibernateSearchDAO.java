@@ -26,7 +26,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexReader.FieldOption;
@@ -58,6 +57,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.SearchAnalyzer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IMatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
 
@@ -129,7 +129,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
             throws DataAccessException, ParseException
     {
         final FullTextSession fullTextSession = Search.getFullTextSession(session);
-        StandardAnalyzer analyzer = new StandardAnalyzer();
+        SearchAnalyzer analyzer = new SearchAnalyzer();
 
         MyIndexReaderProvider<T> indexProvider =
                 new MyIndexReaderProvider<T>(fullTextSession, entityClass);
@@ -250,6 +250,10 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                             // same code. The first value will be taken.
                             matchingText =
                                     highlighter.getBestFragment(content, fieldName, documentId);
+                        } else
+                        {
+                            // we do not store file content in the index
+                            matchingText = "file content";
                         }
                     } catch (IOException ex)
                     {
