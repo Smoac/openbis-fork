@@ -19,18 +19,12 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.HashSet;
 
 import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.testng.AssertJUnit;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -43,36 +37,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  * @author Izabela Adamczyk
  */
 @Friend(toClasses = ExperimentPE.class)
-public final class ExperimentBOTest
+public final class ExperimentBOTest extends AbstractBOTest
 {
-    private Mockery context;
-
-    private IDAOFactory daoFactory;
-
-    private IExperimentDAO experimentDAO;
-
-    private IProjectDAO projectDAO;
 
     private final ExperimentBO createExperimentBO()
     {
         return new ExperimentBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION);
-    }
-
-    @BeforeMethod
-    public final void beforeMethod()
-    {
-        context = new Mockery();
-        daoFactory = context.mock(IDAOFactory.class);
-        experimentDAO = context.mock(IExperimentDAO.class);
-        projectDAO = context.mock(IProjectDAO.class);
-    }
-
-    @AfterMethod
-    public final void afterMethod()
-    {
-        // To following line of code should also be called at the end of each test method.
-        // Otherwise one do not known which test failed.
-        context.assertIsSatisfied();
     }
 
     @Test

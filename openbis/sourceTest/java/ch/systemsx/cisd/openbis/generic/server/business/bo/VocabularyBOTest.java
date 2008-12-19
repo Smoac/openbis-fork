@@ -21,7 +21,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
  * 
  * @author Christian Ribeaud
  */
-public final class VocabularyBOTest
+public final class VocabularyBOTest extends AbstractBOTest
 {
 
 }

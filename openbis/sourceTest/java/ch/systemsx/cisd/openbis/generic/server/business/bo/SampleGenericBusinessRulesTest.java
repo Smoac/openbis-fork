@@ -30,7 +30,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
  */
 public final class SampleGenericBusinessRulesTest
 {
-
     private static final String DB = "db";
 
     private static final String GROUP_1 = "group-1";

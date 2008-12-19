@@ -16,21 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.fail;
-
 import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -43,40 +33,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  * 
  * @author Christian Ribeaud
  */
-public final class ExternalDataTableTest
+public final class ExternalDataTableTest extends AbstractBOTest
 {
-
-    private Mockery context;
-
-    private IDAOFactory daoFactory;
-
-    private IExternalDataDAO externalDataDAO;
-
-    private IDatabaseInstanceDAO databaseInstanceDAO;
-
-    private ISampleDAO sampleDAO;
 
     private final ExternalDataTable createExternalDataTable()
     {
         return new ExternalDataTable(daoFactory, ManagerTestTool.EXAMPLE_SESSION);
-    }
-
-    @BeforeMethod
-    public final void beforeMethod()
-    {
-        context = new Mockery();
-        daoFactory = context.mock(IDAOFactory.class);
-        sampleDAO = context.mock(ISampleDAO.class);
-        databaseInstanceDAO = context.mock(IDatabaseInstanceDAO.class);
-        externalDataDAO = context.mock(IExternalDataDAO.class);
-    }
-
-    @AfterMethod
-    public final void afterMethod()
-    {
-        // To following line of code should also be called at the end of each test method.
-        // Otherwise one do not known which test failed.
-        context.assertIsSatisfied();
     }
 
     @Test

@@ -19,10 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.EXAMPLE_GROUP;
 import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.EXAMPLE_PERSON;
 import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.EXAMPLE_SESSION;
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNull;
-import static org.testng.AssertJUnit.assertSame;
-import static org.testng.AssertJUnit.fail;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,9 +27,6 @@ import java.util.Set;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -46,11 +39,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
@@ -66,7 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
  * 
  * @author Franz-Josef Elmer
  */
-public final class SampleBOTest
+public final class SampleBOTest extends AbstractBOTest
 {
     private static final String DB = "DB";
 
@@ -75,40 +63,6 @@ public final class SampleBOTest
     private static final String MASTER_PLATE = SampleTypeCode.MASTER_PLATE.getCode();
 
     private static final String DEFAULT_SAMPLE_CODE = "xx";
-
-    private Mockery context;
-
-    private IDAOFactory daoFactory;
-
-    private ISampleDAO sampleDAO;
-
-    private ISampleTypeDAO sampleTypeDAO;
-
-    private IEntityPropertiesConverter propertiesConverter;
-
-    private IGroupDAO groupDAO;
-
-    private IDatabaseInstanceDAO databaseInstanceDAO;
-
-    @BeforeMethod
-    public void setUp()
-    {
-        context = new Mockery();
-        propertiesConverter = context.mock(IEntityPropertiesConverter.class);
-        daoFactory = context.mock(IDAOFactory.class);
-        sampleDAO = context.mock(ISampleDAO.class);
-        sampleTypeDAO = context.mock(ISampleTypeDAO.class);
-        groupDAO = context.mock(IGroupDAO.class);
-        databaseInstanceDAO = context.mock(IDatabaseInstanceDAO.class);
-    }
-
-    @AfterMethod
-    public void tearDown()
-    {
-        // To following line of code should also be called at the end of each test method.
-        // Otherwise one do not known which test failed.
-        context.assertIsSatisfied();
-    }
 
     private final static SampleProperty createSampleProperty()
     {

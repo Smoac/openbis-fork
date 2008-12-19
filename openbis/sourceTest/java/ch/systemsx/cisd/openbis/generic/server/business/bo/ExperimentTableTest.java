@@ -19,16 +19,9 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.ArrayList;
 
 import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
@@ -41,40 +34,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * 
  * @author Izabela Adamczyk
  */
-public final class ExperimentTableTest
+public final class ExperimentTableTest extends AbstractBOTest
 {
-
-    private Mockery context;
-
-    private IDAOFactory daoFactory;
-
-    private IEntityTypeDAO experimentTypeDAO;
-
-    private IProjectDAO projectDAO;
-
-    private IExperimentDAO experimentDAO;
-
     private final ExperimentTable createExperimentTable()
     {
         return new ExperimentTable(daoFactory, ManagerTestTool.EXAMPLE_SESSION);
-    }
-
-    @BeforeMethod
-    public final void beforeMethod()
-    {
-        context = new Mockery();
-        daoFactory = context.mock(IDAOFactory.class);
-        experimentTypeDAO = context.mock(IEntityTypeDAO.class);
-        projectDAO = context.mock(IProjectDAO.class);
-        experimentDAO = context.mock(IExperimentDAO.class);
-    }
-
-    @AfterMethod
-    public final void afterMethod()
-    {
-        // To following line of code should also be called at the end of each test method.
-        // Otherwise one do not known which test failed.
-        context.assertIsSatisfied();
     }
 
     @Test
@@ -87,7 +51,7 @@ public final class ExperimentTableTest
             {
                 {
                     allowing(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
-                    will(returnValue(experimentTypeDAO));
+                    will(returnValue(entityTypeDAO));
 
                     allowing(daoFactory).getProjectDAO();
                     will(returnValue(projectDAO));
@@ -95,7 +59,7 @@ public final class ExperimentTableTest
                     allowing(daoFactory).getExperimentDAO();
                     will(returnValue(experimentDAO));
 
-                    one(experimentTypeDAO).tryToFindEntityTypeByCode(experimentType.getCode());
+                    one(entityTypeDAO).tryToFindEntityTypeByCode(experimentType.getCode());
                     will(returnValue(experimentType));
 
                     one(projectDAO).tryFindProject(projectIdentifier.getDatabaseInstanceCode(),

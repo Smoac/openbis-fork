@@ -16,15 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
-
 import java.util.Collections;
 import java.util.List;
 
 import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -35,10 +30,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
@@ -51,41 +42,20 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * @author Christian Ribeaud
  */
 @Friend(toClasses = EntityPropertiesConverter.class)
-public final class EntityPropertiesConverterTest
+public final class EntityPropertiesConverterTest extends AbstractBOTest
 {
     private static final String VARCHAR_PROPERTY_TYPE_CODE = "color";
 
     private static final String SAMPLE_TYPE_CODE = "MASTER_PLATE";
 
-    private Mockery context;
-
-    private IDAOFactory daoFactory;
-
-    private IEntityPropertyTypeDAO entityPropertyTypeDAO;
-
-    private IEntityTypeDAO entityTypeDAO;
-
-    private IPropertyTypeDAO propertyTypeDAO;
-
     private IPropertyValueValidator propertyValueValidator;
 
+    @Override
     @BeforeMethod
-    public void setUp()
+    public final void beforeMethod()
     {
-        context = new Mockery();
-        daoFactory = context.mock(IDAOFactory.class);
-        entityPropertyTypeDAO = context.mock(IEntityPropertyTypeDAO.class);
-        entityTypeDAO = context.mock(IEntityTypeDAO.class);
-        propertyTypeDAO = context.mock(IPropertyTypeDAO.class);
+        super.beforeMethod();
         propertyValueValidator = context.mock(IPropertyValueValidator.class);
-    }
-
-    @AfterMethod
-    public void tearDown()
-    {
-        // To following line of code should also be called at the end of each test method.
-        // Otherwise one do not known which test failed.
-        context.assertIsSatisfied();
     }
 
     private final IEntityPropertiesConverter createEntityPropertiesConverter(

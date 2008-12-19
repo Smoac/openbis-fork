@@ -21,8 +21,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
  * 
  * @author Christian Ribeaud
  */
-// TODO 2008-12-16, Christian Ribeaud: Complete test.
-public final class PropertyTypeBOTest
+public final class PropertyTypeBOTest extends AbstractBOTest
 {
 
 }

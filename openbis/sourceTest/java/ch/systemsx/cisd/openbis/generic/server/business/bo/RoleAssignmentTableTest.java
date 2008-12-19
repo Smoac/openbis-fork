@@ -19,16 +19,9 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.Arrays;
 
 import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
@@ -41,39 +34,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
  * 
  * @author Christian Ribeaud
  */
-public final class RoleAssignmentTableTest
+public final class RoleAssignmentTableTest extends AbstractBOTest
 {
-    private Mockery context;
-
-    private IDAOFactory daoFactory;
-
-    private IGroupDAO groupDAO;
-
-    private IPersonDAO personDAO;
-
-    private IDatabaseInstanceDAO instanceDAO;
 
     private final RoleAssignmentTable createRoleAssignmentTable()
     {
         return new RoleAssignmentTable(daoFactory, ManagerTestTool.EXAMPLE_SESSION);
-    }
-
-    @BeforeMethod
-    public final void beforeMethod()
-    {
-        context = new Mockery();
-        daoFactory = context.mock(IDAOFactory.class);
-        groupDAO = context.mock(IGroupDAO.class);
-        personDAO = context.mock(IPersonDAO.class);
-        instanceDAO = context.mock(IDatabaseInstanceDAO.class);
-    }
-
-    @AfterMethod
-    public final void afterMethod()
-    {
-        // To following line of code should also be called at the end of each test method.
-        // Otherwise one do not known which test failed.
-        context.assertIsSatisfied();
     }
 
     @Test
@@ -106,9 +72,9 @@ public final class RoleAssignmentTableTest
                     will(returnValue(Arrays.asList(new PersonPE[]
                         { personPE })));
                     one(daoFactory).getDatabaseInstanceDAO();
-                    will(returnValue(instanceDAO));
+                    will(returnValue(databaseInstanceDAO));
 
-                    one(instanceDAO).tryFindDatabaseInstanceByCode(databaseInstanceCode);
+                    one(databaseInstanceDAO).tryFindDatabaseInstanceByCode(databaseInstanceCode);
                     will(returnValue(databaseInstancePE));
 
                     one(daoFactory).getGroupDAO();
