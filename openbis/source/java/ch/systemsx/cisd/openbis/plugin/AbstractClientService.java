@@ -22,6 +22,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
@@ -127,6 +128,11 @@ public abstract class AbstractClientService implements IClientService
         return requestContextProvider.getHttpServletRequest().getSession(create);
     }
 
+    private CachedResultSetManager<String> createCachedResultSetManager()
+    {
+        return new CachedResultSetManager<String>(new TokenBasedResultSetKeyGenerator());
+    }
+
     /** Returns the {@link IServer} implementation for this client service. */
     protected abstract IServer getServer();
 
@@ -143,13 +149,19 @@ public abstract class AbstractClientService implements IClientService
 
     public final SessionContext tryToGetCurrentSessionContext()
     {
-        final HttpSession httpSession = getHttpSession();
-        if (httpSession == null)
+        try
         {
-            return null;
+            final HttpSession httpSession = getHttpSession();
+            if (httpSession == null)
+            {
+                return null;
+            }
+            final Session session = getSession(httpSession);
+            return createSessionContext(session);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
         }
-        final Session session = getSession(httpSession);
-        return createSessionContext(session);
     }
 
     public final SessionContext tryToLogin(final String userID, final String password)
@@ -192,23 +204,24 @@ public abstract class AbstractClientService implements IClientService
         }
     }
 
-    private CachedResultSetManager<String> createCachedResultSetManager()
-    {
-        return new CachedResultSetManager<String>(new TokenBasedResultSetKeyGenerator());
-    }
-
     public final void logout()
     {
-        final HttpSession httpSession = getHttpSession();
-        if (httpSession != null)
+        try
         {
-            final Session session = getSession(httpSession);
-            httpSession.removeAttribute(SessionConstants.OPENBIS_SESSION_ATTRIBUTE_KEY);
-            httpSession.removeAttribute(SessionConstants.OPENBIS_SERVER_ATTRIBUTE_KEY);
-            httpSession.removeAttribute(SessionConstants.OPENBIS_RESULT_SET_MANAGER);
-            httpSession.removeAttribute(SessionConstants.OPENBIS_EXPORT_MANAGER);
-            httpSession.invalidate();
-            getServer().logout(session.getSessionToken());
+            final HttpSession httpSession = getHttpSession();
+            if (httpSession != null)
+            {
+                final Session session = getSession(httpSession);
+                httpSession.removeAttribute(SessionConstants.OPENBIS_SESSION_ATTRIBUTE_KEY);
+                httpSession.removeAttribute(SessionConstants.OPENBIS_SERVER_ATTRIBUTE_KEY);
+                httpSession.removeAttribute(SessionConstants.OPENBIS_RESULT_SET_MANAGER);
+                httpSession.removeAttribute(SessionConstants.OPENBIS_EXPORT_MANAGER);
+                httpSession.invalidate();
+                getServer().logout(session.getSessionToken());
+            }
+        } catch (final UserFailureException e)
+        {
+            // Just ignore it because we are logging out anyway.
         }
     }
 }

@@ -178,7 +178,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         return session != null && session.hasExpired();
     }
 
-    private void logAuthenticed(T session)
+    private void logAuthenticed(final T session)
     {
         if (operationLog.isInfoEnabled())
         {
@@ -186,33 +186,33 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
                     + "' has been successfully authenticated from host '" + getRemoteHost()
                     + "'. Session token: '" + session.getSessionToken() + "'.");
         }
-        String prefix = prefixGenerator.createPrefix(session);
+        final String prefix = prefixGenerator.createPrefix(session);
         authenticationLog.info(prefix + ": login");
     }
 
-    private void logFailedAuthentication(String user)
+    private void logFailedAuthentication(final String user)
     {
         operationLog.warn(LOGIN_PREFIX + "User '" + user + "' failed to authenticate from host '"
                 + getRemoteHost() + "'.");
         logAuthenticationFailure(user);
     }
 
-    private void logSessionFailure(String user, RuntimeException ex)
+    private void logSessionFailure(final String user, final RuntimeException ex)
     {
         logAuthenticationFailure(user);
         operationLog.error(LOGIN_PREFIX + "Error when trying to authenticate user '" + user + "'.",
                 ex);
     }
 
-    private void logAuthenticationFailure(String user)
+    private void logAuthenticationFailure(final String user)
     {
-        String prefix = prefixGenerator.createPrefix(user, getRemoteHost());
+        final String prefix = prefixGenerator.createPrefix(user, getRemoteHost());
         authenticationLog.info(prefix + ": login   ...FAILED");
     }
 
-    private void logSessionExpired(FullSession<T> fullSession)
+    private void logSessionExpired(final FullSession<T> fullSession)
     {
-        T session = fullSession.getSession();
+        final T session = fullSession.getSession();
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format("%sExpiring session '%s' for user '%s' "
@@ -220,25 +220,25 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
                     session.getUserName(), sessionExpirationPeriodMillis
                             / DateUtils.MILLIS_PER_MINUTE));
         }
-        String prefix = prefixGenerator.createPrefix(session);
+        final String prefix = prefixGenerator.createPrefix(session);
         authenticationLog.info(prefix + ": session_expired  [inactive "
                 + DurationFormatUtils.formatDurationHMS(sessionExpirationPeriodMillis) + "]");
     }
 
-    private void logLogout(T session)
+    private void logLogout(final T session)
     {
-        String prefix = prefixGenerator.createPrefix(session);
+        final String prefix = prefixGenerator.createPrefix(session);
         authenticationLog.info(prefix + ": logout");
         if (operationLog.isInfoEnabled())
         {
-            String user = session.getUserName();
+            final String user = session.getUserName();
             operationLog.info(LOGOUT_PREFIX + "Session '" + session.getSessionToken()
                     + "' of user '" + user + "' has been closed from host '" + getRemoteHost()
                     + "'.");
         }
     }
 
-    public T getSession(String sessionToken) throws UserFailureException
+    public T getSession(final String sessionToken) throws InvalidSessionException
     {
         checkIfNotBlank(sessionToken, "sessionToken");
 
@@ -281,7 +281,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         }
     }
 
-    public String tryToOpenSession(String user, String password)
+    public String tryToOpenSession(final String user, final String password)
     {
         checkIfNotBlank(user, "user");
         checkIfNotBlank(password, "password");
@@ -304,7 +304,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
                 {
                     final Principal principal =
                             authenticationService.getPrincipal(applicationToken, user);
-                    T session = createAndStoreSession(user, principal, now);
+                    final T session = createAndStoreSession(user, principal, now);
                     sessionToken = session.getSessionToken();
                     logAuthenticed(session);
                 } catch (final IllegalArgumentException ex)
@@ -325,7 +325,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         }
     }
 
-    public void closeSession(String sessionToken)
+    public void closeSession(final String sessionToken) throws InvalidSessionException
     {
         synchronized (sessions)
         {

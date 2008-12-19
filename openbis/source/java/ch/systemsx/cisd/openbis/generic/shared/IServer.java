@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.ISessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
@@ -45,6 +46,6 @@ public interface IServer extends ISessionProvider
     /**
      * Logout the session with the specified session token.
      */
-    public void logout(String sessionToken);
+    public void logout(final String sessionToken) throws UserFailureException;
 
 }

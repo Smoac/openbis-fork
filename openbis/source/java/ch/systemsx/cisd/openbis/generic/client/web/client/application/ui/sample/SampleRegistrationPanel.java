@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -27,6 +26,8 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
 /**
@@ -49,28 +50,31 @@ public final class SampleRegistrationPanel extends LayoutContainer
         toolBar.add(new LabelToolItem("Sample type:"));
         toolBar.add(new AdapterToolItem(sampleTypeSelection));
         add(toolBar);
-        sampleTypeSelection.addSelectionChangedListener(new SelectionChangedListener<ModelData>()
-            {
-
-                //
-                // SelectionChangedListener
-                //
-
-                @Override
-                public void selectionChanged(final SelectionChangedEvent<ModelData> se)
-                {
-                    final SampleType selectedType = sampleTypeSelection.tryGetSelectedSampleType();
-                    if (selectedType != null)
+        sampleTypeSelection
+                .addSelectionChangedListener(new SelectionChangedListener<SampleTypeModel>()
                     {
-                        removeAll();
-                        add(toolBar);
-                        add(viewContext.getClientPluginFactoryProvider().getClientPluginFactory(
-                                selectedType.getCode()).createViewClientForSampleType(
-                                selectedType.getCode()).createRegistrationForSampleType(
-                                selectedType));
-                        layout();
-                    }
-                }
-            });
+
+                        //
+                        // SelectionChangedListener
+                        //
+
+                        @Override
+                        public void selectionChanged(final SelectionChangedEvent<SampleTypeModel> se)
+                        {
+                            final SampleTypeModel sampleTypeModel = se.getSelectedItem();
+                            if (sampleTypeModel != null)
+                            {
+                                final SampleType selectedType =
+                                        sampleTypeModel.get(ModelDataPropertyNames.OBJECT);
+                                removeAll();
+                                add(toolBar);
+                                add(viewContext.getClientPluginFactoryProvider()
+                                        .getClientPluginFactory(selectedType.getCode())
+                                        .createViewClientForSampleType(selectedType.getCode())
+                                        .createRegistrationForSampleType(selectedType));
+                                layout();
+                            }
+                        }
+                    });
     }
 }

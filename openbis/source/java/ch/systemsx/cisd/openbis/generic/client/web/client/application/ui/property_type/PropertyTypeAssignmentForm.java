@@ -21,7 +21,6 @@ import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -39,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm.InfoBoxResetListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.PropertyFieldFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeSelectionWidget;
@@ -257,22 +257,6 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer
         addFormFields();
     }
 
-    final static class InfoBoxResetListener implements Listener<FieldEvent>
-    {
-        private final InfoBox infoBox;
-
-        InfoBoxResetListener(final InfoBox infoBox)
-        {
-            assert infoBox != null : "Unspecified info box.";
-            this.infoBox = infoBox;
-        }
-
-        public final void handleEvent(final FieldEvent be)
-        {
-            infoBox.reset();
-        }
-    }
-
     public final class AssignPropertyTypeCallback extends AbstractAsyncCallback<String>
     {
         AssignPropertyTypeCallback(final IViewContext<?> viewContext)
@@ -320,8 +304,8 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer
         if (formPanel.isValid())
         {
             viewContext.getService().assignPropertyType(entityKind,
-                    propertyTypeSelectionWidget.tryGetSelectedPropertyTypeCode(), getSelectedEntityCode(),
-                    getMandatoryCheckbox().getValue(), getDefaultValue(),
+                    propertyTypeSelectionWidget.tryGetSelectedPropertyTypeCode(),
+                    getSelectedEntityCode(), getMandatoryCheckbox().getValue(), getDefaultValue(),
                     new AssignPropertyTypeCallback(viewContext));
         }
     }

@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.authentication;
 
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.server.IRemoteHostProvider;
 
 /**
@@ -37,19 +37,19 @@ public interface ISessionManager<T extends BasicSession> extends IRemoteHostProv
      * @return A session token that is used afterwards to get the <code>Session</code> object, or
      *         <code>null</code>, if the user could not be authenticated.
      */
-    public String tryToOpenSession(String user, String password);
+    public String tryToOpenSession(final String user, final String password);
 
-    /** Closes session by removing given <code>sessionToken</code> from active sessions. */
-    public void closeSession(String sessionToken);
+    /**
+     * Closes session by removing given <code>sessionToken</code> from active sessions.
+     */
+    public void closeSession(final String sessionToken) throws InvalidSessionException;
 
     /**
      * For given <var>sessionToken</var> return the <code>Session</code> object.
      * <p>
      * You should already be authenticated before calling this method.
      * </p>
-     * 
-     * @throws UserFailureException If user is not authenticated.
      */
-    public T getSession(String sessionToken) throws UserFailureException;
+    public T getSession(final String sessionToken) throws InvalidSessionException;
 
 }

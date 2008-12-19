@@ -123,7 +123,7 @@ public class MainTabPanel extends TabPanel
         public MainTabItem(final ITabItem tabItem)
         {
             this.tabItem = tabItem;
-            setId(PREFIX + tabItem.getId() + TAB_SUFFIX);
+            setId(tabItem.getId() + TAB_SUFFIX);
             setClosable(true);
             setLayout(new FitLayout());
             setText(tabItem.getTitle());

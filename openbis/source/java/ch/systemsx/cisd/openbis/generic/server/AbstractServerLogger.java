@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
@@ -106,7 +107,7 @@ public abstract class AbstractServerLogger implements IServer
     // ISessionProvider
     //
 
-    public final IAuthSession getSession(final String sessionToken)
+    public final IAuthSession getSession(final String sessionToken) throws UserFailureException
     {
         return null;
     }
@@ -126,7 +127,7 @@ public abstract class AbstractServerLogger implements IServer
         return null;
     }
 
-    public final void logout(final String sessionToken)
+    public final void logout(final String sessionToken) throws UserFailureException
     {
         // No logging because already done by the session manager
     }

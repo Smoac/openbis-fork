@@ -28,8 +28,6 @@ public interface ISessionProvider
 {
     /**
      * Returns the session for the specified session token.
-     * 
-     * @throws UserFailureException if no session exists.
      */
     public IAuthSession getSession(String sessionToken) throws UserFailureException;
 }

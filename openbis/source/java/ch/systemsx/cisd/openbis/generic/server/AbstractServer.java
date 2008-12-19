@@ -27,6 +27,7 @@ import org.springframework.beans.factory.FactoryBean;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerFactory;
@@ -161,7 +162,7 @@ public abstract class AbstractServer<T extends IServer> implements IServer,
     // IServer
     //
 
-    public final IAuthSession getSession(final String sessionToken)
+    public final IAuthSession getSession(final String sessionToken) throws UserFailureException
     {
         return sessionManager.getSession(sessionToken);
     }
@@ -171,7 +172,7 @@ public abstract class AbstractServer<T extends IServer> implements IServer,
         return 1;
     }
 
-    public final void logout(final String sessionToken)
+    public final void logout(final String sessionToken) throws UserFailureException
     {
         sessionManager.closeSession(sessionToken);
     }
