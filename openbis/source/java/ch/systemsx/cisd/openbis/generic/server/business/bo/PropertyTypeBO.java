@@ -32,8 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
  * 
  * @author Christian Ribeaud
  */
-public final class PropertyTypeBO extends AbstractVocabularyBusinessObject implements
-        IPropertyTypeBO
+public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeBO
 {
     private PropertyTypePE propertyTypePE;
 
@@ -74,12 +73,15 @@ public final class PropertyTypeBO extends AbstractVocabularyBusinessObject imple
                             propertyType.getVocabulary().getCode());
             if (vocabularyPE == null)
             {
-                vocabularyPE = createVocabulary(propertyType.getVocabulary());
+                define(propertyType.getVocabulary());
+                super.save();
+                vocabularyPE = getVocabulary();
             }
             propertyTypePE.setVocabulary(vocabularyPE);
         }
     }
 
+    @Override
     public final void save() throws UserFailureException
     {
         assert propertyTypePE != null : "Property type not defined.";

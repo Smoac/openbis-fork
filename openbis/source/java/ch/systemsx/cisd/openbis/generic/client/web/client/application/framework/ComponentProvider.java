@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.propert
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBatchRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleRegistrationPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
 
 /**
@@ -66,6 +67,8 @@ final class ComponentProvider
 
     private PropertyTypeAssignmentForm propertyTypeSampleTypeAssignmentForm;
 
+    private VocabularyRegistrationForm vocabularyRegistrationForm;
+
     ComponentProvider(final CommonViewContext viewContext)
     {
         sampleBrowser = new SampleBrowser(viewContext);
@@ -83,6 +86,7 @@ final class ComponentProvider
                 new PropertyTypeAssignmentForm(viewContext, EntityKind.EXPERIMENT);
         propertyTypeSampleTypeAssignmentForm =
                 new PropertyTypeAssignmentForm(viewContext, EntityKind.SAMPLE);
+        vocabularyRegistrationForm = new VocabularyRegistrationForm(viewContext);
     }
 
     public final ITabItem getSampleBrowser()
@@ -118,6 +122,11 @@ final class ComponentProvider
     public final ITabItem getSampleBatchRegistration()
     {
         return new DefaultTabItem("Sample batch registration", sampleBatchRegistration);
+    }
+
+    public final ITabItem getVocabularyRegistration()
+    {
+        return new DefaultTabItem("Vocabulary registration", vocabularyRegistrationForm);
     }
 
     public ITabItem getExperimentBrowser()

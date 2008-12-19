@@ -188,4 +188,9 @@ public interface ICommonClientService extends IClientService
      */
     public void registerPropertyType(final PropertyType propertyType) throws UserFailureException;
 
+    /**
+     * Registers given {@link Vocabulary}.
+     */
+    public void registerVocabulary(final Vocabulary vocabulary) throws UserFailureException;
+
 }

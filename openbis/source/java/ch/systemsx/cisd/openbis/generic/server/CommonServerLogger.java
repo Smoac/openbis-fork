@@ -22,6 +22,7 @@ import java.util.List;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -219,16 +220,17 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
-    public final List<VocabularyPE> listVocabularies(String sessionToken)
+    public final List<VocabularyPE> listVocabularies(final String sessionToken)
     {
         logAccess(sessionToken, "list_vocabularies");
         return null;
     }
 
-    public String assignPropertyType(String sessionToken, EntityKind entityKind,
-            String propertyTypeCode, String entityTypeCode, boolean isMandatory, String defaultValue)
+    public String assignPropertyType(final String sessionToken, final EntityKind entityKind,
+            final String propertyTypeCode, final String entityTypeCode, final boolean isMandatory,
+            final String defaultValue)
     {
-        String entityTypeFormat = entityKind.name() + "_TYPE(%S)";
+        final String entityTypeFormat = entityKind.name() + "_TYPE(%S)";
         logTracking(sessionToken, "assign_property_type", " PROPERTY_TYPE(%S) " + entityTypeFormat
                 + " MANDATORY(%S) DEFAULT(%S)", propertyTypeCode, entityTypeCode, isMandatory,
                 defaultValue);
@@ -240,5 +242,10 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logTracking(sessionToken, "register_property_type", "PROPERTY_TYPE(%s)", propertyType
                 .getCode());
+    }
+
+    public final void registerVocabulary(final String sessionToken, final Vocabulary vocabulary)
+    {
+        logTracking(sessionToken, "register_vocabulary", "VOCABULARY(%s)", vocabulary.getCode());
     }
 }

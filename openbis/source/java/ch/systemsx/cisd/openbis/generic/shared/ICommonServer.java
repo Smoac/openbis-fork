@@ -21,6 +21,7 @@ import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
@@ -242,7 +243,14 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
-    public String assignPropertyType(String sessionToken, EntityKind entityKind,
-            String propertyTypeCode, String entityTypeCode, boolean isMandatory, String defaultValue);
+    public String assignPropertyType(final String sessionToken, final EntityKind entityKind,
+            final String propertyTypeCode, final String entityTypeCode, final boolean isMandatory,
+            final String defaultValue);
 
+    /**
+     * Registers given {@link Vocabulary}.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    public void registerVocabulary(final String sessionToken, final Vocabulary vocabulary);
 }

@@ -558,8 +558,8 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public String assignPropertyType(EntityKind entityKind, String propertyTypeCode,
-            String entityTypeCode, boolean isMandatory, String defaultValue)
+    public String assignPropertyType(final EntityKind entityKind, final String propertyTypeCode,
+            final String entityTypeCode, final boolean isMandatory, final String defaultValue)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
@@ -588,4 +588,17 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    public final void registerVocabulary(final Vocabulary vocabulary)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        assert vocabulary != null : "Unspecified vocabulary.";
+        try
+        {
+            final String sessionToken = getSessionToken();
+            commonServer.registerVocabulary(sessionToken, vocabulary);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
 }

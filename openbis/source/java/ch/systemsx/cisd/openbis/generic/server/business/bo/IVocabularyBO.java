@@ -17,26 +17,30 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 
 /**
- * Business object of a property type. Holds an instance of {@link PropertyTypePE}.
+ * Business object of a vocabulary. Holds an instance of {@link VocabularyPE}.
  * 
  * @author Christian Ribeaud
  */
-public interface IPropertyTypeBO extends IBusinessObject
+public interface IVocabularyBO extends IBusinessObject
 {
-
     /**
-     * Defines a new property type.
+     * Defines a new vocabulary.
      * <p>
      * After invocation of this method {@link IBusinessObject#save()} should be invoked to store the
-     * new property type in the <i>Data Access Layer</i>.
+     * new vocabulary in the <i>Data Access Layer</i>.
      * </p>
      * 
-     * @throws UserFailureException if <var>propertyType</var> does already exist.
+     * @throws UserFailureException if given <var>vocabulary</var> does already exist.
      */
-    public void define(final PropertyType propertyType) throws UserFailureException;
+    public void define(final Vocabulary vocabulary) throws UserFailureException;
+
+    /**
+     * Returns the loaded {@link VocabularyPE}.
+     */
+    public VocabularyPE getVocabulary();
 
 }

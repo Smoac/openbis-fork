@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary;
 
 import java.util.List;
 

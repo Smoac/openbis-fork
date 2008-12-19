@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import org.springframework.dao.DataAccessException;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -26,21 +27,26 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 
 /**
- * An <i>abtract</i> {@link AbstractBusinessObject} extension which creates a {@link VocabularyPE}
- * in the database out of a given {@link Vocabulary}.
+ * The only productive implementation of {@link IVocabularyBO}.
  * 
  * @author Christian Ribeaud
  */
-abstract class AbstractVocabularyBusinessObject extends AbstractBusinessObject
+public class VocabularyBO extends AbstractBusinessObject implements IVocabularyBO
 {
-    AbstractVocabularyBusinessObject(IDAOFactory daoFactory, Session session)
+    private VocabularyPE vocabularyPE;
+
+    public VocabularyBO(final IDAOFactory daoFactory, final Session session)
     {
         super(daoFactory, session);
     }
 
-    final VocabularyPE createVocabulary(final Vocabulary vocabulary)
+    //
+    // AbstractVocabularyBusinessObject
+    //
+
+    public final void define(final Vocabulary vocabulary) throws UserFailureException
     {
-        final VocabularyPE vocabularyPE = new VocabularyPE();
+        vocabularyPE = new VocabularyPE();
         vocabularyPE.setCode(vocabulary.getCode());
         vocabularyPE.setDescription(vocabulary.getDescription());
         vocabularyPE.setDatabaseInstance(getHomeDatabaseInstance());
@@ -52,6 +58,11 @@ abstract class AbstractVocabularyBusinessObject extends AbstractBusinessObject
             vocabularyTermPE.setRegistrator(findRegistrator());
             vocabularyPE.addTerm(vocabularyTermPE);
         }
+    }
+
+    public void save() throws UserFailureException
+    {
+        assert vocabularyPE != null : "Unspecified vocabulary";
         try
         {
             getVocabularyDAO().createVocabulary(vocabularyPE);
@@ -59,7 +70,11 @@ abstract class AbstractVocabularyBusinessObject extends AbstractBusinessObject
         {
             throwException(e, String.format("Vocabulary '%s'.", vocabularyPE.getCode()));
         }
-        return vocabularyPE;
     }
 
+    public final VocabularyPE getVocabulary()
+    {
+        assert vocabularyPE != null : "Unspecified vocabulary";
+        return vocabularyPE;
+    }
 }

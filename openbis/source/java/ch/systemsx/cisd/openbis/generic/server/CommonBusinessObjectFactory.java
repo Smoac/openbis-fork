@@ -31,11 +31,13 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.PropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.PropertyTypeTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.RoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.VocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
@@ -96,9 +98,14 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
         return new PropertyTypeTable(getDaoFactory(), session);
     }
 
-  public final IPropertyTypeBO createPropertyTypeBO(final Session session)
+    public final IPropertyTypeBO createPropertyTypeBO(final Session session)
     {
         return new PropertyTypeBO(getDaoFactory(), session);
+    }
+
+    public final IVocabularyBO createVocabularyBO(Session session)
+    {
+        return new VocabularyBO(getDaoFactory(), session);
     }
 
 }

@@ -175,7 +175,7 @@ public class CategoriesBuilder
         final List<MenuElement> elements = new ArrayList<MenuElement>();
         elements.add(new MenuElement(MENU_ELEMENTS.LIST, "List", provider.getDummyComponent()));
         elements.add(new MenuElement(MENU_ELEMENTS.REGISTER, "Register", provider
-                .getDummyComponent()));
+                .getVocabularyRegistration()));
         return new MenuCategory(CATEGORIES.VOCABULARIES, "Vocabularies", elements);
     }
 

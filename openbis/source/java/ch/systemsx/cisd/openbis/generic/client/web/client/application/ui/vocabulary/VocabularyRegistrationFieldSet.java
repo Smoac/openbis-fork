@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,8 +52,9 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
 
     private final int fieldWith;
 
-    VocabularyRegistrationFieldSet(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final int labelWidth, final int fieldWidth)
+    public VocabularyRegistrationFieldSet(
+            final IViewContext<ICommonClientServiceAsync> viewContext, final int labelWidth,
+            final int fieldWidth)
     {
         this.viewContext = viewContext;
         this.labelWidth = labelWidth;
@@ -98,11 +99,11 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
         return textArea;
     }
 
-    final Vocabulary createVocabulary()
+    public final Vocabulary createVocabulary()
     {
         final Vocabulary vocabulary = new Vocabulary();
-        vocabulary
-                .setCode(PropertyType.USER_NAMESPACE_CODE_PREPEND + vocabularyCodeField.getValue());
+        vocabulary.setCode(PropertyType.USER_NAMESPACE_CODE_PREPEND
+                + vocabularyCodeField.getValue());
         vocabulary.setDescription(StringUtils.trimToNull(vocabularyDescriptionField.getValue()));
         final List<VocabularyTerm> vocabularyTerms = new ArrayList<VocabularyTerm>();
         for (final String termCode : VocabularyTermValidator.getTerms(vocabularyTermsField

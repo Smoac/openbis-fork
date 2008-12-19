@@ -32,6 +32,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Voca
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyRegistrationFieldSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularySelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataTypeCode;
@@ -45,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Vocabulary;
  */
 public final class PropertyTypeRegistration extends AbstractRegistrationForm
 {
-    private static final String PREFIX = "property-type-registration";
+    private static final String PREFIX = "property-type-registration_";
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
@@ -198,7 +200,7 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
         }
     }
 
-    private final class PropertyTypeRegistrationCallback extends AbstractAsyncCallback<Void>
+    public final class PropertyTypeRegistrationCallback extends AbstractAsyncCallback<Void>
     {
         private final PropertyType propertyType;
 

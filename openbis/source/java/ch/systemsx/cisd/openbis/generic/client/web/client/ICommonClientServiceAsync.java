@@ -152,5 +152,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
 
     /** @see ICommonClientService#registerPropertyType(PropertyType) */
     public void registerPropertyType(final PropertyType propertyType,
-            AsyncCallback<Void> asyncCallback);
+            final AsyncCallback<Void> asyncCallback);
+
+    /** @see ICommonClientService#registerVocabulary(Vocabulary) */
+    public void registerVocabulary(final Vocabulary vocabulary,
+            final AsyncCallback<Void> asyncCallback);
 }

@@ -28,6 +28,7 @@ import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
@@ -36,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
@@ -393,8 +395,9 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         return vocabularies;
     }
 
-    public String assignPropertyType(String sessionToken, EntityKind entityKind,
-            String propertyTypeCode, String entityTypeCode, boolean isMandatory, String defaultValue)
+    public String assignPropertyType(final String sessionToken, final EntityKind entityKind,
+            final String propertyTypeCode, final String entityTypeCode, final boolean isMandatory,
+            final String defaultValue)
     {
         assert sessionToken != null : "Unspecified session token";
 
@@ -415,4 +418,14 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         propertyTypeBO.save();
     }
 
+    public final void registerVocabulary(final String sessionToken, final Vocabulary vocabulary)
+    {
+        assert sessionToken != null : "Unspecified session token";
+        assert vocabulary != null : "Unspecified vocabulary";
+
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IVocabularyBO propertyTypeBO = businessObjectFactory.createVocabularyBO(session);
+        propertyTypeBO.define(vocabulary);
+        propertyTypeBO.save();
+    }
 }
