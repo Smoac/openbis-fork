@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type;
 
-import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -44,7 +43,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Vocabulary;
  * 
  * @author Christian Ribeaud
  */
-// TODO 2008-12-28, Christian Ribeaud: Add 'USER.' as label just before the field.
 public final class PropertyTypeRegistration extends AbstractRegistrationForm
 {
     private static final String PREFIX = "property-type-registration";
@@ -88,9 +86,6 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
     private final void addFields()
     {
         formPanel.add(propertyTypeCodeField = createCodeField());
-        // TODO 2008-12-28, Christian Ribeaud: Find a generic way to handle this.
-        propertyTypeCodeField.addListener(Events.Focus,
-                new AbstractRegistrationForm.InfoBoxResetListener(infoBox));
         formPanel.add(propertyTypeLabelField = createPropertyTypeLabelField());
         formPanel.add(propertyTypeDescriptionField =
                 createDescriptionField(viewContext.getMessage(Dict.DESCRIPTION), true));
@@ -195,10 +190,11 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
                                 DataTypeCode.CONTROLLEDVOCABULARY.name());
             } else
             {
-                vocabularySelectionWidget.reset();
                 visible = false;
             }
+            vocabularySelectionWidget.reset();
             vocabularySelectionWidget.setVisible(visible);
+            vocabularySelectionWidget.setAllowBlank(!visible);
         }
     }
 

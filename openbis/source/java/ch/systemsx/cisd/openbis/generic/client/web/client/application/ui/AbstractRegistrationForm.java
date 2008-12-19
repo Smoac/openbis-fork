@@ -26,8 +26,11 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
+import com.google.gwt.user.client.ui.ClickListener;
+import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ClickableFormPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
@@ -78,9 +81,10 @@ public abstract class AbstractRegistrationForm extends LayoutContainer
         return infoBox;
     }
 
-    protected FormPanel createFormPanel(final IMessageProvider messageProvider)
+    protected ClickableFormPanel createFormPanel(final IMessageProvider messageProvider)
     {
-        final FormPanel panel = new FormPanel();
+        final ClickableFormPanel panel = new ClickableFormPanel();
+        panel.addClickListener(new InfoBoxResetListener(infoBox));
         panel.setHeaderVisible(false);
         panel.setBodyBorder(false);
         panel.setWidth(labelWidth + fieldWitdh + 40);
@@ -137,7 +141,7 @@ public abstract class AbstractRegistrationForm extends LayoutContainer
     // Helper classes
     //
 
-    public final static class InfoBoxResetListener implements Listener<FieldEvent>
+    public final static class InfoBoxResetListener implements Listener<FieldEvent>, ClickListener
     {
         private final InfoBox infoBox;
 
@@ -147,13 +151,27 @@ public abstract class AbstractRegistrationForm extends LayoutContainer
             this.infoBox = infoBox;
         }
 
+        private void resetInfoBox()
+        {
+            infoBox.reset();
+        }
+
         //
         // Listener
         //
 
         public final void handleEvent(final FieldEvent be)
         {
-            infoBox.reset();
+            resetInfoBox();
+        }
+
+        //
+        // ClickListener
+        //
+
+        public final void onClick(Widget sender)
+        {
+            resetInfoBox();
         }
     }
 

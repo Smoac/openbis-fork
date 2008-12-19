@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ClickableFormPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
@@ -126,10 +127,11 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
 
     private final FormPanel createFormPanel(final Button button)
     {
-        final FormPanel panel = new FormPanel();
+        final ClickableFormPanel panel = new ClickableFormPanel();
+        panel.addClickListener(new AbstractRegistrationForm.InfoBoxResetListener(infoBox));
         panel.setLayout(new FlowLayout());
-        panel.setWidth(AbstractRegistrationForm.DEFAULT_LABEL_WIDTH + AbstractRegistrationForm.DEFAULT_FIELD_WIDTH
-                + 50);
+        panel.setWidth(AbstractRegistrationForm.DEFAULT_LABEL_WIDTH
+                + AbstractRegistrationForm.DEFAULT_FIELD_WIDTH + 50);
         panel.setHeaderVisible(false);
         panel.setBodyBorder(false);
         panel.setAction(GenericConstants.createServicePath("upload"));
@@ -180,9 +182,6 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
     private final FileUploadField createFileUploadField(final int counter)
     {
         final FileUploadField file = new FileUploadField();
-        file
-                .addListener(Events.OnClick, new AbstractRegistrationForm.InfoBoxResetListener(
-                        infoBox));
         file.setAllowBlank(counter > 0);
         final int number = counter + 1;
         file.setFieldLabel(Format.substitute(FIELD_LABEL_TEMPLATE, number));
