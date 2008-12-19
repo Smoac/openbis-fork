@@ -59,7 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 @Table(name = TableNames.EXPERIMENT_ATTACHMENTS_TABLE, uniqueConstraints =
     { @UniqueConstraint(columnNames =
         { ColumnNames.EXPERIMENT_COLUMN, ColumnNames.FILE_NAME_COLUMN, ColumnNames.VERSION_COLUMN }) })
-@ClassBridge(impl = AttachmentPE.AtachmentSearchBridge.class, index = Index.TOKENIZED, store = Store.NO)
+@ClassBridge(impl = AttachmentPE.AttachmentSearchBridge.class, index = Index.TOKENIZED, store = Store.NO)
 public class AttachmentPE extends HibernateAbstractRegistrationHolder implements Serializable,
         Comparable<AttachmentPE>
 {
@@ -84,7 +84,7 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
      * This bridge allows to save in the search index not only the content of the attachment, but
      * also corresponding file name and version.
      */
-    public static class AtachmentSearchBridge implements FieldBridge
+    public static class AttachmentSearchBridge implements FieldBridge
     {
         private static final String FIELD_PREFIX = "attachment: ";
 
@@ -95,6 +95,20 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
         {
             AttachmentPE attachment = (AttachmentPE) value;
             String attachmentName = attachment.getFileName();
+            indexFileContent(document, luceneOptions, attachment, attachmentName);
+
+            // index the file name. Make the field code unique, so that we can recognize which field
+            // has matched the query later on
+            String attachmentNameFieldName = FILE_NAME_PREFIX + attachmentName;
+            Field field =
+                    new Field(attachmentNameFieldName, attachmentName, Field.Store.YES,
+                            luceneOptions.getIndex());
+            document.add(field);
+        }
+
+        private void indexFileContent(Document document, LuceneOptions luceneOptions,
+                AttachmentPE attachment, String attachmentName)
+        {
             String fieldName = FIELD_PREFIX + attachmentName + ", ver. " + attachment.getVersion();
             byte[] byteContent = attachment.getAttachmentContent().getValue();
             String fieldValue = new String(byteContent);
@@ -105,14 +119,6 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
             {
                 field.setBoost(luceneOptions.getBoost());
             }
-            document.add(field);
-
-            // index the file name. Make the field code unique, so that we can recognize which field
-            // has matched the query later on
-            String attachmentNameFieldName = FILE_NAME_PREFIX + attachmentName;
-            field =
-                    new Field(attachmentNameFieldName, attachmentName, Field.Store.YES,
-                            luceneOptions.getIndex());
             document.add(field);
         }
     }
