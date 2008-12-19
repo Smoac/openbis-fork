@@ -63,7 +63,7 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
 {
     private static final String SESSION_KEY = "sample-batch-registration";
 
-    private static final String FIELD_LABEL_TEMPLATE = "File {0}";
+    private static final String FIELD_LABEL_TEMPLATE = "File";
 
     private static final String FIELD_NAME_TEMPLATE = SESSION_KEY + "_{0}";
 
@@ -222,6 +222,7 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
             }
             infoBox.displayInfo(builder.toString());
             formPanel.reset();
+            setUploadEnabled(true);
         }
 
         @Override
