@@ -16,13 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-import org.apache.log4j.Level;
 import org.jmock.Mockery;
 import org.testng.AssertJUnit;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
-import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
@@ -35,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 
 /**
  * An <i>abstract</i> test for <i>Business Object</i>.
@@ -43,8 +42,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
  */
 public abstract class AbstractBOTest extends AssertJUnit
 {
-    BufferedAppender logRecorder;
-
     Mockery context;
 
     IDAOFactory daoFactory;
@@ -71,6 +68,8 @@ public abstract class AbstractBOTest extends AssertJUnit
 
     ISampleTypeDAO sampleTypeDAO;
 
+    IVocabularyDAO vocabularyDAO;
+
     IEntityPropertiesConverter propertiesConverter;
 
     @BeforeMethod
@@ -90,13 +89,12 @@ public abstract class AbstractBOTest extends AssertJUnit
         sampleTypeDAO = context.mock(ISampleTypeDAO.class);
         propertyTypeDAO = context.mock(IPropertyTypeDAO.class);
         entityPropertyTypeDAO = context.mock(IEntityPropertyTypeDAO.class);
-        logRecorder = new BufferedAppender("%m%n", Level.DEBUG);
+        vocabularyDAO = context.mock(IVocabularyDAO.class);
     }
 
     @AfterMethod
     public void afterMethod()
     {
-        logRecorder.reset();
         // To following line of code should also be called at the end of each test method.
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();

@@ -39,4 +39,9 @@ public interface IPropertyTypeBO extends IBusinessObject
      */
     public void define(final PropertyType propertyType) throws UserFailureException;
 
+    /**
+     * Returns the loaded {@link PropertyTypePE}.
+     */
+    public PropertyTypePE getPropertyType();
+
 }

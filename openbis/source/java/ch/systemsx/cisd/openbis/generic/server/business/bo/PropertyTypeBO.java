@@ -47,6 +47,7 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
 
     public final void define(final PropertyType propertyType) throws UserFailureException
     {
+        assert propertyType != null : "Unspecified property type.";
         propertyTypePE = new PropertyTypePE();
         propertyTypePE.setDatabaseInstance(getHomeDatabaseInstance());
         propertyTypePE.setCode(propertyType.getCode());
@@ -94,4 +95,9 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
         }
     }
 
+    public final PropertyTypePE getPropertyType()
+    {
+        assert propertyTypePE != null : "Property type not defined.";
+        return propertyTypePE;
+    }
 }

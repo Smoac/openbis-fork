@@ -46,6 +46,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
 
     public final void define(final Vocabulary vocabulary) throws UserFailureException
     {
+        assert vocabulary != null : "Unspecified vocabulary.";
         vocabularyPE = new VocabularyPE();
         vocabularyPE.setCode(vocabulary.getCode());
         vocabularyPE.setDescription(vocabulary.getDescription());
