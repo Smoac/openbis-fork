@@ -129,7 +129,7 @@ public interface ICommonServer extends IServer
     
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<VocabularyPE> listVocabularies(final String sessionToken);
+    public List<VocabularyPE> listVocabularies(final String sessionToken, final boolean withTerms);
     
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)

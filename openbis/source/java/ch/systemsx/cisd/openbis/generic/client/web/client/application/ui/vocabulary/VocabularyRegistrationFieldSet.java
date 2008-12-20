@@ -99,11 +99,21 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
         return textArea;
     }
 
+    private final String getVocabularyCode()
+    {
+        final String prepend = PropertyType.USER_NAMESPACE_CODE_PREPEND;
+        final String value = vocabularyCodeField.getValue();
+        if (value.toUpperCase().startsWith(prepend))
+        {
+            return value;
+        }
+        return prepend + value;
+    }
+
     public final Vocabulary createVocabulary()
     {
         final Vocabulary vocabulary = new Vocabulary();
-        vocabulary.setCode(PropertyType.USER_NAMESPACE_CODE_PREPEND
-                + vocabularyCodeField.getValue());
+        vocabulary.setCode(getVocabularyCode());
         vocabulary.setDescription(StringUtils.trimToNull(vocabularyDescriptionField.getValue()));
         final List<VocabularyTerm> vocabularyTerms = new ArrayList<VocabularyTerm>();
         for (final String termCode : VocabularyTermValidator.getTerms(vocabularyTermsField

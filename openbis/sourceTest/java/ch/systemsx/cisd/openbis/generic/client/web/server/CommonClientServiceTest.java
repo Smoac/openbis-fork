@@ -270,11 +270,11 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                 {
                     prepareGetSessionToken(this);
 
-                    one(commonServer).listVocabularies(SESSION_TOKEN);
+                    one(commonServer).listVocabularies(SESSION_TOKEN, false);
                     will(returnValue(Collections.singletonList(vocabularyPE)));
                 }
             });
-        final List<Vocabulary> vocabularies = commonClientService.listVocabularies();
+        final List<Vocabulary> vocabularies = commonClientService.listVocabularies(false);
         assertEquals(1, vocabularies.size());
         assertVocabularyEquals(vocabularyPE, vocabularies.get(0));
         context.assertIsSatisfied();

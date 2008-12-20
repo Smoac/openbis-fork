@@ -130,11 +130,21 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
         return varcharField;
     }
 
+    private final String getPropertyTypeCode()
+    {
+        final String prepend = PropertyType.USER_NAMESPACE_CODE_PREPEND;
+        final String value = propertyTypeCodeField.getValue();
+        if (value.toUpperCase().startsWith(prepend))
+        {
+            return value;
+        }
+        return prepend + value;
+    }
+
     private final PropertyType createPropertyType()
     {
         final PropertyType propertyType = new PropertyType();
-        propertyType.setCode(PropertyType.USER_NAMESPACE_CODE_PREPEND
-                + propertyTypeCodeField.getValue());
+        propertyType.setCode(getPropertyTypeCode());
         propertyType.setLabel(propertyTypeLabelField.getValue());
         propertyType.setDescription(propertyTypeDescriptionField.getValue());
         final DataType selectedDataType = dataTypeSelectionWidget.tryGetSelectedDataType();

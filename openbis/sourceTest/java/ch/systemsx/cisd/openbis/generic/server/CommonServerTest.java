@@ -544,7 +544,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                 }
             });
         final List<VocabularyPE> vocabularies =
-                createServer().listVocabularies(session.getSessionToken());
+                createServer().listVocabularies(session.getSessionToken(), true);
         assertEquals(0, vocabularies.size());
         context.assertIsSatisfied();
     }

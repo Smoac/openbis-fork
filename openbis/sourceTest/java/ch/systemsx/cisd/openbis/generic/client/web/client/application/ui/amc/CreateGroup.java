@@ -42,8 +42,7 @@ public final class CreateGroup extends AbstractDefaultTestCommand
 
     public final void execute()
     {
-        GWTTestUtil.selectTabItemWithId(MainTabPanel.ID, MainTabPanel.ID + "_" + GroupsView.ID
-                + MainTabPanel.TAB_SUFFIX);
+        GWTTestUtil.selectTabItemWithId(MainTabPanel.ID, GroupsView.ID + MainTabPanel.TAB_SUFFIX);
         GWTTestUtil.clickButtonWithID(GroupsView.ADD_BUTTON_ID);
         GWTTestUtil.getTextFieldWithID(AddGroupDialog.CODE_FIELD_ID).setValue(groupCode);
         GWTTestUtil.clickButtonWithID(AddGroupDialog.SAVE_BUTTON_ID);

@@ -53,8 +53,7 @@ public final class CreateRole extends AbstractDefaultTestCommand
 
     public final void execute()
     {
-        GWTTestUtil.selectTabItemWithId(MainTabPanel.ID, MainTabPanel.ID + "_" + RolesView.ID
-                + MainTabPanel.TAB_SUFFIX);
+        GWTTestUtil.selectTabItemWithId(MainTabPanel.ID, RolesView.ID + MainTabPanel.TAB_SUFFIX);
         GWTTestUtil.clickButtonWithID(RolesView.ADD_BUTTON_ID);
         final RoleListBox listBox =
                 (RoleListBox) GWTTestUtil.getListBoxWithID(AddRoleDialog.ROLE_FIELD_ID);

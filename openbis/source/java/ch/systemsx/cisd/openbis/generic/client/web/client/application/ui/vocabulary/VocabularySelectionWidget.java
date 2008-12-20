@@ -68,7 +68,7 @@ public class VocabularySelectionWidget extends ComboBox<VocabularyModel>
 
     private final void loadVocabularies()
     {
-        viewContext.getService().listVocabularies(new ListVocabulariesCallback(viewContext));
+        viewContext.getService().listVocabularies(false, new ListVocabulariesCallback(viewContext));
     }
 
     /**

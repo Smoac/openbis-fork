@@ -173,8 +173,9 @@ public interface ICommonClientService extends IClientService
      * <p>
      * Note that the vocabulary terms are included/loaded.
      * </p>
+     * @param withTerms TODO
      */
-    public List<Vocabulary> listVocabularies() throws UserFailureException;
+    public List<Vocabulary> listVocabularies(boolean withTerms) throws UserFailureException;
 
     /**
      * Assigns property type to entity type.

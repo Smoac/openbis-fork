@@ -544,13 +544,14 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public final List<Vocabulary> listVocabularies()
+    public final List<Vocabulary> listVocabularies(final boolean withTerms)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
-            final List<VocabularyPE> vocabularies = commonServer.listVocabularies(sessionToken);
+            final List<VocabularyPE> vocabularies =
+                    commonServer.listVocabularies(sessionToken, withTerms);
             return BeanUtils.createBeanList(Vocabulary.class, vocabularies);
         } catch (final UserFailureException e)
         {

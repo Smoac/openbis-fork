@@ -224,12 +224,11 @@ public interface ICommonServer extends IServer
     /**
      * Lists vocabularies.
      * 
-     * @return a sorted list of {@link VocabularyPE}. Note that the vocabulary terms are
-     *         included/loaded.
+     * @return a sorted list of {@link VocabularyPE}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<VocabularyPE> listVocabularies(final String sessionToken);
+    public List<VocabularyPE> listVocabularies(final String sessionToken, final boolean withTerms);
 
     /**
      * Registers given {@link PropertyType}.
