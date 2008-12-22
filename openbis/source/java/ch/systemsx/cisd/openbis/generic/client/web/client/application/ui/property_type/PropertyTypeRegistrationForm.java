@@ -45,7 +45,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Vocabulary;
  * 
  * @author Christian Ribeaud
  */
-public final class PropertyTypeRegistration extends AbstractRegistrationForm
+public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
 {
     private static final String PREFIX = "property-type-registration_";
 
@@ -65,7 +65,7 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
 
     private VocabularyRegistrationFieldSet vocabularyRegistrationFieldSet;
 
-    public PropertyTypeRegistration(final IViewContext<ICommonClientServiceAsync> viewContext)
+    public PropertyTypeRegistrationForm(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, ID_PREFIX, DEFAULT_LABEL_WIDTH + 20, DEFAULT_FIELD_WIDTH);
         this.viewContext = viewContext;
@@ -81,20 +81,38 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
         return fieldSet;
     }
 
-    private final CodeField createCodeField()
+    private final CodeField createPropertyTypeCodeField()
     {
         final CodeField codeField =
                 new CodeField(viewContext, viewContext.getMessage(Dict.CODE),
                         CodeField.CODE_PATTERN_WITH_DOT);
+        codeField.setId(getId() + "_code");
         return codeField;
+    }
+
+    private final VarcharField createPropertyTypeLabelField()
+    {
+        final VarcharField varcharField =
+                new VarcharField(viewContext.getMessage(Dict.LABEL), true);
+        varcharField.setId(getId() + "_label");
+        varcharField.setMaxLength(40);
+        return varcharField;
+    }
+
+    private final VarcharField createPropertyTypeDescriptionField()
+    {
+        final VarcharField varcharField =
+                new VarcharField(viewContext.getMessage(Dict.DESCRIPTION), true);
+        varcharField.setId(getId() + "_description");
+        varcharField.setMaxLength(80);
+        return varcharField;
     }
 
     private final void addFields()
     {
-        formPanel.add(propertyTypeCodeField = createCodeField());
+        formPanel.add(propertyTypeCodeField = createPropertyTypeCodeField());
         formPanel.add(propertyTypeLabelField = createPropertyTypeLabelField());
-        formPanel.add(propertyTypeDescriptionField =
-                createDescriptionField(viewContext.getMessage(Dict.DESCRIPTION), true));
+        formPanel.add(propertyTypeDescriptionField = createPropertyTypeDescriptionField());
         formPanel.add(dataTypeSelectionWidget = createDataTypeSelectionWidget());
         vocabularyRegistrationFieldSet = createVocabularyRegistrationFieldSet();
         formPanel.add(vocabularySelectionWidget = createVocabularySelectionWidget());
@@ -116,22 +134,6 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
                         vocabularyRegistrationFieldSet);
         selectionWidget.setVisible(false);
         return selectionWidget;
-    }
-
-    private final VarcharField createDescriptionField(final String descriptionLabel,
-            final boolean mandatory)
-    {
-        final VarcharField varcharField = new VarcharField(descriptionLabel, mandatory);
-        varcharField.setMaxLength(80);
-        return varcharField;
-    }
-
-    private final VarcharField createPropertyTypeLabelField()
-    {
-        final VarcharField varcharField =
-                new VarcharField(viewContext.getMessage(Dict.LABEL), true);
-        varcharField.setMaxLength(40);
-        return varcharField;
     }
 
     private final String getPropertyTypeCode()

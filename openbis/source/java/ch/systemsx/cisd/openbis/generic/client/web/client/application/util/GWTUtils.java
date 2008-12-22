@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -93,11 +94,18 @@ public final class GWTUtils
         assert comboBox != null : "Unspecified combo box.";
         assert property != null : "Unspecified model property.";
         assert value != null : "Unspecified model property value.";
-        final List<T> list = comboBox.getStore().findModels(property, value);
+        final ListStore<T> store = comboBox.getStore();
+        final List<T> list = store.findModels(property, value);
         if (list.size() == 0)
         {
+            final List<Object> possibleValues = new ArrayList<Object>();
+            for (final T t : store.getModels())
+            {
+                possibleValues.add(t.get(property));
+            }
             throw new IllegalArgumentException("Given value '" + value + "' for property '"
-                    + property + "' not found in the combo box.");
+                    + property + "' not found in the combo box. Possible values are '"
+                    + possibleValues + "'.");
         }
         final List<T> selection = new ArrayList<T>();
         selection.add(list.get(0));

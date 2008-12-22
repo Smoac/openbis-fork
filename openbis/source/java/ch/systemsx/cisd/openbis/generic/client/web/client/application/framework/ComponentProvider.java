@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experim
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeAssignmentBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeAssignmentForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeBrowser;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeRegistration;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBatchRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleRegistrationPanel;
@@ -59,7 +59,7 @@ final class ComponentProvider
 
     private final PropertyTypeBrowser propertyTypesBrowser;
 
-    private final PropertyTypeRegistration propertyTypeRegistration;
+    private final PropertyTypeRegistrationForm propertyTypeRegistration;
 
     private final PropertyTypeAssignmentBrowser propertyTypeAssignmentBrowser;
 
@@ -80,7 +80,7 @@ final class ComponentProvider
         sampleBatchRegistration = new SampleBatchRegistrationPanel(viewContext);
         experimentBrowser = new ExperimentBrowser(viewContext);
         propertyTypesBrowser = new PropertyTypeBrowser(viewContext);
-        propertyTypeRegistration = new PropertyTypeRegistration(viewContext);
+        propertyTypeRegistration = new PropertyTypeRegistrationForm(viewContext);
         propertyTypeAssignmentBrowser = new PropertyTypeAssignmentBrowser(viewContext);
         propertyTypeExperimentTypeAssignmentForm =
                 new PropertyTypeAssignmentForm(viewContext, EntityKind.EXPERIMENT);

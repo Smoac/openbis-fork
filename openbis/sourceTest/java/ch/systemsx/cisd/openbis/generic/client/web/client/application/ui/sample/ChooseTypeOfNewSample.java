@@ -20,8 +20,6 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleTypeModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleRegistrationPanel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
@@ -50,7 +48,6 @@ public final class ChooseTypeOfNewSample extends AbstractDefaultTestCommand
         final ComboBox<SampleTypeModel> sampleTypeSelector =
                 (SampleTypeSelectionWidget) GWTTestUtil
                         .getWidgetWithID(SampleTypeSelectionWidget.ID + SampleRegistrationPanel.ID);
-
         GWTUtils.setSelectedItem(sampleTypeSelector, ModelDataPropertyNames.CODE,
                 sampleTypeNameOrNull);
     }
