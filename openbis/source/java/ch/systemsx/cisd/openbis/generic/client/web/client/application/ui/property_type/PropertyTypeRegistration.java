@@ -75,14 +75,18 @@ public final class PropertyTypeRegistration extends AbstractRegistrationForm
     private final VocabularyRegistrationFieldSet createVocabularyRegistrationFieldSet()
     {
         final VocabularyRegistrationFieldSet fieldSet =
-                new VocabularyRegistrationFieldSet(viewContext, labelWidth, fieldWitdh - 40);
+                new VocabularyRegistrationFieldSet(viewContext, getId() + "_", labelWidth,
+                        fieldWitdh - 40);
         fieldSet.setVisible(false);
         return fieldSet;
     }
 
     private final CodeField createCodeField()
     {
-        return new CodeField(viewContext, viewContext.getMessage(Dict.CODE), CodeField.CODE_PATTERN);
+        final CodeField codeField =
+                new CodeField(viewContext, viewContext.getMessage(Dict.CODE),
+                        CodeField.CODE_PATTERN_WITH_DOT);
+        return codeField;
     }
 
     private final void addFields()

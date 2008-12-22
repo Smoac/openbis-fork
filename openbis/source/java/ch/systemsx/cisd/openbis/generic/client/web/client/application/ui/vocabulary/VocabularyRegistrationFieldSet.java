@@ -52,13 +52,16 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
 
     private final int fieldWith;
 
+    private final String idPrefix;
+
     public VocabularyRegistrationFieldSet(
-            final IViewContext<ICommonClientServiceAsync> viewContext, final int labelWidth,
-            final int fieldWidth)
+            final IViewContext<ICommonClientServiceAsync> viewContext, final String idPrefix,
+            final int labelWidth, final int fieldWidth)
     {
         this.viewContext = viewContext;
         this.labelWidth = labelWidth;
         this.fieldWith = fieldWidth;
+        this.idPrefix = idPrefix;
         setHeading(viewContext.getMessage(Dict.VOCABULARY));
         setLayout(createFormLayout());
         setWidth(labelWidth + fieldWidth + 40);
@@ -78,7 +81,11 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
 
     private final CodeField createCodeField()
     {
-        return new CodeField(viewContext, viewContext.getMessage(Dict.CODE), CodeField.CODE_PATTERN);
+        final CodeField codeField =
+                new CodeField(viewContext, viewContext.getMessage(Dict.CODE),
+                        CodeField.CODE_PATTERN_WITH_DOT);
+        codeField.setId(idPrefix + "code");
+        return codeField;
     }
 
     private final VarcharField createDescriptionField(final String descriptionLabel,
@@ -86,6 +93,7 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
     {
         final VarcharField varcharField = new VarcharField(descriptionLabel, mandatory);
         varcharField.setMaxLength(80);
+        varcharField.setId(idPrefix + "description");
         return varcharField;
     }
 
@@ -94,6 +102,7 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
         final TextArea textArea = new TextArea();
         final String fieldLabel = viewContext.getMessage(Dict.VOCABULARY_TERMS);
         VarcharField.configureField(textArea, fieldLabel, true);
+        textArea.setId(idPrefix + "terms");
         textArea.setEmptyText(viewContext.getMessage(Dict.VOCABULARY_TERMS_EMPTY));
         textArea.setValidator(new VocabularyTermValidator(viewContext));
         return textArea;

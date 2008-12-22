@@ -34,6 +34,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
@@ -43,6 +45,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -87,6 +91,14 @@ public class DtoConverters
     public final static Converter getDataTypeConverter()
     {
         return DataTypeConverter.INSTANCE;
+    }
+
+    /**
+     * Returns the {@link VocabularyPE} converter.
+     */
+    public final static Converter getVocabularyConverter()
+    {
+        return VocabularyConverter.INSTANCE;
     }
 
     /**
@@ -297,6 +309,36 @@ public class DtoConverters
         public final DataTypeCode convertToCode(final DataTypePE dataType)
         {
             return DataTypeCode.valueOf(dataType.getCode().name());
+        }
+    }
+
+    /**
+     * A {@link BeanUtils.Converter} for converting {@link VocabularyPE} into {@link Vocabulary}.
+     * 
+     * @author Christian Ribeaud
+     */
+    private final static class VocabularyConverter implements BeanUtils.Converter
+    {
+        static final VocabularyConverter INSTANCE = new VocabularyConverter();
+
+        private VocabularyConverter()
+        {
+        }
+
+        //
+        // BeanUtils.Converter
+        //
+
+        public final List<VocabularyTerm> convertToTerms(final VocabularyPE vocabulary)
+        {
+            final Set<VocabularyTermPE> terms = vocabulary.getTerms();
+            if (HibernateUtils.isInitialized(terms))
+            {
+                return BeanUtils.createBeanList(VocabularyTerm.class, terms);
+            } else
+            {
+                return createUnmodifiableEmptyList();
+            }
         }
     }
 }

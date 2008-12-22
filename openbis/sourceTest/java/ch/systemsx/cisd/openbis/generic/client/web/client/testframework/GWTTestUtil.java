@@ -35,6 +35,7 @@ import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
+import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.tree.Tree;
@@ -101,7 +102,7 @@ public final class GWTTestUtil
         assertWidgetFound("Button", id, widget);
         assertTrue("Widget '" + id + "' isn't a Button: " + widget.getClass(),
                 widget instanceof Button);
-        Button button = ((Button) widget);
+        final Button button = ((Button) widget);
         assertTrue("Button '" + id + "' is not enabled.", button.isEnabled());
         button.fireEvent(Events.Select);
     }
@@ -121,6 +122,20 @@ public final class GWTTestUtil
     }
 
     /**
+     * Sets the value of the {@link TextField} with specified id.
+     * 
+     * @param valueOrNull If <code>null</code> the text field value will not be changed.
+     * @throws AssertionError if no widget found for <code>id</code> or isn't a text field.
+     */
+    public final static void setTextAreaValue(final String id, final String valueOrNull)
+    {
+        if (valueOrNull != null)
+        {
+            getTextAreaWithId(id).setValue(valueOrNull);
+        }
+    }
+
+    /**
      * Gets the {@link TextField} with specified id.
      * 
      * @throws AssertionError if not found or isn't a text field.
@@ -133,6 +148,20 @@ public final class GWTTestUtil
         Assert.assertTrue("Widget '" + id + "' isn't a TextField: " + widget.getClass(),
                 widget instanceof TextField);
         return (TextField<T>) widget;
+    }
+
+    /**
+     * Gets the {@link TextArea} with specified id.
+     * 
+     * @throws AssertionError if not found or isn't a text field.
+     */
+    public final static TextArea getTextAreaWithId(final String id)
+    {
+        final Widget widget = tryToFindByID(id);
+        assertWidgetFound("Text field", id, widget);
+        Assert.assertTrue("Widget '" + id + "' isn't a TextArea: " + widget.getClass(),
+                widget instanceof TextArea);
+        return (TextArea) widget;
     }
 
     /**
@@ -432,7 +461,7 @@ public final class GWTTestUtil
         // IWidgetHandler
         //
 
-        public boolean handle(MultiField<Field<?>> widget)
+        public boolean handle(final MultiField<Field<?>> widget)
         {
             final List<Field<?>> fields = widget.getAll();
             for (int i = 0, n = fields.size(); i < n; i++)

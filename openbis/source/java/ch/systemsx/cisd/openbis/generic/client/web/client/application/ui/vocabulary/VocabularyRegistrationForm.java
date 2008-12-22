@@ -51,7 +51,8 @@ public final class VocabularyRegistrationForm extends AbstractRegistrationForm
     private final void addFields()
     {
         formPanel.add(vocabularyRegistrationFieldSet =
-                new VocabularyRegistrationFieldSet(viewContext, labelWidth, fieldWitdh - 40));
+                new VocabularyRegistrationFieldSet(viewContext, getId() + "_", labelWidth,
+                        fieldWitdh - 40));
     }
 
     //

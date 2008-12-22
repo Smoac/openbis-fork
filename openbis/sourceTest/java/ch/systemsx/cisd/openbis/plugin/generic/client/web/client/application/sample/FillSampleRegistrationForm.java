@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Abstract
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
 /**
- * A {@link AbstractDefaultTestCommand} extension for creating sample list.
+ * A {@link AbstractDefaultTestCommand} extension for creating sample.
  * 
  * @author Christian Ribeaud
  */

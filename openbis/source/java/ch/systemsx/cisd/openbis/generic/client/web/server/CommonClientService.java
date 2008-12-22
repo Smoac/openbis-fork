@@ -552,7 +552,8 @@ public final class CommonClientService extends AbstractClientService implements
             final String sessionToken = getSessionToken();
             final List<VocabularyPE> vocabularies =
                     commonServer.listVocabularies(sessionToken, withTerms);
-            return BeanUtils.createBeanList(Vocabulary.class, vocabularies);
+            return BeanUtils.createBeanList(Vocabulary.class, vocabularies, DtoConverters
+                    .getVocabularyConverter());
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

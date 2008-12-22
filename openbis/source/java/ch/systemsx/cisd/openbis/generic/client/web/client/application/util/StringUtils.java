@@ -23,6 +23,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
  */
 public final class StringUtils
 {
+    public final static String EMPTY = "";
+
     private StringUtils()
     {
         // Can not be instantiated
@@ -44,5 +46,30 @@ public final class StringUtils
     public final static String trimToNull(final String value)
     {
         return isBlank(value) ? null : value.trim();
+    }
+
+    /**
+     * Joins the elements of the provided array into a single <code>String</code> containing the
+     * provided list of elements.
+     */
+    public final static String join(final Object[] array, final String separator)
+    {
+        if (array == null)
+        {
+            return null;
+        }
+        final String sep = separator == null ? EMPTY : separator;
+        final StringBuilder builder = new StringBuilder();
+        boolean start = true;
+        for (final Object element : array)
+        {
+            if (start == false)
+            {
+                builder.append(sep);
+            }
+            builder.append(element);
+            start = false;
+        }
+        return builder.toString();
     }
 }

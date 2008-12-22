@@ -173,7 +173,6 @@ public interface ICommonClientService extends IClientService
      * <p>
      * Note that the vocabulary terms are included/loaded.
      * </p>
-     * @param withTerms TODO
      */
     public List<Vocabulary> listVocabularies(boolean withTerms) throws UserFailureException;
 

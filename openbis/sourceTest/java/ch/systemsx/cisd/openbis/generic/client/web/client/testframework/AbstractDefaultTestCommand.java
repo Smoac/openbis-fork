@@ -47,7 +47,7 @@ public abstract class AbstractDefaultTestCommand extends Assert implements ITest
      */
     public AbstractDefaultTestCommand(final Class<? extends AsyncCallback<?>> callbackClass)
     {
-        callbackClasses.add(callbackClass);
+        addCallbackClass(callbackClass);
     }
 
     /**
@@ -55,7 +55,7 @@ public abstract class AbstractDefaultTestCommand extends Assert implements ITest
      */
     public void addCallbackClass(final Class<? extends AsyncCallback<?>> callbackClass)
     {
-        this.callbackClasses.add(callbackClass);
+        callbackClasses.add(callbackClass);
     }
 
     public boolean validOnFailure(final List<AsyncCallback<Object>> callbackObjects,
