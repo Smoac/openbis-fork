@@ -17,11 +17,16 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.CheckPropertyTypeTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.FillPropertyTypeRegistrationForm;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 
 /**
  * A {@link AbstractGWTTestCase} extension to test <i>Property Type Registration</i>.
@@ -30,11 +35,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Abstract
  */
 public class PropertyTypeRegistrationTest extends AbstractGWTTestCase
 {
+    private static final String PROPERTY_TYPE_CODE = "NUMBER_OF_CELLS";
 
     private final static FillPropertyTypeRegistrationForm createFillPropertyTypeRegistrationForm()
     {
         final FillPropertyTypeRegistrationForm form =
-                new FillPropertyTypeRegistrationForm("NUMBER_OF_CELLS", "Number of cells",
+                new FillPropertyTypeRegistrationForm(PROPERTY_TYPE_CODE, "Number of cells",
                         "The number of cells", DataTypeCode.INTEGER);
         return form;
     }
@@ -45,6 +51,14 @@ public class PropertyTypeRegistrationTest extends AbstractGWTTestCase
         remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.PROPERTY_TYPES,
                 CategoriesBuilder.MENU_ELEMENTS.REGISTER));
         remoteConsole.prepare(createFillPropertyTypeRegistrationForm());
+
+        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.PROPERTY_TYPES,
+                CategoriesBuilder.MENU_ELEMENTS.LIST,
+                PropertyTypeRegistrationForm.PropertyTypeRegistrationCallback.class));
+        final CheckPropertyTypeTable table = new CheckPropertyTypeTable();
+        table.expectedRow(new Row().withCell(ModelDataPropertyNames.CODE,
+                PropertyType.USER_NAMESPACE_CODE_PREPEND + PROPERTY_TYPE_CODE));
+        remoteConsole.prepare(table.expectedSize(15));
 
         remoteConsole.finish(20000);
         client.onModuleLoad();
