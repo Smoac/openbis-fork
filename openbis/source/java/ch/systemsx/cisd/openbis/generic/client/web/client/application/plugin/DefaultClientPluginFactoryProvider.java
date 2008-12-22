@@ -17,9 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -34,8 +32,8 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Cli
  */
 public final class DefaultClientPluginFactoryProvider implements IClientPluginFactoryProvider
 {
-    private final Map<EntityKind, IClientPluginFactory> pluginFactoryByEntityKind =
-            new HashMap<EntityKind, IClientPluginFactory>();
+    private final Map<EntityKindAndTypeCode, IClientPluginFactory> pluginFactoryByEntityKindAndTypeCode =
+            new HashMap<EntityKindAndTypeCode, IClientPluginFactory>();
 
     private IClientPluginFactory genericPluginFactory;
 
@@ -60,21 +58,19 @@ public final class DefaultClientPluginFactoryProvider implements IClientPluginFa
         assert pluginFactory != null : "Unspecified client plugin factory.";
         for (final EntityKind entityKind : EntityKind.values())
         {
-            final IClientPluginFactory clientPluginFactory =
-                    pluginFactoryByEntityKind.get(entityKind);
-            if (clientPluginFactory != null)
+            for (final String entityType : pluginFactory.getEntityTypeCodes(entityKind))
             {
-                final Set<String> set =
-                        new HashSet<String>(clientPluginFactory.getEntityTypeCodes(entityKind));
-                set.retainAll(pluginFactory.getEntityTypeCodes(entityKind));
-                if (set.size() > 0)
+                final EntityKindAndTypeCode key = new EntityKindAndTypeCode(entityKind, entityType);
+                final IClientPluginFactory previousValue =
+                        pluginFactoryByEntityKindAndTypeCode.put(key, pluginFactory);
+                if (previousValue != null)
                 {
-                    throw new IllegalArgumentException("There is already a plugin factory ("
-                            + clientPluginFactory.getClass().getName()
-                            + ") registered for entity type code(s) '" + set + "'.");
+                    throw new IllegalArgumentException("There is already a client plugin factory '"
+                            + previousValue.getClass().getName() + "' registered for key '" + key
+                            + "'.");
+
                 }
             }
-            pluginFactoryByEntityKind.put(entityKind, pluginFactory);
         }
     }
 
@@ -88,12 +84,71 @@ public final class DefaultClientPluginFactoryProvider implements IClientPluginFa
         assert entityKind != null : "Unspecified entity kind.";
         assert entityType != null : "Unspecified entity type.";
 
-        final IClientPluginFactory pluginFactory = pluginFactoryByEntityKind.get(entityKind);
-        final Set<String> entityTypeCodes = pluginFactory.getEntityTypeCodes(entityKind);
-        if (entityTypeCodes.contains(entityType.getCode()))
+        final IClientPluginFactory pluginFactory =
+                pluginFactoryByEntityKindAndTypeCode.get(new EntityKindAndTypeCode(entityKind,
+                        entityType));
+        if (pluginFactory != null)
         {
             return pluginFactory;
         }
         return genericPluginFactory;
+    }
+
+    //
+    // Helper classes
+    //
+
+    private final static class EntityKindAndTypeCode
+    {
+        private final EntityKind entityKind;
+
+        private final String entityTypeCode;
+
+        EntityKindAndTypeCode(final EntityKind entityKind, final EntityType entityType)
+        {
+            this(entityKind, entityType.getCode());
+        }
+
+        EntityKindAndTypeCode(final EntityKind entityKind, final String entityTypeCode)
+        {
+            assert entityKind != null : "Unspecified entity kind.";
+            assert entityTypeCode != null : "Unspecified entity type code.";
+            this.entityKind = entityKind;
+            this.entityTypeCode = entityTypeCode;
+        }
+
+        //
+        // Object
+        //
+
+        @Override
+        public final boolean equals(final Object obj)
+        {
+            if (obj == this)
+            {
+                return true;
+            }
+            if (obj instanceof EntityKindAndTypeCode == false)
+            {
+                return false;
+            }
+            final EntityKindAndTypeCode that = (EntityKindAndTypeCode) obj;
+            return entityKind.equals(that.entityKind) && entityTypeCode.equals(that.entityTypeCode);
+        }
+
+        @Override
+        public final int hashCode()
+        {
+            int result = 17;
+            result = 37 * result + entityKind.hashCode();
+            result = 37 * result + entityTypeCode.hashCode();
+            return result;
+        }
+
+        @Override
+        public final String toString()
+        {
+            return "[entityKind=" + entityKind + ",entityTypeCode=" + entityTypeCode + "]";
+        }
     }
 }
