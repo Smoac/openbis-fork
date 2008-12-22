@@ -77,7 +77,7 @@ public final class WebClientFilesUpdater
 
     @Private
     static final String CLIENT_PLUGIN_PROVIDER_CLASS =
-            "ch.systemsx.cisd.openbis.generic.client.web.client.application.DefaultClientPluginFactoryProvider";
+            "ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.DefaultClientPluginFactoryProvider";
 
     @Private
     static final String OPENBIS_GWT_XML_FILE_NAME = "OpenBIS.gwt.xml";
