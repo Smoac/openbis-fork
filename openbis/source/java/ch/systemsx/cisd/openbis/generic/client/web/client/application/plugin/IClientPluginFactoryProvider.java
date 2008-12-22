@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityType;
 
 /**
  * A {@link IClientPluginFactory} provider.
@@ -25,9 +28,10 @@ public interface IClientPluginFactoryProvider
 {
 
     /**
-     * For given sample type code return corresponding {@link IClientPluginFactory}.
+     * For given <var>entityKind</var> returns corresponding {@link IClientPluginFactory}.
      * 
      * @return never <code>null</code> but could return the <i>generic</i> implementation.
      */
-    public IClientPluginFactory getClientPluginFactory(final String sampleTypeCode);
+    public <T extends EntityType> IClientPluginFactory getClientPluginFactory(
+            final EntityKind entityKind, final EntityType entityType);
 }

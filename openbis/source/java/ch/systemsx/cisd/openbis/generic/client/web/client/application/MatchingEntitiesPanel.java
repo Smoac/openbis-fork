@@ -166,18 +166,12 @@ final class MatchingEntitiesPanel extends ContentPanel implements Listener<TabPa
                             (MatchingEntityModel) be.grid.getStore().getAt(be.rowIndex);
                     final MatchingEntity matchingEntity =
                             (MatchingEntity) matchingEntityModel.get(ModelDataPropertyNames.OBJECT);
-                    final String identifier =
-                            matchingEntityModel.get(ModelDataPropertyNames.IDENTIFIER);
-                    final String typeCode = matchingEntity.getEntityType().getCode();
-                    if (matchingEntity.getEntityKind() == EntityKind.SAMPLE)
-                    {
-                        final ITabItem tabView =
-                                viewContext.getClientPluginFactoryProvider()
-                                        .getClientPluginFactory(typeCode)
-                                        .createViewClientForSampleType(typeCode)
-                                        .createSampleViewer(identifier);
-                        Dispatcher.get().dispatch(DispatcherHelper.createNaviEvent(tabView));
-                    }
+                    final EntityKind entityKind = matchingEntity.getEntityKind();
+                    final ITabItem tabView =
+                            viewContext.getClientPluginFactoryProvider().getClientPluginFactory(
+                                    entityKind, matchingEntity.getEntityType()).createClientPlugin(
+                                    entityKind).createEntityViewer(matchingEntity);
+                    Dispatcher.get().dispatch(DispatcherHelper.createNaviEvent(tabView));
                 }
             });
         GWTUtils.setAutoExpandOnLastVisibleColumn(grid);

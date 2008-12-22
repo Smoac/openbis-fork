@@ -48,7 +48,7 @@ public final class SampleTranslator
     {
         final Sample result = new Sample();
         result.setCode(samplePE.getCode());
-        result.setSampleIdentifier(samplePE.getSampleIdentifier().toString());
+        result.setIdentifier(samplePE.getSampleIdentifier().toString());
         if (withDetails)
         {
             result.setSampleType(SampleTypeTranslator.translate(samplePE.getSampleType()));

@@ -18,16 +18,17 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 
 /**
  * An <i>abstract</i> {@link IClientPluginFactory} implementation.
  * 
  * @author Christian Ribeaud
  */
-public abstract class AbstractClientPluginFactory<T extends IClientServiceAsync> implements
+public abstract class AbstractClientPluginFactory<S extends IClientServiceAsync> implements
         IClientPluginFactory
 {
-    private final IViewContext<T> viewContext;
+    private final IViewContext<S> viewContext;
 
     protected AbstractClientPluginFactory(
             final IViewContext<ICommonClientServiceAsync> originalViewContext)
@@ -35,10 +36,10 @@ public abstract class AbstractClientPluginFactory<T extends IClientServiceAsync>
         this.viewContext = createViewContext(originalViewContext);
     }
 
-    protected abstract IViewContext<T> createViewContext(
+    protected abstract IViewContext<S> createViewContext(
             IViewContext<ICommonClientServiceAsync> originalViewContext);
 
-    public final IViewContext<T> getViewContext()
+    public final IViewContext<S> getViewContext()
     {
         return viewContext;
     }

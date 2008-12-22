@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonView
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleTypeModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
 /**
@@ -64,14 +65,15 @@ public final class SampleRegistrationPanel extends LayoutContainer
                             final SampleTypeModel sampleTypeModel = se.getSelectedItem();
                             if (sampleTypeModel != null)
                             {
-                                final SampleType selectedType =
+                                final SampleType sampleType =
                                         sampleTypeModel.get(ModelDataPropertyNames.OBJECT);
                                 removeAll();
+                                final EntityKind entityKind = EntityKind.SAMPLE;
                                 add(toolBar);
                                 add(viewContext.getClientPluginFactoryProvider()
-                                        .getClientPluginFactory(selectedType.getCode())
-                                        .createViewClientForSampleType(selectedType.getCode())
-                                        .createRegistrationForSampleType(selectedType));
+                                        .getClientPluginFactory(entityKind, sampleType)
+                                        .createClientPlugin(entityKind)
+                                        .createRegistrationForEntityType(sampleType));
                                 layout();
                             }
                         }

@@ -134,7 +134,7 @@ public class ExperimentAttachmentsSection extends SectionPanel
                         final List<Attachment> allFiles)
                 {
 
-                    final String tabTitle = experiment.getExperimentIdentifier() + ">" + fileName;
+                    final String tabTitle = experiment.getIdentifier() + ">" + fileName;
                     Dispatcher.get().dispatch(
                             DispatcherHelper.createNaviEvent(new DefaultTabItem(tabTitle,
                                     createVersionsPanel(allFiles, fileName))));
@@ -147,7 +147,7 @@ public class ExperimentAttachmentsSection extends SectionPanel
                     return files;
                 }
             });
-        attachmentGrid.setId(ATTACHMENTS_ID_PREFIX + experiment.getExperimentIdentifier());
+        attachmentGrid.setId(ATTACHMENTS_ID_PREFIX + experiment.getIdentifier());
         return attachmentGrid;
     }
 
@@ -166,7 +166,7 @@ public class ExperimentAttachmentsSection extends SectionPanel
 
         ContentPanel panel = new ContentPanel();
         panel.setHeading("Versions of file '" + fileName + "' from experiment '"
-                + experiment.getExperimentIdentifier() + "'");
+                + experiment.getIdentifier() + "'");
         final ListStore<AttachmentVersionModel> attachmentStore =
                 new ListStore<AttachmentVersionModel>();
         attachmentStore.add(AttachmentVersionModel.convert(oldVersions));
@@ -195,7 +195,7 @@ public class ExperimentAttachmentsSection extends SectionPanel
                 }
             });
         panel.setId(GenericConstants.ID_PREFIX + "attachent-versions-"
-                + experiment.getExperimentIdentifier() + "_" + fileName);
+                + experiment.getIdentifier() + "_" + fileName);
         panel.add(attachmentGrid);
         return panel;
     }

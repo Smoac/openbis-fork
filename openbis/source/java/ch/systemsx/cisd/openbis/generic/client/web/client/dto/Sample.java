@@ -27,7 +27,7 @@ import ch.systemsx.cisd.common.annotation.CollectionMapping;
  * @author Izabela Adamczyk
  */
 public final class Sample extends CodeWithRegistration<Sample> implements IInvalidationProvider,
-        Comparable<Sample>
+        Comparable<Sample>, IIdentifierHolder
 {
     public static final Sample[] EMPTY_ARRAY = new Sample[0];
 
@@ -37,7 +37,7 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
 
     private DatabaseInstance databaseInstance;
 
-    private String sampleIdentifier;
+    private String identifier;
 
     private Sample container;
 
@@ -80,14 +80,9 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
         this.databaseInstance = databaseInstance;
     }
 
-    public String getSampleIdentifier()
+    public void setIdentifier(final String sampleIdentifer)
     {
-        return sampleIdentifier;
-    }
-
-    public void setSampleIdentifier(final String sampleIdentifer)
-    {
-        this.sampleIdentifier = sampleIdentifer;
+        this.identifier = sampleIdentifer;
     }
 
     public Sample getContainer()
@@ -121,11 +116,6 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
         this.properties = properties;
     }
 
-    public final Invalidation getInvalidation()
-    {
-        return invalidation;
-    }
-
     public final void setInvalidation(final Invalidation invalidation)
     {
         this.invalidation = invalidation;
@@ -142,12 +132,30 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
     }
 
     //
+    // IIdentifierHolder
+    //
+
+    public String getIdentifier()
+    {
+        return identifier;
+    }
+
+    //
+    // IInvalidationProvider
+    //
+
+    public final Invalidation getInvalidation()
+    {
+        return invalidation;
+    }
+
+    //
     // Comparable
     //
 
     @Override
     public final int compareTo(final Sample o)
     {
-        return getSampleIdentifier().compareTo(o.getSampleIdentifier());
+        return getIdentifier().compareTo(o.getIdentifier());
     }
 }

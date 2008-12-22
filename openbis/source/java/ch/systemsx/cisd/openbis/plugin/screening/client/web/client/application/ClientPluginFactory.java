@@ -23,14 +23,20 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractClientPluginFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.IClientPluginFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.IExperimentViewClientPlugin;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ISampleViewClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DummyComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ViewerTabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ClientPluginAdapter;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.SampleTypeCode;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
@@ -46,9 +52,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningCli
 public final class ClientPluginFactory extends
         AbstractClientPluginFactory<IScreeningClientServiceAsync>
 {
-    private ISampleViewClientPlugin sampleViewClientPlugin;
-
-    private IExperimentViewClientPlugin experimentViewClientPlugin;
 
     public ClientPluginFactory(final IViewContext<ICommonClientServiceAsync> originalViewContext)
     {
@@ -70,74 +73,72 @@ public final class ClientPluginFactory extends
     // IClientPluginFactory
     //
 
-    public final ISampleViewClientPlugin createViewClientForSampleType(final String sampleTypeCode)
+    public final Set<String> getEntityTypeCodes(final EntityKind entityKind)
     {
-        if (sampleViewClientPlugin == null)
+        if (entityKind == EntityKind.SAMPLE)
         {
-            sampleViewClientPlugin = new SampleViewClientPlugin();
+            return Collections.singleton(SampleTypeCode.MASTER_PLATE.getCode());
         }
-        return sampleViewClientPlugin;
+        return Collections.emptySet();
     }
 
-    public final Set<String> getSampleTypeCodes()
+    @SuppressWarnings("unchecked")
+    public <T extends EntityType, I extends IIdentifierHolder> IClientPlugin<T, I> createClientPlugin(
+            final EntityKind entityKind)
     {
-        return Collections.singleton(SampleTypeCode.MASTER_PLATE.getCode());
+        if (EntityKind.EXPERIMENT.equals(entityKind))
+        {
+            return (IClientPlugin<T, I>) new ExperimentClientPlugin();
+        }
+        if (EntityKind.SAMPLE.equals(entityKind))
+        {
+            return (IClientPlugin<T, I>) new SampleClientPlugin();
+        }
+        throw new UnsupportedOperationException("IClientPlugin for entity kind '" + entityKind
+                + "' not implemented yet.");
     }
 
     //
     // Helper classes
     //
 
-    private final class SampleViewClientPlugin implements ISampleViewClientPlugin
+    private final class SampleClientPlugin implements IClientPlugin<SampleType, Sample>
     {
         //
-        // ISampleViewClientPlugin
+        // IViewClientPlugin
         //
 
-        public final ITabItem createSampleViewer(final String sampleIdentifier)
+        public final ITabItem createEntityViewer(final Sample sample)
         {
+            final String sampleIdentifier = sample.getIdentifier();
             final ScreeningSampleViewer sampleViewer =
                     new ScreeningSampleViewer(getViewContext(), sampleIdentifier);
             return new ViewerTabItem(sampleIdentifier, sampleViewer);
         }
 
-        public final Widget createRegistrationForSampleType(final SampleType sampleTypeCode)
+        public final Widget createRegistrationForEntityType(final SampleType sampleTypeCode)
         {
             return new DummyComponent();
         }
 
-        public final Widget createBatchRegistrationForSampleType(SampleType sampleType)
+        public final Widget createBatchRegistrationForEntityType(final SampleType sampleType)
         {
             return new DummyComponent();
         }
     }
 
-    private final static class ExperimentViewClientPlugin implements IExperimentViewClientPlugin
+    private final static class ExperimentClientPlugin extends
+            ClientPluginAdapter<ExperimentType, Experiment>
     {
 
         //
-        // IExperimentViewClientPlugin
+        // IViewClientPlugin
         //
 
-        public final ITabItem createExperimentViewer(final String experimentIdentifier)
+        @Override
+        public final ITabItem createEntityViewer(final Experiment identifier)
         {
-            final DummyComponent experimentViewer = new DummyComponent();
-            return new DefaultTabItem(experimentIdentifier, experimentViewer);
+            return new DefaultTabItem(identifier.getIdentifier(), new DummyComponent());
         }
-    }
-
-    public IExperimentViewClientPlugin createViewClientForExperimentType(
-            final String experimentTypeCode)
-    {
-        if (experimentViewClientPlugin == null)
-        {
-            experimentViewClientPlugin = new ExperimentViewClientPlugin();
-        }
-        return experimentViewClientPlugin;
-    }
-
-    public Set<String> getExperimentTypeCodes()
-    {
-        return Collections.emptySet();
     }
 }

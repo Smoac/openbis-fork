@@ -27,6 +27,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
 /**
@@ -61,11 +62,11 @@ public final class SampleBatchRegistrationPanel extends LayoutContainer
                     if (sampleType != null)
                     {
                         removeAll();
+                        final EntityKind entityKind = EntityKind.SAMPLE;
                         add(toolBar);
                         add(viewContext.getClientPluginFactoryProvider().getClientPluginFactory(
-                                sampleType.getCode()).createViewClientForSampleType(
-                                sampleType.getCode()).createBatchRegistrationForSampleType(
-                                sampleType));
+                                entityKind, sampleType).createClientPlugin(entityKind)
+                                .createBatchRegistrationForEntityType(sampleType));
                         layout();
                     }
                 }

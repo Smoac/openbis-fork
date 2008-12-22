@@ -24,7 +24,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Christian Ribeaud
  */
-public final class MatchingEntity implements IsSerializable
+public final class MatchingEntity implements IsSerializable, IIdentifierHolder
 {
     private String identifier;
 
@@ -46,11 +46,6 @@ public final class MatchingEntity implements IsSerializable
     public final void setEntityKind(final EntityKind entityKind)
     {
         this.entityKind = entityKind;
-    }
-
-    public final String getIdentifier()
-    {
-        return identifier;
     }
 
     public final void setIdentifier(final String identifier)
@@ -96,6 +91,15 @@ public final class MatchingEntity implements IsSerializable
     public void setTextFragment(String textFragment)
     {
         this.textFragment = textFragment;
+    }
+
+    //
+    // IIdentifierHolder
+    //
+
+    public final String getIdentifier()
+    {
+        return identifier;
     }
 
     //

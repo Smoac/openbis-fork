@@ -56,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GxtTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.URLMethodWithParameters;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -192,13 +193,12 @@ public final class SampleBrowserGrid extends LayoutContainer
                 {
                     final SampleModel sampleModel =
                             (SampleModel) be.grid.getStore().getAt(be.rowIndex);
-                    Sample sample = sampleModel.getSample();
-                    final String sampleIdentifier = sample.getSampleIdentifier();
-                    final String typeCode = sample.getSampleType().getCode();
+                    final Sample sample = sampleModel.getSample();
+                    final EntityKind entityKind = EntityKind.SAMPLE;
                     final ITabItem tabView =
                             viewContext.getClientPluginFactoryProvider().getClientPluginFactory(
-                                    typeCode).createViewClientForSampleType(typeCode)
-                                    .createSampleViewer(sampleIdentifier);
+                                    entityKind, sample.getSampleType()).createClientPlugin(
+                                    entityKind).createEntityViewer(sample);
                     Dispatcher.get().dispatch(DispatcherHelper.createNaviEvent(tabView));
                 }
             });
@@ -220,11 +220,11 @@ public final class SampleBrowserGrid extends LayoutContainer
     }
 
     private static Map<String, IColumnDefinition<Sample>> asColumnIdMap(
-            List<IColumnDefinition<Sample>> defs)
+            final List<IColumnDefinition<Sample>> defs)
     {
-        Map<String, IColumnDefinition<Sample>> map =
+        final Map<String, IColumnDefinition<Sample>> map =
                 new HashMap<String, IColumnDefinition<Sample>>();
-        for (IColumnDefinition<Sample> def : defs)
+        for (final IColumnDefinition<Sample> def : defs)
         {
             map.put(def.getIdentifier(), def);
         }
@@ -301,15 +301,15 @@ public final class SampleBrowserGrid extends LayoutContainer
     }
 
     // for tests
-    final void export(AbstractAsyncCallback<String> callback)
+    final void export(final AbstractAsyncCallback<String> callback)
     {
         if (resultSetKey == null)
         {
             return;
         }
-        List<IColumnDefinition<Sample>> columns = getSelectedColumnDefs();
-        SortInfo sortInfo = criteria.getSortInfo();
-        TableExportCriteria<Sample> exportCriteria =
+        final List<IColumnDefinition<Sample>> columns = getSelectedColumnDefs();
+        final SortInfo sortInfo = criteria.getSortInfo();
+        final TableExportCriteria<Sample> exportCriteria =
                 new TableExportCriteria<Sample>(resultSetKey, sortInfo, columns);
         viewContext.getService().prepareExportSamples(exportCriteria, callback);
     }
@@ -332,20 +332,20 @@ public final class SampleBrowserGrid extends LayoutContainer
 
     private List<IColumnDefinition<Sample>> getSelectedColumnDefs()
     {
-        ColumnModel columnModel = grid.getColumnModel();
+        final ColumnModel columnModel = grid.getColumnModel();
         return getSelectedColumnDefs(getColumnDefs(), columnModel);
     }
 
     private static <T> List<IColumnDefinition<T>> getSelectedColumnDefs(
-            Map<String, IColumnDefinition<T>> columnsDef, ColumnModel columnModel)
+            final Map<String, IColumnDefinition<T>> columnsDef, final ColumnModel columnModel)
     {
-        List<IColumnDefinition<T>> selectedColumnDefs = new ArrayList<IColumnDefinition<T>>();
-        int columnCount = columnModel.getColumnCount();
+        final List<IColumnDefinition<T>> selectedColumnDefs = new ArrayList<IColumnDefinition<T>>();
+        final int columnCount = columnModel.getColumnCount();
         for (int i = 0; i < columnCount; i++)
         {
             if (columnModel.isHidden(i) == false)
             {
-                String columnId = columnModel.getColumnId(i);
+                final String columnId = columnModel.getColumnId(i);
                 selectedColumnDefs.add(columnsDef.get(columnId));
             }
         }
@@ -406,16 +406,17 @@ public final class SampleBrowserGrid extends LayoutContainer
 
     public final class ExportSamplesCallback extends AbstractAsyncCallback<String>
     {
-        private ExportSamplesCallback(IViewContext<ICommonClientServiceAsync> viewContext)
+        private ExportSamplesCallback(final IViewContext<ICommonClientServiceAsync> viewContext)
         {
             super(viewContext);
         }
 
         @Override
-        protected void process(String exportDataKey)
+        protected void process(final String exportDataKey)
         {
-            URLMethodWithParameters methodWithParameters =
-                    new URLMethodWithParameters(GenericConstants.FILE_EXPORTER_DOWNLOAD_SERVLET_NAME);
+            final URLMethodWithParameters methodWithParameters =
+                    new URLMethodWithParameters(
+                            GenericConstants.FILE_EXPORTER_DOWNLOAD_SERVLET_NAME);
             methodWithParameters.addParameter(GenericConstants.EXPORT_CRITERIA_KEY_PARAMETER,
                     exportDataKey);
             Window.open(methodWithParameters.toString(), "", null);

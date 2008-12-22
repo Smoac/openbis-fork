@@ -28,7 +28,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.DefaultClientPluginFactoryProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.DefaultClientPluginFactoryProvider;
 
 /**
  * Class which updates <code>OpenBIS.gwt.xml</code> and {@link DefaultClientPluginFactoryProvider}.

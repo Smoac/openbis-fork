@@ -73,7 +73,7 @@ public class ExperimentSamplesSection extends SectionPanel
                 createListLoader(createRpcProxyForSamples());
         final ListStore<SampleModel> sampleListStore = createListStore(sampleLoader);
         sampleGrid = new Grid<SampleModel>(sampleListStore, createColumnModel());
-        sampleGrid.setId(ID_PREFIX + experiment.getExperimentIdentifier());
+        sampleGrid.setId(ID_PREFIX + experiment.getIdentifier());
         sampleGrid.setLoadMask(true);
         setLayout(new RowLayout());
         add(sampleGrid, new RowData(-1, 200));
@@ -132,7 +132,7 @@ public class ExperimentSamplesSection extends SectionPanel
                         final AsyncCallback<BaseListLoadResult<SampleModel>> callback)
                 {
                     final ListSampleCriteria sampleCriteria = new ListSampleCriteria();
-                    sampleCriteria.setExperimentIdentifier(experiment.getExperimentIdentifier());
+                    sampleCriteria.setExperimentIdentifier(experiment.getIdentifier());
                     viewContext.getCommonViewContext().getService().listSamples(sampleCriteria,
                             new ListSamplesCallback(getGenericViewContext(), callback));
                 }

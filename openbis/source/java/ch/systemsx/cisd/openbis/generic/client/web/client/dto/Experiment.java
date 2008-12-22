@@ -25,13 +25,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
  * 
  * @author Tomasz Pylak
  */
-public class Experiment extends CodeWithRegistration<Experiment>
+public class Experiment extends CodeWithRegistration<Experiment> implements IIdentifierHolder
 {
     private Project project;
 
     private ExperimentType experimentType;
 
-    private String experimentIdentifier;
+    private String identifier;
 
     private List<ExperimentProperty> properties;
 
@@ -59,24 +59,9 @@ public class Experiment extends CodeWithRegistration<Experiment>
         this.experimentType = experimentType;
     }
 
-    public final String getExperimentIdentifier()
+    public final void setIdentifier(final String experimentIdentifier)
     {
-        return experimentIdentifier;
-    }
-
-    public final void setExperimentIdentifier(final String experimentIdentifier)
-    {
-        this.experimentIdentifier = experimentIdentifier;
-    }
-
-    //
-    // Comparable
-    //
-
-    @Override
-    public final int compareTo(final Experiment o)
-    {
-        return getExperimentIdentifier().compareTo(o.getExperimentIdentifier());
+        this.identifier = experimentIdentifier;
     }
 
     public List<ExperimentProperty> getProperties()
@@ -108,4 +93,24 @@ public class Experiment extends CodeWithRegistration<Experiment>
     {
         this.attachments = attachments;
     }
+
+    //
+    // IIdentifierHolder
+    //
+
+    public final String getIdentifier()
+    {
+        return identifier;
+    }
+
+    //
+    // Comparable
+    //
+
+    @Override
+    public final int compareTo(final Experiment o)
+    {
+        return getIdentifier().compareTo(o.getIdentifier());
+    }
+
 }

@@ -67,7 +67,7 @@ public class CommonSampleColDef extends AbstractSampleColDef
             case CODE:
                 return sample.getCode();
             case SAMPLE_IDENTIFIER:
-                return sample.getSampleIdentifier();
+                return sample.getIdentifier();
             case IS_INSTANCE_SAMPLE:
                 return fromBoolean(sample.getDatabaseInstance() != null);
             case REGISTRATOR:
@@ -81,7 +81,7 @@ public class CommonSampleColDef extends AbstractSampleColDef
             case EXPERIMENT_FOR_SAMPLE:
                 return exp == null ? null : exp.getCode();
             case EXPERIMENT_IDENTIFIER_FOR_SAMPLE:
-                return exp == null ? null : exp.getExperimentIdentifier();
+                return exp == null ? null : exp.getIdentifier();
             default:
                 throw new IllegalStateException("unhandled column " + this);
         }

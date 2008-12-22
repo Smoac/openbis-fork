@@ -22,12 +22,18 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractClientPluginFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.IClientPluginFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.IExperimentViewClientPlugin;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ISampleViewClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ViewerTabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ClientPluginAdapter;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentViewer;
@@ -43,10 +49,6 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sam
 public final class ClientPluginFactory extends
         AbstractClientPluginFactory<IGenericClientServiceAsync>
 {
-    private ISampleViewClientPlugin sampleViewClientPlugin;
-
-    private IExperimentViewClientPlugin experimentViewClientPlugin;
-
     public ClientPluginFactory(final IViewContext<ICommonClientServiceAsync> originalViewContext)
     {
         super(originalViewContext);
@@ -67,16 +69,23 @@ public final class ClientPluginFactory extends
     // IClientPluginFactory
     //
 
-    public final ISampleViewClientPlugin createViewClientForSampleType(final String sampleTypeCode)
+    @SuppressWarnings("unchecked")
+    public final <T extends EntityType, I extends IIdentifierHolder> IClientPlugin<T, I> createClientPlugin(
+            EntityKind entityKind)
     {
-        if (sampleViewClientPlugin == null)
+        if (EntityKind.EXPERIMENT.equals(entityKind))
         {
-            sampleViewClientPlugin = new SampleViewClientPlugin();
+            return (IClientPlugin<T, I>) new ExperimentClientPlugin();
         }
-        return sampleViewClientPlugin;
+        if (EntityKind.SAMPLE.equals(entityKind))
+        {
+            return (IClientPlugin<T, I>) new SampleClientPlugin();
+        }
+        throw new UnsupportedOperationException("IClientPlugin for entity kind '" + entityKind
+                + "' not implemented yet.");
     }
 
-    public final Set<String> getSampleTypeCodes()
+    public final Set<String> getEntityTypeCodes(EntityKind entityKind)
     {
         throw new UnsupportedOperationException(
                 "Generic plugin factory supports every sample type.");
@@ -86,56 +95,47 @@ public final class ClientPluginFactory extends
     // Helper classes
     //
 
-    private final class SampleViewClientPlugin implements ISampleViewClientPlugin
+    private final class SampleClientPlugin implements IClientPlugin<SampleType, Sample>
     {
 
         //
-        // ISampleViewClientPlugin
+        // IViewClientPlugin
         //
 
-        public final ITabItem createSampleViewer(final String sampleIdentifier)
+        public ITabItem createEntityViewer(final Sample sample)
         {
+            final String identifier = sample.getIdentifier();
             final GenericSampleViewer sampleViewer =
-                    new GenericSampleViewer(getViewContext(), sampleIdentifier);
-            return new ViewerTabItem(sampleIdentifier, sampleViewer);
+                    new GenericSampleViewer(getViewContext(), identifier);
+            return new ViewerTabItem(identifier, sampleViewer);
         }
 
-        public final Widget createRegistrationForSampleType(final SampleType sampleType)
+        public final Widget createRegistrationForEntityType(final SampleType sampleType)
         {
             return new GenericSampleRegistrationForm(getViewContext(), sampleType);
         }
 
-        public final Widget createBatchRegistrationForSampleType(final SampleType sampleType)
+        public final Widget createBatchRegistrationForEntityType(final SampleType sampleType)
         {
             return new GenericSampleBatchRegistrationForm(getViewContext(), sampleType);
         }
     }
 
-    private final class ExperimentViewClientPlugin implements IExperimentViewClientPlugin
+    private final class ExperimentClientPlugin extends
+            ClientPluginAdapter<ExperimentType, Experiment>
     {
 
-        public final ITabItem createExperimentViewer(final String experimentIdentifier)
+        //
+        // IViewClientPlugin
+        //
+
+        @Override
+        public final ITabItem createEntityViewer(final Experiment experiment)
         {
+            final String identifier = experiment.getIdentifier();
             final GenericExperimentViewer experimentViewer =
-                    new GenericExperimentViewer(getViewContext(), experimentIdentifier);
-            return new ViewerTabItem(experimentIdentifier, experimentViewer);
+                    new GenericExperimentViewer(getViewContext(), identifier);
+            return new ViewerTabItem(identifier, experimentViewer);
         }
-
-    }
-
-    public IExperimentViewClientPlugin createViewClientForExperimentType(
-            final String experimentTypeCode)
-    {
-        if (experimentViewClientPlugin == null)
-        {
-            experimentViewClientPlugin = new ExperimentViewClientPlugin();
-        }
-        return experimentViewClientPlugin;
-    }
-
-    public Set<String> getExperimentTypeCodes()
-    {
-        throw new UnsupportedOperationException(
-                "Generic plugin factory supports every experiment type.");
     }
 }

@@ -56,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Invalid
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.PagingToolBarWithoutRefresh;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GxtTranslator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
@@ -169,16 +170,13 @@ public final class ExperimentBrowserGrid extends LayoutContainer
                 {
                     final ExperimentModel experimentModel =
                             (ExperimentModel) be.grid.getStore().getAt(be.rowIndex);
-                    final ExperimentType experimentType =
-                            (ExperimentType) experimentModel
-                                    .get(ModelDataPropertyNames.EXPERIMENT_TYPE);
-                    final String experimentIdentifier =
-                            experimentModel.get(ModelDataPropertyNames.EXPERIMENT_IDENTIFIER);
-                    final String code = experimentType.getCode();
+                    final Experiment experiment =
+                            experimentModel.get(ModelDataPropertyNames.OBJECT);
+                    final EntityKind entityKind = EntityKind.EXPERIMENT;
                     final ITabItem tabView =
                             viewContext.getClientPluginFactoryProvider().getClientPluginFactory(
-                                    code).createViewClientForExperimentType(code)
-                                    .createExperimentViewer(experimentIdentifier);
+                                    entityKind, experiment.getExperimentType()).createClientPlugin(
+                                    entityKind).createEntityViewer(experiment);
                     Dispatcher.get().dispatch(DispatcherHelper.createNaviEvent(tabView));
                 }
             });

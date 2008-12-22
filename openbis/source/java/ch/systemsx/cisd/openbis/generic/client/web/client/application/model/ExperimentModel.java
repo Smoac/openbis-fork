@@ -49,7 +49,7 @@ public final class ExperimentModel extends BaseModelData
         set(ModelDataPropertyNames.EXPERIMENT_TYPE_CODE_FOR_EXPERIMENT, experiment
                 .getExperimentType().getCode());
         set(ModelDataPropertyNames.EXPERIMENT_TYPE, experiment.getExperimentType());
-        set(ModelDataPropertyNames.EXPERIMENT_IDENTIFIER, experiment.getExperimentIdentifier());
+        set(ModelDataPropertyNames.EXPERIMENT_IDENTIFIER, experiment.getIdentifier());
         set(ModelDataPropertyNames.GROUP_FOR_EXPERIMENT, experiment.getProject().getGroup()
                 .getCode());
         set(ModelDataPropertyNames.PROJECT, experiment.getProject().getCode());
