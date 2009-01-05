@@ -93,7 +93,7 @@ var common = {
   
   sample: "Sample",
   sample_type: "Sample Type",
-  database_instance: "Instance",
+  database_instance: "Database Instance",
   sample_identifier: "Identifier",
   is_instance_sample: "Shared?",
   is_invalid: "Invalid?",

@@ -54,6 +54,22 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 public class RolesView extends ContentPanel
 {
 
+    private static final String ROLE_LIST = "Role List";
+
+    private static final String ADD_ROLE = "Add role";
+
+    private static final String REMOVE_ROLE = "Remove role";
+
+    private static final String FILTER = "Filter";
+
+    private static final String PERSON = "Person";
+
+    private static final String GROUP = "Group";
+
+    private static final String DATABASE_INSTANCE = "Database Instance";
+
+    private static final String ROLE = "Role";
+
     public static final String ID = GenericConstants.ID_PREFIX + "roles-view";
 
     public static final String ADD_BUTTON_ID = ID + "_add-button";
@@ -87,25 +103,25 @@ public class RolesView extends ContentPanel
 
         final ColumnConfig userIdColumnConfig = new ColumnConfig();
         userIdColumnConfig.setId(ModelDataPropertyNames.PERSON);
-        userIdColumnConfig.setHeader("Person");
+        userIdColumnConfig.setHeader(PERSON);
         userIdColumnConfig.setWidth(ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
         configs.add(userIdColumnConfig);
 
         final ColumnConfig groupColumnConfig = new ColumnConfig();
         groupColumnConfig.setId(ModelDataPropertyNames.GROUP);
-        groupColumnConfig.setHeader("Group");
+        groupColumnConfig.setHeader(GROUP);
         groupColumnConfig.setWidth(ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
         configs.add(groupColumnConfig);
 
         final ColumnConfig instanceColumnConfig = new ColumnConfig();
         instanceColumnConfig.setId(ModelDataPropertyNames.DATABASE_INSTANCE);
-        instanceColumnConfig.setHeader("Database Instance");
+        instanceColumnConfig.setHeader(DATABASE_INSTANCE);
         instanceColumnConfig.setWidth(ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
         configs.add(instanceColumnConfig);
 
         final ColumnConfig roleColumnConfig = new ColumnConfig();
         roleColumnConfig.setId(ModelDataPropertyNames.ROLE);
-        roleColumnConfig.setHeader("Role");
+        roleColumnConfig.setHeader(ROLE);
         roleColumnConfig.setWidth(ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
         configs.add(roleColumnConfig);
 
@@ -116,7 +132,7 @@ public class RolesView extends ContentPanel
 
         final ContentPanel cp = new ContentPanel();
         cp.setBodyBorder(false);
-        cp.setHeading("Role list");
+        cp.setHeading(ROLE_LIST);
         cp.setButtonAlign(HorizontalAlignment.CENTER);
         final RolesView roleList = this;
 
@@ -131,7 +147,7 @@ public class RolesView extends ContentPanel
 
         cp.add(grid);
 
-        final Button addRoleButton = new Button("Add role", new SelectionListener<ComponentEvent>()
+        final Button addRoleButton = new Button(ADD_ROLE, new SelectionListener<ComponentEvent>()
             {
                 //
                 // SelectionListener
@@ -146,7 +162,7 @@ public class RolesView extends ContentPanel
         addRoleButton.setId(ADD_BUTTON_ID);
 
         final Button removeRoleButton =
-                new Button("Remove role", new SelectionListener<ComponentEvent>()
+                new Button(REMOVE_ROLE, new SelectionListener<ComponentEvent>()
                     {
                         //
                         // ComponentEvent
@@ -187,15 +203,15 @@ public class RolesView extends ContentPanel
                     });
 
         final ToolBar toolBar = new ToolBar();
-        toolBar.add(new LabelToolItem("Filter:"));
+        toolBar.add(new LabelToolItem(FILTER + ":"));
         toolBar.add(new AdapterToolItem(new ColumnFilter<RoleModel>(store,
-                ModelDataPropertyNames.PERSON, "person")));
+                ModelDataPropertyNames.PERSON, PERSON)));
         toolBar.add(new AdapterToolItem(new ColumnFilter<RoleModel>(store,
-                ModelDataPropertyNames.GROUP, "group")));
+                ModelDataPropertyNames.GROUP, GROUP)));
         toolBar.add(new AdapterToolItem(new ColumnFilter<RoleModel>(store,
-                ModelDataPropertyNames.DATABASE_INSTANCE, "instance")));
+                ModelDataPropertyNames.DATABASE_INSTANCE, DATABASE_INSTANCE)));
         toolBar.add(new AdapterToolItem(new ColumnFilter<RoleModel>(store,
-                ModelDataPropertyNames.ROLE, "role")));
+                ModelDataPropertyNames.ROLE, ROLE)));
         toolBar.add(new SeparatorToolItem());
         toolBar.add(new AdapterToolItem(addRoleButton));
         toolBar.add(new SeparatorToolItem());
