@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -276,11 +278,19 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
             properties.put(messageProvider.getMessage(Dict.GENERATED_FROM, i + 1), generatedFrom);
             generatedFrom = generatedFrom.getGeneratedFrom();
         }
-        for (final SampleProperty property : sample.getProperties())
+        final List<SampleProperty> sampleProperties = sample.getProperties();
+        Collections.sort(sampleProperties, new Comparator<SampleProperty>()
+            {
+                public final int compare(final SampleProperty s1, final SampleProperty s2)
+                {
+                    return s1.getEntityTypePropertyType().getPropertyType().getLabel().compareTo(
+                            s2.getEntityTypePropertyType().getPropertyType().getLabel());
+                }
+            });
+        for (final SampleProperty property : sampleProperties)
         {
-            final String simpleCode =
-                    property.getEntityTypePropertyType().getPropertyType().getLabel();
-            properties.put(simpleCode, property);
+            final String label = property.getEntityTypePropertyType().getPropertyType().getLabel();
+            properties.put(label, property);
         }
         return properties;
     }

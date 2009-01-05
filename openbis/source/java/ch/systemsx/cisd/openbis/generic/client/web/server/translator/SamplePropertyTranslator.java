@@ -48,14 +48,14 @@ public final class SamplePropertyTranslator
 
     }
 
-    public final static List<SampleProperty> translate(final Set<SamplePropertyPE> list)
+    public final static List<SampleProperty> translate(final Set<SamplePropertyPE> set)
     {
-        if (list == null)
+        if (set == null)
         {
             return null;
         }
         final List<SampleProperty> result = new ArrayList<SampleProperty>();
-        for (final SamplePropertyPE samplePropertyPE : list)
+        for (final SamplePropertyPE samplePropertyPE : set)
         {
             result.add(translate(samplePropertyPE));
         }
