@@ -294,7 +294,7 @@ public class DefaultSessionManagerTest
         sessionManager.closeSession(sessionToken);
         try
         {
-            sessionManager.getSession(user);
+            sessionManager.getSession(sessionToken);
             fail("UserFailureException expected because session token no longer valid.");
         } catch (final UserFailureException ex)
         {
