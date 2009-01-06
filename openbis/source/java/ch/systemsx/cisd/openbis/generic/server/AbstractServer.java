@@ -27,6 +27,7 @@ import org.springframework.beans.factory.FactoryBean;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -174,7 +175,13 @@ public abstract class AbstractServer<T extends IServer> implements IServer,
 
     public final void logout(final String sessionToken) throws UserFailureException
     {
-        sessionManager.closeSession(sessionToken);
+        try
+        {
+            sessionManager.closeSession(sessionToken);
+        } catch (InvalidSessionException e)
+        {
+            // ignore the situation when session is not available
+        }
     }
 
     public final Session tryToAuthenticate(final String user, final String password)

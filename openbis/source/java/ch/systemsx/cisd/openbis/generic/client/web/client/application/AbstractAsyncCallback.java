@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import com.extjs.gxt.ui.client.event.WindowEvent;
+import com.extjs.gxt.ui.client.event.WindowListener;
+import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.InvocationException;
@@ -167,13 +170,35 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
                 msg = message;
             }
         }
-        callbackListener.onFailureOf(this, msg, caught);
-        final IPageController pageController = viewContext.getPageController();
         if (caught instanceof InvalidSessionException)
         {
-            pageController.reload(true);
+            showSessionTerminated(msg);
+        } else
+        {
+            callbackListener.onFailureOf(this, msg, caught);
         }
         finishOnFailure(caught);
+    }
+
+    private void showSessionTerminated(String msg)
+    {
+        Dialog dialog = new Dialog();
+        dialog.setTitle(viewContext.getMessage(Dict.MESSAGEBOX_WARNING));
+
+        dialog.addText(msg);
+        dialog.setHideOnButtonClick(false);
+        dialog.setModal(true);
+        dialog.setHideOnButtonClick(true);
+        dialog.show();
+        dialog.addWindowListener(new WindowListener()
+            {
+                @Override
+                public void windowHide(WindowEvent we)
+                {
+                    final IPageController pageController = viewContext.getPageController();
+                    pageController.reload(true);
+                }
+            });
     }
 
     public final void onSuccess(final T result)
