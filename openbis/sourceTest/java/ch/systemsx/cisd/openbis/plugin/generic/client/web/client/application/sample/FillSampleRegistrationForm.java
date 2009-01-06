@@ -21,11 +21,13 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ControlledVocabullaryField.VocabularyList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
@@ -109,8 +111,17 @@ public final class FillSampleRegistrationForm extends AbstractDefaultTestCommand
         for (final Property property : properties)
         {
             final Widget widget = GWTTestUtil.getWidgetWithID(property.getPropertyFieldId());
-            assertTrue(widget instanceof Field);
-            ((Field<?>) widget).setRawValue(property.getPropertyFieldValue());
+            if (widget instanceof Field)
+            {
+                ((Field<?>) widget).setRawValue(property.getPropertyFieldValue());
+            } else if (widget instanceof VocabularyList)
+            {
+                ListBox list = (VocabularyList) widget;
+                GWTUtils.setSelectedItem(list, property.getPropertyFieldValue());
+            } else
+            {
+                throw new IllegalStateException("Wrong widget type");
+            }
         }
         GWTTestUtil.clickButtonWithID(GenericSampleRegistrationForm.ID_PREFIX
                 + AbstractRegistrationForm.SAVE_BUTTON);

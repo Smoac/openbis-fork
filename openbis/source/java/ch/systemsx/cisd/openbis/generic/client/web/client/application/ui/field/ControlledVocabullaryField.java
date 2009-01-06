@@ -18,7 +18,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.widget.form.AdapterField;
+import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.ListBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -33,30 +35,73 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTerm;
 public final class ControlledVocabullaryField extends AdapterField
 {
 
+    private final boolean mandatory;
+
     public ControlledVocabullaryField(final String labelField, final boolean mandatory,
             final List<VocabularyTerm> terms)
     {
-        super(createListBox(terms, mandatory));
+        super(new VocabularyList(terms, mandatory));
+        this.mandatory = mandatory;
         setFieldLabel(labelField);
         if (mandatory)
         {
             setLabelSeparator(GenericConstants.MANDATORY_LABEL_SEPARATOR);
+            ((VocabularyList) getWidget()).setParent(this);
         }
     }
 
-    private static final ListBox createListBox(final List<VocabularyTerm> terms,
-            final boolean mandatory)
+    public static class VocabularyList extends ListBox
     {
-        final ListBox box = new ListBox();
-        if (mandatory == false)
+        private AdapterField parent;
+
+        private final boolean validateOnBlurOrChange;
+
+        public VocabularyList(final List<VocabularyTerm> terms, final boolean validateOnBlurOrChange)
         {
-            box.addItem(GWTUtils.NONE_LIST_ITEM);
+            this.validateOnBlurOrChange = validateOnBlurOrChange;
+            addItem(GWTUtils.NONE_LIST_ITEM);
+            for (final VocabularyTerm term : terms)
+            {
+                addItem(term.getCode());
+            }
+            if (validateOnBlurOrChange)
+            {
+                sinkEvents(Event.ONBLUR);
+                sinkEvents(Event.ONCHANGE);
+            }
         }
-        for (final VocabularyTerm term : terms)
+
+        void setParent(AdapterField parent)
         {
-            box.addItem(term.getCode());
+            this.parent = parent;
         }
-        return box;
+
+        @Override
+        public void onBrowserEvent(Event event)
+        {
+            if (event.getTypeInt() == Event.ONBLUR || event.getTypeInt() == Event.ONCHANGE)
+            {
+                if (parent != null && validateOnBlurOrChange)
+                {
+                    parent.validate();
+                }
+            } else
+            {
+                super.onBrowserEvent(event);
+            }
+        }
+    }
+
+    @Override
+    protected boolean validateValue(String val)
+    {
+        if (mandatory && getValue() == null)
+        {
+            forceInvalid(GXT.MESSAGES.textField_blankText());
+            return false;
+        }
+        clearInvalid();
+        return true;
     }
 
     //
