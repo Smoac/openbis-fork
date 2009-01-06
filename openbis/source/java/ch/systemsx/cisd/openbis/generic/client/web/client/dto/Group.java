@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
  */
 public final class Group extends CodeWithRegistration<Group>
 {
+
     private String description;
 
     private Person leader;
@@ -96,4 +97,5 @@ public final class Group extends CodeWithRegistration<Group>
     {
         this.identifier = identifier;
     }
+
 }

@@ -17,14 +17,11 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample;
 
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserToolbar;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
@@ -38,17 +35,10 @@ public class ListSamples extends AbstractDefaultTestCommand
 {
     private final String sampleTypeNameOrNull;
 
-    private final boolean includeShared;
-
-    private final boolean includeGroup;
-
     private final String groupNameOrNull;
 
-    public ListSamples(final boolean includeShared, final boolean includeGroup,
-            final String groupNameOrNull, final String sampleTypeNameOrNull)
+    public ListSamples(final String groupNameOrNull, final String sampleTypeNameOrNull)
     {
-        this.includeShared = includeShared;
-        this.includeGroup = includeGroup;
         this.groupNameOrNull = groupNameOrNull;
         this.sampleTypeNameOrNull = sampleTypeNameOrNull;
         addCallbackClass(GroupSelectionWidget.ListGroupsCallback.class);
@@ -62,27 +52,16 @@ public class ListSamples extends AbstractDefaultTestCommand
     public void execute()
     {
         final GroupSelectionWidget groupSelector =
-                (GroupSelectionWidget) GWTTestUtil.getWidgetWithID(GroupSelectionWidget.ID);
+                (GroupSelectionWidget) GWTTestUtil.getWidgetWithID(GroupSelectionWidget.ID
+                        + SampleBrowserToolbar.ID);
 
         final ComboBox<SampleTypeModel> sampleTypeSelector =
                 (SampleTypeSelectionWidget) GWTTestUtil
                         .getWidgetWithID(SampleTypeSelectionWidget.ID + SampleBrowserToolbar.ID);
 
-        final CheckBox includeGroupCheckbox =
-                (CheckBox) GWTTestUtil
-                        .getWidgetWithID(SampleBrowserToolbar.INCLUDE_GROUP_CHECKBOX_ID);
-        final CheckBox includeSharedCheckbox =
-                (CheckBox) GWTTestUtil
-                        .getWidgetWithID(SampleBrowserToolbar.INCLUDE_SHARED_CHECKBOX_ID);
-
         GWTUtils.setSelectedItem(sampleTypeSelector, ModelDataPropertyNames.CODE,
                 sampleTypeNameOrNull);
-        includeSharedCheckbox.setValue(includeShared);
-        includeGroupCheckbox.setValue(includeGroup);
-        if (includeGroup)
-        {
-            GWTUtils.setSelectedItem(groupSelector, ModelDataPropertyNames.CODE, groupNameOrNull);
-        }
+        GWTUtils.setSelectedItem(groupSelector, ModelDataPropertyNames.CODE, groupNameOrNull);
 
         final Button refresh =
                 (Button) GWTTestUtil.getWidgetWithID(SampleBrowserToolbar.REFRESH_BUTTON_ID);

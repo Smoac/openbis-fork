@@ -17,9 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample;
 
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.CheckBox;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ParentColumnsConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.PropertyColumnsConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
@@ -35,13 +33,7 @@ final class ToolbarController
 {
     private final SampleTypeSelectionWidget sampleTypeSelectionWidget;
 
-    private final GroupSelectionWidget groupSelectionWidget;
-
-    private final CheckBox instanceCheckbox;
-
     private final Button submitButton;
-
-    private final CheckBox groupCheckbox;
 
     private final ParentColumnsConfig parentColumns;
 
@@ -50,14 +42,10 @@ final class ToolbarController
     private final Button exportButton;
 
     ToolbarController(final SampleTypeSelectionWidget sampleTypeSelectionWidget,
-            final GroupSelectionWidget groupSelectionWidget, final CheckBox instanceCheckbox,
-            final CheckBox groupCheckbox, final Button submitButton, final Button exportButton,
+            final Button submitButton, final Button exportButton,
             final ParentColumnsConfig parentColumns, final PropertyColumnsConfig propertyColumns)
     {
         this.sampleTypeSelectionWidget = sampleTypeSelectionWidget;
-        this.groupSelectionWidget = groupSelectionWidget;
-        this.instanceCheckbox = instanceCheckbox;
-        this.groupCheckbox = groupCheckbox;
         this.submitButton = submitButton;
         this.exportButton = exportButton;
         this.parentColumns = parentColumns;
@@ -70,11 +58,8 @@ final class ToolbarController
     final void refreshSubmitButtons(final SampleType sampleTypeOrNull, final Group groupOrNull)
     {
         final boolean sampleTypeSelected = sampleTypeOrNull != null;
-        final boolean showGroupSamples = groupCheckbox.getValue();
         final boolean groupChosen = groupOrNull != null;
-        final boolean showInstanceSamples = instanceCheckbox.getValue();
-        final boolean enable =
-                sampleTypeSelected && (showGroupSamples && groupChosen || showInstanceSamples);
+        final boolean enable = sampleTypeSelected && groupChosen;
         submitButton.setEnabled(enable);
         if (enable)
         {
@@ -97,11 +82,6 @@ final class ToolbarController
         exportButton.setTitle("Refresh the data before exporting them.");
     }
 
-    final void showOrHideGroupList()
-    {
-        groupSelectionWidget.setVisible(groupCheckbox.getValue());
-    }
-
     final void redefineColumns()
     {
         final SampleType type = sampleTypeSelectionWidget.tryGetSelectedSampleType();
@@ -110,11 +90,4 @@ final class ToolbarController
         parentColumns.define(type);
     }
 
-    final void refreshGroupCheckbox()
-    {
-        final boolean atLeastOneGroupExists = groupSelectionWidget.getStore().getCount() > 0;
-        groupCheckbox.setEnabled(atLeastOneGroupExists);
-        groupCheckbox.setValue(atLeastOneGroupExists);
-        instanceCheckbox.setValue(atLeastOneGroupExists == false);
-    }
 }

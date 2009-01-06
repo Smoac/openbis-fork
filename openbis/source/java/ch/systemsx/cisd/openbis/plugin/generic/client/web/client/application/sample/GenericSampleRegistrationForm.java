@@ -19,10 +19,6 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sa
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.Events;
-import com.extjs.gxt.ui.client.event.FieldEvent;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
@@ -39,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSe
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.PropertyFieldFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
@@ -54,17 +51,17 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  */
 public final class GenericSampleRegistrationForm extends AbstractRegistrationForm
 {
-    private static final String PREFIX = "generic-sample-registration_";
+    static final String PREFIX = "generic-sample-registration_";
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
     public static final String CODE_FIELD_ID = ID_PREFIX + "code";
 
-    public static final String SHARED_CHECKBOX_ID = ID_PREFIX + "shared";
-
     public static final String CONTAINER_FIELD_ID = ID_PREFIX + "container";
 
     public static final String PARENT_FIELD_ID = ID_PREFIX + "parent";
+
+    public static final String GROUP_ID_SUFFIX = ID_PREFIX + "group";
 
     private static final String ETPT = "PROPERTY_TYPE";
 
@@ -84,8 +81,6 @@ public final class GenericSampleRegistrationForm extends AbstractRegistrationFor
 
     private TextField<String> codeField;
 
-    private CheckBox sharedCheckbox;
-
     private MultiField<Field<?>> groupMultiField;
 
     public GenericSampleRegistrationForm(
@@ -100,29 +95,11 @@ public final class GenericSampleRegistrationForm extends AbstractRegistrationFor
     {
         codeField = new CodeField(viewContext, viewContext.getMessage(Dict.CODE));
         codeField.setId(CODE_FIELD_ID);
-        groupSelectionWidget = new GroupSelectionWidget(viewContext.getCommonViewContext());
+        groupSelectionWidget = new GroupSelectionWidget(viewContext.getCommonViewContext(), PREFIX);
         groupSelectionWidget.setEnabled(SELECT_GROUP_BY_DEFAULT);
 
-        sharedCheckbox = new CheckBox();
-        sharedCheckbox.setId(SHARED_CHECKBOX_ID);
-        sharedCheckbox.setBoxLabel("Shared");
-        sharedCheckbox.setValue(SELECT_GROUP_BY_DEFAULT == false);
-        sharedCheckbox.addListener(Events.Change, new Listener<FieldEvent>()
-            {
-                //
-                // Listener
-                //
-
-                public final void handleEvent(final FieldEvent be)
-                {
-                    groupSelectionWidget
-                            .setEnabled(sharedCheckbox.getValue().booleanValue() == false);
-                }
-            });
-
-        groupMultiField = new MultiField<Field<?>>();
+        groupMultiField = new MultiField<Field<?>>();// FIXME: remove multi field
         groupMultiField.setFieldLabel(viewContext.getMessage(Dict.GROUP));
-        groupMultiField.add(sharedCheckbox);
         groupMultiField.add(groupSelectionWidget);
         groupMultiField.setLabelSeparator(GenericConstants.MANDATORY_LABEL_SEPARATOR);
         groupMultiField.setValidator(new Validator<Field<?>, MultiField<Field<?>>>()
@@ -133,10 +110,9 @@ public final class GenericSampleRegistrationForm extends AbstractRegistrationFor
 
                 public final String validate(final MultiField<Field<?>> field, final String value)
                 {
-                    if (sharedCheckbox.getValue() == false
-                            && groupSelectionWidget.tryGetSelectedGroup() == null)
+                    if (groupSelectionWidget.tryGetSelectedGroup() == null)
                     {
-                        return "Group must be chosen or shared selected";
+                        return "Group must be chosen";
                     }
                     return null;
                 }
@@ -158,8 +134,8 @@ public final class GenericSampleRegistrationForm extends AbstractRegistrationFor
 
     private final String createSampleIdentifier()
     {
-        final boolean shared = sharedCheckbox.getValue();
         final Group group = groupSelectionWidget.tryGetSelectedGroup();
+        final boolean shared = group.equals(GWTUtils.SHARED_GROUP);
         final String code = codeField.getValue();
         final StringBuilder builder = new StringBuilder("/");
         if (shared == false)
@@ -268,9 +244,10 @@ public final class GenericSampleRegistrationForm extends AbstractRegistrationFor
         @Override
         protected final void process(final Void result)
         {
+            final Group selectedGroup = groupSelectionWidget.tryGetSelectedGroup();
+            boolean shared = selectedGroup.equals(GWTUtils.SHARED_GROUP);
             final String message =
-                    createSuccessfullRegistrationInfo(sharedCheckbox.getValue(), codeField
-                            .getValue(), groupSelectionWidget.tryGetSelectedGroup());
+                    createSuccessfullRegistrationInfo(shared, codeField.getValue(), selectedGroup);
             infoBox.displayInfo(message);
             formPanel.reset();
         }

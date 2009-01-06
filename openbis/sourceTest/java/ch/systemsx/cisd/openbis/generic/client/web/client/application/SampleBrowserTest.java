@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ExportSamplesTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ListSamples;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleRow;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 
 /**
@@ -36,15 +37,13 @@ public class SampleBrowserTest extends AbstractGWTTestCase
     public final void testListMasterPlates()
     {
         loginAndGotoListSamplesTab();
-        remoteConsole.prepare(new ListSamples(true, true, "CISD", "MASTER_PLATE"));
+        remoteConsole.prepare(new ListSamples("CISD", "MASTER_PLATE"));
         CheckSampleTable table = new CheckSampleTable();
         table.expectedRow(new SampleRow("MP001-1").identifier("CISD", "CISD").invalid()
                 .noExperiment().property("PLATE_GEOMETRY", "384_WELLS_16X24"));
         table.expectedRow(new SampleRow("MP002-1").identifier("CISD", "CISD").valid()
                 .noExperiment().property("PLATE_GEOMETRY", "384_WELLS_16X24"));
-        table.expectedRow(new SampleRow("MP").identifier("CISD").valid().noExperiment().property(
-                "PLATE_GEOMETRY", "384_WELLS_16X24"));
-        remoteConsole.prepare(table.expectedSize(6));
+        remoteConsole.prepare(table.expectedSize(5));
 
         startAndWait();
     }
@@ -52,12 +51,12 @@ public class SampleBrowserTest extends AbstractGWTTestCase
     public final void testExportMasterPlates()
     {
         loginAndGotoListSamplesTab();
-        remoteConsole.prepare(new ListSamples(true, true, "CISD", "MASTER_PLATE"));
+        remoteConsole.prepare(new ListSamples(GWTUtils.SHARED_ITEM_CODE, "MASTER_PLATE"));
         ExportSamplesTestCommand exportCommand = new ExportSamplesTestCommand(client);
         remoteConsole.prepare(exportCommand);
         String header = "Group\tCode\tProject\tExperiment\tPlate Geometry";
         String firstLine = "\tMP\t\t\t384_WELLS_16X24";
-        remoteConsole.prepare(exportCommand.createCheckExportCommand(header, firstLine, 7));
+        remoteConsole.prepare(exportCommand.createCheckExportCommand(header, firstLine, 2));
 
         startAndWait();
     }
@@ -65,7 +64,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
     public final void testListOnlySharedMasterPlates()
     {
         loginAndGotoListSamplesTab();
-        remoteConsole.prepare(new ListSamples(true, false, null, "MASTER_PLATE"));
+        remoteConsole.prepare(new ListSamples(GWTUtils.SHARED_ITEM_CODE, "MASTER_PLATE"));
         CheckSampleTable table = new CheckSampleTable();
         SampleRow expectedRow =
                 new SampleRow("MP").identifier("CISD").valid().noExperiment().property(
@@ -79,7 +78,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
     public final void testExportCellPlates()
     {
         loginAndGotoListSamplesTab();
-        remoteConsole.prepare(new ListSamples(true, true, "CISD", "CELL_PLATE"));
+        remoteConsole.prepare(new ListSamples("CISD", "CELL_PLATE"));
         ExportSamplesTestCommand exportCommand = new ExportSamplesTestCommand(client);
         remoteConsole.prepare(exportCommand);
         String header = "Group\tCode\tProject\tExperiment\tParent 1\tParent 2";
@@ -92,7 +91,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
     public final void testListCellPlates()
     {
         loginAndGotoListSamplesTab();
-        remoteConsole.prepare(new ListSamples(true, true, "CISD", "CELL_PLATE"));
+        remoteConsole.prepare(new ListSamples("CISD", "CELL_PLATE"));
         CheckSampleTable table = new CheckSampleTable();
         table.expectedRow(new SampleRow("3VCP1").identifier("CISD", "CISD").invalid().experiment(
                 "NEMO", "EXP1").derivedFromAncestor("3V-123", 1).derivedFromAncestor("MP001-1", 2));

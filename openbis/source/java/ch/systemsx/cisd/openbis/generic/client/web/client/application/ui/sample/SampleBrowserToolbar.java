@@ -17,26 +17,21 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.FieldEvent;
-import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.Event;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.GroupModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleTypeModel;
@@ -45,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.CommonColumnsConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ParentColumnsConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.PropertyColumnsConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
@@ -65,9 +61,6 @@ final class SampleBrowserToolbar extends ToolBar
     public static final String INCLUDE_GROUP_CHECKBOX_ID =
             GenericConstants.ID_PREFIX + PREFIX + "include-group-checkbox";
 
-    public static final String INCLUDE_SHARED_CHECKBOX_ID =
-            GenericConstants.ID_PREFIX + PREFIX + "include-shared-checkbox";
-
     private final SampleBrowserGrid sampleBrowserGrid;
 
     private final SampleTypeSelectionWidget selectSampleTypeCombo;
@@ -75,10 +68,6 @@ final class SampleBrowserToolbar extends ToolBar
     private final GroupSelectionWidget selectGroupCombo;
 
     private final ToolbarController controller;
-
-    private final CheckBox includeInstanceCheckbox;
-
-    private final CheckBox includeGroupCheckbox;
 
     private final Button submitButton;
 
@@ -95,60 +84,17 @@ final class SampleBrowserToolbar extends ToolBar
         this.sampleBrowserGrid = sampleBrowserGrid;
         this.viewContext = viewContext;
         selectSampleTypeCombo = new SampleTypeSelectionWidget(viewContext, ID, true);
-        selectGroupCombo = new GroupSelectionWidget(viewContext);
-        includeInstanceCheckbox = new CheckBox();
-        includeInstanceCheckbox.setId(INCLUDE_SHARED_CHECKBOX_ID);
-        includeInstanceCheckbox.setValue(true);
-        includeGroupCheckbox = new CheckBox();
-        includeGroupCheckbox.setId(INCLUDE_GROUP_CHECKBOX_ID);
-        includeGroupCheckbox.setStyleAttribute("margin", "4px");
-        includeGroupCheckbox.setValue(true);
+        selectGroupCombo = new GroupSelectionWidget(viewContext, ID);
         submitButton = createSubmitButton();
         submitButton.setEnabled(false);
         exportButton = createExportButton();
         exportButton.setEnabled(false);
         controller =
-                new ToolbarController(selectSampleTypeCombo, selectGroupCombo,
-                        includeInstanceCheckbox, includeGroupCheckbox, submitButton, exportButton,
+                new ToolbarController(selectSampleTypeCombo, submitButton, exportButton,
                         parentColumns, propertyColumns);
         controller.disableExportButton();
         addSelectSampleTypeListeners();
         addSelectGroupListeners();
-        addIncludeInstanceListeners();
-        addIncludeGroupListeners();
-    }
-
-    private void addIncludeGroupListeners()
-    {
-        includeGroupCheckbox.addListener(Event.ONCLICK, new Listener<FieldEvent>()
-            {
-                //
-                // Listener
-                //
-
-                public final void handleEvent(final FieldEvent be)
-                {
-                    controller.refreshSubmitButtons(selectSampleTypeCombo
-                            .tryGetSelectedSampleType(), selectGroupCombo.tryGetSelectedGroup());
-                    controller.showOrHideGroupList();
-                }
-            });
-    }
-
-    private void addIncludeInstanceListeners()
-    {
-        includeInstanceCheckbox.addListener(Event.ONCLICK, new Listener<FieldEvent>()
-            {
-                //
-                // Listener
-                //
-
-                public final void handleEvent(final FieldEvent be)
-                {
-                    controller.refreshSubmitButtons(selectSampleTypeCombo
-                            .tryGetSelectedSampleType(), selectGroupCombo.tryGetSelectedGroup());
-                }
-            });
     }
 
     private void addSelectGroupListeners()
@@ -168,19 +114,6 @@ final class SampleBrowserToolbar extends ToolBar
                             .tryGetSelectedSampleType(),
                             selectedItem != null ? (Group) selectedItem
                                     .get(ModelDataPropertyNames.OBJECT) : null);
-                }
-            });
-
-        selectGroupCombo.addListener(AppEvents.CALLBACK_FINISHED, new Listener<FieldEvent>()
-            {
-
-                //
-                // Listener
-                //
-
-                public final void handleEvent(final FieldEvent be)
-                {
-                    controller.refreshGroupCheckbox();
                 }
             });
     }
@@ -214,11 +147,7 @@ final class SampleBrowserToolbar extends ToolBar
         add(new LabelToolItem("Sample type:"));
         add(new AdapterToolItem(selectSampleTypeCombo));
         add(new SeparatorToolItem());
-        add(new LabelToolItem("Shared:"));
-        add(new AdapterToolItem(includeInstanceCheckbox));
-        add(new SeparatorToolItem());
         add(new LabelToolItem("Group:"));
-        add(new AdapterToolItem(includeGroupCheckbox));
         add(new AdapterToolItem(selectGroupCombo));
         add(new FillToolItem());
         add(new AdapterToolItem(submitButton));
@@ -246,9 +175,10 @@ final class SampleBrowserToolbar extends ToolBar
                                     final Group selectedGroup =
                                             selectGroupCombo.tryGetSelectedGroup();
                                     assert selectedGroup != null : "No group is selected.";
-                                    final Boolean includeGroup = includeGroupCheckbox.getValue();
-                                    final Boolean includeInstance =
-                                            includeInstanceCheckbox.getValue();
+                                    final boolean includeInstance =
+                                            selectedGroup.equals(GWTUtils.SHARED_GROUP);
+                                    final boolean includeGroup =
+                                            selectedGroup.equals(GWTUtils.SHARED_GROUP) == false;
 
                                     if (selectedType.equals(selectedSampleType) == false)
                                     {

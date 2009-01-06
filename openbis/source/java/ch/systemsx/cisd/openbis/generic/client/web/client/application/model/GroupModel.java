@@ -56,5 +56,4 @@ public class GroupModel extends BaseModelData
         }
         return result;
     }
-
 }

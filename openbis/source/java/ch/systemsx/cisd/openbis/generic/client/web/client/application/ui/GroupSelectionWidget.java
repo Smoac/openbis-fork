@@ -48,10 +48,11 @@ public final class GroupSelectionWidget extends ComboBox<GroupModel>
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    public GroupSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext)
+    public GroupSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext,
+            final String idSuffix)
     {
         this.viewContext = viewContext;
-        setId(ID);
+        setId(ID + idSuffix);
         setDisplayField(ModelDataPropertyNames.CODE);
         setEditable(false);
         setEnabled(false);
@@ -106,6 +107,7 @@ public final class GroupSelectionWidget extends ComboBox<GroupModel>
         {
             final ListStore<GroupModel> groupStore = getStore();
             groupStore.removeAll();
+            groupStore.add(new GroupModel(GWTUtils.SHARED_GROUP));
             groupStore.add(GroupModel.convert(result));
             if (groupStore.getCount() > 0)
             {
