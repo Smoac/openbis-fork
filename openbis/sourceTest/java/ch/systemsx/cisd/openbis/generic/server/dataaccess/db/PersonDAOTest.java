@@ -24,6 +24,7 @@ import static org.testng.AssertJUnit.fail;
 
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.annotation.NotTransactional;
@@ -100,7 +101,7 @@ public final class PersonDAOTest extends AbstractDAOTest
     {
         final IPersonDAO personDAO = daoFactory.getPersonDAO();
         final PersonPE testPerson = createPerson();
-        testPerson.setUserId(EXCEED_40_CHARACTERS);
+        testPerson.setUserId(StringUtils.repeat("A", 51));
         // User id too long
         try
         {
