@@ -233,8 +233,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         {
             final String user = session.getUserName();
             operationLog.info(LOGOUT_PREFIX + "Session '" + session.getSessionToken()
-                    + "' of user '" + user + "' has been closed from host '" + getRemoteHost()
-                    + "'.");
+                    + "' of user '" + user + "' has been closed.");
         }
     }
 
