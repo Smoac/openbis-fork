@@ -31,9 +31,7 @@ import static org.testng.AssertJUnit.assertEquals;
 public class TokenGeneratorTest
 {
 
-    private static final String TIMESTAMP_FORMAT =
-            TokenGenerator.TIMESTAMP_FORMAT.substring(0,
-                    TokenGenerator.TIMESTAMP_FORMAT.length() - 1);
+    private static final String TIMESTAMP_FORMAT = TokenGenerator.TIMESTAMP_FORMAT;
 
     private static boolean isHexString(String s)
     {
@@ -53,7 +51,8 @@ public class TokenGeneratorTest
         final TokenGenerator generator = new TokenGenerator();
         final long now = System.currentTimeMillis();
         final String nowFormatted = String.format(TIMESTAMP_FORMAT, now);
-        final String[] token = StringUtils.split(generator.getNewToken(now), '-');
+        char separator = '-';
+        final String[] token = StringUtils.split(generator.getNewToken(now, separator), separator);
         assertEquals(2, token.length);
         assertEquals(nowFormatted, token[0]);
         assert isHexString(token[1]) : token[1];
@@ -64,8 +63,9 @@ public class TokenGeneratorTest
     {
         final TokenGenerator generator = new TokenGenerator();
         final long now = System.currentTimeMillis();
-        final String[] token1 = StringUtils.split(generator.getNewToken(now), '-');
-        final String[] token2 = StringUtils.split(generator.getNewToken(now), '-');
+        char separator = '-';
+        final String[] token1 = StringUtils.split(generator.getNewToken(now, separator), separator);
+        final String[] token2 = StringUtils.split(generator.getNewToken(now, separator), separator);
         assert token1[0].equals(token2[0]) : "'" + token1[0] + "' != '" + token2[0] + "'";
         assert token1[1].equals(token2[1]) == false : "'" + token1[1] + "' == '" + token2[1] + "'";
     }

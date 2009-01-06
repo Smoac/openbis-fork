@@ -33,20 +33,30 @@ public final class TokenGenerator implements Serializable
     private static final long serialVersionUID = 1L;
 
     @Private
-    static final String TIMESTAMP_FORMAT = "%1$ty%1$tm%1$td%1$tH%1$tM%1$tS%1$tL-";
+    static final String TIMESTAMP_FORMAT = "%1$ty%1$tm%1$td%1$tH%1$tM%1$tS%1$tL";
+
+    private static final char DEFAULT_SEPARATOR = '-';
 
     private final SecureRandom pseudoRandomNumberGenerator = new SecureRandom();
+
+    /** @see #getNewToken(long, char) */
+    public synchronized String getNewToken(final long timeStamp)
+    {
+        return getNewToken(timeStamp, DEFAULT_SEPARATOR);
+    }
 
     /**
      * @param timeStamp The time stamp (in milli-seconds since start of the epoch) to base token
      *            generation on.
+     * @param separator the character to separate timestamp from the rest of the token
      * @return A new (pseudo-)random session token in hex format.
      */
-    public synchronized String getNewToken(final long timeStamp)
+    public synchronized String getNewToken(final long timeStamp, final char separator)
     {
         final Formatter formatter = new Formatter();
         final byte[] bytes = new byte[16];
         formatter.format(TIMESTAMP_FORMAT, timeStamp);
+        formatter.format("" + separator);
         pseudoRandomNumberGenerator.nextBytes(bytes);
         hexify(formatter, bytes);
         return formatter.toString();
