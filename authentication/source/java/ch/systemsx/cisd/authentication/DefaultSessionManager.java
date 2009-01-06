@@ -50,6 +50,11 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
 
     private static final String LOGIN_PREFIX = "LOGIN: ";
 
+    private static final char SESSION_TOKEN_SEPARATOR = '-';
+
+    // should be different than SESSION_TOKEN_SEPARATOR
+    private static final char TIMESTAMP_TOKEN_SEPARATOR = 'x';
+
     private static final Logger authenticationLog =
             LogFactory.getLogger(LogCategory.AUTH, DefaultSessionManager.class);
 
@@ -147,7 +152,9 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     private final T createAndStoreSession(final String user, final Principal principal,
             final long now)
     {
-        final String sessionToken = user + "-" + tokenGenerator.getNewToken(now);
+        final String sessionToken =
+                user + SESSION_TOKEN_SEPARATOR
+                        + tokenGenerator.getNewToken(now, TIMESTAMP_TOKEN_SEPARATOR);
         synchronized (sessions)
         {
             final T session =
@@ -243,7 +250,17 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
 
         synchronized (sessions)
         {
-            final String user = StringUtils.split(sessionToken, '-')[0];
+            final String[] splittedToken = StringUtils.split(sessionToken, SESSION_TOKEN_SEPARATOR);
+            if (splittedToken.length < 2)
+            {
+                final String msg = "Session token '" + sessionToken + "' is malformed.";
+                if (authenticationLog.isInfoEnabled())
+                {
+                    authenticationLog.info(msg);
+                }
+                throw new InvalidSessionException(msg);
+            }
+            final String user = getUserName(splittedToken);
             final FullSession<T> session = sessions.get(user);
             if (session == null)
             {
@@ -278,6 +295,14 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
             session.touch();
             return session.getSession();
         }
+    }
+
+    // take all tokens till the third token counting from the back
+    private static String getUserName(String[] splittedSessionToken)
+    {
+        int exclusiveEndIndex = splittedSessionToken.length - 1;
+        return StringUtils
+                .join(splittedSessionToken, SESSION_TOKEN_SEPARATOR, 0, exclusiveEndIndex);
     }
 
     public String tryToOpenSession(final String user, final String password)
