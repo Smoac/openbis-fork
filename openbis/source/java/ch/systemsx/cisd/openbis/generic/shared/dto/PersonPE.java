@@ -130,7 +130,7 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
     }
 
     @Column(name = ColumnNames.USER_COLUMN)
-    @Length(max = 20, message = ValidationMessages.USER_ID_LENGTH_MESSAGE)
+    @Length(max = 50, message = ValidationMessages.USER_ID_LENGTH_MESSAGE)
     @NotNull(message = ValidationMessages.USER_ID_NOT_NULL_MESSAGE)
     public final String getUserId()
     {
