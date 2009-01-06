@@ -27,6 +27,8 @@ public final class GenericConstants
 {
     public static final String MANDATORY_LABEL_SEPARATOR = ": *";
 
+    public static final String POPUP_BLOCKER_DETECTED = "A pop-up blocker has been detected. Please disable all the pop-up blockers for this site.";
+
     private GenericConstants()
     {
         // Can not be instantiated.
