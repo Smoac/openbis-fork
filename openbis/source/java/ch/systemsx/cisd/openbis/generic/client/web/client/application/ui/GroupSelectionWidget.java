@@ -32,6 +32,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Grou
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.User;
 
 /**
  * {@link ComboBox} containing list of groups loaded from the server.
@@ -50,7 +52,6 @@ public final class GroupSelectionWidget extends ComboBox<GroupModel>
     {
         this.viewContext = viewContext;
         setId(ID);
-        setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_EMPTY, "groups"));
         setDisplayField(ModelDataPropertyNames.CODE);
         setEditable(false);
         setEnabled(false);
@@ -108,11 +109,38 @@ public final class GroupSelectionWidget extends ComboBox<GroupModel>
             groupStore.add(GroupModel.convert(result));
             if (groupStore.getCount() > 0)
             {
-                setEnabled(true);
-                setValue(groupStore.getAt(0));
                 setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, "group"));
+                applyEmptyText();
+                setEnabled(true);
+                final int homeGroupIndex = getHomeGroupIndex(groupStore);
+                if (homeGroupIndex > -1)
+                {
+                    setValue(groupStore.getAt(homeGroupIndex));
+                }
+            } else
+            {
+                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_EMPTY, "groups"));
+                applyEmptyText();
             }
             fireEvent(AppEvents.CALLBACK_FINISHED);
+        }
+
+        int getHomeGroupIndex(ListStore<GroupModel> groupStore)
+        {
+            final SessionContext sessionContext = viewContext.getModel().getSessionContext();
+            final User user = sessionContext.getUser();
+            final String homeGroup = user.getHomeGroupCode();
+            if (homeGroup != null)
+            {
+                for (int i = 0; i < groupStore.getCount(); i++)
+                {
+                    if (groupStore.getAt(i).get(ModelDataPropertyNames.CODE).equals(homeGroup))
+                    {
+                        return i;
+                    }
+                }
+            }
+            return -1;
         }
     }
 }
