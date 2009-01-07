@@ -75,7 +75,7 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
     private final VocabularyRegistrationFieldSet createVocabularyRegistrationFieldSet()
     {
         final VocabularyRegistrationFieldSet fieldSet =
-                new VocabularyRegistrationFieldSet(viewContext, getId() + "_", labelWidth,
+                new VocabularyRegistrationFieldSet(viewContext, getId(), labelWidth,
                         fieldWitdh - 40);
         fieldSet.setVisible(false);
         return fieldSet;

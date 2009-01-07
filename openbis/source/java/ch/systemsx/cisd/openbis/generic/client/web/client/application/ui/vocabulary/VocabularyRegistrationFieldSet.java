@@ -40,6 +40,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTerm;
  */
 public final class VocabularyRegistrationFieldSet extends FieldSet
 {
+    public static final String ID = "vocabulary_registration_field_set";
+
     private CodeField vocabularyCodeField;
 
     private VarcharField vocabularyDescriptionField;
@@ -61,7 +63,7 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
         this.viewContext = viewContext;
         this.labelWidth = labelWidth;
         this.fieldWith = fieldWidth;
-        this.idPrefix = idPrefix;
+        this.idPrefix = idPrefix + ID;
         setHeading(viewContext.getMessage(Dict.VOCABULARY));
         setLayout(createFormLayout());
         setWidth(labelWidth + fieldWidth + 40);
@@ -84,7 +86,7 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
         final CodeField codeField =
                 new CodeField(viewContext, viewContext.getMessage(Dict.CODE),
                         CodeField.CODE_PATTERN_WITH_DOT);
-        codeField.setId(idPrefix + "code");
+        codeField.setId(idPrefix + "_code");
         return codeField;
     }
 
@@ -93,7 +95,7 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
     {
         final VarcharField varcharField = new VarcharField(descriptionLabel, mandatory);
         varcharField.setMaxLength(80);
-        varcharField.setId(idPrefix + "description");
+        varcharField.setId(idPrefix + "_description");
         return varcharField;
     }
 
@@ -102,7 +104,7 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
         final TextArea textArea = new TextArea();
         final String fieldLabel = viewContext.getMessage(Dict.VOCABULARY_TERMS);
         VarcharField.configureField(textArea, fieldLabel, true);
-        textArea.setId(idPrefix + "terms");
+        textArea.setId(idPrefix + "_terms");
         textArea.setEmptyText(viewContext.getMessage(Dict.VOCABULARY_TERMS_EMPTY));
         textArea.setValidator(new VocabularyTermValidator(viewContext));
         return textArea;

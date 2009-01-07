@@ -50,14 +50,15 @@ public final class FillVocabularyRegistrationForm extends AbstractDefaultTestCom
 
     public final void execute()
     {
-        GWTTestUtil.setTextFieldValue(VocabularyRegistrationForm.ID_PREFIX + "form_code", code);
+        GWTTestUtil.setTextFieldValue(VocabularyRegistrationForm.ID_PREFIX + "form"
+                + VocabularyRegistrationFieldSet.ID + "_code", code);
         if (StringUtils.isBlank(descriptionOrNull) == false)
         {
-            GWTTestUtil.setTextFieldValue(
-                    VocabularyRegistrationForm.ID_PREFIX + "form_description", descriptionOrNull);
+            GWTTestUtil.setTextFieldValue(VocabularyRegistrationForm.ID_PREFIX + "form"
+                    + VocabularyRegistrationFieldSet.ID + "_description", descriptionOrNull);
         }
-        GWTTestUtil.setTextAreaValue(VocabularyRegistrationForm.ID_PREFIX + "form_terms",
-                StringUtils.join(terms, ","));
+        GWTTestUtil.setTextAreaValue(VocabularyRegistrationForm.ID_PREFIX + "form"
+                + VocabularyRegistrationFieldSet.ID + "_terms", StringUtils.join(terms, ","));
         GWTTestUtil.clickButtonWithID(VocabularyRegistrationForm.ID_PREFIX
                 + AbstractRegistrationForm.SAVE_BUTTON);
     }
