@@ -20,9 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.form.MultiField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.Validator;
 import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -65,8 +63,6 @@ public final class GenericSampleRegistrationForm extends AbstractRegistrationFor
 
     private static final String ETPT = "PROPERTY_TYPE";
 
-    private static boolean SELECT_GROUP_BY_DEFAULT = true;
-
     private final IViewContext<IGenericClientServiceAsync> viewContext;
 
     private final SampleType sampleType;
@@ -81,8 +77,6 @@ public final class GenericSampleRegistrationForm extends AbstractRegistrationFor
 
     private TextField<String> codeField;
 
-    private MultiField<Field<?>> groupMultiField;
-
     public GenericSampleRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext, final SampleType sampleType)
     {
@@ -96,27 +90,9 @@ public final class GenericSampleRegistrationForm extends AbstractRegistrationFor
         codeField = new CodeField(viewContext, viewContext.getMessage(Dict.CODE));
         codeField.setId(CODE_FIELD_ID);
         groupSelectionWidget = new GroupSelectionWidget(viewContext.getCommonViewContext(), PREFIX);
-        groupSelectionWidget.setEnabled(SELECT_GROUP_BY_DEFAULT);
-
-        groupMultiField = new MultiField<Field<?>>();// FIXME: remove multi field
-        groupMultiField.setFieldLabel(viewContext.getMessage(Dict.GROUP));
-        groupMultiField.add(groupSelectionWidget);
-        groupMultiField.setLabelSeparator(GenericConstants.MANDATORY_LABEL_SEPARATOR);
-        groupMultiField.setValidator(new Validator<Field<?>, MultiField<Field<?>>>()
-            {
-                //
-                // Validator
-                //
-
-                public final String validate(final MultiField<Field<?>> field, final String value)
-                {
-                    if (groupSelectionWidget.tryGetSelectedGroup() == null)
-                    {
-                        return "Group must be chosen";
-                    }
-                    return null;
-                }
-            });
+        groupSelectionWidget.setLabelSeparator(GenericConstants.MANDATORY_LABEL_SEPARATOR);
+        groupSelectionWidget.setFieldLabel(viewContext.getMessage(Dict.GROUP));
+        groupSelectionWidget.setAllowBlank(false);
 
         parent = new VarcharField(viewContext.getMessage(Dict.GENERATED_FROM_SAMPLE), false);
         parent.setId(PARENT_FIELD_ID);
@@ -149,7 +125,7 @@ public final class GenericSampleRegistrationForm extends AbstractRegistrationFor
     private final void addFormFields()
     {
         formPanel.add(codeField);
-        formPanel.add(groupMultiField);
+        formPanel.add(groupSelectionWidget);
         formPanel.add(parent);
         formPanel.add(container);
         for (final Field<?> propertyField : propertyFields)
