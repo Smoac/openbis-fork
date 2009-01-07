@@ -147,10 +147,12 @@ class ExperimentBrowserToolbar extends ToolBar
     {
         setBorders(true);
         removeAll();
-        add(new LabelToolItem("Experiment type:"));
+        add(new LabelToolItem(viewContext.getMessage(Dict.EXPERIMENT_TYPE)
+                + GenericConstants.LABEL_SEPARATOR));
         add(new AdapterToolItem(selectExperimentTypeCombo));
         add(new SeparatorToolItem());
-        add(new LabelToolItem("Project:"));
+        add(new LabelToolItem(viewContext.getMessage(Dict.PROJECT)
+                + GenericConstants.LABEL_SEPARATOR));
         add(new AdapterToolItem(selectProjectCombo));
         add(new FillToolItem());
         add(new AdapterToolItem(submitButton));
@@ -188,19 +190,22 @@ class ExperimentBrowserToolbar extends ToolBar
 
     private final Button createExportButton()
     {
-        final Button button = new Button("Export data", new SelectionListener<ComponentEvent>()
-            {
-                //
-                // SelectionListener
-                //
+        final Button button =
+                new Button(viewContext.getMessage(Dict.BUTTON_EXPORT_DATA),
+                        new SelectionListener<ComponentEvent>()
+                            {
+                                //
+                                // SelectionListener
+                                //
 
-                @Override
-                public final void componentSelected(final ComponentEvent ce)
-                {
-                    MessageBox.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING),
-                            "Not yet implemented!", null);
-                }
-            });
+                                @Override
+                                public final void componentSelected(final ComponentEvent ce)
+                                {
+                                    MessageBox.alert(viewContext
+                                            .getMessage(Dict.MESSAGEBOX_WARNING),
+                                            "Not yet implemented!", null);
+                                }
+                            });
         return button;
     }
 

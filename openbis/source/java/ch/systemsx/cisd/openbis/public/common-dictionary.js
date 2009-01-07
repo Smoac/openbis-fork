@@ -12,6 +12,7 @@ var common = {
   code: "Code",
   registrator: "Registrator",
   registration_date: "Registration Date",
+  filter: "Filter",
   
   //
   // Field
@@ -39,6 +40,7 @@ var common = {
   button_submit: "Submit",
   button_refresh: "Refresh",
   button_exportData: "Export Data",
+  add_group: "Add group",
   
   //
   // LoginWidget
@@ -63,7 +65,7 @@ var common = {
   
   header_userWithoutHomegroup: "{0} (no home group)",
   header_userWithHomegroup: "{0} (home group: {1})",
-  header_logoutButtonLabel: "logout",
+  header_logoutButtonLabel: "Logout",
   
   //
   // Authorization Management Console
@@ -109,28 +111,56 @@ var common = {
   // Experiment Browser
   //
   
-  experiment_type: "Experiment type",
+  experiment_type: "Experiment Type",
   
   //
   // Property Type Browser
   //
   
   label: "Label",
-  data_type: "Data type",
+  data_type: "Data Type",
   description: "Description",
-  sample_types: "Sample types",
-  material_types: "Material types",
-  experiment_types: "Experiment types",
+  sample_types: "Sample Types",
+  material_types: "Material Types",
+  experiment_types: "Experiment Types",
   is_mandatory: "Mandatory?",
-  property_type: "Property type",
-  property_type_code: "Property type code",
-  assigned_to: "Assigned to",
-  type_of: "Type of",
+  property_type: "Property Type",
+  property_type_code: "Property Type Code",
+  assigned_to: "Entity Type",
+  type_of: "Entity",
   vocabulary: "Vocabulary",
   vocabulary_terms: "Terms",
   vocabulary_terms_empty: "White space or comma separated list",
   mandatory: "Mandatory",
-  default_value: "Default value",
+  default_value: "Default Value",
+  entity_type_assignments: "{0} Type Assignment{1}",
+  
+  //
+  // Tab Titles
+  //
+  
+  assign_experiment_property_type: "Assign Experiment Property Type",
+  assign_sample_property_type: "Assign Sample Property Type",
+  property_type_assignments: "Property Type Assignments",
+  property_type_registration: "Property Type Registration",
+  property_types: "Property Types",
+  experiment_browser: "Experiment Browser",
+  vocabulary_registration: "Vocabulary Registration",
+  sample_batch_registration: "Sample Batch Registration",
+  sample_registration: "Sample Registration",
+  sample_broser: "Sample Browser",
+  list_groups: "List Groups",
+  
+  //
+  // Group View
+  //
+  leader: "Leader",
+  
+  //
+  // Role View
+  //
+  role: "Role",
+  
 
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

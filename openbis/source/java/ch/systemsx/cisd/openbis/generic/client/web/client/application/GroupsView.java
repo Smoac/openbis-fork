@@ -89,7 +89,7 @@ public class GroupsView extends ContentPanel
         this.viewContext = viewContext;
         setLayout(new FitLayout());
         setHeaderVisible(false);
-        setHeading("List groups");
+        setHeading(viewContext.getMessage(Dict.LIST_GROUPS));
         setId(ID);
     }
 
@@ -106,25 +106,25 @@ public class GroupsView extends ContentPanel
 
         final ColumnConfig codeColumnConfig = new ColumnConfig();
         codeColumnConfig.setId(ModelDataPropertyNames.CODE);
-        codeColumnConfig.setHeader("Code");
+        codeColumnConfig.setHeader(viewContext.getMessage(Dict.CODE));
         codeColumnConfig.setWidth(ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
         configs.add(codeColumnConfig);
 
         final ColumnConfig leaderColumnConfig = new ColumnConfig();
         leaderColumnConfig.setId(ModelDataPropertyNames.LEADER);
-        leaderColumnConfig.setHeader("Leader");
+        leaderColumnConfig.setHeader(viewContext.getMessage(Dict.LEADER));
         leaderColumnConfig.setWidth(ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
         configs.add(leaderColumnConfig);
 
         final ColumnConfig registratorColumnConfig = new ColumnConfig();
         registratorColumnConfig.setId(ModelDataPropertyNames.REGISTRATOR);
-        registratorColumnConfig.setHeader("Registrator");
+        registratorColumnConfig.setHeader(viewContext.getMessage(Dict.REGISTRATOR));
         registratorColumnConfig.setWidth(ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
         configs.add(registratorColumnConfig);
 
         final ColumnConfig registrationDateColumnConfig = new ColumnConfig();
         registrationDateColumnConfig.setId(ModelDataPropertyNames.REGISTRATION_DATE);
-        registrationDateColumnConfig.setHeader("Registration Date");
+        registrationDateColumnConfig.setHeader(viewContext.getMessage(Dict.REGISTRATION_DATE));
         registrationDateColumnConfig.setWidth(ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
         registrationDateColumnConfig.setAlignment(HorizontalAlignment.RIGHT);
         registrationDateColumnConfig.setDateTimeFormat(DateRenderer.DEFAULT_DATE_TIME_FORMAT);
@@ -139,7 +139,7 @@ public class GroupsView extends ContentPanel
 
         final ContentPanel cp = new ContentPanel();
         cp.setBodyBorder(false);
-        cp.setHeading("Group list");
+        cp.setHeading(viewContext.getMessage(Dict.LIST_GROUPS));
         cp.setButtonAlign(HorizontalAlignment.CENTER);
 
         cp.setLayout(new FitLayout());
@@ -154,20 +154,22 @@ public class GroupsView extends ContentPanel
 
         cp.add(grid);
         final Button addGroupButton =
-                new Button("Add group", new SelectionListener<ComponentEvent>()
-                    {
-                        @Override
-                        public void componentSelected(ComponentEvent ce)
-                        {
-                            new AddGroupDialog(viewContext, groupList).show();
-                        }
-                    });
+                new Button(viewContext.getMessage(Dict.BUTTON_ADD_GROUP),
+                        new SelectionListener<ComponentEvent>()
+                            {
+                                @Override
+                                public void componentSelected(ComponentEvent ce)
+                                {
+                                    new AddGroupDialog(viewContext, groupList).show();
+                                }
+                            });
         addGroupButton.setId(ADD_BUTTON_ID);
 
         final ToolBar toolBar = new ToolBar();
-        toolBar.add(new LabelToolItem("Filter:"));
+        toolBar.add(new LabelToolItem(viewContext.getMessage(Dict.FILTER)
+                + GenericConstants.LABEL_SEPARATOR));
         toolBar.add(new AdapterToolItem(new ColumnFilter<GroupModel>(store,
-                ModelDataPropertyNames.CODE, "code")));
+                ModelDataPropertyNames.CODE, viewContext.getMessage(Dict.CODE))));
         toolBar.add(new SeparatorToolItem());
         toolBar.add(new AdapterToolItem(addGroupButton));
         cp.setBottomComponent(toolBar);

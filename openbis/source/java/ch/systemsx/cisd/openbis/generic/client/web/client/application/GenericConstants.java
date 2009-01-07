@@ -27,7 +27,8 @@ public final class GenericConstants
 {
     public static final String MANDATORY_LABEL_SEPARATOR = ": *";
 
-    public static final String POPUP_BLOCKER_DETECTED = "A pop-up blocker has been detected. Please disable all the pop-up blockers for this site.";
+    public static final String POPUP_BLOCKER_DETECTED =
+            "A pop-up blocker has been detected. Please disable all the pop-up blockers for this site.";
 
     private GenericConstants()
     {
@@ -81,5 +82,7 @@ public final class GenericConstants
 
     /** The HTTP URL parameter used to specify the export criteria. */
     public static final String EXPORT_CRITERIA_KEY_PARAMETER = "exportDataKey";
+
+    public static final String LABEL_SEPARATOR = ":";
 
 }

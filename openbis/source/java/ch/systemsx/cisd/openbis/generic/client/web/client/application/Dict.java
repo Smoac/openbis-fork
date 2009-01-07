@@ -86,6 +86,8 @@ public abstract class Dict
 
     public static final String BUTTON_EXPORT_DATA = "button_exportData";
 
+    public static final String BUTTON_ADD_GROUP = "button_add_group";
+
     //
     // LoginWidget
     //
@@ -271,6 +273,46 @@ public abstract class Dict
     public static final String GENERATED_FROM_SAMPLE = "generated_from_sample";
 
     public static final String PART_OF_SAMPLE = "part_of_sample";
+
+    //
+    // Tab Titles
+    //
+
+    public static final String ASSIGN_EXPERIMENT_PROPERTY_TYPE = "assign_experiment_property_type";
+
+    public static final String ASSIGN_SAMPLE_PROPERTY_TYPE = "assign_sample_property_type";
+
+    public static final String PROPERTY_TYPE_ASSIGNMENTS = "property_type_assignments";
+
+    public static final String PROPERTY_TYPE_REGISTRATION = "property_type_registration";
+
+    public static final String PROPERTY_TYPES = "property_types";
+
+    public static final String EXPERIMENT_BROWSER = "experiment_browser";
+
+    public static final String VOCABULARY_REGISTRATION = "vocabulary_registration";
+
+    public static final String SAMPLE_BATCH_REGISTRATION = "sample_batch_registration";
+
+    public static final String SAMPLE_REGISTRATION = "sample_registration";
+
+    public static final String SAMPLE_BROWSER = "sample_broser";
+
+    public static final String LIST_GROUPS = "list_groups";
+
+    //
+    // Role View
+    //
+    static final String ROLE = "role";
+
+    //
+    // Unclassified
+    //
+    public static final String LEADER = "leader";
+
+    public static final String FILTER = "filter";
+
+    public static final String ENTITY_TYPE_ASSIGNMENTS = "entity_type_assignments";
 
     // ----- end generic ------------------
 }

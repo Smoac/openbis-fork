@@ -108,15 +108,15 @@ public class CategoriesBuilder
     {
         final List<MenuElement> elements = new ArrayList<MenuElement>();
         elements.add(new MenuElement(MENU_ELEMENTS.LIST, "List", provider.getSampleBrowser()));
-        elements.add(new MenuElement(MENU_ELEMENTS.LIST_TYPES, "List types", provider
+        elements.add(new MenuElement(MENU_ELEMENTS.LIST_TYPES, "List Types", provider
                 .getDummyComponent()));
         elements.add(new MenuElement(MENU_ELEMENTS.REGISTER, "Register", provider
                 .getSampleRegistration()));
-        elements.add(new MenuElement(MENU_ELEMENTS.REGISTER_FROM_FILE, "Register from file",
+        elements.add(new MenuElement(MENU_ELEMENTS.REGISTER_FROM_FILE, "Register from File",
                 provider.getSampleBatchRegistration()));
         elements.add(new MenuElement(MENU_ELEMENTS.INVALIDATE, "Invalidate", provider
                 .getDummyComponent()));
-        elements.add(new MenuElement(MENU_ELEMENTS.ASSIGN_PROPERTIES, "Assign properties", provider
+        elements.add(new MenuElement(MENU_ELEMENTS.ASSIGN_PROPERTIES, "Assign Properties", provider
                 .getDummyComponent()));
         elements.add(new MenuElement(MENU_ELEMENTS.SEARCH, "Search", provider.getDummyComponent()));
         return new MenuCategory(CATEGORIES.SAMPLES, "Samples", elements);
@@ -159,15 +159,15 @@ public class CategoriesBuilder
         final List<MenuElement> elements = new ArrayList<MenuElement>();
         elements
                 .add(new MenuElement(MENU_ELEMENTS.LIST, "List", provider.getPropertyTypeBrowser()));
-        elements.add(new MenuElement(MENU_ELEMENTS.LIST_ASSIGNMENTS, "List assignments", provider
+        elements.add(new MenuElement(MENU_ELEMENTS.LIST_ASSIGNMENTS, "List Assignments", provider
                 .getPropertyTypeAssignmentBrowser()));
         elements.add(new MenuElement(MENU_ELEMENTS.REGISTER, "Register", provider
                 .getPropertyTypeRegistration()));
-        elements.add(new MenuElement(MENU_ELEMENTS.ASSIGN_ETPT, "Assign to expriment type",
+        elements.add(new MenuElement(MENU_ELEMENTS.ASSIGN_ETPT, "Assign to Expriment Type",
                 provider.getPropertyTypeExperimentTypeAssignmentForm()));
-        elements.add(new MenuElement(MENU_ELEMENTS.ASSIGN_STPT, "Assign to sample type", provider
+        elements.add(new MenuElement(MENU_ELEMENTS.ASSIGN_STPT, "Assign to Sample Type", provider
                 .getPropertyTypeSampleTypeAssignmentForm()));
-        return new MenuCategory(CATEGORIES.PROPERTY_TYPES, "Property types", elements);
+        return new MenuCategory(CATEGORIES.PROPERTY_TYPES, "Property Types", elements);
     }
 
     private MenuCategory createVocabulariesCategory()
@@ -183,7 +183,7 @@ public class CategoriesBuilder
     {
         final List<MenuElement> elements = new ArrayList<MenuElement>();
         elements.add(new MenuElement(MENU_ELEMENTS.LIST, "List", provider.getDummyComponent()));
-        elements.add(new MenuElement(MENU_ELEMENTS.LIST_TYPES, "List types", provider
+        elements.add(new MenuElement(MENU_ELEMENTS.LIST_TYPES, "List Types", provider
                 .getDummyComponent()));
         elements.add(new MenuElement(MENU_ELEMENTS.REGISTER, "Register", provider
                 .getDummyComponent()));
@@ -195,13 +195,13 @@ public class CategoriesBuilder
     {
         final List<MenuElement> elements = new ArrayList<MenuElement>();
         elements.add(new MenuElement(MENU_ELEMENTS.LIST, "List", provider.getExperimentBrowser()));
-        elements.add(new MenuElement(MENU_ELEMENTS.LIST_TYPES, "List types", provider
+        elements.add(new MenuElement(MENU_ELEMENTS.LIST_TYPES, "List Types", provider
                 .getDummyComponent()));
         elements.add(new MenuElement(MENU_ELEMENTS.REGISTER, "Register", provider
                 .getDummyComponent()));
         elements.add(new MenuElement(MENU_ELEMENTS.INVALIDATE, "Invalidate", provider
                 .getDummyComponent()));
-        elements.add(new MenuElement(MENU_ELEMENTS.ASSIGN_PROPERTIES, "Assign properties", provider
+        elements.add(new MenuElement(MENU_ELEMENTS.ASSIGN_PROPERTIES, "Assign Properties", provider
                 .getDummyComponent()));
         elements.add(new MenuElement(MENU_ELEMENTS.SEARCH, "Search", provider.getDummyComponent()));
         return new MenuCategory(CATEGORIES.EXPERIMENTS, "Experiments", elements);

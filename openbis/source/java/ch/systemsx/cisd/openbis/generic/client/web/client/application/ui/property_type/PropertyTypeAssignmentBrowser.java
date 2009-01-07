@@ -25,12 +25,15 @@ import com.extjs.gxt.ui.client.data.BaseListLoadResult;
 import com.extjs.gxt.ui.client.data.BaseListLoader;
 import com.extjs.gxt.ui.client.data.ListLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
-import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.store.GroupingStore;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridGroupRenderer;
+import com.extjs.gxt.ui.client.widget.grid.GroupColumnData;
+import com.extjs.gxt.ui.client.widget.grid.GroupingView;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
@@ -48,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.Y
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnFilter;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 
 /**
@@ -112,8 +116,21 @@ public class PropertyTypeAssignmentBrowser extends AbstractViewer<ICommonClientS
         if (grid == null)
         {
             final ListLoader<BaseListLoadConfig> loader = createListLoader(createRpcProxy());
-            final ListStore<ETPTModel> listStore = new ListStore<ETPTModel>(loader);
+            final GroupingStore<ETPTModel> listStore = new GroupingStore<ETPTModel>(loader);
+            listStore.groupBy(ModelDataPropertyNames.ENTITY_KIND);
             grid = new Grid<ETPTModel>(listStore, createColumnModel());
+            final GroupingView view = new GroupingView();
+            view.setGroupRenderer(new GridGroupRenderer()
+                {
+
+                    public String render(GroupColumnData data)
+                    {
+                        return viewContext.getMessage(Dict.ENTITY_TYPE_ASSIGNMENTS, StringUtils
+                                .capitalize(data.group), data.models.size() > 1 ? "s" : "");
+                    }
+                });
+            view.setForceFit(true);
+            grid.setView(view);
             grid.setId(GRID_ID);
             grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
             grid.setLoadMask(true);

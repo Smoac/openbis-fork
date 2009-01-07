@@ -72,4 +72,15 @@ public final class StringUtils
         }
         return builder.toString();
     }
+
+    public final static String capitalize(String word)
+    {
+        if (isBlank(word))
+        {
+            return word;
+        } else
+        {
+            return word.substring(0, 1).toUpperCase() + word.substring(1).toLowerCase();
+        }
+    }
 }

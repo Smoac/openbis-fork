@@ -25,6 +25,7 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridView;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.Element;
 
@@ -75,6 +76,9 @@ public class PropertyTypeBrowser extends ContentPanel
         final ListStore<PropertyTypeModel> store = new ListStore<PropertyTypeModel>();
         store.add(getPropertyTypeModels(propertyTypes));
         final Grid<PropertyTypeModel> grid = new Grid<PropertyTypeModel>(store, cm);
+        final GridView view = new GridView();
+        view.setForceFit(true);
+        grid.setView(view);
         grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         grid.setId(GRID_ID);
         GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
@@ -92,8 +96,7 @@ public class PropertyTypeBrowser extends ContentPanel
         configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext
                 .getMessage(Dict.DATA_TYPE), ModelDataPropertyNames.DATA_TYPE));
         configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext
-                .getMessage(Dict.VOCABULARY),
-                ModelDataPropertyNames.CONTROLLED_VOCABULARY));
+                .getMessage(Dict.VOCABULARY), ModelDataPropertyNames.CONTROLLED_VOCABULARY));
         configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext
                 .getMessage(Dict.DESCRIPTION), ModelDataPropertyNames.DESCRIPTION));
         configs.add(defineSampleTypesColumn());

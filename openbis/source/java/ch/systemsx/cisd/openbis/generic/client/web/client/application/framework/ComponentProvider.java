@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GroupsView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.PersonsView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.RolesView;
@@ -69,8 +70,11 @@ final class ComponentProvider
 
     private VocabularyRegistrationForm vocabularyRegistrationForm;
 
+    private final CommonViewContext viewContext;
+
     ComponentProvider(final CommonViewContext viewContext)
     {
+        this.viewContext = viewContext;
         sampleBrowser = new SampleBrowser(viewContext);
         dummyComponent = new DummyComponent();
         groupsView = new GroupsView(viewContext);
@@ -91,7 +95,8 @@ final class ComponentProvider
 
     public final ITabItem getSampleBrowser()
     {
-        return new DefaultTabItem("Sample browser", sampleBrowser, sampleBrowser);
+        return new DefaultTabItem(viewContext.getMessage(Dict.SAMPLE_BROWSER), sampleBrowser,
+                sampleBrowser);
     }
 
     public final ITabItem getDummyComponent()
@@ -116,48 +121,54 @@ final class ComponentProvider
 
     public final ITabItem getSampleRegistration()
     {
-        return new DefaultTabItem("Sample registration", sampleRegistration);
+        return new DefaultTabItem(viewContext.getMessage(Dict.SAMPLE_REGISTRATION),
+                sampleRegistration);
     }
 
     public final ITabItem getSampleBatchRegistration()
     {
-        return new DefaultTabItem("Sample batch registration", sampleBatchRegistration);
+        return new DefaultTabItem(viewContext.getMessage(Dict.SAMPLE_BATCH_REGISTRATION),
+                sampleBatchRegistration);
     }
 
     public final ITabItem getVocabularyRegistration()
     {
-        return new DefaultTabItem("Vocabulary registration", vocabularyRegistrationForm);
+        return new DefaultTabItem(viewContext.getMessage(Dict.VOCABULARY_REGISTRATION),
+                vocabularyRegistrationForm);
     }
 
     public ITabItem getExperimentBrowser()
     {
-        return new DefaultTabItem("Experiment browser", experimentBrowser, experimentBrowser);
+        return new DefaultTabItem(viewContext.getMessage(Dict.EXPERIMENT_BROWSER),
+                experimentBrowser, experimentBrowser);
     }
 
     public ITabItem getPropertyTypeBrowser()
     {
-        return new DefaultTabItem("Property types", propertyTypesBrowser);
+        return new DefaultTabItem(viewContext.getMessage(Dict.PROPERTY_TYPES), propertyTypesBrowser);
     }
 
     public ITabItem getPropertyTypeRegistration()
     {
-        return new DefaultTabItem("Property type registration", propertyTypeRegistration);
+        return new DefaultTabItem(viewContext.getMessage(Dict.PROPERTY_TYPE_REGISTRATION),
+                propertyTypeRegistration);
     }
 
     public ITabItem getPropertyTypeAssignmentBrowser()
     {
-        return new ViewerTabItem("Property type assignments", propertyTypeAssignmentBrowser);
+        return new ViewerTabItem(viewContext.getMessage(Dict.PROPERTY_TYPE_ASSIGNMENTS),
+                propertyTypeAssignmentBrowser);
     }
 
     public ITabItem getPropertyTypeExperimentTypeAssignmentForm()
     {
-        return new DefaultTabItem("Assign experiment property type",
+        return new DefaultTabItem(viewContext.getMessage(Dict.ASSIGN_EXPERIMENT_PROPERTY_TYPE),
                 propertyTypeExperimentTypeAssignmentForm);
     }
 
     public ITabItem getPropertyTypeSampleTypeAssignmentForm()
     {
-        return new DefaultTabItem("Assign sample property type",
+        return new DefaultTabItem(viewContext.getMessage(Dict.ASSIGN_SAMPLE_PROPERTY_TYPE),
                 propertyTypeSampleTypeAssignmentForm);
     }
 }

@@ -59,7 +59,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
             fail("Failure expected.");
         }
     }
-    
+
     private static final String DEFAULT = "DEFAULT";
 
     private static final String EXP_REUSE = "EXP-REUSE";
@@ -119,20 +119,20 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ShowExperiment(EXP1));
         final CheckExperiment checkExperiment = new CheckExperiment(CISD_CISD_NEMO, EXP1);
         checkExperiment.property("Experiment").asString(EXP1);
-        checkExperiment.property("Experiment type").asCode(SIRNA_HCS);
+        checkExperiment.property("Experiment Type").asCode(SIRNA_HCS);
         checkExperiment.property("Registrator").asPerson(DOE_JOHN);
         checkExperiment.property("Description").asProperty(A_SIMPLE_EXPERIMENT);
         checkExperiment.property("Gender").asProperty("MALE");
         final CheckTableCommand attachmentsTable =
-            checkExperiment.attachmentsTable().expectedSize(1);
+                checkExperiment.attachmentsTable().expectedSize(1);
         attachmentsTable.expectedRow(new Row().withCell(ModelDataPropertyNames.FILE_NAME,
                 "exampleExperiments.txt").withCell(ModelDataPropertyNames.VERSION, 4));
         remoteConsole.prepare(checkExperiment);
-        
+
         remoteConsole.finish(60000);
         client.onModuleLoad();
     }
-    
+
     public final void testShowInvalidExperimentDetails()
     {
         remoteConsole.prepare(new Login("test", "a"));
@@ -142,7 +142,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ShowExperiment(EXP_X));
         final CheckExperiment checkExperiment = new CheckExperiment(CISD_CISD_DEFAULT, EXP_X);
         checkExperiment.property("Experiment").asString(EXP_X);
-        checkExperiment.property("Experiment type").asCode(SIRNA_HCS);
+        checkExperiment.property("Experiment Type").asCode(SIRNA_HCS);
         checkExperiment.property("Registrator").asPerson(DOE_JOHN);
         checkExperiment.property("Invalidation").by(new IValueAssertion<Invalidation>()
             {

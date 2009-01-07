@@ -144,10 +144,11 @@ final class SampleBrowserToolbar extends ToolBar
     {
         setBorders(true);
         removeAll();
-        add(new LabelToolItem("Sample type:"));
+        add(new LabelToolItem(viewContext.getMessage(Dict.SAMPLE_TYPE)
+                + GenericConstants.LABEL_SEPARATOR));
         add(new AdapterToolItem(selectSampleTypeCombo));
         add(new SeparatorToolItem());
-        add(new LabelToolItem("Group:"));
+        add(new LabelToolItem(viewContext.getMessage(Dict.GROUP) + GenericConstants.LABEL_SEPARATOR));
         add(new AdapterToolItem(selectGroupCombo));
         add(new FillToolItem());
         add(new AdapterToolItem(submitButton));

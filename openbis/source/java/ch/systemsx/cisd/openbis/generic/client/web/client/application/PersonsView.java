@@ -53,6 +53,19 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
  */
 public class PersonsView extends ContentPanel
 {
+
+    private static final String BUTTON_ADD_PERSON = "Add Person";
+
+    private static final String PERSON_LIST = "Person List";
+
+    private static final String EMAIL = "Email";
+
+    private static final String LAST_NAME = "Last Name";
+
+    private static final String FIRST_NAME = "First Name";
+
+    private static final String USER_ID = "User ID";
+
     public static final String ID = GenericConstants.ID_PREFIX + "persons-view";
 
     public static final String ADD_BUTTON_ID = ID + "_add-button";
@@ -85,37 +98,37 @@ public class PersonsView extends ContentPanel
 
         final ColumnConfig codeColumnConfig = new ColumnConfig();
         codeColumnConfig.setId(ModelDataPropertyNames.USER_ID);
-        codeColumnConfig.setHeader("User ID");
+        codeColumnConfig.setHeader(USER_ID);
         codeColumnConfig.setWidth(ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
         configs.add(codeColumnConfig);
 
         final ColumnConfig firstNameColumnConfig = new ColumnConfig();
         firstNameColumnConfig.setId(ModelDataPropertyNames.FIRST_NAME);
-        firstNameColumnConfig.setHeader("First Name");
+        firstNameColumnConfig.setHeader(FIRST_NAME);
         firstNameColumnConfig.setWidth(ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
         configs.add(firstNameColumnConfig);
 
         final ColumnConfig lastNameColumnConfig = new ColumnConfig();
         lastNameColumnConfig.setId(ModelDataPropertyNames.LAST_NAME);
-        lastNameColumnConfig.setHeader("Last Name");
+        lastNameColumnConfig.setHeader(LAST_NAME);
         lastNameColumnConfig.setWidth(ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
         configs.add(lastNameColumnConfig);
 
         final ColumnConfig emailNameColumnConfig = new ColumnConfig();
         emailNameColumnConfig.setId(ModelDataPropertyNames.EMAIL);
-        emailNameColumnConfig.setHeader("Email");
+        emailNameColumnConfig.setHeader(EMAIL);
         emailNameColumnConfig.setWidth(ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
         configs.add(emailNameColumnConfig);
 
         final ColumnConfig registratorColumnConfig = new ColumnConfig();
         registratorColumnConfig.setId(ModelDataPropertyNames.REGISTRATOR);
-        registratorColumnConfig.setHeader("Registrator");
+        registratorColumnConfig.setHeader(viewContext.getMessage(Dict.REGISTRATOR));
         registratorColumnConfig.setWidth(ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
         configs.add(registratorColumnConfig);
 
         final ColumnConfig registrationDateColumnConfig = new ColumnConfig();
         registrationDateColumnConfig.setId(ModelDataPropertyNames.REGISTRATION_DATE);
-        registrationDateColumnConfig.setHeader("Registration Date");
+        registrationDateColumnConfig.setHeader(viewContext.getMessage(Dict.REGISTRATION_DATE));
         registrationDateColumnConfig.setWidth(ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
         registrationDateColumnConfig.setAlignment(HorizontalAlignment.RIGHT);
         registrationDateColumnConfig.setDateTimeFormat(DateRenderer.DEFAULT_DATE_TIME_FORMAT);
@@ -128,7 +141,7 @@ public class PersonsView extends ContentPanel
 
         final ContentPanel cp = new ContentPanel();
         cp.setBodyBorder(false);
-        cp.setHeading("Person list");
+        cp.setHeading(PERSON_LIST);
         cp.setButtonAlign(HorizontalAlignment.CENTER);
         final PersonsView personList = this;
 
@@ -143,7 +156,7 @@ public class PersonsView extends ContentPanel
         cp.add(grid);
 
         final Button addPersonButton =
-                new Button("Add person", new SelectionListener<ComponentEvent>()
+                new Button(BUTTON_ADD_PERSON, new SelectionListener<ComponentEvent>()
                     {
                         @Override
                         public void componentSelected(ComponentEvent ce)
@@ -154,7 +167,8 @@ public class PersonsView extends ContentPanel
         addPersonButton.setId(ADD_BUTTON_ID);
 
         final ToolBar toolBar = new ToolBar();
-        toolBar.add(new LabelToolItem("Filter:"));
+        toolBar.add(new LabelToolItem(viewContext.getMessage(Dict.FILTER)
+                + GenericConstants.LABEL_SEPARATOR));
         toolBar.add(new AdapterToolItem(new ColumnFilter<PersonModel>(store,
                 ModelDataPropertyNames.USER_ID, "user id")));
         toolBar.add(new SeparatorToolItem());

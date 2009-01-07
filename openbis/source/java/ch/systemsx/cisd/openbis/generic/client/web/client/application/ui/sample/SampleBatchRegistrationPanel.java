@@ -26,6 +26,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
@@ -41,8 +42,11 @@ public final class SampleBatchRegistrationPanel extends LayoutContainer
 
     private final SampleTypeSelectionWidget sampleTypeSelection;
 
+    private final CommonViewContext viewContext;
+
     public SampleBatchRegistrationPanel(final CommonViewContext viewContext)
     {
+        this.viewContext = viewContext;
         setId(GenericConstants.ID_PREFIX + ID);
         setScrollMode(Scroll.AUTO);
         sampleTypeSelection = new SampleTypeSelectionWidget(viewContext, ID, false);
@@ -76,7 +80,8 @@ public final class SampleBatchRegistrationPanel extends LayoutContainer
     private final ToolBar createToolBar()
     {
         final ToolBar toolBar = new ToolBar();
-        toolBar.add(new LabelToolItem("Sample type:"));
+        toolBar.add(new LabelToolItem(viewContext.getMessage(Dict.SAMPLE_TYPE)
+                + GenericConstants.LABEL_SEPARATOR));
         toolBar.add(new AdapterToolItem(sampleTypeSelection));
         return toolBar;
     }

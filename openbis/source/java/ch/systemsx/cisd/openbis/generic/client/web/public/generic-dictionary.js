@@ -5,8 +5,8 @@ var generic = {
   // Experiment Viewer
   //
   
-  file_name: "File name",
-  version_file_name: "File version",
+  file_name: "File Name",
+  version_file_name: "File Version",
   version: "Version",
   versions: "Versions",
   versions_template: "Show all versions ({0})",
