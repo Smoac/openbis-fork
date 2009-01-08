@@ -28,7 +28,6 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.ListBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 
 /**
  * Some utility methods around <i>GWT</i>.
@@ -43,20 +42,6 @@ public final class GWTUtils
      * has been selected by the user.
      */
     public static final String NONE_LIST_ITEM = "(None)";
-
-    /**
-     * Code of 'shared' group.
-     */
-    public static final String SHARED_ITEM_CODE = "(Shared)";
-
-    public static final Group SHARED_GROUP = createSharedGroup();
-
-    private static Group createSharedGroup()
-    {
-        final Group group = new Group();
-        group.setCode(SHARED_ITEM_CODE);
-        return group;
-    }
 
     private GWTUtils()
     {

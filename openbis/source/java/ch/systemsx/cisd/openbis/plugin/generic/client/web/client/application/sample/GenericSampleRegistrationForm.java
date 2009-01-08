@@ -33,7 +33,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSe
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.PropertyFieldFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
@@ -113,7 +112,7 @@ public final class GenericSampleRegistrationForm extends AbstractRegistrationFor
     private final String createSampleIdentifier()
     {
         final Group group = groupSelectionWidget.tryGetSelectedGroup();
-        final boolean shared = group.equals(GWTUtils.SHARED_GROUP);
+        final boolean shared = GroupSelectionWidget.isSharedGroup(group);
         final String code = codeField.getValue();
         final StringBuilder builder = new StringBuilder("/");
         if (shared == false)
@@ -223,7 +222,7 @@ public final class GenericSampleRegistrationForm extends AbstractRegistrationFor
         protected final void process(final Void result)
         {
             final Group selectedGroup = groupSelectionWidget.tryGetSelectedGroup();
-            boolean shared = selectedGroup.equals(GWTUtils.SHARED_GROUP);
+            boolean shared = GroupSelectionWidget.isSharedGroup(selectedGroup);
             final String message =
                     createSuccessfullRegistrationInfo(shared, codeField.getValue(), selectedGroup);
             infoBox.displayInfo(message);

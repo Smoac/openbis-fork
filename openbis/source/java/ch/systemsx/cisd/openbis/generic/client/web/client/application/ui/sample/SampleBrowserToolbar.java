@@ -40,7 +40,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.CommonColumnsConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ParentColumnsConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.PropertyColumnsConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
@@ -177,9 +176,9 @@ final class SampleBrowserToolbar extends ToolBar
                                             selectGroupCombo.tryGetSelectedGroup();
                                     assert selectedGroup != null : "No group is selected.";
                                     final boolean includeInstance =
-                                            selectedGroup.equals(GWTUtils.SHARED_GROUP);
+                                            GroupSelectionWidget.isSharedGroup(selectedGroup);
                                     final boolean includeGroup =
-                                            selectedGroup.equals(GWTUtils.SHARED_GROUP) == false;
+                                            GroupSelectionWidget.isSharedGroup(selectedGroup) == false;
 
                                     if (selectedType.equals(selectedSampleType) == false)
                                     {

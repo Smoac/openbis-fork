@@ -17,13 +17,13 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.CheckSampleTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ExportSamplesTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ListSamples;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleRow;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 
 /**
@@ -51,7 +51,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
     public final void testExportMasterPlates()
     {
         loginAndGotoListSamplesTab();
-        remoteConsole.prepare(new ListSamples(GWTUtils.SHARED_ITEM_CODE, "MASTER_PLATE"));
+        remoteConsole.prepare(new ListSamples(GroupSelectionWidget.SHARED_GROUP_CODE, "MASTER_PLATE"));
         ExportSamplesTestCommand exportCommand = new ExportSamplesTestCommand(client);
         remoteConsole.prepare(exportCommand);
         String header = "Group\tCode\tProject\tExperiment\tPlate Geometry";
@@ -64,7 +64,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
     public final void testListOnlySharedMasterPlates()
     {
         loginAndGotoListSamplesTab();
-        remoteConsole.prepare(new ListSamples(GWTUtils.SHARED_ITEM_CODE, "MASTER_PLATE"));
+        remoteConsole.prepare(new ListSamples(GroupSelectionWidget.SHARED_GROUP_CODE, "MASTER_PLATE"));
         CheckSampleTable table = new CheckSampleTable();
         SampleRow expectedRow =
                 new SampleRow("MP").identifier("CISD").valid().noExperiment().property(

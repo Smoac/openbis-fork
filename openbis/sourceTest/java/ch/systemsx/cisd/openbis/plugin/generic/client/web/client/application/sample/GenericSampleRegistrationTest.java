@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.CheckSampleTable;
@@ -25,7 +26,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ShowSample;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.FailureExpectation;
@@ -144,7 +144,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
                 CategoriesBuilder.MENU_ELEMENTS.REGISTER));
         remoteConsole.prepare(new ChooseTypeOfNewSample(sampleTypeCode));
         final String description = "A very nice control layout.";
-        remoteConsole.prepare(new FillSampleRegistrationForm(GWTUtils.SHARED_ITEM_CODE, SHARED_CL)
+        remoteConsole.prepare(new FillSampleRegistrationForm(GroupSelectionWidget.SHARED_GROUP_CODE, SHARED_CL)
                 .addProperty(
                         new FillSampleRegistrationForm.Property(
                                 GenericSampleRegistrationForm.ID_PREFIX + "user-description",
@@ -155,7 +155,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.SAMPLES,
                 CategoriesBuilder.MENU_ELEMENTS.LIST,
                 GenericSampleRegistrationForm.RegisterSampleCallback.class));
-        remoteConsole.prepare(new ListSamples(GWTUtils.SHARED_ITEM_CODE, sampleTypeCode));
+        remoteConsole.prepare(new ListSamples(GroupSelectionWidget.SHARED_GROUP_CODE, sampleTypeCode));
         remoteConsole.prepare(new CheckSampleTable().expectedRow(new SampleRow(SHARED_CL)
                 .identifier("CISD").property("DESCRIPTION", false, description)));
         remoteConsole.finish(30000);

@@ -48,6 +48,13 @@ public final class GroupSelectionWidget extends ComboBox<GroupModel>
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
+    public static final boolean isSharedGroup(Group g)
+    {
+        return SHARED_GROUP_CODE.equals(g.getCode());
+    }
+
+    public static final String SHARED_GROUP_CODE = "(Shared)";
+
     public GroupSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext,
             final String idSuffix)
     {
@@ -91,6 +98,13 @@ public final class GroupSelectionWidget extends ComboBox<GroupModel>
     // Helper classes
     //
 
+    private Group createSharedGroup()
+    {
+        final Group group = new Group();
+        group.setCode(SHARED_GROUP_CODE);
+        return group;
+    }
+
     public final class ListGroupsCallback extends AbstractAsyncCallback<List<Group>>
     {
         ListGroupsCallback(final IViewContext<ICommonClientServiceAsync> viewContext)
@@ -107,7 +121,7 @@ public final class GroupSelectionWidget extends ComboBox<GroupModel>
         {
             final ListStore<GroupModel> groupStore = getStore();
             groupStore.removeAll();
-            groupStore.add(new GroupModel(GWTUtils.SHARED_GROUP));
+            groupStore.add(new GroupModel(createSharedGroup()));
             groupStore.add(GroupModel.convert(result));
             if (groupStore.getCount() > 0)
             {
