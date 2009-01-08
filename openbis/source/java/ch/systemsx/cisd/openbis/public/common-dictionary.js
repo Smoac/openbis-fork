@@ -160,6 +160,8 @@ var common = {
   // Role View
   //
   role: "Role",
+  confirm_role_removal_msg: "Do you want to remove selected role?",
+  confirm_role_removal_title: "Role removal confirmation",
   
 
   // LAST LINE: KEEP IT AT THE END

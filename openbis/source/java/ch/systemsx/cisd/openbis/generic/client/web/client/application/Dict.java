@@ -305,6 +305,10 @@ public abstract class Dict
     //
     static final String ROLE = "role";
 
+    public static final String CONFIRM_ROLE_REMOVAL_MSG = "confirm_role_removal_msg";
+
+    public static final String CONFIRM_ROLE_REMOVAL_TITLE = "confirm_role_removal_title";
+
     //
     // Unclassified
     //

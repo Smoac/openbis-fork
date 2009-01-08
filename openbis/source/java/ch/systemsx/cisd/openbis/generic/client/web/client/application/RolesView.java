@@ -25,6 +25,7 @@ import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -154,13 +155,62 @@ public class RolesView extends ContentPanel
                     });
         addRoleButton.setId(ADD_BUTTON_ID);
 
+        class RemoveRoleDialog extends Dialog
+        {
+
+            private final RoleModel selectedRole;
+
+            public RemoveRoleDialog(final RoleModel selectedRole)
+            {
+                this.selectedRole = selectedRole;
+                setHeading(viewContext.getMessage(Dict.CONFIRM_ROLE_REMOVAL_TITLE));
+                setButtons(Dialog.YESNO);
+                addText(viewContext.getMessage(Dict.CONFIRM_ROLE_REMOVAL_MSG));
+                setHideOnButtonClick(true);
+            }
+
+            @Override
+            protected void onButtonPressed(Button button)
+            {
+                super.onButtonPressed(button);
+                if (button.getItemId().equals(Dialog.YES))
+                {
+                    deleteRole();
+                }
+            }
+
+            private void deleteRole()
+            {
+                final AbstractAsyncCallback<Void> roleListRefreshCallback =
+                        new AbstractAsyncCallback<Void>(viewContext)
+                            {
+                                @Override
+                                public void process(Void result)
+                                {
+                                    roleList.refresh();
+                                }
+                            };
+
+                if (StringUtils.isBlank((String) selectedRole.get(ModelDataPropertyNames.GROUP)))
+                {
+                    viewContext.getService().deleteInstanceRole(
+                            (String) selectedRole.get(ModelDataPropertyNames.ROLE),
+                            (String) selectedRole.get(ModelDataPropertyNames.PERSON),
+                            roleListRefreshCallback);
+                } else
+                {
+                    viewContext.getService().deleteGroupRole(
+                            (String) selectedRole.get(ModelDataPropertyNames.ROLE),
+                            (String) selectedRole.get(ModelDataPropertyNames.GROUP),
+                            (String) selectedRole.get(ModelDataPropertyNames.PERSON),
+                            roleListRefreshCallback);
+                }
+            }
+        }
+
         final Button removeRoleButton =
                 new Button(BUTTON_REMOVE_ROLE, new SelectionListener<ComponentEvent>()
                     {
-                        //
-                        // ComponentEvent
-                        //
-
                         @Override
                         public final void componentSelected(final ComponentEvent ce)
                         {
@@ -169,30 +219,9 @@ public class RolesView extends ContentPanel
                             {
                                 return;
                             }
-                            final AbstractAsyncCallback<Void> roleListRefreshCallback =
-                                    new AbstractAsyncCallback<Void>(viewContext)
-                                        {
-                                            @Override
-                                            public void process(Void result)
-                                            {
-                                                roleList.refresh();
-                                            }
-                                        };
-                            if (StringUtils.isBlank((String) rm.get(ModelDataPropertyNames.GROUP)))
-                            {
-                                viewContext.getService().deleteInstanceRole(
-                                        (String) rm.get(ModelDataPropertyNames.ROLE),
-                                        (String) rm.get(ModelDataPropertyNames.PERSON),
-                                        roleListRefreshCallback);
-                            } else
-                            {
-                                viewContext.getService().deleteGroupRole(
-                                        (String) rm.get(ModelDataPropertyNames.ROLE),
-                                        (String) rm.get(ModelDataPropertyNames.GROUP),
-                                        (String) rm.get(ModelDataPropertyNames.PERSON),
-                                        roleListRefreshCallback);
-                            }
+                            new RemoveRoleDialog(rm).show();
                         }
+
                     });
 
         final ToolBar toolBar = new ToolBar();
