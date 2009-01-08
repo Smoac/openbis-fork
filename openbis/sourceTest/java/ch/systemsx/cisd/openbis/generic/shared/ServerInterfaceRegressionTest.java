@@ -19,22 +19,22 @@ package ch.systemsx.cisd.openbis.generic.shared;
 import org.testng.annotations.Test;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ServerInterfaceRegressionTest extends RegressionTestCase
 {
-    
+
     @Test
     public void testICommonServer()
     {
+        assertMandatoryMethodAnnotations(ICommonServer.class);
         assertNormalizedSourceFilesAreEqual(ICommonServer.class);
     }
-    
+
     @Test
     public void testIPluginCommonServer()
     {
+        assertMandatoryMethodAnnotations(IPluginCommonServer.class);
         assertNormalizedSourceFilesAreEqual(IPluginCommonServer.class);
     }
 }
