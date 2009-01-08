@@ -59,14 +59,14 @@ final class AppView extends View
     }
 
     @SuppressWarnings("unchecked")
-    private final ITabItem getData(final AppEvent<?> event)
+    private final ITabItemFactory getData(final AppEvent<?> event)
     {
-        return ((AppEvent<ITabItem>) event).data;
+        return ((AppEvent<ITabItemFactory>) event).data;
     }
 
-    private final void activateTab(final ITabItem tabItem)
+    private final void activateTab(final ITabItemFactory tabItemFactory)
     {
-        center.openTab(tabItem);
+        center.openTab(tabItemFactory);
     }
 
     private final void initUI()

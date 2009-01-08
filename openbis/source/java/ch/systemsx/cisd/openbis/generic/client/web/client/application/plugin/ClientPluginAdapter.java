@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin;
 
 import com.google.gwt.user.client.ui.Widget;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IIdentifierHolder;
 
@@ -41,7 +41,7 @@ public class ClientPluginAdapter<E extends EntityType, I extends IIdentifierHold
         throw new UnsupportedOperationException("Not yet implemented.");
     }
 
-    public ITabItem createEntityViewer(final I identifier)
+    public ITabItemFactory createEntityViewer(final I identifier)
     {
         throw new UnsupportedOperationException("Not yet implemented.");
     }

@@ -28,19 +28,13 @@ import com.extjs.gxt.ui.client.widget.TabItem;
  */
 public interface ITabItem
 {
-
-    /**
-     * Performs some initialization steps before creating a new tab item out of this.
-     */
-    public void initialize();
-
     /**
      * Returns the title of this tab item.
      * <p>
      * Is typically used in {@link TabItem#setText(String)}.
      * </p>
      */
-    public String getTitle();
+    public String getTabTitle();
 
     /**
      * Returns the {@link Component} which composes this tab item.
@@ -48,16 +42,7 @@ public interface ITabItem
     public Component getComponent();
 
     /**
-     * Returns the unique identifier of this tab item.
-     * <p>
-     * The framework ensures that no two components with the same id will be displayed. Instead the
-     * one already created will get the focus.
-     * </p>
-     */
-    public String getId();
-
-    /**
      * Returns a {@link Listener} that should be registered to the tab item.
      */
-    public Listener<TabPanelEvent> getTabPanelEventListener();
+    public Listener<TabPanelEvent> tryGetEventListener();
 }

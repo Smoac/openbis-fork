@@ -33,14 +33,24 @@ public final class DispatcherHelper
     {
         // Can not be instantiated.
     }
+    
+    /**
+     * Creates and dispatches an event of type {@link AppEvents#NAVI_EVENT}.
+     */
+    public final static void dispatchNaviEvent(final ITabItemFactory tabItemFactory)
+    {
+        AppEvent<ITabItemFactory> event = createNaviEvent(tabItemFactory);
+        Dispatcher.get().dispatch(event);
+    }
 
     /**
      * Create an event of type {@link AppEvents#NAVI_EVENT}.
      */
-    public final static AppEvent<ITabItem> createNaviEvent(final ITabItem tabItem)
+    private final static AppEvent<ITabItemFactory> createNaviEvent(
+            final ITabItemFactory tabItemFactory)
     {
-        final AppEvent<ITabItem> event = new AppEvent<ITabItem>(AppEvents.NAVI_EVENT);
-        event.data = tabItem;
+        final AppEvent<ITabItemFactory> event = new AppEvent<ITabItemFactory>(AppEvents.NAVI_EVENT);
+        event.data = tabItemFactory;
         return event;
     }
 

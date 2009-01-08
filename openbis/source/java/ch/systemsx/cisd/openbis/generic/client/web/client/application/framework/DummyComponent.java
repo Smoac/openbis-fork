@@ -28,9 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
  */
 public final class DummyComponent extends LayoutContainer
 {
-    private static final String PREFIX = "dummy-component";
-
-    public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
+    public static final String ID = GenericConstants.ID_PREFIX + "dummy-component";
 
     public DummyComponent()
     {

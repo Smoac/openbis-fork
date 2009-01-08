@@ -63,17 +63,17 @@ public final class FillPropertyTypeRegistrationForm extends AbstractDefaultTestC
 
     public final void execute()
     {
-        GWTTestUtil.setTextFieldValue(PropertyTypeRegistrationForm.ID_PREFIX + "form_code", code);
-        GWTTestUtil.setTextFieldValue(PropertyTypeRegistrationForm.ID_PREFIX + "form_label", label);
-        GWTTestUtil.setTextFieldValue(PropertyTypeRegistrationForm.ID_PREFIX + "form_description",
-                description);
+        GWTTestUtil.setTextFieldValue(PropertyTypeRegistrationForm.ID + "_code", code);
+        GWTTestUtil.setTextFieldValue(PropertyTypeRegistrationForm.ID + "_label", label);
+        GWTTestUtil
+                .setTextFieldValue(PropertyTypeRegistrationForm.ID + "_description", description);
         final Widget widgetWithID = GWTTestUtil.getWidgetWithID(DataTypeSelectionWidget.ID);
         assertTrue(widgetWithID instanceof DataTypeSelectionWidget);
         final ComboBox<DataTypeModel> dataTypeSelectionWidget =
                 (DataTypeSelectionWidget) widgetWithID;
         GWTUtils.setSelectedItem(dataTypeSelectionWidget, ModelDataPropertyNames.CODE, dataTypeCode
                 .name());
-        GWTTestUtil.clickButtonWithID(PropertyTypeRegistrationForm.ID_PREFIX
+        GWTTestUtil.clickButtonWithID(PropertyTypeRegistrationForm.ID
                 + AbstractRegistrationForm.SAVE_BUTTON);
     }
 

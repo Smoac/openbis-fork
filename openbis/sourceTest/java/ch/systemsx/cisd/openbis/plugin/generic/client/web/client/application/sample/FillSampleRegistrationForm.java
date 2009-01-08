@@ -114,7 +114,7 @@ public final class FillSampleRegistrationForm extends AbstractDefaultTestCommand
                 throw new IllegalStateException("Wrong widget type");
             }
         }
-        GWTTestUtil.clickButtonWithID(GenericSampleRegistrationForm.ID_PREFIX
+        GWTTestUtil.clickButtonWithID(GenericSampleRegistrationForm.ID
                 + AbstractRegistrationForm.SAVE_BUTTON);
     }
 

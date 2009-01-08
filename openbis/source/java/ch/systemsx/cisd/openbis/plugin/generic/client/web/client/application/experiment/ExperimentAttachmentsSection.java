@@ -22,7 +22,6 @@ import java.util.List;
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
@@ -44,6 +43,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.AttachmentModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.AttachmentVersionModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
@@ -133,12 +134,21 @@ public class ExperimentAttachmentsSection extends SectionPanel
                 private void showVersionsPanel(final String fileName,
                         final List<Attachment> allFiles)
                 {
-
                     final String tabTitle = experiment.getIdentifier() + ">" + fileName;
-                    Dispatcher.get().dispatch(
-                            DispatcherHelper.createNaviEvent(new DefaultTabItem(tabTitle,
-                                    createVersionsPanel(allFiles, fileName))));
+                    final ITabItemFactory tabFactory = new ITabItemFactory()
+                        {
+                            public ITabItem create()
+                            {
+                                Component component = createVersionsPanel(allFiles, fileName);
+                                return new DefaultTabItem(tabTitle, component);
+                            }
 
+                            public String getId()
+                            {
+                                return createAttachmentVersionTabId(fileName, experiment);
+                            }
+                        };
+                    DispatcherHelper.dispatchNaviEvent(tabFactory);
                 }
 
                 private List<Attachment> cast(final AttachmentModel selectedItem)
@@ -194,18 +204,24 @@ public class ExperimentAttachmentsSection extends SectionPanel
                     attachmentGrid.getSelectionModel().deselectAll();
                 }
             });
-        panel.setId(GenericConstants.ID_PREFIX + "attachent-versions-"
-                + experiment.getIdentifier() + "_" + fileName);
+        panel.setId(createAttachmentVersionTabId(fileName, experiment));
         panel.add(attachmentGrid);
         return panel;
+    }
+
+    private static String createAttachmentVersionTabId(final String fileName, Experiment experiment)
+    {
+        return GenericConstants.ID_PREFIX + "attachent-versions-" + experiment.getIdentifier()
+                + "_" + fileName;
     }
 
     private void downloadAttachment(String fileName, int version)
     {
         Window.open(createURL(version, fileName, experiment), "", null);
     }
-    
-    private final static String createURL(final int version, final String fileName, final Experiment exp)
+
+    private final static String createURL(final int version, final String fileName,
+            final Experiment exp)
     {
         Project project = exp.getProject();
         Group group = project.getGroup();

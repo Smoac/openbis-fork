@@ -59,7 +59,7 @@ public final class FillVocabularyRegistrationForm extends AbstractDefaultTestCom
         }
         GWTTestUtil.setTextAreaValue(VocabularyRegistrationForm.ID_PREFIX + "form"
                 + VocabularyRegistrationFieldSet.ID + "_terms", StringUtils.join(terms, ","));
-        GWTTestUtil.clickButtonWithID(VocabularyRegistrationForm.ID_PREFIX
+        GWTTestUtil.clickButtonWithID(VocabularyRegistrationForm.ID
                 + AbstractRegistrationForm.SAVE_BUTTON);
     }
 }

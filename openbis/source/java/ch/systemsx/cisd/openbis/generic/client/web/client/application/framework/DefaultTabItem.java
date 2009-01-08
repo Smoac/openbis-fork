@@ -62,22 +62,12 @@ public class DefaultTabItem implements ITabItem
         return component;
     }
 
-    public final String getTitle()
+    public final String getTabTitle()
     {
         return title;
     }
 
-    public final String getId()
-    {
-        return getComponent().getId();
-    }
-
-    public void initialize()
-    {
-        // Does nothing.
-    }
-
-    public final Listener<TabPanelEvent> getTabPanelEventListener()
+    public final Listener<TabPanelEvent> tryGetEventListener()
     {
         return tabPanelEventListener;
     }

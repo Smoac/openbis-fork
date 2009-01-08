@@ -41,13 +41,15 @@ public final class SampleRegistrationPanel extends LayoutContainer
 {
     private final SampleTypeSelectionWidget sampleTypeSelection;
 
-    public static final String ID = "sample-registration";
+    public static final String ID_SUFFIX = "sample-registration";
+
+    public static final String ID = GenericConstants.ID_PREFIX + ID_SUFFIX;
 
     public SampleRegistrationPanel(final CommonViewContext viewContext)
     {
-        setId(GenericConstants.ID_PREFIX + ID);
+        setId(ID);
         setScrollMode(Scroll.AUTO);
-        sampleTypeSelection = new SampleTypeSelectionWidget(viewContext, ID, false);
+        sampleTypeSelection = new SampleTypeSelectionWidget(viewContext, ID_SUFFIX, false);
         final ToolBar toolBar = new ToolBar();
         toolBar.add(new LabelToolItem(viewContext.getMessage(Dict.SAMPLE_TYPE)
                 + GenericConstants.LABEL_SEPARATOR));

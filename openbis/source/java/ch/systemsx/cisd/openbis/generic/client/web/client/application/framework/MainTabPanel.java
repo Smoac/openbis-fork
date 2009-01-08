@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.TabPanelEvent;
@@ -47,6 +50,8 @@ public class MainTabPanel extends TabPanel
 
     public static final String ID = PREFIX.substring(0, PREFIX.length() - 1);
 
+    private Map<String/* tab id */, MainTabItem> openTabs = new HashMap<String, MainTabItem>();
+
     MainTabPanel(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         this.viewContext = viewContext;
@@ -59,9 +64,11 @@ public class MainTabPanel extends TabPanel
     private final MainTabItem createWelcomePanel()
     {
         final LayoutContainer layoutContainer = new LayoutContainer(new CenterLayout());
-        layoutContainer.setId(PREFIX + "welcome");
+        String layoutContainerId = PREFIX + "welcome";
+        layoutContainer.setId(layoutContainerId);
         layoutContainer.addText(createWelcomeText());
-        final MainTabItem intro = new MainTabItem(new DefaultTabItem("&nbsp;", layoutContainer));
+        final MainTabItem intro =
+                new MainTabItem(new DefaultTabItem("&nbsp;", layoutContainer), layoutContainerId);
         intro.setClosable(false);
         return intro;
     }
@@ -74,20 +81,9 @@ public class MainTabPanel extends TabPanel
         return div.getString();
     }
 
-    private final MainTabItem tryGetTab(final ITabItem tabItem)
+    private final MainTabItem tryFindTab(final ITabItemFactory tabItemFactory)
     {
-        for (final TabItem tab : getItems())
-        {
-            if (tab instanceof MainTabItem)
-            {
-                final MainTabItem mainTabItem = (MainTabItem) tab;
-                if (mainTabItem.getTabItem().getId().equals(tabItem.getId()))
-                {
-                    return mainTabItem;
-                }
-            }
-        }
-        return null;
+        return openTabs.get(tabItemFactory.getId());
     }
 
     /**
@@ -97,17 +93,18 @@ public class MainTabPanel extends TabPanel
      * be generated out of given {@link ITabItem}.
      * </p>
      */
-    public final void openTab(final ITabItem tabItem)
+    public final void openTab(final ITabItemFactory tabItemFactory)
     {
-        final MainTabItem tab = tryGetTab(tabItem);
+        final MainTabItem tab = tryFindTab(tabItemFactory);
         if (tab != null)
         {
             setSelection(tab);
         } else
         {
-            tabItem.initialize();
-            final MainTabItem newTab = new MainTabItem(tabItem);
+            String tabId = tabItemFactory.getId();
+            final MainTabItem newTab = new MainTabItem(tabItemFactory.create(), tabId);
             add(newTab);
+            openTabs.put(tabId, newTab);
             setSelection(newTab);
         }
     }
@@ -116,30 +113,33 @@ public class MainTabPanel extends TabPanel
     // Helper classes
     //
 
-    private final static class MainTabItem extends TabItem
+    private final class MainTabItem extends TabItem
     {
-        private final ITabItem tabItem;
-
-        public MainTabItem(final ITabItem tabItem)
+        public MainTabItem(final ITabItem tabItem, final String idPrefix)
         {
-            this.tabItem = tabItem;
-            setId(tabItem.getId() + TAB_SUFFIX);
+            setId(idPrefix + TAB_SUFFIX);
             setClosable(true);
             setLayout(new FitLayout());
-            setText(tabItem.getTitle());
+            setText(tabItem.getTabTitle());
             addStyleName("pad-text");
             add(tabItem.getComponent());
-            final Listener<TabPanelEvent> tabPanelEventListener =
-                    tabItem.getTabPanelEventListener();
+            final Listener<TabPanelEvent> tabPanelEventListener = tabItem.tryGetEventListener();
             if (tabPanelEventListener != null)
             {
                 addListener(Events.Close, tabPanelEventListener);
             }
+            addListener(Events.Close, createTabCloseListener(idPrefix));
         }
 
-        final ITabItem getTabItem()
+        private Listener<TabPanelEvent> createTabCloseListener(final String id)
         {
-            return tabItem;
+            return new Listener<TabPanelEvent>()
+                {
+                    public void handleEvent(TabPanelEvent be)
+                    {
+                        openTabs.remove(id);
+                    }
+                };
         }
     }
 }

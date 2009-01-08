@@ -38,7 +38,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
  */
 public final class SampleBatchRegistrationPanel extends LayoutContainer
 {
-    private static final String ID = "sample-batch-registration";
+    private static final String ID_SUFFIX = "sample-batch-registration";
+
+    public static final String ID = GenericConstants.ID_PREFIX + ID_SUFFIX;
 
     private final SampleTypeSelectionWidget sampleTypeSelection;
 
@@ -47,9 +49,9 @@ public final class SampleBatchRegistrationPanel extends LayoutContainer
     public SampleBatchRegistrationPanel(final CommonViewContext viewContext)
     {
         this.viewContext = viewContext;
-        setId(GenericConstants.ID_PREFIX + ID);
+        setId(ID);
         setScrollMode(Scroll.AUTO);
-        sampleTypeSelection = new SampleTypeSelectionWidget(viewContext, ID, false);
+        sampleTypeSelection = new SampleTypeSelectionWidget(viewContext, ID_SUFFIX, false);
         final ToolBar toolBar = createToolBar();
         add(toolBar);
         sampleTypeSelection.addSelectionChangedListener(new SelectionChangedListener<ModelData>()

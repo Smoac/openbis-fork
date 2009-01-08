@@ -31,7 +31,6 @@ import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.TabPanelEvent;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -44,7 +43,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.MatchingEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
@@ -167,11 +166,11 @@ final class MatchingEntitiesPanel extends ContentPanel implements Listener<TabPa
                     final MatchingEntity matchingEntity =
                             (MatchingEntity) matchingEntityModel.get(ModelDataPropertyNames.OBJECT);
                     final EntityKind entityKind = matchingEntity.getEntityKind();
-                    final ITabItem tabView =
+                    final ITabItemFactory tabView =
                             viewContext.getClientPluginFactoryProvider().getClientPluginFactory(
                                     entityKind, matchingEntity.getEntityType()).createClientPlugin(
                                     entityKind).createEntityViewer(matchingEntity);
-                    Dispatcher.get().dispatch(DispatcherHelper.createNaviEvent(tabView));
+                    DispatcherHelper.dispatchNaviEvent(tabView);
                 }
             });
         GWTUtils.setAutoExpandOnLastVisibleColumn(grid);

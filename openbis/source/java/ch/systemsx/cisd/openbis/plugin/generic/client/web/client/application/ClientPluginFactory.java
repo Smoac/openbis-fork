@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ViewerTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ClientPluginAdapter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
@@ -102,12 +103,23 @@ public final class ClientPluginFactory extends
         // IViewClientPlugin
         //
 
-        public ITabItem createEntityViewer(final Sample sample)
+        public ITabItemFactory createEntityViewer(final Sample sample)
         {
             final String identifier = sample.getIdentifier();
-            final GenericSampleViewer sampleViewer =
-                    new GenericSampleViewer(getViewContext(), identifier);
-            return new ViewerTabItem(identifier, sampleViewer);
+            return new ITabItemFactory()
+                {
+                    public ITabItem create()
+                    {
+                        final GenericSampleViewer sampleViewer =
+                                new GenericSampleViewer(getViewContext(), identifier);
+                        return new ViewerTabItem(identifier, sampleViewer);
+                    }
+
+                    public String getId()
+                    {
+                        return GenericSampleViewer.createId(identifier);
+                    }
+                };
         }
 
         public final Widget createRegistrationForEntityType(final SampleType sampleType)
@@ -130,12 +142,23 @@ public final class ClientPluginFactory extends
         //
 
         @Override
-        public final ITabItem createEntityViewer(final Experiment experiment)
+        public final ITabItemFactory createEntityViewer(final Experiment experiment)
         {
             final String identifier = experiment.getIdentifier();
-            final GenericExperimentViewer experimentViewer =
-                    new GenericExperimentViewer(getViewContext(), identifier);
-            return new ViewerTabItem(identifier, experimentViewer);
+            return new ITabItemFactory()
+                {
+                    public ITabItem create()
+                    {
+                        final GenericExperimentViewer experimentViewer =
+                                new GenericExperimentViewer(getViewContext(), identifier);
+                        return new ViewerTabItem(identifier, experimentViewer);
+                    }
+
+                    public String getId()
+                    {
+                        return GenericExperimentViewer.createId(identifier);
+                    }
+                };
         }
     }
 }

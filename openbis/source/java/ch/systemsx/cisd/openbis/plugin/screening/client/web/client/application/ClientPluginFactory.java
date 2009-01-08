@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application;
 import java.util.Collections;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.widget.Component;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -27,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DummyComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ViewerTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ClientPluginAdapter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
@@ -108,12 +110,23 @@ public final class ClientPluginFactory extends
         // IViewClientPlugin
         //
 
-        public final ITabItem createEntityViewer(final Sample sample)
+        public final ITabItemFactory createEntityViewer(final Sample sample)
         {
             final String sampleIdentifier = sample.getIdentifier();
-            final ScreeningSampleViewer sampleViewer =
-                    new ScreeningSampleViewer(getViewContext(), sampleIdentifier);
-            return new ViewerTabItem(sampleIdentifier, sampleViewer);
+            return new ITabItemFactory()
+                {
+                    public ITabItem create()
+                    {
+                        final ScreeningSampleViewer sampleViewer =
+                                new ScreeningSampleViewer(getViewContext(), sampleIdentifier);
+                        return new ViewerTabItem(sampleIdentifier, sampleViewer);
+                    }
+
+                    public String getId()
+                    {
+                        return ScreeningSampleViewer.createId(sampleIdentifier);
+                    }
+                };
         }
 
         public final Widget createRegistrationForEntityType(final SampleType sampleTypeCode)
@@ -136,9 +149,21 @@ public final class ClientPluginFactory extends
         //
 
         @Override
-        public final ITabItem createEntityViewer(final Experiment identifier)
+        public final ITabItemFactory createEntityViewer(final Experiment identifier)
         {
-            return new DefaultTabItem(identifier.getIdentifier(), new DummyComponent());
+            return new ITabItemFactory()
+                {
+                    public ITabItem create()
+                    {
+                        Component component = new DummyComponent();
+                        return new DefaultTabItem(identifier.getIdentifier(), component);
+                    }
+
+                    public String getId()
+                    {
+                        return DummyComponent.ID;
+                    }
+                };
         }
     }
 }

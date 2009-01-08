@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2009 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,23 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
-
 /**
- * @author Franz-Josef Elmer
+ * Creates {@link ITabItem} which consist of a description and a content of the tab.<br>
+ * Allows to create a tab in a moment when it is needed.
+ * 
+ * @author Tomasz Pylak
  */
-public class ViewerTabItem extends DefaultTabItem
+public interface ITabItemFactory
 {
-    public ViewerTabItem(String title, AbstractViewer<?> viewer)
-    {
-        super(title, viewer);
-        viewer.loadData();
-    }
+    /** creates and initializes a new tab */
+    ITabItem create();
+
+    /**
+     * Returns the unique identifier of this tab item.
+     * <p>
+     * The framework ensures that no two components with the same id will be displayed. Instead the
+     * one already created will get the focus.
+     * </p>
+     */
+    public String getId();
 }

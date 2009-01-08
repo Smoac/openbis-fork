@@ -18,17 +18,16 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.mvc.AppEvent;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.TableRowLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EnterKeyListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ButtonWithLoadingMask;
@@ -105,7 +104,8 @@ final class SearchWidget extends LayoutContainer
 
     private final SearchableEntitySelectionWidget createEntityChooser()
     {
-        final SearchableEntitySelectionWidget comboBox = new SearchableEntitySelectionWidget(viewContext);
+        final SearchableEntitySelectionWidget comboBox =
+                new SearchableEntitySelectionWidget(viewContext);
         comboBox.setStyleAttribute("marginRight", "3px");
         comboBox.setId(ENTITY_CHOOSER_ID);
         return comboBox;
@@ -153,8 +153,8 @@ final class SearchWidget extends LayoutContainer
             }
             if (onlyWildcard)
             {
-                MessageBox.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING), viewContext.getMessage(
-                        Dict.TOO_GENERIC, queryText), null);
+                MessageBox.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING), viewContext
+                        .getMessage(Dict.TOO_GENERIC, queryText), null);
                 return;
             }
             enableSearch(false);
@@ -178,7 +178,8 @@ final class SearchWidget extends LayoutContainer
     private final ButtonWithLoadingMask createSearchButton()
     {
         final ButtonWithLoadingMask button =
-                new ButtonWithLoadingMask(viewContext.getMessage(Dict.SEARCH_BUTTON), SUBMIT_BUTTON_ID)
+                new ButtonWithLoadingMask(viewContext.getMessage(Dict.SEARCH_BUTTON),
+                        SUBMIT_BUTTON_ID)
                     {
                         //
                         // ButtonWithLoadingMask
@@ -235,21 +236,35 @@ final class SearchWidget extends LayoutContainer
             final List<MatchingEntity> entities = result.getList();
             if (entities.size() == 0)
             {
-                MessageBox.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING), viewContext.getMessage(
-                        Dict.NO_MATCH, queryText), null);
+                MessageBox.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING), viewContext
+                        .getMessage(Dict.NO_MATCH, queryText), null);
                 return;
             }
             textField.reset();
-            final AppEvent<ITabItem> event = new AppEvent<ITabItem>(AppEvents.NAVI_EVENT);
+
             final String selectedText =
                     entityChooser.getValue().get(ModelDataPropertyNames.DESCRIPTION);
             final MatchingEntitiesPanel matchingEntitiesPanel =
                     new MatchingEntitiesPanel(castViewContext(), searchableEntityOrNull, queryText);
-            event.data =
-                    new DefaultTabItem(viewContext.getMessage(Dict.GLOBAL_SEARCH, selectedText,
-                            queryText), matchingEntitiesPanel, matchingEntitiesPanel);
             matchingEntitiesPanel.setFirstResulSet(result);
-            Dispatcher.get().dispatch(event);
+
+            String title = viewContext.getMessage(Dict.GLOBAL_SEARCH, selectedText, queryText);
+            final DefaultTabItem tab =
+                    new DefaultTabItem(title, matchingEntitiesPanel, matchingEntitiesPanel);
+            // this tab cannot be opened for the second time, so we can create it outside of the
+            // factory
+            DispatcherHelper.dispatchNaviEvent(new ITabItemFactory()
+                {
+                    public ITabItem create()
+                    {
+                        return tab;
+                    }
+
+                    public String getId()
+                    {
+                        return matchingEntitiesPanel.getId();
+                    }
+                });
         }
     }
 

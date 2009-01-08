@@ -53,6 +53,8 @@ public final class GenericSampleRegistrationForm extends AbstractRegistrationFor
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
+    public static final String ID = ID_PREFIX + "form";
+
     public static final String CODE_FIELD_ID = ID_PREFIX + "code";
 
     public static final String CONTAINER_FIELD_ID = ID_PREFIX + "container";
@@ -80,7 +82,7 @@ public final class GenericSampleRegistrationForm extends AbstractRegistrationFor
     public GenericSampleRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext, final SampleType sampleType)
     {
-        super(viewContext, ID_PREFIX);
+        super(viewContext, ID);
         this.viewContext = viewContext;
         this.sampleType = sampleType;
     }

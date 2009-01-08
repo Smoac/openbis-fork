@@ -98,8 +98,13 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
             final String sampleIdentifier)
     {
         super(viewContext);
-        setId(ID_PREFIX + sampleIdentifier);
+        setId(createId(sampleIdentifier));
         this.sampleIdentifier = sampleIdentifier;
+    }
+
+    public static final String createId(String sampleIdentifier)
+    {
+        return ID_PREFIX + sampleIdentifier;
     }
 
     private final static BorderLayoutData createRightBorderLayoutData()

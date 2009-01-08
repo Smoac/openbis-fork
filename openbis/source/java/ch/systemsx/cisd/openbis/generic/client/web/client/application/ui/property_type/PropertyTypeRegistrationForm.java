@@ -47,9 +47,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Vocabulary;
  */
 public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
 {
-    private static final String PREFIX = "property-type-registration_";
-
-    public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
+    public static final String ID = GenericConstants.ID_PREFIX + "property-type-registration_form";
 
     final IViewContext<ICommonClientServiceAsync> viewContext;
 
@@ -67,7 +65,7 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
 
     public PropertyTypeRegistrationForm(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(viewContext, ID_PREFIX, DEFAULT_LABEL_WIDTH + 20, DEFAULT_FIELD_WIDTH);
+        super(viewContext, ID, DEFAULT_LABEL_WIDTH + 20, DEFAULT_FIELD_WIDTH);
         this.viewContext = viewContext;
         addFields();
     }

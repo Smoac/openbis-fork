@@ -46,8 +46,13 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
             final String experimentIdentifier)
     {
         super(viewContext);
-        setId(ID_PREFIX + experimentIdentifier);
+        setId(createId(experimentIdentifier));
         this.experimentIdentifier = experimentIdentifier;
+    }
+
+    public static String createId(String experimentIdentifier)
+    {
+        return ID_PREFIX + experimentIdentifier;
     }
 
     private static void addSection(final LayoutContainer lc, final Widget w)

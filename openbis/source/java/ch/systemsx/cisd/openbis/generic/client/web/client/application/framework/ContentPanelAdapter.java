@@ -59,10 +59,10 @@ public final class ContentPanelAdapter implements ITabItem
         return contentPanel;
     }
 
-    public final String getTitle()
+    public final String getTabTitle()
     {
         final Header header = contentPanel.getHeader();
-        return contentPanel.getHeader() != null ? header.getText() : contentPanel.getId();
+        return header != null ? header.getText() : contentPanel.getId();
     }
 
     public final String getId()
@@ -75,7 +75,7 @@ public final class ContentPanelAdapter implements ITabItem
         // Does nothing.
     }
 
-    public final Listener<TabPanelEvent> getTabPanelEventListener()
+    public final Listener<TabPanelEvent> tryGetEventListener()
     {
         return tabPanelEventListener;
     }

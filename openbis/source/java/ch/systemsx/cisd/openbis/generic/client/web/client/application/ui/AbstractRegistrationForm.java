@@ -47,8 +47,6 @@ public abstract class AbstractRegistrationForm extends LayoutContainer
 
     public static final int DEFAULT_FIELD_WIDTH = 400;
 
-    private final String idPrefix;
-
     protected InfoBox infoBox;
 
     protected FormPanel formPanel;
@@ -57,20 +55,19 @@ public abstract class AbstractRegistrationForm extends LayoutContainer
 
     protected final int fieldWitdh;
 
-    protected AbstractRegistrationForm(final IMessageProvider messageProvider, final String idPrefix)
+    protected AbstractRegistrationForm(final IMessageProvider messageProvider, final String id)
     {
-        this(messageProvider, idPrefix, DEFAULT_LABEL_WIDTH, DEFAULT_FIELD_WIDTH);
+        this(messageProvider, id, DEFAULT_LABEL_WIDTH, DEFAULT_FIELD_WIDTH);
     }
 
-    protected AbstractRegistrationForm(final IMessageProvider messageProvider,
-            final String idPrefix, final int labelWidth, final int fieldWidth)
+    protected AbstractRegistrationForm(final IMessageProvider messageProvider, final String id,
+            final int labelWidth, final int fieldWidth)
     {
         this.labelWidth = labelWidth;
         this.fieldWitdh = fieldWidth;
         setLayout(new FlowLayout(5));
-        this.idPrefix = idPrefix;
         setScrollMode(Scroll.AUTO);
-        setId(idPrefix + "form");
+        setId(id);
         add(infoBox = createInfoBox());
         add(formPanel = createFormPanel(messageProvider));
     }
@@ -93,7 +90,7 @@ public abstract class AbstractRegistrationForm extends LayoutContainer
         panel.setButtonAlign(HorizontalAlignment.RIGHT);
         final Button saveButton = new Button(messageProvider.getMessage(Dict.BUTTON_SAVE));
         saveButton.setStyleAttribute("marginRight", "20px");
-        saveButton.setId(idPrefix + SAVE_BUTTON);
+        saveButton.setId(getId() + SAVE_BUTTON);
         saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
 

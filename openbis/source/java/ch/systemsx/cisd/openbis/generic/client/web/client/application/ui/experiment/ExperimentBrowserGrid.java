@@ -29,7 +29,6 @@ import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -47,7 +46,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExperimentModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.YesNoRenderer;
@@ -173,11 +172,11 @@ public final class ExperimentBrowserGrid extends LayoutContainer
                     final Experiment experiment =
                             experimentModel.get(ModelDataPropertyNames.OBJECT);
                     final EntityKind entityKind = EntityKind.EXPERIMENT;
-                    final ITabItem tabView =
+                    final ITabItemFactory tabView =
                             viewContext.getClientPluginFactoryProvider().getClientPluginFactory(
                                     entityKind, experiment.getExperimentType()).createClientPlugin(
                                     entityKind).createEntityViewer(experiment);
-                    Dispatcher.get().dispatch(DispatcherHelper.createNaviEvent(tabView));
+                    DispatcherHelper.dispatchNaviEvent(tabView);
                 }
             });
         return experimentGrid;

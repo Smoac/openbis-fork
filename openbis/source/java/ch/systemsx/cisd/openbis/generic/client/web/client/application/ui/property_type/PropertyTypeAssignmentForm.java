@@ -98,14 +98,19 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer
     {
         this.entityKind = entityKind;
         setLayout(new FlowLayout(5));
-        setId(ID_PREFIX + entityKind.name());
+        setId(createId(entityKind));
         this.viewContext = viewContext;
         setScrollMode(Scroll.AUTO);
         add(infoBox = createInfoBox());
         add(formPanel = createFormPanel());
     }
 
-    private String createId(String childSuffix)
+    public static final String createId(EntityKind entityKind)
+    {
+        return ID_PREFIX + entityKind.name();
+    }
+
+    private String createChildId(String childSuffix)
     {
         return getId() + childSuffix;
     }
@@ -121,7 +126,8 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer
         if (propertyTypeSelectionWidget == null)
         {
             propertyTypeSelectionWidget =
-                    new PropertyTypeSelectionWidget(viewContext, createId(PROPERTY_TYPE_ID_SUFFIX));
+                    new PropertyTypeSelectionWidget(viewContext,
+                            createChildId(PROPERTY_TYPE_ID_SUFFIX));
             propertyTypeSelectionWidget
                     .addListener(Events.Focus, new InfoBoxResetListener(infoBox));
             propertyTypeSelectionWidget.setAllowBlank(false);
@@ -178,7 +184,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer
         if (mandatoryCheckbox == null)
         {
             mandatoryCheckbox = new CheckBox();
-            mandatoryCheckbox.setId(createId(MANDATORY_CHECKBOX_ID_SUFFIX));
+            mandatoryCheckbox.setId(createChildId(MANDATORY_CHECKBOX_ID_SUFFIX));
             mandatoryCheckbox.setFieldLabel(viewContext.getMessage(Dict.MANDATORY));
             mandatoryCheckbox.setValue(false);
             mandatoryCheckbox.addListener(Events.Change, new InfoBoxResetListener(infoBox));
@@ -197,7 +203,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer
         panel.setButtonAlign(HorizontalAlignment.RIGHT);
         final Button saveButton = new Button(viewContext.getMessage(Dict.BUTTON_SAVE));
         saveButton.setStyleAttribute("marginRight", "20px");
-        saveButton.setId(createId(SAVE_BUTTON_ID_SUFFIX));
+        saveButton.setId(createChildId(SAVE_BUTTON_ID_SUFFIX));
         saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
                 @Override
@@ -280,7 +286,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer
         {
             Field<?> field =
                     PropertyFieldFactory.createField(propertyType, false, viewContext
-                            .getMessage(Dict.DEFAULT_VALUE), createId(DEFAULT_VALUE_ID_PART
+                            .getMessage(Dict.DEFAULT_VALUE), createChildId(DEFAULT_VALUE_ID_PART
                             + propertyType.isInternalNamespace() + propertyType.getSimpleCode()));
             defaultValueField = field;
             defaultValueField.show();

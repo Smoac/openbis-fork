@@ -16,11 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
+import com.extjs.gxt.ui.client.widget.Component;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GroupsView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.PersonsView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.RolesView;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeAssignmentBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeAssignmentForm;
@@ -42,133 +45,258 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
  */
 final class ComponentProvider
 {
-    private final SampleBrowser sampleBrowser;
-
-    private final DummyComponent dummyComponent;
-
-    private final GroupsView groupsView;
-
-    private final RolesView rolesView;
-
-    private final PersonsView personsView;
-
-    private final SampleRegistrationPanel sampleRegistration;
-
-    private final SampleBatchRegistrationPanel sampleBatchRegistration;
-
-    private final ExperimentBrowser experimentBrowser;
-
-    private final PropertyTypeBrowser propertyTypesBrowser;
-
-    private final PropertyTypeRegistrationForm propertyTypeRegistration;
-
-    private final PropertyTypeAssignmentBrowser propertyTypeAssignmentBrowser;
-
-    private PropertyTypeAssignmentForm propertyTypeExperimentTypeAssignmentForm;
-
-    private PropertyTypeAssignmentForm propertyTypeSampleTypeAssignmentForm;
-
-    private VocabularyRegistrationForm vocabularyRegistrationForm;
-
     private final CommonViewContext viewContext;
 
     ComponentProvider(final CommonViewContext viewContext)
     {
         this.viewContext = viewContext;
-        sampleBrowser = new SampleBrowser(viewContext);
-        dummyComponent = new DummyComponent();
-        groupsView = new GroupsView(viewContext);
-        rolesView = new RolesView(viewContext);
-        personsView = new PersonsView(viewContext);
-        sampleRegistration = new SampleRegistrationPanel(viewContext);
-        sampleBatchRegistration = new SampleBatchRegistrationPanel(viewContext);
-        experimentBrowser = new ExperimentBrowser(viewContext);
-        propertyTypesBrowser = new PropertyTypeBrowser(viewContext);
-        propertyTypeRegistration = new PropertyTypeRegistrationForm(viewContext);
-        propertyTypeAssignmentBrowser = new PropertyTypeAssignmentBrowser(viewContext);
-        propertyTypeExperimentTypeAssignmentForm =
-                new PropertyTypeAssignmentForm(viewContext, EntityKind.EXPERIMENT);
-        propertyTypeSampleTypeAssignmentForm =
-                new PropertyTypeAssignmentForm(viewContext, EntityKind.SAMPLE);
-        vocabularyRegistrationForm = new VocabularyRegistrationForm(viewContext);
     }
 
-    public final ITabItem getSampleBrowser()
+    private String getMessage(String key)
     {
-        return new DefaultTabItem(viewContext.getMessage(Dict.SAMPLE_BROWSER), sampleBrowser,
-                sampleBrowser);
+        return viewContext.getMessage(key);
     }
 
-    public final ITabItem getDummyComponent()
+    public final ITabItemFactory getSampleBrowser()
     {
-        return new DefaultTabItem("Not implemented feature", dummyComponent);
+        return new ITabItemFactory()
+            {
+                public ITabItem create()
+                {
+                    SampleBrowser sampleBrowser = new SampleBrowser(viewContext);
+                    return new DefaultTabItem(getMessage(Dict.SAMPLE_BROWSER), sampleBrowser,
+                            sampleBrowser);
+                }
+
+                public String getId()
+                {
+                    return SampleBrowser.ID;
+                }
+            };
     }
 
-    public final ITabItem getGroupsView()
+    public final ITabItemFactory getDummyComponent()
     {
-        return new ContentPanelAdapter(groupsView);
+        return new ITabItemFactory()
+            {
+                public ITabItem create()
+                {
+                    return new DefaultTabItem("Not implemented feature", new DummyComponent());
+                }
+
+                public String getId()
+                {
+                    return DummyComponent.ID;
+                }
+            };
     }
 
-    public final ITabItem getRolesView()
+    public final ITabItemFactory getGroupsView()
     {
-        return new ContentPanelAdapter(rolesView);
+        return new ITabItemFactory()
+            {
+                public ITabItem create()
+                {
+                    return new ContentPanelAdapter(new GroupsView(viewContext));
+                }
+
+                public String getId()
+                {
+                    return GroupsView.ID;
+                }
+            };
     }
 
-    public final ITabItem getPersonsView()
+    public final ITabItemFactory getRolesView()
     {
-        return new ContentPanelAdapter(personsView);
+        return new ITabItemFactory()
+            {
+                public ITabItem create()
+                {
+                    return new ContentPanelAdapter(new RolesView(viewContext));
+                }
+
+                public String getId()
+                {
+                    return RolesView.ID;
+                }
+            };
     }
 
-    public final ITabItem getSampleRegistration()
+    public final ITabItemFactory getPersonsView()
     {
-        return new DefaultTabItem(viewContext.getMessage(Dict.SAMPLE_REGISTRATION),
-                sampleRegistration);
+        return new ITabItemFactory()
+            {
+                public ITabItem create()
+                {
+                    return new ContentPanelAdapter(new PersonsView(viewContext));
+                }
+
+                public String getId()
+                {
+                    return PersonsView.ID;
+                }
+            };
     }
 
-    public final ITabItem getSampleBatchRegistration()
+    public final ITabItemFactory getSampleRegistration()
     {
-        return new DefaultTabItem(viewContext.getMessage(Dict.SAMPLE_BATCH_REGISTRATION),
-                sampleBatchRegistration);
+        return new ITabItemFactory()
+            {
+                public ITabItem create()
+                {
+                    Component component = new SampleRegistrationPanel(viewContext);
+                    return new DefaultTabItem(getMessage(Dict.SAMPLE_REGISTRATION), component);
+                }
+
+                public String getId()
+                {
+                    return SampleRegistrationPanel.ID;
+                }
+            };
     }
 
-    public final ITabItem getVocabularyRegistration()
+    public final ITabItemFactory getSampleBatchRegistration()
     {
-        return new DefaultTabItem(viewContext.getMessage(Dict.VOCABULARY_REGISTRATION),
-                vocabularyRegistrationForm);
+        return new ITabItemFactory()
+            {
+                public ITabItem create()
+                {
+                    Component component = new SampleBatchRegistrationPanel(viewContext);
+                    return new DefaultTabItem(getMessage(Dict.SAMPLE_BATCH_REGISTRATION), component);
+                }
+
+                public String getId()
+                {
+                    return SampleBatchRegistrationPanel.ID;
+                }
+            };
     }
 
-    public ITabItem getExperimentBrowser()
+    public final ITabItemFactory getVocabularyRegistration()
     {
-        return new DefaultTabItem(viewContext.getMessage(Dict.EXPERIMENT_BROWSER),
-                experimentBrowser, experimentBrowser);
+        return new ITabItemFactory()
+            {
+                public ITabItem create()
+                {
+                    Component component = new VocabularyRegistrationForm(viewContext);
+                    return new DefaultTabItem(getMessage(Dict.VOCABULARY_REGISTRATION), component);
+                }
+
+                public String getId()
+                {
+                    return VocabularyRegistrationForm.ID;
+                }
+            };
     }
 
-    public ITabItem getPropertyTypeBrowser()
+    public ITabItemFactory getExperimentBrowser()
     {
-        return new DefaultTabItem(viewContext.getMessage(Dict.PROPERTY_TYPES), propertyTypesBrowser);
+        return new ITabItemFactory()
+            {
+                public ITabItem create()
+                {
+                    ExperimentBrowser experimentBrowser = new ExperimentBrowser(viewContext);
+                    return new DefaultTabItem(getMessage(Dict.EXPERIMENT_BROWSER),
+                            experimentBrowser, experimentBrowser);
+                }
+
+                public String getId()
+                {
+                    return ExperimentBrowser.ID;
+                }
+            };
     }
 
-    public ITabItem getPropertyTypeRegistration()
+    public ITabItemFactory getPropertyTypeBrowser()
     {
-        return new DefaultTabItem(viewContext.getMessage(Dict.PROPERTY_TYPE_REGISTRATION),
-                propertyTypeRegistration);
+        return new ITabItemFactory()
+            {
+                public ITabItem create()
+                {
+                    Component component = new PropertyTypeBrowser(viewContext);
+                    return new DefaultTabItem(getMessage(Dict.PROPERTY_TYPES), component);
+                }
+
+                public String getId()
+                {
+                    return PropertyTypeBrowser.ID;
+                }
+            };
     }
 
-    public ITabItem getPropertyTypeAssignmentBrowser()
+    public ITabItemFactory getPropertyTypeRegistration()
     {
-        return new ViewerTabItem(viewContext.getMessage(Dict.PROPERTY_TYPE_ASSIGNMENTS),
-                propertyTypeAssignmentBrowser);
+        return new ITabItemFactory()
+            {
+                public ITabItem create()
+                {
+                    Component component = new PropertyTypeRegistrationForm(viewContext);
+                    return new DefaultTabItem(getMessage(Dict.PROPERTY_TYPE_REGISTRATION),
+                            component);
+                }
+
+                public String getId()
+                {
+                    return PropertyTypeRegistrationForm.ID;
+                }
+            };
     }
 
-    public ITabItem getPropertyTypeExperimentTypeAssignmentForm()
+    public ITabItemFactory getPropertyTypeAssignmentBrowser()
     {
-        return new DefaultTabItem(viewContext.getMessage(Dict.ASSIGN_EXPERIMENT_PROPERTY_TYPE),
-                propertyTypeExperimentTypeAssignmentForm);
+        return new ITabItemFactory()
+            {
+                public ITabItem create()
+                {
+                    AbstractViewer<?> component = new PropertyTypeAssignmentBrowser(viewContext);
+                    return new ViewerTabItem(getMessage(Dict.PROPERTY_TYPE_ASSIGNMENTS), component);
+                }
+
+                public String getId()
+                {
+                    return PropertyTypeAssignmentBrowser.ID;
+                }
+            };
     }
 
-    public ITabItem getPropertyTypeSampleTypeAssignmentForm()
+    public ITabItemFactory getPropertyTypeExperimentTypeAssignmentForm()
     {
-        return new DefaultTabItem(viewContext.getMessage(Dict.ASSIGN_SAMPLE_PROPERTY_TYPE),
-                propertyTypeSampleTypeAssignmentForm);
+        return new ITabItemFactory()
+            {
+                EntityKind entityKind = EntityKind.EXPERIMENT;
+
+                public ITabItem create()
+                {
+                    Component component = new PropertyTypeAssignmentForm(viewContext, entityKind);
+                    return new DefaultTabItem(getMessage(Dict.ASSIGN_EXPERIMENT_PROPERTY_TYPE),
+                            component);
+                }
+
+                public String getId()
+                {
+                    return PropertyTypeAssignmentForm.createId(entityKind);
+                }
+            };
+    }
+
+    public ITabItemFactory getPropertyTypeSampleTypeAssignmentForm()
+    {
+        return new ITabItemFactory()
+            {
+                EntityKind entityKind = EntityKind.SAMPLE;
+
+                public ITabItem create()
+                {
+                    Component component = new PropertyTypeAssignmentForm(viewContext, entityKind);
+                    return new DefaultTabItem(getMessage(Dict.ASSIGN_SAMPLE_PROPERTY_TYPE),
+                            component);
+                }
+
+                public String getId()
+                {
+                    return PropertyTypeAssignmentForm.createId(entityKind);
+                }
+            };
     }
 }

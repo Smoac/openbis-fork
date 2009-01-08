@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin;
 
 import com.google.gwt.user.client.ui.Widget;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IIdentifierHolder;
 
@@ -40,7 +40,7 @@ public interface IClientPlugin<T extends EntityType, I extends IIdentifierHolder
     /**
      * Shows a detailed view of the entity specified by its <var>identifier</var>.
      */
-    public ITabItem createEntityViewer(final I identifier);
+    public ITabItemFactory createEntityViewer(final I identifier);
 
     /**
      * Shows a registration form for entities of given <var>entityType</var>.

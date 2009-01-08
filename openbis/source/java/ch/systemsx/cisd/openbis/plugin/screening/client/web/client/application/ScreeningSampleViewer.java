@@ -43,8 +43,13 @@ public final class ScreeningSampleViewer extends AbstractViewer<IScreeningClient
             final String sampleIdentifier)
     {
         super(viewContext);
-        setId(ID_PREFIX + sampleIdentifier);
+        setId(createId(sampleIdentifier));
         this.sampleIdentifier = sampleIdentifier;
+    }
+
+    public static final String createId(String sampleIdentifier)
+    {
+        return ID_PREFIX + sampleIdentifier;
     }
 
     private final Widget createUI(final SampleGeneration sampleGeneration)

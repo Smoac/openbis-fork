@@ -20,8 +20,6 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.TreeEvent;
-import com.extjs.gxt.ui.client.mvc.AppEvent;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.AccordionLayout;
 import com.extjs.gxt.ui.client.widget.tree.Tree;
@@ -97,15 +95,19 @@ public class LeftMenu extends ContentPanel
 
                     public final void handleEvent(final TreeEvent be)
                     {
-                        if (tree.getSelectedItem().isLeaf())
+                        TreeItem selectedItem = tree.getSelectedItem();
+                        if (selectedItem == null)
                         {
-                            final AppEvent<ITabItem> event =
-                                    new AppEvent<ITabItem>(AppEvents.NAVI_EVENT);
-                            event.data = tree.getSelectedItem().getData(TAB_ITEM_KEY);
-                            Dispatcher.get().dispatch(event);
+                            return;
+                        }
+
+                        if (selectedItem.isLeaf())
+                        {
+                            ITabItemFactory tab = selectedItem.getData(TAB_ITEM_KEY);
+                            DispatcherHelper.dispatchNaviEvent(tab);
                         } else
                         {
-                            tree.getSelectedItem().setExpanded(true);
+                            selectedItem.setExpanded(true);
                         }
                     }
                 });
@@ -116,11 +118,12 @@ public class LeftMenu extends ContentPanel
             add(tree);
         }
 
-        private final void addCommand(final String id, final String name, final ITabItem tabItem)
+        private final void addCommand(final String id, final String name,
+                final ITabItemFactory tabItemFactory)
         {
             final TreeItem item = new TreeItem(name);
             item.setId(id);
-            item.setData(TAB_ITEM_KEY, tabItem);
+            item.setData(TAB_ITEM_KEY, tabItemFactory);
             tree.getRootItem().add(item);
         }
 

@@ -37,13 +37,15 @@ public final class VocabularyRegistrationForm extends AbstractRegistrationForm
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
+    public static final String ID = ID_PREFIX + "form";
+
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     private VocabularyRegistrationFieldSet vocabularyRegistrationFieldSet;
 
     public VocabularyRegistrationForm(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(viewContext, ID_PREFIX);
+        super(viewContext, ID);
         this.viewContext = viewContext;
         addFields();
     }

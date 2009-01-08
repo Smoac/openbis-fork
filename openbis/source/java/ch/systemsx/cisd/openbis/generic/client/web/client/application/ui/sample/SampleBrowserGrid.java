@@ -31,7 +31,6 @@ import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -48,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.AbstractColumnsConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.PagingToolBarWithoutRefresh;
@@ -195,11 +194,11 @@ public final class SampleBrowserGrid extends LayoutContainer
                             (SampleModel) be.grid.getStore().getAt(be.rowIndex);
                     final Sample sample = sampleModel.getSample();
                     final EntityKind entityKind = EntityKind.SAMPLE;
-                    final ITabItem tabView =
+                    final ITabItemFactory tabView =
                             viewContext.getClientPluginFactoryProvider().getClientPluginFactory(
                                     entityKind, sample.getSampleType()).createClientPlugin(
                                     entityKind).createEntityViewer(sample);
-                    Dispatcher.get().dispatch(DispatcherHelper.createNaviEvent(tabView));
+                    DispatcherHelper.dispatchNaviEvent(tabView);
                 }
             });
         return sampleGrid;
