@@ -111,18 +111,18 @@ public class TabFileLoader<T>
 
     /**
      * Loads data from the specified reader.
+     * <p>
+     * The header can contain comments which are ignored. The column names can be the first
+     * uncommented line or the last commented line. The latter case is determined by the fact, that
+     * the one before the last line is a single hash.
+     * </p>
      */
     public List<T> load(final Reader reader) throws ParserException, ParsingException,
             IllegalArgumentException
     {
         assert reader != null : "Unspecified reader";
 
-        final List<T> result = new ArrayList<T>();
         final Iterator<Line> lineIterator = createLineIterator(reader);
-        if (lineIterator.hasNext() == false)
-        {
-            return result;
-        }
         Line previousLine = null;
         Line line = null;
         boolean previousLineHasColumnHeaders = false;
@@ -137,8 +137,21 @@ public class TabFileLoader<T>
                 break;
             }
         }
-        final String headerLine =
-                previousLineHasColumnHeaders ? previousLine.getText().substring(1) : line.getText();
+        final List<T> result = new ArrayList<T>();
+        if (line == null) // no lines present
+        {
+            return result;
+        }
+
+        final String headerLine;
+        if (previousLineHasColumnHeaders && (previousLine != null /* just for eclipse */))
+        {
+            headerLine = previousLine.getText().substring(1);
+        } else
+        {
+            headerLine = line.getText();
+        }
+
         final DefaultParser<T> parser = new DefaultParser<T>();
         final String[] tokens = StringUtils.split(headerLine, "\t");
         final int headerLength = tokens.length;
