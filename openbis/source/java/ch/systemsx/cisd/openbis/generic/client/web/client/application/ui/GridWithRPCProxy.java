@@ -41,6 +41,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
  */
 public abstract class GridWithRPCProxy<M, T extends ModelData> extends Grid<T>
 {
+    abstract protected ColumnModel createColumnModel(IViewContext<?> context);
+
+    abstract protected DelegatingAsyncCallback createCallback(IViewContext<?> context,
+            AsyncCallback<BaseListLoadResult<T>> callback);
+
+    abstract protected void loadDataFromService(DelegatingAsyncCallback callback);
+
+    abstract protected List<T> convert(List<M> result);
 
     private final IViewContext<?> viewContext;
 
@@ -63,8 +71,6 @@ public abstract class GridWithRPCProxy<M, T extends ModelData> extends Grid<T>
         getStore().getLoader().load();
     }
 
-    protected abstract ColumnModel createColumnModel(IViewContext<?> context);
-
     private final RpcProxy<BaseListLoadConfig, BaseListLoadResult<T>> createRpcProxy()
     {
         return new RpcProxy<BaseListLoadConfig, BaseListLoadResult<T>>()
@@ -79,13 +85,6 @@ public abstract class GridWithRPCProxy<M, T extends ModelData> extends Grid<T>
 
             };
     }
-
-    abstract protected DelegatingAsyncCallback createCallback(IViewContext<?> context,
-            AsyncCallback<BaseListLoadResult<T>> callback);
-
-    abstract protected void loadDataFromService(DelegatingAsyncCallback callback);
-
-    abstract protected List<T> convert(List<M> result);
 
     protected class DelegatingAsyncCallback extends AbstractAsyncCallback<List<M>>
     {
