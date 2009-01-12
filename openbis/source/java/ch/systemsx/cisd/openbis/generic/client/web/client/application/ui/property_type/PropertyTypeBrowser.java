@@ -16,28 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.extjs.gxt.ui.client.Style.SelectionMode;
-import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
-import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
-import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.extjs.gxt.ui.client.widget.grid.GridView;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.Element;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.PropertyTypeModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.ETPTRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GridWithRPCProxy;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 
 /**
@@ -50,110 +36,23 @@ public class PropertyTypeBrowser extends ContentPanel
 
     public static final String ID = GenericConstants.ID_PREFIX + "property-types-browser";
 
-    public static final String GRID_ID = ID + "_grid";
-
-    private final CommonViewContext viewContext;
+    private GridWithRPCProxy<PropertyType, PropertyTypeModel> grid;
 
     public PropertyTypeBrowser(final CommonViewContext viewContext)
     {
-        this.viewContext = viewContext;
         setLayout(new FitLayout());
         setHeading("Property types");
         setId(ID);
+        grid = new PropertyTypeGrid(viewContext, ID);
+        add(grid);
     }
 
     @Override
     protected void onRender(final Element parent, final int pos)
     {
         super.onRender(parent, pos);
-        refresh();
-    }
-
-    private void display(final List<PropertyType> propertyTypes)
-    {
-        removeAll();
-        final ColumnModel cm = createColumns();
-        final ListStore<PropertyTypeModel> store = new ListStore<PropertyTypeModel>();
-        store.add(getPropertyTypeModels(propertyTypes));
-        final Grid<PropertyTypeModel> grid = new Grid<PropertyTypeModel>(store, cm);
-        final GridView view = new GridView();
-        view.setForceFit(true);
-        grid.setView(view);
-        grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        grid.setId(GRID_ID);
-        GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
-        add(grid);
-
         layout();
+        grid.load();
     }
 
-    private ColumnModel createColumns()
-    {
-        final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-        configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext
-                .getMessage(Dict.LABEL), ModelDataPropertyNames.LABEL));
-        configs.add(ColumnConfigFactory.createCodeColumnConfig(viewContext));
-        configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext
-                .getMessage(Dict.DATA_TYPE), ModelDataPropertyNames.DATA_TYPE));
-        configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext
-                .getMessage(Dict.VOCABULARY), ModelDataPropertyNames.CONTROLLED_VOCABULARY));
-        configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext
-                .getMessage(Dict.DESCRIPTION), ModelDataPropertyNames.DESCRIPTION));
-        configs.add(defineSampleTypesColumn());
-        configs.add(defineExperimentTypesColumn());
-        configs.add(defineMaterialTypesColumn());
-        return new ColumnModel(configs);
-    }
-
-    private ColumnConfig defineSampleTypesColumn()
-    {
-        return defineEtptColumn(Dict.SAMPLE_TYPES, ModelDataPropertyNames.SAMPLE_TYPES);
-    }
-
-    private ColumnConfig defineExperimentTypesColumn()
-    {
-        return defineEtptColumn(Dict.EXPERIMENT_TYPES, ModelDataPropertyNames.EXPERIMENT_TYPES);
-    }
-
-    private ColumnConfig defineMaterialTypesColumn()
-    {
-        return defineEtptColumn(Dict.MATERIAL_TYPES, ModelDataPropertyNames.MATERIAL_TYPES);
-    }
-
-    private ColumnConfig defineEtptColumn(String dictCode, String id)
-    {
-        final ColumnConfig column =
-                ColumnConfigFactory.createDefaultColumnConfig(viewContext.getMessage(dictCode), id);
-        column.setRenderer(new ETPTRenderer());
-        return column;
-    }
-
-    List<PropertyTypeModel> getPropertyTypeModels(final List<PropertyType> propertyTypes)
-    {
-        final List<PropertyTypeModel> list = new ArrayList<PropertyTypeModel>();
-        for (final PropertyType pt : propertyTypes)
-        {
-            list.add(new PropertyTypeModel(pt));
-        }
-        return list;
-    }
-
-    public void refresh()
-    {
-        viewContext.getService().listPropertyTypes(new ListPropertyTypesCallback(viewContext));
-    }
-
-    public final class ListPropertyTypesCallback extends AbstractAsyncCallback<List<PropertyType>>
-    {
-        private ListPropertyTypesCallback(final CommonViewContext viewContext)
-        {
-            super(viewContext);
-        }
-
-        @Override
-        public final void process(final List<PropertyType> propertyTypes)
-        {
-            display(propertyTypes);
-        }
-    }
 }

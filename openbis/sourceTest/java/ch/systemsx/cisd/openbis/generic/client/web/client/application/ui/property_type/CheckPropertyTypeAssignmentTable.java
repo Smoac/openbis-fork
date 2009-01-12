@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeAssignmentBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 
@@ -30,8 +29,7 @@ public class CheckPropertyTypeAssignmentTable extends CheckTableCommand
 {
     public CheckPropertyTypeAssignmentTable()
     {
-        super(PropertyTypeAssignmentBrowser.GRID_ID,
-                PropertyTypeAssignmentBrowser.ListPropertyTypesCallback.class);
+        super(PropertyTypeAssignmentBrowser.ID + "_grid",
+                PropertyTypeAssignmentGrid.ListPropertyTypesCallback.class);
     }
-
 }

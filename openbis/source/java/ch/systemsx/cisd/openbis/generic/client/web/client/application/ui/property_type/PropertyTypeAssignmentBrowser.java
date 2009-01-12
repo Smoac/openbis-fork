@@ -16,80 +16,69 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.extjs.gxt.ui.client.Style.SelectionMode;
-import com.extjs.gxt.ui.client.data.BaseListLoadConfig;
-import com.extjs.gxt.ui.client.data.BaseListLoadResult;
-import com.extjs.gxt.ui.client.data.BaseListLoader;
-import com.extjs.gxt.ui.client.data.ListLoader;
-import com.extjs.gxt.ui.client.data.RpcProxy;
-import com.extjs.gxt.ui.client.store.GroupingStore;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
-import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
-import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridGroupRenderer;
 import com.extjs.gxt.ui.client.widget.grid.GroupColumnData;
-import com.extjs.gxt.ui.client.widget.grid.GroupingView;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ETPTModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.YesNoRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnFilter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 
 /**
  * Encapsulates property type assignments listing functionality.
  * 
  * @author Izabela Adamczyk
  */
-public class PropertyTypeAssignmentBrowser extends AbstractViewer<ICommonClientServiceAsync>
+public class PropertyTypeAssignmentBrowser extends ContentPanel
 {
     public static final String ID =
             GenericConstants.ID_PREFIX + "property-type-assignments-browser";
 
-    public static final String GRID_ID = ID + "_grid";
-
-    private Grid<ETPTModel> grid;
-
-    private ContentPanel panel;
-
     private ToolBar toolbar;
 
-    public PropertyTypeAssignmentBrowser(IViewContext<ICommonClientServiceAsync> viewContext)
+    private PropertyTypeAssignmentGrid grid;
+
+    private final IViewContext<ICommonClientServiceAsync> viewContext;
+
+    public PropertyTypeAssignmentBrowser(final CommonViewContext viewContext)
     {
-        super(viewContext);
-        setId(ID);
+        this.viewContext = viewContext;
         setLayout(new FitLayout());
-        add(getPanel());
+        setHeading("Property Type Assignments");
+        setId(ID);
+        grid = new PropertyTypeAssignmentGrid(viewContext, ID);
+        grid.setGroupRenderer(new GridGroupRenderer()
+            {
+
+                public String render(GroupColumnData data)
+                {
+                    return viewContext.getMessage(Dict.ENTITY_TYPE_ASSIGNMENTS, StringUtils
+                            .capitalize(data.group), data.models.size() > 1 ? "s" : "");
+                }
+            });
+        add(grid);
+        setBottomComponent(getToolbar());
+
     }
 
-    private ContentPanel getPanel()
+    @Override
+    protected void onRender(final Element parent, final int pos)
     {
-        if (panel == null)
-        {
-            panel = new ContentPanel();
-            panel.setLayout(new FitLayout());
-            panel.add(getGrid());
-            panel.setBottomComponent(getToolbar());
-        }
-        return panel;
+        super.onRender(parent, pos);
+        layout();
+        grid.load();
     }
 
     private ToolBar getToolbar()
@@ -98,7 +87,7 @@ public class PropertyTypeAssignmentBrowser extends AbstractViewer<ICommonClientS
         {
             toolbar = new ToolBar();
             toolbar.add(new LabelToolItem("Filter:"));
-            Store<ETPTModel> store = getGrid().getStore();
+            Store<ETPTModel> store = grid.getStore();
             toolbar.add(new AdapterToolItem(new ColumnFilter<ETPTModel>(store,
                     ModelDataPropertyNames.PROPERTY_TYPE_CODE, viewContext
                             .getMessage(Dict.PROPERTY_TYPE_CODE))));
@@ -109,110 +98,6 @@ public class PropertyTypeAssignmentBrowser extends AbstractViewer<ICommonClientS
                     ModelDataPropertyNames.ENTITY_KIND, viewContext.getMessage(Dict.TYPE_OF))));
         }
         return toolbar;
-    }
-
-    private Grid<ETPTModel> getGrid()
-    {
-        if (grid == null)
-        {
-            final ListLoader<BaseListLoadConfig> loader = createListLoader(createRpcProxy());
-            final GroupingStore<ETPTModel> listStore = new GroupingStore<ETPTModel>(loader);
-            listStore.groupBy(ModelDataPropertyNames.ENTITY_KIND);
-            grid = new Grid<ETPTModel>(listStore, createColumnModel());
-            final GroupingView view = new GroupingView();
-            view.setGroupRenderer(new GridGroupRenderer()
-                {
-
-                    public String render(GroupColumnData data)
-                    {
-                        return viewContext.getMessage(Dict.ENTITY_TYPE_ASSIGNMENTS, StringUtils
-                                .capitalize(data.group), data.models.size() > 1 ? "s" : "");
-                    }
-                });
-            view.setForceFit(true);
-            grid.setView(view);
-            grid.setId(GRID_ID);
-            grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-            grid.setLoadMask(true);
-        }
-        return grid;
-    }
-
-    private ColumnModel createColumnModel()
-    {
-        final ArrayList<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-
-        configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext
-                .getMessage(Dict.PROPERTY_TYPE_CODE), ModelDataPropertyNames.PROPERTY_TYPE_CODE));
-
-        configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext
-                .getMessage(Dict.ASSIGNED_TO), ModelDataPropertyNames.ENTITY_TYPE_CODE));
-
-        configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext
-                .getMessage(Dict.TYPE_OF), ModelDataPropertyNames.ENTITY_KIND));
-
-        final ColumnConfig mandatory =
-                ColumnConfigFactory.createDefaultColumnConfig(viewContext
-                        .getMessage(Dict.IS_MANDATORY), ModelDataPropertyNames.IS_MANDATORY);
-        mandatory.setRenderer(new YesNoRenderer());
-        configs.add(mandatory);
-        return new ColumnModel(configs);
-    }
-
-    @Override
-    public void loadData()
-    {
-        grid.getStore().getLoader().load();
-    }
-
-    private final <T> ListLoader<BaseListLoadConfig> createListLoader(
-            final RpcProxy<BaseListLoadConfig, BaseListLoadResult<T>> rpcProxy)
-    {
-        final BaseListLoader<BaseListLoadConfig, BaseListLoadResult<T>> baseListLoader =
-                new BaseListLoader<BaseListLoadConfig, BaseListLoadResult<T>>(rpcProxy);
-        return baseListLoader;
-    }
-
-    private final RpcProxy<BaseListLoadConfig, BaseListLoadResult<ETPTModel>> createRpcProxy()
-    {
-        return new RpcProxy<BaseListLoadConfig, BaseListLoadResult<ETPTModel>>()
-            {
-                @Override
-                public final void load(final BaseListLoadConfig loadConfig,
-                        final AsyncCallback<BaseListLoadResult<ETPTModel>> callback)
-                {
-                    viewContext.getService().listPropertyTypes(
-                            new ListPropertyTypesCallback(viewContext, callback));
-                }
-            };
-    }
-
-    class ListPropertyTypesCallback extends AbstractAsyncCallback<List<PropertyType>>
-    {
-
-        private final AsyncCallback<BaseListLoadResult<ETPTModel>> delegate;
-
-        public ListPropertyTypesCallback(IViewContext<ICommonClientServiceAsync> viewContext,
-                AsyncCallback<BaseListLoadResult<ETPTModel>> callback)
-        {
-            super(viewContext);
-            this.delegate = callback;
-        }
-
-        @Override
-        protected void finishOnFailure(final Throwable caught)
-        {
-            delegate.onFailure(caught);
-        }
-
-        @Override
-        protected void process(List<PropertyType> result)
-        {
-            final List<ETPTModel> models = ETPTModel.asModels(result);
-            final BaseListLoadResult<ETPTModel> baseListLoadResult =
-                    new BaseListLoadResult<ETPTModel>(models);
-            delegate.onSuccess(baseListLoadResult);
-        }
     }
 
 }

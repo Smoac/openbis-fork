@@ -23,7 +23,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GroupsView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.PersonsView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.RolesView;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeAssignmentBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeAssignmentForm;
@@ -249,8 +248,8 @@ final class ComponentProvider
             {
                 public ITabItem create()
                 {
-                    AbstractViewer<?> component = new PropertyTypeAssignmentBrowser(viewContext);
-                    return new ViewerTabItem(getMessage(Dict.PROPERTY_TYPE_ASSIGNMENTS), component);
+                    Component component = new PropertyTypeAssignmentBrowser(viewContext);
+                    return new DefaultTabItem(getMessage(Dict.PROPERTY_TYPE_ASSIGNMENTS), component);
                 }
 
                 public String getId()
