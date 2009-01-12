@@ -38,10 +38,10 @@ public class ListExperiments extends AbstractDefaultTestCommand
 
     private final String projectCodeOrNull;
 
-    public ListExperiments(final String projectNameOrNull, final String sampleTypeNameOrNull)
+    public ListExperiments(final String projectNameOrNull, final String experimentTypeNameOrNull)
     {
         this.projectCodeOrNull = projectNameOrNull;
-        this.experimentTypeName = sampleTypeNameOrNull;
+        this.experimentTypeName = experimentTypeNameOrNull;
         addCallbackClass(ProjectSelectionWidget.ListProjectsCallback.class);
         addCallbackClass(ExperimentTypeSelectionWidget.ListExperimentTypesCallback.class);
     }
