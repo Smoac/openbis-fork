@@ -43,7 +43,7 @@ public class PropertyTypeAssignmentGrid extends GridWithRPCProxy<PropertyType, E
 {
     private final CommonViewContext viewContext;
 
-    public PropertyTypeAssignmentGrid(CommonViewContext viewContext, String id)
+    public PropertyTypeAssignmentGrid(final CommonViewContext viewContext, String id)
     {
         super(viewContext, id);
         this.viewContext = viewContext;

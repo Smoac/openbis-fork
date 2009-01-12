@@ -18,8 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.proper
 
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.grid.GridGroupRenderer;
-import com.extjs.gxt.ui.client.widget.grid.GroupColumnData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
@@ -34,7 +32,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ETPTModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnFilter;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 
 /**
  * Encapsulates property type assignments listing functionality.
@@ -59,15 +56,6 @@ public class PropertyTypeAssignmentBrowser extends ContentPanel
         setHeading("Property Type Assignments");
         setId(ID);
         grid = new PropertyTypeAssignmentGrid(viewContext, ID);
-        grid.setGroupRenderer(new GridGroupRenderer()
-            {
-
-                public String render(GroupColumnData data)
-                {
-                    return viewContext.getMessage(Dict.ENTITY_TYPE_ASSIGNMENTS, StringUtils
-                            .capitalize(data.group), data.models.size() > 1 ? "s" : "");
-                }
-            });
         add(grid);
         setBottomComponent(getToolbar());
 

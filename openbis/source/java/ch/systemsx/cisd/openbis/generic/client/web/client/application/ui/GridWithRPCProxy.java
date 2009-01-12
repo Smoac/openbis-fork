@@ -25,13 +25,10 @@ import com.extjs.gxt.ui.client.data.BaseListLoader;
 import com.extjs.gxt.ui.client.data.ListLoader;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.RpcProxy;
-import com.extjs.gxt.ui.client.store.GroupingStore;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.extjs.gxt.ui.client.widget.grid.GridGroupRenderer;
 import com.extjs.gxt.ui.client.widget.grid.GridView;
-import com.extjs.gxt.ui.client.widget.grid.GroupingView;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -59,14 +56,6 @@ public abstract class GridWithRPCProxy<M, T extends ModelData> extends Grid<T>
         setLoadMask(true);
         getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         setId(idPrefix + "_grid");
-    }
-
-    public void setGroupRenderer(GridGroupRenderer groupRenderer)
-    {
-        final GroupingView groupingView = new GroupingView();
-        groupingView.setGroupRenderer(groupRenderer);
-        setView(groupingView);
-        reconfigure(new GroupingStore<T>(getStore().getLoader()), getColumnModel());
     }
 
     public void load()
