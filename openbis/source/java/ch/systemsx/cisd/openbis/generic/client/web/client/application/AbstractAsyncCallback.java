@@ -190,6 +190,7 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
         dialog.setModal(true);
         dialog.setHideOnButtonClick(true);
         dialog.show();
+        // logout the user after his confirmation
         dialog.addWindowListener(new WindowListener()
             {
                 @Override
