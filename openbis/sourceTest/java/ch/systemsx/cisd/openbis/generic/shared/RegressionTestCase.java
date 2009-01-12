@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared;
 
 import java.io.File;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -76,11 +77,12 @@ public class RegressionTestCase extends AssertJUnit
         return normalizer.normalize(FileUtilities.loadToString(new File(rootFolder, fileName)));
     }
 
-    @SuppressWarnings("unchecked")
     protected void assertMandatoryMethodAnnotations(Class<?> clazz)
     {
-        Class[] mandatoryAnnotations =
-            { RolesAllowed.class, Transactional.class };
+        List<Class<? extends Annotation>> mandatoryAnnotations =
+                new ArrayList<Class<? extends Annotation>>();
+        mandatoryAnnotations.add(RolesAllowed.class);
+        mandatoryAnnotations.add(Transactional.class);
 
         final String noMissingAnnotationsMsg =
                 "Missing annotations in class " + clazz.getCanonicalName() + ":\n";
@@ -88,7 +90,7 @@ public class RegressionTestCase extends AssertJUnit
         for (Method m : clazz.getDeclaredMethods())
         {
             List<String> missingAnnotations = new ArrayList<String>();
-            for (Class c : mandatoryAnnotations)
+            for (Class<? extends Annotation> c : mandatoryAnnotations)
             {
                 if (m.getAnnotation(c) == null)
                 {
@@ -103,5 +105,4 @@ public class RegressionTestCase extends AssertJUnit
         }
         assertEquals(noMissingAnnotationsMsg, problems.toString());
     }
-
 }
