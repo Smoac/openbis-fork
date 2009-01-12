@@ -45,25 +45,11 @@ public class PropertyTypeAssignmentGrid extends GridWithRPCProxy<PropertyType, E
 
     public PropertyTypeAssignmentGrid(final CommonViewContext viewContext, String id)
     {
-        super(viewContext, id);
+        super(createColumnModel(viewContext), id);
         this.viewContext = viewContext;
     }
 
-    @Override
-    protected List<ETPTModel> convert(List<PropertyType> result)
-    {
-        return ETPTModel.asModels(result);
-    }
-
-    @Override
-    protected ListPropertyTypesCallback createCallback(IViewContext<?> context,
-            AsyncCallback<BaseListLoadResult<ETPTModel>> callback)
-    {
-        return new ListPropertyTypesCallback(viewContext, callback);
-    }
-
-    @Override
-    protected ColumnModel createColumnModel(IViewContext<?> context)
+    private static ColumnModel createColumnModel(IViewContext<?> context)
     {
         final ArrayList<ColumnConfig> configs = new ArrayList<ColumnConfig>();
         configs.add(ColumnConfigFactory.createDefaultColumnConfig(context
@@ -81,9 +67,10 @@ public class PropertyTypeAssignmentGrid extends GridWithRPCProxy<PropertyType, E
     }
 
     @Override
-    protected void loadDataFromService(DelegatingAsyncCallback callback)
+    protected void loadDataFromService(AsyncCallback<BaseListLoadResult<ETPTModel>> callback)
     {
-        viewContext.getService().listPropertyTypes(callback);
+        viewContext.getService().listPropertyTypes(
+                new ListPropertyTypesCallback(viewContext, callback));
     }
 
     class ListPropertyTypesCallback extends DelegatingAsyncCallback
@@ -92,6 +79,12 @@ public class PropertyTypeAssignmentGrid extends GridWithRPCProxy<PropertyType, E
                 AsyncCallback<BaseListLoadResult<ETPTModel>> callback)
         {
             super(context, callback);
+        }
+
+        @Override
+        protected List<ETPTModel> convert(List<PropertyType> result)
+        {
+            return ETPTModel.asModels(result);
         }
     }
 }

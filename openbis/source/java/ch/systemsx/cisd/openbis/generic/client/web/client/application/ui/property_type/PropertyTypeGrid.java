@@ -45,25 +45,11 @@ class PropertyTypeGrid extends GridWithRPCProxy<PropertyType, PropertyTypeModel>
 
     public PropertyTypeGrid(CommonViewContext viewContext, String id)
     {
-        super(viewContext, id);
+        super(createColumnModel(viewContext), id);
         this.viewContext = viewContext;
     }
 
-    @Override
-    protected List<PropertyTypeModel> convert(List<PropertyType> result)
-    {
-        return PropertyTypeModel.convert(result);
-    }
-
-    @Override
-    protected ListPropertyTypesCallback createCallback(IViewContext<?> context,
-            AsyncCallback<BaseListLoadResult<PropertyTypeModel>> callback)
-    {
-        return new ListPropertyTypesCallback(viewContext, callback);
-    }
-
-    @Override
-    protected ColumnModel createColumnModel(IViewContext<?> context)
+    private static ColumnModel createColumnModel(IViewContext<?> context)
     {
         final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
         configs.add(ColumnConfigFactory.createDefaultColumnConfig(context.getMessage(Dict.LABEL),
@@ -85,18 +71,10 @@ class PropertyTypeGrid extends GridWithRPCProxy<PropertyType, PropertyTypeModel>
     }
 
     @Override
-    protected void loadDataFromService(DelegatingAsyncCallback callback)
+    protected void loadDataFromService(AsyncCallback<BaseListLoadResult<PropertyTypeModel>> callback)
     {
-        viewContext.getService().listPropertyTypes(callback);
-
-    }
-
-    private static ColumnConfig defineEtptColumn(String dictCode, String id, IViewContext<?> context)
-    {
-        final ColumnConfig column =
-                ColumnConfigFactory.createDefaultColumnConfig(context.getMessage(dictCode), id);
-        column.setRenderer(new ETPTRenderer());
-        return column;
+        viewContext.getService().listPropertyTypes(
+                new ListPropertyTypesCallback(viewContext, callback));
     }
 
     class ListPropertyTypesCallback extends DelegatingAsyncCallback
@@ -106,5 +84,19 @@ class PropertyTypeGrid extends GridWithRPCProxy<PropertyType, PropertyTypeModel>
         {
             super(context, callback);
         }
+
+        @Override
+        protected List<PropertyTypeModel> convert(List<PropertyType> result)
+        {
+            return PropertyTypeModel.convert(result);
+        }
+    }
+
+    private static ColumnConfig defineEtptColumn(String dictCode, String id, IViewContext<?> context)
+    {
+        final ColumnConfig column =
+                ColumnConfigFactory.createDefaultColumnConfig(context.getMessage(dictCode), id);
+        column.setRenderer(new ETPTRenderer());
+        return column;
     }
 }

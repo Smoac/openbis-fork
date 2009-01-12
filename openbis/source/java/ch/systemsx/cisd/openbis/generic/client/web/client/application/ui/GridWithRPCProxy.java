@@ -41,29 +41,24 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
  */
 public abstract class GridWithRPCProxy<M, T extends ModelData> extends Grid<T>
 {
-    abstract protected ColumnModel createColumnModel(IViewContext<?> context);
+    abstract protected void loadDataFromService(AsyncCallback<BaseListLoadResult<T>> callback);
 
-    abstract protected DelegatingAsyncCallback createCallback(IViewContext<?> context,
-            AsyncCallback<BaseListLoadResult<T>> callback);
-
-    abstract protected void loadDataFromService(DelegatingAsyncCallback callback);
-
-    abstract protected List<T> convert(List<M> result);
-
-    private final IViewContext<?> viewContext;
-
-    public GridWithRPCProxy(IViewContext<?> viewContext, String idPrefix)
+    public GridWithRPCProxy(ColumnModel columnModel, String idPrefix)
     {
         super(null, null);
-        this.viewContext = viewContext;
         ListLoader<BaseListLoadConfig> loader =
                 new BaseListLoader<BaseListLoadConfig, BaseListLoadResult<T>>(createRpcProxy());
-        reconfigure(new ListStore<T>(loader), createColumnModel(viewContext));
+        reconfigure(new ListStore<T>(loader), columnModel);
         setView(new GridView());
         getView().setForceFit(true);
         setLoadMask(true);
         getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        setId(idPrefix + "_grid");
+        setId(createId(idPrefix));
+    }
+
+    public static String createId(String idPrefix)
+    {
+        return idPrefix + "_grid";
     }
 
     public void load()
@@ -75,19 +70,18 @@ public abstract class GridWithRPCProxy<M, T extends ModelData> extends Grid<T>
     {
         return new RpcProxy<BaseListLoadConfig, BaseListLoadResult<T>>()
             {
-
                 @Override
                 public final void load(final BaseListLoadConfig loadConfig,
                         final AsyncCallback<BaseListLoadResult<T>> callback)
                 {
-                    loadDataFromService(createCallback(viewContext, callback));
+                    loadDataFromService(callback);
                 }
-
             };
     }
 
-    protected class DelegatingAsyncCallback extends AbstractAsyncCallback<List<M>>
+    protected abstract class DelegatingAsyncCallback extends AbstractAsyncCallback<List<M>>
     {
+        abstract protected List<T> convert(List<M> result);
 
         private final AsyncCallback<BaseListLoadResult<T>> delegate;
 
@@ -109,6 +103,5 @@ public abstract class GridWithRPCProxy<M, T extends ModelData> extends Grid<T>
         {
             delegate.onSuccess(new BaseListLoadResult<T>(convert(result)));
         }
-
     }
 }
