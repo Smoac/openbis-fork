@@ -18,9 +18,9 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityProperty;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.client.shared.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.client.shared.EntityType;
+import ch.systemsx.cisd.openbis.generic.client.shared.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 

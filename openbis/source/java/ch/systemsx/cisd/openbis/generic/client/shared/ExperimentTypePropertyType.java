@@ -14,43 +14,17 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
+package ch.systemsx.cisd.openbis.generic.client.shared;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+
 /**
- * A class that represents a data type.
+ * The {@link EntityTypePropertyType} extension for <i>Experiment Type</i>.
  * 
  * @author Izabela Adamczyk
  */
-public final class DataType implements IsSerializable
+public class ExperimentTypePropertyType extends EntityTypePropertyType<ExperimentType> implements
+        IsSerializable
 {
-    private DataTypeCode code;
-
-    private String description;
-
-    public DataType()
-    {
-    }
-
-    public DataTypeCode getCode()
-    {
-        return code;
-    }
-
-    public void setCode(final DataTypeCode code)
-    {
-        this.code = code;
-    }
-
-    public String getDescription()
-    {
-        return description;
-    }
-
-    public void setDescription(final String description)
-    {
-        this.description = description;
-    }
-
 }

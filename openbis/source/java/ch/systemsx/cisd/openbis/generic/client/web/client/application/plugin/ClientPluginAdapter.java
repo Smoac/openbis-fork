@@ -18,9 +18,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin;
 
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.shared.EntityType;
+import ch.systemsx.cisd.openbis.generic.client.shared.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IIdentifierHolder;
 
 /**
  * A dummy {@link IClientPlugin} implementation which throws {@link UnsupportedOperationException}

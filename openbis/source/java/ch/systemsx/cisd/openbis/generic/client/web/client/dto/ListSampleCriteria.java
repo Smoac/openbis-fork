@@ -18,12 +18,17 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
+
 /**
  * Criteria for listing <i>samples</i>.
  * 
  * @author Izabela Adamczyk
  * @author Tomasz Pylak
  */
+// TODO 2009-01-12, Tomasz Pylak: remove inheritance from DefaultResultSetConfig by creating a new
+// type which uses composition. Move ListSampleCriteria to the client.shared package. Only then
+// deletion of ListSampleCriteriaDTO will be possible.
 public final class ListSampleCriteria extends DefaultResultSetConfig<String> implements
         IsSerializable
 {

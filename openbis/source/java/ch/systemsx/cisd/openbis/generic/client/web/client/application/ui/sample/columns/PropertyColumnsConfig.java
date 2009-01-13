@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 
 /**
  * Defines the sample properties columns for sample grid/table.

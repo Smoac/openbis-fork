@@ -25,11 +25,11 @@ import ch.systemsx.cisd.common.parser.AbstractParserObjectFactory;
 import ch.systemsx.cisd.common.parser.IPropertyMapper;
 import ch.systemsx.cisd.common.parser.IPropertyModel;
 import ch.systemsx.cisd.common.parser.ParserException;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.client.shared.NewSample;
+import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
+import ch.systemsx.cisd.openbis.generic.client.shared.SampleProperty;
+import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
+import ch.systemsx.cisd.openbis.generic.client.shared.SampleTypePropertyType;
 
 /**
  * A {@link AbstractParserObjectFactory} extension for creating {@link NewSample}.

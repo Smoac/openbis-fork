@@ -20,6 +20,10 @@ import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 
+import ch.systemsx.cisd.openbis.generic.client.shared.DataType;
+import ch.systemsx.cisd.openbis.generic.client.shared.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
+import ch.systemsx.cisd.openbis.generic.client.shared.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -35,10 +39,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.V
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyRegistrationFieldSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularySelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataTypeCode;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Vocabulary;
 
 /**
  * A {@link LayoutContainer} extension for registering a new property type.

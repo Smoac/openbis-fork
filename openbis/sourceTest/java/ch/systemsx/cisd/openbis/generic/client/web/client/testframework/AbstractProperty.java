@@ -18,8 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 
 import junit.framework.Assert;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityProperty;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ICodeProvider;
+import ch.systemsx.cisd.openbis.generic.client.shared.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.client.shared.ICodeProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IInvalidationProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 

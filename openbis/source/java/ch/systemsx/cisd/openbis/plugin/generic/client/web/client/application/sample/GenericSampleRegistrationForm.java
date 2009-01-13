@@ -23,6 +23,10 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.Element;
 
+import ch.systemsx.cisd.openbis.generic.client.shared.NewSample;
+import ch.systemsx.cisd.openbis.generic.client.shared.SampleProperty;
+import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
+import ch.systemsx.cisd.openbis.generic.client.shared.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -35,10 +39,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.P
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**

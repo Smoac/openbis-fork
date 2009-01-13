@@ -20,12 +20,12 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.shared.NewSample;
+import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
 /**

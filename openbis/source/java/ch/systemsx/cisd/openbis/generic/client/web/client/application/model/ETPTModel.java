@@ -21,11 +21,11 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MaterialTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.client.shared.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.client.shared.MaterialTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
+import ch.systemsx.cisd.openbis.generic.client.shared.SampleTypePropertyType;
 
 /**
  * {@link BaseModelData} extension for {@link EntityTypePropertyType}s.

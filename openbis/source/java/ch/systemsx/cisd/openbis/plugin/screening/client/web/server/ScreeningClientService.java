@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.client.shared.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.DtoConverters;

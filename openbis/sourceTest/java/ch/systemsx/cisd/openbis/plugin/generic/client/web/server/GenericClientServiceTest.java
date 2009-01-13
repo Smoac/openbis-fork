@@ -33,12 +33,12 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.openbis.generic.client.shared.NewSample;
+import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
+import ch.systemsx.cisd.openbis.generic.client.shared.SampleProperty;
+import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
+import ch.systemsx.cisd.openbis.generic.client.shared.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientServiceTest;
 import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;

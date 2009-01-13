@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
+package ch.systemsx.cisd.openbis.generic.client.shared;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
+
 
 /**
  * An <i>abstract</i> entity property.

@@ -24,6 +24,7 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -32,7 +33,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Prop
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.ETPTRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GridWithRPCProxy;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 
 /**
  * {@link GridWithRPCProxy} displaying property types.

@@ -21,10 +21,10 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataTypeCode;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.client.shared.DataType;
+import ch.systemsx.cisd.openbis.generic.client.shared.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
+import ch.systemsx.cisd.openbis.generic.client.shared.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;

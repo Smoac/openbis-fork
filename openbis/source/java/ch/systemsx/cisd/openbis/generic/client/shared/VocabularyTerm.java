@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
+package ch.systemsx.cisd.openbis.generic.client.shared;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+
 
 /**
- * The {@link EntityProperty} extension for <i>Sample</i>.
+ * A vocabulary term.
  * 
  * @author Izabela Adamczyk
  */
-public final class SampleProperty extends EntityProperty<SampleType, SampleTypePropertyType>
-        implements IsSerializable
+public final class VocabularyTerm extends Code<VocabularyTerm>
 {
-    public static final SampleProperty[] EMPTY_ARRAY = new SampleProperty[0];
+    public VocabularyTerm()
+    {
+    }
 }

@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
+package ch.systemsx.cisd.openbis.generic.client.shared;
 
 /**
- * The {@link EntityTypePropertyType} extension for <i>Experiment Type</i>.
+ * A code provider.
  * 
- * @author Izabela Adamczyk
+ * @author Franz-Josef Elmer
  */
-public class ExperimentTypePropertyType extends EntityTypePropertyType<ExperimentType> implements
-        IsSerializable
+public interface ICodeProvider
 {
+
+    /** Returns the code. */
+    public String getCode();
+
 }

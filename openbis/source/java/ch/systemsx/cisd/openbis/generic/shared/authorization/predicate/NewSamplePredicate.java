@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.authorization.predicate;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.client.shared.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 

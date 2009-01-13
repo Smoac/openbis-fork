@@ -18,6 +18,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.client.shared.EntityType;
+import ch.systemsx.cisd.openbis.generic.client.shared.IIdentifierHolder;
+
 /**
  * An entity that matches the <i>Hibernate Search</i> query and which has been returned by the
  * server.

@@ -21,7 +21,7 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.client.shared.Vocabulary;
 
 /**
  * A {@link BaseModelData} extension suitable for {@link Vocabulary}.

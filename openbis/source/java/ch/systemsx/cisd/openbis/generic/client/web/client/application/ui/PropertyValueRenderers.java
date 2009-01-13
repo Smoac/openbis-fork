@@ -16,6 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
+import ch.systemsx.cisd.openbis.generic.client.shared.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentProperty;
+import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.client.shared.SampleProperty;
+import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
@@ -23,14 +28,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.propert
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DOMUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityProperty;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentProperty;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
 /**
  * Some {@link IPropertyValueRenderer} implementations.

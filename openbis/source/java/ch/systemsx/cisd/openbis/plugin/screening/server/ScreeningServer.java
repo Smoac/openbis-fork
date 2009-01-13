@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.client.shared.NewSample;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;

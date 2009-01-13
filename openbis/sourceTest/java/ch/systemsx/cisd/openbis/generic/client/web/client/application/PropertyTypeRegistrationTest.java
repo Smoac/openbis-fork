@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import ch.systemsx.cisd.openbis.generic.client.shared.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
@@ -23,8 +25,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.CheckPropertyTypeTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.FillPropertyTypeRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeRegistrationForm;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataTypeCode;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 

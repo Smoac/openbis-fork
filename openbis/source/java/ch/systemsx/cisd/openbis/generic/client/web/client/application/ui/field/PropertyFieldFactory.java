@@ -20,9 +20,9 @@ import java.util.Date;
 
 import com.extjs.gxt.ui.client.widget.form.Field;
 
+import ch.systemsx.cisd.openbis.generic.client.shared.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataTypeCode;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 
 public class PropertyFieldFactory
 {

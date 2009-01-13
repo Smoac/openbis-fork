@@ -14,37 +14,41 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
+package ch.systemsx.cisd.openbis.generic.client.shared;
 
 import java.io.Serializable;
 import java.util.Comparator;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.common.annotation.BeanProperty;
+
 /**
- * A code.
+ * An identifier.
  * 
  * @author Christian Ribeaud
  */
-public class Code<T extends Code<T>> implements IsSerializable, ICodeProvider, Comparable<T>
+public class Identifier<T extends Identifier<T>> implements IsSerializable, Comparable<T>,
+        IIdentifierHolder
 {
-    public final static Comparator<ICodeProvider> CODE_PROVIDER_COMPARATOR =
-            new CodeProviderComparator();
+    public final static Comparator<IIdentifierHolder> IDENTIFIER_HOLDER_COMPARATOR =
+            new IdentifierHolderComparator();
 
-    private String code;
+    private String identifier;
 
-    public final void setCode(final String code)
+    @BeanProperty(label = "identifier")
+    public final void setIdentifier(final String identifier)
     {
-        this.code = code;
+        this.identifier = identifier;
     }
 
     //
-    // ICodeProvider
+    // IIdentifierHolder
     //
 
-    public final String getCode()
+    public final String getIdentifier()
     {
-        return code;
+        return identifier;
     }
 
     //
@@ -53,7 +57,7 @@ public class Code<T extends Code<T>> implements IsSerializable, ICodeProvider, C
 
     public final int compareTo(final T o)
     {
-        return CODE_PROVIDER_COMPARATOR.compare(this, o);
+        return IDENTIFIER_HOLDER_COMPARATOR.compare(this, o);
     }
 
     //
@@ -67,25 +71,25 @@ public class Code<T extends Code<T>> implements IsSerializable, ICodeProvider, C
         {
             return true;
         }
-        if (obj instanceof Code == false)
+        if (obj instanceof Identifier == false)
         {
             return false;
         }
-        final Code<?> that = (Code<?>) obj;
-        return getCode().equals(that.getCode());
+        final Identifier<?> that = (Identifier<?>) obj;
+        return getIdentifier().equals(that.getIdentifier());
     }
 
     @Override
     public final int hashCode()
     {
-        return getCode().hashCode();
+        return getIdentifier().hashCode();
     }
 
     //
     // Helper classes
     //
 
-    public final static class CodeProviderComparator implements Comparator<ICodeProvider>,
+    public final static class IdentifierHolderComparator implements Comparator<IIdentifierHolder>,
             Serializable
     {
         private static final long serialVersionUID = 1L;
@@ -94,21 +98,21 @@ public class Code<T extends Code<T>> implements IsSerializable, ICodeProvider, C
         // Comparable
         //
 
-        public int compare(final ICodeProvider o1, final ICodeProvider o2)
+        public int compare(final IIdentifierHolder o1, final IIdentifierHolder o2)
         {
             assert o1 != null : "Unspecified code provider.";
             assert o2 != null : "Unspecified code provider.";
-            final String thisCode = o1.getCode();
-            final String thatCode = o2.getCode();
-            if (thisCode == null)
+            final String thisIdentifier = o1.getIdentifier();
+            final String thatIdentifier = o2.getIdentifier();
+            if (thisIdentifier == null)
             {
-                return thatCode == null ? 0 : -1;
+                return thatIdentifier == null ? 0 : -1;
             }
-            if (thatCode == null)
+            if (thatIdentifier == null)
             {
                 return 1;
             }
-            return thisCode.compareTo(thatCode);
+            return thisIdentifier.compareTo(thatIdentifier);
         }
     }
 }

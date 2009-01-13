@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 
 /**

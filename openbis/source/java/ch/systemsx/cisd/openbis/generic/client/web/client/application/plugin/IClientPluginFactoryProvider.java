@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin;
 
+import ch.systemsx.cisd.openbis.generic.client.shared.EntityType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityType;
 
 /**
  * A {@link IClientPluginFactory} provider.

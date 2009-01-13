@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
+package ch.systemsx.cisd.openbis.generic.client.shared;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 
 /**
- * The <i>GWT</i> equivalent to {@link MaterialTypePE}.
+ * The {@link EntityTypePropertyType} extension for <i>Material Type</i>.
  * 
  * @author Izabela Adamczyk
  */
-public class MaterialType extends EntityType
+public class MaterialTypePropertyType extends EntityTypePropertyType<MaterialType> implements
+        IsSerializable
 {
-
 }

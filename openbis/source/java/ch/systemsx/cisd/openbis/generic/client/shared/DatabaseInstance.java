@@ -14,16 +14,35 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
+package ch.systemsx.cisd.openbis.generic.client.shared;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 
 /**
- * The <i>GWT</i> equivalent to {@link ExperimentTypePE}.
- * 
- * @author Tomasz Pylak
+ * @author Franz-Josef Elmer
  */
-public class ExperimentType extends EntityType
+public class DatabaseInstance extends Code<DatabaseInstance>
 {
+    private String uuid;
 
+    private String identifier;
+
+    public final String getUuid()
+    {
+        return uuid;
+    }
+
+    public final void setUuid(String uuid)
+    {
+        this.uuid = uuid;
+    }
+
+    public String getIdentifier()
+    {
+        return identifier;
+    }
+
+    public void setIdentifier(String identifier)
+    {
+        this.identifier = identifier;
+    }
 }

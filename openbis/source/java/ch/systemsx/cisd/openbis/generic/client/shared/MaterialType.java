@@ -14,27 +14,16 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
+package ch.systemsx.cisd.openbis.generic.client.shared;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 
 /**
- * The {@link EntityTypePropertyType} extension for <i>Sample Type</i>.
+ * The <i>GWT</i> equivalent to {@link MaterialTypePE}.
  * 
  * @author Izabela Adamczyk
  */
-public class SampleTypePropertyType extends EntityTypePropertyType<SampleType> implements
-        IsSerializable
+public class MaterialType extends EntityType
 {
-    private boolean isDisplayed;
 
-    public final boolean isDisplayed()
-    {
-        return isDisplayed;
-    }
-
-    public final void setDisplayed(final boolean isDisplayed)
-    {
-        this.isDisplayed = isDisplayed;
-    }
 }

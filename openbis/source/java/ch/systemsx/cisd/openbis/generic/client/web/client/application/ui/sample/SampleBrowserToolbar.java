@@ -28,6 +28,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
 
+import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -41,7 +42,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ParentColumnsConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.PropertyColumnsConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
 /**
  * The toolbar of sample browser.

@@ -20,9 +20,9 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
+import ch.systemsx.cisd.openbis.generic.client.shared.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
 
 class PropertySampleColDef extends AbstractSampleColDef implements IsSerializable
 {

@@ -23,9 +23,9 @@ import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.ListBox;
 
+import ch.systemsx.cisd.openbis.generic.client.shared.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTerm;
 
 /**
  * A {@link AdapterField} extension for selecting a vocabulary term from a list.

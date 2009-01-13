@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
+package ch.systemsx.cisd.openbis.generic.client.shared;
+
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 
 /**
- * A code provider.
+ * The <i>GWT</i> equivalent to {@link ExperimentTypePE}.
  * 
- * @author Franz-Josef Elmer
+ * @author Tomasz Pylak
  */
-public interface ICodeProvider
+public class ExperimentType extends EntityType
 {
-
-    /** Returns the code. */
-    public String getCode();
 
 }

@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
+package ch.systemsx.cisd.openbis.generic.client.shared;
 
 /**
- * The {@link EntityTypePropertyType} extension for <i>Material Type</i>.
+ * A role that holds a identifier.
  * 
- * @author Izabela Adamczyk
+ * @author Christian Ribeaud
  */
-public class MaterialTypePropertyType extends EntityTypePropertyType<MaterialType> implements
-        IsSerializable
+public interface IIdentifierHolder
 {
+    /**
+     * Returns a <code>String</code> that uniquely identifies this object.
+     */
+    public String getIdentifier();
 }

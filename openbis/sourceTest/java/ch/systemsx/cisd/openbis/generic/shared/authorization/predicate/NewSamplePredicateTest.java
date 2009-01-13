@@ -22,8 +22,8 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.client.shared.NewSample;
+import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;

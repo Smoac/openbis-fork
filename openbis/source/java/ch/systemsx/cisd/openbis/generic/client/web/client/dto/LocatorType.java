@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import ch.systemsx.cisd.openbis.generic.client.shared.AbstractType;
+
 /**
  * The <i>GWT</i> equivalent to {@link LocatorType}.
  * 

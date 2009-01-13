@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.client.shared.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 
 /**

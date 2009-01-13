@@ -26,8 +26,8 @@ import org.testng.annotations.BeforeMethod;
 
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
+import ch.systemsx.cisd.openbis.generic.client.shared.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetManager;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;

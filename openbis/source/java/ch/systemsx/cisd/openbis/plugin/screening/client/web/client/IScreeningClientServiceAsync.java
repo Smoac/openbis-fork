@@ -18,9 +18,9 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.shared.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
 

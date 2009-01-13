@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.client.shared.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;

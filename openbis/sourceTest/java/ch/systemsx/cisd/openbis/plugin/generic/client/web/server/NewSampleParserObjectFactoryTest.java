@@ -27,9 +27,9 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.parser.DefaultPropertyMapper;
 import ch.systemsx.cisd.common.parser.IPropertyMapper;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleProperty;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.client.shared.NewSample;
+import ch.systemsx.cisd.openbis.generic.client.shared.SampleProperty;
+import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 
 /**
  * Test cases for corresponding {@link NewSampleParserObjectFactory} class.

@@ -19,10 +19,10 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin;
 import java.util.HashMap;
 import java.util.Map;
 
+import ch.systemsx.cisd.openbis.generic.client.shared.EntityType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ClientPluginFactory;
 
 /**

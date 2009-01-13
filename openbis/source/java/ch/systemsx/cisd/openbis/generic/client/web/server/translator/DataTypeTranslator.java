@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.client.shared.DataType;
+import ch.systemsx.cisd.openbis.generic.client.shared.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 

@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.client.shared.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;

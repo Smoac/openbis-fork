@@ -18,10 +18,10 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 
 import com.extjs.gxt.ui.client.widget.button.Button;
 
+import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ParentColumnsConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.PropertyColumnsConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 
 /**
  * Encapsulates the logic of interaction between Sample Browser GUI elements.

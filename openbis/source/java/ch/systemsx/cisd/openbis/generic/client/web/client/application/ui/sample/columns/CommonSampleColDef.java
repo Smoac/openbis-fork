@@ -18,10 +18,10 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 
 import java.util.Date;
 
+import ch.systemsx.cisd.openbis.generic.client.shared.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.renderer.SimpleDateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.renderer.SimplePersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.renderer.SimpleYesNoRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;

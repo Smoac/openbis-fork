@@ -20,11 +20,11 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.Element;
 
+import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.PropertyTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GridWithRPCProxy;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
 
 /**
  * Encapsulates property types listing functionality.

@@ -22,6 +22,10 @@ import java.util.Set;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.shared.EntityType;
+import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.client.shared.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -34,12 +38,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.Cli
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.SampleTypeCode;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 

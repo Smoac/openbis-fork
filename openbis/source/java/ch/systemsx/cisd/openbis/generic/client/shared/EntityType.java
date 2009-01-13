@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 ETH Zuerich, CISD
+ * Copyright 2008 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,26 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
+package ch.systemsx.cisd.openbis.generic.client.shared;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * Available types of entity properties.
+ * An <i>abstract</i> entity type.
  * 
- * @author Izabela Adamczyk
+ * @author Christian Ribeaud
  */
-public enum DataTypeCode implements IsSerializable
+public class EntityType extends AbstractType
 {
-    INTEGER, VARCHAR, REAL, TIMESTAMP, BOOLEAN, CONTROLLEDVOCABULARY;
+    private DatabaseInstance databaseInstance;
+
+    public final DatabaseInstance getDatabaseInstance()
+    {
+        return databaseInstance;
+    }
+
+    public final void setDatabaseInstance(final DatabaseInstance databaseInstance)
+    {
+        this.databaseInstance = databaseInstance;
+    }
+
 }

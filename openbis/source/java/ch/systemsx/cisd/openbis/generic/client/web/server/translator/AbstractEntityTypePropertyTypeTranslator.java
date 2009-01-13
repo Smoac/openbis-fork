@@ -21,9 +21,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.client.shared.EntityType;
+import ch.systemsx.cisd.openbis.generic.client.shared.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;

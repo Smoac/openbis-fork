@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
+import ch.systemsx.cisd.openbis.generic.client.shared.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
@@ -73,7 +74,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
 
     /**
      * Tests that authorization annotations of
-     * {@link IPluginCommonServer#registerSample(String, ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample)}
+     * {@link IPluginCommonServer#registerSample(String, NewSample)}
      * are obeyed.
      */
     public final void testRegisterSampleByAnUnauthorizedUser()

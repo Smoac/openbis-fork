@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentType;
+
 /**
  * Criteria for listing <i>experiments</i>.
  * 

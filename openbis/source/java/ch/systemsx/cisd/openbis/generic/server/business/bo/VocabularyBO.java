@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Vocabulary;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.client.shared.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.client.shared.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;

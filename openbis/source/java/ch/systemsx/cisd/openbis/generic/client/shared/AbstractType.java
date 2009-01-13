@@ -14,16 +14,25 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
+package ch.systemsx.cisd.openbis.generic.client.shared;
+
 
 /**
- * A vocabulary term.
+ * The <i>GWT</i> equivalent to {@link AbstractType}.
  * 
- * @author Izabela Adamczyk
+ * @author Christian Ribeaud
  */
-public final class VocabularyTerm extends Code<VocabularyTerm>
+public abstract class AbstractType extends Code<AbstractType>
 {
-    public VocabularyTerm()
+    private String description;
+
+    public final String getDescription()
     {
+        return description;
+    }
+
+    public final void setDescription(final String description)
+    {
+        this.description = description;
     }
 }

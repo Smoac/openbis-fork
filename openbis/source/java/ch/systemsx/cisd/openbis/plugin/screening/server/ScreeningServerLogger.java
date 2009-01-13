@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.server;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.client.shared.NewSample;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;

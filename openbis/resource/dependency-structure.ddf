@@ -8,16 +8,19 @@
 # Generic module
 ##########################################
 
-[generic.client] = ${generic}.client.*
+[generic.client.shared] = ${generic}.client.shared.*
+[generic.client] = ${generic}.client.* excluding [generic.client.shared]
 [generic.server] = ${generic}.server.*
 [generic.shared] = ${generic}.shared.*
 
-check sets [generic.client] [generic.server] [generic.shared]
+check sets [generic.client] [generic.server] [generic.shared] [generic.client.shared]
 
 layer generic.client-server = [generic.client] [generic.server]
-layer generic.shared = [generic.shared]
+layer generic.shared = [generic.shared] 
+layer generic.client.shared = [generic.client.shared]
 
-# check layeringOf generic.shared generic.client-server
+check layeringOf generic.client.shared generic.shared generic.client-server
+
 
 #-------- Web client ---------------------
 
