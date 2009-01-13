@@ -106,6 +106,9 @@ var common = {
   generated_samples: "Generated Samples",
   generated_from: "Parent {0}",
   part_of: "Container {0}",
+  invalidation: "Invalidation",
+  invalidation_template: "Invalidated by: {0}<br>Invalidation Date: {1}<br>Invalidation Reason: {2}",
+
   
   //
   // Experiment Browser

@@ -21,8 +21,6 @@ var generic = {
   sample_properties_heading: "Sample Properties",
   part_of_heading: "Components",
   external_data_heading: "External Data",
-  invalidation: "Invalidation",
-  invalidation_template: "Invalidated by: {0}<br>Invalidation Date: {1}<br>Invalidation Reason: {2}",
   location: "Location",
   file_format_type: "File Format",
   
