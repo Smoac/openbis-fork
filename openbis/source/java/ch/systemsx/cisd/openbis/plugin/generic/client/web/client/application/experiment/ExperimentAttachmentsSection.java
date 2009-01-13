@@ -36,7 +36,6 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.Window;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -51,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Mode
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.URLMethodWithParameters;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
@@ -62,7 +62,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
  * 
  * @author Izabela Adamczyk
  */
-// TODO 2008-12-15, Tomasz Pylak: use dictionary to access localized messaged!
 public class ExperimentAttachmentsSection extends SectionPanel
 {
     public static final String ATTACHMENTS_ID_PREFIX =
@@ -106,7 +105,6 @@ public class ExperimentAttachmentsSection extends SectionPanel
         final CellSelectionModel<AttachmentModel> selectionModel =
                 new CellSelectionModel<AttachmentModel>();
         attachmentGrid.setSelectionModel(selectionModel);
-        selectionModel.bindGrid(attachmentGrid);
         attachmentGrid.addListener(Events.CellClick, new Listener<GridEvent>()
             {
                 public void handleEvent(final GridEvent be)
@@ -145,7 +143,8 @@ public class ExperimentAttachmentsSection extends SectionPanel
 
                             public String getId()
                             {
-                                return createAttachmentVersionTabId(fileName, experiment);
+                                return createAttachmentVersionTabId(fileName, experiment
+                                        .getIdentifier());
                             }
                         };
                     DispatcherHelper.dispatchNaviEvent(tabFactory);
@@ -157,8 +156,14 @@ public class ExperimentAttachmentsSection extends SectionPanel
                     return files;
                 }
             });
-        attachmentGrid.setId(ATTACHMENTS_ID_PREFIX + experiment.getIdentifier());
+        attachmentGrid.setId(createAttachmentGridId(experiment.getIdentifier()));
         return attachmentGrid;
+    }
+
+    // @Private
+    static String createAttachmentGridId(String identifier)
+    {
+        return ATTACHMENTS_ID_PREFIX + identifier;
     }
 
     private List<ColumnConfig> defineAttachmentVersionColumns()
@@ -204,20 +209,21 @@ public class ExperimentAttachmentsSection extends SectionPanel
                     attachmentGrid.getSelectionModel().deselectAll();
                 }
             });
-        panel.setId(createAttachmentVersionTabId(fileName, experiment));
+        panel.setId(createAttachmentVersionTabId(fileName, experiment.getIdentifier()));
         panel.add(attachmentGrid);
         return panel;
     }
 
-    private static String createAttachmentVersionTabId(final String fileName, Experiment experiment)
+    // @Private
+    static String createAttachmentVersionTabId(final String fileName, String experimentIdentifier)
     {
-        return GenericConstants.ID_PREFIX + "attachent-versions-" + experiment.getIdentifier()
-                + "_" + fileName;
+        return GenericConstants.ID_PREFIX + "attachment-versions-" + experimentIdentifier + "_"
+                + fileName;
     }
 
     private void downloadAttachment(String fileName, int version)
     {
-        Window.open(createURL(version, fileName, experiment), "", null);
+        WindowUtils.openWindow(createURL(version, fileName, experiment));
     }
 
     private final static String createURL(final int version, final String fileName,

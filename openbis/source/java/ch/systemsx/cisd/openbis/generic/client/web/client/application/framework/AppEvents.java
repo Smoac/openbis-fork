@@ -46,4 +46,6 @@ public class AppEvents
     public final static int LOGIN = STARTING_VALUE + 30;
 
     public static final int NAVI_EVENT = STARTING_VALUE + 40;
+
+    public static final int OPEN_URL_EVENT = STARTING_VALUE + 50;
 }

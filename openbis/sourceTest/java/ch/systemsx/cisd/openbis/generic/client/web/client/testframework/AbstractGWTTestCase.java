@@ -17,7 +17,10 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 
 import java.util.Date;
+import java.util.Iterator;
 
+import com.extjs.gxt.ui.client.mvc.Controller;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.google.gwt.junit.client.GWTTestCase;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -78,9 +81,24 @@ public abstract class AbstractGWTTestCase extends GWTTestCase
     {
         System.out.println("TEST: " + getName() + " (started at " + new Date() + ")");
         remoteConsole = new RemoteConsole(this);
+        clearControllers();
         client = new Client();
         GWTUtils.testing();
         setUpTest();
+    }
+
+    /**
+     * Removes all the {@link Controller}s that have been added to the {@link Dispatcher}.
+     */
+    private final static void clearControllers()
+    {
+        final Dispatcher dispatcher = Dispatcher.get();
+        final Iterator<Controller> iterator = dispatcher.getControllers().iterator();
+        while (iterator.hasNext())
+        {
+            iterator.next();
+            iterator.remove();
+        }
     }
 
     @Override

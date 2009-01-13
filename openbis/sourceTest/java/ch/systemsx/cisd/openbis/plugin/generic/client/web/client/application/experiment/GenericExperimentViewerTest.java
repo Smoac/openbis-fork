@@ -112,11 +112,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
 
     public final void testShowExperimentDetails()
     {
-        remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.EXPERIMENTS,
-                CategoriesBuilder.MENU_ELEMENTS.LIST));
-        remoteConsole.prepare(new ListExperiments(NEMO, SIRNA_HCS));
-        remoteConsole.prepare(new ShowExperiment(EXP1));
+        prepareShowExperiment(NEMO, SIRNA_HCS, EXP1);
         final CheckExperiment checkExperiment = new CheckExperiment(CISD_CISD_NEMO, EXP1);
         checkExperiment.property("Experiment").asString(EXP1);
         checkExperiment.property("Experiment Type").asCode(SIRNA_HCS);
@@ -135,11 +131,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
 
     public final void testShowInvalidExperimentDetails()
     {
-        remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.EXPERIMENTS,
-                CategoriesBuilder.MENU_ELEMENTS.LIST));
-        remoteConsole.prepare(new ListExperiments(DEFAULT, SIRNA_HCS));
-        remoteConsole.prepare(new ShowExperiment(EXP_X));
+        prepareShowExperiment(DEFAULT, SIRNA_HCS, EXP_X);
         final CheckExperiment checkExperiment = new CheckExperiment(CISD_CISD_DEFAULT, EXP_X);
         checkExperiment.property("Experiment").asString(EXP_X);
         checkExperiment.property("Experiment Type").asCode(SIRNA_HCS);
@@ -161,11 +153,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
 
     public final void testListOfAttachments()
     {
-        remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.EXPERIMENTS,
-                CategoriesBuilder.MENU_ELEMENTS.LIST));
-        remoteConsole.prepare(new ListExperiments(DEFAULT, SIRNA_HCS));
-        remoteConsole.prepare(new ShowExperiment(EXP_REUSE));
+        prepareShowExperiment(DEFAULT, SIRNA_HCS, EXP_REUSE);
         final CheckExperiment checkExperiment = new CheckExperiment(CISD_CISD_DEFAULT, EXP_REUSE);
         checkExperiment.property("Experiment").asString(EXP_REUSE);
         final CheckTableCommand attachmentsTable =
@@ -182,11 +170,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
 
     public final void testListOfSamples()
     {
-        remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.EXPERIMENTS,
-                CategoriesBuilder.MENU_ELEMENTS.LIST));
-        remoteConsole.prepare(new ListExperiments(DEFAULT, SIRNA_HCS));
-        remoteConsole.prepare(new ShowExperiment(EXP_REUSE));
+        prepareShowExperiment(DEFAULT, SIRNA_HCS, EXP_REUSE);
         final CheckExperiment checkExperiment = new CheckExperiment(CISD_CISD_DEFAULT, EXP_REUSE);
         checkExperiment.property("Experiment").asString(EXP_REUSE);
         final CheckTableCommand sampleTable = checkExperiment.sampleTable().expectedSize(7);
@@ -203,4 +187,13 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         client.onModuleLoad();
     }
 
+    private void prepareShowExperiment(final String projectName, final String experimentTypeName,
+            final String experimentCode)
+    {
+        remoteConsole.prepare(new Login("test", "a"));
+        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.EXPERIMENTS,
+                CategoriesBuilder.MENU_ELEMENTS.LIST));
+        remoteConsole.prepare(new ListExperiments(projectName, experimentTypeName));
+        remoteConsole.prepare(new ShowExperiment(experimentCode));
+    }
 }

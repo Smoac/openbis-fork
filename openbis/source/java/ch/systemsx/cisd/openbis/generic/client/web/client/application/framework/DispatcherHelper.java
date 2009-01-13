@@ -16,10 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
-import java.util.Iterator;
-
 import com.extjs.gxt.ui.client.mvc.AppEvent;
-import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 
 /**
@@ -33,38 +30,29 @@ public final class DispatcherHelper
     {
         // Can not be instantiated.
     }
-    
+
+    /**
+     * Creates and dispatches an event of type {@link AppEvents#OPEN_URL_EVENT}.
+     */
+    public final static void dispatchOpenUrlEvent(String url)
+    {
+        AppEvent<String> event = createEvent(AppEvents.OPEN_URL_EVENT, url);
+        Dispatcher.get().dispatch(event);
+    }
+
     /**
      * Creates and dispatches an event of type {@link AppEvents#NAVI_EVENT}.
      */
     public final static void dispatchNaviEvent(final ITabItemFactory tabItemFactory)
     {
-        AppEvent<ITabItemFactory> event = createNaviEvent(tabItemFactory);
+        AppEvent<ITabItemFactory> event = createEvent(AppEvents.NAVI_EVENT, tabItemFactory);
         Dispatcher.get().dispatch(event);
     }
 
-    /**
-     * Create an event of type {@link AppEvents#NAVI_EVENT}.
-     */
-    private final static AppEvent<ITabItemFactory> createNaviEvent(
-            final ITabItemFactory tabItemFactory)
+    private final static <T> AppEvent<T> createEvent(int eventType, T data)
     {
-        final AppEvent<ITabItemFactory> event = new AppEvent<ITabItemFactory>(AppEvents.NAVI_EVENT);
-        event.data = tabItemFactory;
+        final AppEvent<T> event = new AppEvent<T>(eventType);
+        event.data = data;
         return event;
-    }
-
-    /**
-     * Removes all the {@link Controller}s that have been added to the {@link Dispatcher}.
-     */
-    public final static void clearControllers()
-    {
-        final Dispatcher dispatcher = Dispatcher.get();
-        final Iterator<Controller> iterator = dispatcher.getControllers().iterator();
-        while (iterator.hasNext())
-        {
-            iterator.next();
-            iterator.remove();
-        }
     }
 }

@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -25,7 +29,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppController;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.LoginController;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
@@ -40,6 +43,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 public final class Client implements EntryPoint
 {
     private IViewContext<ICommonClientServiceAsync> viewContext;
+
+    private List<Controller> controllers = new ArrayList<Controller>();
 
     public final IViewContext<ICommonClientServiceAsync> tryToGetViewContext()
     {
@@ -74,11 +79,26 @@ public final class Client implements EntryPoint
 
     private final void initializeControllers()
     {
-        DispatcherHelper.clearControllers();
-        final Dispatcher dispatcher = Dispatcher.get();
-        dispatcher.addController(new LoginController(viewContext));
-        dispatcher.addController(new AppController((CommonViewContext) viewContext));
+        removeControllers();
+        addController(new LoginController(viewContext));
+        addController(new AppController((CommonViewContext) viewContext));
+    }
 
+    public void removeControllers()
+    {
+        final Dispatcher dispatcher = Dispatcher.get();
+        for (Controller controller : controllers)
+        {
+            dispatcher.removeController(controller);
+        }
+        controllers.clear();
+    }
+
+    private void addController(Controller controller)
+    {
+        final Dispatcher dispatcher = Dispatcher.get();
+        dispatcher.addController(controller);
+        controllers.add(controller);
     }
 
     public final void onModuleLoad()
@@ -101,8 +121,11 @@ public final class Client implements EntryPoint
                 public final void process(final ApplicationInfo info)
                 {
                     viewContext.getModel().setApplicationInfo(info);
-                    service.tryToGetCurrentSessionContext(new SessionContextCallback(
-                            (CommonViewContext) viewContext));
+                    // the callback sets the SessionContext and redirects to the login page or the
+                    // initial page
+                    SessionContextCallback sessionContextCallback =
+                            new SessionContextCallback((CommonViewContext) viewContext);
+                    service.tryToGetCurrentSessionContext(sessionContextCallback);
                 }
             });
     }

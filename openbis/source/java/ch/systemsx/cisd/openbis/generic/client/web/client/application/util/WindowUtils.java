@@ -16,9 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
 
-import com.google.gwt.user.client.Window;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 
 /**
  * Window utilities.
@@ -28,32 +29,29 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 public class WindowUtils
 {
 
-    // TODO 2009-01-05, IA: perhaps this method should be called when the application starts
-    /**
-     * Shows alert message to the user if pop-up blocker has been detected.
-     */
-    public static void detectPopUps()
-    {
-        checkPopUps(GenericConstants.POPUP_BLOCKER_DETECTED);
-    }
-
     /**
      * Opens a new window with given parameters if pop-up blocker has not been detected and displays
      * an alert message otherwise.
      */
-    static public void openWindow(String parameters)
+    static public void openWindow(String url)
     {
-        detectPopUps();
-        Window.open(parameters, "", null);
+        // triggered only for test purposes
+        DispatcherHelper.dispatchOpenUrlEvent(url);
+        boolean opened = openWindow(url, "", null);
+        if (opened == false)
+        {
+            MessageBox.alert("", GenericConstants.POPUP_BLOCKER_DETECTED, null);
+            return;
+        }
     }
 
-    private static native void checkPopUps(String message)
+    /**
+     * @return true if the window has been opened, false otherwise (it can be a case e.g. when the
+     *         pop-up detector is switched on)
+     */
+    private static native boolean openWindow(String url, String name, String features)
     /*-{      
-       var pop = $wnd.open(" "," ", "width=10,height=10");
-       if (pop) 
-           pop.close(); 
-       else 
-           alert(message);
+       var pop = $wnd.open(url, name, features);
+       return (pop != null);
     }-*/;
-
 }
