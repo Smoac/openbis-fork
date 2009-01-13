@@ -102,7 +102,7 @@ public final class GWTTestUtil
         assertWidgetFound("Button", id, widget);
         assertTrue("Widget '" + id + "' isn't a Button: " + widget.getClass(),
                 widget instanceof Button);
-        final Button button = ((Button) widget);
+        final Button button = (Button) widget;
         assertTrue("Button '" + id + "' is not enabled.", button.isEnabled());
         button.fireEvent(Events.Select);
     }
@@ -439,6 +439,10 @@ public final class GWTTestUtil
                     }
                 }
                 if (handler.handle(contentPanel.getBottomComponent()))
+                {
+                    return true;
+                }
+                if (handler.handle(contentPanel.getTopComponent()))
                 {
                     return true;
                 }

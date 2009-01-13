@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
 
 /**
  * Main panel - where the tabs will open.
@@ -68,7 +69,8 @@ public class MainTabPanel extends TabPanel
         layoutContainer.setId(layoutContainerId);
         layoutContainer.addText(createWelcomeText());
         final MainTabItem intro =
-                new MainTabItem(new DefaultTabItem("&nbsp;", layoutContainer), layoutContainerId);
+                new MainTabItem(new DefaultTabItem("&nbsp;", layoutContainer), layoutContainerId,
+                        false);
         intro.setClosable(false);
         return intro;
     }
@@ -102,7 +104,9 @@ public class MainTabPanel extends TabPanel
         } else
         {
             String tabId = tabItemFactory.getId();
-            final MainTabItem newTab = new MainTabItem(tabItemFactory.create(), tabId);
+            final MainTabItem newTab =
+                    new MainTabItem(tabItemFactory.create(), tabId, tabItemFactory
+                            .isCloseConfirmationNeeded());
             add(newTab);
             openTabs.put(tabId, newTab);
             setSelection(newTab);
@@ -115,7 +119,8 @@ public class MainTabPanel extends TabPanel
 
     private final class MainTabItem extends TabItem
     {
-        public MainTabItem(final ITabItem tabItem, final String idPrefix)
+        public MainTabItem(final ITabItem tabItem, final String idPrefix,
+                boolean isCloseConfirmationNeeded)
         {
             setId(idPrefix + TAB_SUFFIX);
             setClosable(true);
@@ -124,6 +129,10 @@ public class MainTabPanel extends TabPanel
             addStyleName("pad-text");
             add(tabItem.getComponent());
             final Listener<TabPanelEvent> tabPanelEventListener = tabItem.tryGetEventListener();
+            if (isCloseConfirmationNeeded)
+            {
+                addListener(Events.BeforeClose, createBeforeCloseListener(this, idPrefix));
+            }
             if (tabPanelEventListener != null)
             {
                 addListener(Events.Close, tabPanelEventListener);
@@ -131,11 +140,34 @@ public class MainTabPanel extends TabPanel
             addListener(Events.Close, createTabCloseListener(idPrefix));
         }
 
+        private Listener<TabPanelEvent> createBeforeCloseListener(final MainTabItem mainTabItem,
+                final String id)
+        {
+            return new Listener<TabPanelEvent>()
+                {
+                    public void handleEvent(final TabPanelEvent be)
+                    {
+                        be.doit = false;
+                        new ConfirmationDialog(
+                                viewContext.getMessage(Dict.CONFIRM_TITLE), viewContext
+                                        .getMessage(Dict.CONFIRM_CLOSE_MSG))
+                            {
+                                @Override
+                                protected void onYes()
+                                {
+                                    mainTabItem.close();
+                                    openTabs.remove(id);
+                                }
+                            }.show();
+                    }
+                };
+        }
+
         private Listener<TabPanelEvent> createTabCloseListener(final String id)
         {
             return new Listener<TabPanelEvent>()
                 {
-                    public void handleEvent(TabPanelEvent be)
+                    public void handleEvent(final TabPanelEvent be)
                     {
                         openTabs.remove(id);
                     }

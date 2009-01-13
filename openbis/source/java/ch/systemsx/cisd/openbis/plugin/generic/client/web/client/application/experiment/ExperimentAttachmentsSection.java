@@ -146,6 +146,11 @@ public class ExperimentAttachmentsSection extends SectionPanel
                                 return createAttachmentVersionTabId(fileName, experiment
                                         .getIdentifier());
                             }
+
+                            public boolean isCloseConfirmationNeeded()
+                            {
+                                return false;
+                            }
                         };
                     DispatcherHelper.dispatchNaviEvent(tabFactory);
                 }

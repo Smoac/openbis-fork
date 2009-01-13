@@ -264,6 +264,11 @@ final class SearchWidget extends LayoutContainer
                     {
                         return matchingEntitiesPanel.getId();
                     }
+
+                    public boolean isCloseConfirmationNeeded()
+                    {
+                        return false;
+                    }
                 });
         }
     }

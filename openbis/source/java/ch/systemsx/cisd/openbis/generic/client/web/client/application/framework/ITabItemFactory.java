@@ -24,7 +24,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework
  */
 public interface ITabItemFactory
 {
-    /** creates and initializes a new tab */
+    /** Creates and initializes a new tab. */
     ITabItem create();
 
     /**
@@ -35,4 +35,9 @@ public interface ITabItemFactory
      * </p>
      */
     public String getId();
+
+    /**
+     * Returns true if the confirmation dialog should be displayed before closing the tab.
+     */
+    public boolean isCloseConfirmationNeeded();
 }

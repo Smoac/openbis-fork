@@ -126,6 +126,11 @@ public final class ClientPluginFactory extends
                     {
                         return ScreeningSampleViewer.createId(sampleIdentifier);
                     }
+
+                    public boolean isCloseConfirmationNeeded()
+                    {
+                        return false;
+                    }
                 };
         }
 
@@ -162,6 +167,11 @@ public final class ClientPluginFactory extends
                     public String getId()
                     {
                         return DummyComponent.ID;
+                    }
+
+                    public boolean isCloseConfirmationNeeded()
+                    {
+                        return false;
                     }
                 };
         }

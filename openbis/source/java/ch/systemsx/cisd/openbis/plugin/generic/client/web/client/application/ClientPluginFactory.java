@@ -119,6 +119,11 @@ public final class ClientPluginFactory extends
                     {
                         return GenericSampleViewer.createId(identifier);
                     }
+
+                    public boolean isCloseConfirmationNeeded()
+                    {
+                        return false;
+                    }
                 };
         }
 
@@ -157,6 +162,11 @@ public final class ClientPluginFactory extends
                     public String getId()
                     {
                         return GenericExperimentViewer.createId(identifier);
+                    }
+
+                    public boolean isCloseConfirmationNeeded()
+                    {
+                        return false;
                     }
                 };
         }

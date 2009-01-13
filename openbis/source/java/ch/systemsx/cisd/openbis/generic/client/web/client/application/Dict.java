@@ -300,6 +300,10 @@ public abstract class Dict
 
     public static final String LIST_GROUPS = "list_groups";
 
+    public static final String CONFIRM_TITLE = "confirm_title";
+
+    public static final String CONFIRM_CLOSE_MSG = "confirm_close_msg";
+
     //
     // Role View
     //

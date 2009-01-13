@@ -71,6 +71,11 @@ final class ComponentProvider
                 {
                     return SampleBrowser.ID;
                 }
+
+                public boolean isCloseConfirmationNeeded()
+                {
+                    return false;
+                }
             };
     }
 
@@ -86,6 +91,11 @@ final class ComponentProvider
                 public String getId()
                 {
                     return DummyComponent.ID;
+                }
+
+                public boolean isCloseConfirmationNeeded()
+                {
+                    return false;
                 }
             };
     }
@@ -103,6 +113,11 @@ final class ComponentProvider
                 {
                     return GroupsView.ID;
                 }
+
+                public boolean isCloseConfirmationNeeded()
+                {
+                    return false;
+                }
             };
     }
 
@@ -119,6 +134,11 @@ final class ComponentProvider
                 {
                     return RolesView.ID;
                 }
+
+                public boolean isCloseConfirmationNeeded()
+                {
+                    return false;
+                }
             };
     }
 
@@ -134,6 +154,11 @@ final class ComponentProvider
                 public String getId()
                 {
                     return PersonsView.ID;
+                }
+
+                public boolean isCloseConfirmationNeeded()
+                {
+                    return false;
                 }
             };
     }
@@ -152,6 +177,11 @@ final class ComponentProvider
                 {
                     return SampleRegistrationPanel.ID;
                 }
+
+                public boolean isCloseConfirmationNeeded()
+                {
+                    return true;
+                }
             };
     }
 
@@ -169,6 +199,11 @@ final class ComponentProvider
                 {
                     return SampleBatchRegistrationPanel.ID;
                 }
+
+                public boolean isCloseConfirmationNeeded()
+                {
+                    return true;
+                }
             };
     }
 
@@ -185,6 +220,11 @@ final class ComponentProvider
                 public String getId()
                 {
                     return VocabularyRegistrationForm.ID;
+                }
+
+                public boolean isCloseConfirmationNeeded()
+                {
+                    return true;
                 }
             };
     }
@@ -204,6 +244,11 @@ final class ComponentProvider
                 {
                     return ExperimentBrowser.ID;
                 }
+
+                public boolean isCloseConfirmationNeeded()
+                {
+                    return false;
+                }
             };
     }
 
@@ -220,6 +265,11 @@ final class ComponentProvider
                 public String getId()
                 {
                     return PropertyTypeBrowser.ID;
+                }
+
+                public boolean isCloseConfirmationNeeded()
+                {
+                    return false;
                 }
             };
     }
@@ -239,6 +289,11 @@ final class ComponentProvider
                 {
                     return PropertyTypeRegistrationForm.ID;
                 }
+
+                public boolean isCloseConfirmationNeeded()
+                {
+                    return true;
+                }
             };
     }
 
@@ -255,6 +310,11 @@ final class ComponentProvider
                 public String getId()
                 {
                     return PropertyTypeAssignmentBrowser.ID;
+                }
+
+                public boolean isCloseConfirmationNeeded()
+                {
+                    return false;
                 }
             };
     }
@@ -276,6 +336,11 @@ final class ComponentProvider
                 {
                     return PropertyTypeAssignmentForm.createId(entityKind);
                 }
+
+                public boolean isCloseConfirmationNeeded()
+                {
+                    return true;
+                }
             };
     }
 
@@ -295,6 +360,11 @@ final class ComponentProvider
                 public String getId()
                 {
                     return PropertyTypeAssignmentForm.createId(entityKind);
+                }
+
+                public boolean isCloseConfirmationNeeded()
+                {
+                    return true;
                 }
             };
     }

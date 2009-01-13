@@ -25,7 +25,6 @@ import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -43,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Role
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnFilter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddRoleDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
@@ -155,28 +155,16 @@ public class RolesView extends ContentPanel
                     });
         addRoleButton.setId(ADD_BUTTON_ID);
 
-        class RemoveRoleDialog extends Dialog
+        class RemoveRoleDialog extends ConfirmationDialog
         {
 
             private final RoleModel selectedRole;
 
             public RemoveRoleDialog(final RoleModel selectedRole)
             {
+                super(viewContext.getMessage(Dict.CONFIRM_ROLE_REMOVAL_TITLE), viewContext
+                        .getMessage(Dict.CONFIRM_ROLE_REMOVAL_MSG));
                 this.selectedRole = selectedRole;
-                setHeading(viewContext.getMessage(Dict.CONFIRM_ROLE_REMOVAL_TITLE));
-                setButtons(Dialog.YESNO);
-                addText(viewContext.getMessage(Dict.CONFIRM_ROLE_REMOVAL_MSG));
-                setHideOnButtonClick(true);
-            }
-
-            @Override
-            protected void onButtonPressed(Button button)
-            {
-                super.onButtonPressed(button);
-                if (button.getItemId().equals(Dialog.YES))
-                {
-                    deleteRole();
-                }
             }
 
             private void deleteRole()
@@ -205,6 +193,12 @@ public class RolesView extends ContentPanel
                             (String) selectedRole.get(ModelDataPropertyNames.PERSON),
                             roleListRefreshCallback);
                 }
+            }
+
+            @Override
+            protected void onYes()
+            {
+                deleteRole();
             }
         }
 
