@@ -230,7 +230,7 @@ CREATE TABLE materials (
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     dbin_id tech_id NOT NULL
 );
-CREATE DOMAIN user_id AS character varying(20);
+CREATE DOMAIN user_id AS character varying(50);
 CREATE TABLE persons (
     id tech_id NOT NULL,
     first_name character varying(30),
