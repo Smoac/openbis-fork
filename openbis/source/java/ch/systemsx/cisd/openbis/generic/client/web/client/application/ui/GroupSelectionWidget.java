@@ -22,7 +22,6 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.google.gwt.user.client.Element;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -46,7 +45,7 @@ public final class GroupSelectionWidget extends ComboBox<GroupModel>
 
     public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
 
-    private final IViewContext<ICommonClientServiceAsync> viewContext;
+    private final IViewContext<?> viewContext;
 
     public static final boolean isSharedGroup(Group g)
     {
@@ -55,8 +54,7 @@ public final class GroupSelectionWidget extends ComboBox<GroupModel>
 
     public static final String SHARED_GROUP_CODE = "(Shared)";
 
-    public GroupSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final String idSuffix)
+    public GroupSelectionWidget(final IViewContext<?> viewContext, final String idSuffix)
     {
         this.viewContext = viewContext;
         setId(ID + idSuffix);
@@ -80,7 +78,7 @@ public final class GroupSelectionWidget extends ComboBox<GroupModel>
 
     void refresh()
     {
-        viewContext.getService().listGroups(null, new ListGroupsCallback(viewContext));
+        viewContext.getCommonService().listGroups(null, new ListGroupsCallback(viewContext));
     }
 
     //
@@ -107,7 +105,7 @@ public final class GroupSelectionWidget extends ComboBox<GroupModel>
 
     public final class ListGroupsCallback extends AbstractAsyncCallback<List<Group>>
     {
-        ListGroupsCallback(final IViewContext<ICommonClientServiceAsync> viewContext)
+        ListGroupsCallback(final IViewContext<?> viewContext)
         {
             super(viewContext);
         }

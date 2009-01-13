@@ -38,5 +38,5 @@ public interface IViewContext<T extends IClientServiceAsync> extends IMessagePro
 
     public IClientPluginFactoryProvider getClientPluginFactoryProvider();
 
-    public IViewContext<ICommonClientServiceAsync> getCommonViewContext();
+    public ICommonClientServiceAsync getCommonService();
 }

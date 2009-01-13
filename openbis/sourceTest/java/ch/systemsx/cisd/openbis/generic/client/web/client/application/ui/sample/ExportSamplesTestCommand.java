@@ -76,7 +76,7 @@ public class ExportSamplesTestCommand extends AbstractDefaultTestCommand
             assert viewContext != null : "viewContext is null";
 
             ICommonClientServiceAsync service =
-                    this.viewContext.getCommonViewContext().getService();
+                    this.viewContext.getCommonService();
             service.getExportSamplesTable(exportDataKey, new SaveExportedContentCallbackTest(
                     this.viewContext));
         }

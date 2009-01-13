@@ -106,4 +106,9 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
     {
         return messageProvider.getName();
     }
+
+    public ICommonClientServiceAsync getCommonService()
+    {
+        return getService();
+    }
 }

@@ -90,7 +90,7 @@ public final class GenericSampleRegistrationForm extends AbstractRegistrationFor
     {
         codeField = new CodeField(viewContext, viewContext.getMessage(Dict.CODE));
         codeField.setId(CODE_FIELD_ID);
-        groupSelectionWidget = new GroupSelectionWidget(viewContext.getCommonViewContext(), PREFIX);
+        groupSelectionWidget = new GroupSelectionWidget(viewContext, PREFIX);
         groupSelectionWidget.setLabelSeparator(GenericConstants.MANDATORY_LABEL_SEPARATOR);
         groupSelectionWidget.setFieldLabel(viewContext.getMessage(Dict.GROUP));
         groupSelectionWidget.setAllowBlank(false);

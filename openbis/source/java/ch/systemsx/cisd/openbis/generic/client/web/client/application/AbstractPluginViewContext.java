@@ -73,9 +73,9 @@ public abstract class AbstractPluginViewContext<T extends IClientServiceAsync> i
         return service;
     }
 
-    public final IViewContext<ICommonClientServiceAsync> getCommonViewContext()
+    public final ICommonClientServiceAsync getCommonService()
     {
-        return commonViewContext;
+        return commonViewContext.getService();
     }
 
     public final GenericViewModel getModel()

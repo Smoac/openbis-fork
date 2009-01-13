@@ -133,7 +133,7 @@ public class ExperimentSamplesSection extends SectionPanel
                 {
                     final ListSampleCriteria sampleCriteria = new ListSampleCriteria();
                     sampleCriteria.setExperimentIdentifier(experiment.getIdentifier());
-                    viewContext.getCommonViewContext().getService().listSamples(sampleCriteria,
+                    viewContext.getCommonService().listSamples(sampleCriteria,
                             new ListSamplesCallback(getGenericViewContext(), callback));
                 }
 

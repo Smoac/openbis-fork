@@ -29,7 +29,6 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -72,11 +71,11 @@ final class SampleBrowserToolbar extends ToolBar
 
     private final Button exportButton;
 
-    private final IViewContext<ICommonClientServiceAsync> viewContext;
+    private final IViewContext<?> viewContext;
 
     private SampleType selectedSampleType;
 
-    public SampleBrowserToolbar(final IViewContext<ICommonClientServiceAsync> viewContext,
+    public SampleBrowserToolbar(final IViewContext<?> viewContext,
             final SampleBrowserGrid sampleBrowserGrid, final CommonColumnsConfig commonColumns,
             final ParentColumnsConfig parentColumns, final PropertyColumnsConfig propertyColumns)
     {

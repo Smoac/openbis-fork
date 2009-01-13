@@ -178,7 +178,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
                 {
                     final ListSampleCriteria sampleCriteria = new ListSampleCriteria();
                     sampleCriteria.setContainerIdentifier(sampleIdentifier);
-                    viewContext.getCommonViewContext().getService().listSamples(sampleCriteria,
+                    viewContext.getCommonService().listSamples(sampleCriteria,
                             new ListSamplesCallback(viewContext, callback));
                 }
             };
@@ -197,8 +197,8 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
                 public final void load(final BaseListLoadConfig loadConfig,
                         final AsyncCallback<BaseListLoadResult<ExternalDataModel>> callback)
                 {
-                    viewContext.getCommonViewContext().getService().listExternalData(
-                            sampleIdentifier, new ListExternalDataCallback(viewContext, callback));
+                    viewContext.getCommonService().listExternalData(sampleIdentifier,
+                            new ListExternalDataCallback(viewContext, callback));
                 }
             };
     }

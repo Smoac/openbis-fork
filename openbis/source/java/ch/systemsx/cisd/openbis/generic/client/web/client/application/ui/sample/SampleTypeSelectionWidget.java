@@ -23,7 +23,6 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -43,12 +42,12 @@ public final class SampleTypeSelectionWidget extends ComboBox<SampleTypeModel>
 
     public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
 
-    private final IViewContext<ICommonClientServiceAsync> viewContext;
+    private final IViewContext<?> viewContext;
 
     private final boolean onlyListable;
 
-    public SampleTypeSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final String idSuffix, final boolean onlyListable)
+    public SampleTypeSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
+            final boolean onlyListable)
     {
         this.viewContext = viewContext;
         this.onlyListable = onlyListable;
@@ -80,7 +79,7 @@ public final class SampleTypeSelectionWidget extends ComboBox<SampleTypeModel>
 
     void refresh()
     {
-        viewContext.getService().listSampleTypes(new ListSampleTypesCallback(viewContext));
+        viewContext.getCommonService().listSampleTypes(new ListSampleTypesCallback(viewContext));
     }
 
     //
@@ -90,7 +89,7 @@ public final class SampleTypeSelectionWidget extends ComboBox<SampleTypeModel>
     public final class ListSampleTypesCallback extends AbstractAsyncCallback<List<SampleType>>
     {
 
-        ListSampleTypesCallback(final IViewContext<ICommonClientServiceAsync> viewContext)
+        ListSampleTypesCallback(final IViewContext<?> viewContext)
         {
             super(viewContext);
         }
