@@ -35,14 +35,14 @@ public class WindowUtils
      */
     static public void openWindow(String url)
     {
-        // triggered only for test purposes
-        DispatcherHelper.dispatchOpenUrlEvent(url);
         boolean opened = openWindow(url, "", null);
         if (opened == false)
         {
             MessageBox.alert("", GenericConstants.POPUP_BLOCKER_DETECTED, null);
             return;
         }
+        // triggered only for test purposes
+        DispatcherHelper.dispatchOpenUrlEvent(url);
     }
 
     /**
