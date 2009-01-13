@@ -14,28 +14,28 @@
 * limitations under the License.
 */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleTypeModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExperimentTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.EntityRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
 
 /**
- * The {@link EntityRegistrationPanel} extension for registering a sample.
+ * The {@link EntityRegistrationPanel} extension for registering an experiment.
  * 
  * @author Izabela Adamczyk
  */
-public final class SampleRegistrationPanel extends
-        EntityRegistrationPanel<SampleTypeModel, SampleTypeSelectionWidget>
+public final class ExperimentRegistrationPanel extends
+        EntityRegistrationPanel<ExperimentTypeModel, ExperimentTypeSelectionWidget>
 {
 
-    public static final String ID = EntityRegistrationPanel.createId(EntityKind.SAMPLE);
+    public static final String ID = EntityRegistrationPanel.createId(EntityKind.EXPERIMENT);
 
-    public SampleRegistrationPanel(final CommonViewContext viewContext)
+    public ExperimentRegistrationPanel(final CommonViewContext viewContext)
     {
-        super(viewContext, EntityKind.SAMPLE, new SampleTypeSelectionWidget(viewContext,
-                EntityRegistrationPanel.createId(EntityKind.SAMPLE), false));
+        super(viewContext, EntityKind.EXPERIMENT, new ExperimentTypeSelectionWidget(viewContext,
+                EntityRegistrationPanel.createId(EntityKind.EXPERIMENT)));
     }
 
 }

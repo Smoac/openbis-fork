@@ -47,8 +47,7 @@ public final class ChooseTypeOfNewSample extends AbstractDefaultTestCommand
     {
         final ComboBox<SampleTypeModel> sampleTypeSelector =
                 (SampleTypeSelectionWidget) GWTTestUtil
-                        .getWidgetWithID(SampleTypeSelectionWidget.ID
-                                + SampleRegistrationPanel.ID_SUFFIX);
+                        .getWidgetWithID(SampleTypeSelectionWidget.ID + SampleRegistrationPanel.ID);
         GWTUtils.setSelectedItem(sampleTypeSelector, ModelDataPropertyNames.CODE,
                 sampleTypeNameOrNull);
     }

@@ -198,7 +198,7 @@ public class CategoriesBuilder
         elements.add(new MenuElement(MENU_ELEMENTS.LIST_TYPES, "List Types", provider
                 .getDummyComponent()));
         elements.add(new MenuElement(MENU_ELEMENTS.REGISTER, "Register", provider
-                .getDummyComponent()));
+                .getExperimentRegistration()));
         elements.add(new MenuElement(MENU_ELEMENTS.INVALIDATE, "Invalidate", provider
                 .getDummyComponent()));
         elements.add(new MenuElement(MENU_ELEMENTS.ASSIGN_PROPERTIES, "Assign Properties", provider

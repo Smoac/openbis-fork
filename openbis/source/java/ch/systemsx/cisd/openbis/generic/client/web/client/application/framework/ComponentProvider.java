@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GroupsView
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.PersonsView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.RolesView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentBrowser;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeAssignmentBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeAssignmentForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeBrowser;
@@ -176,6 +177,28 @@ final class ComponentProvider
                 public String getId()
                 {
                     return SampleRegistrationPanel.ID;
+                }
+
+                public boolean isCloseConfirmationNeeded()
+                {
+                    return true;
+                }
+            };
+    }
+
+    public final ITabItemFactory getExperimentRegistration()
+    {
+        return new ITabItemFactory()
+            {
+                public ITabItem create()
+                {
+                    Component component = new ExperimentRegistrationPanel(viewContext);
+                    return new DefaultTabItem(getMessage(Dict.EXPERIMENT_REGISTRATION), component);
+                }
+
+                public String getId()
+                {
+                    return ExperimentRegistrationPanel.ID;
                 }
 
                 public boolean isCloseConfirmationNeeded()

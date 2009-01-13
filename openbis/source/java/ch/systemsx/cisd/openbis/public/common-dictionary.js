@@ -165,6 +165,10 @@ var common = {
   confirm_role_removal_msg: "Do you want to remove selected role?",
   confirm_role_removal_title: "Role removal confirmation",
   
+  //
+  // Experiment Registration
+  //
+  experiment_registration: "Experiment Registration",
 
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

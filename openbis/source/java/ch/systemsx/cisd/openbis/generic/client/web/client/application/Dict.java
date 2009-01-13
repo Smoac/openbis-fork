@@ -314,6 +314,12 @@ public abstract class Dict
     public static final String CONFIRM_ROLE_REMOVAL_TITLE = "confirm_role_removal_title";
 
     //
+    // Sample Registration
+    //
+
+    public static final String EXPERIMENT_REGISTRATION = "experiment_registration";
+
+    //
     // Unclassified
     //
     public static final String LEADER = "leader";
