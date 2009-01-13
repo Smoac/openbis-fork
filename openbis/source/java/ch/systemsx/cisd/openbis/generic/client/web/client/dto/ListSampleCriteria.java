@@ -21,17 +21,19 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 
 /**
- * Criteria for listing <i>samples</i>.
+ * Criteria for listing <i>samples</i>. This class offers 3 kinds of filters, but only one can be
+ * used at the same time: <br>
+ * filter 1: samples of particular type in a specified group and/or shared <br>
+ * filter 2: samples belonging to a container <br>
+ * filter 3: samples from the experiment
  * 
  * @author Izabela Adamczyk
  * @author Tomasz Pylak
  */
-// TODO 2009-01-12, Tomasz Pylak: remove inheritance from DefaultResultSetConfig by creating a new
-// type which uses composition. Move ListSampleCriteria to the client.shared package. Only then
-// deletion of ListSampleCriteriaDTO will be possible.
 public final class ListSampleCriteria extends DefaultResultSetConfig<String> implements
         IsSerializable
 {
+    // --------- filter 1 fields
     private SampleType sampleType;
 
     private String groupCode;
@@ -40,8 +42,10 @@ public final class ListSampleCriteria extends DefaultResultSetConfig<String> imp
 
     private boolean includeInstance;
 
+    // --------- filter 2 fields
     private String containerIdentifier;
 
+    // --------- filter 3 fields
     private String experimentIdentifier;
 
     public final String getContainerIdentifier()

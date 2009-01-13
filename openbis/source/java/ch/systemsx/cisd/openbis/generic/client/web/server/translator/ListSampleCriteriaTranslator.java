@@ -22,9 +22,12 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.client.shared.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
@@ -42,23 +45,24 @@ public final class ListSampleCriteriaTranslator
 
     public final static ListSampleCriteriaDTO translate(final ListSampleCriteria listCriteria)
     {
-        final ListSampleCriteriaDTO criteria = new ListSampleCriteriaDTO();
         final String containerIdentifier = listCriteria.getContainerIdentifier();
         final String experimentIdentifier = listCriteria.getExperimentIdentifier();
         if (experimentIdentifier != null)
         {
-            criteria.setExperimentIdentifier(new ExperimentIdentifierFactory(experimentIdentifier)
-                    .createIdentifier());
+            ExperimentIdentifier expIdent =
+                    new ExperimentIdentifierFactory(experimentIdentifier).createIdentifier();
+            return ListSampleCriteriaDTO.createExperimentIdentifier(expIdent);
         } else if (containerIdentifier != null)
         {
-            criteria.setContainerIdentifier(SampleIdentifierFactory.parse(containerIdentifier));
+            SampleIdentifier containerIdent = SampleIdentifierFactory.parse(containerIdentifier);
+            return ListSampleCriteriaDTO.createContainerIdentifier(containerIdent);
         } else
         {
-            criteria.setOwnerIdentifiers(ListSampleCriteriaTranslator
-                    .createOwnerIdentifiers(listCriteria));
-            criteria.setSampleType(SampleTypeTranslator.translate(listCriteria.getSampleType()));
+            List<SampleOwnerIdentifier> ownerIdentifiers =
+                    ListSampleCriteriaTranslator.createOwnerIdentifiers(listCriteria);
+            SampleTypePE sampleType = SampleTypeTranslator.translate(listCriteria.getSampleType());
+            return ListSampleCriteriaDTO.createOwnerIdentifiers(ownerIdentifiers, sampleType);
         }
-        return criteria;
     }
 
     private final static List<SampleOwnerIdentifier> createOwnerIdentifiers(

@@ -30,7 +30,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentif
  * 
  * @author Tomasz Pylak
  */
-// TODO 2008-12-09, Christian Ribeaud: Delete this class. Only use the GWT DTO 'ListSampleCriteria'.
 public class ListSampleCriteriaDTO extends AbstractHashable implements Serializable
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
@@ -45,14 +44,38 @@ public class ListSampleCriteriaDTO extends AbstractHashable implements Serializa
 
     private ExperimentIdentifier experimentIdentifier;
 
+    private ListSampleCriteriaDTO()
+    {
+    }
+
+    public final static ListSampleCriteriaDTO createContainerIdentifier(
+            final SampleIdentifier container)
+    {
+        ListSampleCriteriaDTO result = new ListSampleCriteriaDTO();
+        result.containerIdentifier = container;
+        return result;
+    }
+
+    public final static ListSampleCriteriaDTO createOwnerIdentifiers(
+            final List<SampleOwnerIdentifier> ownerIdentifiers, final SampleTypePE sampleType)
+    {
+        ListSampleCriteriaDTO result = new ListSampleCriteriaDTO();
+        result.ownerIdentifiers = ownerIdentifiers;
+        result.sampleType = sampleType;
+        return result;
+    }
+
+    public final static ListSampleCriteriaDTO createExperimentIdentifier(
+            final ExperimentIdentifier experimentIdentifier)
+    {
+        ListSampleCriteriaDTO result = new ListSampleCriteriaDTO();
+        result.experimentIdentifier = experimentIdentifier;
+        return result;
+    }
+
     public final SampleIdentifier getContainerIdentifier()
     {
         return containerIdentifier;
-    }
-
-    public final void setContainerIdentifier(final SampleIdentifier container)
-    {
-        this.containerIdentifier = container;
     }
 
     public List<SampleOwnerIdentifier> getOwnerIdentifiers()
@@ -65,23 +88,8 @@ public class ListSampleCriteriaDTO extends AbstractHashable implements Serializa
         return sampleType;
     }
 
-    public final void setOwnerIdentifiers(final List<SampleOwnerIdentifier> ownerIdentifiers)
-    {
-        this.ownerIdentifiers = ownerIdentifiers;
-    }
-
-    public final void setSampleType(final SampleTypePE sampleType)
-    {
-        this.sampleType = sampleType;
-    }
-
     public ExperimentIdentifier getExperimentIdentifier()
     {
         return experimentIdentifier;
-    }
-
-    public void setExperimentIdentifier(final ExperimentIdentifier experimentIdentifier)
-    {
-        this.experimentIdentifier = experimentIdentifier;
     }
 }
