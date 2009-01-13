@@ -83,6 +83,7 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
 
     boolean silent;
 
+    // can be null only during tests
     protected final IViewContext<?> viewContext;
 
     /**
@@ -152,7 +153,7 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
         {
             if (StringUtils.isBlank(caught.getMessage()))
             {
-                msg = viewContext.getMessage(Dict.EXCEPTION_INVOCATION_MESSAGE);
+                msg = getMessage(Dict.EXCEPTION_INVOCATION_MESSAGE);
             } else
             {
                 msg = caught.getMessage();
@@ -162,9 +163,7 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
             final String message = caught.getMessage();
             if (StringUtils.isBlank(message))
             {
-                msg =
-                        viewContext.getMessage(Dict.EXCEPTION_WITHOUT_MESSAGE, caught.getClass()
-                                .getName());
+                msg = getMessage(Dict.EXCEPTION_WITHOUT_MESSAGE, caught.getClass().getName());
             } else
             {
                 msg = message;
@@ -180,10 +179,21 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
         finishOnFailure(caught);
     }
 
+    private String getMessage(String messageKey, Object... params)
+    {
+        if (viewContext != null)
+        {
+            return viewContext.getMessage(messageKey, params);
+        } else
+        {
+            return messageKey;
+        }
+    }
+
     private void showSessionTerminated(String msg)
     {
         Dialog dialog = new Dialog();
-        dialog.setTitle(viewContext.getMessage(Dict.MESSAGEBOX_WARNING));
+        dialog.setTitle(getMessage(Dict.MESSAGEBOX_WARNING));
 
         dialog.addText(msg);
         dialog.setHideOnButtonClick(false);
@@ -196,8 +206,11 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
                 @Override
                 public void windowHide(WindowEvent we)
                 {
-                    final IPageController pageController = viewContext.getPageController();
-                    pageController.reload(true);
+                    if (viewContext != null)
+                    {
+                        final IPageController pageController = viewContext.getPageController();
+                        pageController.reload(true);
+                    }
                 }
             });
     }
