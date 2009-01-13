@@ -19,6 +19,11 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ex
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -59,17 +64,28 @@ public class GenericExperimentAttachmentDownloadTest extends AbstractGWTTestCase
         prepareShowExperiment(DEFAULT, SIRNA_HCS, EXP_REUSE);
         remoteConsole.prepare(new ClickDownloadAttachmentCmdTest("cellPlates.txt",
                 CISD_CISD_DEFAULT + "/" + EXP_REUSE));
-        // ensures that opening the url will trigger calling the appropriate callback
+
+        // this callback will be used when the attempt to open an URL will occur
         OpenedUrlCallback openedUrlCallback = new OpenedUrlCallback(client.tryToGetViewContext());
         registerOpenURLController(openedUrlCallback);
 
         remoteConsole.prepare(new CheckUrlContentCmdTest(openedUrlCallback, "3VCP1\n3VCP2\n3VCP3"));
 
+        // wait for the command which fetches URL content to finish
+        AbstractDefaultTestCommand waitForPrevCmd = new AbstractDefaultTestCommand()
+            {
+                public void execute()
+                {
+                }
+            };
+        waitForPrevCmd.addCallbackClass(CheckStringsEqualCallback.class);
+        remoteConsole.prepare(waitForPrevCmd);
+
         remoteConsole.finish(20000);
         client.onModuleLoad();
     }
 
-    private UrlOpenedController registerOpenURLController(OpenedUrlCallback openedUrlCallback)
+    private static UrlOpenedController registerOpenURLController(OpenedUrlCallback openedUrlCallback)
     {
         UrlOpenedController controller = new UrlOpenedController(openedUrlCallback);
         Dispatcher.get().addController(controller);
@@ -77,7 +93,7 @@ public class GenericExperimentAttachmentDownloadTest extends AbstractGWTTestCase
     }
 
     // called automatically by the controller when any URL is contacted
-    static class OpenedUrlCallback extends AbstractAsyncCallback<String>
+    private static class OpenedUrlCallback extends AbstractAsyncCallback<String>
     {
         private String openedUrl;
 
@@ -99,9 +115,9 @@ public class GenericExperimentAttachmentDownloadTest extends AbstractGWTTestCase
 
     }
 
-    // executed after a callback opening an url is called. Checks if the opened url is the expected
-    // one and if it has the expected content.
-    class CheckUrlContentCmdTest extends AbstractDefaultTestCommand
+    // executed after a callback opening an url is called. Checks if the opened url has the expected
+    // content. This class is UI independent.
+    private static class CheckUrlContentCmdTest extends AbstractDefaultTestCommand
     {
         private final String expectedContent;
 
@@ -118,17 +134,55 @@ public class GenericExperimentAttachmentDownloadTest extends AbstractGWTTestCase
         {
             String openedUrl = openedUrlCallback.tryGetOpenedUrl();
             assertNotNull("An URL was expected to be opened, but it did not happen.", openedUrl);
-            assertUrlContent(openedUrl, expectedContent);
+            fetchContent(openedUrl, new CheckStringsEqualCallback(expectedContent));
         }
     }
 
-    private static void assertUrlContent(String url, String expectedContent)
+    private static class CheckStringsEqualCallback extends AbstractAsyncCallback<String>
     {
-        // TODO 2009-01-12, Tomasz Pylak: assert that content at url is equal to the expected one
+        private final String expectedContent;
+
+        public CheckStringsEqualCallback(String expectedContent)
+        {
+            super(null);
+            this.expectedContent = expectedContent;
+        }
+
+        @Override
+        protected void process(String recievedContent)
+        {
+            assertEquals(expectedContent, recievedContent);
+        }
+
+    }
+
+    // fetches content from the given URL
+    private static void fetchContent(String url,
+            final AbstractAsyncCallback<String> responseCallback)
+    {
+        final RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+        try
+        {
+            requestBuilder.sendRequest(null, new RequestCallback()
+                {
+                    public void onError(Request request, Throwable exception)
+                    {
+                        responseCallback.onFailure(exception);
+                    }
+
+                    public void onResponseReceived(Request request, Response response)
+                    {
+                        responseCallback.onSuccess(response.getText());
+                    }
+                });
+        } catch (final RequestException ex)
+        {
+            fail(ex.getMessage());
+        }
     }
 
     // listens to the event of opening an url and calls a specified callback in that case
-    class UrlOpenedController extends Controller
+    private static class UrlOpenedController extends Controller
     {
         private final OpenedUrlCallback openedUrlCallback;
 
