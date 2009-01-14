@@ -21,8 +21,6 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExperimentTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentBrowserToolbar;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ProjectSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
@@ -53,7 +51,8 @@ public class ListExperiments extends AbstractDefaultTestCommand
     public void execute()
     {
         final ProjectSelectionWidget project =
-                (ProjectSelectionWidget) GWTTestUtil.getWidgetWithID(ProjectSelectionWidget.ID);
+                (ProjectSelectionWidget) GWTTestUtil.getWidgetWithID(ProjectSelectionWidget.ID
+                        + ExperimentBrowserToolbar.ID);
 
         final ComboBox<ExperimentTypeModel> experimentTypeSelector =
                 (ExperimentTypeSelectionWidget) GWTTestUtil

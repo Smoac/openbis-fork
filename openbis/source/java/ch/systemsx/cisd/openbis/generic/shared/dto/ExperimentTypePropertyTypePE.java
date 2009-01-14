@@ -77,6 +77,14 @@ public class ExperimentTypePropertyTypePE extends EntityTypePropertyTypePE
         return getEntityTypeInternal();
     }
 
+    @Override
+    // This setter sets the bidirectional connection. That's why we must have an another internal
+    // plain setter for Hibernate.
+    public void setEntityType(EntityTypePE entityType)
+    {
+        ((ExperimentTypePE) entityType).addExperimentTypePropertyType(this);
+    }
+
     @SequenceGenerator(name = SequenceNames.EXPERIMENT_TYPE_PROPERTY_TYPE_SEQUENCE, sequenceName = SequenceNames.EXPERIMENT_TYPE_PROPERTY_TYPE_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.EXPERIMENT_TYPE_PROPERTY_TYPE_SEQUENCE)

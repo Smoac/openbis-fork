@@ -21,6 +21,7 @@ import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.client.shared.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.client.shared.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.IPluginCommonServer;
@@ -68,4 +69,11 @@ public interface IGenericServer extends IPluginCommonServer
     public void registerSamples(final String sessionToken, SampleType sampleType,
             @AuthorizationGuard(guardClass = NewSamplePredicate.class)
             final List<NewSample> newSamples) throws UserFailureException;
+
+    /**
+     * Registers experiment.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.USER)
+    public void registerExperiment(String sessionToken, NewExperiment experiment);
 }

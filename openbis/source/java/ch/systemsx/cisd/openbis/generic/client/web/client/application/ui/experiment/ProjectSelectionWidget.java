@@ -22,7 +22,6 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.google.gwt.user.client.Element;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -44,12 +43,12 @@ public final class ProjectSelectionWidget extends ComboBox<ProjectModel>
 
     public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
 
-    private final IViewContext<ICommonClientServiceAsync> viewContext;
+    private final IViewContext<?> viewContext;
 
-    public ProjectSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext)
+    public ProjectSelectionWidget(final IViewContext<?> viewContext, final String idSuffix)
     {
         this.viewContext = viewContext;
-        setId(ID);
+        setId(ID + idSuffix);
         setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_EMPTY, "projects"));
         setDisplayField(ModelDataPropertyNames.PROJECT_WITH_GROUP);
         setEditable(false);
@@ -78,7 +77,7 @@ public final class ProjectSelectionWidget extends ComboBox<ProjectModel>
 
     void refresh()
     {
-        viewContext.getService().listProjects(new ListProjectsCallback(viewContext));
+        viewContext.getCommonService().listProjects(new ListProjectsCallback(viewContext));
     }
 
     //
@@ -87,7 +86,7 @@ public final class ProjectSelectionWidget extends ComboBox<ProjectModel>
 
     public final class ListProjectsCallback extends AbstractAsyncCallback<List<Project>>
     {
-        ListProjectsCallback(final IViewContext<ICommonClientServiceAsync> viewContext)
+        ListProjectsCallback(final IViewContext<?> viewContext)
         {
             super(viewContext);
         }

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.client.shared.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.client.shared.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
@@ -60,4 +61,9 @@ public interface IGenericClientService extends IClientService
      */
     public Experiment getExperimentInfo(final String experimentIdentifier)
             throws UserFailureException;
+
+    /**
+     * Registers a new experiment.
+     */
+    public void registerExperiment(final NewExperiment experiment) throws UserFailureException;
 }

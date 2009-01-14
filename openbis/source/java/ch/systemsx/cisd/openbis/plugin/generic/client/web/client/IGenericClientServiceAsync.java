@@ -20,6 +20,7 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.shared.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.client.shared.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
@@ -60,4 +61,11 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
     public void registerSamples(final SampleType sampleType, final String sessionKey,
             final AsyncCallback<List<BatchRegistrationResult>> asyncCallback)
             throws UserFailureException;
+
+    /**
+     * @see IGenericClientService#registerExperiment(NewExperiment)
+     */
+    public void registerExperiment(NewExperiment newExp, AsyncCallback<Void> assyncCallback)
+            throws UserFailureException;
+
 }

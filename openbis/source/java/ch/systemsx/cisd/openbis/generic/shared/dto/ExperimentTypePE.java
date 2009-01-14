@@ -16,12 +16,19 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
@@ -40,9 +47,8 @@ public final class ExperimentTypePE extends EntityTypePE
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
-    //
-    // EntityTypePE
-    //
+    private Set<ExperimentTypePropertyTypePE> exerimentTypePropertyTypes =
+            new HashSet<ExperimentTypePropertyTypePE>();
 
     @SequenceGenerator(name = SequenceNames.EXPERIMENT_TYPE_SEQUENCE, sequenceName = SequenceNames.EXPERIMENT_TYPE_SEQUENCE, allocationSize = 1)
     @Id
@@ -50,6 +56,48 @@ public final class ExperimentTypePE extends EntityTypePE
     public final Long getId()
     {
         return id;
+    }
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "entityTypeInternal")
+    @JoinColumn(name = ColumnNames.EXPERIMENT_TYPE_COLUMN, updatable = false)
+    private Set<ExperimentTypePropertyTypePE> getExperimentTypePropertyTypesInternal()
+    {
+        return exerimentTypePropertyTypes;
+    }
+
+    // Required by Hibernate.
+    @SuppressWarnings("unused")
+    private void setExperimentTypePropertyTypesInternal(
+            final Set<ExperimentTypePropertyTypePE> experimentTypePropertyTypes)
+    {
+        this.exerimentTypePropertyTypes = experimentTypePropertyTypes;
+    }
+
+    @Transient
+    public Set<ExperimentTypePropertyTypePE> getExperimentTypePropertyTypes()
+    {
+        return getExperimentTypePropertyTypesInternal();
+    }
+
+    public final void setExperimentTypePropertyTypes(
+            final Set<ExperimentTypePropertyTypePE> experimentTypePropertyTypes)
+    {
+        getExperimentTypePropertyTypesInternal().clear();
+        for (final ExperimentTypePropertyTypePE child : experimentTypePropertyTypes)
+        {
+            addExperimentTypePropertyType(child);
+        }
+    }
+
+    public void addExperimentTypePropertyType(final ExperimentTypePropertyTypePE child)
+    {
+        final ExperimentTypePE parent = (ExperimentTypePE) child.getEntityType();
+        if (parent != null)
+        {
+            parent.getExperimentTypePropertyTypesInternal().remove(child);
+        }
+        child.setEntityTypeInternal(this);
+        getExperimentTypePropertyTypesInternal().add(child);
     }
 
 }

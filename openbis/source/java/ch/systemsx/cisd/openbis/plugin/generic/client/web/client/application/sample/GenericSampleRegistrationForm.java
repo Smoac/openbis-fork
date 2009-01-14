@@ -21,7 +21,6 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.shared.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleProperty;
@@ -32,37 +31,27 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.PropertyFieldFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
 
 /**
- * The <i>generic</i> sample registration panel.
+ * The <i>generic</i> sample registration form.
  * 
  * @author Izabela Adamczyk
  */
-public final class GenericSampleRegistrationForm extends AbstractRegistrationForm
+public final class GenericSampleRegistrationForm extends
+        AbstractGenericEntityRegistrationForm<SampleType, SampleTypePropertyType, SampleProperty>
 {
-    static final String PREFIX = "generic-sample-registration_";
+    public static final String ID = createId(EntityKind.SAMPLE);
 
-    public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
+    public static final String ID_SUFFIX_CONTAINER = "container";
 
-    public static final String ID = ID_PREFIX + "form";
-
-    public static final String CODE_FIELD_ID = ID_PREFIX + "code";
-
-    public static final String CONTAINER_FIELD_ID = ID_PREFIX + "container";
-
-    public static final String PARENT_FIELD_ID = ID_PREFIX + "parent";
-
-    public static final String GROUP_ID_SUFFIX = ID_PREFIX + "group";
-
-    private static final String ETPT = "PROPERTY_TYPE";
+    public static final String ID_SUFFIX_PARENT = "parent";
 
     private final IViewContext<IGenericClientServiceAsync> viewContext;
 
@@ -70,43 +59,16 @@ public final class GenericSampleRegistrationForm extends AbstractRegistrationFor
 
     private GroupSelectionWidget groupSelectionWidget;
 
-    private ArrayList<Field<?>> propertyFields;
-
     private TextField<String> container;
 
     private TextField<String> parent;
 
-    private TextField<String> codeField;
-
     public GenericSampleRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext, final SampleType sampleType)
     {
-        super(viewContext, ID);
+        super(viewContext, sampleType.getSampleTypePropertyTypes(), EntityKind.SAMPLE);
         this.viewContext = viewContext;
         this.sampleType = sampleType;
-    }
-
-    private final void createFormFields()
-    {
-        codeField = new CodeField(viewContext, viewContext.getMessage(Dict.CODE));
-        codeField.setId(CODE_FIELD_ID);
-        groupSelectionWidget = new GroupSelectionWidget(viewContext, PREFIX);
-        groupSelectionWidget.setLabelSeparator(GenericConstants.MANDATORY_LABEL_SEPARATOR);
-        groupSelectionWidget.setFieldLabel(viewContext.getMessage(Dict.GROUP));
-        groupSelectionWidget.setAllowBlank(false);
-
-        parent = new VarcharField(viewContext.getMessage(Dict.GENERATED_FROM_SAMPLE), false);
-        parent.setId(PARENT_FIELD_ID);
-
-        container = new VarcharField(viewContext.getMessage(Dict.PART_OF_SAMPLE), false);
-        container.setId(CONTAINER_FIELD_ID);
-
-        propertyFields = new ArrayList<Field<?>>();
-        for (final SampleTypePropertyType stpt : sampleType.getSampleTypePropertyTypes())
-        {
-            propertyFields.add(createProperty(stpt));
-
-        }
     }
 
     private final String createSampleIdentifier()
@@ -123,86 +85,37 @@ public final class GenericSampleRegistrationForm extends AbstractRegistrationFor
         return builder.toString().toUpperCase();
     }
 
-    private final void addFormFields()
-    {
-        formPanel.add(codeField);
-        formPanel.add(groupSelectionWidget);
-        formPanel.add(parent);
-        formPanel.add(container);
-        for (final Field<?> propertyField : propertyFields)
-        {
-            formPanel.add(propertyField);
-        }
-    }
-
-    private final Field<?> createProperty(final SampleTypePropertyType stpt)
-    {
-        final Field<?> field;
-        final boolean isMandatory = stpt.isMandatory();
-        final String label = stpt.getPropertyType().getLabel();
-        final String propertyTypeCode = stpt.getPropertyType().getCode();
-        field =
-                PropertyFieldFactory.createField(stpt.getPropertyType(), isMandatory, label,
-                        createFormFieldId(propertyTypeCode));
-        field.setData(ETPT, stpt);
-        field.setTitle(propertyTypeCode);
-        return field;
-    }
-
-    private final static String createFormFieldId(final String propertyTypeCode)
-    {
-        return ID_PREFIX + propertyTypeCode.toLowerCase().replace(".", "-").replace("_", "-");
-    }
-
-    //
-    // AbstractRegistrationForm
-    //
-
     @Override
     public final void submitValidForm()
     {
         final NewSample newSample =
                 new NewSample(createSampleIdentifier(), sampleType, StringUtils.trimToNull(parent
                         .getValue()), StringUtils.trimToNull(container.getValue()));
-        final List<SampleProperty> properties = new ArrayList<SampleProperty>();
-        for (final Field<?> field : propertyFields)
-        {
-            if (field.getValue() != null)
-            {
-                final SampleTypePropertyType stpt = field.getData(ETPT);
-                final SampleProperty sampleProperty = new SampleProperty();
-                sampleProperty.setValue(PropertyFieldFactory.valueToString(field.getValue()));
-                sampleProperty.setEntityTypePropertyType(stpt);
-                properties.add(sampleProperty);
-            }
-        }
+        final List<SampleProperty> properties = extractProperties();
         newSample.setProperties(properties.toArray(SampleProperty.EMPTY_ARRAY));
         viewContext.getService().registerSample(newSample, new RegisterSampleCallback(viewContext));
     }
 
-    @Override
-    protected final void onRender(final Element target, final int index)
-    {
-        super.onRender(target, index);
-        createFormFields();
-        addFormFields();
-    }
-
-    //
-    // Helper classes
-    //
-
     public final class RegisterSampleCallback extends AbstractAsyncCallback<Void>
-    {
 
-        RegisterSampleCallback(final IViewContext<?> viewContext)
+    {
+        public RegisterSampleCallback(IViewContext<?> viewContext)
         {
             super(viewContext, new InfoBoxCallbackListener<Void>(infoBox));
         }
 
-        private final String createSuccessfullRegistrationInfo(final boolean shared,
-                final String code, final Group group)
+        @Override
+        protected void process(Void result)
         {
+            infoBox.displayInfo(createSuccessfullRegistrationInfo());
+            formPanel.reset();
+        }
+
+        private String createSuccessfullRegistrationInfo()
+        {
+            String code = codeField.getValue();
+            final Group selectedGroup = groupSelectionWidget.tryGetSelectedGroup();
+            boolean shared = GroupSelectionWidget.isSharedGroup(selectedGroup);
             if (shared)
             {
                 return "Shared sample <b>" + code + "</b> successfully registered";
@@ -210,24 +123,39 @@ public final class GenericSampleRegistrationForm extends AbstractRegistrationFor
             } else
             {
                 return "Sample <b>" + code + "</b> successfully registered in group <b>"
-                        + group.getCode() + "</b>";
+                        + selectedGroup.getCode() + "</b>";
             }
-        }
-
-        //
-        // AbstractAsyncCallback
-        //
-
-        @Override
-        protected final void process(final Void result)
-        {
-            final Group selectedGroup = groupSelectionWidget.tryGetSelectedGroup();
-            boolean shared = GroupSelectionWidget.isSharedGroup(selectedGroup);
-            final String message =
-                    createSuccessfullRegistrationInfo(shared, codeField.getValue(), selectedGroup);
-            infoBox.displayInfo(message);
-            formPanel.reset();
         }
     }
 
+    @Override
+    protected SampleProperty createEntityProperty()
+    {
+        return new SampleProperty();
+    }
+
+    @Override
+    protected void createEntitySpecificFields()
+    {
+        groupSelectionWidget = new GroupSelectionWidget(viewContext, getId());
+        groupSelectionWidget.setLabelSeparator(GenericConstants.MANDATORY_LABEL_SEPARATOR);
+        groupSelectionWidget.setFieldLabel(viewContext.getMessage(Dict.GROUP));
+        groupSelectionWidget.setAllowBlank(false);
+
+        parent = new VarcharField(viewContext.getMessage(Dict.GENERATED_FROM_SAMPLE), false);
+        parent.setId(getId() + ID_SUFFIX_PARENT);
+
+        container = new VarcharField(viewContext.getMessage(Dict.PART_OF_SAMPLE), false);
+        container.setId(getId() + ID_SUFFIX_CONTAINER);
+    }
+
+    @Override
+    protected List<Field<?>> getEntitySpecificFields()
+    {
+        List<Field<?>> fields = new ArrayList<Field<?>>();
+        fields.add(groupSelectionWidget);
+        fields.add(parent);
+        fields.add(container);
+        return fields;
+    }
 }

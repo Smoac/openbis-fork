@@ -27,6 +27,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.client.shared.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.client.shared.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
@@ -173,5 +174,10 @@ public final class GenericServer extends AbstractPluginServer<IGenericServer> im
                     sampleTypeCode);
         }
         getSampleTypeSlaveServerPlugin(sampleTypePE).registerSamples(session, newSamples);
+    }
+
+    public void registerExperiment(String sessionToken, NewExperiment experiment)
+    {
+
     }
 }

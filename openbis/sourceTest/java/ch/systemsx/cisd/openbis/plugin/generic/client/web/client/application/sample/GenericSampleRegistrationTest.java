@@ -60,8 +60,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         loginAndPreprareRegistration(sampleTypeCode);
         remoteConsole.prepare(new FillSampleRegistrationForm("CISD", GROUP_CL)
                 .addProperty(new FillSampleRegistrationForm.Property(
-                        GenericSampleRegistrationForm.ID_PREFIX + "plate-geometry",
-                        "1536_WELLS_32X48")));
+                        GenericSampleRegistrationForm.ID + "plate-geometry", "1536_WELLS_32X48")));
         remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.SAMPLES,
                 CategoriesBuilder.MENU_ELEMENTS.LIST,
                 GenericSampleRegistrationForm.RegisterSampleCallback.class));
@@ -85,8 +84,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ChooseTypeOfNewSample(SampleTypeCode.CONTROL_LAYOUT.getCode()));
         remoteConsole.prepare(new FillSampleRegistrationForm("TESTGROUP", GROUP_CL + "1")
                 .addProperty(new FillSampleRegistrationForm.Property(
-                        GenericSampleRegistrationForm.ID_PREFIX + "plate-geometry",
-                        "1536_WELLS_32X48")));
+                        GenericSampleRegistrationForm.ID + "plate-geometry", "1536_WELLS_32X48")));
         FailureExpectation failureExpectation =
                 new FailureExpectation(GenericSampleRegistrationForm.RegisterSampleCallback.class)
                         .with("Authorization failure: None of method roles "
@@ -145,18 +143,17 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
                 CategoriesBuilder.MENU_ELEMENTS.REGISTER));
         remoteConsole.prepare(new ChooseTypeOfNewSample(sampleTypeCode));
         final String description = "A very nice control layout.";
-        remoteConsole.prepare(new FillSampleRegistrationForm(GroupSelectionWidget.SHARED_GROUP_CODE, SHARED_CL)
-                .addProperty(
-                        new FillSampleRegistrationForm.Property(
-                                GenericSampleRegistrationForm.ID_PREFIX + "user-description",
-                                description)).addProperty(
-                        new FillSampleRegistrationForm.Property(
-                                GenericSampleRegistrationForm.ID_PREFIX + "plate-geometry",
-                                "1536_WELLS_32X48")));
+        remoteConsole.prepare(new FillSampleRegistrationForm(
+                GroupSelectionWidget.SHARED_GROUP_CODE, SHARED_CL).addProperty(
+                new FillSampleRegistrationForm.Property(GenericSampleRegistrationForm.ID
+                        + "user-description", description)).addProperty(
+                new FillSampleRegistrationForm.Property(GenericSampleRegistrationForm.ID
+                        + "plate-geometry", "1536_WELLS_32X48")));
         remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.SAMPLES,
                 CategoriesBuilder.MENU_ELEMENTS.LIST,
                 GenericSampleRegistrationForm.RegisterSampleCallback.class));
-        remoteConsole.prepare(new ListSamples(GroupSelectionWidget.SHARED_GROUP_CODE, sampleTypeCode));
+        remoteConsole.prepare(new ListSamples(GroupSelectionWidget.SHARED_GROUP_CODE,
+                sampleTypeCode));
         remoteConsole.prepare(new CheckSampleTable().expectedRow(new SampleRow(SHARED_CL)
                 .identifier("CISD").property("DESCRIPTION", false, description)));
         remoteConsole.finish(30000);

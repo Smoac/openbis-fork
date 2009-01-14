@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUt
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
 
 /**
  * A {@link AbstractDefaultTestCommand} extension for creating sample.
@@ -83,21 +84,23 @@ public final class FillSampleRegistrationForm extends AbstractDefaultTestCommand
     @SuppressWarnings("unchecked")
     public final void execute()
     {
-        GWTTestUtil.setTextFieldValue(GenericSampleRegistrationForm.CODE_FIELD_ID, code);
+        GWTTestUtil.setTextFieldValue(GenericSampleRegistrationForm.ID
+                + AbstractGenericEntityRegistrationForm.ID_SUFFIX_CODE, code);
 
         final GroupSelectionWidget groupSelector =
                 (GroupSelectionWidget) GWTTestUtil.getWidgetWithID(GroupSelectionWidget.ID
-                        + GenericSampleRegistrationForm.PREFIX);
+                        + GenericSampleRegistrationForm.ID);
         GWTUtils.setSelectedItem(groupSelector, ModelDataPropertyNames.CODE, groupNameOrNull);
 
         if (StringUtils.isBlank(parent) == false)
         {
-            GWTTestUtil.setTextFieldValue(GenericSampleRegistrationForm.PARENT_FIELD_ID, parent);
+            GWTTestUtil.setTextFieldValue(GenericSampleRegistrationForm.ID
+                    + GenericSampleRegistrationForm.ID_SUFFIX_PARENT, parent);
         }
         if (StringUtils.isBlank(container) == false)
         {
-            GWTTestUtil.setTextFieldValue(GenericSampleRegistrationForm.CONTAINER_FIELD_ID,
-                    container);
+            GWTTestUtil.setTextFieldValue(GenericSampleRegistrationForm.ID
+                    + GenericSampleRegistrationForm.ID_SUFFIX_CONTAINER, container);
         }
         for (final Property property : properties)
         {

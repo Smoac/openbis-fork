@@ -30,8 +30,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
  * The {@link GWTRPCServiceExporter} for the <i>screening</i> service.
  * <p>
  * <i>URL</i> mappings are: <code>/screening</code> and <code>/genericopenbis/screening</code>.
- * The encapsulated {@link ICommonClientService} service implementation is expected to be defined
- * as bean with name <code>screening-service</code>.
+ * The encapsulated {@link ICommonClientService} service implementation is expected to be defined as
+ * bean with name <code>screening-service</code>.
  * </p>
  * 
  * @author Christian Ribeaud

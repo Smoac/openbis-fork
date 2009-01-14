@@ -18,7 +18,10 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.util.List;
 
+import org.hibernate.FetchMode;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
@@ -62,9 +65,23 @@ final class EntityTypeDAO extends AbstractTypeDAO<EntityTypePE> implements IEnti
         return super.tryFindTypeByCode(code);
     }
 
+    // public final <T extends EntityTypePE> List<T> listEntityTypes() throws DataAccessException
+    // {
+    // return cast(super.listTypes());
+    // }
+
     public final <T extends EntityTypePE> List<T> listEntityTypes() throws DataAccessException
     {
-        return cast(super.listTypes());
+        final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
+        criteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
+        final String entityKindName = entityKind.name().toLowerCase();
+        criteria.setFetchMode(entityKindName + "TypePropertyTypesInternal", FetchMode.JOIN);
+        criteria.setFetchMode(entityKindName
+                + "TypePropertyTypesInternal.propertyTypeInternal.vocabulary.vocabularyTerms",
+                FetchMode.JOIN);
+        criteria.setResultTransformer(DetachedCriteria.DISTINCT_ROOT_ENTITY);
+        final List<T> list = cast(getHibernateTemplate().findByCriteria(criteria));
+        return list;
     }
 
 }

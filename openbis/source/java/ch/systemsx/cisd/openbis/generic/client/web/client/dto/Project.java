@@ -32,6 +32,8 @@ public class Project extends Code<Project>
 
     private Person projectLeader;
 
+    private String identifier;
+
     public Group getGroup()
     {
         return group;
@@ -60,6 +62,16 @@ public class Project extends Code<Project>
     public void setProjectLeader(final Person projectLeader)
     {
         this.projectLeader = projectLeader;
+    }
+
+    public String getIdentifier()
+    {
+        return identifier;
+    }
+
+    public void setIdentifier(String identifier)
+    {
+        this.identifier = identifier;
     }
 
 }

@@ -85,6 +85,8 @@ public final class ExperimentTranslator
         result.setDescription(experimentType.getDescription());
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(experimentType
                 .getDatabaseInstance()));
+        result.setExperimentTypePropertyTypes(ExperimentTypePropertyTypeTranslator.translate(
+                experimentType.getExperimentTypePropertyTypes(), result));
         return result;
     }
 

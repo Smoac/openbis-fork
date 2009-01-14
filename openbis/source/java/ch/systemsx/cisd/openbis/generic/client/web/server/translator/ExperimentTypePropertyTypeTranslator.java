@@ -62,10 +62,17 @@ public final class ExperimentTypePropertyTypeTranslator
     }
 
     public static List<ExperimentTypePropertyType> translate(
-            Set<ExperimentTypePropertyTypePE> materialTypePropertyTypes, PropertyType result)
+            Set<ExperimentTypePropertyTypePE> experimentTypePropertyTypes, ExperimentType result)
     {
         return new ExperimentTypePropertyTypeTranslatorHelper().translate(
-                materialTypePropertyTypes, result);
+                experimentTypePropertyTypes, result);
+    }
+
+    public static List<ExperimentTypePropertyType> translate(
+            Set<ExperimentTypePropertyTypePE> experimentTypePropertyTypes, PropertyType result)
+    {
+        return new ExperimentTypePropertyTypeTranslatorHelper().translate(
+                experimentTypePropertyTypes, result);
     }
 
     public static ExperimentTypePropertyType translate(

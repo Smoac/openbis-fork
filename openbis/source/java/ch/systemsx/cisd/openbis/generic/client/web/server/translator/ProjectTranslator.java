@@ -20,6 +20,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 
 /**
  * A {@link Person} &lt;---&gt; {@link PersonPE} translator.
@@ -45,6 +46,7 @@ public final class ProjectTranslator
         result.setDescription(project.getDescription());
         result.setGroup(GroupTranslator.translate(project.getGroup()));
         result.setProjectLeader(PersonTranslator.translate(project.getProjectLeader()));
+        result.setIdentifier(IdentifierHelper.createProjectIdentifier(project).toString());
         return result;
     }
 

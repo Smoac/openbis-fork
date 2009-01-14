@@ -35,6 +35,7 @@ import ch.systemsx.cisd.common.parser.ParserException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
+import ch.systemsx.cisd.openbis.generic.client.shared.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.client.shared.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
@@ -199,6 +200,19 @@ public final class GenericClientService extends AbstractClientService implements
                     ExperimentTranslator.LoadableFields.PROPERTIES,
                     ExperimentTranslator.LoadableFields.ATTACHMENTS);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public void registerExperiment(NewExperiment experiment)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            genericServer.registerExperiment(sessionToken, experiment);
+        } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         }

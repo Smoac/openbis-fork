@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.shared;
 
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 
 /**
@@ -25,5 +27,16 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
  */
 public class ExperimentType extends EntityType
 {
+    private List<ExperimentTypePropertyType> experimentTypePropertyTypes;
 
+    public List<ExperimentTypePropertyType> getExperimentTypePropertyTypes()
+    {
+        return experimentTypePropertyTypes;
+    }
+
+    public void setExperimentTypePropertyTypes(
+            List<ExperimentTypePropertyType> experimentTypePropertyTypes)
+    {
+        this.experimentTypePropertyTypes = experimentTypePropertyTypes;
+    }
 }

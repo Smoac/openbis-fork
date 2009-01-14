@@ -21,6 +21,7 @@ import java.util.List;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.client.shared.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.client.shared.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
@@ -87,5 +88,12 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     {
         logAccess(sessionToken, "register_samples", "SAMPLE_TYPE(%s) SAMPLES(%s)", sampleType,
                 CollectionUtils.abbreviate(newSamples, 20));
+    }
+
+    public void registerExperiment(String sessionToken, NewExperiment experiment)
+    {
+        logTracking(sessionToken, "register_experiment", "EXPERIMENT_TYPE(%s) EXPERIMENT(%S)",
+                experiment.getExperimentType(), experiment.getIdentifier());
+
     }
 }

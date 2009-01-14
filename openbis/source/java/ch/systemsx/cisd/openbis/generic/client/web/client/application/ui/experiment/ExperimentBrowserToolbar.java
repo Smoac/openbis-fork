@@ -72,7 +72,7 @@ class ExperimentBrowserToolbar extends ToolBar
         this.experimentBrowserGrid = experimentBrowserGrid;
         this.viewContext = viewContext;
         selectExperimentTypeCombo = new ExperimentTypeSelectionWidget(viewContext, ID);
-        selectProjectCombo = new ProjectSelectionWidget(viewContext);
+        selectProjectCombo = new ProjectSelectionWidget(viewContext, ID);
         submitButton = createSubmitButton();
         submitButton.setEnabled(false);
         exportButton = createExportButton();
