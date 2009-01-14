@@ -321,14 +321,6 @@ public final class SampleBrowserGrid extends LayoutContainer
         return resultSetKey;
     }
 
-    /**
-     * Returns the current grid column model.
-     */
-    final ColumnModel getColumnModel()
-    {
-        return grid.getColumnModel();
-    }
-
     private List<IColumnDefinition<Sample>> getSelectedColumnDefs()
     {
         final ColumnModel columnModel = grid.getColumnModel();
