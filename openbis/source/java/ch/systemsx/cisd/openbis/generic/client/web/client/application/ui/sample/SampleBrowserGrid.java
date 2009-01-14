@@ -253,17 +253,26 @@ public final class SampleBrowserGrid extends LayoutContainer
         redefineColumns(selectedType);
 
         this.refreshCallback = newRefreshCallback;
-        criteria = new ListSampleCriteria();
-        criteria.setSampleType(selectedType);
-        criteria.setGroupCode(selectedGroupCode);
-        criteria.setIncludeGroup(includeGroup);
-        criteria.setIncludeInstance(includeInstance);
+        this.criteria =
+                createListCriteria(selectedType, selectedGroupCode, includeGroup, includeInstance);
         contentPanel.setHeading(createHeader(selectedType, selectedGroupCode, includeGroup,
                 includeInstance));
         final ColumnModel columnModel = new ColumnModel(columns.getColumnConfigs());
         grid.reconfigure(grid.getStore(), columnModel);
         GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
         sampleLoader.load(0, PAGE_SIZE);
+    }
+
+    private static ListSampleCriteria createListCriteria(final SampleType selectedType,
+            final String selectedGroupCode, final Boolean includeGroup,
+            final Boolean includeInstance)
+    {
+        ListSampleCriteria criteria = new ListSampleCriteria();
+        criteria.setSampleType(selectedType);
+        criteria.setGroupCode(selectedGroupCode);
+        criteria.setIncludeGroup(includeGroup);
+        criteria.setIncludeInstance(includeInstance);
+        return criteria;
     }
 
     public final void export()
@@ -326,17 +335,6 @@ public final class SampleBrowserGrid extends LayoutContainer
             this.offset = offset;
         }
 
-        private void setResultSetKey(final String resultSetKey)
-        {
-            if (SampleBrowserGrid.this.resultSetKey == null)
-            {
-                SampleBrowserGrid.this.resultSetKey = resultSetKey;
-            } else
-            {
-                assert SampleBrowserGrid.this.resultSetKey.equals(resultSetKey) : "Result set keys not the same.";
-            }
-        }
-
         //
         // AbstractAsyncCallback
         //
@@ -350,7 +348,7 @@ public final class SampleBrowserGrid extends LayoutContainer
         @Override
         protected final void process(final ResultSet<Sample> result)
         {
-            setResultSetKey(result.getResultSetKey());
+            saveCacheKey(result.getResultSetKey());
             final List<SampleModel> sampleModels = SampleModel.asSampleModels(result.getList());
             final PagingLoadResult<SampleModel> loadResult =
                     new BasePagingLoadResult<SampleModel>(sampleModels, offset, result
@@ -379,9 +377,15 @@ public final class SampleBrowserGrid extends LayoutContainer
         }
     }
 
-    protected boolean isExportEnabled()
+    private void saveCacheKey(final String newResultSetKey)
     {
-        return resultSetKey != null;
+        if (resultSetKey == null)
+        {
+            resultSetKey = newResultSetKey;
+        } else
+        {
+            assert resultSetKey.equals(newResultSetKey) : "Result set keys not the same.";
+        }
     }
 
     public void disposeCache()

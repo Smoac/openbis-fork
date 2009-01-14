@@ -170,8 +170,7 @@ final class SampleBrowserToolbar extends ToolBar
                                     assert selectedGroup != null : "No group is selected.";
                                     final boolean includeInstance =
                                             GroupSelectionWidget.isSharedGroup(selectedGroup);
-                                    final boolean includeGroup =
-                                            GroupSelectionWidget.isSharedGroup(selectedGroup) == false;
+                                    final boolean includeGroup = (includeInstance == false);
 
                                     sampleBrowserGrid.refresh(selectedType,
                                             selectedGroup.getCode(), includeGroup, includeInstance,

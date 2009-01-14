@@ -238,14 +238,6 @@ public final class ExperimentBrowserGrid extends LayoutContainer
         experimentLoader.load(0, PAGE_SIZE);
     }
 
-    /**
-     * Returns the current grid column model.
-     */
-    final ColumnModel getColumnModel()
-    {
-        return grid.getColumnModel();
-    }
-
     //
     // Helper classes
     //
@@ -264,17 +256,6 @@ public final class ExperimentBrowserGrid extends LayoutContainer
             this.offset = offset;
         }
 
-        private void setResultSetKey(final String resultSetKey)
-        {
-            if (ExperimentBrowserGrid.this.resultSetKey == null)
-            {
-                ExperimentBrowserGrid.this.resultSetKey = resultSetKey;
-            } else
-            {
-                assert ExperimentBrowserGrid.this.resultSetKey.equals(resultSetKey) : "Result set keys not the same.";
-            }
-        }
-
         //
         // AbstractAsyncCallback
         //
@@ -288,13 +269,24 @@ public final class ExperimentBrowserGrid extends LayoutContainer
         @Override
         protected final void process(final ResultSet<Experiment> result)
         {
-            setResultSetKey(result.getResultSetKey());
+            saveCacheKey(result.getResultSetKey());
             final List<ExperimentModel> experimentModels =
                     ExperimentModel.asExperimentModels(result.getList());
             final PagingLoadResult<ExperimentModel> loadResult =
                     new BasePagingLoadResult<ExperimentModel>(experimentModels, offset, result
                             .getTotalLength());
             delegate.onSuccess(loadResult);
+        }
+    }
+
+    private void saveCacheKey(final String newResultSetKey)
+    {
+        if (resultSetKey == null)
+        {
+            resultSetKey = newResultSetKey;
+        } else
+        {
+            assert resultSetKey.equals(newResultSetKey) : "Result set keys not the same.";
         }
     }
 
