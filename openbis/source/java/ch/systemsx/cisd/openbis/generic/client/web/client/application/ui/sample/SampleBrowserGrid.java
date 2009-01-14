@@ -274,12 +274,7 @@ public final class SampleBrowserGrid extends LayoutContainer
             final Boolean includeGroup, final Boolean includeInstance,
             final IDataRefreshCallback newRefreshCallback)
     {
-        if (resultSetKey != null)
-        {
-            viewContext.getService().removeResultSet(resultSetKey,
-                    new VoidAsyncCallback<Void>(viewContext));
-            resultSetKey = null;
-        }
+        disposeCache();
         this.refreshCallback = newRefreshCallback;
         criteria = new ListSampleCriteria();
         criteria.setSampleType(selectedType);
@@ -311,14 +306,6 @@ public final class SampleBrowserGrid extends LayoutContainer
         final TableExportCriteria<Sample> exportCriteria =
                 new TableExportCriteria<Sample>(resultSetKey, sortInfo, columns);
         viewContext.getService().prepareExportSamples(exportCriteria, callback);
-    }
-
-    /**
-     * Returns the result set key.
-     */
-    final String getResultSetKey()
-    {
-        return resultSetKey;
     }
 
     private List<IColumnDefinition<Sample>> getSelectedColumnDefs()
@@ -417,6 +404,16 @@ public final class SampleBrowserGrid extends LayoutContainer
     protected boolean isExportEnabled()
     {
         return resultSetKey != null;
+    }
+
+    public void disposeCache()
+    {
+        if (resultSetKey != null)
+        {
+            viewContext.getService().removeResultSet(resultSetKey,
+                    new VoidAsyncCallback<Void>(viewContext));
+            resultSetKey = null;
+        }
     }
 
 }

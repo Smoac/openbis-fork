@@ -227,12 +227,7 @@ public final class ExperimentBrowserGrid extends LayoutContainer
 
     final void refresh(final ExperimentType selectedType, final Project selectedProject)
     {
-        if (resultSetKey != null)
-        {
-            viewContext.getService().removeResultSet(resultSetKey,
-                    new VoidAsyncCallback<Void>(viewContext));
-            resultSetKey = null;
-        }
+        disposeCache();
         criteria = new ListExperimentsCriteria();
         criteria.setExperimentType(selectedType);
         criteria.setProjectCode(selectedProject.getCode());
@@ -241,14 +236,6 @@ public final class ExperimentBrowserGrid extends LayoutContainer
         grid.reconfigure(grid.getStore(), createColumnModel());
         GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
         experimentLoader.load(0, PAGE_SIZE);
-    }
-
-    /**
-     * Returns the result set key.
-     */
-    final String getResultSetKey()
-    {
-        return resultSetKey;
     }
 
     /**
@@ -308,6 +295,16 @@ public final class ExperimentBrowserGrid extends LayoutContainer
                     new BasePagingLoadResult<ExperimentModel>(experimentModels, offset, result
                             .getTotalLength());
             delegate.onSuccess(loadResult);
+        }
+    }
+
+    public void disposeCache()
+    {
+        if (resultSetKey != null)
+        {
+            viewContext.getService().removeResultSet(resultSetKey,
+                    new VoidAsyncCallback<Void>(viewContext));
+            resultSetKey = null;
         }
     }
 

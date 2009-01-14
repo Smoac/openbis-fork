@@ -26,7 +26,6 @@ import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
 
 /**
  * Main view component of experiment browser.
@@ -41,11 +40,8 @@ public final class ExperimentBrowser extends LayoutContainer implements Listener
 
     private final ExperimentBrowserGrid experimentBrowserGrid;
 
-    private final IViewContext<ICommonClientServiceAsync> viewContext;
-
     public ExperimentBrowser(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        this.viewContext = viewContext;
         setId(ID);
         setLayout(new RowLayout());
 
@@ -59,11 +55,9 @@ public final class ExperimentBrowser extends LayoutContainer implements Listener
 
     public final void handleEvent(final TabPanelEvent be)
     {
-        final String resultSetKey = experimentBrowserGrid.getResultSetKey();
-        if (be.type == Events.Close && resultSetKey != null)
+        if (be.type == Events.Close)
         {
-            viewContext.getService().removeResultSet(resultSetKey,
-                    new VoidAsyncCallback<Void>(viewContext));
+            experimentBrowserGrid.disposeCache();
         }
     }
 }

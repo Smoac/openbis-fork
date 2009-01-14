@@ -26,7 +26,6 @@ import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.CommonColumnsConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ParentColumnsConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.PropertyColumnsConfig;
@@ -44,11 +43,8 @@ public final class SampleBrowser extends LayoutContainer implements Listener<Tab
 
     private SampleBrowserGrid sampleBrowserGrid;
 
-    private final IViewContext<ICommonClientServiceAsync> viewContext;
-
     public SampleBrowser(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        this.viewContext = viewContext;
         setId(ID);
         setLayout(new RowLayout());
 
@@ -72,11 +68,9 @@ public final class SampleBrowser extends LayoutContainer implements Listener<Tab
 
     public final void handleEvent(final TabPanelEvent be)
     {
-        final String resultSetKey = sampleBrowserGrid.getResultSetKey();
-        if (be.type == Events.Close && resultSetKey != null)
+        if (be.type == Events.Close)
         {
-            viewContext.getService().removeResultSet(resultSetKey,
-                    new VoidAsyncCallback<Void>(viewContext));
+            sampleBrowserGrid.disposeCache();
         }
     }
 }
