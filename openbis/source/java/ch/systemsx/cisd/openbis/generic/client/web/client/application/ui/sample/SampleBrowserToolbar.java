@@ -37,9 +37,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Mode
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid.IDataRefreshCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.CommonColumnsConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ParentColumnsConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.PropertyColumnsConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 
 /**
@@ -73,11 +70,8 @@ final class SampleBrowserToolbar extends ToolBar
 
     private final IViewContext<?> viewContext;
 
-    private SampleType selectedSampleType;
-
     public SampleBrowserToolbar(final IViewContext<?> viewContext,
-            final SampleBrowserGrid sampleBrowserGrid, final CommonColumnsConfig commonColumns,
-            final ParentColumnsConfig parentColumns, final PropertyColumnsConfig propertyColumns)
+            final SampleBrowserGrid sampleBrowserGrid)
     {
         this.sampleBrowserGrid = sampleBrowserGrid;
         this.viewContext = viewContext;
@@ -87,9 +81,7 @@ final class SampleBrowserToolbar extends ToolBar
         submitButton.setEnabled(false);
         exportButton = createExportButton();
         exportButton.setEnabled(false);
-        controller =
-                new ToolbarController(selectSampleTypeCombo, submitButton, exportButton,
-                        parentColumns, propertyColumns);
+        controller = new ToolbarController(submitButton, exportButton);
         controller.disableExportButton();
         addSelectSampleTypeListeners();
         addSelectGroupListeners();
@@ -108,10 +100,11 @@ final class SampleBrowserToolbar extends ToolBar
                 public final void selectionChanged(final SelectionChangedEvent<GroupModel> se)
                 {
                     final GroupModel selectedItem = se.getSelectedItem();
-                    controller.refreshSubmitButtons(selectSampleTypeCombo
-                            .tryGetSelectedSampleType(),
+                    Group group =
                             selectedItem != null ? (Group) selectedItem
-                                    .get(ModelDataPropertyNames.OBJECT) : null);
+                                    .get(ModelDataPropertyNames.OBJECT) : null;
+                    controller.refreshSubmitButtons(selectSampleTypeCombo
+                            .tryGetSelectedSampleType(), group);
                 }
             });
     }
@@ -130,10 +123,11 @@ final class SampleBrowserToolbar extends ToolBar
                                 final SelectionChangedEvent<SampleTypeModel> se)
                         {
                             final SampleTypeModel selectedItem = se.getSelectedItem();
-                            controller.refreshSubmitButtons(
+                            SampleType sampleType =
                                     selectedItem != null ? (SampleType) selectedItem
-                                            .get(ModelDataPropertyNames.OBJECT) : null,
-                                    selectGroupCombo.tryGetSelectedGroup());
+                                            .get(ModelDataPropertyNames.OBJECT) : null;
+                            controller.refreshSubmitButtons(sampleType, selectGroupCombo
+                                    .tryGetSelectedGroup());
                         }
                     });
     }
@@ -179,11 +173,6 @@ final class SampleBrowserToolbar extends ToolBar
                                     final boolean includeGroup =
                                             GroupSelectionWidget.isSharedGroup(selectedGroup) == false;
 
-                                    if (selectedType.equals(selectedSampleType) == false)
-                                    {
-                                        controller.redefineColumns();
-                                        selectedSampleType = selectedType;
-                                    }
                                     sampleBrowserGrid.refresh(selectedType,
                                             selectedGroup.getCode(), includeGroup, includeInstance,
                                             createPostRefreshCallback());

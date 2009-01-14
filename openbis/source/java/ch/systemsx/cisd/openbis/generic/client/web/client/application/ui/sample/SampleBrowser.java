@@ -26,9 +26,6 @@ import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.CommonColumnsConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ParentColumnsConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.PropertyColumnsConfig;
 
 /**
  * Main view component of Sample Browser.
@@ -48,15 +45,9 @@ public final class SampleBrowser extends LayoutContainer implements Listener<Tab
         setId(ID);
         setLayout(new RowLayout());
 
-        final CommonColumnsConfig commonColumns = new CommonColumnsConfig(viewContext);
-        final ParentColumnsConfig parentColumns = new ParentColumnsConfig(viewContext);
-        final PropertyColumnsConfig propertyColumns = new PropertyColumnsConfig();
-
-        sampleBrowserGrid =
-                new SampleBrowserGrid(viewContext, commonColumns, parentColumns, propertyColumns);
+        sampleBrowserGrid = new SampleBrowserGrid(viewContext);
         final SampleBrowserToolbar toolbar =
-                new SampleBrowserToolbar(viewContext, sampleBrowserGrid, commonColumns,
-                        parentColumns, propertyColumns);
+                new SampleBrowserToolbar(viewContext, sampleBrowserGrid);
 
         add(toolbar);
         add(sampleBrowserGrid, new RowData(1, 1));

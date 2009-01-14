@@ -27,30 +27,28 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 /**
  * @author Tomasz Pylak
  */
-public abstract class AbstractColumnsConfig
+public class ColumnDefsAndConfigs
 {
-    private List<ColumnConfig> columns;
+    private final List<ColumnConfig> columnConfigs;
 
-    private List<IColumnDefinition<Sample>> columnDefs;
+    private final List<IColumnDefinition<Sample>> columnDefs;
 
-    public AbstractColumnsConfig()
+    public ColumnDefsAndConfigs()
     {
-        this.columns = new ArrayList<ColumnConfig>();
+        this.columnConfigs = new ArrayList<ColumnConfig>();
         this.columnDefs = new ArrayList<IColumnDefinition<Sample>>();
     }
 
-    protected void defineColumns(List<? extends ISampleColDefUI> columnsSchema, boolean isSortable)
+    public void addColumns(List<? extends ISampleColDefUI> columnsSchema, boolean isSortable)
     {
-        columns.clear();
-        columnDefs.clear();
         for (ISampleColDefUI column : columnsSchema)
         {
-            columns.add(createColumn(column, isSortable));
+            columnConfigs.add(createColumn(column, isSortable));
             columnDefs.add(column);
         }
     }
 
-    private ColumnConfig createColumn(ISampleColDefUI column, boolean isSortable)
+    private static ColumnConfig createColumn(ISampleColDefUI column, boolean isSortable)
     {
         final ColumnConfig columnConfig = new ColumnConfig();
         columnConfig.setMenuDisabled(false);
@@ -68,8 +66,8 @@ public abstract class AbstractColumnsConfig
         return columnDefs;
     }
 
-    public List<ColumnConfig> getColumns()
+    public List<ColumnConfig> getColumnConfigs()
     {
-        return columns;
+        return columnConfigs;
     }
 }

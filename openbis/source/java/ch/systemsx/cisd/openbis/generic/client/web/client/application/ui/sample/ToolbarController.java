@@ -19,8 +19,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 import com.extjs.gxt.ui.client.widget.button.Button;
 
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ParentColumnsConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.PropertyColumnsConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 
 /**
@@ -31,25 +29,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 // TODO 2008-12-05, Tomasz Pylak: use dictionary instead of hard coded strings
 final class ToolbarController
 {
-    private final SampleTypeSelectionWidget sampleTypeSelectionWidget;
-
     private final Button submitButton;
-
-    private final ParentColumnsConfig parentColumns;
-
-    private final PropertyColumnsConfig propertyColumns;
 
     private final Button exportButton;
 
-    ToolbarController(final SampleTypeSelectionWidget sampleTypeSelectionWidget,
-            final Button submitButton, final Button exportButton,
-            final ParentColumnsConfig parentColumns, final PropertyColumnsConfig propertyColumns)
+    ToolbarController(final Button submitButton, final Button exportButton)
     {
-        this.sampleTypeSelectionWidget = sampleTypeSelectionWidget;
         this.submitButton = submitButton;
         this.exportButton = exportButton;
-        this.parentColumns = parentColumns;
-        this.propertyColumns = propertyColumns;
     }
 
     /**
@@ -81,13 +68,4 @@ final class ToolbarController
         exportButton.setEnabled(false);
         exportButton.setTitle("Refresh the data before exporting them.");
     }
-
-    final void redefineColumns()
-    {
-        final SampleType type = sampleTypeSelectionWidget.tryGetSelectedSampleType();
-        assert type != null : "Should not be null.";
-        propertyColumns.define(type);
-        parentColumns.define(type);
-    }
-
 }

@@ -88,9 +88,10 @@ public final class SampleModel extends BaseModelData
         return list;
     }
 
-    public static List<ISampleColDefUI> createPropertyColumnsSchema(
-            List<SampleTypePropertyType> sampleTypePropertyTypes)
+    public static List<ISampleColDefUI> createPropertyColumnsSchema(SampleType selectedType)
     {
+        List<SampleTypePropertyType> sampleTypePropertyTypes =
+                selectedType.getSampleTypePropertyTypes();
         List<ISampleColDefUI> list = new ArrayList<ISampleColDefUI>();
         for (SampleTypePropertyType etpt : sampleTypePropertyTypes)
         {
