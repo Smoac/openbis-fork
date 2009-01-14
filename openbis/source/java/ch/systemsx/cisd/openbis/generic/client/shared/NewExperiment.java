@@ -23,7 +23,7 @@ package ch.systemsx.cisd.openbis.generic.client.shared;
  */
 public final class NewExperiment extends Identifier<NewExperiment>
 {
-    private ExperimentType experimentType;
+    private String experimentTypeCode;
 
     private ExperimentProperty[] properties = ExperimentProperty.EMPTY_ARRAY;
 
@@ -31,20 +31,20 @@ public final class NewExperiment extends Identifier<NewExperiment>
     {
     }
 
-    public NewExperiment(final String identifier, final ExperimentType experimentType)
+    public NewExperiment(final String identifier, final String experimentTypeCode)
     {
         setIdentifier(identifier);
-        setExperimentType(experimentType);
+        setExperimentTypeCode(experimentTypeCode);
     }
 
-    public final ExperimentType getExperimentType()
+    public final String getExperimentTypeCode()
     {
-        return experimentType;
+        return experimentTypeCode;
     }
 
-    public final void setExperimentType(final ExperimentType experimentType)
+    public final void setExperimentTypeCode(final String experimentTypeCode)
     {
-        this.experimentType = experimentType;
+        this.experimentTypeCode = experimentTypeCode;
     }
 
     public final ExperimentProperty[] getProperties()
@@ -56,10 +56,6 @@ public final class NewExperiment extends Identifier<NewExperiment>
     {
         this.properties = properties;
     }
-
-    //
-    // Object
-    //
 
     @Override
     public final String toString()

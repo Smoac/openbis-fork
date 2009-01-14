@@ -73,7 +73,8 @@ public final class GenericExperimentRegistrationForm
     @Override
     public final void submitValidForm()
     {
-        final NewExperiment newExp = new NewExperiment(createExpeimentIdentifier(), experimentType);
+        final NewExperiment newExp =
+                new NewExperiment(createExpeimentIdentifier(), experimentType.getCode());
         final List<ExperimentProperty> properties = extractProperties();
         newExp.setProperties(properties.toArray(ExperimentProperty.EMPTY_ARRAY));
         viewContext.getService().registerExperiment(newExp,

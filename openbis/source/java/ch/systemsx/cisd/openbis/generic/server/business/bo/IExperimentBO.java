@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import ch.systemsx.cisd.openbis.generic.client.shared.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -25,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  * 
  * @author Izabela Adamczyk
  */
-public interface IExperimentBO
+public interface IExperimentBO extends IBusinessObject
 {
 
     /** Loads a experiment given by its identifier. */
@@ -44,5 +45,11 @@ public interface IExperimentBO
      * Returns attachment (with content) given defined by filename and version.
      */
     public AttachmentPE getExperimentFileAttachment(String filename, int version);
+
+    /**
+     * Defines a new experiment. After invocation of this method {@link IExperimentBO#save()} should
+     * be invoked to store the new experiment in the Data Access Layer.
+     */
+    void define(NewExperiment experiment);
 
 }

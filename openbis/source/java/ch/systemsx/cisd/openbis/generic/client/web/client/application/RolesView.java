@@ -55,6 +55,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 public class RolesView extends ContentPanel
 {
 
+    private static final String LIST_ROLES = "List Roles";
+
     private static final String ROLE_LIST = "Role List";
 
     private static final String BUTTON_ADD_ROLE = "Add Role";
@@ -76,7 +78,7 @@ public class RolesView extends ContentPanel
         this.viewContext = viewContext;
         setLayout(new FitLayout());
         setHeaderVisible(false);
-        setHeading("List roles");
+        setHeading(LIST_ROLES);
         setId(ID);
 
     }

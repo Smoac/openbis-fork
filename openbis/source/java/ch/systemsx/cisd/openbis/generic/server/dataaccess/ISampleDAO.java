@@ -48,6 +48,9 @@ public interface ISampleDAO
     List<SamplePE> listSamplesByTypeAndDatabaseInstance(final SampleTypePE sampleType,
             final DatabaseInstancePE databaseInstance) throws DataAccessException;
 
+    /**
+     * Inserts given {@link SamplePE} into the database.
+     */
     void createSample(final SamplePE sample) throws DataAccessException;
 
     /**

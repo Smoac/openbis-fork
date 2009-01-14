@@ -54,6 +54,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 public class PersonsView extends ContentPanel
 {
 
+    private static final String LIST_PERSONS = "List Persons";
+
     private static final String BUTTON_ADD_PERSON = "Add Person";
 
     private static final String PERSON_LIST = "Person List";
@@ -79,7 +81,7 @@ public class PersonsView extends ContentPanel
         this.viewContext = viewContext;
         setLayout(new FitLayout());
         setHeaderVisible(false);
-        setHeading("List persons");
+        setHeading(LIST_PERSONS);
         setId(ID);
     }
 

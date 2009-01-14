@@ -46,4 +46,9 @@ public interface IExperimentDAO
      * Returns {@link ExperimentPE} defined by given project and experiment code.
      */
     public ExperimentPE tryFindByCodeAndProject(ProjectPE project, String experimentCode);
+
+    /**
+     * Inserts given {@link ExperimentPE} into the database.
+     */
+    public void createExperiment(ExperimentPE experiment);
 }

@@ -93,7 +93,7 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     public void registerExperiment(String sessionToken, NewExperiment experiment)
     {
         logTracking(sessionToken, "register_experiment", "EXPERIMENT_TYPE(%s) EXPERIMENT(%S)",
-                experiment.getExperimentType(), experiment.getIdentifier());
+                experiment.getExperimentTypeCode(), experiment.getIdentifier());
 
     }
 }

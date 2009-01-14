@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.Authoriz
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewExperimentPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSamplePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -75,5 +76,7 @@ public interface IGenericServer extends IPluginCommonServer
      */
     @Transactional
     @RolesAllowed(RoleSet.USER)
-    public void registerExperiment(String sessionToken, NewExperiment experiment);
+    public void registerExperiment(String sessionToken,
+            @AuthorizationGuard(guardClass = NewExperimentPredicate.class)
+            final NewExperiment experiment);
 }

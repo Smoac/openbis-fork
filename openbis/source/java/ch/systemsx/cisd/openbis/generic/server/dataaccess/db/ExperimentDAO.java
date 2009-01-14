@@ -24,6 +24,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -100,6 +101,17 @@ public class ExperimentDAO extends AbstractDAO implements IExperimentDAO
                     experiment, experimentCode, project));
         }
         return experiment;
+    }
+
+    public void createExperiment(ExperimentPE experiment)
+    {
+        assert experiment != null : "Missing experiment.";
+        experiment.setCode(CodeConverter.tryToDatabase(experiment.getCode()));
+        validatePE(experiment);
+
+        final HibernateTemplate template = getHibernateTemplate();
+        template.save(experiment);
+        template.flush();
     }
 
 }

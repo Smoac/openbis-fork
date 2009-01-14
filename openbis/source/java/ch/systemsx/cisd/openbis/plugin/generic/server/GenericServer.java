@@ -178,6 +178,12 @@ public final class GenericServer extends AbstractPluginServer<IGenericServer> im
 
     public void registerExperiment(String sessionToken, NewExperiment experiment)
     {
+        assert sessionToken != null : "Unspecified session token.";
+        assert experiment != null : "Unspecified new experiment.";
 
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
+        experimentBO.define(experiment);
+        experimentBO.save();
     }
 }

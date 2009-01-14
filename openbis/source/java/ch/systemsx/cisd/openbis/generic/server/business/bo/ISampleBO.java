@@ -36,8 +36,8 @@ public interface ISampleBO
     SamplePE getSample() throws IllegalStateException;
 
     /**
-     * Defines a new sample. After invocation of this method {@link IBusinessObject#save()} should
-     * be invoked to store the new sample in the Data Access Layer.
+     * Defines a new sample. After invocation of this method {@link ISampleBO#save()} should be
+     * invoked to store the new sample in the Data Access Layer.
      * 
      * @throws UserFailureException if specified sample type code is not a valid one.
      */

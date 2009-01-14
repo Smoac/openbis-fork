@@ -19,8 +19,12 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.dao.DataAccessException;
+
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentProperty;
+import ch.systemsx.cisd.openbis.generic.client.shared.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
@@ -28,9 +32,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -44,6 +50,8 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     private final IEntityPropertiesConverter propertiesConverter;
 
     private ExperimentPE experiment;
+
+    private boolean dataChanged;
 
     public ExperimentBO(final IDAOFactory daoFactory, final Session session)
     {
@@ -106,6 +114,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
             throw UserFailureException.fromTemplate(
                     "No sample could be found with given identifier '%s'.", identifier);
         }
+        dataChanged = false;
     }
 
     private ExperimentPE getExperimentByIdentifier(final ExperimentIdentifier identifier)
@@ -155,6 +164,84 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         }
         throw new UserFailureException("Attachment '" + filename + "' (version '" + version
                 + "') not found in experiment '" + experiment.getIdentifier() + "'.");
+    }
+
+    public void define(NewExperiment newExperiment)
+    {
+        assert newExperiment != null : "Unspecified new experiment.";
+
+        final ExperimentIdentifier experimentIdentifier =
+                new ExperimentIdentifierFactory(newExperiment.getIdentifier()).createIdentifier();
+        experiment = new ExperimentPE();
+        final PersonPE registrator = findRegistrator();
+        experiment.setCode(experimentIdentifier.getExperimentCode());
+        experiment.setRegistrator(registrator);
+        defineExperimentProperties(newExperiment.getExperimentTypeCode(), newExperiment
+                .getProperties(), registrator);
+        defineExperimentType(newExperiment);
+        defineExperimentProject(newExperiment, experimentIdentifier);
+        dataChanged = true;
+    }
+
+    private void defineExperimentProject(NewExperiment newExperiment,
+            final ExperimentIdentifier experimentIdentifier)
+    {
+        ProjectPE project =
+                getProjectDAO().tryFindProject(experimentIdentifier.getDatabaseInstanceCode(),
+                        experimentIdentifier.getGroupCode(), experimentIdentifier.getProjectCode());
+        if (project == null)
+        {
+            throw UserFailureException
+                    .fromTemplate("No project for experiment '%s' could be found in the database.",
+                            newExperiment);
+        }
+        experiment.setProject(project);
+    }
+
+    private void defineExperimentType(NewExperiment newExperiment)
+    {
+        final String experimentTypeCode = newExperiment.getExperimentTypeCode();
+        final EntityTypePE experimentType =
+                getEntityTypeDAO(EntityKind.EXPERIMENT).tryToFindEntityTypeByCode(
+                        experimentTypeCode);
+        if (experimentType == null)
+        {
+            throw UserFailureException.fromTemplate(
+                    "No experiment type with code '%s' could be found in the database.",
+                    experimentTypeCode);
+        }
+        experiment.setExperimentType((ExperimentTypePE) experimentType);
+    }
+
+    public void save() throws UserFailureException
+    {
+        if (dataChanged)
+        {
+            try
+            {
+                getExperimentDAO().createExperiment(experiment);
+            } catch (final DataAccessException ex)
+            {
+                final String projectCode = experiment.getProject().getCode();
+                final ExperimentIdentifier identifier =
+                        new ExperimentIdentifier(projectCode, experiment.getCode());
+                throwException(ex, String.format("Experiment '%s'", identifier));
+            }
+            dataChanged = false;
+        }
+
+    }
+
+    private final void defineExperimentProperties(final String experimentTypeCode,
+            final ExperimentProperty[] experimentProperties, PersonPE registrator)
+    {
+        final List<ExperimentPropertyPE> properties =
+                propertiesConverter.convertProperties(experimentProperties, experimentTypeCode,
+                        registrator);
+        for (final ExperimentPropertyPE experimentProperty : properties)
+        {
+            experiment.addProperty(experimentProperty);
+        }
     }
 
 }
