@@ -19,26 +19,47 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.HashSet;
 
 import org.jmock.Expectations;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.client.shared.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * Test cases for corresponding {@link ExperimentBO} class.
  * 
  * @author Izabela Adamczyk
  */
-@Friend(toClasses = ExperimentPE.class)
+@Friend(toClasses =
+    { ExperimentPE.class, ExperimentBO.class })
 public final class ExperimentBOTest extends AbstractBOTest
 {
+
+    private static final String EXP_TYPE_UNEXISTENT = "EXP-TYPE-UNEXISTENT";
+
+    private static final String PROJECT_UNEXISTENT = "PROJECT-UNEXISTENT";
+
+    private static final String DB = "DB";
+
+    private static final String GROUP = "GROUP";
+
+    private static final String PROJECT = "PROJECT";
+
+    private static final String EXP_TYPE_CODE = "EXP-TYPE-CODE";
+
+    private static final String EXP_CODE = "EXP-CODE";
 
     private final ExperimentBO createExperimentBO()
     {
@@ -121,6 +142,214 @@ public final class ExperimentBOTest extends AbstractBOTest
 
         // Try find not existing attachment (incorrect file name)
         testThrowingExceptionOnUnknownFilename(attachment2, expBO);
+    }
+
+    @Test
+    public void testDefineAndSave()
+    {
+        final String expCode = EXP_CODE;
+        final String expTypeCode = EXP_TYPE_CODE;
+        final String projectCode = PROJECT;
+        final String groupCode = GROUP;
+        final String dbCode = DB;
+
+        final NewExperiment newExperiment = new NewExperiment();
+        newExperiment.setIdentifier(createIdentifier(dbCode, groupCode, projectCode, expCode));
+        newExperiment.setExperimentTypeCode(expTypeCode);
+
+        final ProjectPE project = createProject(dbCode, groupCode, projectCode);
+        final ExperimentTypePE type = createExperimentType(expTypeCode);
+        final ExperimentPE experiment = createExperiment(project, expCode, type);
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
+                    will(returnValue(entityTypeDAO));
+                    one(entityTypeDAO).tryToFindEntityTypeByCode(expTypeCode);
+                    will(returnValue(type));
+                    one(daoFactory).getProjectDAO();
+                    will(returnValue(projectDAO));
+                    one(projectDAO).tryFindProject(dbCode, groupCode, projectCode);
+                    will(returnValue(project));
+                    one(daoFactory).getExperimentDAO();
+                    will(returnValue(experimentDAO));
+                    one(experimentDAO).createExperiment(experiment);
+                }
+            });
+        final ExperimentBO experimentBO = createExperimentBO();
+        experimentBO.define(newExperiment);
+        experimentBO.save();
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testDefineWithUnexistentExperimentType()
+    {
+        final String expCode = EXP_CODE;
+        final String expTypeCode = EXP_TYPE_UNEXISTENT;
+        final String projectCode = PROJECT;
+        final String groupCode = GROUP;
+        final String dbCode = DB;
+
+        final NewExperiment newExperiment = new NewExperiment();
+        newExperiment.setIdentifier(createIdentifier(dbCode, groupCode, projectCode, expCode));
+        newExperiment.setExperimentTypeCode(expTypeCode);
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
+                    will(returnValue(entityTypeDAO));
+                    one(entityTypeDAO).tryToFindEntityTypeByCode(expTypeCode);
+                    will(returnValue(null));
+                }
+            });
+        final ExperimentBO experimentBO = createExperimentBO();
+        boolean exceptionThrown = false;
+        try
+        {
+            experimentBO.define(newExperiment);
+        } catch (UserFailureException e)
+        {
+            exceptionThrown = true;
+            assertTrue(e.getMessage().indexOf(
+                    String.format(ExperimentBO.ERR_EXPERIMENT_TYPE_NOT_FOUND, expTypeCode)) > -1);
+        }
+        assertTrue(exceptionThrown);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testDefineWithUnexistentProject()
+    {
+        final String expCode = EXP_CODE;
+        final String expTypeCode = EXP_TYPE_CODE;
+        final String projectCode = PROJECT_UNEXISTENT;
+        final String groupCode = GROUP;
+        final String dbCode = DB;
+
+        final NewExperiment newExperiment = new NewExperiment();
+        newExperiment.setIdentifier(createIdentifier(dbCode, groupCode, projectCode, expCode));
+        newExperiment.setExperimentTypeCode(expTypeCode);
+
+        final ExperimentTypePE type = createExperimentType(expTypeCode);
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
+                    will(returnValue(entityTypeDAO));
+                    one(entityTypeDAO).tryToFindEntityTypeByCode(expTypeCode);
+                    will(returnValue(type));
+                    one(daoFactory).getProjectDAO();
+                    will(returnValue(projectDAO));
+                    one(projectDAO).tryFindProject(dbCode, groupCode, projectCode);
+                    will(returnValue(null));
+                }
+            });
+        final ExperimentBO experimentBO = createExperimentBO();
+        boolean exceptionThrown = false;
+        try
+        {
+            experimentBO.define(newExperiment);
+        } catch (UserFailureException e)
+        {
+            exceptionThrown = true;
+            assertTrue(e.getMessage().indexOf(
+                    String.format(ExperimentBO.ERR_PROJECT_NOT_FOUND, createIdentifier(dbCode,
+                            groupCode, projectCode, expCode))) > -1);
+        }
+        assertTrue(exceptionThrown);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testDefineAndSaveAlreadyExistingExperiment()
+    {
+        final String expCode = EXP_CODE;
+        final String expTypeCode = EXP_TYPE_CODE;
+        final String projectCode = PROJECT;
+        final String groupCode = GROUP;
+        final String dbCode = DB;
+
+        final NewExperiment newExperiment = new NewExperiment();
+        newExperiment.setIdentifier(createIdentifier(dbCode, groupCode, projectCode, expCode));
+        newExperiment.setExperimentTypeCode(expTypeCode);
+
+        final ProjectPE project = createProject(dbCode, groupCode, projectCode);
+        final ExperimentTypePE type = createExperimentType(expTypeCode);
+        final ExperimentPE experiment = createExperiment(project, expCode, type);
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
+                    will(returnValue(entityTypeDAO));
+                    one(entityTypeDAO).tryToFindEntityTypeByCode(expTypeCode);
+                    will(returnValue(type));
+                    one(daoFactory).getProjectDAO();
+                    will(returnValue(projectDAO));
+                    one(projectDAO).tryFindProject(dbCode, groupCode, projectCode);
+                    will(returnValue(project));
+                    one(daoFactory).getExperimentDAO();
+                    will(returnValue(experimentDAO));
+                    one(experimentDAO).createExperiment(experiment);
+                    will(throwException(new DataIntegrityViolationException(
+                            "exception description...")));
+                }
+            });
+        final ExperimentBO experimentBO = createExperimentBO();
+        experimentBO.define(newExperiment);
+        boolean exceptionThrown = false;
+        try
+        {
+            experimentBO.save();
+        } catch (UserFailureException e)
+        {
+            exceptionThrown = true;
+        }
+        assertTrue(exceptionThrown);
+        context.assertIsSatisfied();
+    }
+
+    private String createIdentifier(final String dbCode, final String groupCode,
+            final String projectCode, final String expCode)
+    {
+        return dbCode + ":/" + groupCode + "/" + projectCode + "/" + expCode;
+    }
+
+    private ExperimentPE createExperiment(ProjectPE project, final String expCode,
+            ExperimentTypePE type)
+    {
+        ExperimentPE experiment = new ExperimentPE();
+        experiment.setCode(expCode);
+        experiment.setExperimentType(type);
+        experiment.setProject(project);
+        return experiment;
+    }
+
+    private ProjectPE createProject(final String dbCode, final String groupCode,
+            final String projectCode)
+    {
+        ProjectPE project = new ProjectPE();
+        project.setCode(projectCode);
+        final GroupPE group = new GroupPE();
+        group.setCode(groupCode);
+        final DatabaseInstancePE db = new DatabaseInstancePE();
+        db.setCode(dbCode);
+        group.setDatabaseInstance(db);
+        project.setGroup(group);
+        return project;
+    }
+
+    private ExperimentTypePE createExperimentType(final String expTypeCode)
+    {
+        ExperimentTypePE experimentType = new ExperimentTypePE();
+        experimentType.setCode(expTypeCode);
+        return experimentType;
     }
 
     private void setExperimentAttachments(final ExperimentPE exp, final AttachmentPE attachment1,

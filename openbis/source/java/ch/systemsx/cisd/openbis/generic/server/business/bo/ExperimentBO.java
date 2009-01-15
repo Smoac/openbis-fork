@@ -47,6 +47,14 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  */
 public final class ExperimentBO extends AbstractBusinessObject implements IExperimentBO
 {
+    @Private
+    static final String ERR_PROJECT_NOT_FOUND =
+            "No project for experiment '%s' could be found in the database.";
+
+    @Private
+    static final String ERR_EXPERIMENT_TYPE_NOT_FOUND =
+            "No experiment type with code '%s' could be found in the database.";
+
     private final IEntityPropertiesConverter propertiesConverter;
 
     private ExperimentPE experiment;
@@ -73,8 +81,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
                 getEntityTypeDAO(EntityKind.EXPERIMENT).tryToFindEntityTypeByCode(code);
         if (experimentType == null)
         {
-            throw UserFailureException.fromTemplate(
-                    "No experiment type with code '%s' could be found in the database.", code);
+            throw UserFailureException.fromTemplate(ERR_EXPERIMENT_TYPE_NOT_FOUND, code);
         }
         return (ExperimentTypePE) experimentType;
     }
@@ -191,9 +198,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
                         experimentIdentifier.getGroupCode(), experimentIdentifier.getProjectCode());
         if (project == null)
         {
-            throw UserFailureException
-                    .fromTemplate("No project for experiment '%s' could be found in the database.",
-                            newExperiment);
+            throw UserFailureException.fromTemplate(ERR_PROJECT_NOT_FOUND, newExperiment);
         }
         experiment.setProject(project);
     }
@@ -206,8 +211,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
                         experimentTypeCode);
         if (experimentType == null)
         {
-            throw UserFailureException.fromTemplate(
-                    "No experiment type with code '%s' could be found in the database.",
+            throw UserFailureException.fromTemplate(ERR_EXPERIMENT_TYPE_NOT_FOUND,
                     experimentTypeCode);
         }
         experiment.setExperimentType((ExperimentTypePE) experimentType);

@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.client.shared.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.client.shared.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
@@ -244,6 +245,25 @@ public final class GenericServerTest extends AbstractServerTestCase
                 }
             });
         createServer().registerSamples(session.getSessionToken(), sampleType, newSamples);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testRegisterExperiment()
+    {
+        final Session session = prepareGetSession();
+        final NewExperiment newExperiment = new NewExperiment();
+        context.checking(new Expectations()
+            {
+                {
+                    one(genericBusinessObjectFactory).createExperimentBO(session);
+                    will(returnValue(experimentBO));
+
+                    one(experimentBO).define(newExperiment);
+                    one(experimentBO).save();
+                }
+            });
+        createServer().registerExperiment(SESSION_TOKEN, newExperiment);
         context.assertIsSatisfied();
     }
 }

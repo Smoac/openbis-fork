@@ -33,6 +33,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentProperty;
+import ch.systemsx.cisd.openbis.generic.client.shared.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.client.shared.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleProperty;
@@ -175,9 +177,43 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
         context.assertIsSatisfied();
     }
 
+    @Test
+    public final void testRegisterExperiment()
+    {
+        final NewExperiment newExperiment =
+                createNewExperiment("/group1/project1/exp1", "SIRNA_HCS",
+                        ExperimentProperty.EMPTY_ARRAY);
+        context.checking(new Expectations()
+            {
+                {
+                    prepareGetSessionToken(this);
+                    one(genericServer).registerExperiment(with(SESSION_TOKEN),
+                            getTranslatedExperiment());
+                }
+
+                private final NewExperiment getTranslatedExperiment()
+                {
+                    return with(any(NewExperiment.class));
+                }
+
+            });
+        genericClientService.registerExperiment(newExperiment);
+        context.assertIsSatisfied();
+    }
+
     //
     // Helper classes
     //
+
+    private NewExperiment createNewExperiment(String identifier, String type,
+            ExperimentProperty[] properties)
+    {
+        final NewExperiment newExperiment = new NewExperiment();
+        newExperiment.setIdentifier(identifier);
+        newExperiment.setExperimentTypeCode(type);
+        newExperiment.setProperties(properties);
+        return newExperiment;
+    }
 
     /**
      * A {@link BaseMatcher} extension for checking the list of {@link NewSample NewSamples}.
