@@ -20,6 +20,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -64,6 +65,8 @@ public abstract class AbstractDAOTest extends AbstractTransactionalTestNGSpringC
     }
 
     static final Long ANOTHER_DATABASE_INSTANCE_ID = new Long(3);
+
+    static final String EXCEED_40_CHARACTERS = StringUtils.repeat("A", 41);
 
     IDAOFactory daoFactory;
 

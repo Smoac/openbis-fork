@@ -17,11 +17,15 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.AssertJUnit;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -40,16 +44,18 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.ExperimentTypeCode;
     { "db", "experiment" })
 public class ExperimentDAOTest extends AbstractDAOTest
 {
-
-    private static final String CISD_CISD_NEMO_EXP11 = "CISD:/CISD/NEMO/EXP11";
-
-    private static final String CISD_CISD_NEMO_EXP10 = "CISD:/CISD/NEMO/EXP10";
-
-    private static final String CISD_CISD_NEMO_EXP1 = "CISD:/CISD/NEMO/EXP1";
+    //
+    // Experiments existing in the test database
+    //
+    private static final String CISD_CISD_DEFAULT_EXP_REUSE = "CISD:/CISD/DEFAULT/EXP-REUSE";
 
     private static final String CISD_CISD_DEFAULT_EXP_X = "CISD:/CISD/DEFAULT/EXP-X";
 
-    private static final String CISD_CISD_DEFAULT_EXP_REUSE = "CISD:/CISD/DEFAULT/EXP-REUSE";
+    private static final String CISD_CISD_NEMO_EXP1 = "CISD:/CISD/NEMO/EXP1";
+
+    private static final String CISD_CISD_NEMO_EXP10 = "CISD:/CISD/NEMO/EXP10";
+
+    private static final String CISD_CISD_NEMO_EXP11 = "CISD:/CISD/NEMO/EXP11";
 
     @Test
     public void testListExperiments() throws Exception
@@ -157,6 +163,124 @@ public class ExperimentDAOTest extends AbstractDAOTest
 
         AssertJUnit.assertNull(daoFactory.getExperimentDAO().tryFindByCodeAndProject(
                 templateExp.getProject(), "nonexistent"));
+    }
+
+    @Test
+    public void testCreateExperiment() throws Exception
+    {
+        List<ExperimentPE> experimentsBefore = daoFactory.getExperimentDAO().listExperiments();
+        assertEquals(5, experimentsBefore.size());
+
+        ExperimentPE experiment = createExperiment("CISD", "CISD", "NEMO", "EXP12", "SIRNA_HCS");
+        daoFactory.getExperimentDAO().createExperiment(experiment);
+
+        List<ExperimentPE> experimentsAfter = daoFactory.getExperimentDAO().listExperiments();
+        assertEquals(6, experimentsAfter.size());
+        Collections.sort(experimentsAfter);
+        assertExperimentsEqual(experiment, experimentsAfter.get(5));
+    }
+
+    @Test
+    public void testCreateExperimentsOfDifferentTypes() throws Exception
+    {
+        List<ExperimentPE> experimentsBefore = daoFactory.getExperimentDAO().listExperiments();
+        assertEquals(5, experimentsBefore.size());
+
+        ExperimentPE experiment = createExperiment("CISD", "CISD", "NEMO", "EXP13", "SIRNA_HCS");
+        daoFactory.getExperimentDAO().createExperiment(experiment);
+
+        ExperimentPE experiment2 =
+                createExperiment("CISD", "CISD", "NEMO", "EXP12", "COMPOUND_HCS");
+        daoFactory.getExperimentDAO().createExperiment(experiment2);
+
+        List<ExperimentPE> experimentsAfter = daoFactory.getExperimentDAO().listExperiments();
+        Collections.sort(experimentsAfter);
+        assertEquals(7, experimentsAfter.size());
+        assertExperimentsEqual(experiment, experimentsAfter.get(6));
+        assertEquals(experiment.getExperimentType().getCode(), experimentsAfter.get(6)
+                .getExperimentType().getCode());
+        assertExperimentsEqual(experiment2, experimentsAfter.get(5));
+        assertEquals(experiment2.getExperimentType().getCode(), experimentsAfter.get(5)
+                .getExperimentType().getCode());
+    }
+
+    @Test
+    public void testTryCreateExperimentWithExistingIdentifier() throws Exception
+    {
+        List<ExperimentPE> experimentsBefore = daoFactory.getExperimentDAO().listExperiments();
+        Collections.sort(experimentsBefore);
+        assertEquals(5, experimentsBefore.size());
+        assertEquals(CISD_CISD_NEMO_EXP11, experimentsBefore.get(4).getIdentifier());
+
+        ExperimentPE experiment = createExperiment("CISD", "CISD", "NEMO", "EXP11", "SIRNA_HCS");
+        boolean exceptionThrown = false;
+        try
+        {
+            daoFactory.getExperimentDAO().createExperiment(experiment);
+        } catch (DataIntegrityViolationException e)
+        {
+            exceptionThrown = true;
+        }
+        assertTrue(exceptionThrown);
+    }
+
+    @Test(dataProvider = "illegalCodesProvider")
+    public final void testCreateExperimentWithIllegalCode(String code)
+    {
+        final ExperimentPE experiment = createExperiment("CISD", "CISD", "NEMO", code, "SIRNA_HCS");
+        boolean exceptionThrown = false;
+        try
+        {
+            daoFactory.getExperimentDAO().createExperiment(experiment);
+        } catch (final DataIntegrityViolationException ex)
+        {
+            exceptionThrown = true;
+        }
+        assertTrue(exceptionThrown);
+    }
+
+    private void assertExperimentsEqual(ExperimentPE e1, ExperimentPE e2)
+    {
+        assertEquals(e1.getCode(), e2.getCode());
+        assertEquals(e1.getExperimentType(), e2.getExperimentType());
+        assertEquals(e1.getProject(), e2.getProject());
+        assertEquals(e1.getRegistrator(), e2.getRegistrator());
+        assertEquals(e1.getRegistrationDate(), e2.getRegistrationDate());
+    }
+
+    private ExperimentPE createExperiment(String db, String group, String project, String expCode,
+            String expType)
+    {
+        final ExperimentPE result = new ExperimentPE();
+        result.setCode(expCode);
+        result.setExperimentType(findExperimentType(expType));
+        result.setProject(findProject(db, group, project));
+        result.setRegistrator(getTestPerson());
+        result.setRegistrationDate(new Date());
+        return result;
+    }
+
+    private ProjectPE findProject(String db, String group, String project)
+    {
+        return daoFactory.getProjectDAO().tryFindProject(db, group, project);
+    }
+
+    private ExperimentTypePE findExperimentType(String expType)
+    {
+        return (ExperimentTypePE) daoFactory.getEntityTypeDAO(EntityKind.EXPERIMENT)
+                .tryToFindEntityTypeByCode(expType);
+    }
+
+    @SuppressWarnings("unused")
+    @DataProvider
+    private final static Object[][] illegalCodesProvider()
+    {
+        return new Object[][]
+            {
+                { EXCEED_40_CHARACTERS },
+                { "" },
+                { null },
+                { "@XPERIMENT" }, };
     }
 
 }
