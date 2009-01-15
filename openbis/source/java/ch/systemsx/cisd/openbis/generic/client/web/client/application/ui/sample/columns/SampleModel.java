@@ -49,7 +49,7 @@ public final class SampleModel extends BaseModelData
         set(ModelDataPropertyNames.SAMPLE_TYPE, sample.getSampleType() != null ? sample
                 .getSampleType().getCode() : null);
 
-        List<ISampleColDefUI> columnsSchema = createColumnsSchema(sample);
+        List<IColumnDefinitionUI<Sample>> columnsSchema = createColumnsSchema(sample);
         for (IColumnDefinition<Sample> column : columnsSchema)
         {
             String value = renderColumnValue(sample, column);
@@ -74,10 +74,10 @@ public final class SampleModel extends BaseModelData
         return value;
     }
 
-    private static List<ISampleColDefUI> createColumnsSchema(Sample sample)
+    private static List<IColumnDefinitionUI<Sample>> createColumnsSchema(Sample sample)
     {
-        List<ISampleColDefUI> list = createCommonColumnsSchema(null);
-        List<ISampleColDefUI> parentColumns =
+        List<IColumnDefinitionUI<Sample>> list = createCommonColumnsSchema(null);
+        List<IColumnDefinitionUI<Sample>> parentColumns =
                 createParentColumnsSchema(null, sample.getSampleType());
         list.addAll(parentColumns);
         for (SampleProperty prop : sample.getProperties())
@@ -88,11 +88,12 @@ public final class SampleModel extends BaseModelData
         return list;
     }
 
-    public static List<ISampleColDefUI> createPropertyColumnsSchema(SampleType selectedType)
+    public static List<IColumnDefinitionUI<Sample>> createPropertyColumnsSchema(
+            SampleType selectedType)
     {
         List<SampleTypePropertyType> sampleTypePropertyTypes =
                 selectedType.getSampleTypePropertyTypes();
-        List<ISampleColDefUI> list = new ArrayList<ISampleColDefUI>();
+        List<IColumnDefinitionUI<Sample>> list = createColDefList();
         for (SampleTypePropertyType etpt : sampleTypePropertyTypes)
         {
             boolean isHidden = etpt.isDisplayed() == false;
@@ -102,9 +103,10 @@ public final class SampleModel extends BaseModelData
     }
 
     // result is added to allColumns map
-    public static List<ISampleColDefUI> createCommonColumnsSchema(IMessageProvider msgProviderOrNull)
+    public static List<IColumnDefinitionUI<Sample>> createCommonColumnsSchema(
+            IMessageProvider msgProviderOrNull)
     {
-        List<ISampleColDefUI> list = new ArrayList<ISampleColDefUI>();
+        List<IColumnDefinitionUI<Sample>> list = createColDefList();
         for (CommonSampleColDefKind columnKind : CommonSampleColDefKind.values())
         {
             list.add(createColumn(columnKind, msgProviderOrNull));
@@ -123,10 +125,10 @@ public final class SampleModel extends BaseModelData
         return new CommonSampleColDef(columnKind, headerText);
     }
 
-    public static List<ISampleColDefUI> createParentColumnsSchema(
+    public static List<IColumnDefinitionUI<Sample>> createParentColumnsSchema(
             IMessageProvider msgProviderOrNull, SampleType sampleType)
     {
-        List<ISampleColDefUI> list = new ArrayList<ISampleColDefUI>();
+        List<IColumnDefinitionUI<Sample>> list = createColDefList();
         for (int depth = 1; depth <= sampleType.getGeneratedFromHierarchyDepth(); depth++)
         {
             String headerText =
@@ -139,6 +141,11 @@ public final class SampleModel extends BaseModelData
             list.add(new ParentContainerSampleColDef(depth, headerText));
         }
         return list;
+    }
+
+    private static ArrayList<IColumnDefinitionUI<Sample>> createColDefList()
+    {
+        return new ArrayList<IColumnDefinitionUI<Sample>>();
     }
 
     private static String getParentColumnHeader(IMessageProvider msgProviderOrNull,

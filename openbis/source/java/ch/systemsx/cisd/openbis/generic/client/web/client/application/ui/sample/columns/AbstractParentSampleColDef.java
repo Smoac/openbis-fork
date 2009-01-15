@@ -20,7 +20,8 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 
-abstract class AbstractParentSampleColDef extends AbstractSampleColDef implements IsSerializable
+abstract class AbstractParentSampleColDef extends AbstractColumnDefinition<Sample> implements
+        IsSerializable
 {
     abstract protected Sample tryGetParent(Sample sample);
 
@@ -32,7 +33,7 @@ abstract class AbstractParentSampleColDef extends AbstractSampleColDef implement
 
     AbstractParentSampleColDef(int level, String headerText)
     {
-        super(headerText, AbstractSampleColDef.DEFAULT_COLUMN_WIDTH, false);
+        super(headerText, AbstractColumnDefinition.DEFAULT_COLUMN_WIDTH, false);
         this.level = level;
     }
 

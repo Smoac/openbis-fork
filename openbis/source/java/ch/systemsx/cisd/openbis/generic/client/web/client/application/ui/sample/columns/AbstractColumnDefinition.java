@@ -16,11 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 
-abstract class AbstractSampleColDef implements ISampleColDefUI
+abstract class AbstractColumnDefinition<T> implements IColumnDefinitionUI<T>
 {
-    protected abstract String tryGetValue(Sample sample);
+    protected abstract String tryGetValue(T entity);
 
     static final int DEFAULT_COLUMN_WIDTH = 100;
 
@@ -31,7 +30,7 @@ abstract class AbstractSampleColDef implements ISampleColDefUI
     private boolean isHidden;
 
     // GWT only
-    public AbstractSampleColDef()
+    public AbstractColumnDefinition()
     {
         this.headerText = null;
         this.width = 0;
@@ -41,7 +40,7 @@ abstract class AbstractSampleColDef implements ISampleColDefUI
     /**
      * if headerTextOrNull is null, it means that we never want to call {@link #getHeader()} method
      */
-    protected AbstractSampleColDef(String headerTextOrNull, int width, boolean isHidden)
+    protected AbstractColumnDefinition(String headerTextOrNull, int width, boolean isHidden)
     {
         this.headerText = headerTextOrNull;
         this.width = width;
@@ -64,9 +63,9 @@ abstract class AbstractSampleColDef implements ISampleColDefUI
         return headerText;
     }
 
-    public String getValue(Sample sample)
+    public String getValue(T entity)
     {
-        String value = tryGetValue(sample);
+        String value = tryGetValue(entity);
         return value != null ? value : "";
     }
 }

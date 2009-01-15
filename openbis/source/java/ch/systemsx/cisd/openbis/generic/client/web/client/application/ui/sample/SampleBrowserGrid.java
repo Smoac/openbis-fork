@@ -25,6 +25,7 @@ import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
@@ -50,7 +51,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncC
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ColumnDefsAndConfigs;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ISampleColDefUI;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.PagingToolBarWithoutRefresh;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
@@ -58,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GxtTr
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
@@ -83,7 +85,7 @@ public final class SampleBrowserGrid extends LayoutContainer
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    private final PagingLoader<PagingLoadConfig> sampleLoader;
+    private final PagingLoader<PagingLoadConfig> dataLoader;
 
     private final ContentPanel contentPanel;
 
@@ -91,7 +93,7 @@ public final class SampleBrowserGrid extends LayoutContainer
 
     private SampleType selectedSampleType;
 
-    private ColumnDefsAndConfigs columns;
+    private ColumnDefsAndConfigs<Sample> columns;
 
     private ListSampleCriteria criteria;
 
@@ -108,19 +110,17 @@ public final class SampleBrowserGrid extends LayoutContainer
     SampleBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         this.viewContext = viewContext;
-        this.sampleLoader = createSampleLoader();
+        this.dataLoader = createSampleLoader();
         redefineColumns(null);
 
         // create the UI
-        setLayout(new FitLayout());
-        contentPanel = createContentPanel();
-        grid = createGrid();
-        contentPanel.add(grid);
-        final PagingToolBar toolBar = createPagingToolBar();
-        toolBar.bind(sampleLoader);
-        contentPanel.setBottomComponent(toolBar);
-        add(contentPanel);
         setId(BROWSER_ID);
+
+        this.grid = createGrid(dataLoader, createSampleViewerHandler());
+        this.contentPanel = createContentPanel();
+
+        setLayout(new FitLayout());
+        add(contentPanel);
     }
 
     private final PagingLoader<PagingLoadConfig> createSampleLoader()
@@ -145,42 +145,27 @@ public final class SampleBrowserGrid extends LayoutContainer
                 public final void load(final PagingLoadConfig loadConfig,
                         final AsyncCallback<PagingLoadResult<SampleModel>> callback)
                 {
-                    final int offset = loadConfig.getOffset();
-                    criteria.setLimit(loadConfig.getLimit());
-                    criteria.setOffset(offset);
-                    criteria.setSortInfo(GxtTranslator.translate(loadConfig.getSortInfo()));
-                    criteria.setResultSetKey(resultSetKey);
+                    setupCriteria(criteria, loadConfig);
                     viewContext.getService().listSamples(criteria,
-                            new ListSamplesCallback(viewContext, callback, offset));
+                            new ListSamplesCallback(viewContext, callback, loadConfig.getOffset()));
+                }
+
+                private void setupCriteria(DefaultResultSetConfig<String> resultSetConfig,
+                        PagingLoadConfig loadConfig)
+                {
+                    resultSetConfig.setLimit(loadConfig.getLimit());
+                    resultSetConfig.setOffset(loadConfig.getOffset());
+                    resultSetConfig.setSortInfo(GxtTranslator.translate(loadConfig.getSortInfo()));
+                    resultSetConfig.setResultSetKey(resultSetKey);
                 }
 
             };
     }
 
-    private final static ContentPanel createContentPanel()
+    private Listener<GridEvent> createSampleViewerHandler()
     {
-        final ContentPanel contentPanel = new ContentPanel();
-        contentPanel.setBorders(false);
-        contentPanel.setBodyBorder(false);
-        contentPanel.setLayout(new FitLayout());
-        return contentPanel;
-    }
-
-    private final Grid<SampleModel> createGrid()
-    {
-        final Grid<SampleModel> sampleGrid =
-                new Grid<SampleModel>(new ListStore<SampleModel>(sampleLoader), new ColumnModel(
-                        new ArrayList<ColumnConfig>()));
-        sampleGrid.setId(GRID_ID);
-        sampleGrid.setLoadMask(true);
-        sampleGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        sampleGrid.addListener(Events.CellDoubleClick, new Listener<GridEvent>()
+        return new Listener<GridEvent>()
             {
-
-                //
-                // Listener
-                //
-
                 public final void handleEvent(final GridEvent be)
                 {
                     final SampleModel sampleModel =
@@ -193,41 +178,22 @@ public final class SampleBrowserGrid extends LayoutContainer
                                     entityKind).createEntityViewer(sample);
                     DispatcherHelper.dispatchNaviEvent(tabView);
                 }
-            });
-        return sampleGrid;
+            };
     }
 
-    private final static PagingToolBar createPagingToolBar()
-    {
-        return new PagingToolBarWithoutRefresh(PAGE_SIZE);
-    }
-
-    private static Map<String/* column id */, IColumnDefinition<Sample>> asColumnIdMap(
-            final List<IColumnDefinition<Sample>> defs)
-    {
-        final Map<String, IColumnDefinition<Sample>> map =
-                new HashMap<String, IColumnDefinition<Sample>>();
-        for (final IColumnDefinition<Sample> def : defs)
-        {
-            map.put(def.getIdentifier(), def);
-        }
-        return map;
-    }
-
-    private final String createHeader(final SampleType sampleType, final String selectedGroupCode,
-            final boolean showGroup, final boolean showInstance)
+    private static final String createHeader(ListSampleCriteria criteria)
     {
         final StringBuilder builder = new StringBuilder("Samples");
         builder.append(" of type ");
-        builder.append(sampleType.getCode());
-        if (showGroup)
+        builder.append(criteria.getSampleType().getCode());
+        if (criteria.isIncludeGroup())
         {
             builder.append(" belonging to the group ");
-            builder.append(selectedGroupCode);
+            builder.append(criteria.getGroupCode());
         }
-        if (showInstance)
+        if (criteria.isIncludeInstance())
         {
-            if (showGroup)
+            if (criteria.isIncludeGroup())
             {
                 builder.append(" or shared");
             } else
@@ -245,39 +211,21 @@ public final class SampleBrowserGrid extends LayoutContainer
      * <code>resultSetKey</code> will be removed.
      * </p>
      */
-    public final void refresh(final SampleType selectedType, final String selectedGroupCode,
-            final Boolean includeGroup, final Boolean includeInstance,
+    public final void refresh(ListSampleCriteria listCriteria,
             final IDataRefreshCallback newRefreshCallback)
     {
-        disposeCache();
-        redefineColumns(selectedType);
+        redefineColumns(listCriteria.getSampleType());
 
-        this.refreshCallback = newRefreshCallback;
-        this.criteria =
-                createListCriteria(selectedType, selectedGroupCode, includeGroup, includeInstance);
-        contentPanel.setHeading(createHeader(selectedType, selectedGroupCode, includeGroup,
-                includeInstance));
-        final ColumnModel columnModel = new ColumnModel(columns.getColumnConfigs());
-        grid.reconfigure(grid.getStore(), columnModel);
-        GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
-        sampleLoader.load(0, PAGE_SIZE);
+        this.criteria = listCriteria;
+        String newHeader = createHeader(listCriteria);
+
+        refresh(newRefreshCallback, newHeader, columns.getColumnConfigs());
     }
 
-    private static ListSampleCriteria createListCriteria(final SampleType selectedType,
-            final String selectedGroupCode, final Boolean includeGroup,
-            final Boolean includeInstance)
-    {
-        ListSampleCriteria criteria = new ListSampleCriteria();
-        criteria.setSampleType(selectedType);
-        criteria.setGroupCode(selectedGroupCode);
-        criteria.setIncludeGroup(includeGroup);
-        criteria.setIncludeInstance(includeInstance);
-        return criteria;
-    }
-
+    /** Export always deals with data from the previous refresh operation */
     public final void export()
     {
-        export(new ExportSamplesCallback(viewContext));
+        export(new ExportEntitiesCallback(viewContext));
     }
 
     // for tests
@@ -287,34 +235,9 @@ public final class SampleBrowserGrid extends LayoutContainer
         {
             return;
         }
-        final List<IColumnDefinition<Sample>> columnDefs = getSelectedColumnDefs();
-        final SortInfo sortInfo = criteria.getSortInfo();
         final TableExportCriteria<Sample> exportCriteria =
-                new TableExportCriteria<Sample>(resultSetKey, sortInfo, columnDefs);
+                createExportCriteria(columns.getColumnDefs());
         viewContext.getService().prepareExportSamples(exportCriteria, callback);
-    }
-
-    private List<IColumnDefinition<Sample>> getSelectedColumnDefs()
-    {
-        Map<String, IColumnDefinition<Sample>> columnDefs = asColumnIdMap(columns.getColumnDefs());
-        final ColumnModel columnModel = grid.getColumnModel();
-        return getSelectedColumnDefs(columnDefs, columnModel);
-    }
-
-    private static <T> List<IColumnDefinition<T>> getSelectedColumnDefs(
-            final Map<String, IColumnDefinition<T>> columnsDef, final ColumnModel columnModel)
-    {
-        final List<IColumnDefinition<T>> selectedColumnDefs = new ArrayList<IColumnDefinition<T>>();
-        final int columnCount = columnModel.getColumnCount();
-        for (int i = 0; i < columnCount; i++)
-        {
-            if (columnModel.isHidden(i) == false)
-            {
-                final String columnId = columnModel.getColumnId(i);
-                selectedColumnDefs.add(columnsDef.get(columnId));
-            }
-        }
-        return selectedColumnDefs;
     }
 
     //
@@ -358,23 +281,75 @@ public final class SampleBrowserGrid extends LayoutContainer
         }
     }
 
-    public final class ExportSamplesCallback extends AbstractAsyncCallback<String>
+    private static ColumnDefsAndConfigs<Sample> defineColumns(IMessageProvider messageProvider,
+            SampleType selectedTypeOrNull)
     {
-        private ExportSamplesCallback(final IViewContext<ICommonClientServiceAsync> viewContext)
+        ColumnDefsAndConfigs<Sample> columns = new ColumnDefsAndConfigs<Sample>();
+        columns.addColumns(SampleModel.createCommonColumnsSchema(messageProvider), true);
+        if (selectedTypeOrNull != null)
         {
-            super(viewContext);
-        }
+            List<IColumnDefinitionUI<Sample>> parentColumnsSchema =
+                    SampleModel.createParentColumnsSchema(messageProvider, selectedTypeOrNull);
+            columns.addColumns(parentColumnsSchema, false);
 
-        @Override
-        protected void process(final String exportDataKey)
-        {
-            final URLMethodWithParameters methodWithParameters =
-                    new URLMethodWithParameters(
-                            GenericConstants.FILE_EXPORTER_DOWNLOAD_SERVLET_NAME);
-            methodWithParameters.addParameter(GenericConstants.EXPORT_CRITERIA_KEY_PARAMETER,
-                    exportDataKey);
-            WindowUtils.openWindow(methodWithParameters.toString());
+            List<IColumnDefinitionUI<Sample>> propertyColumnsSchema =
+                    SampleModel.createPropertyColumnsSchema(selectedTypeOrNull);
+            columns.addColumns(propertyColumnsSchema, false);
         }
+        return columns;
+    }
+
+    private void redefineColumns(SampleType selectedType)
+    {
+        if (selectedType == null || selectedType.equals(selectedSampleType) == false)
+        {
+            this.columns = defineColumns(viewContext, selectedType);
+            selectedSampleType = selectedType;
+        }
+    }
+
+    // --------------- generic part
+
+    // creates a panel with grid and a toolbar for paging
+    private ContentPanel createContentPanel()
+    {
+        ContentPanel panel = createEmptyContentPanel();
+        panel.add(grid);
+        final PagingToolBar toolBar = new PagingToolBarWithoutRefresh(PAGE_SIZE);
+        toolBar.bind(dataLoader);
+        panel.setBottomComponent(toolBar);
+        return panel;
+    }
+
+    private void refresh(final IDataRefreshCallback newRefreshCallback, String newHeader,
+            List<ColumnConfig> columnConfigs)
+    {
+        disposeCache();
+        this.refreshCallback = newRefreshCallback;
+        this.contentPanel.setHeading(newHeader);
+
+        ColumnModel columnModel = new ColumnModel(columnConfigs);
+        grid.reconfigure(grid.getStore(), columnModel);
+        GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
+        dataLoader.load(0, PAGE_SIZE);
+    }
+
+    private <T> TableExportCriteria<T> createExportCriteria(
+            List<IColumnDefinition<T>> availableColumns)
+    {
+        final List<IColumnDefinition<T>> columnDefs = getSelectedColumns(availableColumns);
+        final SortInfo sortInfo = criteria.getSortInfo();
+        final TableExportCriteria<T> exportCriteria =
+                new TableExportCriteria<T>(resultSetKey, sortInfo, columnDefs);
+        return exportCriteria;
+    }
+
+    private <T> List<IColumnDefinition<T>> getSelectedColumns(
+            List<IColumnDefinition<T>> availableColumns)
+    {
+        Map<String, IColumnDefinition<T>> availableColumnsMap = asColumnIdMap(availableColumns);
+        final ColumnModel columnModel = grid.getColumnModel();
+        return getSelectedColumns(availableColumnsMap, columnModel);
     }
 
     private void saveCacheKey(final String newResultSetKey)
@@ -398,31 +373,81 @@ public final class SampleBrowserGrid extends LayoutContainer
         }
     }
 
-    private void redefineColumns(SampleType selectedType)
+    // ------- generic static helpers
+
+    private final static ContentPanel createEmptyContentPanel()
     {
-        if (selectedType == null || selectedType.equals(selectedSampleType) == false)
+        final ContentPanel contentPanel = new ContentPanel();
+        contentPanel.setBorders(false);
+        contentPanel.setBodyBorder(false);
+        contentPanel.setLayout(new FitLayout());
+        return contentPanel;
+    }
+
+    private static final <T extends ModelData> Grid<T> createGrid(
+            PagingLoader<PagingLoadConfig> dataLoader, Listener<GridEvent> detailsViewer)
+    {
+        ListStore<T> listStore = new ListStore<T>(dataLoader);
+        ColumnModel columnModel = new ColumnModel(new ArrayList<ColumnConfig>());
+        Grid<T> sampleGrid = new Grid<T>(listStore, columnModel);
+        sampleGrid.setId(GRID_ID);
+        sampleGrid.setLoadMask(true);
+        sampleGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        sampleGrid.addListener(Events.CellDoubleClick, detailsViewer);
+        return sampleGrid;
+    }
+
+    public static final class ExportEntitiesCallback extends AbstractAsyncCallback<String>
+    {
+        private ExportEntitiesCallback(final IViewContext<ICommonClientServiceAsync> viewContext)
         {
-            this.columns = defineColumns(viewContext, selectedType);
-            selectedSampleType = selectedType;
+            super(viewContext);
+        }
+
+        @Override
+        protected void process(final String exportDataKey)
+        {
+            final URLMethodWithParameters methodWithParameters =
+                    new URLMethodWithParameters(
+                            GenericConstants.FILE_EXPORTER_DOWNLOAD_SERVLET_NAME);
+            methodWithParameters.addParameter(GenericConstants.EXPORT_CRITERIA_KEY_PARAMETER,
+                    exportDataKey);
+            WindowUtils.openWindow(methodWithParameters.toString());
         }
     }
 
-    private static ColumnDefsAndConfigs defineColumns(IMessageProvider messageProvider,
-            SampleType selectedTypeOrNull)
+    // creates a map to quickly find a definition by its identifier
+    private static <T> Map<String, IColumnDefinition<T>> asColumnIdMap(
+            final List<IColumnDefinition<T>> defs)
     {
-        ColumnDefsAndConfigs columns = new ColumnDefsAndConfigs();
-        columns.addColumns(SampleModel.createCommonColumnsSchema(messageProvider), true);
-        if (selectedTypeOrNull != null)
+        final Map<String, IColumnDefinition<T>> map = new HashMap<String, IColumnDefinition<T>>();
+        for (final IColumnDefinition<T> def : defs)
         {
-            List<ISampleColDefUI> parentColumnsSchema =
-                    SampleModel.createParentColumnsSchema(messageProvider, selectedTypeOrNull);
-            columns.addColumns(parentColumnsSchema, false);
-
-            List<ISampleColDefUI> propertyColumnsSchema =
-                    SampleModel.createPropertyColumnsSchema(selectedTypeOrNull);
-            columns.addColumns(propertyColumnsSchema, false);
+            map.put(def.getIdentifier(), def);
         }
-        return columns;
+        return map;
+    }
+
+    /**
+     * @param availableColumns map of all available columns definitions.
+     * @param columnModel describes the visual properties of the columns. Connected with
+     *            availableColumns by column id.
+     * @return list of columns definitions for those columns which are currently shown
+     */
+    private static <T/* column definition */> List<T> getSelectedColumns(
+            final Map<String, T> availableColumns, final ColumnModel columnModel)
+    {
+        final List<T> selectedColumnDefs = new ArrayList<T>();
+        final int columnCount = columnModel.getColumnCount();
+        for (int i = 0; i < columnCount; i++)
+        {
+            if (columnModel.isHidden(i) == false)
+            {
+                final String columnId = columnModel.getColumnId(i);
+                selectedColumnDefs.add(availableColumns.get(columnId));
+            }
+        }
+        return selectedColumnDefs;
     }
 
 }

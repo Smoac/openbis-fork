@@ -20,11 +20,11 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.client.shared.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
-import ch.systemsx.cisd.openbis.generic.client.shared.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 
-class PropertySampleColDef extends AbstractSampleColDef implements IsSerializable
+class PropertySampleColDef extends AbstractColumnDefinition<Sample> implements IsSerializable
 {
     private static final int PROPERTY_COLUMN_WIDTH = 80;
 
@@ -49,8 +49,12 @@ class PropertySampleColDef extends AbstractSampleColDef implements IsSerializabl
     @Override
     protected String tryGetValue(Sample sample)
     {
-        List<SampleProperty> properties = sample.getProperties();
-        for (SampleProperty prop : properties)
+        return tryGetValue(sample.getProperties());
+    }
+
+    private String tryGetValue(List<? extends EntityProperty<?, ?>> properties)
+    {
+        for (EntityProperty<?, ?> prop : properties)
         {
             if (isMatching(prop))
             {
@@ -60,7 +64,7 @@ class PropertySampleColDef extends AbstractSampleColDef implements IsSerializabl
         return null;
     }
 
-    private boolean isMatching(SampleProperty prop)
+    private boolean isMatching(EntityProperty<?, ?> prop)
     {
         PropertyType propertyType = prop.getEntityTypePropertyType().getPropertyType();
         return propertyType.isInternalNamespace() == isInternalNamespace

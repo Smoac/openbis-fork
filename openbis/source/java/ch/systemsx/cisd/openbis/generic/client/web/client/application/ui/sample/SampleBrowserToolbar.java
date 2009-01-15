@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Samp
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 
 /**
  * The toolbar of sample browser.
@@ -171,10 +172,24 @@ final class SampleBrowserToolbar extends ToolBar
                                     final boolean includeInstance =
                                             GroupSelectionWidget.isSharedGroup(selectedGroup);
                                     final boolean includeGroup = (includeInstance == false);
+                                    ListSampleCriteria criteria =
+                                            createListCriteria(selectedType, selectedGroup,
+                                                    includeGroup, includeInstance);
 
-                                    sampleBrowserGrid.refresh(selectedType,
-                                            selectedGroup.getCode(), includeGroup, includeInstance,
-                                            createPostRefreshCallback());
+                                    sampleBrowserGrid
+                                            .refresh(criteria, createPostRefreshCallback());
+                                }
+
+                                private ListSampleCriteria createListCriteria(
+                                        final SampleType selectedType, final Group selectedGroup,
+                                        final Boolean includeGroup, final Boolean includeInstance)
+                                {
+                                    ListSampleCriteria criteria = new ListSampleCriteria();
+                                    criteria.setSampleType(selectedType);
+                                    criteria.setGroupCode(selectedGroup.getCode());
+                                    criteria.setIncludeGroup(includeGroup);
+                                    criteria.setIncludeInstance(includeInstance);
+                                    return criteria;
                                 }
 
                                 private IDataRefreshCallback createPostRefreshCallback()

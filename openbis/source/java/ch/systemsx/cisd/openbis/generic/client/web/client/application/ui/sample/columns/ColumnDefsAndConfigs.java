@@ -22,33 +22,32 @@ import java.util.List;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 
 /**
  * @author Tomasz Pylak
  */
-public class ColumnDefsAndConfigs
+public class ColumnDefsAndConfigs<T>
 {
     private final List<ColumnConfig> columnConfigs;
 
-    private final List<IColumnDefinition<Sample>> columnDefs;
+    private final List<IColumnDefinition<T>> columnDefs;
 
     public ColumnDefsAndConfigs()
     {
         this.columnConfigs = new ArrayList<ColumnConfig>();
-        this.columnDefs = new ArrayList<IColumnDefinition<Sample>>();
+        this.columnDefs = new ArrayList<IColumnDefinition<T>>();
     }
 
-    public void addColumns(List<? extends ISampleColDefUI> columnsSchema, boolean isSortable)
+    public void addColumns(List<? extends IColumnDefinitionUI<T>> columnsSchema, boolean isSortable)
     {
-        for (ISampleColDefUI column : columnsSchema)
+        for (IColumnDefinitionUI<T> column : columnsSchema)
         {
             columnConfigs.add(createColumn(column, isSortable));
             columnDefs.add(column);
         }
     }
 
-    private static ColumnConfig createColumn(ISampleColDefUI column, boolean isSortable)
+    private static <T> ColumnConfig createColumn(IColumnDefinitionUI<T> column, boolean isSortable)
     {
         final ColumnConfig columnConfig = new ColumnConfig();
         columnConfig.setMenuDisabled(false);
@@ -61,7 +60,7 @@ public class ColumnDefsAndConfigs
         return columnConfig;
     }
 
-    public List<IColumnDefinition<Sample>> getColumnDefs()
+    public List<IColumnDefinition<T>> getColumnDefs()
     {
         return columnDefs;
     }

@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Procedure;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 
-public class CommonSampleColDef extends AbstractSampleColDef
+public class CommonSampleColDef extends AbstractColumnDefinition<Sample>
 {
     protected CommonSampleColDefKind columnKind;
 
