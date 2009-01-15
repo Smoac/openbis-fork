@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTab
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.FailureExpectation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 import ch.systemsx.cisd.openbis.generic.shared.IPluginCommonServer;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertyField;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.SampleTypeCode;
 
 /**
@@ -59,8 +60,8 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         final String sampleTypeCode = SampleTypeCode.CONTROL_LAYOUT.getCode();
         loginAndPreprareRegistration(sampleTypeCode);
         remoteConsole.prepare(new FillSampleRegistrationForm("CISD", GROUP_CL)
-                .addProperty(new FillSampleRegistrationForm.Property(
-                        GenericSampleRegistrationForm.ID + "plate-geometry", "1536_WELLS_32X48")));
+                .addProperty(new PropertyField(GenericSampleRegistrationForm.ID + "plate-geometry",
+                        "1536_WELLS_32X48")));
         remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.SAMPLES,
                 CategoriesBuilder.MENU_ELEMENTS.LIST,
                 GenericSampleRegistrationForm.RegisterSampleCallback.class));
@@ -73,8 +74,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
 
     /**
      * Tests that authorization annotations of
-     * {@link IPluginCommonServer#registerSample(String, NewSample)}
-     * are obeyed.
+     * {@link IPluginCommonServer#registerSample(String, NewSample)} are obeyed.
      */
     public final void testRegisterSampleByAnUnauthorizedUser()
     {
@@ -83,8 +83,8 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
                 CategoriesBuilder.MENU_ELEMENTS.REGISTER));
         remoteConsole.prepare(new ChooseTypeOfNewSample(SampleTypeCode.CONTROL_LAYOUT.getCode()));
         remoteConsole.prepare(new FillSampleRegistrationForm("TESTGROUP", GROUP_CL + "1")
-                .addProperty(new FillSampleRegistrationForm.Property(
-                        GenericSampleRegistrationForm.ID + "plate-geometry", "1536_WELLS_32X48")));
+                .addProperty(new PropertyField(GenericSampleRegistrationForm.ID + "plate-geometry",
+                        "1536_WELLS_32X48")));
         FailureExpectation failureExpectation =
                 new FailureExpectation(GenericSampleRegistrationForm.RegisterSampleCallback.class)
                         .with("Authorization failure: None of method roles "
@@ -145,10 +145,10 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         final String description = "A very nice control layout.";
         remoteConsole.prepare(new FillSampleRegistrationForm(
                 GroupSelectionWidget.SHARED_GROUP_CODE, SHARED_CL).addProperty(
-                new FillSampleRegistrationForm.Property(GenericSampleRegistrationForm.ID
-                        + "user-description", description)).addProperty(
-                new FillSampleRegistrationForm.Property(GenericSampleRegistrationForm.ID
-                        + "plate-geometry", "1536_WELLS_32X48")));
+                new PropertyField(GenericSampleRegistrationForm.ID + "user-description",
+                        description)).addProperty(
+                new PropertyField(GenericSampleRegistrationForm.ID + "plate-geometry",
+                        "1536_WELLS_32X48")));
         remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.SAMPLES,
                 CategoriesBuilder.MENU_ELEMENTS.LIST,
                 GenericSampleRegistrationForm.RegisterSampleCallback.class));

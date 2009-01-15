@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
+package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,53 +25,36 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ProjectSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ControlledVocabullaryField.VocabularyList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertyField;
 
 /**
- * A {@link AbstractDefaultTestCommand} extension for creating sample.
+ * A {@link AbstractDefaultTestCommand} extension for creating experiment.
  * 
- * @author Christian Ribeaud
+ * @author Izabela Adamczyk
  */
-public final class FillSampleRegistrationForm extends AbstractDefaultTestCommand
+public final class FillExperimentRegistrationForm extends AbstractDefaultTestCommand
 {
     private final String code;
 
-    private final String groupNameOrNull;
+    private final String projectNameOrNull;
 
     private final List<PropertyField> properties;
 
-    private String parent;
-
-    private String container;
-
-    public FillSampleRegistrationForm(final String groupNameOrNull, final String code)
+    public FillExperimentRegistrationForm(final String project, final String code)
     {
-        this.groupNameOrNull = groupNameOrNull;
+        this.projectNameOrNull = project;
         this.code = code;
         this.properties = new ArrayList<PropertyField>();
-        addCallbackClass(GroupSelectionWidget.ListGroupsCallback.class);
+        addCallbackClass(ProjectSelectionWidget.ListProjectsCallback.class);
     }
 
-    public final FillSampleRegistrationForm parent(final String parentFieldValue)
-    {
-        this.parent = parentFieldValue;
-        return this;
-    }
-
-    public final FillSampleRegistrationForm container(final String containerFieldValue)
-    {
-        this.container = containerFieldValue;
-        return this;
-    }
-
-    public final FillSampleRegistrationForm addProperty(final PropertyField property)
+    public final FillExperimentRegistrationForm addProperty(final PropertyField property)
     {
         assert property != null : "Unspecified property";
         properties.add(property);
@@ -85,24 +68,14 @@ public final class FillSampleRegistrationForm extends AbstractDefaultTestCommand
     @SuppressWarnings("unchecked")
     public final void execute()
     {
-        GWTTestUtil.setTextFieldValue(GenericSampleRegistrationForm.ID
+        GWTTestUtil.setTextFieldValue(GenericExperimentRegistrationForm.ID
                 + AbstractGenericEntityRegistrationForm.ID_SUFFIX_CODE, code);
 
-        final GroupSelectionWidget groupSelector =
-                (GroupSelectionWidget) GWTTestUtil.getWidgetWithID(GroupSelectionWidget.ID
-                        + GenericSampleRegistrationForm.ID);
-        GWTUtils.setSelectedItem(groupSelector, ModelDataPropertyNames.CODE, groupNameOrNull);
+        final ProjectSelectionWidget projectSelector =
+                (ProjectSelectionWidget) GWTTestUtil.getWidgetWithID(ProjectSelectionWidget.ID
+                        + GenericExperimentRegistrationForm.ID);
+        GWTUtils.setSelectedItem(projectSelector, ModelDataPropertyNames.CODE, projectNameOrNull);
 
-        if (StringUtils.isBlank(parent) == false)
-        {
-            GWTTestUtil.setTextFieldValue(GenericSampleRegistrationForm.ID
-                    + GenericSampleRegistrationForm.ID_SUFFIX_PARENT, parent);
-        }
-        if (StringUtils.isBlank(container) == false)
-        {
-            GWTTestUtil.setTextFieldValue(GenericSampleRegistrationForm.ID
-                    + GenericSampleRegistrationForm.ID_SUFFIX_CONTAINER, container);
-        }
         for (final PropertyField property : properties)
         {
             final Widget widget = GWTTestUtil.getWidgetWithID(property.getPropertyFieldId());
@@ -118,8 +91,7 @@ public final class FillSampleRegistrationForm extends AbstractDefaultTestCommand
                 throw new IllegalStateException("Wrong widget type");
             }
         }
-        GWTTestUtil.clickButtonWithID(GenericSampleRegistrationForm.ID
+        GWTTestUtil.clickButtonWithID(GenericExperimentRegistrationForm.ID
                 + AbstractRegistrationForm.SAVE_BUTTON);
     }
-
 }
