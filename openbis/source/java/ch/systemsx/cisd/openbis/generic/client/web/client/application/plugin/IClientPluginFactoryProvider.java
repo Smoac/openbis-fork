@@ -32,6 +32,6 @@ public interface IClientPluginFactoryProvider
      * 
      * @return never <code>null</code> but could return the <i>generic</i> implementation.
      */
-    public <T extends EntityType> IClientPluginFactory getClientPluginFactory(
+    public IClientPluginFactory getClientPluginFactory(
             final EntityKind entityKind, final EntityType entityType);
 }

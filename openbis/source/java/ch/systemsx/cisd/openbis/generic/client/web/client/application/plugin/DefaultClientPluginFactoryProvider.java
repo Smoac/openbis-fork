@@ -78,8 +78,8 @@ public final class DefaultClientPluginFactoryProvider implements IClientPluginFa
     // IClientPluginFactoryProvider
     //
 
-    public final <T extends EntityType> IClientPluginFactory getClientPluginFactory(
-            final EntityKind entityKind, final EntityType entityType)
+    public final IClientPluginFactory getClientPluginFactory(final EntityKind entityKind,
+            final EntityType entityType)
     {
         assert entityKind != null : "Unspecified entity kind.";
         assert entityType != null : "Unspecified entity type.";
