@@ -57,6 +57,7 @@ abstract public class EntityRegistrationPanel<T extends ModelData, S extends Com
             S entityTypeSelection)
     {
         this.entityTypeSelection = entityTypeSelection;
+        setHeaderVisible(false);
         setId(createId(entityKind));
         setScrollMode(Scroll.AUTO);
         final ToolBar toolBar = new ToolBar();
