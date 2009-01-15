@@ -52,12 +52,12 @@ public class SystemTestSuite extends GWTTestSuite
         testSuite.addTestSuite(GenericSampleRegistrationTest.class);
         testSuite.addTestSuite(ExperimentBrowserTest.class);
         testSuite.addTestSuite(GenericExperimentViewerTest.class);
-        testSuite.addTestSuite(GenericExperimentAttachmentDownloadTest.class);
         testSuite.addTestSuite(PropertyTypeBrowserTest.class);
         testSuite.addTestSuite(PropertyTypeAssignmentBrowserTest.class);
         testSuite.addTestSuite(EntityTypePropertyTypeAssignmentTest.class);
         testSuite.addTestSuite(VocabularyRegistrationTest.class);
         testSuite.addTestSuite(PropertyTypeRegistrationTest.class);
+        testSuite.addTestSuite(GenericExperimentAttachmentDownloadTest.class);
         return testSuite;
     }
 }
