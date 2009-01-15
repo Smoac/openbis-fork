@@ -172,6 +172,7 @@ var common = {
   // Experiment Registration
   //
   experiment_registration: "Experiment Registration",
+  samples: "Samples",
 
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

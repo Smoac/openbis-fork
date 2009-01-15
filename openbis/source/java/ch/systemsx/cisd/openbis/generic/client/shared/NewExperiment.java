@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.shared;
 
+
 /**
  * A experiment to register.
  * 
@@ -24,6 +25,8 @@ package ch.systemsx.cisd.openbis.generic.client.shared;
 public final class NewExperiment extends Identifier<NewExperiment>
 {
     private String experimentTypeCode;
+
+    private String[] samples = new String[0];
 
     private ExperimentProperty[] properties = ExperimentProperty.EMPTY_ARRAY;
 
@@ -61,5 +64,15 @@ public final class NewExperiment extends Identifier<NewExperiment>
     public final String toString()
     {
         return getIdentifier();
+    }
+
+    public String[] getSamples()
+    {
+        return samples;
+    }
+
+    public void setSamples(String[] samples)
+    {
+        this.samples = samples;
     }
 }

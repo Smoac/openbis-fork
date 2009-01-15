@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.TextArea;
 
 import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentType;
@@ -31,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ProjectSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
@@ -45,6 +47,7 @@ public final class GenericExperimentRegistrationForm
         extends
         AbstractGenericEntityRegistrationForm<ExperimentType, ExperimentTypePropertyType, ExperimentProperty>
 {
+
     public static final String ID = createId(EntityKind.EXPERIMENT);
 
     private final IViewContext<IGenericClientServiceAsync> viewContext;
@@ -52,6 +55,8 @@ public final class GenericExperimentRegistrationForm
     private final ExperimentType experimentType;
 
     private ProjectSelectionWidget projectSelectionWidget;
+
+    private TextArea samplesArea;
 
     public GenericExperimentRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext,
@@ -70,6 +75,18 @@ public final class GenericExperimentRegistrationForm
         return result.toUpperCase();
     }
 
+    private final String[] extractSamples()
+    {
+        String text = samplesArea.getValue();
+        if (StringUtils.isBlank(text) == false)
+        {
+            return text.split("\n|\r");
+        } else
+        {
+            return new String[0];
+        }
+    }
+
     @Override
     public final void submitValidForm()
     {
@@ -77,6 +94,7 @@ public final class GenericExperimentRegistrationForm
                 new NewExperiment(createExpeimentIdentifier(), experimentType.getCode());
         final List<ExperimentProperty> properties = extractProperties();
         newExp.setProperties(properties.toArray(ExperimentProperty.EMPTY_ARRAY));
+        newExp.setSamples(extractSamples());
         viewContext.getService().registerExperiment(newExp,
                 new RegisterExperimentCallback(viewContext));
     }
@@ -111,10 +129,15 @@ public final class GenericExperimentRegistrationForm
     @Override
     protected void createEntitySpecificFields()
     {
+
         projectSelectionWidget = new ProjectSelectionWidget(viewContext, getId());
         projectSelectionWidget.setLabelSeparator(GenericConstants.MANDATORY_LABEL_SEPARATOR);
         projectSelectionWidget.setFieldLabel(viewContext.getMessage(Dict.PROJECT));
         projectSelectionWidget.setAllowBlank(false);
+
+        samplesArea = new TextArea();
+        samplesArea.setFieldLabel(viewContext.getMessage(Dict.SAMPLES));
+        samplesArea.setHeight("10em");
     }
 
     @Override
@@ -122,6 +145,7 @@ public final class GenericExperimentRegistrationForm
     {
         final ArrayList<Field<?>> fields = new ArrayList<Field<?>>();
         fields.add(projectSelectionWidget);
+        fields.add(samplesArea);
         return fields;
     }
 }
