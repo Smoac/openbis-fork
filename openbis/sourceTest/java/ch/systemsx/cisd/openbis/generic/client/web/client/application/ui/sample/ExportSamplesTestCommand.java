@@ -45,7 +45,7 @@ public class ExportSamplesTestCommand extends AbstractDefaultTestCommand
     {
         this.client = client;
         this.receivedExportedFileContent = null;
-        addCallbackClass(SampleBrowserGrid.ListSamplesCallback.class);
+        addCallbackClass(SampleBrowserGrid.ListEntitiesCallback.class);
     }
 
     public void execute()
@@ -75,8 +75,7 @@ public class ExportSamplesTestCommand extends AbstractDefaultTestCommand
         {
             assert viewContext != null : "viewContext is null";
 
-            ICommonClientServiceAsync service =
-                    this.viewContext.getCommonService();
+            ICommonClientServiceAsync service = this.viewContext.getCommonService();
             service.getExportSamplesTable(exportDataKey, new SaveExportedContentCallbackTest(
                     this.viewContext));
         }

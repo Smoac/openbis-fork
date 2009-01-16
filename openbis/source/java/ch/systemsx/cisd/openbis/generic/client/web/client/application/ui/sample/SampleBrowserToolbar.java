@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Grou
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid.IDataRefreshCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractBrowserGrid.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 

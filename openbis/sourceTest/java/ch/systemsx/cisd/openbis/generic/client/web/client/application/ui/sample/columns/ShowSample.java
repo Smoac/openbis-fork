@@ -23,8 +23,6 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.CommonSampleColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
@@ -40,7 +38,7 @@ public final class ShowSample extends AbstractDefaultTestCommand
     public ShowSample(final String code)
     {
         this.code = code;
-        addCallbackClass(SampleBrowserGrid.ListSamplesCallback.class);
+        addCallbackClass(SampleBrowserGrid.ListEntitiesCallback.class);
     }
 
     @SuppressWarnings("unchecked")

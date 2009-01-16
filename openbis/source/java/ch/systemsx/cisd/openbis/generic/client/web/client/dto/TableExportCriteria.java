@@ -20,14 +20,14 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-
 /**
  * Describes which entities should be exported, in which order and which columns should be present.
  * The result of the export is a table with header.
  * 
  * @author Tomasz Pylak
  */
-public class TableExportCriteria<T> implements IResultSetKeyHolder<String>, IsSerializable
+public class TableExportCriteria<T/* exported entity */> implements IResultSetKeyHolder<String>,
+        IsSerializable
 {
     // a key at which data are stored in the server cache
     private String resultSetKey;

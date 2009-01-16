@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 
@@ -29,7 +28,7 @@ public class CheckSampleTable extends CheckTableCommand
 {
     public CheckSampleTable()
     {
-        super(SampleBrowserGrid.GRID_ID, SampleBrowserGrid.ListSamplesCallback.class);
+        super(SampleBrowserGrid.GRID_ID, SampleBrowserGrid.ListEntitiesCallback.class);
     }
 
 }
