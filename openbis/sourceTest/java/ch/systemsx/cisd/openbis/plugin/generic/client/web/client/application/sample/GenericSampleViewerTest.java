@@ -25,8 +25,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ListSamples;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.CommonSampleColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ShowSample;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.RendererTestUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
@@ -79,7 +79,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.SAMPLES,
                 CategoriesBuilder.MENU_ELEMENTS.LIST));
         remoteConsole.prepare(new ListSamples("CISD", "CELL_PLATE"));
-        remoteConsole.prepare(new ShowSample(SampleRow.invalidCode(CELL_PLATE_EXAMPLE)));
+        remoteConsole.prepare(new ShowSample(RendererTestUtil.invalidCode(CELL_PLATE_EXAMPLE)));
         final CheckSample checkSample = new CheckSample(GROUP_IDENTIFIER, CELL_PLATE_EXAMPLE);
         checkSample.property("Sample").asString(CELL_PLATE_EXAMPLE);
         checkSample.property("Sample Type").asCode("CELL_PLATE");

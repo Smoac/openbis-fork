@@ -142,8 +142,6 @@ public final class ModelDataPropertyNames
 
     public static final String SAMPLE_TYPE = "sampleType";
 
-    public static final String EXPERIMENT_TYPE = "experimentType";
-
     public static final String USER_ID = "userId";
 
     public static final String PROJECT_WITH_GROUP = "projectWithGroup";

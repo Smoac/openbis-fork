@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 
@@ -30,7 +29,7 @@ public class CheckExperimentTable extends CheckTableCommand
 {
     public CheckExperimentTable()
     {
-        super(ExperimentBrowserGrid.GRID_ID, ExperimentBrowserGrid.ListExperimentsCallback.class);
+        super(ExperimentBrowserGrid.GRID_ID, ExperimentBrowserGrid.ListEntitiesCallback.class);
     }
 
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,10 +24,12 @@ import java.util.Map;
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
+import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
+import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -45,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.PagingToolBarWithoutRefresh;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GxtTranslator;
@@ -62,11 +65,17 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> extends
         LayoutContainer
 {
-    abstract protected Listener<GridEvent> createSampleViewerHandler();
+    abstract protected void showEntityViewer(M modelData);
 
-    abstract protected PagingLoader<PagingLoadConfig> createPagingLoader();
+    abstract protected void listEntities(DefaultResultSetConfig<String> resultSetConfig,
+            AbstractAsyncCallback<ResultSet<T>> callback);
 
     abstract protected List<M> createModels(List<T> entities);
+
+    abstract protected void prepareExportEntities(TableExportCriteria<T> exportCriteria,
+            AbstractAsyncCallback<String> callback);
+
+    abstract protected ColumnDefsAndConfigs<T> createColumnsDefinition();
 
     private static final int PAGE_SIZE = 50;
 
@@ -80,7 +89,14 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
 
     private final Grid<M> grid;
 
+    // available columns configs and definitions
+    private ColumnDefsAndConfigs<T> columns;
+
+    // result set key of the last refreshed data
     private String resultSetKey;
+
+    // information about sorting options of the last refreshed data
+    private SortInfo sortInfo;
 
     private IDataRefreshCallback refreshCallback;
 
@@ -97,36 +113,65 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
         this.viewContext = viewContext;
         this.pagingLoader = createPagingLoader();
 
-        this.grid = createGrid(pagingLoader, createSampleViewerHandler(), gridId);
+        this.grid = createGrid(pagingLoader, createEntityViewerHandler(), gridId);
         this.contentPanel = createContentPanel();
 
         setLayout(new FitLayout());
         add(contentPanel);
     }
 
-    // --------------- generic part
-
-    protected void setupCriteria(DefaultResultSetConfig<String> resultSetConfig,
-            PagingLoadConfig loadConfig)
+    private final PagingLoader<PagingLoadConfig> createPagingLoader()
     {
+        final RpcProxy<PagingLoadConfig, PagingLoadResult<M>> proxy = createDataLoaderProxy();
+        final BasePagingLoader<PagingLoadConfig, PagingLoadResult<M>> newPagingLoader =
+                new BasePagingLoader<PagingLoadConfig, PagingLoadResult<M>>(proxy);
+        newPagingLoader.setRemoteSort(true);
+        return newPagingLoader;
+    }
+
+    private final RpcProxy<PagingLoadConfig, PagingLoadResult<M>> createDataLoaderProxy()
+    {
+        return new RpcProxy<PagingLoadConfig, PagingLoadResult<M>>()
+            {
+                @Override
+                public final void load(final PagingLoadConfig loadConfig,
+                        final AsyncCallback<PagingLoadResult<M>> callback)
+                {
+                    DefaultResultSetConfig<String> resultSetConfig =
+                            createPagingConfig(loadConfig, resultSetKey);
+                    ListEntitiesCallback listCallback =
+                            new ListEntitiesCallback(viewContext, callback, resultSetConfig);
+                    listEntities(resultSetConfig, listCallback);
+                }
+            };
+    }
+
+    private static DefaultResultSetConfig<String> createPagingConfig(PagingLoadConfig loadConfig,
+            String resultSetKey)
+    {
+        DefaultResultSetConfig<String> resultSetConfig = new DefaultResultSetConfig<String>();
         resultSetConfig.setLimit(loadConfig.getLimit());
         resultSetConfig.setOffset(loadConfig.getOffset());
         resultSetConfig.setSortInfo(GxtTranslator.translate(loadConfig.getSortInfo()));
         resultSetConfig.setResultSetKey(resultSetKey);
+        return resultSetConfig;
     }
 
+    // @Private
     public final class ListEntitiesCallback extends AbstractAsyncCallback<ResultSet<T>>
     {
         private final AsyncCallback<PagingLoadResult<M>> delegate;
 
-        private final int offset;
+        // configuration with which the listing was called
+        private final DefaultResultSetConfig<String> resultSetConfig;
 
         public ListEntitiesCallback(final IViewContext<?> viewContext,
-                final AsyncCallback<PagingLoadResult<M>> delegate, final int offset)
+                final AsyncCallback<PagingLoadResult<M>> delegate,
+                final DefaultResultSetConfig<String> resultSetConfig)
         {
             super(viewContext);
             this.delegate = delegate;
-            this.offset = offset;
+            this.resultSetConfig = resultSetConfig;
         }
 
         //
@@ -145,14 +190,29 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
             // save the key of the result, later we can refer to the result in the cache using this
             // key
             saveCacheKey(result.getResultSetKey());
+            saveSortInfo(resultSetConfig.getSortInfo());
             // convert the result to the model data for the grid control
             final List<M> models = createModels(result.getList());
             final PagingLoadResult<M> loadResult =
-                    new BasePagingLoadResult<M>(models, offset, result.getTotalLength());
+                    new BasePagingLoadResult<M>(models, resultSetConfig.getOffset(), result
+                            .getTotalLength());
             delegate.onSuccess(loadResult);
             // notify that the refresh is done
             refreshCallback.postRefresh();
         }
+    }
+
+    private Listener<GridEvent> createEntityViewerHandler()
+    {
+        return new Listener<GridEvent>()
+            {
+                @SuppressWarnings("unchecked")
+                public final void handleEvent(final GridEvent be)
+                {
+                    ModelData modelData = be.grid.getStore().getAt(be.rowIndex);
+                    showEntityViewer((M) modelData);
+                }
+            };
     }
 
     // creates a panel with grid and a toolbar for paging
@@ -167,25 +227,20 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
     }
 
     protected void refresh(final IDataRefreshCallback newRefreshCallback, String newHeader,
-            List<ColumnConfig> columnConfigs)
+            boolean refreshColumnsDefinition)
     {
         disposeCache();
         this.refreshCallback = newRefreshCallback;
         this.contentPanel.setHeading(newHeader);
+        if (refreshColumnsDefinition)
+        {
+            this.columns = createColumnsDefinition();
+        }
 
-        ColumnModel columnModel = new ColumnModel(columnConfigs);
+        ColumnModel columnModel = new ColumnModel(columns.getColumnConfigs());
         grid.reconfigure(grid.getStore(), columnModel);
         GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
         pagingLoader.load(0, PAGE_SIZE);
-    }
-
-    protected TableExportCriteria<T> createExportCriteria(
-            List<IColumnDefinition<T>> availableColumns, SortInfo sortInfo)
-    {
-        assert resultSetKey != null : "refresh before exporting, resultSetKey is null!";
-
-        final List<IColumnDefinition<T>> columnDefs = getSelectedColumns(availableColumns);
-        return new TableExportCriteria<T>(resultSetKey, sortInfo, columnDefs);
     }
 
     private List<IColumnDefinition<T>> getSelectedColumns(
@@ -194,6 +249,11 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
         Map<String, IColumnDefinition<T>> availableColumnsMap = asColumnIdMap(availableColumns);
         final ColumnModel columnModel = grid.getColumnModel();
         return getSelectedColumns(availableColumnsMap, columnModel);
+    }
+
+    private void saveSortInfo(SortInfo newSortInfo)
+    {
+        this.sortInfo = newSortInfo;
     }
 
     private void saveCacheKey(final String newResultSetKey)
@@ -215,6 +275,25 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
                     new VoidAsyncCallback<Void>(viewContext));
             resultSetKey = null;
         }
+    }
+
+    /** Export always deals with data from the previous refresh operation */
+    public final void export()
+    {
+        export(new ExportEntitiesCallback(viewContext));
+    }
+
+    // @Private - for tests
+    public final void export(final AbstractAsyncCallback<String> callback)
+    {
+        assert columns != null : "refresh before exporting!";
+        assert resultSetKey != null : "refresh before exporting, resultSetKey is null!";
+
+        final List<IColumnDefinition<T>> columnDefs = getSelectedColumns(columns.getColumnDefs());
+        final TableExportCriteria<T> exportCriteria =
+                new TableExportCriteria<T>(resultSetKey, sortInfo, columnDefs);
+
+        prepareExportEntities(exportCriteria, callback);
     }
 
     // ------- generic static helpers
@@ -242,7 +321,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
         return grid;
     }
 
-    protected static final class ExportEntitiesCallback extends AbstractAsyncCallback<String>
+    private static final class ExportEntitiesCallback extends AbstractAsyncCallback<String>
     {
         public ExportEntitiesCallback(final IViewContext<ICommonClientServiceAsync> viewContext)
         {

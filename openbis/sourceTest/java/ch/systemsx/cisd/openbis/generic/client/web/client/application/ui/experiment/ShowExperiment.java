@@ -24,7 +24,6 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExperimentModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
@@ -40,7 +39,7 @@ public class ShowExperiment extends AbstractDefaultTestCommand
     public ShowExperiment(final String code)
     {
         this.code = code;
-        addCallbackClass(ExperimentBrowserGrid.ListExperimentsCallback.class);
+        addCallbackClass(ExperimentBrowserGrid.ListEntitiesCallback.class);
     }
 
     @SuppressWarnings("unchecked")

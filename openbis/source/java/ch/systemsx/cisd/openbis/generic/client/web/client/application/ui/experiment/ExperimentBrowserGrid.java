@@ -16,288 +16,132 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.Events;
-import com.extjs.gxt.ui.client.Style.SelectionMode;
-import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
-import com.extjs.gxt.ui.client.data.BasePagingLoader;
-import com.extjs.gxt.ui.client.data.PagingLoadConfig;
-import com.extjs.gxt.ui.client.data.PagingLoadResult;
-import com.extjs.gxt.ui.client.data.PagingLoader;
-import com.extjs.gxt.ui.client.data.RpcProxy;
-import com.extjs.gxt.ui.client.event.GridEvent;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.PagingToolBar;
-import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
-import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
-import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExperimentModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.YesNoRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.InvalidableWithCodeRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.PagingToolBarWithoutRefresh;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GxtTranslator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ColumnDefsAndConfigs;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 
 /**
  * A {@link LayoutContainer} which contains the grid where the experiments are displayed.
  * 
- * @author Christian Ribeaud
- * @author Izabela Adamczyk
+ * @author Tomasz Pylak
  */
-public final class ExperimentBrowserGrid extends LayoutContainer
+public final class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment, ExperimentModel>
 {
-    private static final int PAGE_SIZE = 50;
+    private static final String PREFIX = "experiment-browser";
 
-    private static final String PREFIX = "experiment-browser-grid_";
+    public static final String BROWSER_ID = GenericConstants.ID_PREFIX + PREFIX;
 
-    public static final String GRID_ID = GenericConstants.ID_PREFIX + PREFIX + "grid";
-
-    private final IViewContext<ICommonClientServiceAsync> viewContext;
-
-    private ContentPanel contentPanel;
-
-    private Grid<ExperimentModel> grid;
-
-    private final PagingLoader<PagingLoadConfig> experimentLoader;
+    public static final String GRID_ID = BROWSER_ID + "_grid";
 
     private ListExperimentsCriteria criteria;
 
-    private String resultSetKey;
-
     ExperimentBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        this.viewContext = viewContext;
-        experimentLoader = createExperimentLoader();
-        createUI();
+        super(viewContext, GRID_ID);
+        setId(BROWSER_ID);
     }
 
-    private final void createUI()
+    @Override
+    protected void listEntities(DefaultResultSetConfig<String> resultSetConfig,
+            AbstractAsyncCallback<ResultSet<Experiment>> callback)
     {
-        setLayout(new FitLayout());
-        contentPanel = createContentPanel();
-        grid = createGrid();
-        contentPanel.add(grid);
-        final PagingToolBar toolBar = createPagingToolBar();
-        toolBar.bind(experimentLoader);
-        contentPanel.setBottomComponent(toolBar);
-        add(contentPanel);
+        copyPagingConfig(resultSetConfig);
+        viewContext.getService().listExperiments(criteria, callback);
     }
 
-    private final PagingLoader<PagingLoadConfig> createExperimentLoader()
+    private void copyPagingConfig(DefaultResultSetConfig<String> resultSetConfig)
     {
-        final RpcProxy<PagingLoadConfig, PagingLoadResult<ExperimentModel>> proxy = createProxy();
-        final BasePagingLoader<PagingLoadConfig, PagingLoadResult<ExperimentModel>> pagingLoader =
-                new BasePagingLoader<PagingLoadConfig, PagingLoadResult<ExperimentModel>>(proxy);
-        pagingLoader.setRemoteSort(true);
-        return pagingLoader;
+        criteria.setLimit(resultSetConfig.getLimit());
+        criteria.setOffset(resultSetConfig.getOffset());
+        criteria.setSortInfo(resultSetConfig.getSortInfo());
+        criteria.setResultSetKey(resultSetConfig.getResultSetKey());
     }
 
-    private final RpcProxy<PagingLoadConfig, PagingLoadResult<ExperimentModel>> createProxy()
+    @Override
+    protected void showEntityViewer(ExperimentModel experimentModel)
     {
-        return new RpcProxy<PagingLoadConfig, PagingLoadResult<ExperimentModel>>()
-            {
-
-                //
-                // RpcProxy
-                //
-
-                @Override
-                public final void load(final PagingLoadConfig loadConfig,
-                        final AsyncCallback<PagingLoadResult<ExperimentModel>> callback)
-                {
-                    final int offset = loadConfig.getOffset();
-                    criteria.setLimit(loadConfig.getLimit());
-                    criteria.setOffset(offset);
-                    criteria.setSortInfo(GxtTranslator.translate(loadConfig.getSortInfo()));
-                    criteria.setResultSetKey(resultSetKey);
-                    viewContext.getService().listExperiments(criteria,
-                            new ListExperimentsCallback(viewContext, callback, offset));
-                }
-
-            };
+        final Experiment experiment = experimentModel.getBaseObject();
+        final EntityKind entityKind = EntityKind.EXPERIMENT;
+        final ITabItemFactory tabView =
+                viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
+                        experiment.getExperimentType()).createClientPlugin(entityKind)
+                        .createEntityViewer(experiment);
+        DispatcherHelper.dispatchNaviEvent(tabView);
     }
 
-    private final static ContentPanel createContentPanel()
+    @Override
+    protected List<ExperimentModel> createModels(List<Experiment> entities)
     {
-        final ContentPanel contentPanel = new ContentPanel();
-        contentPanel.setBorders(false);
-        contentPanel.setBodyBorder(false);
-        contentPanel.setLayout(new FitLayout());
-        return contentPanel;
+        return ExperimentModel.asExperimentModels(entities);
     }
 
-    private final Grid<ExperimentModel> createGrid()
+    @Override
+    protected ColumnDefsAndConfigs<Experiment> createColumnsDefinition()
     {
-        final Grid<ExperimentModel> experimentGrid =
-                new Grid<ExperimentModel>(new ListStore<ExperimentModel>(experimentLoader),
-                        new ColumnModel(new ArrayList<ColumnConfig>()));
-        experimentGrid.setId(GRID_ID);
-        experimentGrid.setLoadMask(true);
-        experimentGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        experimentGrid.addListener(Events.CellDoubleClick, new Listener<GridEvent>()
-            {
-
-                //
-                // Listener
-                //
-
-                public final void handleEvent(final GridEvent be)
-                {
-                    final ExperimentModel experimentModel =
-                            (ExperimentModel) be.grid.getStore().getAt(be.rowIndex);
-                    final Experiment experiment =
-                            experimentModel.get(ModelDataPropertyNames.OBJECT);
-                    final EntityKind entityKind = EntityKind.EXPERIMENT;
-                    final ITabItemFactory tabView =
-                            viewContext.getClientPluginFactoryProvider().getClientPluginFactory(
-                                    entityKind, experiment.getExperimentType()).createClientPlugin(
-                                    entityKind).createEntityViewer(experiment);
-                    DispatcherHelper.dispatchNaviEvent(tabView);
-                }
-            });
-        return experimentGrid;
+        return ExperimentModel.createColumnsSchema(viewContext, criteria.getExperimentType());
     }
 
-    private final static PagingToolBar createPagingToolBar()
+    @Override
+    protected void prepareExportEntities(TableExportCriteria<Experiment> exportCriteria,
+            AbstractAsyncCallback<String> callback)
     {
-        return new PagingToolBarWithoutRefresh(PAGE_SIZE);
+        // TODO 2009--, Tomasz Pylak: !!!!!!!!!!!!!!!
+
+        // viewContext.getService().prepareExportExperiments(exportCriteria, callback);
     }
 
-    private final ColumnModel createColumnModel()
-    {
-        final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-        final ColumnConfig codeColumn = ColumnConfigFactory.createCodeColumnConfig(viewContext);
-        codeColumn.setRenderer(new InvalidableWithCodeRenderer());
-        configs.add(codeColumn);
-
-        configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext
-                .getMessage(Dict.EXPERIMENT_TYPE),
-                ModelDataPropertyNames.EXPERIMENT_TYPE_CODE_FOR_EXPERIMENT));
-        configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext
-                .getMessage(Dict.GROUP), ModelDataPropertyNames.GROUP_FOR_EXPERIMENT));
-        configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext
-                .getMessage(Dict.PROJECT), ModelDataPropertyNames.PROJECT));
-
-        configs.add(ColumnConfigFactory.createRegistratorColumnConfig(viewContext));
-        configs.add(ColumnConfigFactory.createRegistrationDateColumnConfig(viewContext));
-        final ColumnConfig isInvalidColumn =
-                ColumnConfigFactory.createDefaultColumnConfig(viewContext
-                        .getMessage(Dict.IS_INVALID), ModelDataPropertyNames.IS_INVALID);
-        isInvalidColumn.setRenderer(new YesNoRenderer());
-        configs.add(isInvalidColumn);
-        return new ColumnModel(configs);
-    }
-
-    private final String createHeader(final ExperimentType experimentType,
-            final Project selectedProject)
+    private static final String createHeader(ListExperimentsCriteria criteria)
     {
         final StringBuilder builder = new StringBuilder("Experiments");
         builder.append(" of type ");
-        builder.append(experimentType.getCode());
+        builder.append(criteria.getExperimentType().getCode());
         builder.append(" belonging to the project ");
-        builder.append(selectedProject.getCode());
+        builder.append(criteria.getProjectCode());
         builder.append(" from group ");
-        builder.append(selectedProject.getGroup().getCode());
+        builder.append(criteria.getGroupCode());
         return builder.toString();
     }
 
-    final void refresh(final ExperimentType selectedType, final Project selectedProject)
+    public final void refresh(final IDataRefreshCallback newRefreshCallback,
+            final ExperimentType newSelectedType, final Project selectedProject)
     {
-        disposeCache();
-        criteria = new ListExperimentsCriteria();
+        boolean refreshColumnsDefinition = hasColumnsDefinitionChanged(newSelectedType);
+        this.criteria = createListCriteria(newSelectedType, selectedProject);
+        String newHeader = createHeader(criteria);
+
+        super.refresh(newRefreshCallback, newHeader, refreshColumnsDefinition);
+    }
+
+    private static ListExperimentsCriteria createListCriteria(final ExperimentType selectedType,
+            final Project selectedProject)
+    {
+        ListExperimentsCriteria criteria = new ListExperimentsCriteria();
         criteria.setExperimentType(selectedType);
         criteria.setProjectCode(selectedProject.getCode());
         criteria.setGroupCode(selectedProject.getGroup().getCode());
-        contentPanel.setHeading(createHeader(selectedType, selectedProject));
-        grid.reconfigure(grid.getStore(), createColumnModel());
-        GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
-        experimentLoader.load(0, PAGE_SIZE);
+        return criteria;
     }
 
-    //
-    // Helper classes
-    //
-
-    public final class ListExperimentsCallback extends AbstractAsyncCallback<ResultSet<Experiment>>
+    private boolean hasColumnsDefinitionChanged(ExperimentType entityType)
     {
-        private final AsyncCallback<PagingLoadResult<ExperimentModel>> delegate;
-
-        private final int offset;
-
-        ListExperimentsCallback(final IViewContext<ICommonClientServiceAsync> viewContext,
-                final AsyncCallback<PagingLoadResult<ExperimentModel>> delegate, final int offset)
-        {
-            super(viewContext);
-            this.delegate = delegate;
-            this.offset = offset;
-        }
-
-        //
-        // AbstractAsyncCallback
-        //
-
-        @Override
-        protected final void finishOnFailure(final Throwable caught)
-        {
-            delegate.onFailure(caught);
-        }
-
-        @Override
-        protected final void process(final ResultSet<Experiment> result)
-        {
-            saveCacheKey(result.getResultSetKey());
-            final List<ExperimentModel> experimentModels =
-                    ExperimentModel.asExperimentModels(result.getList());
-            final PagingLoadResult<ExperimentModel> loadResult =
-                    new BasePagingLoadResult<ExperimentModel>(experimentModels, offset, result
-                            .getTotalLength());
-            delegate.onSuccess(loadResult);
-        }
+        return (criteria == null || entityType.equals(criteria.getExperimentType()) == false);
     }
-
-    private void saveCacheKey(final String newResultSetKey)
-    {
-        if (resultSetKey == null)
-        {
-            resultSetKey = newResultSetKey;
-        } else
-        {
-            assert resultSetKey.equals(newResultSetKey) : "Result set keys not the same.";
-        }
-    }
-
-    public void disposeCache()
-    {
-        if (resultSetKey != null)
-        {
-            viewContext.getService().removeResultSet(resultSetKey,
-                    new VoidAsyncCallback<Void>(viewContext));
-            resultSetKey = null;
-        }
-    }
-
 }

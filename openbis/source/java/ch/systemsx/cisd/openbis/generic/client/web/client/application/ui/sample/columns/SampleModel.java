@@ -28,7 +28,8 @@ import ch.systemsx.cisd.openbis.generic.client.shared.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.SampleRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.InvalidableWithCodeRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
@@ -68,12 +69,34 @@ public final class SampleModel extends BaseModelData
                 value = PersonRenderer.createPersonAnchor(sample.getRegistrator(), value);
             } else if (columnKind == CommonSampleColDefKind.CODE)
             {
-                value = SampleRenderer.render(sample, value);
+                value = InvalidableWithCodeRenderer.render(sample, value);
             }
         }
         return value;
     }
 
+    public static ColumnDefsAndConfigs<Sample> createColumnsSchema(
+            IMessageProvider messageProvider, SampleType selectedTypeOrNull)
+    {
+        assert messageProvider != null : "message provider needed to create table headers";
+
+        ColumnDefsAndConfigs<Sample> columns = new ColumnDefsAndConfigs<Sample>();
+        columns.addColumns(createCommonColumnsSchema(messageProvider), true);
+        if (selectedTypeOrNull != null)
+        {
+            List<IColumnDefinitionUI<Sample>> parentColumnsSchema =
+                    createParentColumnsSchema(messageProvider, selectedTypeOrNull);
+            columns.addColumns(parentColumnsSchema, false);
+
+            List<IColumnDefinitionUI<Sample>> propertyColumnsSchema =
+                    createPropertyColumnsSchema(selectedTypeOrNull);
+            columns.addColumns(propertyColumnsSchema, false);
+        }
+        return columns;
+    }
+
+    // here we create the columns definition having just one table row. We need them only to render
+    // column values (headers have been already created), so no message provider is needed.
     private static List<IColumnDefinitionUI<Sample>> createColumnsSchema(Sample sample)
     {
         List<IColumnDefinitionUI<Sample>> list = createCommonColumnsSchema(null);
@@ -88,7 +111,7 @@ public final class SampleModel extends BaseModelData
         return list;
     }
 
-    public static List<IColumnDefinitionUI<Sample>> createPropertyColumnsSchema(
+    private static List<IColumnDefinitionUI<Sample>> createPropertyColumnsSchema(
             SampleType selectedType)
     {
         List<SampleTypePropertyType> sampleTypePropertyTypes =
@@ -103,7 +126,7 @@ public final class SampleModel extends BaseModelData
     }
 
     // result is added to allColumns map
-    public static List<IColumnDefinitionUI<Sample>> createCommonColumnsSchema(
+    private static List<IColumnDefinitionUI<Sample>> createCommonColumnsSchema(
             IMessageProvider msgProviderOrNull)
     {
         List<IColumnDefinitionUI<Sample>> list = createColDefList();
@@ -125,7 +148,7 @@ public final class SampleModel extends BaseModelData
         return new CommonSampleColDef(columnKind, headerText);
     }
 
-    public static List<IColumnDefinitionUI<Sample>> createParentColumnsSchema(
+    private static List<IColumnDefinitionUI<Sample>> createParentColumnsSchema(
             IMessageProvider msgProviderOrNull, SampleType sampleType)
     {
         List<IColumnDefinitionUI<Sample>> list = createColDefList();
@@ -154,7 +177,7 @@ public final class SampleModel extends BaseModelData
         return msgProviderOrNull == null ? null : msgProviderOrNull.getMessage(messageKey, depth);
     }
 
-    public final Sample getSample()
+    public final Sample getBaseObject()
     {
         return (Sample) get(ModelDataPropertyNames.OBJECT);
     }

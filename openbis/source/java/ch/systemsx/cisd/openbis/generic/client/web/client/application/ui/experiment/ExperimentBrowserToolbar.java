@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExperimentTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ProjectModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 
 /**
@@ -181,11 +182,23 @@ class ExperimentBrowserToolbar extends ToolBar
                                     final Project selectedProject =
                                             selectProjectCombo.tryGetSelectedProject();
                                     assert selectedProject != null : "No project selected.";
-                                    experimentBrowserGrid.refresh(selectedType, selectedProject);
+                                    experimentBrowserGrid.refresh(createRefreshCallback(),
+                                            selectedType, selectedProject);
                                 }
                             });
         refreshButton.setId(REFRESH_BUTTON_ID);
         return refreshButton;
+    }
+
+    private IDataRefreshCallback createRefreshCallback()
+    {
+        return new IDataRefreshCallback()
+            {
+                public void postRefresh()
+                {
+                    // TODO 2009-01-16, Tomasz Pylak: enable export button
+                }
+            };
     }
 
     private final Button createExportButton()

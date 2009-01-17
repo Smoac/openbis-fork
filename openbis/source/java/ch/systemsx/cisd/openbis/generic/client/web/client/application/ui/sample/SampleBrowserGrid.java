@@ -18,15 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.data.BasePagingLoader;
-import com.extjs.gxt.ui.client.data.PagingLoadConfig;
-import com.extjs.gxt.ui.client.data.PagingLoadResult;
-import com.extjs.gxt.ui.client.data.PagingLoader;
-import com.extjs.gxt.ui.client.data.RpcProxy;
-import com.extjs.gxt.ui.client.event.GridEvent;
-import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -35,13 +27,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ColumnDefsAndConfigs;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 
@@ -49,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
  * A {@link LayoutContainer} which contains the grid where the samples are displayed.
  * 
  * @author Christian Ribeaud
+ * @author Tomasz Pylak
  */
 public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleModel>
 {
@@ -58,46 +51,28 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
 
     public static final String GRID_ID = GenericConstants.ID_PREFIX + PREFIX + "grid";
 
-    private SampleType selectedSampleType;
-
-    private ColumnDefsAndConfigs<Sample> columns;
-
     private ListSampleCriteria criteria;
 
     SampleBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, GRID_ID);
-        redefineColumns(null);
         setId(BROWSER_ID);
     }
 
     @Override
-    protected final PagingLoader<PagingLoadConfig> createPagingLoader()
+    protected void listEntities(DefaultResultSetConfig<String> resultSetConfig,
+            AbstractAsyncCallback<ResultSet<Sample>> callback)
     {
-        final RpcProxy<PagingLoadConfig, PagingLoadResult<SampleModel>> proxy =
-                createDataLoaderProxy();
-        final BasePagingLoader<PagingLoadConfig, PagingLoadResult<SampleModel>> pagingLoader =
-                new BasePagingLoader<PagingLoadConfig, PagingLoadResult<SampleModel>>(proxy);
-        pagingLoader.setRemoteSort(true);
-        return pagingLoader;
+        copyPagingConfig(resultSetConfig);
+        viewContext.getService().listSamples(criteria, callback);
     }
 
-    private final RpcProxy<PagingLoadConfig, PagingLoadResult<SampleModel>> createDataLoaderProxy()
+    private void copyPagingConfig(DefaultResultSetConfig<String> resultSetConfig)
     {
-        return new RpcProxy<PagingLoadConfig, PagingLoadResult<SampleModel>>()
-            {
-                @Override
-                public final void load(final PagingLoadConfig loadConfig,
-                        final AsyncCallback<PagingLoadResult<SampleModel>> callback)
-                {
-                    setupCriteria(criteria, loadConfig);
-                    viewContext.getService()
-                            .listSamples(
-                                    criteria,
-                                    new ListEntitiesCallback(viewContext, callback, loadConfig
-                                            .getOffset()));
-                }
-            };
+        criteria.setLimit(resultSetConfig.getLimit());
+        criteria.setOffset(resultSetConfig.getOffset());
+        criteria.setSortInfo(resultSetConfig.getSortInfo());
+        criteria.setResultSetKey(resultSetConfig.getResultSetKey());
     }
 
     @Override
@@ -107,23 +82,15 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
     }
 
     @Override
-    protected Listener<GridEvent> createSampleViewerHandler()
+    protected void showEntityViewer(SampleModel sampleModel)
     {
-        return new Listener<GridEvent>()
-            {
-                public final void handleEvent(final GridEvent be)
-                {
-                    final SampleModel sampleModel =
-                            (SampleModel) be.grid.getStore().getAt(be.rowIndex);
-                    final Sample sample = sampleModel.getSample();
-                    final EntityKind entityKind = EntityKind.SAMPLE;
-                    final ITabItemFactory tabView =
-                            viewContext.getClientPluginFactoryProvider().getClientPluginFactory(
-                                    entityKind, sample.getSampleType()).createClientPlugin(
-                                    entityKind).createEntityViewer(sample);
-                    DispatcherHelper.dispatchNaviEvent(tabView);
-                }
-            };
+        final Sample sample = sampleModel.getBaseObject();
+        final EntityKind entityKind = EntityKind.SAMPLE;
+        final ITabItemFactory tabView =
+                viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
+                        sample.getSampleType()).createClientPlugin(entityKind).createEntityViewer(
+                        sample);
+        DispatcherHelper.dispatchNaviEvent(tabView);
     }
 
     private static final String createHeader(ListSampleCriteria criteria)
@@ -159,54 +126,29 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
     public final void refresh(ListSampleCriteria newCriteria,
             final IDataRefreshCallback newRefreshCallback)
     {
-        redefineColumns(newCriteria.getSampleType());
-
+        boolean refreshColumnsDefinition = hasColumnsDefinitionChanged(newCriteria);
         this.criteria = newCriteria;
         String newHeader = createHeader(newCriteria);
 
-        super.refresh(newRefreshCallback, newHeader, columns.getColumnConfigs());
+        super.refresh(newRefreshCallback, newHeader, refreshColumnsDefinition);
     }
 
-    /** Export always deals with data from the previous refresh operation */
-    public final void export()
+    @Override
+    protected void prepareExportEntities(TableExportCriteria<Sample> exportCriteria,
+            AbstractAsyncCallback<String> callback)
     {
-        export(new ExportEntitiesCallback(viewContext));
-    }
-
-    // for tests
-    final void export(final AbstractAsyncCallback<String> callback)
-    {
-        assert columns != null : "refresh before exporting!";
-
-        final TableExportCriteria<Sample> exportCriteria =
-                createExportCriteria(columns.getColumnDefs(), criteria.getSortInfo());
         viewContext.getService().prepareExportSamples(exportCriteria, callback);
     }
 
-    private static ColumnDefsAndConfigs<Sample> defineColumns(IMessageProvider messageProvider,
-            SampleType selectedTypeOrNull)
+    @Override
+    protected ColumnDefsAndConfigs<Sample> createColumnsDefinition()
     {
-        ColumnDefsAndConfigs<Sample> columns = new ColumnDefsAndConfigs<Sample>();
-        columns.addColumns(SampleModel.createCommonColumnsSchema(messageProvider), true);
-        if (selectedTypeOrNull != null)
-        {
-            List<IColumnDefinitionUI<Sample>> parentColumnsSchema =
-                    SampleModel.createParentColumnsSchema(messageProvider, selectedTypeOrNull);
-            columns.addColumns(parentColumnsSchema, false);
-
-            List<IColumnDefinitionUI<Sample>> propertyColumnsSchema =
-                    SampleModel.createPropertyColumnsSchema(selectedTypeOrNull);
-            columns.addColumns(propertyColumnsSchema, false);
-        }
-        return columns;
+        return SampleModel.createColumnsSchema(viewContext, criteria.getSampleType());
     }
 
-    private void redefineColumns(SampleType selectedType)
+    private boolean hasColumnsDefinitionChanged(ListSampleCriteria newCriteria)
     {
-        if (selectedType == null || selectedType.equals(selectedSampleType) == false)
-        {
-            this.columns = defineColumns(viewContext, selectedType);
-            this.selectedSampleType = selectedType;
-        }
+        SampleType sampleType = newCriteria.getSampleType();
+        return (criteria == null || sampleType.equals(criteria.getSampleType()) == false);
     }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.columns;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -22,30 +22,30 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractColumnDefinition;
 
-public enum CommonSampleColDefKind implements IsSerializable
+/**
+ * Definition of experiment table columns.
+ * 
+ * @author Tomasz Pylak
+ */
+public enum CommonExperimentColDefKind implements IsSerializable
 {
-    DATABASE_INSTANCE(ModelDataPropertyNames.DATABASE_INSTANCE, Dict.DATABASE_INSTANCE, true),
-
-    GROUP(ModelDataPropertyNames.GROUP, Dict.GROUP),
-
     CODE(ModelDataPropertyNames.CODE, Dict.CODE),
 
-    SAMPLE_IDENTIFIER(ModelDataPropertyNames.SAMPLE_IDENTIFIER, Dict.SAMPLE_IDENTIFIER, 150, true),
+    EXPERIMENT_TYPE(ModelDataPropertyNames.EXPERIMENT_TYPE_CODE_FOR_EXPERIMENT,
+            Dict.EXPERIMENT_TYPE),
 
-    IS_INSTANCE_SAMPLE(ModelDataPropertyNames.IS_INSTANCE_SAMPLE, Dict.IS_INSTANCE_SAMPLE, true),
+    EXPERIMENT_IDENTIFIER(ModelDataPropertyNames.EXPERIMENT_IDENTIFIER, Dict.EXPERIMENT_IDENTIFIER,
+            150, true),
 
-    REGISTRATOR(ModelDataPropertyNames.REGISTRATOR, Dict.REGISTRATOR, true),
+    GROUP(ModelDataPropertyNames.GROUP_FOR_EXPERIMENT, Dict.GROUP),
 
-    REGISTRATION_DATE(ModelDataPropertyNames.REGISTRATION_DATE, Dict.REGISTRATION_DATE, 200, true),
+    PROJECT(ModelDataPropertyNames.PROJECT, Dict.PROJECT),
 
-    IS_INVALID(ModelDataPropertyNames.IS_INVALID, Dict.IS_INVALID, true),
+    REGISTRATOR(ModelDataPropertyNames.REGISTRATOR, Dict.REGISTRATOR),
 
-    PROJECT_FOR_SAMPLE(ModelDataPropertyNames.PROJECT_FOR_SAMPLE, Dict.PROJECT),
+    REGISTRATION_DATE(ModelDataPropertyNames.REGISTRATION_DATE, Dict.REGISTRATION_DATE, 200, false),
 
-    EXPERIMENT_FOR_SAMPLE(ModelDataPropertyNames.EXPERIMENT_FOR_SAMPLE, Dict.EXPERIMENT),
-
-    EXPERIMENT_IDENTIFIER_FOR_SAMPLE(ModelDataPropertyNames.EXPERIMENT_IDENTIFIER_FOR_SAMPLE,
-            Dict.EXPERIMENT_IDENTIFIER, 200, true);
+    IS_INVALID(ModelDataPropertyNames.IS_INVALID, Dict.IS_INVALID, true);
 
     // TODO 2008-12-08, Tomasz Pylak: refactor the code to remove this field. It has to have the
     // same name as the Sample field because grid sorting was implemented in that ugly way.
@@ -57,7 +57,7 @@ public enum CommonSampleColDefKind implements IsSerializable
 
     private boolean isHidden;
 
-    private CommonSampleColDefKind(final String sortField, final String headerMsgKey,
+    private CommonExperimentColDefKind(final String sortField, final String headerMsgKey,
             final int width, final boolean isHidden)
     {
         this.sortField = sortField;
@@ -66,13 +66,13 @@ public enum CommonSampleColDefKind implements IsSerializable
         this.isHidden = isHidden;
     }
 
-    private CommonSampleColDefKind(final String sortField, final String headerMsgKey,
+    private CommonExperimentColDefKind(final String sortField, final String headerMsgKey,
             final boolean isHidden)
     {
         this(sortField, headerMsgKey, AbstractColumnDefinition.DEFAULT_COLUMN_WIDTH, isHidden);
     }
 
-    private CommonSampleColDefKind(final String sortField, final String headerMsgKey)
+    private CommonExperimentColDefKind(final String sortField, final String headerMsgKey)
     {
         this(sortField, headerMsgKey, false);
     }

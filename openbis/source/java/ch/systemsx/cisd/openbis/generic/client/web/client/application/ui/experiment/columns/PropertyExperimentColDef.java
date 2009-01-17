@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.columns;
 
 import java.util.List;
 
@@ -23,22 +23,26 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import ch.systemsx.cisd.openbis.generic.client.shared.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractPropertyColDef;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 
-class PropertySampleColDef extends AbstractPropertyColDef<Sample> implements IsSerializable
+/**
+ * @author Tomasz Pylak
+ */
+public class PropertyExperimentColDef extends AbstractPropertyColDef<Experiment> implements
+        IsSerializable
 {
     // GWT only
-    public PropertySampleColDef()
+    public PropertyExperimentColDef()
     {
     }
 
-    public PropertySampleColDef(PropertyType propertyType, boolean isDisplayedByDefault)
+    public PropertyExperimentColDef(PropertyType propertyType)
     {
-        super(propertyType, isDisplayedByDefault);
+        super(propertyType, true);
     }
 
     @Override
-    protected List<? extends EntityProperty<?, ?>> getProperties(Sample entity)
+    protected List<? extends EntityProperty<?, ?>> getProperties(Experiment entity)
     {
         return entity.getProperties();
     }

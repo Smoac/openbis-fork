@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns;
 
 import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.renderer.SimpleYesNoRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.RendererTestUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 
 /**
@@ -85,23 +87,23 @@ public class SampleRow extends Row
 
     public SampleRow invalid()
     {
-        withCell(CommonSampleColDefKind.IS_INVALID, "yes");
+        withInvalidation(true);
         // overwrite previous code
-        withCell(CommonSampleColDefKind.CODE, invalidCode(code));
+        withCell(CommonSampleColDefKind.CODE, RendererTestUtil.invalidCode(code));
         return this;
     }
 
     public SampleRow valid()
     {
-        withCell(CommonSampleColDefKind.IS_INVALID, "no");
+        withInvalidation(false);
         // just to be sure - overwrite previous code
         withCell(CommonSampleColDefKind.CODE, code);
         return this;
     }
 
-    public static String invalidCode(final String code)
+    private void withInvalidation(boolean isInvalid)
     {
-        return "<div class=\"invalid\">" + code + "</div>";
+        withCell(CommonSampleColDefKind.IS_INVALID, SimpleYesNoRenderer.render(isInvalid));
     }
 
     public SampleRow derivedFromAncestor(final String ancestorCode, final int level)

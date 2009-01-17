@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 
 abstract class AbstractParentSampleColDef extends AbstractColumnDefinition<Sample> implements

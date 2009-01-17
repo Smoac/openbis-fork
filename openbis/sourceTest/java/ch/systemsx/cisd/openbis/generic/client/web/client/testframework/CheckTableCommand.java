@@ -131,7 +131,9 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
     {
         for (final Map.Entry<String, Object> entry : expectedRow.getColumnIDValuesMap().entrySet())
         {
-            if (TestUtil.isEqual(row.get(entry.getKey()), wrapNull(entry.getValue())) == false)
+            Object rowColumnValue = row.get(entry.getKey());
+            Object expectedColumnValue = wrapNull(entry.getValue());
+            if (TestUtil.isEqual(rowColumnValue, expectedColumnValue) == false)
             {
                 return false;
             }

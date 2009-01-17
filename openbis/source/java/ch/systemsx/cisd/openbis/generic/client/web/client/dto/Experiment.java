@@ -28,7 +28,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
  * 
  * @author Tomasz Pylak
  */
-public class Experiment extends CodeWithRegistration<Experiment> implements IIdentifierHolder
+public class Experiment extends CodeWithRegistration<Experiment> implements IIdentifierHolder,
+        IInvalidationProvider
 {
     private Project project;
 

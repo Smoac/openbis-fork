@@ -17,31 +17,43 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.renderer.SimpleYesNoRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.RendererTestUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 
 /**
  * Allows to define experiment table row expectations.
+ * 
  * @author Izabela Adamczyk
  */
 public class ExperimentRow extends Row
 {
+    private String code;
 
     public ExperimentRow(final String code)
     {
         super();
+        this.code = code;
         withCell(ModelDataPropertyNames.CODE, code);
     }
 
     public ExperimentRow invalid()
     {
-        withCell(ModelDataPropertyNames.IS_INVALID, true);
+        withInvalidation(true);
+        // overwrite previous code
+        withCell(ModelDataPropertyNames.CODE, RendererTestUtil.invalidCode(code));
         return this;
     }
 
     public ExperimentRow valid()
     {
-        withCell(ModelDataPropertyNames.IS_INVALID, false);
+        withInvalidation(false);
         return this;
+    }
+
+    private void withInvalidation(boolean isInvalid)
+    {
+        withCell(ModelDataPropertyNames.IS_INVALID, SimpleYesNoRenderer.render(isInvalid));
     }
 
 }

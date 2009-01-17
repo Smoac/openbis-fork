@@ -14,33 +14,27 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer;
 
-import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.grid.ColumnData;
-import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IInvalidationProvider;
 
 /**
- * Renders code and marks if invalid
+ * Renders code and marks if the entity (e.g. sample or experiment) is invalid
  * 
  * @author Tomasz Pylak
  */
-public class InvalidableWithCodeRenderer implements GridCellRenderer<ModelData>
+public class InvalidableWithCodeRenderer
 {
 
-    public String render(final ModelData model, final String property, final ColumnData config,
-            final int rowIndex, final int colIndex, final ListStore<ModelData> store)
+    public static String render(IInvalidationProvider entity, String code)
     {
-        final String code = (String) model.get(ModelDataPropertyNames.CODE);
-        final boolean isInvalid = (Boolean) model.get(ModelDataPropertyNames.IS_INVALID);
+        boolean isInvalid = entity.getInvalidation() != null;
         if (isInvalid)
         {
-            final Element div = DOM.createDiv();
+            Element div = DOM.createDiv();
             div.setAttribute("class", "invalid");
             div.setInnerText(code);
             return DOM.toString(div);
@@ -49,5 +43,4 @@ public class InvalidableWithCodeRenderer implements GridCellRenderer<ModelData>
             return code;
         }
     }
-
 }

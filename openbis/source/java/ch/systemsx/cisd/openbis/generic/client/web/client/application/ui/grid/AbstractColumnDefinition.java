@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
-
-abstract class AbstractColumnDefinition<T> implements IColumnDefinitionUI<T>
+/**
+ * @author Tomasz Pylak
+ */
+public abstract class AbstractColumnDefinition<T> implements IColumnDefinitionUI<T>
 {
     protected abstract String tryGetValue(T entity);
 
-    static final int DEFAULT_COLUMN_WIDTH = 100;
+    public static final int DEFAULT_COLUMN_WIDTH = 100;
 
     private String headerText;
 
