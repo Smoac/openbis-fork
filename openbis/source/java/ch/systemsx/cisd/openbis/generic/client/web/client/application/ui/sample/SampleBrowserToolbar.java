@@ -57,7 +57,7 @@ final class SampleBrowserToolbar extends ToolBar
     public static final String INCLUDE_GROUP_CHECKBOX_ID =
             GenericConstants.ID_PREFIX + PREFIX + "include-group-checkbox";
 
-    private final SampleBrowserGrid sampleBrowserGrid;
+    private final SampleBrowserGrid entitiesBrowser;
 
     private final SampleTypeSelectionWidget selectSampleTypeCombo;
 
@@ -74,7 +74,7 @@ final class SampleBrowserToolbar extends ToolBar
     public SampleBrowserToolbar(final IViewContext<?> viewContext,
             final SampleBrowserGrid sampleBrowserGrid)
     {
-        this.sampleBrowserGrid = sampleBrowserGrid;
+        this.entitiesBrowser = sampleBrowserGrid;
         this.viewContext = viewContext;
         selectSampleTypeCombo = new SampleTypeSelectionWidget(viewContext, ID, true);
         selectGroupCombo = new GroupSelectionWidget(viewContext, ID);
@@ -176,7 +176,7 @@ final class SampleBrowserToolbar extends ToolBar
                                             createListCriteria(selectedType, selectedGroup,
                                                     includeGroup, includeInstance);
 
-                                    sampleBrowserGrid
+                                    entitiesBrowser
                                             .refresh(criteria, createPostRefreshCallback());
                                 }
 
@@ -216,7 +216,7 @@ final class SampleBrowserToolbar extends ToolBar
                                 @Override
                                 public void componentSelected(ButtonEvent ce)
                                 {
-                                    sampleBrowserGrid.export();
+                                    entitiesBrowser.export();
                                 }
                             });
         return button;

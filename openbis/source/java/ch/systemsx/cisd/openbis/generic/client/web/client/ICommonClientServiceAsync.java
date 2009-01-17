@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.shared.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
@@ -95,9 +96,15 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<String> asyncCallback);
 
     /**
-     * @see ICommonClientService#getExportSamplesTable(String)
+     * @see ICommonClientService#prepareExportExperiments(TableExportCriteria)
      */
-    public void getExportSamplesTable(String exportDataKey, AsyncCallback<String> asyncCallback);
+    public void prepareExportExperiments(TableExportCriteria<Experiment> exportCriteria,
+            AsyncCallback<String> callback);
+
+    /**
+     * @see ICommonClientService#getExportTable(String)
+     */
+    public void getExportTable(String exportDataKey, AsyncCallback<String> asyncCallback);
 
     /**
      * @see ICommonClientService#listExperiments(ListExperimentsCriteria)

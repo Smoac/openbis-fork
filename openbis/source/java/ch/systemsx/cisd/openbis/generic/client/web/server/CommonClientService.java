@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.shared.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
@@ -124,26 +125,26 @@ public final class CommonClientService extends AbstractClientService implements
         return exportCriteria;
     }
 
-    private final List<Sample> fetchCachedSamples(final TableExportCriteria<Sample> exportCriteria)
+    private final <T> List<T> fetchCachedEntities(final TableExportCriteria<T> exportCriteria)
     {
         final IResultSetManager<String> resultSetManager = getResultSetManager();
-        final IResultSet<String, Sample> result =
+        final IResultSet<String, T> result =
                 resultSetManager.getResultSet(createExportListCriteria(exportCriteria),
-                        new IOriginalDataProvider<Sample>()
+                        new IOriginalDataProvider<T>()
                             {
-                                public List<Sample> getOriginalData() throws UserFailureException
+                                public List<T> getOriginalData() throws UserFailureException
                                 {
                                     throw new IllegalStateException("Data not found in the cache");
                                 }
                             });
-        final ResultSet<Sample> samples = ResultSetTranslator.translate(result);
-        return samples.getList();
+        final ResultSet<T> entities = ResultSetTranslator.translate(result);
+        return entities.getList();
     }
 
-    private static ListSampleCriteria createExportListCriteria(
-            final TableExportCriteria<Sample> exportCriteria)
+    private static <T> IResultSetConfig<String> createExportListCriteria(
+            final TableExportCriteria<T> exportCriteria)
     {
-        final ListSampleCriteria criteria = new ListSampleCriteria();
+        final DefaultResultSetConfig<String> criteria = new DefaultResultSetConfig<String>();
         criteria.setLimit(IResultSetConfig.NO_LIMIT);
         criteria.setOffset(IResultSetConfig.FIRST_ELEM_OFFSET);
         criteria.setSortInfo(exportCriteria.getSortInfo());
@@ -332,12 +333,23 @@ public final class CommonClientService extends AbstractClientService implements
     public final String prepareExportSamples(final TableExportCriteria<Sample> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
+        return prepareExportEntities(criteria);
+    }
+
+    public final String prepareExportExperiments(final TableExportCriteria<Experiment> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return prepareExportEntities(criteria);
+    }
+
+    private <T> String prepareExportEntities(TableExportCriteria<T> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
         try
         {
             // Not directly needed but this refreshes the session.
             getSessionToken();
-            final CacheManager<String, TableExportCriteria<Sample>> exportManager =
-                    getExportManager();
+            final CacheManager<String, TableExportCriteria<T>> exportManager = getExportManager();
             return exportManager.saveData(criteria);
         } catch (final UserFailureException e)
         {
@@ -349,16 +361,20 @@ public final class CommonClientService extends AbstractClientService implements
      * Assumes that preparation of the export ({@link #prepareExportSamples(TableExportCriteria)}
      * has been invoked before and returned with an exportDataKey passed here as a parameter.
      */
-    public final String getExportSamplesTable(final String exportDataKey)
+    public final String getExportTable(final String exportDataKey)
+    {
+        return getGenericExportTable(exportDataKey);
+    }
+
+    private final <T> String getGenericExportTable(final String exportDataKey)
     {
         try
         {
             // Not directly needed but this refreshes the session.
             getSessionToken();
-            final TableExportCriteria<Sample> exportCriteria =
-                    getAndRemoveExportCriteria(exportDataKey);
-            final List<Sample> samples = fetchCachedSamples(exportCriteria);
-            return TSVRenderer.createTable(samples, exportCriteria.getColumnDefs());
+            final TableExportCriteria<T> exportCriteria = getAndRemoveExportCriteria(exportDataKey);
+            final List<T> entities = fetchCachedEntities(exportCriteria);
+            return TSVRenderer.createTable(entities, exportCriteria.getColumnDefs());
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

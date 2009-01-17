@@ -103,9 +103,7 @@ public final class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment,
     protected void prepareExportEntities(TableExportCriteria<Experiment> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
-        // TODO 2009--, Tomasz Pylak: !!!!!!!!!!!!!!!
-
-        // viewContext.getService().prepareExportExperiments(exportCriteria, callback);
+        viewContext.getService().prepareExportExperiments(exportCriteria, callback);
     }
 
     private static final String createHeader(ListExperimentsCriteria criteria)

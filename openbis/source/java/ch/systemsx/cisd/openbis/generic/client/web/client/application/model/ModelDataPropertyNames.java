@@ -148,7 +148,7 @@ public final class ModelDataPropertyNames
 
     public static final String PROJECT = "project";
 
-    public static final String EXPERIMENT_IDENTIFIER = "experimentIdentifier";
+    public static final String EXPERIMENT_IDENTIFIER = "identifier";
 
     public static final String VERSIONS = "versions";
 

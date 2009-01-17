@@ -46,9 +46,9 @@ public class FileExportServiceServlet extends AbstractFileDownloadServlet
 
         if (StringUtils.isNotBlank(exportDataKey))
         {
-            String fileContent = service.getExportSamplesTable(exportDataKey);
+            String fileContent = service.getExportTable(exportDataKey);
             byte[] value = fileContent.getBytes();
-            String fileName = "sample.txt";
+            String fileName = "exportedData.txt";
             return new FileContent(value, fileName);
         } else
         {

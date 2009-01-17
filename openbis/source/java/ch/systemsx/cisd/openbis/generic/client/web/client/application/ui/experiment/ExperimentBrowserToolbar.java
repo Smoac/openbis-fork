@@ -21,7 +21,6 @@ import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
@@ -196,7 +195,7 @@ class ExperimentBrowserToolbar extends ToolBar
             {
                 public void postRefresh()
                 {
-                    // TODO 2009-01-16, Tomasz Pylak: enable export button
+                    exportButton.setEnabled(true);
                 }
             };
     }
@@ -207,16 +206,10 @@ class ExperimentBrowserToolbar extends ToolBar
                 new Button(viewContext.getMessage(Dict.BUTTON_EXPORT_DATA),
                         new SelectionListener<ComponentEvent>()
                             {
-                                //
-                                // SelectionListener
-                                //
-
                                 @Override
                                 public final void componentSelected(final ComponentEvent ce)
                                 {
-                                    MessageBox.alert(viewContext
-                                            .getMessage(Dict.MESSAGEBOX_WARNING),
-                                            "Not yet implemented!", null);
+                                    experimentBrowserGrid.export();
                                 }
                             });
         return button;

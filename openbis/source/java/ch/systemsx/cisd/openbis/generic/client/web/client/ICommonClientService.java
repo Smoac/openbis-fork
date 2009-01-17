@@ -108,16 +108,24 @@ public interface ICommonClientService extends IClientService
 
     /**
      * Returns a key which can be used be the export servlet (and eventually
-     * {@link #getExportSamplesTable(String)}) to reference the export criteria in an easy way.
+     * {@link #getExportTable(String)}) to reference the export criteria in an easy way.
      */
     public String prepareExportSamples(final TableExportCriteria<Sample> criteria)
             throws UserFailureException;
 
     /**
-     * Assumes that preparation of the export ({@link #prepareExportSamples(TableExportCriteria)}
-     * has been invoked before and returned with an exportDataKey passed here as a parameter.
+     * Returns a key which can be used be the export servlet (and eventually
+     * {@link #getExportTable(String)}) to reference the export criteria in an easy way.
      */
-    public String getExportSamplesTable(String exportDataKey) throws UserFailureException;
+    public String prepareExportExperiments(final TableExportCriteria<Experiment> criteria)
+            throws UserFailureException;
+
+    /**
+     * Assumes that preparation of the export ({@link #prepareExportSamples(TableExportCriteria)}
+     * or {@link #prepareExportExperiments(TableExportCriteria)} has been invoked before and
+     * returned with an exportDataKey passed here as a parameter.
+     */
+    public String getExportTable(String exportDataKey) throws UserFailureException;
 
     /**
      * Returns a list of experiments.

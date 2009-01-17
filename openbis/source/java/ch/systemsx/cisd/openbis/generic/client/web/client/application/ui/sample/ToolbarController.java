@@ -50,7 +50,7 @@ final class ToolbarController
         submitButton.setEnabled(enable);
         if (enable)
         {
-            submitButton.setTitle("Load or update sample table");
+            submitButton.setTitle("Load or update the sample table");
         } else
         {
             submitButton.setTitle("HINT: To activate select group or shared checkbox");
@@ -60,7 +60,7 @@ final class ToolbarController
     final void enableExportButton()
     {
         exportButton.setEnabled(true);
-        exportButton.setTitle("Export the sample table visible on the screen to an Excel file");
+        exportButton.setTitle("Export the table visible on the screen to an Excel file");
     }
 
     final void disableExportButton()
