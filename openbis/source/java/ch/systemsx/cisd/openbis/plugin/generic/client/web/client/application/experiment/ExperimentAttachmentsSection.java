@@ -269,7 +269,6 @@ public class ExperimentAttachmentsSection extends SectionPanel
         column.setRenderer(new GridCellRenderer<AttachmentVersionModel>()
             {
 
-                @SuppressWarnings("unchecked")
                 public String render(final AttachmentVersionModel model, final String property,
                         final ColumnData config, final int rowIndex, final int colIndex,
                         final ListStore<AttachmentVersionModel> store)
@@ -294,7 +293,6 @@ public class ExperimentAttachmentsSection extends SectionPanel
         column.setRenderer(new GridCellRenderer<AttachmentModel>()
             {
 
-                @SuppressWarnings("unchecked")
                 public String render(final AttachmentModel model, final String property,
                         final ColumnData config, final int rowIndex, final int colIndex,
                         final ListStore<AttachmentModel> store)

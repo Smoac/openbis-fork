@@ -62,7 +62,6 @@ public final class ExperimentAttachmentDownloadServletTest
     }
 
     @BeforeMethod
-    @SuppressWarnings("unchecked")
     public final void setUp()
     {
         context = new Mockery();

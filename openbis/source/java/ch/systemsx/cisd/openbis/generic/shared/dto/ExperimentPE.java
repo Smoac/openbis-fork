@@ -295,7 +295,6 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
         return attachments;
     }
 
-    @SuppressWarnings("unused")
     @Private
     // for Hibernate and bean conversion only
     public void setInternalAttachments(final Set<AttachmentPE> attachments)

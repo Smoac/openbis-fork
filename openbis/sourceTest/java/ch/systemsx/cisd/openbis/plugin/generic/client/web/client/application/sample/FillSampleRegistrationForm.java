@@ -82,7 +82,6 @@ public final class FillSampleRegistrationForm extends AbstractDefaultTestCommand
     // AbstractDefaultTestCommand
     //
 
-    @SuppressWarnings("unchecked")
     public final void execute()
     {
         GWTTestUtil.setTextFieldValue(GenericSampleRegistrationForm.ID

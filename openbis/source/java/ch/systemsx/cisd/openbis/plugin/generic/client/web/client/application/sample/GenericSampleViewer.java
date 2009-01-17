@@ -435,7 +435,6 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
          * This method triggers the whole <i>GUI</i> construction.
          * </p>
          */
-        @SuppressWarnings("unchecked")
         @Override
         protected final void process(final SampleGeneration result)
         {

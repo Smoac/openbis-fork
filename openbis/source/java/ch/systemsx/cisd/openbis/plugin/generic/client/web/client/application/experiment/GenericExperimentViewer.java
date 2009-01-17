@@ -91,7 +91,6 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
          * This method triggers the whole <i>GUI</i> construction.
          * </p>
          */
-        @SuppressWarnings("unchecked")
         @Override
         protected final void process(final Experiment result)
         {

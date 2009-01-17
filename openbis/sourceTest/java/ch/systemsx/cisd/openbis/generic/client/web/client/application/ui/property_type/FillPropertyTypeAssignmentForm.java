@@ -79,7 +79,6 @@ public final class FillPropertyTypeAssignmentForm extends AbstractDefaultTestCom
 
     }
 
-    @SuppressWarnings("unchecked")
     public final void execute()
     {
 
