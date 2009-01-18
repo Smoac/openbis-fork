@@ -69,6 +69,36 @@ public final class MDByteArray extends MDAbstractArray<Byte>
         this.flattenedArray = flattenedArray;
     }
 
+    public MDByteArray(byte[][] matrix)
+    {
+        this(matrix, getDimensions(matrix));
+    }
+    
+    public MDByteArray(byte[][] matrix, int[] dimensions)
+    {
+        super(dimensions);
+
+        final int sizeX = dimensions[0];
+        final int sizeY = dimensions[1];
+        int size = 1;
+        for (int i = 0; i < dimensions.length; ++i)
+        {
+            size *= dimensions[i];
+        }
+        this.flattenedArray = new byte[size];
+        for (int i = 0; i < sizeX; ++i)
+        {
+            System.arraycopy(matrix[i], 0, flattenedArray, i * sizeY, sizeY);
+        }
+    }
+
+    private static int[] getDimensions(byte[][] matrix)
+    {
+        assert matrix != null;
+        
+        return new int[] { matrix.length, matrix.length == 0 ? 0 : matrix[0].length };
+    }
+
     @Override
     public int size()
     {
@@ -177,6 +207,23 @@ public final class MDByteArray extends MDAbstractArray<Byte>
         flattenedArray[computeIndex(indexX, indexY, indexZ)] = value;
     }
 
+    /**
+     * Creates and returns a matrix from a two-dimensional array.
+     * <p>
+     * <b>Do not call for arrays other than two-dimensional!</b>
+     */
+    public byte[][] toMatrix()
+    {
+        final int sizeX = dimensions[0];
+        final int sizeY = dimensions[1];
+        final byte[][] result = new byte[sizeX][sizeY];
+        for (int i = 0; i < sizeX; ++i)
+        {
+            System.arraycopy(flattenedArray, i * sizeY, result[i], 0, sizeY);
+        }
+        return result;
+    }
+    
     //
     // Object
     //

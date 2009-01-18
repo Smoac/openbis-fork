@@ -69,6 +69,36 @@ public final class MDShortArray extends MDAbstractArray<Short>
         this.flattenedArray = flattenedArray;
     }
 
+    public MDShortArray(short[][] matrix)
+    {
+        this(matrix, getDimensions(matrix));
+    }
+    
+    public MDShortArray(short[][] matrix, int[] dimensions)
+    {
+        super(dimensions);
+
+        final int sizeX = dimensions[0];
+        final int sizeY = dimensions[1];
+        int size = 1;
+        for (int i = 0; i < dimensions.length; ++i)
+        {
+            size *= dimensions[i];
+        }
+        this.flattenedArray = new short[size];
+        for (int i = 0; i < sizeX; ++i)
+        {
+            System.arraycopy(matrix[i], 0, flattenedArray, i * sizeY, sizeY);
+        }
+    }
+
+    private static int[] getDimensions(short[][] matrix)
+    {
+        assert matrix != null;
+        
+        return new int[] { matrix.length, matrix.length == 0 ? 0 : matrix[0].length };
+    }
+
     @Override
     public int size()
     {
@@ -180,6 +210,23 @@ public final class MDShortArray extends MDAbstractArray<Short>
     //
     // Object
     //
+    
+    /**
+     * Creates and returns a matrix from a two-dimensional array.
+     * <p>
+     * <b>Do not call for arrays other than two-dimensional!</b>
+     */
+    public short[][] toMatrix()
+    {
+        final int sizeX = dimensions[0];
+        final int sizeY = dimensions[1];
+        final short[][] result = new short[sizeX][sizeY];
+        for (int i = 0; i < sizeX; ++i)
+        {
+            System.arraycopy(flattenedArray, i * sizeY, result[i], 0, sizeY);
+        }
+        return result;
+    }
     
     @Override
     public int hashCode()
