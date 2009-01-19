@@ -16,14 +16,19 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.List;
+
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.shared.NewSample;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
@@ -98,10 +103,26 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         dataChanged = false;
     }
 
+    public boolean hasDatasets()
+    {
+        assert sample != null;
+
+        final IExternalDataDAO externalDataDAO = getExternalDataDAO();
+        long count = 0;
+        for (final SourceType dataSourceType : SourceType.values())
+        {
+            final List<ExternalDataPE> list =
+                    externalDataDAO.listExternalData(sample, dataSourceType);
+            count += list.size();
+        }
+        return count > 0;
+    }
+
     public void addProcedure(ProcedurePE procedure)
     {
         assert sample != null : "Sample not loaded.";
 
+        checkValid(sample);
         checkSampleInGroup(sample);
         checkSampleUnused(sample, procedure);
         checkSampleWithoutDatasets();
@@ -111,16 +132,25 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         dataChanged = false;
     }
 
+    static private void checkValid(SamplePE sample)
+    {
+        if (sample.getInvalidation() != null)
+        {
+            throw UserFailureException.fromTemplate("Given sample '%s' is invalid.", sample
+                    .getSampleIdentifier());
+        }
+    }
+
     private final void checkSampleWithoutDatasets()
-    {// FIXME
-        // if (hasDatasets())
-        // {
-        // throw UserFailureException
-        // .fromTemplate(
-        // "Cannot use sample '%s' in the experiment, because in the previous "
-        // + "invalidated experiment there were some data acquired for this sample.",
-        // getSample().getSampleIdentifier());
-        // }
+    {
+        if (hasDatasets())
+        {
+            throw UserFailureException
+                    .fromTemplate(
+                            "Cannot use sample '%s' in the experiment, because in the previous "
+                                    + "invalidated experiment there were some data acquired for this sample.",
+                            getSample().getSampleIdentifier());
+        }
     }
 
     private final static void checkSampleUnused(final SamplePE sample,
