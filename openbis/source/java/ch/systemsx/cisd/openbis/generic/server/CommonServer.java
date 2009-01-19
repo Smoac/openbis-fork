@@ -309,9 +309,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         final IExternalDataTable externalDataTable =
                 businessObjectFactory.createExternalDataTable(session);
         externalDataTable.loadBySampleIdentifier(identifier);
-        final List<ExternalDataPE> externalData = externalDataTable.getExternalData();
-        Collections.sort(externalData);
-        return externalData;
+        return getSortedExternalDataFrom(externalDataTable);
     }
 
     public List<ExternalDataPE> listExternalData(String sessionToken,
@@ -321,11 +319,17 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         final IExternalDataTable externalDataTable =
                 businessObjectFactory.createExternalDataTable(session);
         externalDataTable.loadByExperimentIdentifier(identifier);
+        return getSortedExternalDataFrom(externalDataTable);
+    }
+
+    private List<ExternalDataPE> getSortedExternalDataFrom(
+            final IExternalDataTable externalDataTable)
+    {
         final List<ExternalDataPE> externalData = externalDataTable.getExternalData();
         Collections.sort(externalData);
         return externalData;
     }
-
+    
     public final List<PropertyTypePE> listPropertyTypes(final String sessionToken)
     {
         final Session session = getSessionManager().getSession(sessionToken);

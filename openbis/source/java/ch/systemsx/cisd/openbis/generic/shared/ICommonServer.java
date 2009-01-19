@@ -194,7 +194,7 @@ public interface ICommonServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     public List<ExternalDataPE> listExternalData(final String sessionToken,
-//            @AuthorizationGuard(guardClass = Experimenti.class)
+            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class)
             final ExperimentIdentifier identifier);
     
     /**

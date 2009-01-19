@@ -83,7 +83,6 @@ public final class ExternalDataTable extends AbstractSampleIdentifierBusinessObj
         for (ProcedurePE procedure : procedures)
         {
             Set<DataPE> data = procedure.getData();
-            System.out.println(data);
             for (DataPE dataSet : data)
             {
                 externalData.add((ExternalDataPE) dataSet);
