@@ -29,6 +29,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProcedureDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProcedureTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
@@ -72,6 +74,10 @@ public abstract class AbstractBOTest extends AssertJUnit
 
     IEntityPropertiesConverter propertiesConverter;
 
+    IProcedureDAO procedureDAO;
+
+    IProcedureTypeDAO procedureTypeDAO;
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -90,6 +96,8 @@ public abstract class AbstractBOTest extends AssertJUnit
         propertyTypeDAO = context.mock(IPropertyTypeDAO.class);
         entityPropertyTypeDAO = context.mock(IEntityPropertyTypeDAO.class);
         vocabularyDAO = context.mock(IVocabularyDAO.class);
+        procedureDAO = context.mock(IProcedureDAO.class);
+        procedureTypeDAO = context.mock(IProcedureTypeDAO.class);
     }
 
     @AfterMethod

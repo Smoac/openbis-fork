@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 import java.util.List;
 
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 
 /**
@@ -30,12 +30,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
  */
 public interface IProcedureDAO
 {
-    /**
-     * Returns the procedure for the specified ID.
-     * 
-     * @throws EmptyResultDataAccessException if no procedure could be found.
-     */
-    public ProcedurePE getProcedure(long procedureID) throws DataAccessException;
 
     /**
      * Creates a new procedure in the persistent layer based on the specified DTO.
@@ -47,15 +41,9 @@ public interface IProcedureDAO
     public void createProcedure(ProcedurePE procedure) throws DataAccessException;
 
     /**
-     * Returns all procedures which belong to the specified experiment.
+     * Returns all procedures connected with given experiments.
      * 
-     * @param experimentID Technical ID of the experiment entity.
+     * @param experiment
      */
-    public List<ProcedurePE> listProcedures(long experimentID) throws DataAccessException;
-
-    /**
-     * Returns the procedure for experiment with <var>experimentID</var> and procedure type with
-     * code <var>procedureTypeCode</var>.
-     */
-    public ProcedurePE tryGetProcedure(String procedureTypeCode, long experimentID);
+    public List<ProcedurePE> listProcedures(ExperimentPE experiment) throws DataAccessException;
 }

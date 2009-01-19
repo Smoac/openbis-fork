@@ -20,7 +20,6 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.dao.DataIntegrityViolationException;
@@ -246,29 +245,6 @@ public class ExperimentDAOTest extends AbstractDAOTest
         assertEquals(e1.getProject(), e2.getProject());
         assertEquals(e1.getRegistrator(), e2.getRegistrator());
         assertEquals(e1.getRegistrationDate(), e2.getRegistrationDate());
-    }
-
-    private ExperimentPE createExperiment(String db, String group, String project, String expCode,
-            String expType)
-    {
-        final ExperimentPE result = new ExperimentPE();
-        result.setCode(expCode);
-        result.setExperimentType(findExperimentType(expType));
-        result.setProject(findProject(db, group, project));
-        result.setRegistrator(getTestPerson());
-        result.setRegistrationDate(new Date());
-        return result;
-    }
-
-    private ProjectPE findProject(String db, String group, String project)
-    {
-        return daoFactory.getProjectDAO().tryFindProject(db, group, project);
-    }
-
-    private ExperimentTypePE findExperimentType(String expType)
-    {
-        return (ExperimentTypePE) daoFactory.getEntityTypeDAO(EntityKind.EXPERIMENT)
-                .tryToFindEntityTypeByCode(expType);
     }
 
     @SuppressWarnings("unused")

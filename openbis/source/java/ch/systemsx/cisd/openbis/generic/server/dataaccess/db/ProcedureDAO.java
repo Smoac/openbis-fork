@@ -28,6 +28,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProcedureDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 
 /**
@@ -37,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
  */
 public class ProcedureDAO extends AbstractDAO implements IProcedureDAO
 {
+
     private static final Class<ProcedurePE> ENTITY_CLASS = ProcedurePE.class;
 
     private static final String TABLE_NAME = ENTITY_CLASS.getSimpleName();
@@ -54,10 +56,6 @@ public class ProcedureDAO extends AbstractDAO implements IProcedureDAO
         super(sessionFactory, databaseInstance);
     }
 
-    //
-    // IProcedureDAO
-    //
-
     public final void createProcedure(final ProcedurePE procedure) throws DataAccessException
     {
         assert procedure != null : "Given procedure can not be null.";
@@ -72,48 +70,19 @@ public class ProcedureDAO extends AbstractDAO implements IProcedureDAO
         }
     }
 
-    public final List<ProcedurePE> listProcedures(final long experimentId)
+    public final List<ProcedurePE> listProcedures(final ExperimentPE experiment)
             throws DataAccessException
     {
         final List<ProcedurePE> procedures =
                 cast(getHibernateTemplate().find(
-                        String.format("from %s p where p.experimentInternal.id = ?", TABLE_NAME),
-                        toArray(experimentId)));
+                        String.format("from %s p where p.experimentInternal = ?", TABLE_NAME),
+                        toArray(experiment)));
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug("listProcedures(" + experimentId + "): " + procedures.size()
+            operationLog.debug("listProcedures(" + experiment + "): " + procedures.size()
                     + " procedure(s) have been found.");
         }
         return procedures;
     }
 
-    public final ProcedurePE getProcedure(final long procedureId) throws DataAccessException
-    {
-        final ProcedurePE procedure =
-                (ProcedurePE) getHibernateTemplate().load(ENTITY_CLASS, procedureId);
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug("getProcedure(" + procedureId + "): '" + procedure + "'.");
-        }
-        return procedure;
-    }
-
-    public final ProcedurePE tryGetProcedure(final String procedureTypeCode, final long experimentId)
-    {
-        assert procedureTypeCode != null : "Unspecified procedure type code";
-
-        final List<ProcedurePE> procedures =
-                cast(getHibernateTemplate().find(
-                        String.format("from %s p where p.procedureType.code = ? "
-                                + "and p.experimentInternal.id = ?", TABLE_NAME), new Object[]
-                            { procedureTypeCode, experimentId }));
-        final ProcedurePE procedure =
-                tryFindEntity(procedures, "procedures", procedureTypeCode, experimentId);
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug("tryGetProcedure(" + procedureTypeCode + ", " + experimentId
-                    + "): '" + procedure + "'.");
-        }
-        return procedure;
-    }
 }

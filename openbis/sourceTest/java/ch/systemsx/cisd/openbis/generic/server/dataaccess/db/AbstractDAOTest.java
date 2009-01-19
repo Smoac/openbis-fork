@@ -20,6 +20,8 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.Date;
+
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,9 +37,13 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.HibernateSearchContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.UuidUtil;
 
 /**
@@ -221,5 +227,28 @@ public abstract class AbstractDAOTest extends AbstractTransactionalTestNGSpringC
         group.setRegistrator(getSystemPerson());
         daoFactory.getGroupDAO().createGroup(group);
         return group;
+    }
+
+    protected ProjectPE findProject(String db, String group, String project)
+    {
+        return daoFactory.getProjectDAO().tryFindProject(db, group, project);
+    }
+
+    protected ExperimentTypePE findExperimentType(String expType)
+    {
+        return (ExperimentTypePE) daoFactory.getEntityTypeDAO(EntityKind.EXPERIMENT)
+                .tryToFindEntityTypeByCode(expType);
+    }
+
+    protected ExperimentPE createExperiment(String db, String group, String project,
+            String expCode, String expType)
+    {
+        final ExperimentPE result = new ExperimentPE();
+        result.setCode(expCode);
+        result.setExperimentType(findExperimentType(expType));
+        result.setProject(findProject(db, group, project));
+        result.setRegistrator(getTestPerson());
+        result.setRegistrationDate(new Date());
+        return result;
     }
 }
