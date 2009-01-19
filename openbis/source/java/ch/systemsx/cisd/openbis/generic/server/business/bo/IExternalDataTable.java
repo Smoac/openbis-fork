@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -34,6 +35,12 @@ public interface IExternalDataTable
      */
     void loadBySampleIdentifier(final SampleIdentifier sampleIdentifier);
 
+    /**
+     * Loads data sets which are directly link to all procedure instances of the specified
+     * experiment.
+     */
+    void loadByExperimentIdentifier(ExperimentIdentifier identifier);
+    
     /**
      * Returns the loaded {@link ExternalDataPE}.
      */

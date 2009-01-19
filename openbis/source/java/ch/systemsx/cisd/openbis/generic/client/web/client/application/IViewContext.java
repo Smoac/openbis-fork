@@ -28,6 +28,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  */
 public interface IViewContext<T extends IClientServiceAsync> extends IMessageProvider
 {
+    public IViewContext<ICommonClientServiceAsync> getCommonViewContext();
+    
     public T getService();
 
     public GenericViewModel getModel();

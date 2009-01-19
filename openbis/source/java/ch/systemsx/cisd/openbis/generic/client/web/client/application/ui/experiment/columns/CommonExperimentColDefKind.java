@@ -16,85 +16,120 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.columns;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 
 /**
  * Definition of experiment table columns.
  * 
  * @author Tomasz Pylak
  */
-public enum CommonExperimentColDefKind implements IsSerializable
+public enum CommonExperimentColDefKind implements IColumnDefinitionKind<Experiment>
 {
-    CODE(ModelDataPropertyNames.CODE, Dict.CODE),
+    CODE(new AbstractColumnDefinitionKind<Experiment>(ModelDataPropertyNames.CODE, Dict.CODE)
+        {
+            public String tryGetValue(Experiment entity)
+            {
+                return entity.getCode();
+            }
+        }),
 
-    EXPERIMENT_TYPE(ModelDataPropertyNames.EXPERIMENT_TYPE_CODE_FOR_EXPERIMENT,
-            Dict.EXPERIMENT_TYPE),
+    EXPERIMENT_TYPE(new AbstractColumnDefinitionKind<Experiment>(
+            ModelDataPropertyNames.EXPERIMENT_TYPE_CODE_FOR_EXPERIMENT, Dict.EXPERIMENT_TYPE)
+        {
+            public String tryGetValue(Experiment entity)
+            {
+                return entity.getExperimentType().getCode();
+            }
+        }),
 
-    EXPERIMENT_IDENTIFIER(ModelDataPropertyNames.EXPERIMENT_IDENTIFIER, Dict.EXPERIMENT_IDENTIFIER,
-            150, true),
+    EXPERIMENT_IDENTIFIER(new AbstractColumnDefinitionKind<Experiment>(
+            ModelDataPropertyNames.EXPERIMENT_IDENTIFIER, Dict.EXPERIMENT_IDENTIFIER, 150, true)
+        {
+            public String tryGetValue(Experiment entity)
+            {
+                return entity.getIdentifier();
+            }
+        }),
 
-    GROUP(ModelDataPropertyNames.GROUP_FOR_EXPERIMENT, Dict.GROUP),
+    GROUP(new AbstractColumnDefinitionKind<Experiment>(ModelDataPropertyNames.GROUP_FOR_EXPERIMENT,
+            Dict.GROUP)
+        {
+            public String tryGetValue(Experiment entity)
+            {
+                return entity.getProject().getGroup().getCode();
+            }
+        }),
 
-    PROJECT(ModelDataPropertyNames.PROJECT, Dict.PROJECT),
+    PROJECT(new AbstractColumnDefinitionKind<Experiment>(ModelDataPropertyNames.PROJECT,
+            Dict.PROJECT)
+        {
+            public String tryGetValue(Experiment entity)
+            {
+                return entity.getProject().getCode();
+            }
+        }),
 
-    REGISTRATOR(ModelDataPropertyNames.REGISTRATOR, Dict.REGISTRATOR),
+    REGISTRATOR(new AbstractColumnDefinitionKind<Experiment>(ModelDataPropertyNames.REGISTRATOR,
+            Dict.REGISTRATOR)
+        {
+            public String tryGetValue(Experiment entity)
+            {
+                return renderRegistrator(entity);
+            }
+        }),
 
-    REGISTRATION_DATE(ModelDataPropertyNames.REGISTRATION_DATE, Dict.REGISTRATION_DATE, 200, false),
+    REGISTRATION_DATE(new AbstractColumnDefinitionKind<Experiment>(
+            ModelDataPropertyNames.REGISTRATION_DATE, Dict.REGISTRATION_DATE, 200, false)
+        {
+            public String tryGetValue(Experiment entity)
+            {
+                return renderRegistrationDate(entity);
+            }
+        }),
 
-    IS_INVALID(ModelDataPropertyNames.IS_INVALID, Dict.IS_INVALID, true);
+    IS_INVALID(new AbstractColumnDefinitionKind<Experiment>(ModelDataPropertyNames.IS_INVALID,
+            Dict.IS_INVALID, true)
+        {
+            public String tryGetValue(Experiment entity)
+            {
+                return renderInvalidationFlag(entity);
+            }
+        });
 
-    // TODO 2008-12-08, Tomasz Pylak: refactor the code to remove this field. It has to have the
-    // same name as the Sample field because grid sorting was implemented in that ugly way.
-    private String sortField;
+    private final IColumnDefinitionKind<Experiment> columnDefinitionKind;
 
-    private String headerMsgKey;
-
-    private int width;
-
-    private boolean isHidden;
-
-    private CommonExperimentColDefKind(final String sortField, final String headerMsgKey,
-            final int width, final boolean isHidden)
+    private CommonExperimentColDefKind(IColumnDefinitionKind<Experiment> columnDefinitionKind)
     {
-        this.sortField = sortField;
-        this.headerMsgKey = headerMsgKey;
-        this.width = width;
-        this.isHidden = isHidden;
+        this.columnDefinitionKind = columnDefinitionKind;
     }
 
-    private CommonExperimentColDefKind(final String sortField, final String headerMsgKey,
-            final boolean isHidden)
+    public String getHeaderMsgKey()
     {
-        this(sortField, headerMsgKey, AbstractColumnDefinition.DEFAULT_COLUMN_WIDTH, isHidden);
-    }
-
-    private CommonExperimentColDefKind(final String sortField, final String headerMsgKey)
-    {
-        this(sortField, headerMsgKey, false);
+        return columnDefinitionKind.getHeaderMsgKey();
     }
 
     public int getWidth()
     {
-        return width;
-    }
-
-    public boolean isHidden()
-    {
-        return isHidden;
-    }
-
-    // key in the translations dictionary
-    public String getHeaderMsgKey()
-    {
-        return headerMsgKey;
+        return columnDefinitionKind.getWidth();
     }
 
     public String id()
     {
-        return sortField; // NOTE: it should be possible to use name() when sorting will be fixed
+        return columnDefinitionKind.id();
     }
+
+    public boolean isHidden()
+    {
+        return columnDefinitionKind.isHidden();
+    }
+
+    public String tryGetValue(Experiment entity)
+    {
+        return columnDefinitionKind.tryGetValue(entity);
+    }
+
 }

@@ -19,18 +19,15 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.InvalidableWithCodeRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.columns.CommonExperimentColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.columns.CommonExperimentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.columns.PropertyExperimentColDef;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.CommonColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
@@ -42,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
  * 
  * @author Izabela Adamczyk
  */
-public final class ExperimentModel extends BaseModelData
+public final class ExperimentModel extends AbstractEntityModel<Experiment>
 {
     private static final long serialVersionUID = 1L;
 
@@ -76,24 +73,6 @@ public final class ExperimentModel extends BaseModelData
             list.add(new PropertyExperimentColDef(etpt.getPropertyType()));
         }
         return list;
-    }
-
-    private String renderColumnValue(final Experiment entity, IColumnDefinition<Experiment> column)
-    {
-        String value = column.getValue(entity);
-        if (column instanceof CommonExperimentColDef)
-        {
-            CommonExperimentColDefKind columnKind =
-                    ((CommonExperimentColDef) column).getColumnKind();
-            if (columnKind == CommonExperimentColDefKind.REGISTRATOR)
-            {
-                value = PersonRenderer.createPersonAnchor(entity.getRegistrator(), value);
-            } else if (columnKind == CommonExperimentColDefKind.CODE)
-            {
-                value = InvalidableWithCodeRenderer.render(entity, value);
-            }
-        }
-        return value;
     }
 
     public final static List<ExperimentModel> asExperimentModels(final List<Experiment> experiments)
@@ -150,7 +129,7 @@ public final class ExperimentModel extends BaseModelData
         return new ArrayList<IColumnDefinitionUI<Experiment>>();
     }
 
-    private static CommonExperimentColDef createColumn(CommonExperimentColDefKind columnKind,
+    private static CommonColumnDefinition<Experiment> createColumn(CommonExperimentColDefKind columnKind,
             IMessageProvider messageProviderOrNull)
     {
         String headerText = null;
@@ -158,7 +137,7 @@ public final class ExperimentModel extends BaseModelData
         {
             headerText = messageProviderOrNull.getMessage(columnKind.getHeaderMsgKey());
         }
-        return new CommonExperimentColDef(columnKind, headerText);
+        return new CommonColumnDefinition<Experiment>(columnKind, headerText);
     }
 
     public Experiment getBaseObject()

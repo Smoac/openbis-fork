@@ -103,6 +103,7 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
             final ExperimentSamplesSection experimentSamplesSection =
                     new ExperimentSamplesSection(result, viewContext);
             addSection(genericExperimentViewer, experimentSamplesSection);
+            addSection(genericExperimentViewer, new ExperimentDataSection(result, viewContext));
             genericExperimentViewer.layout();
         }
     }

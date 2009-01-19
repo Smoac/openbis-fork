@@ -72,6 +72,11 @@ public abstract class AbstractPluginViewContext<T extends IClientServiceAsync> i
     {
         return service;
     }
+    
+    public final IViewContext<ICommonClientServiceAsync> getCommonViewContext()
+    {
+        return commonViewContext;
+    }
 
     public final ICommonClientServiceAsync getCommonService()
     {

@@ -18,12 +18,18 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -61,5 +67,27 @@ public final class ExternalDataTable extends AbstractSampleIdentifierBusinessObj
         final SamplePE sample = getSampleByIdentifier(sampleIdentifier);
         externalData.addAll(getExternalDataDAO().listExternalData(sample, SourceType.MEASUREMENT));
         externalData.addAll(getExternalDataDAO().listExternalData(sample, SourceType.DERIVED));
+    }
+
+    public void loadByExperimentIdentifier(ExperimentIdentifier identifier)
+    {
+        assert identifier != null : "Unspecified experiment identifier";
+        
+        ProjectPE project =
+                getProjectDAO().tryFindProject(identifier.getDatabaseInstanceCode(),
+                        identifier.getGroupCode(), identifier.getProjectCode());
+        ExperimentPE experiment =
+                getExperimentDAO().tryFindByCodeAndProject(project, identifier.getExperimentCode());
+        externalData = new ArrayList<ExternalDataPE>();
+        List<ProcedurePE> procedures = experiment.getProcedures();
+        for (ProcedurePE procedure : procedures)
+        {
+            Set<DataPE> data = procedure.getData();
+            System.out.println(data);
+            for (DataPE dataSet : data)
+            {
+                externalData.add((ExternalDataPE) dataSet);
+            }
+        }
     }
 }

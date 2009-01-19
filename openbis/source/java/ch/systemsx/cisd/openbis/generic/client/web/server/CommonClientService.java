@@ -77,6 +77,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
@@ -424,6 +426,22 @@ public final class CommonClientService extends AbstractClientService implements
         {
             final String sessionToken = getSessionToken();
             final SampleIdentifier identifier = SampleIdentifierFactory.parse(sampleIdentifier);
+            final List<ExternalDataPE> externalData =
+                    commonServer.listExternalData(sessionToken, identifier);
+            return BeanUtils.createBeanList(ExternalData.class, externalData);
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public List<ExternalData> listExternalDataForExperiment(String experimentIdentifier)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            final ExperimentIdentifier identifier = new ExperimentIdentifierFactory(experimentIdentifier).createIdentifier();
             final List<ExternalDataPE> externalData =
                     commonServer.listExternalData(sessionToken, identifier);
             return BeanUtils.createBeanList(ExternalData.class, externalData);

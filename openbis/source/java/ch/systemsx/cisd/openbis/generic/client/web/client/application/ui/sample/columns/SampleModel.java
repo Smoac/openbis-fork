@@ -19,16 +19,15 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.AbstractEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.InvalidableWithCodeRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.CommonColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
@@ -40,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
  * @author Izabela Adamczyk
  * @author Tomasz Pylak
  */
-public final class SampleModel extends BaseModelData
+public final class SampleModel extends AbstractEntityModel<Sample>
 {
     private static final long serialVersionUID = 1L;
 
@@ -56,23 +55,6 @@ public final class SampleModel extends BaseModelData
             String value = renderColumnValue(sample, column);
             set(column.getIdentifier(), value);
         }
-    }
-
-    private String renderColumnValue(final Sample sample, IColumnDefinition<Sample> column)
-    {
-        String value = column.getValue(sample);
-        if (column instanceof CommonSampleColDef)
-        {
-            CommonSampleColDefKind columnKind = ((CommonSampleColDef) column).getColumnKind();
-            if (columnKind == CommonSampleColDefKind.REGISTRATOR)
-            {
-                value = PersonRenderer.createPersonAnchor(sample.getRegistrator(), value);
-            } else if (columnKind == CommonSampleColDefKind.CODE)
-            {
-                value = InvalidableWithCodeRenderer.render(sample, value);
-            }
-        }
-        return value;
     }
 
     public static ColumnDefsAndConfigs<Sample> createColumnsSchema(
@@ -137,7 +119,7 @@ public final class SampleModel extends BaseModelData
         return list;
     }
 
-    private static CommonSampleColDef createColumn(CommonSampleColDefKind columnKind,
+    private static CommonColumnDefinition<Sample> createColumn(CommonSampleColDefKind columnKind,
             IMessageProvider messageProviderOrNull)
     {
         String headerText = null;
@@ -145,7 +127,7 @@ public final class SampleModel extends BaseModelData
         {
             headerText = messageProviderOrNull.getMessage(columnKind.getHeaderMsgKey());
         }
-        return new CommonSampleColDef(columnKind, headerText);
+        return new CommonColumnDefinition<Sample>(columnKind, headerText);
     }
 
     private static List<IColumnDefinitionUI<Sample>> createParentColumnsSchema(

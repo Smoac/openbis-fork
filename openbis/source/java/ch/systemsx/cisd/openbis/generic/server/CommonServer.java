@@ -62,6 +62,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -308,6 +309,18 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         final IExternalDataTable externalDataTable =
                 businessObjectFactory.createExternalDataTable(session);
         externalDataTable.loadBySampleIdentifier(identifier);
+        final List<ExternalDataPE> externalData = externalDataTable.getExternalData();
+        Collections.sort(externalData);
+        return externalData;
+    }
+
+    public List<ExternalDataPE> listExternalData(String sessionToken,
+            ExperimentIdentifier identifier)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IExternalDataTable externalDataTable =
+                businessObjectFactory.createExternalDataTable(session);
+        externalDataTable.loadByExperimentIdentifier(identifier);
         final List<ExternalDataPE> externalData = externalDataTable.getExternalData();
         Collections.sort(externalData);
         return externalData;

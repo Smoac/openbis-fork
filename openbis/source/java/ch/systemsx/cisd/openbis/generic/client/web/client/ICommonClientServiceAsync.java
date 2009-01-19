@@ -120,6 +120,12 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<List<ExternalData>> asyncCallback);
 
     /**
+     * @see ICommonClientService#listExternalDataForExperiment(String)
+     */
+    public void listExternalDataForExperiment(String experimentIdentifier,
+            AsyncCallback<List<ExternalData>> asyncCallback);
+    
+    /**
      * @see ICommonClientService#listSearchableEntities()
      */
     public void listSearchableEntities(final AsyncCallback<List<SearchableEntity>> asyncCallback);

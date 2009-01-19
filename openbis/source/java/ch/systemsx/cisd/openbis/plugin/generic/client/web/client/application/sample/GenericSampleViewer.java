@@ -61,7 +61,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Propert
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
@@ -69,6 +68,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ListExternalDataCallback;
 
 /**
  * The <i>generic</i> sample viewer.
@@ -376,38 +376,6 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
             final List<SampleModel> sampleModels = SampleModel.asSampleModels(result.getList());
             final BaseListLoadResult<SampleModel> baseListLoadResult =
                     new BaseListLoadResult<SampleModel>(sampleModels);
-            delegate.onSuccess(baseListLoadResult);
-        }
-    }
-
-    final static class ListExternalDataCallback extends AbstractAsyncCallback<List<ExternalData>>
-    {
-        private final AsyncCallback<BaseListLoadResult<ExternalDataModel>> delegate;
-
-        ListExternalDataCallback(final IViewContext<IGenericClientServiceAsync> viewContext,
-                final AsyncCallback<BaseListLoadResult<ExternalDataModel>> callback)
-        {
-            super(viewContext);
-            this.delegate = callback;
-        }
-
-        //
-        // AbstractAsyncCallback
-        //
-
-        @Override
-        protected void finishOnFailure(final Throwable caught)
-        {
-            delegate.onFailure(caught);
-        }
-
-        @Override
-        protected final void process(final List<ExternalData> result)
-        {
-            final List<ExternalDataModel> externalDataModels =
-                    ExternalDataModel.asExternalDataModels(result);
-            final BaseListLoadResult<ExternalDataModel> baseListLoadResult =
-                    new BaseListLoadResult<ExternalDataModel>(externalDataModels);
             delegate.onSuccess(baseListLoadResult);
         }
     }

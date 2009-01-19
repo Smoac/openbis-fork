@@ -21,16 +21,9 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.data.BaseListLoadConfig;
 import com.extjs.gxt.ui.client.data.BaseListLoadResult;
-import com.extjs.gxt.ui.client.data.BaseListLoader;
-import com.extjs.gxt.ui.client.data.ListLoader;
-import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.RpcProxy;
-import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
-import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.extjs.gxt.ui.client.widget.layout.RowData;
-import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -52,34 +45,19 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  * 
  * @author Izabela Adamczyk
  */
-public class ExperimentSamplesSection extends SectionPanel
+public class ExperimentSamplesSection extends AbstractExperimentTableSection<SampleModel>
 {
     private static final String PREFIX = "experiment-samples-section_";
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
-    private final IViewContext<?> viewContext;
-
-    private final Experiment experiment;
-
-    private final Grid<SampleModel> sampleGrid;
-
     public ExperimentSamplesSection(final Experiment experiment, final IViewContext<?> viewContext)
     {
-        super("Samples");
-        this.experiment = experiment;
-        this.viewContext = viewContext;
-        final ListLoader<BaseListLoadConfig> sampleLoader =
-                createListLoader(createRpcProxyForSamples());
-        final ListStore<SampleModel> sampleListStore = createListStore(sampleLoader);
-        sampleGrid = new Grid<SampleModel>(sampleListStore, createColumnModel());
-        sampleGrid.setId(ID_PREFIX + experiment.getIdentifier());
-        sampleGrid.setLoadMask(true);
-        setLayout(new RowLayout());
-        add(sampleGrid, new RowData(-1, 200));
+        super(experiment, viewContext, "Samples", ID_PREFIX);
     }
 
-    private final ColumnModel createColumnModel()
+    @Override
+    protected ColumnModel createColumnModel()
     {
         final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
         final ColumnConfig codeColumn = ColumnConfigFactory.createCodeColumnConfig(viewContext);
@@ -102,27 +80,7 @@ public class ExperimentSamplesSection extends SectionPanel
     }
 
     @Override
-    protected void onAttach()
-    {
-        super.onAttach();
-        sampleGrid.getStore().getLoader().load();
-    }
-
-    private final <T> ListLoader<BaseListLoadConfig> createListLoader(
-            final RpcProxy<BaseListLoadConfig, BaseListLoadResult<T>> rpcProxy)
-    {
-        final BaseListLoader<BaseListLoadConfig, BaseListLoadResult<T>> baseListLoader =
-                new BaseListLoader<BaseListLoadConfig, BaseListLoadResult<T>>(rpcProxy);
-        return baseListLoader;
-    }
-
-    private final <T extends ModelData> ListStore<T> createListStore(
-            final ListLoader<BaseListLoadConfig> loader)
-    {
-        return new ListStore<T>(loader);
-    }
-
-    private final RpcProxy<BaseListLoadConfig, BaseListLoadResult<SampleModel>> createRpcProxyForSamples()
+    protected RpcProxy<BaseListLoadConfig, BaseListLoadResult<SampleModel>> createRpcProxy()
     {
         return new RpcProxy<BaseListLoadConfig, BaseListLoadResult<SampleModel>>()
             {

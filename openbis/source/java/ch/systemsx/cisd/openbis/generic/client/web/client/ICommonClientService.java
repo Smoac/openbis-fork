@@ -139,6 +139,9 @@ public interface ICommonClientService extends IClientService
     public List<ExternalData> listExternalData(final String sampleIdentifier)
             throws UserFailureException;
 
+    public List<ExternalData> listExternalDataForExperiment(String experimentIdentifier)
+            throws UserFailureException;
+
     /**
      * Lists the searchable entities.
      */

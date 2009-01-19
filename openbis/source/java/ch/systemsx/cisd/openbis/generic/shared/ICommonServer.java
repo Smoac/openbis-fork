@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -185,6 +186,17 @@ public interface ICommonServer extends IServer
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
             final SampleIdentifier identifier);
 
+    /**
+     * For given {@link ExperimentIdentifier} returns the corresponding list of {@link ExternalDataPE}.
+     * 
+     * @return a sorted list of {@link ExternalDataPE}.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public List<ExternalDataPE> listExternalData(final String sessionToken,
+//            @AuthorizationGuard(guardClass = Experimenti.class)
+            final ExperimentIdentifier identifier);
+    
     /**
      * Performs an <i>Hibernate Search</i> based on given parameters.
      */
