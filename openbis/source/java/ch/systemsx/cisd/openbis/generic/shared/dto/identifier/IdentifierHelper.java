@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto.identifier;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
@@ -103,5 +107,33 @@ public final class IdentifierHelper
                 new ExperimentIdentifier(createProjectIdentifier(experiment.getProject()),
                         experiment.getCode());
         return experimentIdentifier;
+    }
+
+    public static final List<SampleIdentifier> extractSampleIdentifiers(String[] samples)
+    {
+        List<SampleIdentifier> sampleIdentifiers = new ArrayList<SampleIdentifier>();
+        for (String s : samples)
+        {
+            sampleIdentifiers.add(SampleIdentifierFactory.parse(s));
+        }
+        return sampleIdentifiers;
+    }
+
+    static public void fillAndCheckGroup(SampleIdentifier sample, String expectedGroupCode)
+    {
+        if (sample.isDatabaseInstanceLevel())
+        {
+            return;
+        } else if (sample.isInsideHomeGroup())
+        {
+            sample.getGroupLevel().setGroupCode(expectedGroupCode);
+        } else if (sample.getGroupLevel().getGroupCode().equalsIgnoreCase(expectedGroupCode))
+        {
+            return;
+        } else
+        {
+            throw new UserFailureException(String.format(
+                    "Sample '%s' does not belong to the group '%s'", sample, expectedGroupCode));
+        }
     }
 }

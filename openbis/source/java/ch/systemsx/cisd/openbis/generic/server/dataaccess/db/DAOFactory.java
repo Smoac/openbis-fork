@@ -28,6 +28,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProcedureDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProcedureTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
@@ -66,6 +68,10 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
 
     private final IVocabularyDAO vocabularyDAO;
 
+    private IProcedureTypeDAO procedureTypeDAO;
+
+    private IProcedureDAO procedureDAO;
+
     public DAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory)
     {
@@ -79,6 +85,8 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         experimentDAO = new ExperimentDAO(sessionFactory, databaseInstance);
         projectDAO = new ProjectDAO(sessionFactory, databaseInstance);
         vocabularyDAO = new VocabularyDAO(sessionFactory, databaseInstance);
+        procedureTypeDAO = new ProcedureTypeDAO(sessionFactory, databaseInstance);
+        procedureDAO = new ProcedureDAO(sessionFactory, databaseInstance);
         final EntityKind[] entityKinds = EntityKind.values();
         for (final EntityKind entityKind : entityKinds)
         {
@@ -142,5 +150,15 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     public final IVocabularyDAO getVocabularyDAO()
     {
         return vocabularyDAO;
+    }
+
+    public final IProcedureTypeDAO getProcedureTypeDAO()
+    {
+        return procedureTypeDAO;
+    }
+
+    public final IProcedureDAO getProcedureDAO()
+    {
+        return procedureDAO;
     }
 }

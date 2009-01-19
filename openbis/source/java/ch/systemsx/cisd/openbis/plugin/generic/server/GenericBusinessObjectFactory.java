@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.server;
 import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IProcedureBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -52,5 +53,10 @@ public final class GenericBusinessObjectFactory extends AbstractPluginBusinessOb
     public final ISampleTable createSampleTable(final Session session)
     {
         return getCommonBusinessObjectFactory().createSampleTable(session);
+    }
+
+    public IProcedureBO createProcedureBO(Session session)
+    {
+        return getCommonBusinessObjectFactory().createProcedureBO(session);
     }
 }

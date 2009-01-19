@@ -65,4 +65,9 @@ public interface ICommonBusinessObjectFactory
      * Creates a {@link IVocabularyBO} <i>Business Object</i>.
      */
     public IVocabularyBO createVocabularyBO(final Session session);
+
+    /**
+     * Creates a {@link IProcedureBO} <i>Business Object</i>.
+     */
+    public IProcedureBO createProcedureBO(Session session);
 }

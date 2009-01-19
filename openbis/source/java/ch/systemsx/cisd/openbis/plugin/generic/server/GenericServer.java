@@ -31,16 +31,20 @@ import ch.systemsx.cisd.openbis.generic.client.shared.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.client.shared.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IProcedureBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.types.ProcedureTypeCode;
 import ch.systemsx.cisd.openbis.plugin.AbstractPluginServer;
 import ch.systemsx.cisd.openbis.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
@@ -176,14 +180,36 @@ public final class GenericServer extends AbstractPluginServer<IGenericServer> im
         getSampleTypeSlaveServerPlugin(sampleTypePE).registerSamples(session, newSamples);
     }
 
-    public void registerExperiment(String sessionToken, NewExperiment experiment)
+    public void registerExperiment(String sessionToken, NewExperiment newExperiment)
     {
         assert sessionToken != null : "Unspecified session token.";
-        assert experiment != null : "Unspecified new experiment.";
+        assert newExperiment != null : "Unspecified new experiment.";
 
         final Session session = getSessionManager().getSession(sessionToken);
         final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
-        experimentBO.define(experiment);
+        experimentBO.define(newExperiment);
         experimentBO.save();
+        if (newExperiment.getSamples().length > 0)
+        {
+            ExperimentPE experiment = experimentBO.getExperiment();
+            final IProcedureBO procedureBO = businessObjectFactory.createProcedureBO(session);
+            procedureBO.define(experiment, ProcedureTypeCode.DATA_ACQUISITION.getCode());
+            procedureBO.save();
+            final ProcedurePE procedure = procedureBO.getProcedure();
+            List<SampleIdentifier> sampleIdentifiers =
+                    IdentifierHelper.extractSampleIdentifiers(newExperiment.getSamples());
+            for (SampleIdentifier si : sampleIdentifiers)
+            {
+                IdentifierHelper
+                        .fillAndCheckGroup(si, experiment.getProject().getGroup().getCode());
+            }
+            for (SampleIdentifier si : sampleIdentifiers)
+            {
+                ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
+                sampleBO.loadBySampleIdentifier(si);
+                sampleBO.addProcedure(procedure);
+            }
+        }
     }
+
 }

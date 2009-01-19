@@ -86,4 +86,9 @@ public interface ISampleDAO
      * Inserts given list of {@link SamplePE} into the database in one go.
      */
     void createSamples(List<SamplePE> samples) throws DataAccessException;
+
+    /**
+     * Updates given <var>sample</var>.
+     */
+    public void updateSample(SamplePE sample) throws DataAccessException;
 }

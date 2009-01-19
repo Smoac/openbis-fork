@@ -259,4 +259,18 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
         }
         return list;
     }
+
+    public final void updateSample(final SamplePE sample) throws DataAccessException
+    {
+        assert sample != null : "Unspecified sample";
+        validatePE(sample);
+
+        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+        hibernateTemplate.flush();
+
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("UPDATE: sample '" + sample + "'.");
+        }
+    }
 }

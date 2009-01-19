@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.shared.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
@@ -47,4 +48,9 @@ public interface ISampleBO
      * Writes changed are added data to the Data Access Layers.
      */
     public void save() throws UserFailureException;
+
+    /**
+     * Connects sample with given procedure.
+     */
+    void addProcedure(ProcedurePE procedure);
 }

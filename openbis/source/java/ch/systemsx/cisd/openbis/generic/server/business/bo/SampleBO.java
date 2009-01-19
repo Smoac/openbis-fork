@@ -21,8 +21,10 @@ import org.springframework.dao.DataAccessException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.shared.NewSample;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -94,6 +96,54 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
             throwException(ex, String.format("Sample '%s'", sample.getSampleIdentifier()));
         }
         dataChanged = false;
+    }
+
+    public void addProcedure(ProcedurePE procedure)
+    {
+        assert sample != null : "Sample not loaded.";
+
+        checkSampleInGroup(sample);
+        checkSampleUnused(sample, procedure);
+        checkSampleWithoutDatasets();
+
+        sample.getProcedures().add(procedure);
+        getSampleDAO().updateSample(sample);
+        dataChanged = false;
+    }
+
+    private final void checkSampleWithoutDatasets()
+    {// FIXME
+        // if (hasDatasets())
+        // {
+        // throw UserFailureException
+        // .fromTemplate(
+        // "Cannot use sample '%s' in the experiment, because in the previous "
+        // + "invalidated experiment there were some data acquired for this sample.",
+        // getSample().getSampleIdentifier());
+        // }
+    }
+
+    private final static void checkSampleUnused(final SamplePE sample,
+            final ProcedurePE procedureCreated)
+    {
+        final ProcedurePE procedure = sample.getValidProcedure();
+        if (procedure != null && procedure.equals(procedureCreated) == false)
+        {
+            throw UserFailureException.fromTemplate(
+                    "Given sample code '%s' already registered for experiment '%s'.", sample
+                            .getSampleIdentifier(), IdentifierHelper
+                            .createExperimentIdentifier(procedure.getExperiment()));
+        }
+    }
+
+    private final static void checkSampleInGroup(final SamplePE sample)
+    {
+        if (sample.getGroup() == null)
+        {
+            throw UserFailureException.fromTemplate(
+                    "The sample '%s' has to belong to a group to be registered in the experiment.",
+                    sample.getSampleIdentifier());
+        }
     }
 
 }

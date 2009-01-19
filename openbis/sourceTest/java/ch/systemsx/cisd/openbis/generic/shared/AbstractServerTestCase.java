@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IProcedureBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
@@ -109,6 +110,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected IVocabularyBO vocabularyBO;
 
+    protected IProcedureBO procedureBO;
+
     @BeforeMethod
     @SuppressWarnings("unchecked")
     public void setUp()
@@ -140,6 +143,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         externalDataTable = context.mock(IExternalDataTable.class);
         experimentTable = context.mock(IExperimentTable.class);
         propertyTypeTable = context.mock(IPropertyTypeTable.class);
+        procedureBO = context.mock(IProcedureBO.class);
 
         homeDatabaseInstance =
                 CommonTestUtils.createDatabaseInstance(CommonTestUtils.HOME_DATABASE_INSTANCE_CODE);
