@@ -29,11 +29,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
  * 
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractColumnDefinitionKind<T> implements IColumnDefinitionKind<T>
+public abstract class AbstractColumnDefinitionKind<T>
 {
-    // TODO 2008-12-08, Tomasz Pylak: refactor the code to remove this field. It has to have the
-    // same name as the Sample field because grid sorting was implemented in that ugly way.
-    private String sortField;
+    /** Renders the cell value of this column for the specified entity. */
+    abstract public String tryGetValue(T entity);
 
     private String headerMsgKey;
 
@@ -41,24 +40,22 @@ public abstract class AbstractColumnDefinitionKind<T> implements IColumnDefiniti
 
     private boolean isHidden;
 
-    public AbstractColumnDefinitionKind(final String sortField, final String headerMsgKey,
-            final int width, final boolean isHidden)
+    public AbstractColumnDefinitionKind(final String headerMsgKey, final int width,
+            final boolean isHidden)
     {
-        this.sortField = sortField;
         this.headerMsgKey = headerMsgKey;
         this.width = width;
         this.isHidden = isHidden;
     }
 
-    public AbstractColumnDefinitionKind(final String sortField, final String headerMsgKey,
-            final boolean isHidden)
+    public AbstractColumnDefinitionKind(final String headerMsgKey, final boolean isHidden)
     {
-        this(sortField, headerMsgKey, AbstractColumnDefinition.DEFAULT_COLUMN_WIDTH, isHidden);
+        this(headerMsgKey, AbstractColumnDefinition.DEFAULT_COLUMN_WIDTH, isHidden);
     }
 
-    public AbstractColumnDefinitionKind(final String sortField, final String headerMsgKey)
+    public AbstractColumnDefinitionKind(final String headerMsgKey)
     {
-        this(sortField, headerMsgKey, false);
+        this(headerMsgKey, false);
     }
 
     public int getWidth()
@@ -75,11 +72,6 @@ public abstract class AbstractColumnDefinitionKind<T> implements IColumnDefiniti
     public String getHeaderMsgKey()
     {
         return headerMsgKey;
-    }
-
-    public String id()
-    {
-        return sortField; // NOTE: it should be possible to use name() when sorting will be fixed
     }
 
     protected String renderRegistrationDate(final AbstractRegistrationHolder entity)

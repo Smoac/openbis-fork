@@ -34,7 +34,6 @@ public interface IColumnDefinitionKind<T> extends IsSerializable
     /** Returns key in the translations dictionary. */
     public String getHeaderMsgKey();
     
-    /** Returns column ID. */
     public String id();
     
     /** Renders the cell value of this column for the specified entity. */

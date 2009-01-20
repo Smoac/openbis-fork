@@ -59,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Abstrac
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
@@ -212,9 +213,12 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     private final ColumnModel createPartOfSamplesColumnModel()
     {
         final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-        configs.add(ColumnConfigFactory.createCodeColumnConfig(viewContext));
-        configs.add(ColumnConfigFactory.createRegistrationDateColumnConfig(viewContext));
-        configs.add(ColumnConfigFactory.createRegistratorColumnConfig(viewContext));
+        configs.add(ColumnConfigFactory.createCodeColumnConfig(viewContext,
+                CommonSampleColDefKind.CODE.id()));
+        configs.add(ColumnConfigFactory.createRegistrationDateColumnConfig(viewContext,
+                CommonSampleColDefKind.REGISTRATION_DATE.id()));
+        configs.add(ColumnConfigFactory.createRegistratorColumnConfig(viewContext,
+                CommonSampleColDefKind.REGISTRATOR.id()));
         return new ColumnModel(configs);
     }
 

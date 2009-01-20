@@ -47,9 +47,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager
 @Friend(toClasses = CachedResultSetManager.class)
 public final class CachedResultSetManagerTest
 {
-    private IResultSetConfig<String> resultSetConfig;
+    private IResultSetConfig<String, String> resultSetConfig;
 
-    private IOriginalDataProvider<?> originalDataProvider;
+    private IOriginalDataProvider<String> originalDataProvider;
 
     private IResultSetManager<String> resultSetManager;
 
@@ -57,9 +57,9 @@ public final class CachedResultSetManagerTest
 
     private final void allowResultSetCreation(final Expectations expectations)
     {
-        final SortInfo sortInfo = new SortInfo();
+        final SortInfo<String> sortInfo = new SortInfo<String>();
         sortInfo.setSortDir(SortDir.NONE);
-        sortInfo.setSortField("code");
+        sortInfo.setSortField(null);
 
         expectations.one(resultSetConfig).getOffset();
         expectations.will(Expectations.returnValue(1));
@@ -97,8 +97,7 @@ public final class CachedResultSetManagerTest
     private final static IResultSetManager<String> createResultSetManager()
     {
         final CachedResultSetManager<String> resultSetManager =
-                new CachedResultSetManager<String>(
-                        new TokenBasedResultSetKeyGenerator());
+                new CachedResultSetManager<String>(new TokenBasedResultSetKeyGenerator());
         resultSetManager.results.put("1", createSampleList());
         return resultSetManager;
     }
@@ -165,7 +164,7 @@ public final class CachedResultSetManagerTest
                     allowResultSetCreation(this);
                 }
             });
-        final IResultSet<String, ?> resultSet =
+        final IResultSet<String, String> resultSet =
                 resultSetManager.getResultSet(resultSetConfig, originalDataProvider);
         assertEquals(0, resultSet.getList().size());
         assertEquals(0, resultSet.getTotalLength());

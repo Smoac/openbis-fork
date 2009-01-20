@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 
 import ch.systemsx.cisd.openbis.generic.client.shared.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.renderer.SimpleYesNoRenderer;
@@ -29,9 +28,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 
 public enum CommonSampleColDefKind implements IColumnDefinitionKind<Sample>
 {
-    DATABASE_INSTANCE(new AbstractColumnDefinitionKind<Sample>(
-            ModelDataPropertyNames.DATABASE_INSTANCE, Dict.DATABASE_INSTANCE, true)
+    DATABASE_INSTANCE(new AbstractColumnDefinitionKind<Sample>(Dict.DATABASE_INSTANCE, true)
         {
+            @Override
             public String tryGetValue(Sample entity)
             {
                 DatabaseInstance databaseInstance = entity.getDatabaseInstance();
@@ -43,8 +42,9 @@ public enum CommonSampleColDefKind implements IColumnDefinitionKind<Sample>
             }
         }),
 
-    GROUP(new AbstractColumnDefinitionKind<Sample>(ModelDataPropertyNames.GROUP, Dict.GROUP)
+    GROUP(new AbstractColumnDefinitionKind<Sample>(Dict.GROUP)
         {
+            @Override
             public String tryGetValue(Sample entity)
             {
                 final Group group = entity.getGroup();
@@ -52,62 +52,63 @@ public enum CommonSampleColDefKind implements IColumnDefinitionKind<Sample>
             }
         }),
 
-    CODE(new AbstractColumnDefinitionKind<Sample>(ModelDataPropertyNames.CODE, Dict.CODE)
+    CODE(new AbstractColumnDefinitionKind<Sample>(Dict.CODE)
         {
+            @Override
             public String tryGetValue(Sample entity)
             {
                 return entity.getCode();
             }
         }),
 
-    SAMPLE_IDENTIFIER(new AbstractColumnDefinitionKind<Sample>(
-            ModelDataPropertyNames.SAMPLE_IDENTIFIER, Dict.SAMPLE_IDENTIFIER, 150, true)
+    SAMPLE_IDENTIFIER(new AbstractColumnDefinitionKind<Sample>(Dict.SAMPLE_IDENTIFIER, 150, true)
         {
+            @Override
             public String tryGetValue(Sample entity)
             {
                 return entity.getIdentifier();
             }
         }),
 
-    IS_INSTANCE_SAMPLE(new AbstractColumnDefinitionKind<Sample>(
-            ModelDataPropertyNames.IS_INSTANCE_SAMPLE, Dict.IS_INSTANCE_SAMPLE, true)
+    IS_INSTANCE_SAMPLE(new AbstractColumnDefinitionKind<Sample>(Dict.IS_INSTANCE_SAMPLE, true)
         {
+            @Override
             public String tryGetValue(Sample entity)
             {
                 return SimpleYesNoRenderer.render(entity.getDatabaseInstance() != null);
             }
         }),
 
-    REGISTRATOR(new AbstractColumnDefinitionKind<Sample>(ModelDataPropertyNames.REGISTRATOR,
-            Dict.REGISTRATOR, true)
+    REGISTRATOR(new AbstractColumnDefinitionKind<Sample>(Dict.REGISTRATOR, true)
         {
+            @Override
             public String tryGetValue(Sample entity)
             {
                 return renderRegistrator(entity);
             }
         }),
 
-    REGISTRATION_DATE(new AbstractColumnDefinitionKind<Sample>(
-            ModelDataPropertyNames.REGISTRATION_DATE, Dict.REGISTRATION_DATE, 200, true)
+    REGISTRATION_DATE(new AbstractColumnDefinitionKind<Sample>(Dict.REGISTRATION_DATE, 200, true)
         {
+            @Override
             public String tryGetValue(Sample entity)
             {
                 return renderRegistrationDate(entity);
             }
         }),
 
-    IS_INVALID(new AbstractColumnDefinitionKind<Sample>(ModelDataPropertyNames.IS_INVALID,
-            Dict.IS_INVALID, true)
+    IS_INVALID(new AbstractColumnDefinitionKind<Sample>(Dict.IS_INVALID, true)
         {
+            @Override
             public String tryGetValue(Sample entity)
             {
                 return renderInvalidationFlag(entity);
             }
         }),
 
-    PROJECT_FOR_SAMPLE(new AbstractColumnDefinitionKind<Sample>(
-            ModelDataPropertyNames.PROJECT_FOR_SAMPLE, Dict.PROJECT)
+    PROJECT_FOR_SAMPLE(new AbstractColumnDefinitionKind<Sample>(Dict.PROJECT)
         {
+            @Override
             public String tryGetValue(Sample entity)
             {
                 final Experiment exp = tryToGetExperiment(entity);
@@ -115,9 +116,9 @@ public enum CommonSampleColDefKind implements IColumnDefinitionKind<Sample>
             }
         }),
 
-    EXPERIMENT_FOR_SAMPLE(new AbstractColumnDefinitionKind<Sample>(
-            ModelDataPropertyNames.EXPERIMENT_FOR_SAMPLE, Dict.EXPERIMENT)
+    EXPERIMENT_FOR_SAMPLE(new AbstractColumnDefinitionKind<Sample>(Dict.EXPERIMENT)
         {
+            @Override
             public String tryGetValue(Sample entity)
             {
                 final Experiment exp = tryToGetExperiment(entity);
@@ -126,9 +127,9 @@ public enum CommonSampleColDefKind implements IColumnDefinitionKind<Sample>
         }),
 
     EXPERIMENT_IDENTIFIER_FOR_SAMPLE(new AbstractColumnDefinitionKind<Sample>(
-            ModelDataPropertyNames.EXPERIMENT_IDENTIFIER_FOR_SAMPLE, Dict.EXPERIMENT_IDENTIFIER,
-            200, true)
+            Dict.EXPERIMENT_IDENTIFIER, 200, true)
         {
+            @Override
             public String tryGetValue(Sample entity)
             {
                 final Experiment exp = tryToGetExperiment(entity);
@@ -136,9 +137,9 @@ public enum CommonSampleColDefKind implements IColumnDefinitionKind<Sample>
             }
         });
 
-    private final IColumnDefinitionKind<Sample> columnDefinitionKind;
+    private final AbstractColumnDefinitionKind<Sample> columnDefinitionKind;
 
-    private CommonSampleColDefKind(IColumnDefinitionKind<Sample> columnDefinitionKind)
+    private CommonSampleColDefKind(AbstractColumnDefinitionKind<Sample> columnDefinitionKind)
     {
         this.columnDefinitionKind = columnDefinitionKind;
     }
@@ -155,7 +156,7 @@ public enum CommonSampleColDefKind implements IColumnDefinitionKind<Sample>
 
     public String id()
     {
-        return columnDefinitionKind.id();
+        return name();
     }
 
     public boolean isHidden()

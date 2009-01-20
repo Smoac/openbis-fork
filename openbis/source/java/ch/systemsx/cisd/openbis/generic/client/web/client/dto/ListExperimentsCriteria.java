@@ -25,8 +25,8 @@ import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentType;
  * 
  * @author Izabela Adamczyk
  */
-public final class ListExperimentsCriteria extends DefaultResultSetConfig<String> implements
-        IsSerializable
+public final class ListExperimentsCriteria extends DefaultResultSetConfig<String, Experiment>
+        implements IsSerializable
 {
     private ExperimentType experimentType;
 

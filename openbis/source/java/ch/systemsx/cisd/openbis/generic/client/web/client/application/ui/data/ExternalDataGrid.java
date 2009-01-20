@@ -45,7 +45,7 @@ public class ExternalDataGrid extends AbstractBrowserGrid<ExternalData, External
     {
         List<IColumnDefinitionUI<ExternalData>> list =
                 ExternalDataModel.createColumnsSchema(viewContext);
-        return ColumnDefsAndConfigs.create(list, true);
+        return ColumnDefsAndConfigs.create(list);
     }
 
     @Override
@@ -55,7 +55,7 @@ public class ExternalDataGrid extends AbstractBrowserGrid<ExternalData, External
     }
 
     @Override
-    protected void listEntities(DefaultResultSetConfig<String> resultSetConfig,
+    protected void listEntities(DefaultResultSetConfig<String, ExternalData> resultSetConfig,
             AbstractAsyncCallback<ResultSet<ExternalData>> callback)
     {
         // TODO Auto-generated method stub

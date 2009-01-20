@@ -60,14 +60,14 @@ public final class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment,
     }
 
     @Override
-    protected void listEntities(DefaultResultSetConfig<String> resultSetConfig,
+    protected void listEntities(DefaultResultSetConfig<String, Experiment> resultSetConfig,
             AbstractAsyncCallback<ResultSet<Experiment>> callback)
     {
         copyPagingConfig(resultSetConfig);
         viewContext.getService().listExperiments(criteria, callback);
     }
 
-    private void copyPagingConfig(DefaultResultSetConfig<String> resultSetConfig)
+    private void copyPagingConfig(DefaultResultSetConfig<String, Experiment> resultSetConfig)
     {
         criteria.setLimit(resultSetConfig.getLimit());
         criteria.setOffset(resultSetConfig.getOffset());

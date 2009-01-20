@@ -138,7 +138,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      * @see ICommonClientService#listMatchingEntities(SearchableEntity, String, IResultSetConfig)
      */
     public void listMatchingEntities(final SearchableEntity searchableEntity,
-            final String queryText, final IResultSetConfig<String> resultSetConfig,
+            final String queryText, final IResultSetConfig<String, MatchingEntity> resultSetConfig,
             final AsyncCallback<ResultSet<MatchingEntity>> asyncCallback);
 
     /**

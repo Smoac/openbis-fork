@@ -143,10 +143,10 @@ public final class CommonClientService extends AbstractClientService implements
         return entities.getList();
     }
 
-    private static <T> IResultSetConfig<String> createExportListCriteria(
+    private static <T> IResultSetConfig<String, T> createExportListCriteria(
             final TableExportCriteria<T> exportCriteria)
     {
-        final DefaultResultSetConfig<String> criteria = new DefaultResultSetConfig<String>();
+        final DefaultResultSetConfig<String, T> criteria = new DefaultResultSetConfig<String, T>();
         criteria.setLimit(IResultSetConfig.NO_LIMIT);
         criteria.setOffset(IResultSetConfig.FIRST_ELEM_OFFSET);
         criteria.setSortInfo(exportCriteria.getSortInfo());
@@ -480,7 +480,7 @@ public final class CommonClientService extends AbstractClientService implements
 
     public final ResultSet<MatchingEntity> listMatchingEntities(
             final SearchableEntity searchableEntityOrNull, final String queryText,
-            final IResultSetConfig<String> resultSetConfig)
+            final IResultSetConfig<String, MatchingEntity> resultSetConfig)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try

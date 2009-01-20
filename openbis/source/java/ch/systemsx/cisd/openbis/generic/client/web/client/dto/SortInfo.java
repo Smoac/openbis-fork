@@ -23,18 +23,18 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Christian Ribeaud
  */
-public final class SortInfo implements IsSerializable
+public final class SortInfo<T> implements IsSerializable
 {
-    private String sortField;
+    private IColumnDefinition<T> sortField;
 
     private SortDir sortDir = SortDir.NONE;
 
-    public final String getSortField()
+    public final IColumnDefinition<T> getSortField()
     {
         return sortField;
     }
 
-    public final void setSortField(final String sortField)
+    public final void setSortField(final IColumnDefinition<T> sortField)
     {
         this.sortField = sortField;
     }

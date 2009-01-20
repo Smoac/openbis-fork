@@ -19,9 +19,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
-
 /**
  * Some constants used in {@link ModelData} implementations. These constants are typically used in
  * {@link ColumnConfig#setId(String)}. Because they serve a different purpose, they should not be
@@ -39,9 +36,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
  */
 public final class ModelDataPropertyNames
 {
-    /** Because <i>Javascript</i> can not handle 'dot' in the property name. */
-    private static final String FIELD_PATH_SEPARATOR = "_";
-
     public static final String CODE = "code";
 
     public static final String FILE_NAME = "fileName";
@@ -56,58 +50,13 @@ public final class ModelDataPropertyNames
 
     public static final String ENTITY_TYPE = "entityType";
 
-    public static final String MATCHING_FIELD = "fieldDescription";
-
-    public static final String MATCHING_TEXT = "textFragment";
-
-    /**
-     * This is the path to the experiment field starting from {@link Sample}.
-     * <p>
-     * Changing this may mean that sorting no longer works on the server side if result set is used.
-     * </p>
-     */
-    public static final String EXPERIMENT_FOR_SAMPLE =
-            "validProcedure" + FIELD_PATH_SEPARATOR + "experiment";
-
-    /**
-     * This is the path to the experiment identifier field starting from {@link Sample}.
-     * <p>
-     * Changing this may mean that sorting no longer works on the server side if result set is used.
-     * </p>
-     */
-    public static final String EXPERIMENT_IDENTIFIER_FOR_SAMPLE =
-            EXPERIMENT_FOR_SAMPLE + FIELD_PATH_SEPARATOR + "experimentIdentifier";
-
-    /**
-     * This is the path to the experiment type code field starting from {@link Experiment}.
-     * <p>
-     * Changing this may mean that sorting no longer works on the server side if result set is used.
-     * </p>
-     */
-    public static final String EXPERIMENT_TYPE_CODE_FOR_EXPERIMENT =
-            "experimentType" + FIELD_PATH_SEPARATOR + "code";
-
     public static final String FILE_FORMAT_TYPE = "fileFormatType";
 
     public static final String FIRST_NAME = "firstName";
 
     public static final String GROUP = "group";
 
-    /**
-     * This is the path to the project field starting from {@link Experiment}.
-     * <p>
-     * Changing this may mean that sorting no longer works on the server side if result set is used.
-     * </p>
-     */
-    public static final String GROUP_FOR_EXPERIMENT = "project" + FIELD_PATH_SEPARATOR + "group";
-
-    public static final String IDENTIFIER = "identifier";
-
     public static final String DATABASE_INSTANCE = "databaseInstance";
-
-    public static final String IS_GROUP_SAMPLE = "isGroupSample";
-
-    public static final String IS_INSTANCE_SAMPLE = "isInstanceSample";
 
     public static final String IS_INVALID = "isInvalid";
 
@@ -121,15 +70,6 @@ public final class ModelDataPropertyNames
 
     public static final String PERSON = "person";
 
-    /**
-     * This is the path to the project field starting from {@link Sample}.
-     * <p>
-     * Changing this may mean that sorting no longer works on the server side if result set is used.
-     * </p>
-     */
-    public static final String PROJECT_FOR_SAMPLE =
-            EXPERIMENT_FOR_SAMPLE + FIELD_PATH_SEPARATOR + "project";
-
     public static final String REGISTRATION_DATE = "registrationDate";
 
     public static final String REGISTRATOR = "registrator";
@@ -138,8 +78,6 @@ public final class ModelDataPropertyNames
 
     public static final String ROLES = "roles";
 
-    public static final String SAMPLE_IDENTIFIER = "sampleIdentifier";
-
     public static final String SAMPLE_TYPE = "sampleType";
 
     public static final String USER_ID = "userId";
@@ -147,8 +85,6 @@ public final class ModelDataPropertyNames
     public static final String PROJECT_WITH_GROUP = "projectWithGroup";
 
     public static final String PROJECT = "project";
-
-    public static final String EXPERIMENT_IDENTIFIER = "identifier";
 
     public static final String VERSIONS = "versions";
 

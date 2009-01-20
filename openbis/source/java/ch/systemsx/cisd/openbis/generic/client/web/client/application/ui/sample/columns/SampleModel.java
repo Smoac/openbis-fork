@@ -54,16 +54,16 @@ public final class SampleModel extends AbstractEntityModel<Sample>
         assert messageProvider != null : "message provider needed to create table headers";
 
         ColumnDefsAndConfigs<Sample> columns = new ColumnDefsAndConfigs<Sample>();
-        columns.addColumns(createCommonColumnsSchema(messageProvider), true);
+        columns.addColumns(createCommonColumnsSchema(messageProvider));
         if (selectedTypeOrNull != null)
         {
             List<IColumnDefinitionUI<Sample>> parentColumnsSchema =
                     createParentColumnsSchema(messageProvider, selectedTypeOrNull);
-            columns.addColumns(parentColumnsSchema, false);
+            columns.addColumns(parentColumnsSchema);
 
             List<IColumnDefinitionUI<Sample>> propertyColumnsSchema =
                     createPropertyColumnsSchema(selectedTypeOrNull);
-            columns.addColumns(propertyColumnsSchema, false);
+            columns.addColumns(propertyColumnsSchema);
         }
         return columns;
     }

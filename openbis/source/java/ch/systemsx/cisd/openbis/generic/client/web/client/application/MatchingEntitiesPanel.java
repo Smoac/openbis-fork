@@ -81,7 +81,7 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
     {
         List<IColumnDefinitionUI<MatchingEntity>> list =
                 MatchingEntityModel.createColumnsSchema(viewContext);
-        return ColumnDefsAndConfigs.create(list, true);
+        return ColumnDefsAndConfigs.create(list);
     }
 
     @Override
@@ -91,7 +91,7 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
     }
 
     @Override
-    protected void listEntities(DefaultResultSetConfig<String> resultSetConfig,
+    protected void listEntities(DefaultResultSetConfig<String, MatchingEntity> resultSetConfig,
             AbstractAsyncCallback<ResultSet<MatchingEntity>> callback)
     {
         viewContext.getService().listMatchingEntities(searchableEntity, queryText, resultSetConfig,

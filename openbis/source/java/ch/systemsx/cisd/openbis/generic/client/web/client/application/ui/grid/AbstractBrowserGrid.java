@@ -50,7 +50,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncC
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.PagingToolBarWithoutRefresh;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GxtTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -58,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo.SortDir;
 
 /**
  * @author Tomasz Pylak
@@ -67,7 +67,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
 {
     abstract protected void showEntityViewer(M modelData);
 
-    abstract protected void listEntities(DefaultResultSetConfig<String> resultSetConfig,
+    abstract protected void listEntities(DefaultResultSetConfig<String, T> resultSetConfig,
             AbstractAsyncCallback<ResultSet<T>> callback);
 
     abstract protected List<M> createModels(List<T> entities);
@@ -96,7 +96,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
     private String resultSetKey;
 
     // information about sorting options of the last refreshed data
-    private SortInfo sortInfo;
+    private SortInfo<T> sortInfo;
 
     private IDataRefreshCallback refreshCallback;
 
@@ -140,8 +140,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
                 public final void load(final PagingLoadConfig loadConfig,
                         final AsyncCallback<PagingLoadResult<M>> callback)
                 {
-                    DefaultResultSetConfig<String> resultSetConfig =
-                            createPagingConfig(loadConfig, resultSetKey);
+                    DefaultResultSetConfig<String, T> resultSetConfig =
+                            createPagingConfig(loadConfig, columns.getColumnDefs(), resultSetKey);
                     ListEntitiesCallback listCallback =
                             new ListEntitiesCallback(viewContext, callback, resultSetConfig);
                     listEntities(resultSetConfig, listCallback);
@@ -149,15 +149,52 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
             };
     }
 
-    private static DefaultResultSetConfig<String> createPagingConfig(PagingLoadConfig loadConfig,
+    private static <T> DefaultResultSetConfig<String, T> createPagingConfig(
+            PagingLoadConfig loadConfig, List<IColumnDefinition<T>> availableColumns,
             String resultSetKey)
     {
-        DefaultResultSetConfig<String> resultSetConfig = new DefaultResultSetConfig<String>();
+        DefaultResultSetConfig<String, T> resultSetConfig = new DefaultResultSetConfig<String, T>();
         resultSetConfig.setLimit(loadConfig.getLimit());
         resultSetConfig.setOffset(loadConfig.getOffset());
-        resultSetConfig.setSortInfo(GxtTranslator.translate(loadConfig.getSortInfo()));
+        SortInfo<T> sortInfo = translateSortInfo(loadConfig, availableColumns);
+        resultSetConfig.setSortInfo(sortInfo);
         resultSetConfig.setResultSetKey(resultSetKey);
         return resultSetConfig;
+    }
+
+    private static <T> SortInfo<T> translateSortInfo(PagingLoadConfig loadConfig,
+            List<IColumnDefinition<T>> availableColumns)
+    {
+        com.extjs.gxt.ui.client.data.SortInfo origSortInfo = loadConfig.getSortInfo();
+        String origSortField = origSortInfo.getSortField();
+        IColumnDefinition<T> sortColumnDefinition = null;
+        if (origSortField != null)
+        {
+            Map<String, IColumnDefinition<T>> availableColumnsMap = asColumnIdMap(availableColumns);
+            sortColumnDefinition = availableColumnsMap.get(origSortField);
+            assert sortColumnDefinition != null : "sortColumnDefinition is null";
+        }
+        SortInfo<T> sortInfo = new SortInfo<T>();
+        sortInfo.setSortField(sortColumnDefinition);
+        sortInfo.setSortDir(translate(origSortInfo.getSortDir()));
+        return sortInfo;
+    }
+
+    private static SortDir translate(com.extjs.gxt.ui.client.Style.SortDir sortDir)
+    {
+        if (sortDir.equals(com.extjs.gxt.ui.client.Style.SortDir.ASC))
+        {
+            return SortDir.ASC;
+        } else if (sortDir.equals(com.extjs.gxt.ui.client.Style.SortDir.DESC))
+        {
+            return SortDir.DESC;
+        } else if (sortDir.equals(com.extjs.gxt.ui.client.Style.SortDir.NONE))
+        {
+            return SortDir.NONE;
+        } else
+        {
+            throw new IllegalStateException("unknown sort dir: " + sortDir);
+        }
     }
 
     /** @return number of rows in the grid */
@@ -172,11 +209,11 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
         private final AsyncCallback<PagingLoadResult<M>> delegate;
 
         // configuration with which the listing was called
-        private final DefaultResultSetConfig<String> resultSetConfig;
+        private final DefaultResultSetConfig<String, T> resultSetConfig;
 
         public ListEntitiesCallback(final IViewContext<?> viewContext,
                 final AsyncCallback<PagingLoadResult<M>> delegate,
-                final DefaultResultSetConfig<String> resultSetConfig)
+                final DefaultResultSetConfig<String, T> resultSetConfig)
         {
             super(viewContext);
             this.delegate = delegate;
@@ -278,7 +315,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
         return getSelectedColumns(availableColumnsMap, columnModel);
     }
 
-    private void saveSortInfo(SortInfo newSortInfo)
+    private void saveSortInfo(SortInfo<T> newSortInfo)
     {
         this.sortInfo = newSortInfo;
     }

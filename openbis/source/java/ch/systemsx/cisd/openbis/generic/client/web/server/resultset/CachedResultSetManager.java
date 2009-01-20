@@ -30,6 +30,7 @@ import org.apache.log4j.Logger;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo.SortDir;
@@ -52,12 +53,9 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     @Private
     final Map<K, List<?>> results = new HashMap<K, List<?>>();
 
-    private final ComparatorRegistry comparatorRegistry;
-
     public CachedResultSetManager(final IResultSetKeyGenerator<K> resultSetKeyProvider)
     {
         this.resultSetKeyProvider = resultSetKeyProvider;
-        comparatorRegistry = new ComparatorRegistry();
     }
 
     @SuppressWarnings("unchecked")
@@ -66,8 +64,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         return (List<T>) list;
     }
 
-    @SuppressWarnings("unchecked")
-    private final <T> void sortData(final List<T> data, final SortInfo sortInfo)
+    private final <T> void sortData(final List<T> data, final SortInfo<T> sortInfo)
     {
         assert data != null : "Unspecified data.";
         assert sortInfo != null : "Unspecified sort information.";
@@ -76,15 +73,41 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             return;
         }
         final SortDir sortDir = sortInfo.getSortDir();
-        final String sortField = sortInfo.getSortField();
+        final IColumnDefinition<T> sortField = sortInfo.getSortField();
         if (sortDir == SortDir.NONE || sortField == null)
         {
             return;
         }
-        final Comparator<T> fieldComparator =
-                comparatorRegistry.getComparator((Class<T>) data.get(0).getClass(), sortField);
-        Collections.sort(data, sortDir == SortDir.ASC ? fieldComparator : new ReverseComparator(
-                fieldComparator));
+        Comparator<T> comparator = createComparator(sortDir, sortField);
+        Collections.sort(data, comparator);
+    }
+
+    private static <T> Comparator<T> createComparator(final SortDir sortDir,
+            final IColumnDefinition<T> sortField)
+    {
+        Comparator<T> comparator = new Comparator<T>()
+            {
+
+                public int compare(T o1, T o2)
+                {
+                    String v1 = sortField.getValue(o1);
+                    String v2 = sortField.getValue(o2);
+                    return v1.compareTo(v2);
+                }
+            };
+        return applySortDir(sortDir, comparator);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> Comparator<T> applySortDir(final SortDir sortDir, Comparator<T> comparator)
+    {
+        if (sortDir == SortDir.DESC)
+        {
+            return new ReverseComparator(comparator);
+        } else
+        {
+            return comparator;
+        }
     }
 
     @Private
@@ -124,7 +147,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     //
 
     public final synchronized <T> IResultSet<K, T> getResultSet(
-            final IResultSetConfig<K> resultConfig, final IOriginalDataProvider<T> dataProvider)
+            final IResultSetConfig<K, T> resultConfig, final IOriginalDataProvider<T> dataProvider)
     {
         assert resultConfig != null : "Unspecified result configuration";
         assert dataProvider != null : "Unspecified data retriever";
@@ -146,7 +169,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         final int size = data.size();
         final int offset = getOffset(size, resultConfig.getOffset());
         final int limit = getLimit(size, resultConfig.getLimit(), offset);
-        final SortInfo sortInfo = resultConfig.getSortInfo();
+        final SortInfo<T> sortInfo = resultConfig.getSortInfo();
         sortData(data, sortInfo);
         final List<T> list = subList(data, offset, limit);
         return new DefaultResultSet<K, T>(dataKey, list, size);

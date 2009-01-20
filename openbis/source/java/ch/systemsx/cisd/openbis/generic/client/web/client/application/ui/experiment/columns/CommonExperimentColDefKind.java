@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.columns;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
@@ -29,80 +28,83 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
  */
 public enum CommonExperimentColDefKind implements IColumnDefinitionKind<Experiment>
 {
-    CODE(new AbstractColumnDefinitionKind<Experiment>(ModelDataPropertyNames.CODE, Dict.CODE)
+    CODE(new AbstractColumnDefinitionKind<Experiment>(Dict.CODE)
         {
+            @Override
             public String tryGetValue(Experiment entity)
             {
                 return entity.getCode();
             }
         }),
 
-    EXPERIMENT_TYPE(new AbstractColumnDefinitionKind<Experiment>(
-            ModelDataPropertyNames.EXPERIMENT_TYPE_CODE_FOR_EXPERIMENT, Dict.EXPERIMENT_TYPE)
+    EXPERIMENT_TYPE(new AbstractColumnDefinitionKind<Experiment>(Dict.EXPERIMENT_TYPE)
         {
+            @Override
             public String tryGetValue(Experiment entity)
             {
                 return entity.getExperimentType().getCode();
             }
         }),
 
-    EXPERIMENT_IDENTIFIER(new AbstractColumnDefinitionKind<Experiment>(
-            ModelDataPropertyNames.EXPERIMENT_IDENTIFIER, Dict.EXPERIMENT_IDENTIFIER, 150, true)
+    EXPERIMENT_IDENTIFIER(new AbstractColumnDefinitionKind<Experiment>(Dict.EXPERIMENT_IDENTIFIER,
+            150, true)
         {
+            @Override
             public String tryGetValue(Experiment entity)
             {
                 return entity.getIdentifier();
             }
         }),
 
-    GROUP(new AbstractColumnDefinitionKind<Experiment>(ModelDataPropertyNames.GROUP_FOR_EXPERIMENT,
-            Dict.GROUP)
+    GROUP(new AbstractColumnDefinitionKind<Experiment>(Dict.GROUP)
         {
+            @Override
             public String tryGetValue(Experiment entity)
             {
                 return entity.getProject().getGroup().getCode();
             }
         }),
 
-    PROJECT(new AbstractColumnDefinitionKind<Experiment>(ModelDataPropertyNames.PROJECT,
-            Dict.PROJECT)
+    PROJECT(new AbstractColumnDefinitionKind<Experiment>(Dict.PROJECT)
         {
+            @Override
             public String tryGetValue(Experiment entity)
             {
                 return entity.getProject().getCode();
             }
         }),
 
-    REGISTRATOR(new AbstractColumnDefinitionKind<Experiment>(ModelDataPropertyNames.REGISTRATOR,
-            Dict.REGISTRATOR)
+    REGISTRATOR(new AbstractColumnDefinitionKind<Experiment>(Dict.REGISTRATOR)
         {
+            @Override
             public String tryGetValue(Experiment entity)
             {
                 return renderRegistrator(entity);
             }
         }),
 
-    REGISTRATION_DATE(new AbstractColumnDefinitionKind<Experiment>(
-            ModelDataPropertyNames.REGISTRATION_DATE, Dict.REGISTRATION_DATE, 200, false)
+    REGISTRATION_DATE(new AbstractColumnDefinitionKind<Experiment>(Dict.REGISTRATION_DATE, 200,
+            false)
         {
+            @Override
             public String tryGetValue(Experiment entity)
             {
                 return renderRegistrationDate(entity);
             }
         }),
 
-    IS_INVALID(new AbstractColumnDefinitionKind<Experiment>(ModelDataPropertyNames.IS_INVALID,
-            Dict.IS_INVALID, true)
+    IS_INVALID(new AbstractColumnDefinitionKind<Experiment>(Dict.IS_INVALID, true)
         {
+            @Override
             public String tryGetValue(Experiment entity)
             {
                 return renderInvalidationFlag(entity);
             }
         });
 
-    private final IColumnDefinitionKind<Experiment> columnDefinitionKind;
+    private final AbstractColumnDefinitionKind<Experiment> columnDefinitionKind;
 
-    private CommonExperimentColDefKind(IColumnDefinitionKind<Experiment> columnDefinitionKind)
+    private CommonExperimentColDefKind(AbstractColumnDefinitionKind<Experiment> columnDefinitionKind)
     {
         this.columnDefinitionKind = columnDefinitionKind;
     }
@@ -119,7 +121,7 @@ public enum CommonExperimentColDefKind implements IColumnDefinitionKind<Experime
 
     public String id()
     {
-        return columnDefinitionKind.id();
+        return name();
     }
 
     public boolean isHidden()

@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.YesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
@@ -60,23 +61,31 @@ public class ExperimentSamplesSection extends AbstractExperimentTableSection<Sam
     protected ColumnModel createColumnModel()
     {
         final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-        final ColumnConfig codeColumn = ColumnConfigFactory.createCodeColumnConfig(viewContext);
+        final ColumnConfig codeColumn =
+                ColumnConfigFactory.createCodeColumnConfig(viewContext, CommonSampleColDefKind.CODE
+                        .id());
         configs.add(codeColumn);
 
         configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext
                 .getMessage(Dict.SAMPLE_TYPE), ModelDataPropertyNames.SAMPLE_TYPE));
-        configs.add(ColumnConfigFactory.createDefaultColumnConfig(viewContext
-                .getMessage(Dict.GROUP), ModelDataPropertyNames.GROUP));
+        configs.add(createColumnConfig(Dict.GROUP, CommonSampleColDefKind.GROUP));
         final ColumnConfig isInvalidColumn =
-                ColumnConfigFactory.createDefaultColumnConfig(viewContext
-                        .getMessage(Dict.IS_INVALID), ModelDataPropertyNames.IS_INVALID);
+                createColumnConfig(Dict.IS_INVALID, CommonSampleColDefKind.IS_INVALID);
         isInvalidColumn.setRenderer(new YesNoRenderer());
         configs.add(isInvalidColumn);
 
-        configs.add(ColumnConfigFactory.createRegistrationDateColumnConfig(viewContext));
-        configs.add(ColumnConfigFactory.createRegistratorColumnConfig(viewContext));
+        configs.add(ColumnConfigFactory.createRegistrationDateColumnConfig(viewContext,
+                CommonSampleColDefKind.REGISTRATION_DATE.id()));
+        configs.add(ColumnConfigFactory.createRegistratorColumnConfig(viewContext,
+                CommonSampleColDefKind.REGISTRATOR.id()));
 
         return new ColumnModel(configs);
+    }
+
+    private ColumnConfig createColumnConfig(String messageKey, CommonSampleColDefKind columnKind)
+    {
+        return ColumnConfigFactory.createDefaultColumnConfig(viewContext.getMessage(messageKey),
+                columnKind.id());
     }
 
     @Override

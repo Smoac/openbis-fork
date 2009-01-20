@@ -34,10 +34,10 @@ public class ColumnDefsAndConfigs<T>
     private final List<IColumnDefinition<T>> columnDefs;
 
     public static <T> ColumnDefsAndConfigs<T> create(
-            List<? extends IColumnDefinitionUI<T>> columnsSchema, boolean isSortable)
+            List<? extends IColumnDefinitionUI<T>> columnsSchema)
     {
         ColumnDefsAndConfigs<T> result = new ColumnDefsAndConfigs<T>();
-        result.addColumns(columnsSchema, isSortable);
+        result.addColumns(columnsSchema);
         return result;
     }
 
@@ -47,20 +47,20 @@ public class ColumnDefsAndConfigs<T>
         this.columnDefs = new ArrayList<IColumnDefinition<T>>();
     }
 
-    public void addColumns(List<? extends IColumnDefinitionUI<T>> columnsSchema, boolean isSortable)
+    public void addColumns(List<? extends IColumnDefinitionUI<T>> columnsSchema)
     {
         for (IColumnDefinitionUI<T> column : columnsSchema)
         {
-            columnConfigs.add(createColumn(column, isSortable));
+            columnConfigs.add(createColumn(column));
             columnDefs.add(column);
         }
     }
 
-    private static <T> ColumnConfig createColumn(IColumnDefinitionUI<T> column, boolean isSortable)
+    private static <T> ColumnConfig createColumn(IColumnDefinitionUI<T> column)
     {
         final ColumnConfig columnConfig = new ColumnConfig();
         columnConfig.setMenuDisabled(false);
-        columnConfig.setSortable(isSortable);
+        columnConfig.setSortable(true);
         columnConfig.setId(column.getIdentifier());
         columnConfig.setHeader(column.getHeader());
 

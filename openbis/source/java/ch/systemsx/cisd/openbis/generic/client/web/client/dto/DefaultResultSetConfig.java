@@ -23,13 +23,13 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Christian Ribeaud
  */
-public class DefaultResultSetConfig<K> implements IResultSetConfig<K>, IsSerializable
+public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsSerializable
 {
     private int limit = NO_LIMIT;
 
     private int offset = 0;
 
-    private SortInfo sortInfo = new SortInfo();
+    private SortInfo<T> sortInfo = new SortInfo<T>();
 
     /**
      * The result set key.
@@ -49,7 +49,7 @@ public class DefaultResultSetConfig<K> implements IResultSetConfig<K>, IsSeriali
         this.offset = offset;
     }
 
-    public final void setSortInfo(final SortInfo sortInfo)
+    public final void setSortInfo(final SortInfo<T> sortInfo)
     {
         this.sortInfo = sortInfo;
     }
@@ -73,7 +73,7 @@ public class DefaultResultSetConfig<K> implements IResultSetConfig<K>, IsSeriali
         return offset;
     }
 
-    public final SortInfo getSortInfo()
+    public final SortInfo<T> getSortInfo()
     {
         return sortInfo;
     }

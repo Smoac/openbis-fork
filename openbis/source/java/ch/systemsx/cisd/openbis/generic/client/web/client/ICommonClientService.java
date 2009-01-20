@@ -159,7 +159,8 @@ public interface ICommonClientService extends IClientService
      */
     public ResultSet<MatchingEntity> listMatchingEntities(
             final SearchableEntity searchableEntityOrNull, final String queryText,
-            final IResultSetConfig<String> resultSetConfig) throws UserFailureException;
+            final IResultSetConfig<String, MatchingEntity> resultSetConfig)
+            throws UserFailureException;
 
     /**
      * Removes the session result set associated with given key.

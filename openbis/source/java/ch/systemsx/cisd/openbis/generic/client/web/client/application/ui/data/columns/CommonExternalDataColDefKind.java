@@ -17,65 +17,65 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<ExternalData>
 {
-    CODE(new AbstractColumnDefinitionKind<ExternalData>(ModelDataPropertyNames.CODE, Dict.CODE)
+    CODE(new AbstractColumnDefinitionKind<ExternalData>(Dict.CODE)
         {
+            @Override
             public String tryGetValue(ExternalData entity)
             {
                 return entity.getCode();
             }
         }),
 
-    REGISTRATION_DATE(new AbstractColumnDefinitionKind<ExternalData>(
-            ModelDataPropertyNames.REGISTRATION_DATE, Dict.REGISTRATION_DATE, 200, false)
+    REGISTRATION_DATE(new AbstractColumnDefinitionKind<ExternalData>(Dict.REGISTRATION_DATE, 200,
+            false)
         {
+            @Override
             public String tryGetValue(ExternalData entity)
             {
                 return renderRegistrationDate(entity);
             }
         }),
 
-    REGISTRATOR(new AbstractColumnDefinitionKind<ExternalData>(ModelDataPropertyNames.REGISTRATOR,
-            Dict.REGISTRATOR)
+    REGISTRATOR(new AbstractColumnDefinitionKind<ExternalData>(Dict.REGISTRATOR)
         {
+            @Override
             public String tryGetValue(ExternalData entity)
             {
                 return renderRegistrator(entity);
             }
         }),
 
-    LOCATION(new AbstractColumnDefinitionKind<ExternalData>(ModelDataPropertyNames.LOCATION,
-            Dict.LOCATION)
+    LOCATION(new AbstractColumnDefinitionKind<ExternalData>(Dict.LOCATION)
         {
+            @Override
             public String tryGetValue(ExternalData entity)
             {
                 return entity.getLocation();
             }
         }),
 
-    FILE_FORMAT_TYPE(new AbstractColumnDefinitionKind<ExternalData>(
-            ModelDataPropertyNames.FILE_FORMAT_TYPE, Dict.FILE_FORMAT_TYPE)
+    FILE_FORMAT_TYPE(new AbstractColumnDefinitionKind<ExternalData>(Dict.FILE_FORMAT_TYPE)
         {
+            @Override
             public String tryGetValue(ExternalData entity)
             {
                 return entity.getFileFormatType().getCode();
             }
         });
 
-    private final IColumnDefinitionKind<ExternalData> columnDefinitionKind;
+    private final AbstractColumnDefinitionKind<ExternalData> columnDefinitionKind;
 
-    private CommonExternalDataColDefKind(IColumnDefinitionKind<ExternalData> columnDefinitionKind)
+    private CommonExternalDataColDefKind(
+            AbstractColumnDefinitionKind<ExternalData> columnDefinitionKind)
     {
         this.columnDefinitionKind = columnDefinitionKind;
     }
@@ -92,7 +92,7 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
 
     public String id()
     {
-        return columnDefinitionKind.id();
+        return name();
     }
 
     public boolean isHidden()

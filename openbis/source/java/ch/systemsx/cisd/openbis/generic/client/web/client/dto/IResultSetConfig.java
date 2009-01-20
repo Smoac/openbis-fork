@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
  * 
  * @author Christian Ribeaud
  */
-public interface IResultSetConfig<K> extends IResultSetKeyHolder<K>
+public interface IResultSetConfig<K, T> extends IResultSetKeyHolder<K>
 {
     public static final int NO_LIMIT = -1;
 
@@ -48,5 +48,5 @@ public interface IResultSetConfig<K> extends IResultSetKeyHolder<K>
     /**
      * Returns the sort info.
      */
-    public SortInfo getSortInfo();
+    public SortInfo<T> getSortInfo();
 }

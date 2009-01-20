@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
  * @author Izabela Adamczyk
  * @author Tomasz Pylak
  */
-public final class ListSampleCriteria extends DefaultResultSetConfig<String> implements
+public final class ListSampleCriteria extends DefaultResultSetConfig<String, Sample> implements
         IsSerializable
 {
     // --------- filter 1 fields

@@ -81,12 +81,12 @@ public final class ExperimentModel extends AbstractEntityModel<Experiment>
             IMessageProvider messageProvider, ExperimentType selectedTypeOrNull)
     {
         ColumnDefsAndConfigs<Experiment> columns = new ColumnDefsAndConfigs<Experiment>();
-        columns.addColumns(createCommonColumnsSchema(messageProvider), true);
+        columns.addColumns(createCommonColumnsSchema(messageProvider));
         if (selectedTypeOrNull != null)
         {
             List<IColumnDefinitionUI<Experiment>> propertyColumnsSchema =
                     createPropertyColumnsSchema(selectedTypeOrNull);
-            columns.addColumns(propertyColumnsSchema, false);
+            columns.addColumns(propertyColumnsSchema);
         }
         return columns;
     }

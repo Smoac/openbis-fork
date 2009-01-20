@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.columns.CommonExperimentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.renderer.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.RendererTestUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
@@ -34,14 +34,14 @@ public class ExperimentRow extends Row
     {
         super();
         this.code = code;
-        withCell(ModelDataPropertyNames.CODE, code);
+        withCell(CommonExperimentColDefKind.CODE.id(), code);
     }
 
     public ExperimentRow invalid()
     {
         withInvalidation(true);
         // overwrite previous code
-        withCell(ModelDataPropertyNames.CODE, RendererTestUtil.invalidCode(code));
+        withCell(CommonExperimentColDefKind.CODE.id(), RendererTestUtil.invalidCode(code));
         return this;
     }
 
@@ -53,7 +53,7 @@ public class ExperimentRow extends Row
 
     private void withInvalidation(boolean isInvalid)
     {
-        withCell(ModelDataPropertyNames.IS_INVALID, SimpleYesNoRenderer.render(isInvalid));
+        withCell(CommonExperimentColDefKind.IS_INVALID.id(), SimpleYesNoRenderer.render(isInvalid));
     }
 
 }

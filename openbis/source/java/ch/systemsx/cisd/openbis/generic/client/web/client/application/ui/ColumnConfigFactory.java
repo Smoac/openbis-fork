@@ -39,22 +39,38 @@ public final class ColumnConfigFactory
     public final static ColumnConfig createRegistratorColumnConfig(
             final IMessageProvider messageProvider)
     {
-        return createDefaultColumnConfig(messageProvider.getMessage(Dict.REGISTRATOR),
-                ModelDataPropertyNames.REGISTRATOR);
+        return createRegistratorColumnConfig(messageProvider, ModelDataPropertyNames.REGISTRATOR);
+    }
+
+    public final static ColumnConfig createRegistratorColumnConfig(
+            final IMessageProvider messageProvider, String id)
+    {
+        return createDefaultColumnConfig(messageProvider.getMessage(Dict.REGISTRATOR), id);
     }
 
     public final static ColumnConfig createCodeColumnConfig(final IMessageProvider messageProvider)
     {
-        return createDefaultColumnConfig(messageProvider.getMessage(Dict.CODE),
-                ModelDataPropertyNames.CODE);
+        return createCodeColumnConfig(messageProvider, ModelDataPropertyNames.CODE);
+    }
+
+    public final static ColumnConfig createCodeColumnConfig(final IMessageProvider messageProvider,
+            String id)
+    {
+        return createDefaultColumnConfig(messageProvider.getMessage(Dict.CODE), id);
     }
 
     public final static ColumnConfig createRegistrationDateColumnConfig(
             final IMessageProvider messageProvider)
     {
+        return createRegistrationDateColumnConfig(messageProvider,
+                ModelDataPropertyNames.REGISTRATION_DATE);
+    }
+
+    public final static ColumnConfig createRegistrationDateColumnConfig(
+            final IMessageProvider messageProvider, String id)
+    {
         final ColumnConfig registrationDateColumnConfig =
-                createDefaultColumnConfig(messageProvider.getMessage(Dict.REGISTRATION_DATE),
-                        ModelDataPropertyNames.REGISTRATION_DATE);
+                createDefaultColumnConfig(messageProvider.getMessage(Dict.REGISTRATION_DATE), id);
         registrationDateColumnConfig.setWidth(200);
         return registrationDateColumnConfig;
     }

@@ -66,63 +66,66 @@ public final class MatchingEntityModel extends AbstractEntityModel<MatchingEntit
 
     public enum MatchingEntityColumnKind implements IColumnDefinitionKind<MatchingEntity>
     {
-        ENTITY_KIND(new AbstractColumnDefinitionKind<MatchingEntity>(
-                ModelDataPropertyNames.ENTITY_KIND, Dict.ENTITY_KIND)
+        ENTITY_KIND(new AbstractColumnDefinitionKind<MatchingEntity>(Dict.ENTITY_KIND)
             {
+                @Override
                 public String tryGetValue(MatchingEntity entity)
                 {
                     return entity.getEntityKind().getDescription();
                 }
             }),
 
-        ENTITY_TYPE(new AbstractColumnDefinitionKind<MatchingEntity>(
-                ModelDataPropertyNames.ENTITY_TYPE, Dict.ENTITY_TYPE)
+        ENTITY_TYPE(new AbstractColumnDefinitionKind<MatchingEntity>(Dict.ENTITY_TYPE)
             {
+                @Override
                 public String tryGetValue(MatchingEntity entity)
                 {
                     return entity.getEntityType().getCode();
                 }
             }),
 
-        IDENTIFIER(new AbstractColumnDefinitionKind<MatchingEntity>(
-                ModelDataPropertyNames.IDENTIFIER, Dict.IDENTIFIER, 140, false)
+        IDENTIFIER(new AbstractColumnDefinitionKind<MatchingEntity>(Dict.IDENTIFIER, 140, false)
             {
+                @Override
                 public String tryGetValue(MatchingEntity entity)
                 {
                     return entity.getIdentifier();
                 }
             }),
 
-        REGISTRATOR(new AbstractColumnDefinitionKind<MatchingEntity>(
-                ModelDataPropertyNames.REGISTRATOR, Dict.REGISTRATOR)
+        REGISTRATOR(new AbstractColumnDefinitionKind<MatchingEntity>(Dict.REGISTRATOR)
             {
+                @Override
                 public String tryGetValue(MatchingEntity entity)
                 {
                     return renderRegistrator(entity.getRegistrator());
                 }
             }),
 
-        MATCHING_FIELD(new AbstractColumnDefinitionKind<MatchingEntity>(
-                ModelDataPropertyNames.MATCHING_FIELD, Dict.MATCHING_FIELD, 140, false)
+        MATCHING_FIELD(new AbstractColumnDefinitionKind<MatchingEntity>(Dict.MATCHING_FIELD, 140,
+                false)
             {
+                @Override
                 public String tryGetValue(MatchingEntity entity)
                 {
                     return entity.getFieldDescription();
                 }
             }),
 
-        MATCHING_TEXT(new AbstractColumnDefinitionKind<MatchingEntity>(
-                ModelDataPropertyNames.MATCHING_TEXT, Dict.MATCHING_TEXT, 200, false)
+        MATCHING_TEXT(new AbstractColumnDefinitionKind<MatchingEntity>(Dict.MATCHING_TEXT, 200,
+                false)
             {
+                @Override
                 public String tryGetValue(MatchingEntity entity)
                 {
                     return entity.getTextFragment();
                 }
             });
 
-        private final IColumnDefinitionKind<MatchingEntity> columnDefinitionKind;
+        private final AbstractColumnDefinitionKind<MatchingEntity> columnDefinitionKind;
 
-        private MatchingEntityColumnKind(IColumnDefinitionKind<MatchingEntity> columnDefinitionKind)
+        private MatchingEntityColumnKind(
+                AbstractColumnDefinitionKind<MatchingEntity> columnDefinitionKind)
         {
             this.columnDefinitionKind = columnDefinitionKind;
         }
@@ -139,7 +142,7 @@ public final class MatchingEntityModel extends AbstractEntityModel<MatchingEntit
 
         public String id()
         {
-            return columnDefinitionKind.id();
+            return name();
         }
 
         public boolean isHidden()

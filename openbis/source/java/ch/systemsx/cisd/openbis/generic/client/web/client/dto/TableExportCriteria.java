@@ -32,7 +32,7 @@ public class TableExportCriteria<T/* exported entity */> implements IResultSetKe
     // a key at which data are stored in the server cache
     private String resultSetKey;
 
-    private SortInfo sortInfo = new SortInfo();
+    private SortInfo<T> sortInfo = new SortInfo<T>();
 
     // which columns should be exported
     private List<IColumnDefinition<T>> columnDefs;
@@ -42,7 +42,7 @@ public class TableExportCriteria<T/* exported entity */> implements IResultSetKe
     {
     }
 
-    public TableExportCriteria(String resultSetKey, SortInfo sortInfo,
+    public TableExportCriteria(String resultSetKey, SortInfo<T> sortInfo,
             List<IColumnDefinition<T>> columnDefs)
     {
         this.resultSetKey = resultSetKey;
@@ -55,7 +55,7 @@ public class TableExportCriteria<T/* exported entity */> implements IResultSetKe
         return resultSetKey;
     }
 
-    public SortInfo getSortInfo()
+    public SortInfo<T> getSortInfo()
     {
         return sortInfo;
     }
