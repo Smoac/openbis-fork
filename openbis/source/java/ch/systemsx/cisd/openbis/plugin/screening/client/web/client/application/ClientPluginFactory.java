@@ -38,8 +38,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.Cli
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.SampleTypeCode;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 
@@ -104,13 +102,13 @@ public final class ClientPluginFactory extends
     // Helper classes
     //
 
-    private final class SampleClientPlugin implements IClientPlugin<SampleType, Sample>
+    private final class SampleClientPlugin implements IClientPlugin<SampleType, IIdentifierHolder>
     {
         //
         // IViewClientPlugin
         //
 
-        public final ITabItemFactory createEntityViewer(final Sample sample)
+        public final ITabItemFactory createEntityViewer(final IIdentifierHolder sample)
         {
             final String sampleIdentifier = sample.getIdentifier();
             return new ITabItemFactory()
@@ -146,7 +144,7 @@ public final class ClientPluginFactory extends
     }
 
     private final static class ExperimentClientPlugin extends
-            ClientPluginAdapter<ExperimentType, Experiment>
+            ClientPluginAdapter<ExperimentType, IIdentifierHolder>
     {
 
         //
@@ -154,7 +152,7 @@ public final class ClientPluginFactory extends
         //
 
         @Override
-        public final ITabItemFactory createEntityViewer(final Experiment identifier)
+        public final ITabItemFactory createEntityViewer(final IIdentifierHolder identifier)
         {
             return new ITabItemFactory()
                 {

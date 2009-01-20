@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.extjs.gxt.ui.client.data.BaseModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -23,19 +26,37 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.I
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.CommonColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CodeWithRegistration;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionUI;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AbstractRegistrationHolder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IInvalidationProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public class AbstractEntityModel<T extends CodeWithRegistration<T>> extends BaseModelData
+public class AbstractEntityModel<T> extends BaseModelData
 {
     private static final long serialVersionUID = 1L;
 
+    protected AbstractEntityModel(final T entity, List<? extends IColumnDefinition<T>> columnsSchema)
+    {
+        set(ModelDataPropertyNames.OBJECT, entity);
+
+        for (IColumnDefinition<T> column : columnsSchema)
+        {
+            String value = renderColumnValue(entity, column);
+            set(column.getIdentifier(), value);
+        }
+    }
+
+    public final T getBaseObject()
+    {
+        return get(ModelDataPropertyNames.OBJECT);
+    }
+
+    // ugly, ugly, ugly!
     protected String renderColumnValue(final T entity, IColumnDefinition<T> column)
     {
         String value = column.getValue(entity);
@@ -44,9 +65,11 @@ public class AbstractEntityModel<T extends CodeWithRegistration<T>> extends Base
             IColumnDefinitionKind<?> columnKind =
                     ((CommonColumnDefinition<?>) column).getColumnDefinitionKind();
             String headerMsgKey = columnKind.getHeaderMsgKey();
-            if (headerMsgKey.equals(Dict.REGISTRATOR))
+            if (headerMsgKey.equals(Dict.REGISTRATOR)
+                    && entity instanceof AbstractRegistrationHolder)
             {
-                value = PersonRenderer.createPersonAnchor(entity.getRegistrator(), value);
+                Person registrator = ((AbstractRegistrationHolder) entity).getRegistrator();
+                value = PersonRenderer.createPersonAnchor(registrator, value);
             } else if (headerMsgKey.equals(Dict.CODE) && entity instanceof IInvalidationProvider)
             {
                 value = InvalidableWithCodeRenderer.render((IInvalidationProvider) entity, value);
@@ -55,5 +78,26 @@ public class AbstractEntityModel<T extends CodeWithRegistration<T>> extends Base
         return value;
     }
 
+    protected static <T> List<IColumnDefinitionUI<T>> createColumnsSchemaFrom(
+            IColumnDefinitionKind<T>[] columnKinds, IMessageProvider msgProviderOrNull)
+    {
+        List<IColumnDefinitionUI<T>> list = new ArrayList<IColumnDefinitionUI<T>>();
+        for (IColumnDefinitionKind<T> columnKind : columnKinds)
+        {
+            list.add(createColumn(columnKind, msgProviderOrNull));
+        }
+        return list;
+    }
+
+    private static <T> IColumnDefinitionUI<T> createColumn(IColumnDefinitionKind<T> columnKind,
+            IMessageProvider messageProviderOrNull)
+    {
+        String headerText = null;
+        if (messageProviderOrNull != null)
+        {
+            headerText = messageProviderOrNull.getMessage(columnKind.getHeaderMsgKey());
+        }
+        return new CommonColumnDefinition<T>(columnKind, headerText);
+    }
 
 }

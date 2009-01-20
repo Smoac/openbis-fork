@@ -16,28 +16,21 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExternalDataModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns.CommonExternalDataColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.CommonColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ColumnDefsAndConfigs;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ExternalDataGrid extends AbstractBrowserGrid<ExternalData, ExternalDataModel>
@@ -50,26 +43,9 @@ public class ExternalDataGrid extends AbstractBrowserGrid<ExternalData, External
     @Override
     protected ColumnDefsAndConfigs<ExternalData> createColumnsDefinition()
     {
-        ColumnDefsAndConfigs<ExternalData> columns = new ColumnDefsAndConfigs<ExternalData>();
         List<IColumnDefinitionUI<ExternalData>> list =
-                new ArrayList<IColumnDefinitionUI<ExternalData>>();
-        for (CommonExternalDataColDefKind columnKind : CommonExternalDataColDefKind.values())
-        {
-            list.add(createColumn(columnKind, viewContext));
-        }
-        columns.addColumns(list, true);
-        return columns;
-    }
-
-    private CommonColumnDefinition<ExternalData> createColumn(
-            IColumnDefinitionKind<ExternalData> columnKind, IMessageProvider messageProviderOrNull)
-    {
-        String headerText = null;
-        if (messageProviderOrNull != null)
-        {
-            headerText = messageProviderOrNull.getMessage(columnKind.getHeaderMsgKey());
-        }
-        return new CommonColumnDefinition<ExternalData>(columnKind, headerText);
+                ExternalDataModel.createColumnsSchema(viewContext);
+        return ColumnDefsAndConfigs.create(list, true);
     }
 
     @Override
@@ -83,7 +59,7 @@ public class ExternalDataGrid extends AbstractBrowserGrid<ExternalData, External
             AbstractAsyncCallback<ResultSet<ExternalData>> callback)
     {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -91,7 +67,7 @@ public class ExternalDataGrid extends AbstractBrowserGrid<ExternalData, External
             AbstractAsyncCallback<String> callback)
     {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override

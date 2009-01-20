@@ -19,10 +19,14 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionUI;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
 
 /**
@@ -30,24 +34,23 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
  * 
  * @author Christian Ribeaud
  */
-public final class MatchingEntityModel extends BaseModelData
+public final class MatchingEntityModel extends AbstractEntityModel<MatchingEntity>
 {
     private static final long serialVersionUID = 1L;
 
-    public MatchingEntityModel()
+    public MatchingEntityModel(final MatchingEntity entity)
     {
+        super(entity, createColumnsSchema(null));
+
+        // override registrator column adding a link
+        set(MatchingEntityColumnKind.REGISTRATOR.id(), PersonRenderer.createPersonAnchor(entity
+                .getRegistrator()));
     }
 
-    public MatchingEntityModel(final MatchingEntity matchingEntity)
+    public static List<IColumnDefinitionUI<MatchingEntity>> createColumnsSchema(
+            IMessageProvider msgProviderOrNull)
     {
-        set(ModelDataPropertyNames.OBJECT, matchingEntity);
-        set(ModelDataPropertyNames.IDENTIFIER, matchingEntity.getIdentifier());
-        set(ModelDataPropertyNames.ENTITY_KIND, matchingEntity.getEntityKind().getDescription());
-        set(ModelDataPropertyNames.ENTITY_TYPE, matchingEntity.getEntityType().getCode());
-        set(ModelDataPropertyNames.MATCHING_FIELD, matchingEntity.getFieldDescription());
-        set(ModelDataPropertyNames.MATCHING_TEXT, matchingEntity.getTextFragment());
-        set(ModelDataPropertyNames.REGISTRATOR, PersonRenderer.createPersonAnchor(matchingEntity
-                .getRegistrator()));
+        return createColumnsSchemaFrom(MatchingEntityColumnKind.values(), msgProviderOrNull);
     }
 
     public final static List<MatchingEntityModel> convert(
@@ -60,4 +63,94 @@ public final class MatchingEntityModel extends BaseModelData
         }
         return list;
     }
+
+    public enum MatchingEntityColumnKind implements IColumnDefinitionKind<MatchingEntity>
+    {
+        ENTITY_KIND(new AbstractColumnDefinitionKind<MatchingEntity>(
+                ModelDataPropertyNames.ENTITY_KIND, Dict.ENTITY_KIND)
+            {
+                public String tryGetValue(MatchingEntity entity)
+                {
+                    return entity.getEntityKind().getDescription();
+                }
+            }),
+
+        ENTITY_TYPE(new AbstractColumnDefinitionKind<MatchingEntity>(
+                ModelDataPropertyNames.ENTITY_TYPE, Dict.ENTITY_TYPE)
+            {
+                public String tryGetValue(MatchingEntity entity)
+                {
+                    return entity.getEntityType().getCode();
+                }
+            }),
+
+        IDENTIFIER(new AbstractColumnDefinitionKind<MatchingEntity>(
+                ModelDataPropertyNames.IDENTIFIER, Dict.IDENTIFIER, 140, false)
+            {
+                public String tryGetValue(MatchingEntity entity)
+                {
+                    return entity.getIdentifier();
+                }
+            }),
+
+        REGISTRATOR(new AbstractColumnDefinitionKind<MatchingEntity>(
+                ModelDataPropertyNames.REGISTRATOR, Dict.REGISTRATOR)
+            {
+                public String tryGetValue(MatchingEntity entity)
+                {
+                    return renderRegistrator(entity.getRegistrator());
+                }
+            }),
+
+        MATCHING_FIELD(new AbstractColumnDefinitionKind<MatchingEntity>(
+                ModelDataPropertyNames.MATCHING_FIELD, Dict.MATCHING_FIELD, 140, false)
+            {
+                public String tryGetValue(MatchingEntity entity)
+                {
+                    return entity.getFieldDescription();
+                }
+            }),
+
+        MATCHING_TEXT(new AbstractColumnDefinitionKind<MatchingEntity>(
+                ModelDataPropertyNames.MATCHING_TEXT, Dict.MATCHING_TEXT, 200, false)
+            {
+                public String tryGetValue(MatchingEntity entity)
+                {
+                    return entity.getTextFragment();
+                }
+            });
+
+        private final IColumnDefinitionKind<MatchingEntity> columnDefinitionKind;
+
+        private MatchingEntityColumnKind(IColumnDefinitionKind<MatchingEntity> columnDefinitionKind)
+        {
+            this.columnDefinitionKind = columnDefinitionKind;
+        }
+
+        public String getHeaderMsgKey()
+        {
+            return columnDefinitionKind.getHeaderMsgKey();
+        }
+
+        public int getWidth()
+        {
+            return columnDefinitionKind.getWidth();
+        }
+
+        public String id()
+        {
+            return columnDefinitionKind.id();
+        }
+
+        public boolean isHidden()
+        {
+            return columnDefinitionKind.isHidden();
+        }
+
+        public String tryGetValue(MatchingEntity entity)
+        {
+            return columnDefinitionKind.tryGetValue(entity);
+        }
+    }
+
 }

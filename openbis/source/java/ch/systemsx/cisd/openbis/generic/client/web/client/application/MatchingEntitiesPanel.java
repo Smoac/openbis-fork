@@ -16,299 +16,93 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.XDOM;
-import com.extjs.gxt.ui.client.Style.SelectionMode;
-import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
-import com.extjs.gxt.ui.client.data.BasePagingLoader;
-import com.extjs.gxt.ui.client.data.PagingLoadConfig;
-import com.extjs.gxt.ui.client.data.PagingLoadResult;
-import com.extjs.gxt.ui.client.data.PagingLoader;
-import com.extjs.gxt.ui.client.data.RpcProxy;
-import com.extjs.gxt.ui.client.event.GridEvent;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.TabPanelEvent;
-import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.PagingToolBar;
-import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
-import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
-import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.MatchingEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.PagingToolBarWithoutRefresh;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GxtTranslator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionUI;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 
 /**
  * A {@link LayoutContainer} extension which displays the matching entities.
  * 
  * @author Christian Ribeaud
  */
-final class MatchingEntitiesPanel extends ContentPanel implements Listener<TabPanelEvent>
+final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, MatchingEntityModel>
 {
-    static final int PAGE_SIZE = 50;
-
     static final String PREFIX = GenericConstants.ID_PREFIX + "matching-entities-panel_";
 
     static final String GRID_ID = PREFIX + "grid";
-
-    private final IViewContext<ICommonClientServiceAsync> viewContext;
-
-    private final PagingLoader<PagingLoadConfig> matchingEntitiesLoader;
 
     private final SearchableEntity searchableEntity;
 
     private final String queryText;
 
-    private String resultSetKey;
-
-    private ResultSet<MatchingEntity> firstResultSet;
-
     MatchingEntitiesPanel(final IViewContext<ICommonClientServiceAsync> viewContext,
             final SearchableEntity searchableEntity, final String queryText)
     {
-        this.viewContext = viewContext;
+        super(viewContext, GRID_ID);
         this.searchableEntity = searchableEntity;
         this.queryText = queryText;
-        matchingEntitiesLoader = createMatchingEntitiesLoader();
         setId(PREFIX + XDOM.getUniqueId());
-        setLayout(new FitLayout());
-        add(createGrid());
-        final PagingToolBar toolBar = createPagingToolBar();
-        toolBar.bind(matchingEntitiesLoader);
-        setHeaderVisible(false);
-        setBottomComponent(toolBar);
     }
 
-    private final PagingLoader<PagingLoadConfig> createMatchingEntitiesLoader()
+    public final void refresh(final IDataRefreshCallback newRefreshCallback)
     {
-        final RpcProxy<PagingLoadConfig, PagingLoadResult<MatchingEntityModel>> proxy =
-                createRpcProxy();
-        final BasePagingLoader<PagingLoadConfig, PagingLoadResult<MatchingEntityModel>> pagingLoader =
-                new BasePagingLoader<PagingLoadConfig, PagingLoadResult<MatchingEntityModel>>(proxy);
-        pagingLoader.setRemoteSort(true);
-        return pagingLoader;
+        super.refresh(newRefreshCallback, null, true);
     }
 
-    private final RpcProxy<PagingLoadConfig, PagingLoadResult<MatchingEntityModel>> createRpcProxy()
+    @Override
+    protected void showEntityViewer(MatchingEntityModel matchingEntityModel)
     {
-        return new RpcProxy<PagingLoadConfig, PagingLoadResult<MatchingEntityModel>>()
-            {
-
-                //
-                // RpcProxy
-                //
-
-                @Override
-                public final void load(final PagingLoadConfig loadConfig,
-                        final AsyncCallback<PagingLoadResult<MatchingEntityModel>> callback)
-                {
-                    final int offset = loadConfig.getOffset();
-                    final ListMatchingEntitiesCallback listMatchingEntitiesCallback =
-                            new ListMatchingEntitiesCallback(viewContext, callback, offset);
-                    if (firstResultSet != null)
-                    {
-                        listMatchingEntitiesCallback.onSuccess(firstResultSet);
-                        firstResultSet = null;
-                        return;
-                    }
-                    final DefaultResultSetConfig<String> resultSetConfig =
-                            new DefaultResultSetConfig<String>();
-                    resultSetConfig.setOffset(offset);
-                    resultSetConfig.setLimit(loadConfig.getLimit());
-                    resultSetConfig.setSortInfo(GxtTranslator.translate(loadConfig.getSortInfo()));
-                    resultSetConfig.setResultSetKey(resultSetKey);
-                    viewContext.getService().listMatchingEntities(searchableEntity, queryText,
-                            resultSetConfig, listMatchingEntitiesCallback);
-                }
-
-            };
+        final MatchingEntity matchingEntity = matchingEntityModel.getBaseObject();
+        final EntityKind entityKind = matchingEntity.getEntityKind();
+        final ITabItemFactory tabView =
+                viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
+                        matchingEntity.getEntityType()).createClientPlugin(entityKind)
+                        .createEntityViewer(matchingEntity);
+        DispatcherHelper.dispatchNaviEvent(tabView);
     }
 
-    private final Grid<MatchingEntityModel> createGrid()
+    @Override
+    protected ColumnDefsAndConfigs<MatchingEntity> createColumnsDefinition()
     {
-        final ColumnModel columnModel = createColumnModel();
-
-        final Grid<MatchingEntityModel> grid =
-                new Grid<MatchingEntityModel>(new ListStore<MatchingEntityModel>(
-                        matchingEntitiesLoader), columnModel);
-        grid.setId(GRID_ID);
-        grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        grid.setLoadMask(true);
-        grid.addListener(Events.CellDoubleClick, new Listener<GridEvent>()
-            {
-
-                //
-                // Listener
-                //
-
-                public final void handleEvent(final GridEvent be)
-                {
-                    final MatchingEntityModel matchingEntityModel =
-                            (MatchingEntityModel) be.grid.getStore().getAt(be.rowIndex);
-                    final MatchingEntity matchingEntity =
-                            (MatchingEntity) matchingEntityModel.get(ModelDataPropertyNames.OBJECT);
-                    final EntityKind entityKind = matchingEntity.getEntityKind();
-                    final ITabItemFactory tabView =
-                            viewContext.getClientPluginFactoryProvider().getClientPluginFactory(
-                                    entityKind, matchingEntity.getEntityType()).createClientPlugin(
-                                    entityKind).createEntityViewer(matchingEntity);
-                    DispatcherHelper.dispatchNaviEvent(tabView);
-                }
-            });
-        GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
-        return grid;
+        List<IColumnDefinitionUI<MatchingEntity>> list =
+                MatchingEntityModel.createColumnsSchema(viewContext);
+        return ColumnDefsAndConfigs.create(list, true);
     }
 
-    private final ColumnModel createColumnModel()
+    @Override
+    protected List<MatchingEntityModel> createModels(List<MatchingEntity> entities)
     {
-        final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-        configs.add(createEntityKindColumnConfig());
-        configs.add(createEntityTypeColumnConfig());
-        configs.add(createIdentifierColumnConfig());
-        configs.add(ColumnConfigFactory.createRegistratorColumnConfig(viewContext));
-        configs.add(createMatchedFieldColumnConfig());
-        configs.add(createMatchedTextColumnConfig());
-        final ColumnModel columnModel = new ColumnModel(configs);
-        return columnModel;
+        return MatchingEntityModel.convert(entities);
     }
 
-    private final ColumnConfig createMatchedTextColumnConfig()
+    @Override
+    protected void listEntities(DefaultResultSetConfig<String> resultSetConfig,
+            AbstractAsyncCallback<ResultSet<MatchingEntity>> callback)
     {
-        ColumnConfig config =
-                createColumnConfig(Dict.MATCHING_TEXT, ModelDataPropertyNames.MATCHING_TEXT);
-        config.setWidth(200);
-        return config;
+        viewContext.getService().listMatchingEntities(searchableEntity, queryText, resultSetConfig,
+                callback);
     }
 
-    private final ColumnConfig createMatchedFieldColumnConfig()
+    @Override
+    protected void prepareExportEntities(TableExportCriteria<MatchingEntity> exportCriteria,
+            AbstractAsyncCallback<String> callback)
     {
-        ColumnConfig config =
-                createColumnConfig(Dict.MATCHING_FIELD, ModelDataPropertyNames.MATCHING_FIELD);
-        config.setWidth(140);
-        return config;
-    }
-
-    private final ColumnConfig createEntityKindColumnConfig()
-    {
-        return createColumnConfig(Dict.ENTITY_KIND, ModelDataPropertyNames.ENTITY_KIND);
-    }
-
-    private final ColumnConfig createIdentifierColumnConfig()
-    {
-        final ColumnConfig columnConfig =
-                createColumnConfig(Dict.IDENTIFIER, ModelDataPropertyNames.IDENTIFIER);
-        columnConfig.setWidth(140);
-        return columnConfig;
-    }
-
-    private final ColumnConfig createEntityTypeColumnConfig()
-    {
-        return createColumnConfig(Dict.ENTITY_TYPE, ModelDataPropertyNames.ENTITY_TYPE);
-    }
-
-    private final ColumnConfig createColumnConfig(String headerMsgKey, String colId)
-    {
-        return ColumnConfigFactory.createDefaultColumnConfig(viewContext.getMessage(headerMsgKey),
-                colId);
-    }
-
-    private final static PagingToolBar createPagingToolBar()
-    {
-        return new PagingToolBarWithoutRefresh(PAGE_SIZE);
-    }
-
-    /**
-     * Sets the first result set loaded.
-     */
-    final void setFirstResulSet(final ResultSet<MatchingEntity> resultSet)
-    {
-        firstResultSet = resultSet;
-        matchingEntitiesLoader.load(0, PAGE_SIZE);
-    }
-
-    //
-    // Listener
-    //
-
-    public final void handleEvent(final TabPanelEvent be)
-    {
-        if (be.type == Events.Close && resultSetKey != null)
-        {
-            viewContext.getService().removeResultSet(resultSetKey,
-                    new VoidAsyncCallback<Void>(viewContext));
-        }
-    }
-
-    //
-    // Helper classes
-    //
-
-    private final class ListMatchingEntitiesCallback extends
-            AbstractAsyncCallback<ResultSet<MatchingEntity>>
-    {
-        private final AsyncCallback<PagingLoadResult<MatchingEntityModel>> delegate;
-
-        private final int offset;
-
-        ListMatchingEntitiesCallback(final IViewContext<ICommonClientServiceAsync> viewContext,
-                final AsyncCallback<PagingLoadResult<MatchingEntityModel>> delegate,
-                final int offset)
-        {
-            super(viewContext);
-            this.delegate = delegate;
-            this.offset = offset;
-        }
-
-        private void setResultSetKey(final String resultSetKey)
-        {
-            if (MatchingEntitiesPanel.this.resultSetKey == null)
-            {
-                MatchingEntitiesPanel.this.resultSetKey = resultSetKey;
-            } else
-            {
-                assert MatchingEntitiesPanel.this.resultSetKey.equals(resultSetKey) : "Result set keys not the same.";
-            }
-        }
-
-        //
-        // AbstractAsyncCallback
-        //
-
-        @Override
-        protected final void finishOnFailure(final Throwable caught)
-        {
-            delegate.onFailure(caught);
-        }
-
-        @Override
-        protected final void process(final ResultSet<MatchingEntity> result)
-        {
-            setResultSetKey(result.getResultSetKey());
-            final List<MatchingEntityModel> matchingEntities =
-                    MatchingEntityModel.convert(result.getList());
-            final PagingLoadResult<MatchingEntityModel> loadResult =
-                    new BasePagingLoadResult<MatchingEntityModel>(matchingEntities, offset, result
-                            .getTotalLength());
-            delegate.onSuccess(loadResult);
-        }
+        viewContext.getService().prepareExportMatchingEntities(exportCriteria, callback);
     }
 
 }

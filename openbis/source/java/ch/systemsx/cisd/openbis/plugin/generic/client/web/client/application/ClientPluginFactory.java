@@ -34,8 +34,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.Cli
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentViewer;
@@ -97,14 +95,14 @@ public final class ClientPluginFactory extends
     // Helper classes
     //
 
-    private final class SampleClientPlugin implements IClientPlugin<SampleType, Sample>
+    private final class SampleClientPlugin implements IClientPlugin<SampleType, IIdentifierHolder>
     {
 
         //
         // IViewClientPlugin
         //
 
-        public ITabItemFactory createEntityViewer(final Sample sample)
+        public ITabItemFactory createEntityViewer(final IIdentifierHolder sample)
         {
             final String identifier = sample.getIdentifier();
             return new ITabItemFactory()
@@ -140,7 +138,7 @@ public final class ClientPluginFactory extends
     }
 
     private final class ExperimentClientPlugin extends
-            ClientPluginAdapter<ExperimentType, Experiment>
+            ClientPluginAdapter<ExperimentType, IIdentifierHolder>
     {
 
         //
@@ -148,9 +146,9 @@ public final class ClientPluginFactory extends
         //
 
         @Override
-        public final ITabItemFactory createEntityViewer(final Experiment experiment)
+        public final ITabItemFactory createEntityViewer(final IIdentifierHolder identifiable)
         {
-            final String identifier = experiment.getIdentifier();
+            final String identifier = identifiable.getIdentifier();
             return new ITabItemFactory()
                 {
                     public ITabItem create()

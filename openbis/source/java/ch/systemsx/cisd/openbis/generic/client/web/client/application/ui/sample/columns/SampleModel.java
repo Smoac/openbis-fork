@@ -27,10 +27,8 @@ import ch.systemsx.cisd.openbis.generic.client.shared.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.AbstractEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.CommonColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 
 /**
@@ -43,18 +41,11 @@ public final class SampleModel extends AbstractEntityModel<Sample>
 {
     private static final long serialVersionUID = 1L;
 
-    public SampleModel(final Sample sample)
+    public SampleModel(final Sample entity)
     {
-        set(ModelDataPropertyNames.OBJECT, sample);
-        set(ModelDataPropertyNames.SAMPLE_TYPE, sample.getSampleType() != null ? sample
+        super(entity, createColumnsSchema(entity));
+        set(ModelDataPropertyNames.SAMPLE_TYPE, entity.getSampleType() != null ? entity
                 .getSampleType().getCode() : null);
-
-        List<IColumnDefinitionUI<Sample>> columnsSchema = createColumnsSchema(sample);
-        for (IColumnDefinition<Sample> column : columnsSchema)
-        {
-            String value = renderColumnValue(sample, column);
-            set(column.getIdentifier(), value);
-        }
     }
 
     public static ColumnDefsAndConfigs<Sample> createColumnsSchema(
@@ -107,27 +98,10 @@ public final class SampleModel extends AbstractEntityModel<Sample>
         return list;
     }
 
-    // result is added to allColumns map
     private static List<IColumnDefinitionUI<Sample>> createCommonColumnsSchema(
             IMessageProvider msgProviderOrNull)
     {
-        List<IColumnDefinitionUI<Sample>> list = createColDefList();
-        for (CommonSampleColDefKind columnKind : CommonSampleColDefKind.values())
-        {
-            list.add(createColumn(columnKind, msgProviderOrNull));
-        }
-        return list;
-    }
-
-    private static CommonColumnDefinition<Sample> createColumn(CommonSampleColDefKind columnKind,
-            IMessageProvider messageProviderOrNull)
-    {
-        String headerText = null;
-        if (messageProviderOrNull != null)
-        {
-            headerText = messageProviderOrNull.getMessage(columnKind.getHeaderMsgKey());
-        }
-        return new CommonColumnDefinition<Sample>(columnKind, headerText);
+        return createColumnsSchemaFrom(CommonSampleColDefKind.values(), msgProviderOrNull);
     }
 
     private static List<IColumnDefinitionUI<Sample>> createParentColumnsSchema(
@@ -157,11 +131,6 @@ public final class SampleModel extends AbstractEntityModel<Sample>
             String messageKey, int depth)
     {
         return msgProviderOrNull == null ? null : msgProviderOrNull.getMessage(messageKey, depth);
-    }
-
-    public final Sample getBaseObject()
-    {
-        return (Sample) get(ModelDataPropertyNames.OBJECT);
     }
 
     public final static List<SampleModel> asSampleModels(final List<Sample> samples)

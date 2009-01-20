@@ -27,12 +27,10 @@ import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentTypePropertyType
 import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.columns.CommonExperimentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.columns.PropertyExperimentColDef;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.CommonColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 
 /**
  * {@link ModelData} for {@link Experiment}
@@ -50,16 +48,9 @@ public final class ExperimentModel extends AbstractEntityModel<Experiment>
         return PROPERTY_PREFIX + propertyType.isInternalNamespace() + propertyType.getCode();
     }
 
-    public ExperimentModel(final Experiment experiment)
+    public ExperimentModel(final Experiment entity)
     {
-        set(ModelDataPropertyNames.OBJECT, experiment);
-
-        List<IColumnDefinitionUI<Experiment>> columnsSchema = createColumnsSchema(experiment);
-        for (IColumnDefinition<Experiment> column : columnsSchema)
-        {
-            String value = renderColumnValue(experiment, column);
-            set(column.getIdentifier(), value);
-        }
+        super(entity, createColumnsSchema(entity));
     }
 
     // here we create the columns definition having just one table row. We need them only to render
@@ -116,33 +107,11 @@ public final class ExperimentModel extends AbstractEntityModel<Experiment>
     private static List<IColumnDefinitionUI<Experiment>> createCommonColumnsSchema(
             IMessageProvider msgProviderOrNull)
     {
-        List<IColumnDefinitionUI<Experiment>> list = createColDefList();
-        for (CommonExperimentColDefKind columnKind : CommonExperimentColDefKind.values())
-        {
-            list.add(createColumn(columnKind, msgProviderOrNull));
-        }
-        return list;
+        return createColumnsSchemaFrom(CommonExperimentColDefKind.values(), msgProviderOrNull);
     }
 
     private static ArrayList<IColumnDefinitionUI<Experiment>> createColDefList()
     {
         return new ArrayList<IColumnDefinitionUI<Experiment>>();
     }
-
-    private static CommonColumnDefinition<Experiment> createColumn(CommonExperimentColDefKind columnKind,
-            IMessageProvider messageProviderOrNull)
-    {
-        String headerText = null;
-        if (messageProviderOrNull != null)
-        {
-            headerText = messageProviderOrNull.getMessage(columnKind.getHeaderMsgKey());
-        }
-        return new CommonColumnDefinition<Experiment>(columnKind, headerText);
-    }
-
-    public Experiment getBaseObject()
-    {
-        return get(ModelDataPropertyNames.OBJECT);
-    }
-
 }

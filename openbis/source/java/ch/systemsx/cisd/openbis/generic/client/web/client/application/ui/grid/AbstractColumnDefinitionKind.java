@@ -19,8 +19,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.renderer.SimpleDateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.renderer.SimplePersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.renderer.SimpleYesNoRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CodeWithRegistration;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AbstractRegistrationHolder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IInvalidationProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
 
 /**
  * Abstract superclass which holds meta data. Subclasses must implement
@@ -80,17 +81,22 @@ public abstract class AbstractColumnDefinitionKind<T> implements IColumnDefiniti
     {
         return sortField; // NOTE: it should be possible to use name() when sorting will be fixed
     }
-    
-    protected String renderRegistrationDate(final CodeWithRegistration<?> entity)
+
+    protected String renderRegistrationDate(final AbstractRegistrationHolder entity)
     {
         return SimpleDateRenderer.renderDate(entity.getRegistrationDate());
     }
 
-    protected String renderRegistrator(final CodeWithRegistration<?> entity)
+    protected String renderRegistrator(final AbstractRegistrationHolder entity)
     {
-        return SimplePersonRenderer.createPersonName(entity.getRegistrator()).toString();
+        return renderRegistrator(entity.getRegistrator());
     }
-    
+
+    protected String renderRegistrator(final Person person)
+    {
+        return SimplePersonRenderer.createPersonName(person).toString();
+    }
+
     protected String renderInvalidationFlag(final IInvalidationProvider invalidationProvider)
     {
         return SimpleYesNoRenderer.render(invalidationProvider.getInvalidation() != null);

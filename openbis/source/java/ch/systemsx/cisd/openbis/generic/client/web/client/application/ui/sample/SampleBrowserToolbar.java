@@ -176,8 +176,7 @@ final class SampleBrowserToolbar extends ToolBar
                                             createListCriteria(selectedType, selectedGroup,
                                                     includeGroup, includeInstance);
 
-                                    entitiesBrowser
-                                            .refresh(criteria, createPostRefreshCallback());
+                                    entitiesBrowser.refresh(criteria, createPostRefreshCallback());
                                 }
 
                                 private ListSampleCriteria createListCriteria(
@@ -196,9 +195,12 @@ final class SampleBrowserToolbar extends ToolBar
                                 {
                                     return new IDataRefreshCallback()
                                         {
-                                            public void postRefresh()
+                                            public void postRefresh(boolean wasSuccessful)
                                             {
-                                                controller.enableExportButton();
+                                                if (wasSuccessful)
+                                                {
+                                                    controller.enableExportButton();
+                                                }
                                             }
                                         };
                                 }

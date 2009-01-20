@@ -344,6 +344,13 @@ public final class CommonClientService extends AbstractClientService implements
         return prepareExportEntities(criteria);
     }
 
+    public final String prepareExportMatchingEntities(
+            final TableExportCriteria<MatchingEntity> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return prepareExportEntities(criteria);
+    }
+
     private <T> String prepareExportEntities(TableExportCriteria<T> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -441,7 +448,8 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            final ExperimentIdentifier identifier = new ExperimentIdentifierFactory(experimentIdentifier).createIdentifier();
+            final ExperimentIdentifier identifier =
+                    new ExperimentIdentifierFactory(experimentIdentifier).createIdentifier();
             final List<ExternalDataPE> externalData =
                     commonServer.listExternalData(sessionToken, identifier);
             return BeanUtils.createBeanList(ExternalData.class, externalData);

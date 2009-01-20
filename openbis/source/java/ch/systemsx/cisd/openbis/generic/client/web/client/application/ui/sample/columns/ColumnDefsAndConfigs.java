@@ -33,6 +33,14 @@ public class ColumnDefsAndConfigs<T>
 
     private final List<IColumnDefinition<T>> columnDefs;
 
+    public static <T> ColumnDefsAndConfigs<T> create(
+            List<? extends IColumnDefinitionUI<T>> columnsSchema, boolean isSortable)
+    {
+        ColumnDefsAndConfigs<T> result = new ColumnDefsAndConfigs<T>();
+        result.addColumns(columnsSchema, isSortable);
+        return result;
+    }
+
     public ColumnDefsAndConfigs()
     {
         this.columnConfigs = new ArrayList<ColumnConfig>();

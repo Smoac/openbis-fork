@@ -102,13 +102,16 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
 
     public interface IDataRefreshCallback
     {
-        // called after the grid is refreshed with new data
-        void postRefresh();
+        /**
+         * called after the grid is refreshed with new data
+         * 
+         * @param wasSuccessful false if the call ended with a failure
+         */
+        void postRefresh(boolean wasSuccessful);
     }
 
     protected AbstractBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
-
-    String gridId)
+            String gridId)
     {
         this.viewContext = viewContext;
         this.pagingLoader = createPagingLoader();
@@ -157,6 +160,12 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
         return resultSetConfig;
     }
 
+    /** @return number of rows in the grid */
+    public int getRowNumber()
+    {
+        return grid.getStore().getCount();
+    }
+
     // @Private
     public final class ListEntitiesCallback extends AbstractAsyncCallback<ResultSet<T>>
     {
@@ -181,6 +190,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
         @Override
         protected final void finishOnFailure(final Throwable caught)
         {
+            refreshCallback.postRefresh(false);
             delegate.onFailure(caught);
         }
 
@@ -198,7 +208,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
                             .getTotalLength());
             delegate.onSuccess(loadResult);
             // notify that the refresh is done
-            refreshCallback.postRefresh();
+            refreshCallback.postRefresh(true);
         }
     }
 
@@ -226,12 +236,18 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
         return panel;
     }
 
-    protected void refresh(final IDataRefreshCallback newRefreshCallback, String newHeader,
+    /**
+     * Refreshes the grid.
+     * <p>
+     * Note that, doing so, the result set associated on the server side will be removed.
+     * </p>
+     */
+    protected void refresh(final IDataRefreshCallback newRefreshCallback, String newHeaderOrNull,
             boolean refreshColumnsDefinition)
     {
         disposeCache();
         this.refreshCallback = newRefreshCallback;
-        this.contentPanel.setHeading(newHeader);
+        setHeader(newHeaderOrNull);
         if (refreshColumnsDefinition)
         {
             this.columns = createColumnsDefinition();
@@ -241,6 +257,17 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
         grid.reconfigure(grid.getStore(), columnModel);
         GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
         pagingLoader.load(0, PAGE_SIZE);
+    }
+
+    private void setHeader(String newHeaderOrNull)
+    {
+        if (newHeaderOrNull != null)
+        {
+            this.contentPanel.setHeading(newHeaderOrNull);
+        } else
+        {
+            this.contentPanel.setHeaderVisible(false);
+        }
     }
 
     private List<IColumnDefinition<T>> getSelectedColumns(
@@ -318,6 +345,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
         grid.setLoadMask(true);
         grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         grid.addListener(Events.CellDoubleClick, detailsViewer);
+        GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
         return grid;
     }
 

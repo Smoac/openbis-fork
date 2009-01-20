@@ -193,9 +193,12 @@ class ExperimentBrowserToolbar extends ToolBar
     {
         return new IDataRefreshCallback()
             {
-                public void postRefresh()
+                public void postRefresh(boolean wasSuccessful)
                 {
-                    exportButton.setEnabled(true);
+                    if (wasSuccessful)
+                    {
+                        exportButton.setEnabled(true);
+                    }
                 }
             };
     }

@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import static ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames.IDENTIFIER;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.SearchWidget.SearchResultCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
@@ -34,8 +33,8 @@ public class SearchTest extends AbstractGWTTestCase
     private final static CheckTableCommand createCheckTableCommandForAll()
     {
         final CheckTableCommand checkTableCommand =
-                new CheckTableCommand(MatchingEntitiesPanel.GRID_ID, SearchResultCallback.class)
-                        .expectedSize(2);
+                new CheckTableCommand(MatchingEntitiesPanel.GRID_ID,
+                        MatchingEntitiesPanel.ListEntitiesCallback.class).expectedSize(2);
         checkTableCommand.expectedRow(new Row().withCell(IDENTIFIER, "CISD:/MP"));
         checkTableCommand.expectedRow(new Row().withCell(IDENTIFIER, "CISD:/CISD/EMPTY-MP"));
         return checkTableCommand;
@@ -44,8 +43,8 @@ public class SearchTest extends AbstractGWTTestCase
     private final static CheckTableCommand createCheckTableCommandForExperiment()
     {
         final CheckTableCommand checkTableCommand =
-                new CheckTableCommand(MatchingEntitiesPanel.GRID_ID, SearchResultCallback.class)
-                        .expectedSize(5);
+                new CheckTableCommand(MatchingEntitiesPanel.GRID_ID,
+                        MatchingEntitiesPanel.ListEntitiesCallback.class).expectedSize(5);
         checkTableCommand.expectedRow(new Row().withCell(IDENTIFIER, "CISD:/CISD/NEMO/EXP10"));
         checkTableCommand.expectedRow(new Row().withCell(IDENTIFIER, "CISD:/CISD/NEMO/EXP11"));
         checkTableCommand.expectedRow(new Row().withCell(IDENTIFIER, "CISD:/CISD/NEMO/EXP1"));

@@ -101,6 +101,10 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void prepareExportExperiments(TableExportCriteria<Experiment> exportCriteria,
             AsyncCallback<String> callback);
 
+    /** @see ICommonClientService#prepareExportMatchingEntities(TableExportCriteria) */
+    public void prepareExportMatchingEntities(TableExportCriteria<MatchingEntity> exportCriteria,
+            AsyncCallback<String> callback);
+
     /**
      * @see ICommonClientService#getExportTable(String)
      */
@@ -124,7 +128,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      */
     public void listExternalDataForExperiment(String experimentIdentifier,
             AsyncCallback<List<ExternalData>> asyncCallback);
-    
+
     /**
      * @see ICommonClientService#listSearchableEntities()
      */

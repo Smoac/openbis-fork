@@ -16,8 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import java.util.List;
-
+import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.TabPanelEvent;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
@@ -30,11 +31,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EnterKeyListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ButtonWithLoadingMask;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 
 /**
@@ -137,42 +136,94 @@ final class SearchWidget extends LayoutContainer
         {
             return;
         }
+        final String queryText = textField.getValue();
+        if (StringUtils.isBlank(queryText))
+        {
+            return;
+        }
+        if (hasOnlyWildcards(queryText))
+        {
+            MessageBox.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING), viewContext
+                    .getMessage(Dict.TOO_GENERIC, queryText), null);
+            return;
+        }
+        enableSearch(false);
         final SearchableEntity selectedSearchableEntityOrNull =
                 entityChooser.getSelectedSearchableEntity();
-        final String queryText = textField.getValue();
-        if (StringUtils.isBlank(queryText) == false)
-        {
-            boolean onlyWildcard = true;
-            for (final char c : queryText.toCharArray())
+        final MatchingEntitiesPanel matchingEntitiesGrid =
+                new MatchingEntitiesPanel(viewContext, selectedSearchableEntityOrNull, queryText);
+        String title = createTabTitle(queryText);
+        final ITabItemFactory tabFactory = createTabFactory(matchingEntitiesGrid, title);
+
+        matchingEntitiesGrid.refresh(new IDataRefreshCallback()
             {
-                if (c != '*' && c != '?')
+                public void postRefresh(boolean wasSuccessful)
                 {
-                    onlyWildcard = false;
-                    break;
+                    enableSearch(true);
+                    if (wasSuccessful == false)
+                    {
+                        return;
+                    }
+                    if (matchingEntitiesGrid.getRowNumber() == 0)
+                    {
+                        MessageBox.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING),
+                                viewContext.getMessage(Dict.NO_MATCH, queryText), null);
+                        return;
+                    } else
+                    {
+                        textField.reset();
+                        DispatcherHelper.dispatchNaviEvent(tabFactory);
+                    }
                 }
-            }
-            if (onlyWildcard)
-            {
-                MessageBox.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING), viewContext
-                        .getMessage(Dict.TOO_GENERIC, queryText), null);
-                return;
-            }
-            enableSearch(false);
-            viewContext.getService()
-                    .listMatchingEntities(
-                            selectedSearchableEntityOrNull,
-                            queryText,
-                            createResultSetConfig(),
-                            new SearchResultCallback(viewContext, selectedSearchableEntityOrNull,
-                                    queryText));
-        }
+            });
     }
 
-    private final static DefaultResultSetConfig<String> createResultSetConfig()
+    private String createTabTitle(final String queryText)
     {
-        final DefaultResultSetConfig<String> resultSetConfig = new DefaultResultSetConfig<String>();
-        resultSetConfig.setLimit(MatchingEntitiesPanel.PAGE_SIZE);
-        return resultSetConfig;
+        final String selectedText =
+                entityChooser.getValue().get(ModelDataPropertyNames.DESCRIPTION);
+        return viewContext.getMessage(Dict.GLOBAL_SEARCH, selectedText, queryText);
+    }
+
+    private static ITabItemFactory createTabFactory(
+            final MatchingEntitiesPanel matchingEntitiesPanel, String title)
+    {
+        final DefaultTabItem tab =
+                new DefaultTabItem(title, matchingEntitiesPanel,
+                        createTabPanelEventListener(matchingEntitiesPanel));
+        // this tab cannot be opened for the second time, so we can create it outside of the
+        // factory
+        return new ITabItemFactory()
+            {
+                public ITabItem create()
+                {
+                    return tab;
+                }
+
+                public String getId()
+                {
+                    return matchingEntitiesPanel.getId();
+                }
+
+                public boolean isCloseConfirmationNeeded()
+                {
+                    return false;
+                }
+            };
+    }
+
+    private static boolean hasOnlyWildcards(final String queryText)
+    {
+        boolean onlyWildcard = true;
+        for (final char c : queryText.toCharArray())
+        {
+            if (c != '*' && c != '?')
+            {
+                onlyWildcard = false;
+                break;
+            }
+        }
+        return onlyWildcard;
     }
 
     private final ButtonWithLoadingMask createSearchButton()
@@ -194,83 +245,19 @@ final class SearchWidget extends LayoutContainer
         return button;
     }
 
-    //
-    // Helper classes
-    //
-
-    public final class SearchResultCallback extends
-            AbstractAsyncCallback<ResultSet<MatchingEntity>>
+    private static Listener<TabPanelEvent> createTabPanelEventListener(
+            final MatchingEntitiesPanel matchingEntitiesPanel)
     {
-        private final SearchableEntity searchableEntityOrNull;
-
-        private final String queryText;
-
-        SearchResultCallback(final IViewContext<ICommonClientServiceAsync> viewContext,
-                final SearchableEntity searchableEntityOrNull, final String queryText)
-        {
-            super(viewContext);
-            this.searchableEntityOrNull = searchableEntityOrNull;
-            this.queryText = queryText;
-        }
-
-        @SuppressWarnings("unchecked")
-        private final IViewContext<ICommonClientServiceAsync> castViewContext()
-        {
-            return (IViewContext<ICommonClientServiceAsync>) viewContext;
-        }
-
-        //
-        // AbstractAsyncCallback
-        //
-
-        @Override
-        protected final void finishOnFailure(final Throwable caught)
-        {
-            enableSearch(true);
-        }
-
-        @Override
-        protected final void process(final ResultSet<MatchingEntity> result)
-        {
-            enableSearch(true);
-            final List<MatchingEntity> entities = result.getList();
-            if (entities.size() == 0)
+        return new Listener<TabPanelEvent>()
             {
-                MessageBox.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING), viewContext
-                        .getMessage(Dict.NO_MATCH, queryText), null);
-                return;
-            }
-            textField.reset();
-
-            final String selectedText =
-                    entityChooser.getValue().get(ModelDataPropertyNames.DESCRIPTION);
-            final MatchingEntitiesPanel matchingEntitiesPanel =
-                    new MatchingEntitiesPanel(castViewContext(), searchableEntityOrNull, queryText);
-            matchingEntitiesPanel.setFirstResulSet(result);
-
-            String title = viewContext.getMessage(Dict.GLOBAL_SEARCH, selectedText, queryText);
-            final DefaultTabItem tab =
-                    new DefaultTabItem(title, matchingEntitiesPanel, matchingEntitiesPanel);
-            // this tab cannot be opened for the second time, so we can create it outside of the
-            // factory
-            DispatcherHelper.dispatchNaviEvent(new ITabItemFactory()
+                public void handleEvent(TabPanelEvent be)
                 {
-                    public ITabItem create()
+                    if (be.type == Events.Close)
                     {
-                        return tab;
+                        matchingEntitiesPanel.disposeCache();
                     }
-
-                    public String getId()
-                    {
-                        return matchingEntitiesPanel.getId();
-                    }
-
-                    public boolean isCloseConfirmationNeeded()
-                    {
-                        return false;
-                    }
-                });
-        }
+                }
+            };
     }
 
 }
