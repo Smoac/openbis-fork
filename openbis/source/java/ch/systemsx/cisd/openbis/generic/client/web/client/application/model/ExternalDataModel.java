@@ -25,7 +25,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.co
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 
 /**
  * {@link ModelData} for {@link ExternalData}.
@@ -39,12 +38,7 @@ public final class ExternalDataModel extends AbstractEntityModel<ExternalData>
 
     public ExternalDataModel(final ExternalData externalData)
     {
-        // TODO 2009-01-19, Tomasz Pylak: define column schema
-        // super(externalData, createColumnsSchema(null));
-        super(externalData, new ArrayList<IColumnDefinition<ExternalData>>());
-        set(ModelDataPropertyNames.CODE, externalData.getCode());
-        set(ModelDataPropertyNames.LOCATION, externalData.getLocation());
-        set(ModelDataPropertyNames.FILE_FORMAT_TYPE, externalData.getFileFormatType().getCode());
+        super(externalData, createColumnsSchema(null));
     }
 
     public static List<IColumnDefinitionUI<ExternalData>> createColumnsSchema(

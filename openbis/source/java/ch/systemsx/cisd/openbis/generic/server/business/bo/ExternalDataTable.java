@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * The only productive implementation of {@link IExternalDataTable}.
@@ -67,6 +68,11 @@ public final class ExternalDataTable extends AbstractSampleIdentifierBusinessObj
         final SamplePE sample = getSampleByIdentifier(sampleIdentifier);
         externalData.addAll(getExternalDataDAO().listExternalData(sample, SourceType.MEASUREMENT));
         externalData.addAll(getExternalDataDAO().listExternalData(sample, SourceType.DERIVED));
+        for (ExternalDataPE externalDataPE : externalData)
+        {
+            HibernateUtils.initialize(externalDataPE.getParents());
+            HibernateUtils.initialize(externalDataPE.getProcedure());
+        }
     }
 
     public void loadByExperimentIdentifier(ExperimentIdentifier identifier)
@@ -82,10 +88,13 @@ public final class ExternalDataTable extends AbstractSampleIdentifierBusinessObj
         List<ProcedurePE> procedures = experiment.getProcedures();
         for (ProcedurePE procedure : procedures)
         {
+            
             Set<DataPE> data = procedure.getData();
             for (DataPE dataSet : data)
             {
-                externalData.add((ExternalDataPE) dataSet);
+                ExternalDataPE externalDataPE = (ExternalDataPE) dataSet;
+                HibernateUtils.initialize(externalDataPE.getParents());
+                externalData.add(externalDataPE);
             }
         }
     }

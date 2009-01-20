@@ -16,22 +16,16 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.extjs.gxt.ui.client.data.BaseListLoadConfig;
 import com.extjs.gxt.ui.client.data.BaseListLoadResult;
 import com.extjs.gxt.ui.client.data.RpcProxy;
-import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExternalDataModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns.CommonExternalDataColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
@@ -56,30 +50,7 @@ public class ExperimentDataSection extends AbstractExperimentTableSection<Extern
     @Override
     protected ColumnModel createColumnModel()
     {
-        final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-        configs.add(ColumnConfigFactory.createCodeColumnConfig(viewContext));
-        configs.add(ColumnConfigFactory.createRegistrationDateColumnConfig(viewContext));
-        configs.add(ColumnConfigFactory.createRegistratorColumnConfig(viewContext));
-        configs.add(createLocationColumnConfig());
-        configs.add(createFileFormatTypeColumnConfig());
-        return new ColumnModel(configs);
-    }
-
-    private final ColumnConfig createFileFormatTypeColumnConfig()
-    {
-        final ColumnConfig columnConfig =
-                ColumnConfigFactory
-                        .createDefaultColumnConfig(viewContext.getMessage(Dict.FILE_FORMAT_TYPE),
-                                ModelDataPropertyNames.FILE_FORMAT_TYPE);
-        return columnConfig;
-    }
-
-    private final ColumnConfig createLocationColumnConfig()
-    {
-        final ColumnConfig columnConfig =
-                ColumnConfigFactory.createDefaultColumnConfig(
-                        viewContext.getMessage(Dict.LOCATION), ModelDataPropertyNames.LOCATION);
-        return columnConfig;
+        return CommonExternalDataColDefKind.createColumnModel(viewContext);
     }
 
     @Override

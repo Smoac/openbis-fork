@@ -54,10 +54,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExternalDataModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns.CommonExternalDataColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleModel;
@@ -136,8 +136,8 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
                 createListLoader(createRpcProxyForExternalData());
         final ListStore<ExternalDataModel> externalDataListStore =
                 createListStore(externalDataLoader);
-        externalDataGrid =
-                new Grid<ExternalDataModel>(externalDataListStore, createExternalDataColumnModel());
+        ColumnModel columnModel = CommonExternalDataColDefKind.createColumnModel(viewContext);
+        externalDataGrid = new Grid<ExternalDataModel>(externalDataListStore, columnModel);
         externalDataGrid.setId(getId() + DATA_POSTFIX);
         externalDataGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         externalDataGrid.setLoadMask(true);
@@ -220,34 +220,6 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         configs.add(ColumnConfigFactory.createRegistratorColumnConfig(viewContext,
                 CommonSampleColDefKind.REGISTRATOR.id()));
         return new ColumnModel(configs);
-    }
-
-    private final ColumnModel createExternalDataColumnModel()
-    {
-        final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-        configs.add(ColumnConfigFactory.createCodeColumnConfig(viewContext));
-        configs.add(ColumnConfigFactory.createRegistrationDateColumnConfig(viewContext));
-        configs.add(ColumnConfigFactory.createRegistratorColumnConfig(viewContext));
-        configs.add(createLocationColumnConfig());
-        configs.add(createFileFormatTypeColumnConfig());
-        return new ColumnModel(configs);
-    }
-
-    private final ColumnConfig createFileFormatTypeColumnConfig()
-    {
-        final ColumnConfig columnConfig =
-                ColumnConfigFactory
-                        .createDefaultColumnConfig(viewContext.getMessage(Dict.FILE_FORMAT_TYPE),
-                                ModelDataPropertyNames.FILE_FORMAT_TYPE);
-        return columnConfig;
-    }
-
-    private final ColumnConfig createLocationColumnConfig()
-    {
-        final ColumnConfig columnConfig =
-                ColumnConfigFactory.createDefaultColumnConfig(
-                        viewContext.getMessage(Dict.LOCATION), ModelDataPropertyNames.LOCATION);
-        return columnConfig;
     }
 
     private final static BorderLayoutData createLeftBorderLayoutData()

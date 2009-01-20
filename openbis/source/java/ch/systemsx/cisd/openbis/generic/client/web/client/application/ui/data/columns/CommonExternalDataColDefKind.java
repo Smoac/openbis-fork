@@ -16,9 +16,19 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.renderer.SimpleDateRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.renderer.SimpleYesNoRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 
 /**
@@ -34,6 +44,34 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
                 return entity.getCode();
             }
         }),
+        
+    PRODECUDRE_TYPE(new AbstractColumnDefinitionKind<ExternalData>(Dict.PROCEDURE_TYPE)
+        {
+            @Override
+            public String tryGetValue(ExternalData entity)
+            {
+                return entity.getProcedureType().getCode();
+            }
+        }),
+
+    SAMPLE_IDENTIFIER(new AbstractColumnDefinitionKind<ExternalData>(Dict.EXTERNAL_DATA_SAMPLE,
+            200, false)
+        {
+            @Override
+            public String tryGetValue(ExternalData entity)
+            {
+                return entity.getSampleIdentifier();
+            }
+        }),
+
+    SAMPLE_Type(new AbstractColumnDefinitionKind<ExternalData>(Dict.SAMPLE_TYPE)
+        {
+            @Override
+            public String tryGetValue(ExternalData entity)
+            {
+                return entity.getSampleType().getCode();
+            }
+        }),
 
     REGISTRATION_DATE(new AbstractColumnDefinitionKind<ExternalData>(Dict.REGISTRATION_DATE, 200,
             false)
@@ -45,12 +83,31 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
             }
         }),
 
-    REGISTRATOR(new AbstractColumnDefinitionKind<ExternalData>(Dict.REGISTRATOR)
+    IS_INVALID(new AbstractColumnDefinitionKind<ExternalData>(Dict.IS_INVALID, true)
         {
             @Override
             public String tryGetValue(ExternalData entity)
             {
-                return renderRegistrator(entity);
+                return renderInvalidationFlag(entity);
+            }
+        }),
+
+    IS_DERIVED(new AbstractColumnDefinitionKind<ExternalData>(Dict.IS_DERIVED, true)
+        {
+            @Override
+            public String tryGetValue(ExternalData entity)
+            {
+                return SimpleYesNoRenderer.render(entity.isDerived());
+            }
+        }),
+
+    IS_COMPLETE(new AbstractColumnDefinitionKind<ExternalData>(Dict.IS_COMPLETE, true)
+        {
+            @Override
+            public String tryGetValue(ExternalData entity)
+            {
+                Boolean complete = entity.getComplete();
+                return complete == null ? "?" : SimpleYesNoRenderer.render(complete);
             }
         }),
 
@@ -63,14 +120,43 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
             }
         }),
 
-    FILE_FORMAT_TYPE(new AbstractColumnDefinitionKind<ExternalData>(Dict.FILE_FORMAT_TYPE)
+    FILE_FORMAT_TYPE(new AbstractColumnDefinitionKind<ExternalData>(Dict.FILE_FORMAT_TYPE, true)
         {
             @Override
             public String tryGetValue(ExternalData entity)
             {
                 return entity.getFileFormatType().getCode();
             }
+        }),
+
+    PRODUCTION_DATE(new AbstractColumnDefinitionKind<ExternalData>(Dict.PRODUCTION_DATE, 200, true)
+        {
+            @Override
+            public String tryGetValue(ExternalData entity)
+            {
+                return SimpleDateRenderer.renderDate(entity.getProductionDate());
+            }
         });
+    
+    /**
+     * Creates column model from all definitions.
+     */
+    public static ColumnModel createColumnModel(IMessageProvider messageProvider)
+    {
+        IColumnDefinitionKind<?>[] values = CommonExternalDataColDefKind.values();
+        List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
+        for (IColumnDefinitionKind<?> colDefKind : values)
+        {
+            String header = messageProvider.getMessage(colDefKind.getHeaderMsgKey());
+            String id = colDefKind.id();
+            ColumnConfig columnConfig = ColumnConfigFactory.createDefaultColumnConfig(header, id);
+            columnConfig.setHidden(colDefKind.isHidden());
+            columnConfig.setWidth(colDefKind.getWidth());
+            configs.add(columnConfig);
+        }
+        return new ColumnModel(configs);
+    }
+
 
     private final AbstractColumnDefinitionKind<ExternalData> columnDefinitionKind;
 

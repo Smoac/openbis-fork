@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import java.util.Date;
+
+import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 
 /**
@@ -23,13 +26,123 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
  * 
  * @author Christian Ribeaud
  */
-public class ExternalData extends CodeWithRegistration<ExternalData>
+public class ExternalData extends CodeWithRegistration<ExternalData> implements IInvalidationProvider
 {
+    private ProcedureType procedureType;
+    
+    private String sampleIdentifier;
+    
+    private SampleType sampleType;
+    
+    private boolean derived;
+    
+    private Boolean complete;
+    
+    private Invalidation invalidation;
+    
+    private DataSetType dataSetType;
+    
+    private Date productionDate;
+    
+    private String producerCode;
+    
+    private String parentCode;
+    
     private String location;
 
     private FileFormatType fileFormatType;
 
     private LocatorType locatorType;
+
+    public final ProcedureType getProcedureType()
+    {
+        return procedureType;
+    }
+
+    public final void setProcedureType(ProcedureType procedureType)
+    {
+        this.procedureType = procedureType;
+    }
+
+    public final String getSampleIdentifier()
+    {
+        return sampleIdentifier;
+    }
+
+    public final void setSampleIdentifier(String sampleIdentifier)
+    {
+        this.sampleIdentifier = sampleIdentifier;
+    }
+
+    public final SampleType getSampleType()
+    {
+        return sampleType;
+    }
+
+    public final void setSampleType(SampleType sampleType)
+    {
+        this.sampleType = sampleType;
+    }
+
+    public final boolean isDerived()
+    {
+        return derived;
+    }
+
+    public final void setDerived(boolean derived)
+    {
+        this.derived = derived;
+    }
+
+    public final Boolean getComplete()
+    {
+        return complete;
+    }
+
+    public final void setComplete(Boolean complete)
+    {
+        this.complete = complete;
+    }
+
+    public final DataSetType getDataSetType()
+    {
+        return dataSetType;
+    }
+
+    public final void setDataSetType(DataSetType dataSetType)
+    {
+        this.dataSetType = dataSetType;
+    }
+
+    public final Date getProductionDate()
+    {
+        return productionDate;
+    }
+
+    public final void setProductionDate(Date productionDate)
+    {
+        this.productionDate = productionDate;
+    }
+
+    public final String getDataProducerCode()
+    {
+        return producerCode;
+    }
+
+    public final void setDataProducerCode(String producerCode)
+    {
+        this.producerCode = producerCode;
+    }
+
+    public final String getParentCode()
+    {
+        return parentCode;
+    }
+
+    public final void setParentCode(String parentCode)
+    {
+        this.parentCode = parentCode;
+    }
 
     public final String getLocation()
     {
@@ -59,6 +172,16 @@ public class ExternalData extends CodeWithRegistration<ExternalData>
     public final void setLocatorType(final LocatorType locatorType)
     {
         this.locatorType = locatorType;
+    }
+
+    public final Invalidation getInvalidation()
+    {
+        return invalidation;
+    }
+
+    public final void setInvalidation(Invalidation invalidation)
+    {
+        this.invalidation = invalidation;
     }
 
 }

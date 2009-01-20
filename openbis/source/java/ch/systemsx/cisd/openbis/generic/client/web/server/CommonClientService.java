@@ -52,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ExperimentTranslator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ExternalDataTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.GroupTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.PersonTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ProjectTranslator;
@@ -435,7 +436,7 @@ public final class CommonClientService extends AbstractClientService implements
             final SampleIdentifier identifier = SampleIdentifierFactory.parse(sampleIdentifier);
             final List<ExternalDataPE> externalData =
                     commonServer.listExternalData(sessionToken, identifier);
-            return BeanUtils.createBeanList(ExternalData.class, externalData);
+            return ExternalDataTranslator.translate(externalData);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -452,7 +453,7 @@ public final class CommonClientService extends AbstractClientService implements
                     new ExperimentIdentifierFactory(experimentIdentifier).createIdentifier();
             final List<ExternalDataPE> externalData =
                     commonServer.listExternalData(sessionToken, identifier);
-            return BeanUtils.createBeanList(ExternalData.class, externalData);
+            return ExternalDataTranslator.translate(externalData);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
