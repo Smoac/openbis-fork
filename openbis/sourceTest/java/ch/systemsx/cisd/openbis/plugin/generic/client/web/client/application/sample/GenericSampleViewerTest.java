@@ -23,6 +23,8 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.application.mod
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns.CommonExternalDataColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns.DataSetRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ListSamples;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ShowSample;
@@ -100,9 +102,9 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
 
         checkSample.componentsTable().expectedSize(0);
         final CheckTableCommand dataTable = checkSample.dataTable().expectedSize(2);
-        dataTable.expectedRow(new Row().withCell(CODE, "20081105092158673-1").withCell(
-                FILE_FORMAT_TYPE, "TIFF"));
-        dataTable.expectedRow(new Row().withCell(CODE, "20081105092159188-3").withCell(LOCATION,
+        dataTable.expectedRow(new DataSetRow("20081105092158673-1").invalid().withFileFormatType(
+                "TIFF"));
+        dataTable.expectedRow(new DataSetRow("20081105092159188-3").invalid().withLocation(
                 "analysis/result"));
         remoteConsole.prepare(checkSample);
 

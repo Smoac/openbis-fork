@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns.DataSetRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ListExperiments;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ShowExperiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleRow;
@@ -66,7 +67,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
     private static final String EXP_REUSE = "EXP-REUSE";
 
     private static final String CISD_CISD_DEFAULT = "CISD:/CISD/DEFAULT";
-
+    
     private static final String EXP_X = "EXP-X";
 
     private static final String A_SIMPLE_EXPERIMENT = "A simple experiment";
@@ -189,6 +190,22 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         client.onModuleLoad();
     }
 
+    public final void testListOfDataSets()
+    {
+        prepareShowExperiment(NEMO, SIRNA_HCS, EXP1);
+        final CheckExperiment checkExperiment = new CheckExperiment(CISD_CISD_NEMO, EXP1);
+        checkExperiment.property("Experiment").asString(EXP1);
+        final CheckTableCommand sampleTable = checkExperiment.dataSetTable().expectedSize(2);
+        sampleTable.expectedRow(new DataSetRow("20080912142304152-1").invalid().withProcedureType(
+                "DATA_AQUISITION").notDerived());
+        sampleTable.expectedRow(new DataSetRow("20080912142304476-3").invalid().withSample(
+                "CISD:/CISD/3VCP1").withSampleType("CELL_PLATE").derived().withIsComplete(null));
+        remoteConsole.prepare(checkExperiment);
+        
+        remoteConsole.finish(60000);
+        client.onModuleLoad();
+    }
+    
     private void prepareShowExperiment(final String projectName, final String experimentTypeName,
             final String experimentCode)
     {
