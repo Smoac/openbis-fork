@@ -31,8 +31,11 @@ import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
  * No that this field MUST implement the {@link Comparable} interface.
  * </p>
  * 
+ * @deprecated Avoid using this class. It requires to specify class field name, which reduces
+ *             benefits of strong typing.
  * @author Christian Ribeaud
  */
+@Deprecated
 public class FieldComparator<T> implements Comparator<T>
 {
 

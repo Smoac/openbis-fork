@@ -32,6 +32,7 @@ import org.testng.annotations.Test;
  * 
  * @author Christian Ribeaud
  */
+@Deprecated
 public final class FieldComparatorTest
 {
 
