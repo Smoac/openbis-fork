@@ -64,7 +64,7 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
             }
         }),
 
-    SAMPLE_Type(new AbstractColumnDefinitionKind<ExternalData>(Dict.SAMPLE_TYPE)
+    SAMPLE_TYPE(new AbstractColumnDefinitionKind<ExternalData>(Dict.SAMPLE_TYPE)
         {
             @Override
             public String tryGetValue(ExternalData entity)
