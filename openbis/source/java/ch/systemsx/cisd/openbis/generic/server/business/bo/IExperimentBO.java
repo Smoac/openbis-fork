@@ -50,6 +50,11 @@ public interface IExperimentBO extends IBusinessObject
      * Defines a new experiment. After invocation of this method {@link IExperimentBO#save()} should
      * be invoked to store the new experiment in the Data Access Layer.
      */
-    void define(NewExperiment experiment);
+    public void define(NewExperiment experiment);
+
+    /**
+     * Adds the specified experiment attachment to the experiment.
+     */
+    public void addAttachment(AttachmentPE attachment);
 
 }

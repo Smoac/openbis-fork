@@ -262,10 +262,11 @@ public final class GenericServerTest extends AbstractServerTestCase
                     will(returnValue(experimentBO));
 
                     one(experimentBO).define(newExperiment);
-                    one(experimentBO).save();
+                    exactly(2).of(experimentBO).save();
                 }
             });
-        createServer().registerExperiment(SESSION_TOKEN, newExperiment);
+        createServer().registerExperiment(SESSION_TOKEN, newExperiment,
+                new ArrayList<AttachmentPE>());
         context.assertIsSatisfied();
     }
 
@@ -298,7 +299,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                     will(returnValue(experimentBO));
 
                     one(experimentBO).define(newExperiment);
-                    one(experimentBO).save();
+                    exactly(2).of(experimentBO).save();
                     one(experimentBO).getExperiment();
                     will(returnValue(experimentPE));
 
@@ -320,7 +321,8 @@ public final class GenericServerTest extends AbstractServerTestCase
                     one(sampleBO).addProcedure(procedurePE);
                 }
             });
-        createServer().registerExperiment(SESSION_TOKEN, newExperiment);
+        createServer().registerExperiment(SESSION_TOKEN, newExperiment,
+                new ArrayList<AttachmentPE>());
         context.assertIsSatisfied();
     }
 
@@ -348,7 +350,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                     will(returnValue(experimentBO));
 
                     one(experimentBO).define(newExperiment);
-                    one(experimentBO).save();
+                    exactly(2).of(experimentBO).save();
                     one(experimentBO).getExperiment();
                     will(returnValue(experimentPE));
 
@@ -363,7 +365,8 @@ public final class GenericServerTest extends AbstractServerTestCase
         boolean exceptionThrown = false;
         try
         {
-            createServer().registerExperiment(SESSION_TOKEN, newExperiment);
+            createServer().registerExperiment(SESSION_TOKEN, newExperiment,
+                    new ArrayList<AttachmentPE>());
         } catch (UserFailureException e)
         {
             exceptionThrown = true;

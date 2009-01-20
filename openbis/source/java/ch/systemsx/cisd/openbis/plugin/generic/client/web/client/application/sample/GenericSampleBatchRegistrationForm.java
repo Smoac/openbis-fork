@@ -22,8 +22,6 @@ import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.FormEvent;
-import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.widget.Component;
@@ -38,9 +36,6 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.xml.client.Document;
-import com.google.gwt.xml.client.Node;
-import com.google.gwt.xml.client.XMLParser;
 
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -52,9 +47,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Abstrac
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ClickableFormPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.HelpHtml;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.FormPanelListener;
 
 /**
  * The <i>generic</i> sample batch registration panel.
@@ -150,28 +145,30 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
         panel.setEncoding(Encoding.MULTIPART);
         panel.setMethod(Method.POST);
         panel.setButtonAlign(HorizontalAlignment.RIGHT);
-        final HiddenField<String> sessionKeyField = createHiddenField();
+        final HiddenField<String> sessionKeyField =
+                AbstractRegistrationForm.createHiddenSessionField(SESSION_KEY);
         panel.add(sessionKeyField);
         panel.addButton(button);
+        final GenericSampleBatchRegistrationForm thisForm = this;
         // Does some action after the form has been successfully submitted. Note that the response
         // coming from the server could be an error message. Even in case of error on the server
         // side this listener will be informed.
-        panel.addListener(Events.Submit, new FormPanelListener());
-        return panel;
-    }
+        panel.addListener(Events.Submit, new FormPanelListener(infoBox)
+            {
+                @Override
+                protected void onSuccessfullUpload()
+                {
+                    viewContext.getService().registerSamples(sampleType, SESSION_KEY,
+                            new RegisterSamplesCallback(viewContext));
+                }
 
-    /**
-     * Field specifying the session key needed by the file uploader on the server side.
-     * <p>
-     * This key is the session attribute key where you can access the uploaded files.
-     * </p>
-     */
-    private final static HiddenField<String> createHiddenField()
-    {
-        final HiddenField<String> hiddenField = new HiddenField<String>();
-        hiddenField.setName("sessionKey");
-        hiddenField.setValue(SESSION_KEY);
-        return hiddenField;
+                @Override
+                protected void setUploadEnabled()
+                {
+                    thisForm.setUploadEnabled(true);
+                }
+            });
+        return panel;
     }
 
     private final Button createButton()
@@ -247,61 +244,6 @@ public final class GenericSampleBatchRegistrationForm extends LayoutContainer
         protected final void finishOnFailure(final Throwable caught)
         {
             setUploadEnabled(true);
-        }
-    }
-
-    private final class FormPanelListener implements Listener<FormEvent>
-    {
-
-        FormPanelListener()
-        {
-        }
-
-        private final void extractAndDisplay(final String msg)
-        {
-            final Document document = XMLParser.parse(msg);
-            final Node message = document.getFirstChild();
-            final Node typeNode = message.getAttributes().getNamedItem("type");
-            final String messageText = message.getFirstChild().getNodeValue();
-            final String type = typeNode.getNodeValue();
-            if ("info".equals(type))
-            {
-                infoBox.displayInfo(messageText);
-            } else
-            {
-                infoBox.displayError(messageText);
-            }
-        }
-
-        //
-        // Listener
-        //
-
-        public final void handleEvent(final FormEvent be)
-        {
-            final String msg = be.resultHtml;
-            // Was not successful
-            if (StringUtils.isBlank(msg) == false)
-            {
-                if (msg.startsWith("<message"))
-                {
-                    if (msg.indexOf("<![CDATA[") > -1 && XMLParser.supportsCDATASection() == false)
-                    {
-                        infoBox.displayError(msg.replaceAll("<", "&lt;"));
-                    } else
-                    {
-                        extractAndDisplay(msg);
-                    }
-                } else
-                {
-                    infoBox.displayError(msg);
-                }
-                setUploadEnabled(true);
-            } else
-            {
-                viewContext.getService().registerSamples(sampleType, SESSION_KEY,
-                        new RegisterSamplesCallback(viewContext));
-            }
         }
     }
 

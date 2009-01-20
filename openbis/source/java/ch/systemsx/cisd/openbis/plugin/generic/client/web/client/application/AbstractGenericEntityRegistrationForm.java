@@ -73,8 +73,12 @@ abstract public class AbstractGenericEntityRegistrationForm<T extends EntityType
 
     protected static String createId(EntityKind entityKind)
     {
-        return GenericConstants.ID_PREFIX + "generic-" + entityKind.name().toLowerCase()
-                + "-registration_form";
+        return GenericConstants.ID_PREFIX + createSimpleId(entityKind);
+    }
+
+    protected static String createSimpleId(EntityKind entityKind)
+    {
+        return "generic-" + entityKind.name().toLowerCase() + "-registration_form";
     }
 
     private final void createFormFields()

@@ -180,7 +180,8 @@ public final class GenericServer extends AbstractPluginServer<IGenericServer> im
         getSampleTypeSlaveServerPlugin(sampleTypePE).registerSamples(session, newSamples);
     }
 
-    public void registerExperiment(String sessionToken, NewExperiment newExperiment)
+    public void registerExperiment(String sessionToken, NewExperiment newExperiment,
+            List<AttachmentPE> attachments)
     {
         assert sessionToken != null : "Unspecified session token.";
         assert newExperiment != null : "Unspecified new experiment.";
@@ -188,6 +189,11 @@ public final class GenericServer extends AbstractPluginServer<IGenericServer> im
         final Session session = getSessionManager().getSession(sessionToken);
         final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
         experimentBO.define(newExperiment);
+        experimentBO.save();
+        for (AttachmentPE att : attachments)
+        {
+            experimentBO.addAttachment(att);
+        }
         experimentBO.save();
         if (newExperiment.getSamples().length > 0)
         {
@@ -211,5 +217,4 @@ public final class GenericServer extends AbstractPluginServer<IGenericServer> im
             }
         }
     }
-
 }

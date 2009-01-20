@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -27,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.client.shared.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -60,6 +62,8 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     private ExperimentPE experiment;
 
     private boolean dataChanged;
+
+    private final List<AttachmentPE> attachments = new ArrayList<AttachmentPE>();
 
     public ExperimentBO(final IDAOFactory daoFactory, final Session session)
     {
@@ -160,8 +164,8 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     {
         checkExperimentLoaded();
         experiment.ensureAttachmentsLoaded();
-        final Set<AttachmentPE> attachments = experiment.getAttachments();
-        for (AttachmentPE att : attachments)
+        final Set<AttachmentPE> attachmentsSet = experiment.getAttachments();
+        for (AttachmentPE att : attachmentsSet)
         {
             if (att.getFileName().equals(filename) && att.getVersion() == version)
             {
@@ -188,6 +192,22 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         defineExperimentType(newExperiment);
         defineExperimentProject(newExperiment, experimentIdentifier);
         dataChanged = true;
+    }
+
+    public final void addAttachment(final AttachmentPE experimentAttachment)
+    {
+        assert experiment != null : "no experiment has been loaded";
+        experimentAttachment.setRegistrator(findRegistrator());
+        escapeFileName(experimentAttachment);
+        attachments.add(experimentAttachment);
+    }
+
+    private void escapeFileName(final AttachmentPE attachment)
+    {
+        if (attachment != null)
+        {
+            attachment.setFileName(ExperimentPE.escapeFileName(attachment.getFileName()));
+        }
     }
 
     private void defineExperimentProject(NewExperiment newExperiment,
@@ -233,7 +253,29 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
             }
             dataChanged = false;
         }
+        if (attachments.isEmpty() == false)
+        {
+            final IExperimentAttachmentDAO experimentPropertyDAO = getExperimentAttachmentDAO();
+            for (final AttachmentPE property : attachments)
+            {
+                try
+                {
+                    experimentPropertyDAO.createExperimentAttachment(property, experiment);
+                } catch (final DataAccessException e)
+                {
+                    final String fileName = property.getFileName();
+                    throwException(e, String.format("Filename '%s' for experiment '%s'", fileName,
+                            createExperimentIdentifier()));
+                }
+            }
+            attachments.clear();
+        }
 
+    }
+
+    private ExperimentIdentifier createExperimentIdentifier()
+    {
+        return new ExperimentIdentifier(experiment.getProject().getCode(), experiment.getCode());
     }
 
     private final void defineExperimentProperties(final String experimentTypeCode,

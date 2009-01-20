@@ -90,10 +90,12 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
                 CollectionUtils.abbreviate(newSamples, 20));
     }
 
-    public void registerExperiment(String sessionToken, NewExperiment experiment)
+    public void registerExperiment(String sessionToken, NewExperiment experiment,
+            List<AttachmentPE> attachments)
     {
-        logTracking(sessionToken, "register_experiment", "EXPERIMENT_TYPE(%s) EXPERIMENT(%S)",
-                experiment.getExperimentTypeCode(), experiment.getIdentifier());
+        logTracking(sessionToken, "register_experiment",
+                "EXPERIMENT_TYPE(%s) EXPERIMENT(%S) ATTACHMENTS(%S)", experiment
+                        .getExperimentTypeCode(), experiment.getIdentifier(), attachments.size());
 
     }
 }

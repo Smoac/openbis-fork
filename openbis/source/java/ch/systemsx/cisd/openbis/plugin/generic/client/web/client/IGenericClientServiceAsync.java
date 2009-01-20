@@ -63,9 +63,9 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
             throws UserFailureException;
 
     /**
-     * @see IGenericClientService#registerExperiment(NewExperiment)
+     * @see IGenericClientService#registerExperiment(String,NewExperiment)
      */
-    public void registerExperiment(NewExperiment newExp, AsyncCallback<Void> assyncCallback)
-            throws UserFailureException;
+    public void registerExperiment(final String sessionKey, NewExperiment newExp,
+            AsyncCallback<Void> assyncCallback) throws UserFailureException;
 
 }

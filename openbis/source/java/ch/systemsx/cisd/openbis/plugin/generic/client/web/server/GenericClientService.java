@@ -46,6 +46,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.translator.DtoConverte
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentContentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -205,17 +207,51 @@ public final class GenericClientService extends AbstractClientService implements
         }
     }
 
-    public void registerExperiment(NewExperiment experiment)
+    public void registerExperiment(final String sessionKey, NewExperiment experiment)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
+        UploadedFilesBean uploadedFiles = null;
+        HttpSession session = null;
         try
         {
             final String sessionToken = getSessionToken();
-            genericServer.registerExperiment(sessionToken, experiment);
+            session = getHttpSession();
+            uploadedFiles = (UploadedFilesBean) session.getAttribute(sessionKey);
+            List<AttachmentPE> attachments = new ArrayList<AttachmentPE>();
+            if (uploadedFiles != null)
+            {
+                for (final IUncheckedMultipartFile multipartFile : uploadedFiles.iterable())
+                {
+                    String fileName = multipartFile.getOriginalFilename();
+                    byte[] content = multipartFile.getBytes();
+                    attachments.add(createAttachment(fileName, content));
+                }
+            }
+            genericServer.registerExperiment(sessionToken, experiment, attachments);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
+        } finally
+        {
+            if (uploadedFiles != null)
+            {
+                uploadedFiles.deleteTransferredFiles();
+            }
+            if (session != null)
+            {
+                session.removeAttribute(sessionKey);
+            }
         }
+    }
+
+    private final static AttachmentPE createAttachment(String fileName, final byte[] content)
+    {
+        final AttachmentPE attachment = new AttachmentPE();
+        attachment.setFileName(fileName);
+        final AttachmentContentPE attachmentContent = new AttachmentContentPE();
+        attachmentContent.setValue(content);
+        attachment.setAttachmentContent(attachmentContent);
+        return attachment;
     }
 
 }

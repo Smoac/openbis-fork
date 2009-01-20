@@ -20,6 +20,7 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -43,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.client.shared.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientServiceTest;
 import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 /**
@@ -183,12 +185,17 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
         final NewExperiment newExperiment =
                 createNewExperiment("/group1/project1/exp1", "SIRNA_HCS",
                         ExperimentProperty.EMPTY_ARRAY);
+        final String sessionKey = "some-session-key";
         context.checking(new Expectations()
             {
                 {
                     prepareGetSessionToken(this);
+                    allowing(httpSession).getAttribute(sessionKey);
+                    // TODO 2009-01-20, IA: Add test for attachment handling
+                    will(returnValue(new UploadedFilesBean()));
+                    one(httpSession).removeAttribute(sessionKey);
                     one(genericServer).registerExperiment(with(SESSION_TOKEN),
-                            getTranslatedExperiment());
+                            getTranslatedExperiment(), with(new ArrayList<AttachmentPE>()));
                 }
 
                 private final NewExperiment getTranslatedExperiment()
@@ -197,7 +204,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                 }
 
             });
-        genericClientService.registerExperiment(newExperiment);
+        genericClientService.registerExperiment(sessionKey, newExperiment);
         context.assertIsSatisfied();
     }
 

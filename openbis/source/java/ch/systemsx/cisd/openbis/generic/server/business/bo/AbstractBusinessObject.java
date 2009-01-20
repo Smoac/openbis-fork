@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
@@ -161,5 +162,10 @@ abstract class AbstractBusinessObject implements IDAOFactory
     public IProcedureTypeDAO getProcedureTypeDAO()
     {
         return daoFactory.getProcedureTypeDAO();
+    }
+
+    public final IExperimentAttachmentDAO getExperimentAttachmentDAO()
+    {
+        return daoFactory.getExperimentAttachmentDAO();
     }
 }

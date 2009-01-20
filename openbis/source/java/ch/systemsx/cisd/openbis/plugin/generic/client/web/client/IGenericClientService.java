@@ -65,5 +65,6 @@ public interface IGenericClientService extends IClientService
     /**
      * Registers a new experiment.
      */
-    public void registerExperiment(final NewExperiment experiment) throws UserFailureException;
+    public void registerExperiment(final String sessionKey, final NewExperiment experiment)
+            throws UserFailureException;
 }

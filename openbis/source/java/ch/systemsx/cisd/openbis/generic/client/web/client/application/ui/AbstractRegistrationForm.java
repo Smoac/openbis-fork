@@ -25,11 +25,15 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.HiddenField;
+import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
+import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ClickableFormPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
@@ -54,6 +58,8 @@ public abstract class AbstractRegistrationForm extends LayoutContainer
     protected final int labelWidth;
 
     protected final int fieldWitdh;
+
+    protected Button saveButton;
 
     protected AbstractRegistrationForm(final IMessageProvider messageProvider, final String id)
     {
@@ -88,7 +94,7 @@ public abstract class AbstractRegistrationForm extends LayoutContainer
         panel.setLabelWidth(labelWidth);
         panel.setFieldWidth(fieldWitdh);
         panel.setButtonAlign(HorizontalAlignment.RIGHT);
-        final Button saveButton = new Button(messageProvider.getMessage(Dict.BUTTON_SAVE));
+        saveButton = new Button(messageProvider.getMessage(Dict.BUTTON_SAVE));
         saveButton.setStyleAttribute("marginRight", "20px");
         saveButton.setId(getId() + SAVE_BUTTON);
         saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
@@ -170,6 +176,32 @@ public abstract class AbstractRegistrationForm extends LayoutContainer
         {
             resetInfoBox();
         }
+    }
+
+    /**
+     * Field specifying the session key needed by the file uploader on the server side.
+     * <p>
+     * This key is the session attribute key where you can access the uploaded files.
+     * </p>
+     */
+    public final static HiddenField<String> createHiddenSessionField(String value)
+    {
+        final HiddenField<String> hiddenField = new HiddenField<String>();
+        hiddenField.setName("sessionKey");
+        hiddenField.setValue(value);
+        return hiddenField;
+    }
+
+    static protected final void addUploadFeatures(FormPanel panel, String sessionKey)
+    {
+        panel.setWidth(AbstractRegistrationForm.DEFAULT_LABEL_WIDTH
+                + AbstractRegistrationForm.DEFAULT_FIELD_WIDTH + 50);
+        panel.setAction(GenericConstants.createServicePath("upload"));
+        panel.setEncoding(Encoding.MULTIPART);
+        panel.setMethod(Method.POST);
+        final HiddenField<String> sessionKeyField =
+                AbstractRegistrationForm.createHiddenSessionField(sessionKey);
+        panel.add(sessionKeyField);
     }
 
 }

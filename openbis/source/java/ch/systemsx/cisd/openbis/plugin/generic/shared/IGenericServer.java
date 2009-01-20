@@ -73,10 +73,12 @@ public interface IGenericServer extends IPluginCommonServer
 
     /**
      * Registers experiment.
+     * 
+     * @param attachments
      */
     @Transactional
     @RolesAllowed(RoleSet.USER)
     public void registerExperiment(String sessionToken,
             @AuthorizationGuard(guardClass = NewExperimentPredicate.class)
-            final NewExperiment experiment);
+            final NewExperiment experiment, List<AttachmentPE> attachments);
 }

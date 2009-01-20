@@ -25,6 +25,7 @@ import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
@@ -72,6 +73,8 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
 
     private IProcedureDAO procedureDAO;
 
+    private IExperimentAttachmentDAO experimentAttachmentDAO;
+
     public DAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory)
     {
@@ -87,6 +90,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         vocabularyDAO = new VocabularyDAO(sessionFactory, databaseInstance);
         procedureTypeDAO = new ProcedureTypeDAO(sessionFactory, databaseInstance);
         procedureDAO = new ProcedureDAO(sessionFactory, databaseInstance);
+        experimentAttachmentDAO = new ExperimentAttachmentDAO(sessionFactory, databaseInstance);
         final EntityKind[] entityKinds = EntityKind.values();
         for (final EntityKind entityKind : entityKinds)
         {
@@ -160,5 +164,10 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     public final IProcedureDAO getProcedureDAO()
     {
         return procedureDAO;
+    }
+
+    public final IExperimentAttachmentDAO getExperimentAttachmentDAO()
+    {
+        return experimentAttachmentDAO;
     }
 }

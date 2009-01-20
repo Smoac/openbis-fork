@@ -19,7 +19,12 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ex
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 
 import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentProperty;
@@ -37,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.FormPanelListener;
 
 /**
  * The <i>generic</i> experiment registration form.
@@ -52,11 +58,21 @@ public final class GenericExperimentRegistrationForm
 
     public static final String ID = createId(EntityKind.EXPERIMENT);
 
+    public static final String SESSION_KEY = createSimpleId(EntityKind.EXPERIMENT);
+
+    private static final String FIELD_LABEL_TEMPLATE = "Attachment" + " {0}";
+
+    private static final String FIELD_NAME_TEMPLATE = SESSION_KEY + "_{0}";
+
+    private static final int DEFAULT_NUMBER_OF_ATTACHMENTS = 3;
+
     private final IViewContext<IGenericClientServiceAsync> viewContext;
 
     private final ExperimentType experimentType;
 
     private ProjectSelectionWidget projectSelectionWidget;
+
+    private List<FileUploadField> attachmentFields = new ArrayList<FileUploadField>();
 
     private TextArea samplesArea;
 
@@ -67,6 +83,7 @@ public final class GenericExperimentRegistrationForm
         super(viewContext, experimentType.getExperimentTypePropertyTypes(), EntityKind.EXPERIMENT);
         this.viewContext = viewContext;
         this.experimentType = experimentType;
+        addUploadFeatures(formPanel, SESSION_KEY);
     }
 
     private final String createExpeimentIdentifier()
@@ -92,13 +109,6 @@ public final class GenericExperimentRegistrationForm
     @Override
     public final void submitValidForm()
     {
-        final NewExperiment newExp =
-                new NewExperiment(createExpeimentIdentifier(), experimentType.getCode());
-        final List<ExperimentProperty> properties = extractProperties();
-        newExp.setProperties(properties.toArray(ExperimentProperty.EMPTY_ARRAY));
-        newExp.setSamples(extractSamples());
-        viewContext.getService().registerExperiment(newExp,
-                new RegisterExperimentCallback(viewContext));
     }
 
     public final class RegisterExperimentCallback extends AbstractAsyncCallback<Void>
@@ -119,6 +129,7 @@ public final class GenericExperimentRegistrationForm
         {
             infoBox.displayInfo(createSuccessfullRegistrationInfo());
             formPanel.reset();
+            setUploadEnabled(true);
         }
     }
 
@@ -141,6 +152,56 @@ public final class GenericExperimentRegistrationForm
         samplesArea.setFieldLabel(viewContext.getMessage(Dict.SAMPLES));
         samplesArea.setHeight("10em");
         samplesArea.setId(ID + ID_SUFFIX_SAMPLES);
+
+        for (int i = 0; i < DEFAULT_NUMBER_OF_ATTACHMENTS; i++)
+        {
+            attachmentFields.add(createFileUploadField(i));
+        }
+
+        final GenericExperimentRegistrationForm thisForm = this;
+        formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
+            {
+                @Override
+                protected void onSuccessfullUpload()
+                {
+                    registerExperiment();
+                }
+
+                @Override
+                protected void setUploadEnabled()
+                {
+                    thisForm.setUploadEnabled(true);
+                }
+            });
+        redefineSaveListeners();
+    }
+
+    protected void setUploadEnabled(boolean enabled)
+    {
+        saveButton.setEnabled(enabled);
+    }
+
+    void redefineSaveListeners()
+    {
+        saveButton.removeAllListeners();
+        saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
+            {
+                @Override
+                public final void componentSelected(final ButtonEvent ce)
+                {
+                    if (formPanel.isValid())
+                    {
+                        if (attachmentsDefined())
+                        {
+                            setUploadEnabled(false);
+                            formPanel.submit();
+                        } else
+                        {
+                            registerExperiment();
+                        }
+                    }
+                }
+            });
     }
 
     @Override
@@ -149,6 +210,43 @@ public final class GenericExperimentRegistrationForm
         final ArrayList<Field<?>> fields = new ArrayList<Field<?>>();
         fields.add(projectSelectionWidget);
         fields.add(samplesArea);
+        for (FileUploadField attachmentField : attachmentFields)
+        {
+            fields.add(attachmentField);
+        }
         return fields;
     }
+
+    private final FileUploadField createFileUploadField(final int counter)
+    {
+        final FileUploadField file = new FileUploadField();
+        final int number = counter + 1;
+        file.setFieldLabel(Format.substitute(FIELD_LABEL_TEMPLATE, number));
+        file.setName(Format.substitute(FIELD_NAME_TEMPLATE, number));
+        return file;
+    }
+
+    private void registerExperiment()
+    {
+        final NewExperiment newExp =
+                new NewExperiment(createExpeimentIdentifier(), experimentType.getCode());
+        final List<ExperimentProperty> properties = extractProperties();
+        newExp.setProperties(properties.toArray(ExperimentProperty.EMPTY_ARRAY));
+        newExp.setSamples(extractSamples());
+        viewContext.getService().registerExperiment(SESSION_KEY, newExp,
+                new RegisterExperimentCallback(viewContext));
+    }
+
+    private boolean attachmentsDefined()
+    {
+        for (FileUploadField field : attachmentFields)
+        {
+            if (field.getValue() != null)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
