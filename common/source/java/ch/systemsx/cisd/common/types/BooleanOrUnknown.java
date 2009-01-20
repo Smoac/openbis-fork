@@ -67,5 +67,14 @@ public enum BooleanOrUnknown
     {
         return flag ? T : F;
     }
+    
+    /**
+     * Resolve the specified instance to an instance of {@link Boolean}. Returns <code>null</code>
+     * if the argument is {@link #U}.
+     */
+    public final static Boolean tryToResolve(final BooleanOrUnknown booleanOrUnknown)
+    {
+        return booleanOrUnknown == U ? null : Boolean.valueOf(booleanOrUnknown == T);
+    }
 
 }
