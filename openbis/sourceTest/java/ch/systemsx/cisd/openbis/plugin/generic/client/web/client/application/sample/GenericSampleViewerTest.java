@@ -65,9 +65,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         checkSample.dataTable().expectedSize(0);
         remoteConsole.prepare(checkSample);
 
-        remoteConsole.finish(60000);
-        client.onModuleLoad();
-
+        launchTest(60000);
     }
 
     public final void testShowCellPlateView()
@@ -103,8 +101,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                 "analysis/result"));
         remoteConsole.prepare(checkSample);
 
-        remoteConsole.finish(60000);
-        client.onModuleLoad();
+        launchTest(60000);
     }
 
 }

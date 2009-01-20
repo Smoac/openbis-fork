@@ -108,8 +108,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
                 .with("Authorization failure: User 'observer' does not have enough privileges"
                         + " to access data in the group 'CISD:/CISD'."));
 
-        remoteConsole.finish(20000);
-        client.onModuleLoad();
+        launchTest(20000);
     }
 
     public final void testShowExperimentDetails()
@@ -127,8 +126,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
                 "exampleExperiments.txt").withCell(ModelDataPropertyNames.VERSION, 4));
         remoteConsole.prepare(checkExperiment);
 
-        remoteConsole.finish(60000);
-        client.onModuleLoad();
+        launchTest(60000);
     }
 
     public final void testShowInvalidExperimentDetails()
@@ -150,8 +148,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         checkExperiment.property("Description").asProperty(A_SIMPLE_EXPERIMENT);
         remoteConsole.prepare(checkExperiment);
 
-        remoteConsole.finish(60000);
-        client.onModuleLoad();
+        launchTest(60000);
     }
 
     public final void testListOfAttachments()
@@ -167,8 +164,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
                 "cellPlates.txt").withCell(ModelDataPropertyNames.VERSION, 1));
         remoteConsole.prepare(checkExperiment);
 
-        remoteConsole.finish(60000);
-        client.onModuleLoad();
+        launchTest(60000);
     }
 
     public final void testListOfSamples()
@@ -186,8 +182,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         sampleTable.expectedRow(new SampleRow("CP2-A1"));
         remoteConsole.prepare(checkExperiment);
 
-        remoteConsole.finish(60000);
-        client.onModuleLoad();
+        launchTest(60000);
     }
 
     public final void testListOfDataSets()
@@ -202,8 +197,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
                 "CISD:/CISD/3VCP1").withSampleType("CELL_PLATE").derived().withIsComplete(null));
         remoteConsole.prepare(checkExperiment);
         
-        remoteConsole.finish(60000);
-        client.onModuleLoad();
+        launchTest(60000);
     }
     
     private void prepareShowExperiment(final String projectName, final String experimentTypeName,

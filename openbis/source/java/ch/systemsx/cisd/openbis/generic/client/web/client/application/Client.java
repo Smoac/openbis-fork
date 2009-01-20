@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.LoginController;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 
 /**
@@ -51,7 +52,8 @@ public final class Client implements EntryPoint
         return viewContext;
     }
 
-    private final IViewContext<ICommonClientServiceAsync> createViewContext()
+    private final IViewContext<ICommonClientServiceAsync> createViewContext(
+            final Controller openUrlController)
     {
         final ICommonClientServiceAsync service = GWT.create(ICommonClientService.class);
         final ServiceDefTarget endpoint = (ServiceDefTarget) service;
@@ -69,7 +71,7 @@ public final class Client implements EntryPoint
                 {
                     if (logout)
                     {
-                        initializeControllers();
+                        initializeControllers(openUrlController);
                     }
                     onModuleLoad();
                 }
@@ -77,11 +79,12 @@ public final class Client implements EntryPoint
         return new CommonViewContext(service, messageProvider, imageBundle, pageController);
     }
 
-    private final void initializeControllers()
+    private final void initializeControllers(Controller openUrlController)
     {
         removeControllers();
         addController(new LoginController(viewContext));
         addController(new AppController((CommonViewContext) viewContext));
+        addController(openUrlController);
     }
 
     public void removeControllers()
@@ -103,10 +106,16 @@ public final class Client implements EntryPoint
 
     public final void onModuleLoad()
     {
+        onModuleLoad(WindowUtils.createOpenUrlController());
+    }
+
+    // @Private - exposed for tests
+    public final void onModuleLoad(Controller openUrlController)
+    {
         if (viewContext == null)
         {
-            viewContext = createViewContext();
-            initializeControllers();
+            viewContext = createViewContext(openUrlController);
+            initializeControllers(openUrlController);
         }
 
         final IClientServiceAsync service = viewContext.getService();

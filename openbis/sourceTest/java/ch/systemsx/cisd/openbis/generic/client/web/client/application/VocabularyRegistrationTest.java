@@ -45,7 +45,6 @@ public class VocabularyRegistrationTest extends AbstractGWTTestCase
         remoteConsole.prepare(createFillVocabularyRegistrationForm());
 
         // TODO 2008-12-22, Christian Ribeaud: Finish this once we have list vocabularies.
-        remoteConsole.finish(20000);
-        client.onModuleLoad();
+        launchTest(20000);
     }
 }

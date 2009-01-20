@@ -35,7 +35,9 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
 {
 
     private static final String EXPERIMENT = "EXPERIMENT";
+
     private static final String SIRNA_HCS = "SIRNA_HCS";
+
     private static final String USER_DESCRIPTION = "USER.DESCRIPTION";
 
     private final void prepareListingAfterAssignment(String propertyTypeCode,
@@ -60,7 +62,7 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
         remoteConsole.prepare(new FillPropertyTypeAssignmentForm(false, USER_DESCRIPTION,
                 SIRNA_HCS, null, EXPERIMENT));
         prepareListingAfterAssignment(USER_DESCRIPTION, SIRNA_HCS, EXPERIMENT);
-        remoteConsole.finish(20000);
-        client.onModuleLoad();
+
+        launchTest(20000);
     }
 }

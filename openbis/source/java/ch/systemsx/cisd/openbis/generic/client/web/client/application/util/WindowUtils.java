@@ -16,9 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
 
+import com.extjs.gxt.ui.client.mvc.AppEvent;
+import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 
 /**
@@ -30,10 +33,44 @@ public class WindowUtils
 {
 
     /**
+     * Requests to open a new window with given URL.
+     */
+    static public void openWindow(String url)
+    {
+        DispatcherHelper.dispatchOpenUrlEvent(url);
+    }
+
+    /** Creates a controller which handles requests to open the URL in a new browser window. */
+    public static Controller createOpenUrlController()
+    {
+        return new OpenUrlController();
+    }
+
+    private static class OpenUrlController extends Controller
+    {
+        public OpenUrlController()
+        {
+            registerEventTypes(AppEvents.OPEN_URL_EVENT);
+        }
+
+        @Override
+        public void handleEvent(AppEvent<?> event)
+        {
+            switch (event.type)
+            {
+                case AppEvents.OPEN_URL_EVENT:
+                    String openedUrl = (String) event.data;
+                    doOpenWindow(openedUrl);
+                    break;
+            }
+        }
+    }
+
+    /**
      * Opens a new window with given parameters if pop-up blocker has not been detected and displays
      * an alert message otherwise.
      */
-    static public void openWindow(String url)
+    private static void doOpenWindow(String url)
     {
         boolean opened = openWindow(url, "", null);
         if (opened == false)
@@ -41,8 +78,6 @@ public class WindowUtils
             MessageBox.alert("", GenericConstants.POPUP_BLOCKER_DETECTED, null);
             return;
         }
-        // triggered only for test purposes
-        DispatcherHelper.dispatchOpenUrlEvent(url);
     }
 
     /**

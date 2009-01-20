@@ -60,7 +60,6 @@ public class PropertyTypeRegistrationTest extends AbstractGWTTestCase
                 PropertyType.USER_NAMESPACE_CODE_PREPEND + PROPERTY_TYPE_CODE));
         remoteConsole.prepare(table.expectedSize(15));
 
-        remoteConsole.finish(20000);
-        client.onModuleLoad();
+        launchTest(20000);
     }
 }

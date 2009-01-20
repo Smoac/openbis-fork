@@ -88,6 +88,15 @@ public abstract class AbstractGWTTestCase extends GWTTestCase
     }
 
     /**
+     * Starts the tests. Sets the timeout after which the test is terminated.
+     */
+    protected void launchTest(int delayInMilliseconds)
+    {
+        remoteConsole.finish(delayInMilliseconds);
+        client.onModuleLoad();
+    }
+
+    /**
      * Removes all the {@link Controller}s that have been added to the {@link Dispatcher}.
      */
     private final static void clearControllers()

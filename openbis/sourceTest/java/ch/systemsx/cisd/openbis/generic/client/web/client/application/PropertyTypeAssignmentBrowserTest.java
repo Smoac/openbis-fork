@@ -43,7 +43,6 @@ public class PropertyTypeAssignmentBrowserTest extends AbstractGWTTestCase
                 "CONTROL_LAYOUT").withCell(ModelDataPropertyNames.ENTITY_KIND, "SAMPLE"));
         remoteConsole.prepare(table.expectedSize(24));
 
-        remoteConsole.finish(20000);
-        client.onModuleLoad();
+        launchTest(20000);
     }
 }

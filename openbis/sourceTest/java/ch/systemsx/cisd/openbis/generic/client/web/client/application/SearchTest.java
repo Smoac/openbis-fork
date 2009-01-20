@@ -61,8 +61,7 @@ public class SearchTest extends AbstractGWTTestCase
         remoteConsole.prepare(new SearchCommand("MP"));
         remoteConsole.prepare(createCheckTableCommandForAll());
 
-        remoteConsole.finish(10000);
-        client.onModuleLoad();
+        launchTest(10000);
     }
 
     public final void testExperimentSearch()
@@ -71,7 +70,6 @@ public class SearchTest extends AbstractGWTTestCase
         remoteConsole.prepare(new SearchCommand("Experiment", "John"));
         remoteConsole.prepare(createCheckTableCommandForExperiment());
 
-        remoteConsole.finish(10000);
-        client.onModuleLoad();
+        launchTest(10000);
     }
 }

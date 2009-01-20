@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ex
 
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -67,7 +66,7 @@ public class GenericExperimentAttachmentDownloadTest extends AbstractGWTTestCase
 
         // this callback will be used when the attempt to open an URL will occur
         OpenedUrlCallback openedUrlCallback = new OpenedUrlCallback(client.tryToGetViewContext());
-        registerOpenURLController(openedUrlCallback);
+        UrlOpenedController controller = new UrlOpenedController(openedUrlCallback);
 
         remoteConsole.prepare(new CheckUrlContentCmdTest(openedUrlCallback, "3VCP1\n3VCP2\n3VCP3"));
 
@@ -82,14 +81,7 @@ public class GenericExperimentAttachmentDownloadTest extends AbstractGWTTestCase
         remoteConsole.prepare(waitForPrevCmd);
 
         remoteConsole.finish(20000);
-        client.onModuleLoad();
-    }
-
-    private static UrlOpenedController registerOpenURLController(OpenedUrlCallback openedUrlCallback)
-    {
-        UrlOpenedController controller = new UrlOpenedController(openedUrlCallback);
-        Dispatcher.get().addController(controller);
-        return controller;
+        client.onModuleLoad(controller);
     }
 
     // called automatically by the controller when any URL is contacted

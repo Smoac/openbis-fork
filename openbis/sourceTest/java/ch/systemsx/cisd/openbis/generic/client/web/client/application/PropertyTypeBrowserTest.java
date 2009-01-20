@@ -41,7 +41,6 @@ public class PropertyTypeBrowserTest extends AbstractGWTTestCase
         table.expectedRow(new Row().withCell(ModelDataPropertyNames.CODE, "PLATE_GEOMETRY"));
         remoteConsole.prepare(table.expectedSize(14));
 
-        remoteConsole.finish(20000);
-        client.onModuleLoad();
+        launchTest(20000);
     }
 }

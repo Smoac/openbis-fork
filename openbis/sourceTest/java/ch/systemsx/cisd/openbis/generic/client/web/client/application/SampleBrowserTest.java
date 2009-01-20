@@ -45,26 +45,28 @@ public class SampleBrowserTest extends AbstractGWTTestCase
                 .noExperiment().property("PLATE_GEOMETRY", "384_WELLS_16X24"));
         remoteConsole.prepare(table.expectedSize(5));
 
-        startAndWait();
+        launchTest(20000);
     }
 
     public final void testExportMasterPlates()
     {
         loginAndGotoListSamplesTab();
-        remoteConsole.prepare(new ListSamples(GroupSelectionWidget.SHARED_GROUP_CODE, "MASTER_PLATE"));
+        remoteConsole.prepare(new ListSamples(GroupSelectionWidget.SHARED_GROUP_CODE,
+                "MASTER_PLATE"));
         ExportSamplesTestCommand exportCommand = new ExportSamplesTestCommand(client);
         remoteConsole.prepare(exportCommand);
         String header = "Group\tCode\tProject\tExperiment\tPlate Geometry";
         String firstLine = "\tMP\t\t\t384_WELLS_16X24";
         remoteConsole.prepare(exportCommand.createCheckExportCommand(header, firstLine, 2));
 
-        startAndWait();
+        launchTest(20000);
     }
 
     public final void testListOnlySharedMasterPlates()
     {
         loginAndGotoListSamplesTab();
-        remoteConsole.prepare(new ListSamples(GroupSelectionWidget.SHARED_GROUP_CODE, "MASTER_PLATE"));
+        remoteConsole.prepare(new ListSamples(GroupSelectionWidget.SHARED_GROUP_CODE,
+                "MASTER_PLATE"));
         CheckSampleTable table = new CheckSampleTable();
         SampleRow expectedRow =
                 new SampleRow("MP").identifier("CISD").valid().noExperiment().property(
@@ -72,7 +74,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         table.expectedRow(expectedRow);
         remoteConsole.prepare(table.expectedSize(1));
 
-        startAndWait();
+        launchTest(20000);
     }
 
     public final void testExportCellPlates()
@@ -85,7 +87,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         String firstLine = "CISD\t3VCP1\tNEMO\tEXP1\t3V-123\tMP001-1";
         remoteConsole.prepare(exportCommand.createCheckExportCommand(header, firstLine, 17));
 
-        startAndWait();
+        launchTest(20000);
     }
 
     public final void testListCellPlates()
@@ -97,7 +99,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
                 "NEMO", "EXP1").derivedFromAncestor("3V-123", 1).derivedFromAncestor("MP001-1", 2));
         remoteConsole.prepare(table.expectedSize(16));
 
-        startAndWait();
+        launchTest(20000);
     }
 
     private void loginAndGotoListSamplesTab()
@@ -105,11 +107,5 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         remoteConsole.prepare(new Login("test", "a"));
         remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.SAMPLES,
                 CategoriesBuilder.MENU_ELEMENTS.LIST));
-    }
-
-    private void startAndWait()
-    {
-        remoteConsole.finish(20000);
-        client.onModuleLoad();
     }
 }

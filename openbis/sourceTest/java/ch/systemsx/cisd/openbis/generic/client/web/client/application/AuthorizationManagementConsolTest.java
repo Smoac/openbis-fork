@@ -52,8 +52,7 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
         remoteConsole.prepare(new CreateGroup(groupCode));
         remoteConsole.prepare(new CheckGroup(groupCode.toUpperCase()));
 
-        remoteConsole.finish(20000);
-        client.onModuleLoad();
+        launchTest(20000);
     }
 
     public final void testCreatePerson()
@@ -66,10 +65,9 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
         remoteConsole.prepare(new CreatePerson(userId));
         remoteConsole.prepare(new CheckPerson(userId));
 
-        remoteConsole.finish(20000);
-        client.onModuleLoad();
+        launchTest(20000);
     }
-    
+
     public final void testCreateRole()
     {
         remoteConsole.prepare(new Login("test", "a"));
@@ -80,10 +78,9 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
         remoteConsole
                 .prepare(new CheckRole(TEST_GROUP.toUpperCase(), USER_ID, RoleListBox.OBSERVER));
 
-        remoteConsole.finish(20000);
-        client.onModuleLoad();
+        launchTest(20000);
     }
-    
+
     /**
      * Tests that authorization annotations of {@link ICommonServer#registerPerson(String, String)}
      * are obeyed.
@@ -100,8 +97,7 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
                         .with("Authorization failure: None of method roles '[INSTANCE.ADMIN]' "
                                 + "could be found in roles of user 'o'.");
         remoteConsole.prepare(failureExpectation);
-        
-        remoteConsole.finish(20000);
-        client.onModuleLoad();
+
+        launchTest(20000);
     }
 }

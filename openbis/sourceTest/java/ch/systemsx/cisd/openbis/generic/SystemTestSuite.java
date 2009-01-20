@@ -59,7 +59,7 @@ public class SystemTestSuite extends GWTTestSuite
         testSuite.addTestSuite(EntityTypePropertyTypeAssignmentTest.class);
         testSuite.addTestSuite(VocabularyRegistrationTest.class);
         testSuite.addTestSuite(PropertyTypeRegistrationTest.class);
-        //testSuite.addTestSuite(GenericExperimentAttachmentDownloadTest.class);
+        testSuite.addTestSuite(GenericExperimentAttachmentDownloadTest.class);
         return testSuite;
     }
 }

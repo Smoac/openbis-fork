@@ -64,8 +64,7 @@ public class GenericExperimentRegistrationTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ListExperiments("DEFAULT", experimentTypeCode));
         remoteConsole.prepare(new CheckExperimentTable()
                 .expectedRow(new ExperimentRow("NEW_EXP_1")));
-        remoteConsole.finish(20000);
-        client.onModuleLoad();
+        launchTest(20000);
     }
 
     public final void testRegisterExperimentWithSamples()
@@ -90,7 +89,6 @@ public class GenericExperimentRegistrationTest extends AbstractGWTTestCase
         CheckSampleTable table = new CheckSampleTable();
         table.expectedRow(new SampleRow(sampleCode).identifier("CISD", "CISD").valid().experiment(
                 project, experimentCode));
-        remoteConsole.finish(20000);
-        client.onModuleLoad();
+        launchTest(20000);
     }
 }

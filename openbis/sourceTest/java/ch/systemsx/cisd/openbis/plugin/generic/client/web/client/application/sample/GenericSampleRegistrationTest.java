@@ -68,8 +68,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ListSamples("CISD", sampleTypeCode));
         remoteConsole.prepare(new CheckSampleTable().expectedRow(new SampleRow(GROUP_CL)
                 .identifier("CISD", "CISD")));
-        remoteConsole.finish(20000);
-        client.onModuleLoad();
+        launchTest(20000);
     }
 
     /**
@@ -91,8 +90,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
                                 + "'[GROUP.USER, GROUP.ADMIN, INSTANCE.ADMIN]' "
                                 + "could be found in roles of user 'observer'.");
         remoteConsole.prepare(failureExpectation);
-        remoteConsole.finish(20000);
-        client.onModuleLoad();
+        launchTest(20000);
     }
 
     public final void testRegisterGroupSampleWithParent()
@@ -108,8 +106,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ListSamples("CISD", sampleTypeCode));
         remoteConsole.prepare(new CheckSampleTable().expectedRow(new SampleRow(sampleCode
                 .toUpperCase()).identifier("CISD", "CISD")));
-        remoteConsole.finish(20000);
-        client.onModuleLoad();
+        launchTest(20000);
     }
 
     public final void testRegisterGroupSampleWithContainer()
@@ -131,8 +128,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         final String sampleCodeFieldIdent = CommonSampleColDefKind.CODE.id();
         componentsTable.expectedRow(new Row().withCell(sampleCodeFieldIdent, sampleCode));
         remoteConsole.prepare(checkSample);
-        remoteConsole.finish(60000);
-        client.onModuleLoad();
+        launchTest(60000);
     }
 
     public final void testRegisterSharedSample()
@@ -156,7 +152,6 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
                 sampleTypeCode));
         remoteConsole.prepare(new CheckSampleTable().expectedRow(new SampleRow(SHARED_CL)
                 .identifier("CISD").property("DESCRIPTION", false, description)));
-        remoteConsole.finish(30000);
-        client.onModuleLoad();
+        launchTest(30000);
     }
 }

@@ -41,7 +41,7 @@ public class ExperimentBrowserTest extends AbstractGWTTestCase
         table.expectedRow(new ExperimentRow("EXP-X").invalid());
         remoteConsole.prepare(table.expectedSize(2));
 
-        startAndWait();
+        launchTest(20000);
     }
 
     private void loginAndGotoListExperimentsTab()
@@ -49,11 +49,5 @@ public class ExperimentBrowserTest extends AbstractGWTTestCase
         remoteConsole.prepare(new Login("test", "a"));
         remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.EXPERIMENTS,
                 CategoriesBuilder.MENU_ELEMENTS.LIST));
-    }
-
-    private void startAndWait()
-    {
-        remoteConsole.finish(20000);
-        client.onModuleLoad();
     }
 }
