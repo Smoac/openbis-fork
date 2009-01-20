@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -46,10 +47,14 @@ public final class FillExperimentRegistrationForm extends AbstractDefaultTestCom
 
     private final List<PropertyField> properties;
 
-    public FillExperimentRegistrationForm(final String project, final String code)
+    private final String samples;
+
+    public FillExperimentRegistrationForm(final String project, final String code,
+            final String samples)
     {
         this.projectNameOrNull = project;
         this.code = code;
+        this.samples = samples;
         this.properties = new ArrayList<PropertyField>();
         addCallbackClass(ProjectSelectionWidget.ListProjectsCallback.class);
     }
@@ -74,6 +79,11 @@ public final class FillExperimentRegistrationForm extends AbstractDefaultTestCom
                 (ProjectSelectionWidget) GWTTestUtil.getWidgetWithID(ProjectSelectionWidget.ID
                         + GenericExperimentRegistrationForm.ID);
         GWTUtils.setSelectedItem(projectSelector, ModelDataPropertyNames.CODE, projectNameOrNull);
+
+        final TextArea samplesField =
+                (TextArea) GWTTestUtil.getWidgetWithID(GenericExperimentRegistrationForm.ID
+                        + GenericExperimentRegistrationForm.ID_SUFFIX_SAMPLES);
+        samplesField.setRawValue(samples);
 
         for (final PropertyField property : properties)
         {

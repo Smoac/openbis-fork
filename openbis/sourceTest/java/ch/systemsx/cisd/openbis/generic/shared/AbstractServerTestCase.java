@@ -26,6 +26,7 @@ import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.openbis.generic.client.shared.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
@@ -48,6 +49,10 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
@@ -190,5 +195,36 @@ public abstract class AbstractServerTestCase extends AssertJUnit
                 }
             });
         return session;
+    }
+
+    static final protected ExperimentPE createExperiment(final String experimentTypeCode,
+            final String experimentCode, final String groupCode)
+    {
+        final ExperimentPE experimentPE = new ExperimentPE();
+        experimentPE.setCode(experimentCode);
+        final ProjectPE projectPE = new ProjectPE();
+        final GroupPE groupPE = new GroupPE();
+        groupPE.setCode(groupCode);
+        projectPE.setGroup(groupPE);
+        experimentPE.setProject(projectPE);
+        final ExperimentTypePE experimentTypePE = new ExperimentTypePE();
+        experimentPE.setCode(experimentTypeCode);
+        experimentPE.setExperimentType(experimentTypePE);
+        return experimentPE;
+    }
+
+    static protected String createSampleIdentifier(final String groupCode, String sample1Code)
+    {
+        return "/" + groupCode + "/" + sample1Code;
+    }
+
+    static protected NewExperiment createNewExperiment(final String experimentTypeCode,
+            final String experimentCode, final String groupCode, final String[] samples)
+    {
+        final NewExperiment newExperiment = new NewExperiment();
+        newExperiment.setExperimentTypeCode(experimentTypeCode);
+        newExperiment.setIdentifier("/" + groupCode + "/PROJ/" + experimentCode);
+        newExperiment.setSamples(samples);
+        return newExperiment;
     }
 }

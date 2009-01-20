@@ -33,12 +33,14 @@ import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
@@ -249,7 +251,7 @@ public final class GenericServerTest extends AbstractServerTestCase
     }
 
     @Test
-    public final void testRegisterExperiment()
+    public final void testRegisterExperimentWithoutSamples()
     {
         final Session session = prepareGetSession();
         final NewExperiment newExperiment = new NewExperiment();
@@ -266,4 +268,110 @@ public final class GenericServerTest extends AbstractServerTestCase
         createServer().registerExperiment(SESSION_TOKEN, newExperiment);
         context.assertIsSatisfied();
     }
+
+    @Test
+    public final void testRegisterExperimentWithSamples()
+    {
+        final Session session = prepareGetSession();
+        final String experimentTypeCode = "EXP-TYPE1";
+        final String experimentCode = "EXP1";
+        final String groupCode = "CISD";
+        final String procedureTypeCode = "DATA_ACQUISITION";
+        String sample1Code = "SAMPLE1";
+        final String sample1 = createSampleIdentifier(groupCode, sample1Code);
+        final String sampleIdentifier2 = "SAMPLE2";
+        final SampleIdentifier sampleIdentifier2WithGroup =
+                SampleIdentifierFactory.parse(sampleIdentifier2);
+        sampleIdentifier2WithGroup.getGroupLevel().setGroupCode(groupCode);
+        final SampleIdentifier sampleIdentifier1 = SampleIdentifierFactory.parse(sample1);
+        final String[] samples =
+            { sample1, sampleIdentifier2 };
+        final ExperimentPE experimentPE =
+                createExperiment(experimentTypeCode, experimentCode, groupCode);
+        final ProcedurePE procedurePE = new ProcedurePE();
+        final NewExperiment newExperiment =
+                createNewExperiment(experimentTypeCode, experimentCode, groupCode, samples);
+        context.checking(new Expectations()
+            {
+                {
+                    one(genericBusinessObjectFactory).createExperimentBO(session);
+                    will(returnValue(experimentBO));
+
+                    one(experimentBO).define(newExperiment);
+                    one(experimentBO).save();
+                    one(experimentBO).getExperiment();
+                    will(returnValue(experimentPE));
+
+                    one(genericBusinessObjectFactory).createProcedureBO(session);
+                    will(returnValue(procedureBO));
+                    one(procedureBO).define(experimentPE, procedureTypeCode);
+                    one(procedureBO).save();
+                    one(procedureBO).getProcedure();
+                    will(returnValue(procedurePE));
+
+                    one(genericBusinessObjectFactory).createSampleBO(session);
+                    will(returnValue(sampleBO));
+                    one(sampleBO).loadBySampleIdentifier(sampleIdentifier1);
+                    one(sampleBO).addProcedure(procedurePE);
+
+                    one(genericBusinessObjectFactory).createSampleBO(session);
+                    will(returnValue(sampleBO));
+                    one(sampleBO).loadBySampleIdentifier(sampleIdentifier2WithGroup);
+                    one(sampleBO).addProcedure(procedurePE);
+                }
+            });
+        createServer().registerExperiment(SESSION_TOKEN, newExperiment);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testRegisterExperimentWithSampleFromWronGroup()
+    {
+        final Session session = prepareGetSession();
+        final String experimentTypeCode = "EXP-TYPE1";
+        final String experimentCode = "EXP1";
+        final String groupCode = "CISD";
+        final String procedureTypeCode = "DATA_ACQUISITION";
+        String sample1Code = "SAMPLE1";
+        final String sample1 = createSampleIdentifier("NOT_" + groupCode, sample1Code);
+        final String[] samples =
+            { sample1 };
+        final ExperimentPE experimentPE =
+                createExperiment(experimentTypeCode, experimentCode, groupCode);
+        final ProcedurePE procedurePE = new ProcedurePE();
+        final NewExperiment newExperiment =
+                createNewExperiment(experimentTypeCode, experimentCode, groupCode, samples);
+        context.checking(new Expectations()
+            {
+                {
+                    one(genericBusinessObjectFactory).createExperimentBO(session);
+                    will(returnValue(experimentBO));
+
+                    one(experimentBO).define(newExperiment);
+                    one(experimentBO).save();
+                    one(experimentBO).getExperiment();
+                    will(returnValue(experimentPE));
+
+                    one(genericBusinessObjectFactory).createProcedureBO(session);
+                    will(returnValue(procedureBO));
+                    one(procedureBO).define(experimentPE, procedureTypeCode);
+                    one(procedureBO).save();
+                    one(procedureBO).getProcedure();
+                    will(returnValue(procedurePE));
+                }
+            });
+        boolean exceptionThrown = false;
+        try
+        {
+            createServer().registerExperiment(SESSION_TOKEN, newExperiment);
+        } catch (UserFailureException e)
+        {
+            exceptionThrown = true;
+            assertTrue(e.getMessage().contains(
+                    "Sample '/NOT_CISD/SAMPLE1' does not belong to the group 'CISD'"));
+        }
+        assertTrue(exceptionThrown);
+        context.assertIsSatisfied();
+    }
+
 }

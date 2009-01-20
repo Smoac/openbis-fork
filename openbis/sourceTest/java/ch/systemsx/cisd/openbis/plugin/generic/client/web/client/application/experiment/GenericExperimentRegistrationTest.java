@@ -23,6 +23,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experim
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ChooseTypeOfNewExperiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ListExperiments;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.CheckSampleTable;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ListSamples;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertyField;
 
@@ -46,7 +49,7 @@ public class GenericExperimentRegistrationTest extends AbstractGWTTestCase
     {
         final String experimentTypeCode = "SIRNA_HCS";
         loginAndPreprareRegistration(experimentTypeCode);
-        remoteConsole.prepare(new FillExperimentRegistrationForm("DEFAULT", "NEW_EXP_1")
+        remoteConsole.prepare(new FillExperimentRegistrationForm("DEFAULT", "NEW_EXP_1", "")
                 .addProperty(
                         new PropertyField(
                                 GenericExperimentRegistrationForm.ID + "user-description",
@@ -61,6 +64,32 @@ public class GenericExperimentRegistrationTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ListExperiments("DEFAULT", experimentTypeCode));
         remoteConsole.prepare(new CheckExperimentTable()
                 .expectedRow(new ExperimentRow("NEW_EXP_1")));
+        remoteConsole.finish(20000);
+        client.onModuleLoad();
+    }
+
+    public final void testRegisterExperimentWithSamples()
+    {
+        final String experimentTypeCode = "SIRNA_HCS";
+        final String experimentCode = "NEW_EXP_WITH_SAMPLES";
+        final String sampleCode = "3VCP8";
+        final String project = "DEFAULT";
+        loginAndPreprareRegistration(experimentTypeCode);
+        remoteConsole.prepare(new FillExperimentRegistrationForm(project, experimentCode,
+                sampleCode).addProperty(
+                new PropertyField(GenericExperimentRegistrationForm.ID + "user-description",
+                        "New test experiment with samples.")).addProperty(
+                new PropertyField(GenericExperimentRegistrationForm.ID + "user-gender", "MALE"))
+                .addProperty(
+                        new PropertyField(GenericExperimentRegistrationForm.ID
+                                + "user-purchase-date", "2008-12-18")));
+        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.SAMPLES,
+                CategoriesBuilder.MENU_ELEMENTS.LIST,
+                GenericExperimentRegistrationForm.RegisterExperimentCallback.class));
+        remoteConsole.prepare(new ListSamples("CISD", "CELL_PLATE"));
+        CheckSampleTable table = new CheckSampleTable();
+        table.expectedRow(new SampleRow(sampleCode).identifier("CISD", "CISD").valid().experiment(
+                project, experimentCode));
         remoteConsole.finish(20000);
         client.onModuleLoad();
     }

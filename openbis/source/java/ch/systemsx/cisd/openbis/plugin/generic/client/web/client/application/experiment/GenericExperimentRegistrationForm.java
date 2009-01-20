@@ -48,6 +48,8 @@ public final class GenericExperimentRegistrationForm
         AbstractGenericEntityRegistrationForm<ExperimentType, ExperimentTypePropertyType, ExperimentProperty>
 {
 
+    public static final String ID_SUFFIX_SAMPLES = "_samples";
+
     public static final String ID = createId(EntityKind.EXPERIMENT);
 
     private final IViewContext<IGenericClientServiceAsync> viewContext;
@@ -138,6 +140,7 @@ public final class GenericExperimentRegistrationForm
         samplesArea = new TextArea();
         samplesArea.setFieldLabel(viewContext.getMessage(Dict.SAMPLES));
         samplesArea.setHeight("10em");
+        samplesArea.setId(ID + ID_SUFFIX_SAMPLES);
     }
 
     @Override
