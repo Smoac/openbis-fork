@@ -313,11 +313,13 @@ public final class GenericServerTest extends AbstractServerTestCase
                     one(genericBusinessObjectFactory).createSampleBO(session);
                     will(returnValue(sampleBO));
                     one(sampleBO).loadBySampleIdentifier(sampleIdentifier1);
+                    one(sampleBO).enrichWithValidProcedure();
                     one(sampleBO).addProcedure(procedurePE);
 
                     one(genericBusinessObjectFactory).createSampleBO(session);
                     will(returnValue(sampleBO));
                     one(sampleBO).loadBySampleIdentifier(sampleIdentifier2WithGroup);
+                    one(sampleBO).enrichWithValidProcedure();
                     one(sampleBO).addProcedure(procedurePE);
                 }
             });

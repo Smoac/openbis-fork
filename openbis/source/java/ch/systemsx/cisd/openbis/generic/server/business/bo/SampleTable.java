@@ -28,7 +28,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
@@ -53,45 +52,6 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
     public SampleTable(final IDAOFactory daoFactory, final Session session)
     {
         super(daoFactory, session);
-    }
-
-    /**
-     * Enriches given <code>sample</code> with at most one procedure that contains a
-     * non-invalidated experiment.
-     * <p>
-     * So if <code>sample</code> belongs only to invalidated experiments or does not belong to any
-     * experiment at all, no procedure are joined.
-     * </p>
-     */
-    private final static void enrichWithProcedure(final SamplePE samplePE)
-    {
-        assert samplePE != null : "Unspecified procedure holder.";
-        samplePE.setValidProcedure(tryGetValidProcedure(samplePE.getProcedures()));
-    }
-
-    /**
-     * Throws exception if there are more than 1 valid procedures or return <code>null</code> if
-     * no valid procedure could be found.
-     */
-    private final static ProcedurePE tryGetValidProcedure(final List<ProcedurePE> procedures)
-    {
-        ProcedurePE foundProcedure = null;
-        for (final ProcedurePE procedure : procedures)
-        {
-            final ExperimentPE experiment = procedure.getExperiment();
-            // Invalid experiment can not be considered.
-            if (experiment.getInvalidation() == null)
-            {
-                if (foundProcedure != null)
-                {
-                    throw UserFailureException.fromTemplate(
-                            "Expected exactly one valid procedure, but found %d: %s", procedures
-                                    .size(), procedures);
-                }
-                foundProcedure = procedure;
-            }
-        }
-        return foundProcedure;
     }
 
     private final List<SamplePE> listSamples(final SampleTypePE sampleType, final SampleOwner owner)

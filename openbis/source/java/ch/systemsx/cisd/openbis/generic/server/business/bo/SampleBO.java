@@ -80,6 +80,11 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         }
     }
 
+    public final void enrichWithValidProcedure()
+    {
+        enrichWithProcedure(sample);
+    }
+
     public final void define(final NewSample newSample)
     {
         assert newSample != null : "Unspecified new sample.";

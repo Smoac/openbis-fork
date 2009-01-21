@@ -213,6 +213,7 @@ public final class GenericServer extends AbstractPluginServer<IGenericServer> im
             {
                 ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
                 sampleBO.loadBySampleIdentifier(si);
+                sampleBO.enrichWithValidProcedure();
                 sampleBO.addProcedure(procedure);
             }
         }

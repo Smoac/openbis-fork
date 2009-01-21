@@ -53,4 +53,9 @@ public interface ISampleBO
      * Connects sample with given procedure.
      */
     void addProcedure(ProcedurePE procedure);
+
+    /**
+     * Enriches the loaded sample with a valid {@link ProcedurePE}.
+     */
+    void enrichWithValidProcedure();
 }
