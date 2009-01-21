@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.server;
 
-import static org.testng.AssertJUnit.assertEquals;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
