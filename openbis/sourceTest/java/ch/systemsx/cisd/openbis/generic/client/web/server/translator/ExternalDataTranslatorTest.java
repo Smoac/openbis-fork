@@ -1,0 +1,154 @@
+/*
+ * Copyright 2009 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
+
+import java.util.Arrays;
+import java.util.Date;
+import java.util.LinkedHashSet;
+
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.common.types.BooleanOrUnknown;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedureTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+
+/**
+ * 
+ *
+ * @author Franz-Josef Elmer
+ */
+public class ExternalDataTranslatorTest extends AssertJUnit
+{
+    @Test
+    public void testTranslationOfEmptyExternalDataPE()
+    {
+        ExternalData externalData = ExternalDataTranslator.translate(new ExternalDataPE());
+        
+        assertEquals(null, externalData.getCode());
+        assertEquals(null, externalData.getParentCode());
+        assertEquals(null, externalData.getProcedureType());
+        assertEquals(null, externalData.getProductionDate());
+        assertEquals(null, externalData.getComplete());
+    }
+    
+    @Test
+    public void testTranslationOfFullFleshedExternalDataPE()
+    {
+        ExternalDataPE externalDataPE = new ExternalDataPE();
+        externalDataPE.setCode("code");
+        externalDataPE.setComplete(BooleanOrUnknown.F);
+        externalDataPE.setDataProducerCode("dataProducerCode");
+        DataSetTypePE dataSetTypePE = new DataSetTypePE();
+        dataSetTypePE.setCode("dataSetTypeCode");
+        dataSetTypePE.setDescription("dataSetTypeDescription");
+        externalDataPE.setDataSetType(dataSetTypePE);
+        FileFormatTypePE fileFormatTypePE = new FileFormatTypePE();
+        fileFormatTypePE.setCode("fileFormatTypeCode");
+        fileFormatTypePE.setDescription("fileFormatTypeDescription");
+        externalDataPE.setFileFormatType(fileFormatTypePE);
+        externalDataPE.setLocation("location");
+        LocatorTypePE locatorTypePE = new LocatorTypePE();
+        locatorTypePE.setCode("locatorTypeCode");
+        locatorTypePE.setDescription("locatorTypeDescription");
+        externalDataPE.setLocatorType(locatorTypePE);
+        ExternalDataPE parent1 = new ExternalDataPE();
+        parent1.setCode("parent1");
+        ExternalDataPE parent2 = new ExternalDataPE();
+        parent2.setCode("parent2");
+        externalDataPE.setParents(new LinkedHashSet<DataPE>(Arrays.asList(parent1, parent2)));
+        ProcedurePE procedurePE = new ProcedurePE();
+        ProcedureTypePE procedureTypePE = new ProcedureTypePE();
+        procedureTypePE.setCode("procedureTypeCode");
+        procedureTypePE.setDescription("procedureTypeDescription");
+        procedurePE.setProcedureType(procedureTypePE);
+        externalDataPE.setProcedure(procedurePE);
+        externalDataPE.setProductionDate(new Date(1));
+        externalDataPE.setRegistrationDate(new Date(2));
+        SamplePE samplePE = new SamplePE();
+        samplePE.setCode("sample");
+        SampleTypePE sampleTypePE = new SampleTypePE();
+        sampleTypePE.setCode("sampleTypeCode");
+        sampleTypePE.setDescription("sampleTypeDescription");
+        samplePE.setSampleType(sampleTypePE);
+        InvalidationPE invalidationPE = new InvalidationPE();
+        invalidationPE.setReason("reason");
+        invalidationPE.setRegistrationDate(new Date(3));
+        PersonPE personPE = new PersonPE();
+        personPE.setUserId("user");
+        invalidationPE.setRegistrator(personPE);
+        samplePE.setInvalidation(invalidationPE);
+        externalDataPE.setSampleAcquiredFrom(samplePE);
+        
+        ExternalData externalData = ExternalDataTranslator.translate(externalDataPE);
+        
+        assertEquals("code", externalData.getCode());
+        assertEquals(Boolean.FALSE, externalData.getComplete());
+        assertEquals("dataProducerCode", externalData.getDataProducerCode());
+        assertEquals("dataSetTypeCode", externalData.getDataSetType().getCode());
+        assertEquals("dataSetTypeDescription", externalData.getDataSetType().getDescription());
+        assertEquals("fileFormatTypeCode", externalData.getFileFormatType().getCode());
+        assertEquals("fileFormatTypeDescription", externalData.getFileFormatType().getDescription());
+        assertEquals("location", externalData.getLocation());
+        assertEquals("locatorTypeCode", externalData.getLocatorType().getCode());
+        assertEquals("locatorTypeDescription", externalData.getLocatorType().getDescription());
+        assertEquals("parent1", externalData.getParentCode());
+        assertEquals("procedureTypeCode", externalData.getProcedureType().getCode());
+        assertEquals("procedureTypeDescription", externalData.getProcedureType().getDescription());
+        assertEquals(1, externalData.getProductionDate().getTime());
+        assertEquals(2, externalData.getRegistrationDate().getTime());
+        assertEquals("sample", externalData.getSampleIdentifier());
+        assertEquals("sampleTypeCode", externalData.getSampleType().getCode());
+        assertEquals("sampleTypeDescription", externalData.getSampleType().getDescription());
+        assertEquals(false, externalData.isDerived());
+        assertEquals("reason", externalData.getInvalidation().getReason());
+        assertEquals(3, externalData.getInvalidation().getRegistrationDate().getTime());
+        assertEquals("user", externalData.getInvalidation().getRegistrator().getUserId());
+    }
+    
+    @Test
+    public void testTranslationADerivedExternalDataPE()
+    {
+        ExternalDataPE externalDataPE = new ExternalDataPE();
+        SamplePE samplePE = new SamplePE();
+        samplePE.setCode("sample");
+        SampleTypePE sampleTypePE = new SampleTypePE();
+        sampleTypePE.setCode("sampleTypeCode");
+        sampleTypePE.setDescription("sampleTypeDescription");
+        samplePE.setSampleType(sampleTypePE);
+        externalDataPE.setSampleDerivedFrom(samplePE);
+        
+        ExternalData externalData = ExternalDataTranslator.translate(externalDataPE);
+        
+        assertEquals("sample", externalData.getSampleIdentifier());
+        assertEquals("sampleTypeCode", externalData.getSampleType().getCode());
+        assertEquals("sampleTypeDescription", externalData.getSampleType().getDescription());
+        assertEquals(true, externalData.isDerived());
+        assertEquals(null, externalData.getInvalidation());
+    }
+    
+}

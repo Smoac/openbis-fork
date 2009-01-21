@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server;
 
-import static org.testng.AssertJUnit.assertEquals;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -31,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.shared.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.client.shared.VocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
@@ -43,8 +42,12 @@ import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 
 /**
@@ -277,6 +280,36 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         final List<Vocabulary> vocabularies = commonClientService.listVocabularies(false);
         assertEquals(1, vocabularies.size());
         assertVocabularyEquals(vocabularyPE, vocabularies.get(0));
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testListExternalDataForExperiment()
+    {
+        final ExternalDataPE externalDataPE = new ExternalDataPE();
+        FileFormatTypePE fileFormatTypePE = new FileFormatTypePE();
+        fileFormatTypePE.setCode("PNG");
+        fileFormatTypePE.setDescription("Portable Network Graphics");
+        externalDataPE.setFileFormatType(fileFormatTypePE);
+        context.checking(new Expectations()
+            {
+                {
+                    prepareGetSessionToken(this);
+
+                    one(commonServer).listExternalData(
+                            SESSION_TOKEN,
+                            new ExperimentIdentifier(
+                                    new ProjectIdentifier("db", "group", "project"), "exp"));
+                    will(returnValue(Collections.singletonList(externalDataPE)));
+                }
+            });
+        
+        List<ExternalData> list =
+                commonClientService.listExternalDataForExperiment("db:/group/project/exp");
+        assertEquals(1, list.size());
+        assertEquals("PNG", list.get(0).getFileFormatType().getCode());
+        assertEquals("Portable Network Graphics", list.get(0).getFileFormatType().getDescription());
+        
         context.assertIsSatisfied();
     }
 }

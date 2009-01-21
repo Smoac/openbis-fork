@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
@@ -70,12 +71,22 @@ public class ExternalDataTranslator
         externalData.setLocation(externalDataPE.getLocation());
         externalData.setLocatorType(fill( new LocatorType(), externalDataPE.getLocatorType()));
         externalData.setParentCode(tryToGetCodeOfFirstParent(externalDataPE));
-        externalData.setProcedureType(fill(new ProcedureType(), externalDataPE.getProcedure().getProcedureType()));
+        externalData.setProcedureType(getProcedureType(externalDataPE));
         externalData.setProductionDate(externalDataPE.getProductionDate());
         externalData.setRegistrationDate(externalDataPE.getRegistrationDate());
         externalData.setSampleIdentifier(sample == null ? null : sample.getSampleIdentifier().toString());
         externalData.setSampleType(sample == null ? null : fill(new SampleType(), sample.getSampleType()));
         return externalData;
+    }
+
+    private static ProcedureType getProcedureType(ExternalDataPE externalDataPE)
+    {
+        ProcedurePE procedure = externalDataPE.getProcedure();
+        if (procedure == null)
+        {
+            return null;
+        }
+        return fill(new ProcedureType(), procedure.getProcedureType());
     }
     
     private static Invalidation tryToGetInvalidation(SamplePE sample)
@@ -112,10 +123,13 @@ public class ExternalDataTranslator
         return externalDataPE.getSampleDerivedFrom();
     }
     
-    private static <T extends AbstractType> T fill(T type, AbstractTypePE typePE)
+    private static <T extends AbstractType> T fill(T type, AbstractTypePE typePEOrNull)
     {
-        type.setCode(typePE.getCode());
-        type.setDescription(typePE.getDescription());
+        if (typePEOrNull != null)
+        {
+            type.setCode(typePEOrNull.getCode());
+            type.setDescription(typePEOrNull.getDescription());
+        }
         return type;
     }
     

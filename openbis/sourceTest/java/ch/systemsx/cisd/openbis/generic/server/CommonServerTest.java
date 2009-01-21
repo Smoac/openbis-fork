@@ -32,11 +32,11 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObject
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -410,6 +411,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     {
         final Session session = prepareGetSession();
         final SampleIdentifier sampleIdentifier = CommonTestUtils.createSampleIdentifier();
+        final ExternalDataPE externalDataPE = new ExternalDataPE();
         context.checking(new Expectations()
             {
                 {
@@ -419,13 +421,44 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(externalDataTable).loadBySampleIdentifier(sampleIdentifier);
 
                     one(externalDataTable).getExternalData();
-                    will(returnValue(new ArrayList<DataPE>()));
+                    will(returnValue(Arrays.asList(externalDataPE)));
                 }
             });
-        createServer().listExternalData(SESSION_TOKEN, sampleIdentifier);
+        
+        List<ExternalDataPE> list = createServer().listExternalData(SESSION_TOKEN, sampleIdentifier);
+        
+        assertEquals(1, list.size());
+        assertSame(externalDataPE, list.get(0));
+        
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void testListExternalDataOfAnExperiment()
+    {
+        final Session session = prepareGetSession();
+        final ExperimentIdentifier identifier = CommonTestUtils.createExperimentIdentifier();
+        final ExternalDataPE externalDataPE = new ExternalDataPE();
+        context.checking(new Expectations()
+            {
+                {
+                    one(commonBusinessObjectFactory).createExternalDataTable(session);
+                    will(returnValue(externalDataTable));
+
+                    one(externalDataTable).loadByExperimentIdentifier(identifier);
+                    one(externalDataTable).getExternalData();
+                    will(returnValue(Arrays.asList(externalDataPE)));
+                }
+            });
+
+        List<ExternalDataPE> list = createServer().listExternalData(SESSION_TOKEN, identifier);
+
+        assertEquals(1, list.size());
+        assertSame(externalDataPE, list.get(0));
+
+        context.assertIsSatisfied();
+    }
+    
     @Test
     public void testListExperiments()
     {
@@ -584,4 +617,5 @@ public final class CommonServerTest extends AbstractServerTestCase
         createServer().registerVocabulary(SESSION_TOKEN, new Vocabulary());
         context.assertIsSatisfied();
     }
+
 }

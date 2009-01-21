@@ -16,16 +16,28 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+
 import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -142,5 +154,48 @@ public final class ExternalDataTableTest extends AbstractBOTest
                 }
             });
         externalDataTable.loadBySampleIdentifier(sampleIdentifier);
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testLoadByExperimentIdentifier()
+    {
+        final ExperimentIdentifier identifier = new ExperimentIdentifier(
+                new ProjectIdentifier("db", "group", "project"), "exp");
+        final ExternalDataPE externalDataPE = new ExternalDataPE();
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getProjectDAO();
+                    will(returnValue(projectDAO));
+
+                    one(projectDAO).tryFindProject("DB", "GROUP", "PROJECT");
+                    ProjectPE projectPE = new ProjectPE();
+                    projectPE.setCode("PROJECT");
+                    GroupPE groupPE = new GroupPE();
+                    groupPE.setCode("GROUP");
+                    projectPE.setGroup(groupPE);
+                    will(returnValue(projectPE));
+
+                    allowing(daoFactory).getExperimentDAO();
+                    will(returnValue(experimentDAO));
+
+                    one(experimentDAO).tryFindByCodeAndProject(projectPE, "EXP");
+                    ExperimentPE experimentPE = new ExperimentPE();
+                    ProcedurePE procedurePE = new ProcedurePE();
+                    procedurePE.setData(new HashSet<DataPE>(Arrays.asList(externalDataPE)));
+                    experimentPE.addProcedure(procedurePE);
+                    will(returnValue(experimentPE));
+                }
+            });
+
+        ExternalDataTable externalDataTable = createExternalDataTable();
+        externalDataTable.loadByExperimentIdentifier(identifier);
+        
+        List<ExternalDataPE> list = externalDataTable.getExternalData();
+        assertEquals(1, list.size());
+        assertSame(externalDataPE, list.get(0));
+        
+        context.assertIsSatisfied();
     }
 }

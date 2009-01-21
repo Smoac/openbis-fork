@@ -21,6 +21,7 @@ import javax.servlet.http.HttpSession;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.testng.AssertJUnit;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
@@ -37,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
  * 
  * @author Christian Ribeaud
  */
-public abstract class AbstractClientServiceTest
+public abstract class AbstractClientServiceTest extends AssertJUnit
 {
     protected static final String SESSION_TOKEN = "session-token";
 
