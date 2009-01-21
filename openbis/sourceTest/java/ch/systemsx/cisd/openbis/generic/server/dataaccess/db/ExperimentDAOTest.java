@@ -30,6 +30,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.ExperimentTypeCode;
@@ -87,7 +88,12 @@ public class ExperimentDAOTest extends AbstractDAOTest
         experiments = daoFactory.getExperimentDAO().listExperiments(expType, projectNemo);
         Collections.sort(experiments);
         assertEquals(3, experiments.size());
-        assertEquals(CISD_CISD_NEMO_EXP1, experiments.get(0).getIdentifier());
+        ExperimentPE exp1 = experiments.get(0);
+        assertEquals(CISD_CISD_NEMO_EXP1, exp1.getIdentifier());
+        List<ProcedurePE> procedures = exp1.getProcedures();
+        assertEquals(2, procedures.size());
+        assertEquals(1, procedures.get(0).getData().size());
+        assertEquals(1, procedures.get(1).getData().size());
         assertEquals(CISD_CISD_NEMO_EXP10, experiments.get(1).getIdentifier());
         assertEquals(CISD_CISD_NEMO_EXP11, experiments.get(2).getIdentifier());
     }
@@ -144,11 +150,17 @@ public class ExperimentDAOTest extends AbstractDAOTest
         List<ExperimentPE> experiments = daoFactory.getExperimentDAO().listExperiments();
         Collections.sort(experiments);
         assertEquals(5, experiments.size());
-        final ExperimentPE templateExp = experiments.get(4);
-        assertEquals(CISD_CISD_NEMO_EXP11, templateExp.getIdentifier());
+        final ExperimentPE templateExp = experiments.get(2);
+        assertEquals(CISD_CISD_NEMO_EXP1, templateExp.getIdentifier());
 
-        assertEquals(CISD_CISD_NEMO_EXP11, daoFactory.getExperimentDAO().tryFindByCodeAndProject(
-                templateExp.getProject(), templateExp.getCode()).getIdentifier());
+        ExperimentPE experiment = daoFactory.getExperimentDAO().tryFindByCodeAndProject(
+                templateExp.getProject(), templateExp.getCode());
+        
+        assertEquals(CISD_CISD_NEMO_EXP1, experiment.getIdentifier());
+        List<ProcedurePE> procedures = experiment.getProcedures();
+        assertEquals(2, procedures.size());
+        assertEquals(1, procedures.get(0).getData().size());
+        assertEquals(1, procedures.get(1).getData().size());
     }
 
     @Test
