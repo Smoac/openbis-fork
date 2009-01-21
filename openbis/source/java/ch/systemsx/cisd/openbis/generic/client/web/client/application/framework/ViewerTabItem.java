@@ -23,9 +23,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Abstrac
  */
 public class ViewerTabItem extends DefaultTabItem
 {
-    public ViewerTabItem(String title, AbstractViewer<?> viewer)
+    public ViewerTabItem(String title, AbstractViewer<?> viewer, boolean isCloseConfirmationNeeded)
     {
-        super(title, viewer);
+        super(title, viewer, isCloseConfirmationNeeded);
         viewer.loadData();
     }
 }

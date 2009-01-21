@@ -35,13 +35,16 @@ public class DefaultTabItem implements ITabItem
 
     private final Listener<TabPanelEvent> tabPanelEventListener;
 
-    public DefaultTabItem(final String title, final Component component)
+    private final boolean isCloseConfirmationNeeded;
+
+    public DefaultTabItem(final String title, final Component component,
+            boolean isCloseConfirmationNeeded)
     {
-        this(title, component, null);
+        this(title, component, isCloseConfirmationNeeded, null);
     }
 
     public DefaultTabItem(final String title, final Component component,
-            final Listener<TabPanelEvent> tabPanelEventListener)
+            boolean isCloseConfirmationNeeded, final Listener<TabPanelEvent> tabPanelEventListener)
     {
         assert title != null : "Unspecified title.";
         assert component != null : "Unspecified component.";
@@ -50,6 +53,7 @@ public class DefaultTabItem implements ITabItem
         assert component.getId().startsWith(GenericConstants.ID_PREFIX) : "Unspecified component id.";
         this.title = title;
         this.component = component;
+        this.isCloseConfirmationNeeded = isCloseConfirmationNeeded;
         this.tabPanelEventListener = tabPanelEventListener;
     }
 
@@ -70,5 +74,10 @@ public class DefaultTabItem implements ITabItem
     public final Listener<TabPanelEvent> tryGetEventListener()
     {
         return tabPanelEventListener;
+    }
+
+    public boolean isCloseConfirmationNeeded()
+    {
+        return isCloseConfirmationNeeded;
     }
 }

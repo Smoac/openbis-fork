@@ -35,9 +35,4 @@ public interface ITabItemFactory
      * </p>
      */
     public String getId();
-
-    /**
-     * Returns true if the confirmation dialog should be displayed before closing the tab.
-     */
-    public boolean isCloseConfirmationNeeded();
 }

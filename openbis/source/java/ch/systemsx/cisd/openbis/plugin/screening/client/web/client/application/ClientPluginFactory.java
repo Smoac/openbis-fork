@@ -117,17 +117,12 @@ public final class ClientPluginFactory extends
                     {
                         final ScreeningSampleViewer sampleViewer =
                                 new ScreeningSampleViewer(getViewContext(), sampleIdentifier);
-                        return new ViewerTabItem(sampleIdentifier, sampleViewer);
+                        return new ViewerTabItem(sampleIdentifier, sampleViewer, false);
                     }
 
                     public String getId()
                     {
                         return ScreeningSampleViewer.createId(sampleIdentifier);
-                    }
-
-                    public boolean isCloseConfirmationNeeded()
-                    {
-                        return false;
                     }
                 };
         }
@@ -159,17 +154,12 @@ public final class ClientPluginFactory extends
                     public ITabItem create()
                     {
                         Component component = new DummyComponent();
-                        return new DefaultTabItem(identifier.getIdentifier(), component);
+                        return new DefaultTabItem(identifier.getIdentifier(), component, false);
                     }
 
                     public String getId()
                     {
                         return DummyComponent.ID;
-                    }
-
-                    public boolean isCloseConfirmationNeeded()
-                    {
-                        return false;
                     }
                 };
         }

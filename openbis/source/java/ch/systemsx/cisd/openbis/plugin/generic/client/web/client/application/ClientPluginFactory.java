@@ -111,17 +111,12 @@ public final class ClientPluginFactory extends
                     {
                         final GenericSampleViewer sampleViewer =
                                 new GenericSampleViewer(getViewContext(), identifier);
-                        return new ViewerTabItem(identifier, sampleViewer);
+                        return new ViewerTabItem(identifier, sampleViewer, false);
                     }
 
                     public String getId()
                     {
                         return GenericSampleViewer.createId(identifier);
-                    }
-
-                    public boolean isCloseConfirmationNeeded()
-                    {
-                        return false;
                     }
                 };
         }
@@ -155,17 +150,12 @@ public final class ClientPluginFactory extends
                     {
                         final GenericExperimentViewer experimentViewer =
                                 new GenericExperimentViewer(getViewContext(), identifier);
-                        return new ViewerTabItem(identifier, experimentViewer);
+                        return new ViewerTabItem(identifier, experimentViewer, false);
                     }
 
                     public String getId()
                     {
                         return GenericExperimentViewer.createId(identifier);
-                    }
-
-                    public boolean isCloseConfirmationNeeded()
-                    {
-                        return false;
                     }
                 };
         }

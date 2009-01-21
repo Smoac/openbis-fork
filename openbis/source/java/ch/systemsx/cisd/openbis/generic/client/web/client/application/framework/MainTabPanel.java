@@ -69,8 +69,8 @@ public class MainTabPanel extends TabPanel
         layoutContainer.setId(layoutContainerId);
         layoutContainer.addText(createWelcomeText());
         final MainTabItem intro =
-                new MainTabItem(new DefaultTabItem("&nbsp;", layoutContainer), layoutContainerId,
-                        false);
+                new MainTabItem(new DefaultTabItem("&nbsp;", layoutContainer, false),
+                        layoutContainerId);
         intro.setClosable(false);
         return intro;
     }
@@ -104,9 +104,7 @@ public class MainTabPanel extends TabPanel
         } else
         {
             String tabId = tabItemFactory.getId();
-            final MainTabItem newTab =
-                    new MainTabItem(tabItemFactory.create(), tabId, tabItemFactory
-                            .isCloseConfirmationNeeded());
+            final MainTabItem newTab = new MainTabItem(tabItemFactory.create(), tabId);
             add(newTab);
             openTabs.put(tabId, newTab);
             setSelection(newTab);
@@ -119,8 +117,7 @@ public class MainTabPanel extends TabPanel
 
     private final class MainTabItem extends TabItem
     {
-        public MainTabItem(final ITabItem tabItem, final String idPrefix,
-                boolean isCloseConfirmationNeeded)
+        public MainTabItem(final ITabItem tabItem, final String idPrefix)
         {
             setId(idPrefix + TAB_SUFFIX);
             setClosable(true);
@@ -129,7 +126,7 @@ public class MainTabPanel extends TabPanel
             addStyleName("pad-text");
             add(tabItem.getComponent());
             final Listener<TabPanelEvent> tabPanelEventListener = tabItem.tryGetEventListener();
-            if (isCloseConfirmationNeeded)
+            if (tabItem.isCloseConfirmationNeeded())
             {
                 addListener(Events.BeforeClose, createBeforeCloseListener(this, idPrefix));
             }
@@ -148,9 +145,8 @@ public class MainTabPanel extends TabPanel
                     public void handleEvent(final TabPanelEvent be)
                     {
                         be.doit = false;
-                        new ConfirmationDialog(
-                                viewContext.getMessage(Dict.CONFIRM_TITLE), viewContext
-                                        .getMessage(Dict.CONFIRM_CLOSE_MSG))
+                        new ConfirmationDialog(viewContext.getMessage(Dict.CONFIRM_TITLE),
+                                viewContext.getMessage(Dict.CONFIRM_CLOSE_MSG))
                             {
                                 @Override
                                 protected void onYes()

@@ -35,12 +35,14 @@ public final class ContentPanelAdapter implements ITabItem
 
     private final Listener<TabPanelEvent> tabPanelEventListener;
 
-    public ContentPanelAdapter(final ContentPanel contentPanel)
+    private final boolean isCloseConfirmationNeeded;
+
+    public ContentPanelAdapter(final ContentPanel contentPanel, boolean isCloseConfirmationNeeded)
     {
-        this(contentPanel, null);
+        this(contentPanel, isCloseConfirmationNeeded, null);
     }
 
-    public ContentPanelAdapter(final ContentPanel contentPanel,
+    public ContentPanelAdapter(final ContentPanel contentPanel, boolean isCloseConfirmationNeeded,
             final Listener<TabPanelEvent> tabPanelEventListener)
     {
         // Note that if not set, is then automatically generated. So this is why we test for
@@ -48,6 +50,7 @@ public final class ContentPanelAdapter implements ITabItem
         assert contentPanel.getId().startsWith(GenericConstants.ID_PREFIX) : "Unspecified component id.";
         this.contentPanel = contentPanel;
         this.tabPanelEventListener = tabPanelEventListener;
+        this.isCloseConfirmationNeeded = isCloseConfirmationNeeded;
     }
 
     //
@@ -78,5 +81,10 @@ public final class ContentPanelAdapter implements ITabItem
     public final Listener<TabPanelEvent> tryGetEventListener()
     {
         return tabPanelEventListener;
+    }
+
+    public boolean isCloseConfirmationNeeded()
+    {
+        return isCloseConfirmationNeeded;
     }
 }

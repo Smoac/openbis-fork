@@ -65,17 +65,12 @@ final class ComponentProvider
                 {
                     SampleBrowser sampleBrowser = new SampleBrowser(viewContext);
                     return new DefaultTabItem(getMessage(Dict.SAMPLE_BROWSER), sampleBrowser,
-                            sampleBrowser);
+                            false, sampleBrowser);
                 }
 
                 public String getId()
                 {
                     return SampleBrowser.ID;
-                }
-
-                public boolean isCloseConfirmationNeeded()
-                {
-                    return false;
                 }
             };
     }
@@ -86,17 +81,13 @@ final class ComponentProvider
             {
                 public ITabItem create()
                 {
-                    return new DefaultTabItem("Not implemented feature", new DummyComponent());
+                    return new DefaultTabItem("Not implemented feature", new DummyComponent(),
+                            false);
                 }
 
                 public String getId()
                 {
                     return DummyComponent.ID;
-                }
-
-                public boolean isCloseConfirmationNeeded()
-                {
-                    return false;
                 }
             };
     }
@@ -107,17 +98,12 @@ final class ComponentProvider
             {
                 public ITabItem create()
                 {
-                    return new ContentPanelAdapter(new GroupsView(viewContext));
+                    return new ContentPanelAdapter(new GroupsView(viewContext), false);
                 }
 
                 public String getId()
                 {
                     return GroupsView.ID;
-                }
-
-                public boolean isCloseConfirmationNeeded()
-                {
-                    return false;
                 }
             };
     }
@@ -128,17 +114,12 @@ final class ComponentProvider
             {
                 public ITabItem create()
                 {
-                    return new ContentPanelAdapter(new RolesView(viewContext));
+                    return new ContentPanelAdapter(new RolesView(viewContext), false);
                 }
 
                 public String getId()
                 {
                     return RolesView.ID;
-                }
-
-                public boolean isCloseConfirmationNeeded()
-                {
-                    return false;
                 }
             };
     }
@@ -149,17 +130,12 @@ final class ComponentProvider
             {
                 public ITabItem create()
                 {
-                    return new ContentPanelAdapter(new PersonsView(viewContext));
+                    return new ContentPanelAdapter(new PersonsView(viewContext), false);
                 }
 
                 public String getId()
                 {
                     return PersonsView.ID;
-                }
-
-                public boolean isCloseConfirmationNeeded()
-                {
-                    return false;
                 }
             };
     }
@@ -171,17 +147,12 @@ final class ComponentProvider
                 public ITabItem create()
                 {
                     Component component = new SampleRegistrationPanel(viewContext);
-                    return new DefaultTabItem(getMessage(Dict.SAMPLE_REGISTRATION), component);
+                    return new DefaultTabItem(getMessage(Dict.SAMPLE_REGISTRATION), component, true);
                 }
 
                 public String getId()
                 {
                     return SampleRegistrationPanel.ID;
-                }
-
-                public boolean isCloseConfirmationNeeded()
-                {
-                    return true;
                 }
             };
     }
@@ -193,17 +164,13 @@ final class ComponentProvider
                 public ITabItem create()
                 {
                     Component component = new ExperimentRegistrationPanel(viewContext);
-                    return new DefaultTabItem(getMessage(Dict.EXPERIMENT_REGISTRATION), component);
+                    return new DefaultTabItem(getMessage(Dict.EXPERIMENT_REGISTRATION), component,
+                            true);
                 }
 
                 public String getId()
                 {
                     return ExperimentRegistrationPanel.ID;
-                }
-
-                public boolean isCloseConfirmationNeeded()
-                {
-                    return true;
                 }
             };
     }
@@ -215,17 +182,13 @@ final class ComponentProvider
                 public ITabItem create()
                 {
                     Component component = new SampleBatchRegistrationPanel(viewContext);
-                    return new DefaultTabItem(getMessage(Dict.SAMPLE_BATCH_REGISTRATION), component);
+                    return new DefaultTabItem(getMessage(Dict.SAMPLE_BATCH_REGISTRATION),
+                            component, true);
                 }
 
                 public String getId()
                 {
                     return SampleBatchRegistrationPanel.ID;
-                }
-
-                public boolean isCloseConfirmationNeeded()
-                {
-                    return true;
                 }
             };
     }
@@ -237,17 +200,13 @@ final class ComponentProvider
                 public ITabItem create()
                 {
                     Component component = new VocabularyRegistrationForm(viewContext);
-                    return new DefaultTabItem(getMessage(Dict.VOCABULARY_REGISTRATION), component);
+                    return new DefaultTabItem(getMessage(Dict.VOCABULARY_REGISTRATION), component,
+                            true);
                 }
 
                 public String getId()
                 {
                     return VocabularyRegistrationForm.ID;
-                }
-
-                public boolean isCloseConfirmationNeeded()
-                {
-                    return true;
                 }
             };
     }
@@ -260,17 +219,12 @@ final class ComponentProvider
                 {
                     ExperimentBrowser experimentBrowser = new ExperimentBrowser(viewContext);
                     return new DefaultTabItem(getMessage(Dict.EXPERIMENT_BROWSER),
-                            experimentBrowser, experimentBrowser);
+                            experimentBrowser, false, experimentBrowser);
                 }
 
                 public String getId()
                 {
                     return ExperimentBrowser.ID;
-                }
-
-                public boolean isCloseConfirmationNeeded()
-                {
-                    return false;
                 }
             };
     }
@@ -282,17 +236,12 @@ final class ComponentProvider
                 public ITabItem create()
                 {
                     Component component = new PropertyTypeBrowser(viewContext);
-                    return new DefaultTabItem(getMessage(Dict.PROPERTY_TYPES), component);
+                    return new DefaultTabItem(getMessage(Dict.PROPERTY_TYPES), component, false);
                 }
 
                 public String getId()
                 {
                     return PropertyTypeBrowser.ID;
-                }
-
-                public boolean isCloseConfirmationNeeded()
-                {
-                    return false;
                 }
             };
     }
@@ -305,17 +254,12 @@ final class ComponentProvider
                 {
                     Component component = new PropertyTypeRegistrationForm(viewContext);
                     return new DefaultTabItem(getMessage(Dict.PROPERTY_TYPE_REGISTRATION),
-                            component);
+                            component, true);
                 }
 
                 public String getId()
                 {
                     return PropertyTypeRegistrationForm.ID;
-                }
-
-                public boolean isCloseConfirmationNeeded()
-                {
-                    return true;
                 }
             };
     }
@@ -327,17 +271,13 @@ final class ComponentProvider
                 public ITabItem create()
                 {
                     Component component = new PropertyTypeAssignmentBrowser(viewContext);
-                    return new DefaultTabItem(getMessage(Dict.PROPERTY_TYPE_ASSIGNMENTS), component);
+                    return new DefaultTabItem(getMessage(Dict.PROPERTY_TYPE_ASSIGNMENTS),
+                            component, false);
                 }
 
                 public String getId()
                 {
                     return PropertyTypeAssignmentBrowser.ID;
-                }
-
-                public boolean isCloseConfirmationNeeded()
-                {
-                    return false;
                 }
             };
     }
@@ -352,17 +292,12 @@ final class ComponentProvider
                 {
                     Component component = new PropertyTypeAssignmentForm(viewContext, entityKind);
                     return new DefaultTabItem(getMessage(Dict.ASSIGN_EXPERIMENT_PROPERTY_TYPE),
-                            component);
+                            component, true);
                 }
 
                 public String getId()
                 {
                     return PropertyTypeAssignmentForm.createId(entityKind);
-                }
-
-                public boolean isCloseConfirmationNeeded()
-                {
-                    return true;
                 }
             };
     }
@@ -377,17 +312,12 @@ final class ComponentProvider
                 {
                     Component component = new PropertyTypeAssignmentForm(viewContext, entityKind);
                     return new DefaultTabItem(getMessage(Dict.ASSIGN_SAMPLE_PROPERTY_TYPE),
-                            component);
+                            component, true);
                 }
 
                 public String getId()
                 {
                     return PropertyTypeAssignmentForm.createId(entityKind);
-                }
-
-                public boolean isCloseConfirmationNeeded()
-                {
-                    return true;
                 }
             };
     }

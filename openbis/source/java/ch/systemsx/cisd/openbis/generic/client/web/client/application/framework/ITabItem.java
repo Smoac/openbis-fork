@@ -45,4 +45,9 @@ public interface ITabItem
      * Returns a {@link Listener} that should be registered to the tab item.
      */
     public Listener<TabPanelEvent> tryGetEventListener();
+
+    /**
+     * Returns true if the confirmation dialog should be displayed before closing the tab.
+     */
+    public boolean isCloseConfirmationNeeded();
 }

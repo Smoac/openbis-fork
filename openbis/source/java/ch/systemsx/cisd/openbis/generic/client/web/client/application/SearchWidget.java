@@ -189,7 +189,7 @@ final class SearchWidget extends LayoutContainer
             final MatchingEntitiesPanel matchingEntitiesPanel, String title)
     {
         final DefaultTabItem tab =
-                new DefaultTabItem(title, matchingEntitiesPanel,
+                new DefaultTabItem(title, matchingEntitiesPanel, false,
                         createTabPanelEventListener(matchingEntitiesPanel));
         // this tab cannot be opened for the second time, so we can create it outside of the
         // factory
@@ -203,11 +203,6 @@ final class SearchWidget extends LayoutContainer
                 public String getId()
                 {
                     return matchingEntitiesPanel.getId();
-                }
-
-                public boolean isCloseConfirmationNeeded()
-                {
-                    return false;
                 }
             };
     }

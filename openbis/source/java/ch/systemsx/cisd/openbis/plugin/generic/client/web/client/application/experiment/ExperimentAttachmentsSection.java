@@ -138,18 +138,13 @@ public class ExperimentAttachmentsSection extends SectionPanel
                             public ITabItem create()
                             {
                                 Component component = createVersionsPanel(allFiles, fileName);
-                                return new DefaultTabItem(tabTitle, component);
+                                return new DefaultTabItem(tabTitle, component, false);
                             }
 
                             public String getId()
                             {
                                 return createAttachmentVersionTabId(fileName, experiment
                                         .getIdentifier());
-                            }
-
-                            public boolean isCloseConfirmationNeeded()
-                            {
-                                return false;
                             }
                         };
                     DispatcherHelper.dispatchNaviEvent(tabFactory);
