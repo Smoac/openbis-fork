@@ -33,14 +33,18 @@ public class SimpleDateRenderer
 
     /** renders a date in yyyy-MM-dd HH:mm:ss zzz format */
     @SuppressWarnings("deprecation")
-    public final static String renderDate(final Date date)
+    public final static String renderDate(final Date dateOrNull)
     {
-        int year = date.getYear() + 1900;
-        int month = date.getMonth() + 1;
-        int day = date.getDate();
-        int hour = date.getHours();
-        int min = date.getMinutes();
-        int sec = date.getSeconds();
+        if (dateOrNull == null)
+        {
+            return "";
+        }
+        int year = dateOrNull.getYear() + 1900;
+        int month = dateOrNull.getMonth() + 1;
+        int day = dateOrNull.getDate();
+        int hour = dateOrNull.getHours();
+        int min = dateOrNull.getMinutes();
+        int sec = dateOrNull.getSeconds();
 
         StringBuffer sb = new StringBuffer();
         sb.append(year);
@@ -57,7 +61,7 @@ public class SimpleDateRenderer
         zeroPaddingNumber(sb, sec);
 
         sb.append(" ");
-        appendGMT(sb, date.getTimezoneOffset());
+        appendGMT(sb, dateOrNull.getTimezoneOffset());
 
         return sb.toString();
     }

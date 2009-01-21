@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.
  * 
  * @author Tomasz Pylak
  */
-public class SimpleDateRendererTest
+public class SimpleDateRendererTest extends AssertJUnit
 {
     @SuppressWarnings("unused")
     @DataProvider(name = "dates")
@@ -49,7 +49,13 @@ public class SimpleDateRendererTest
     public void testDateRenderer(Date date, String formattedDate)
     {
         String renderDate = SimpleDateRenderer.renderDate(date);
-        AssertJUnit.assertEquals(formattedDate, renderDate);
+        assertEquals(formattedDate, renderDate);
+    }
+    
+    @Test
+    public void testDateRendererForNullArgument()
+    {
+        assertEquals("", SimpleDateRenderer.renderDate(null));
     }
 
     private static Date toDate(int year, int month, int day, int h, int min, int sec,
