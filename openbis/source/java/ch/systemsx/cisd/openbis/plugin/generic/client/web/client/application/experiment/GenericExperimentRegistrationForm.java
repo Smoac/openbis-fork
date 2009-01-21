@@ -132,6 +132,12 @@ public final class GenericExperimentRegistrationForm
             setUploadEnabled(true);
         }
 
+        @Override
+        protected final void finishOnFailure(final Throwable caught)
+        {
+            setUploadEnabled(true);
+        }
+
     }
 
     @Override
