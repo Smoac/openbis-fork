@@ -154,7 +154,7 @@ var common = {
   sample_broser: "Sample Browser",
   list_groups: "List Groups",
   confirm_title: "Confirmation",
-  confirm_close_msg: "All unsaved changes will be lost. Do you want to continue?",
+  confirm_close_msg: "All unsaved changes will be lost. Do you really want to close this tab?",
   
   //
   // Group View
