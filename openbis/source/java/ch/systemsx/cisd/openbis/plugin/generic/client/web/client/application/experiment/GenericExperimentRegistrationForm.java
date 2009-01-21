@@ -128,9 +128,10 @@ public final class GenericExperimentRegistrationForm
         protected final void process(final Void result)
         {
             infoBox.displayInfo(createSuccessfullRegistrationInfo());
-            formPanel.reset();
+            resetPanel();
             setUploadEnabled(true);
         }
+
     }
 
     @Override
@@ -247,6 +248,11 @@ public final class GenericExperimentRegistrationForm
             }
         }
         return false;
+    }
+
+    private void resetPanel()
+    {
+        formPanel.reset();
     }
 
 }
