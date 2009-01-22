@@ -165,7 +165,6 @@ public final class GenericExperimentRegistrationForm
             attachmentFields.add(createFileUploadField(i));
         }
 
-        final GenericExperimentRegistrationForm thisForm = this;
         formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
             {
                 @Override
@@ -177,7 +176,7 @@ public final class GenericExperimentRegistrationForm
                 @Override
                 protected void setUploadEnabled()
                 {
-                    thisForm.setUploadEnabled(true);
+                    GenericExperimentRegistrationForm.this.setUploadEnabled(true);
                 }
             });
         redefineSaveListeners();
