@@ -68,6 +68,42 @@ public class Unix
         }
     }
 
+    /** set user ID on execution */
+    public static final short S_ISUID = 04000;
+
+    /** set group ID on execution */
+    public static final short S_ISGID = 02000;
+
+    /** sticky bit */
+    public static final short S_ISVTX = 01000;
+
+    /** read by owner */
+    public static final short S_IRUSR = 00400;
+
+    /** write by owner */
+    public static final short S_IWUSR = 00200;
+
+    /** execute/search by owner */
+    public static final short S_IXUSR = 00100;
+
+    /** read by group */
+    public static final short S_IRGRP = 00040;
+
+    /** write by group */
+    public static final short S_IWGRP = 00020;
+
+    /** execute/search by group */
+    public static final short S_IXGRP = 00010;
+
+    /** read by others */
+    public static final short S_IROTH = 00004;
+
+    /** write by others */
+    public static final short S_IWOTH = 00002;
+
+    /** execute/search by others */
+    public static final short S_IXOTH = 00001;
+
     /**
      * A class representing the Unix <code>stat</code> structure.
      */
