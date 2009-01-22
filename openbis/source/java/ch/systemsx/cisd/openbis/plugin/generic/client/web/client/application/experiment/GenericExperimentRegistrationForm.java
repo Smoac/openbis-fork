@@ -248,7 +248,8 @@ public final class GenericExperimentRegistrationForm
     {
         for (FileUploadField field : attachmentFields)
         {
-            if (field.getValue() != null)
+            Object value = field.getValue();
+            if (value != null && String.valueOf(value).length() > 0)
             {
                 return true;
             }
