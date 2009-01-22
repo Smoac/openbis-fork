@@ -27,7 +27,7 @@ final class MockMailClient implements IMailClient
 
     String[] recipients;
 
-    public void sendMessage(String subj, String contentText, String... emails)
+    public void sendMessage(String subj, String contentText, String replyTo, String... emails)
             throws EnvironmentFailureException
     {
         this.subject = subj;

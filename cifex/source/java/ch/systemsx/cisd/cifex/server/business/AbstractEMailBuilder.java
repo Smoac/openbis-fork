@@ -52,7 +52,8 @@ abstract class AbstractEMailBuilder
 
     protected String password;
 
-    protected AbstractEMailBuilder(final IMailClient mailClient, final UserDTO registrator, final String email)
+    protected AbstractEMailBuilder(final IMailClient mailClient, final UserDTO registrator,
+            final String email)
     {
         assert mailClient != null : "Unspecified mail client.";
         assert registrator != null : "Unspecified registrator.";
@@ -113,7 +114,8 @@ abstract class AbstractEMailBuilder
     public void sendEMail()
     {
         assert url != null : "Missing URL.";
-        mailClient.sendMessage("[CIFEX] " + createSubject(), createContent() + FOOTER, email);
+        mailClient.sendMessage("[CIFEX] " + createSubject(), createContent() + FOOTER,
+                getLongRegistratorDescription(), email);
     }
 
     protected final void addGreeting(final StringBuilder builder)

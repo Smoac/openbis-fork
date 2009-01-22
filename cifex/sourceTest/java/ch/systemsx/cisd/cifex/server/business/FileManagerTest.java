@@ -380,7 +380,9 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                             with(Matchers.containsString(requestUserCode)),
                             with(Matchers.containsString(url
                                     + String.format("/index.html?fileId=%d&user=%s", fileId,
-                                            receivingUserCode))), with(equal(new String[]
+                                            receivingUserCode))),
+                            with(Matchers.containsString(requestUserCode + " <"
+                                    + emailOfRequestUser + ">")), with(equal(new String[]
                                 { emailOfUserToShareWith })));
                 }
             });
@@ -432,7 +434,9 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                             with(Matchers.containsString(requestUserCode)),
                             with(Matchers.containsString(url
                                     + String.format("/index.html?fileId=%d&user=%s", fileId,
-                                            receivingUserCode))), with(equal(new String[]
+                                            receivingUserCode))),
+                            with(Matchers.containsString(requestUserCode + " <"
+                                    + emailOfRequestUser + ">")), with(equal(new String[]
                                 { emailOfUserToShareWith })));
                 }
             });
@@ -490,18 +494,21 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                     allowing(daoFactory).getFileDAO();
                     will(returnValue(fileDAO));
                     one(fileDAO).createSharingLink(fileId, firstReceivingUserId);
+                    final String replyTo = requestUserCode + " <" + emailOfRequestUser + ">";
                     one(mailClient).sendMessage(
                             with(Matchers.containsString(requestUserCode)),
                             with(Matchers.containsString(url
                                     + String.format("/index.html?fileId=%d&user=%s", fileId,
-                                            firstReceivingUserCode))), with(equal(new String[]
+                                            firstReceivingUserCode))),
+                            with(Matchers.containsString(replyTo)), with(equal(new String[]
                                 { emailOfFirstUserToShareWith })));
                     one(fileDAO).createSharingLink(fileId, secondReceivingUserId);
                     one(mailClient).sendMessage(
                             with(Matchers.containsString(requestUserCode)),
                             with(Matchers.containsString(url
                                     + String.format("/index.html?fileId=%d&user=%s", fileId,
-                                            secondReceivingUserCode))), with(equal(new String[]
+                                            secondReceivingUserCode))),
+                            with(Matchers.containsString(replyTo)), with(equal(new String[]
                                 { emailOfSecondUserToShareWith })));
                 }
             });
@@ -554,11 +561,13 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                     allowing(daoFactory).getFileDAO();
                     will(returnValue(fileDAO));
                     one(fileDAO).createSharingLink(fileId, receivingUserId);
+                    String replyTo = requestUserCode + " <" + emailOfRequestUser + ">";
                     one(mailClient).sendMessage(
                             with(Matchers.containsString(requestUserCode)),
                             with(Matchers.containsString(url
                                     + String.format("/index.html?fileId=%d&user=%s", fileId,
-                                            receivingUserCode))), with(equal(new String[]
+                                            receivingUserCode))), with(equal(replyTo)),
+                            with(equal(new String[]
                                 { emailOfReceivingUserLowerCase })));
                 }
             });

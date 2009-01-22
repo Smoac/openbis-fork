@@ -43,8 +43,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 /**
  * A small mail client that simplifies the sending of emails using of <i>JavaMail API</i>.
  * <p>
- * Just instantiate this class and use {@link #sendMessage(String, String, String[])} to send the
- * email via SMTP.
+ * Just instantiate this class and use {@link #sendMessage(String, String, String, String[])} to
+ * send the email via SMTP.
  * </p>
  * If the SMTP host starts with <code>file://</code> the mail is not send to a real SMTP server
  * but it is stored in a file in the directory specified by the relative path following this prefix.
@@ -155,8 +155,8 @@ public final class MailClient extends Authenticator implements IMailClient
      * 
      * @param recipients list of recipients (of type <code>Message.RecipientType.TO</code>)
      */
-    public final void sendMessage(String subject, String content, String... recipients)
-            throws EnvironmentFailureException
+    public final void sendMessage(String subject, String content, String replyTo,
+            String... recipients) throws EnvironmentFailureException
     {
         if (operationLog.isInfoEnabled())
         {
@@ -173,6 +173,12 @@ public final class MailClient extends Authenticator implements IMailClient
         try
         {
             msg.setFrom(createInternetAddress(from));
+            if (replyTo != null)
+            {
+                InternetAddress[] replyToAddress =
+                    { createInternetAddress(replyTo) };
+                msg.setReplyTo(replyToAddress);
+            }
             msg.addRecipients(Message.RecipientType.TO, internetAddresses);
             msg.setSubject(subject);
             msg.setText(content);
@@ -210,6 +216,7 @@ public final class MailClient extends Authenticator implements IMailClient
             builder.append("Subj: ").append(msg.getSubject()).append('\n');
             builder.append("From: ").append(renderAddresses(msg.getFrom())).append('\n');
             builder.append("To:   ").append(renderAddresses(msg.getAllRecipients())).append('\n');
+            builder.append("Reply-To: ").append(renderAddresses(msg.getReplyTo())).append('\n');
             builder.append("Content:\n");
             try
             {
