@@ -40,7 +40,7 @@ var common = {
   button_submit: "Submit",
   button_refresh: "Refresh",
   button_exportData: "Export Data",
-  add_group: "Add group",
+  button_add_group: "Add Group",
   
   //
   // LoginWidget
