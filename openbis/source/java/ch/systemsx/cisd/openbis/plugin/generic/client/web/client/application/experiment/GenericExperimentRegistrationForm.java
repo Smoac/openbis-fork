@@ -99,7 +99,7 @@ public final class GenericExperimentRegistrationForm
         String text = samplesArea.getValue();
         if (StringUtils.isBlank(text) == false)
         {
-            return text.split("\n|\r\n");
+            return text.split("\n|\r\n|,");
         } else
         {
             return new String[0];
@@ -158,6 +158,7 @@ public final class GenericExperimentRegistrationForm
         samplesArea = new TextArea();
         samplesArea.setFieldLabel(viewContext.getMessage(Dict.SAMPLES));
         samplesArea.setHeight("10em");
+        samplesArea.setEmptyText(viewContext.getMessage(Dict.SAMPLES_LIST));
         samplesArea.setId(ID + ID_SUFFIX_SAMPLES);
 
         for (int i = 0; i < DEFAULT_NUMBER_OF_ATTACHMENTS; i++)

@@ -52,7 +52,6 @@ public final class ProjectSelectionWidget extends ComboBox<ProjectModel>
         setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_EMPTY, "projects"));
         setDisplayField(ModelDataPropertyNames.PROJECT_WITH_GROUP);
         setEditable(false);
-        setEnabled(false);
         setWidth(200);
         setFieldLabel(viewContext.getMessage(Dict.PROJECT));
         setStore(new ListStore<ProjectModel>());
@@ -99,11 +98,11 @@ public final class ProjectSelectionWidget extends ComboBox<ProjectModel>
             projectStore.add(ProjectModel.convert(result));
             if (projectStore.getCount() > 0)
             {
-                setEnabled(true);
                 setValue(projectStore.getAt(0));
                 setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, "project"));
             }
             fireEvent(AppEvents.CALLBACK_FINISHED);
         }
     }
+
 }

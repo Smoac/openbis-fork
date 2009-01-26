@@ -173,6 +173,7 @@ var common = {
   //
   experiment_registration: "Experiment Registration",
   samples: "Samples",
+  samples_list: "List of samples (codes or identifiers) separated by commas (\",\") or one sample per line.",
 
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

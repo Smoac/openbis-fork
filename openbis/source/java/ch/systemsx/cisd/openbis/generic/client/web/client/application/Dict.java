@@ -263,19 +263,19 @@ public abstract class Dict
     //
     // ExternalData Viewer
     //
-    
+
     public static final String LOCATION = "location";
-    
+
     public static final String FILE_FORMAT_TYPE = "file_format_type";
-    
+
     public static final String PROCEDURE_TYPE = "procedure_type";
-    
+
     public static final String EXTERNAL_DATA_SAMPLE = "external_data_sample";
-    
+
     public static final String IS_DERIVED = "is_derived";
-    
+
     public static final String IS_COMPLETE = "is_complete";
-    
+
     public static final String PRODUCTION_DATE = "production_date";
 
     //
@@ -334,6 +334,8 @@ public abstract class Dict
     public static final String EXPERIMENT_REGISTRATION = "experiment_registration";
 
     public static final String SAMPLES = "samples";
+
+    public static final String SAMPLES_LIST = "samples_list";
 
     //
     // Unclassified

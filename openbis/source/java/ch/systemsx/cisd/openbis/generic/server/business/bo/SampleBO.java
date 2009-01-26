@@ -131,7 +131,6 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         checkSampleInGroup(sample);
         checkSampleUnused(sample, procedure);
         checkSampleWithoutDatasets();
-
         sample.getProcedures().add(procedure);
         getSampleDAO().updateSample(sample);
         dataChanged = false;
@@ -162,7 +161,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
             final ProcedurePE procedureCreated)
     {
         final ProcedurePE procedure = sample.getValidProcedure();
-        if (procedure != null && procedure.equals(procedureCreated) == false)
+        if (procedure != null)
         {
             throw UserFailureException.fromTemplate(
                     "Given sample code '%s' already registered for experiment '%s'.", sample
