@@ -40,5 +40,11 @@
         <load-on-startup>1</load-on-startup>
     </servlet>
 
+    <servlet>
+        <servlet-name>file2GB-upload</servlet-name>
+        <servlet-class>ch.systemsx.cisd.cifex.upload.server.File2GBUploadServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
     &gwt;
 </web-app>

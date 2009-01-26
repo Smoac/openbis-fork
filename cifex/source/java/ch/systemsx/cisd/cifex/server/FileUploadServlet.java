@@ -50,7 +50,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
  * 
  * @author Franz-Josef Elmer
  */
-public final class FileUploadServlet extends AbstractCIFEXServiceServlet
+public final class FileUploadServlet extends AbstractFileUploadServlet
 {
     /*
      * Keep in mind that this constant is used by <code>FileUploadWidget</code> to check if upload
@@ -61,45 +61,9 @@ public final class FileUploadServlet extends AbstractCIFEXServiceServlet
 
     private static final String UPLOAD_FINISHED = "Upload finished.\n";
 
-    private static final String MAX_UPLOAD_SIZE = "max-upload-size";
-
     private static final int MAX_FILENAME_LENGTH = 250;
 
-    private final static String RECIPIENTS_FIELD_NAME = "email-addresses";
-
     private final static String COMMENT_FIELD_NAME = "upload-comment";
-
-    /**
-     * The maximum allow upload size (in bytes).
-     */
-    private long maxUploadSizeInBytes;
-
-    private final long getMaxUploadSizeInMegabytes()
-    {
-        final String value = serviceProperties.getProperty(MAX_UPLOAD_SIZE);
-        long longValue = -1;
-        if (StringUtils.isNotBlank(value))
-        {
-            try
-            {
-                longValue = Long.parseLong(value);
-            } catch (final NumberFormatException e)
-            {
-            }
-        }
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info(String.format(
-                    "Maximum upload size set to %d megabytes (-1 means no limit).", longValue));
-        }
-        return longValue;
-    }
-
-    @Override
-    protected final void postInitialization()
-    {
-        maxUploadSizeInBytes = getMaxUploadSizeInMegabytes() * FileUtils.ONE_MB;
-    }
 
     @Override
     protected final void doPost(final HttpServletRequest request, final HttpServletResponse response)

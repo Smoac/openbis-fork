@@ -13,6 +13,7 @@
                 cifex=cifex-service-servlet
                 file-download=url-servlet-forwarding-controller
                 file-upload=url-servlet-forwarding-controller
+                file2GB-upload=url-servlet-forwarding-controller
             </value>
         </property>
     </bean>

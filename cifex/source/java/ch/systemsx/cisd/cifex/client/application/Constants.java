@@ -78,6 +78,9 @@ public final class Constants
     /** Name of the <code>HttpServlet</code> extension to upload a file. */
     public static final String FILE_UPLOAD_SERVLET_NAME = getPrepend() + "file-upload";
 
+    /** Name of the <code>HttpServlet</code> extension to upload files > 2GB. */
+    public static final String FILE2GB_UPLOAD_SERVLET_NAME = getPrepend() + "file2GB-upload";
+    
     /** Name of the <code>HttpServlet</code> extension to download a file. */
     public static final String FILE_DOWNLOAD_SERVLET_NAME = getPrepend() + "file-download";
 

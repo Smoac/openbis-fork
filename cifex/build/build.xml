@@ -22,6 +22,8 @@
 
     <property name="webapp.file.name" value="${ant.project.name}.war" />
     <property name="webapp.file" value="${dist}/${webapp.file.name}" />
+	
+    <property name="targets.www" value="${targets}/www/ch.systemsx.cisd.cifex.Cifex"/>
 
     <!-- 
 	// Cleans distribution directory.
@@ -152,6 +154,35 @@
                 <include name="${build.info.filename}" />
             </fileset>
         </recursive-jar>
+
+    	<delete dir="${targets.www}"/>
+    	<mkdir dir="${targets.www}"/>
+    	<antcall target="copy-and-sign-jar">
+            <param name="dir" value="${dist}"/>
+            <param name="jar" value="${jar.file.name}"/>
+        </antcall>
+    	<antcall target="copy-and-sign-jar">
+            <param name="dir" value="${lib}/spring"/>
+            <param name="jar" value="spring-context.jar"/>
+        </antcall>
+    	<antcall target="copy-and-sign-jar">
+            <param name="dir" value="${lib}/spring"/>
+            <param name="jar" value="spring-beans.jar"/>
+        </antcall>
+    	<antcall target="copy-and-sign-jar">
+            <param name="dir" value="${lib}/spring"/>
+            <param name="jar" value="spring-core.jar"/>
+        </antcall>
+    	<antcall target="copy-and-sign-jar">
+            <param name="dir" value="${lib}/commons-logging"/>
+            <param name="jar" value="commons-logging.jar"/>
+        </antcall>
+    	
+    </target>
+	
+    <target name="copy-and-sign-jar">
+    	<copy file="${dir}/${jar}" todir="${targets.www}"/>
+    	<signjar jar="${targets.www}/${jar}" keystore="etc/dev.keystore" alias="cifex" storepass="cifextest" keypass="cifex1"/>
     </target>
 
     <!--
@@ -243,14 +274,13 @@
     <!--
 	  // Cleans and prepares the GWT specific directories, forcing a GWT rebuilding.
 	  -->
-    <target name="prepare-gwt"
+    <target name="prepare-gwt" depends="jar"
             description="Cleans and prepares the GWT specific directories, forcing a GWT rebuilding.">
         <copy todir="${gwt.tomcat.web-inf}" overwrite="true" failonerror="true">
             <fileset dir="${cifex.server.resource}" includes="*.xml" />
             <fileset dir="../server-common/${server-resource}" includes="*.xml" />
         </copy>
         <delete failonerror="true" dir="../${ant.project.name}/.gwt-cache" />
-        <delete failonerror="true" dir="../${ant.project.name}/targets/www" />
     </target>
 
 </project>

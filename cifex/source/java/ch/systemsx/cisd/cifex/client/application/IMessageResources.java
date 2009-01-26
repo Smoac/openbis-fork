@@ -377,6 +377,13 @@ public interface IMessageResources extends Messages
      * @gwt.key fileupload.button.label
      */
     public String getFileUploadButtonLabel();
+    
+    /**
+     * Returns the 2GB file upload submit button label.
+     * 
+     * @gwt.key file2GBUpload.button.label
+     */
+    public String getFile2GBUploadButtonLabel();
 
     /**
      * Returns the file upload feedback 'byte read till now' label.
