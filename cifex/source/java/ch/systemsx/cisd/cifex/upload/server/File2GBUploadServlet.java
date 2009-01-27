@@ -32,6 +32,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import ch.systemsx.cisd.cifex.server.AbstractFileUploadServlet;
 import ch.systemsx.cisd.cifex.server.HttpUtils;
+import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.upload.client.FileUploadClient;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.utilities.Template;
@@ -88,7 +89,7 @@ public class File2GBUploadServlet extends AbstractFileUploadServlet
             uploadService = (IExtendedUploadService) context.getBean("file-upload-service");
         } catch (final Exception ex)
         {
-            notificationLog.fatal("Failure during LIMS service servlet initialization.", ex);
+            notificationLog.fatal("Failure during file upload service servlet initialization.", ex);
             throw new ServletException(ex);
         }
     }
@@ -97,14 +98,14 @@ public class File2GBUploadServlet extends AbstractFileUploadServlet
     protected final void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException, InvalidSessionException
     {
-        getUserDTO(request); // Throws exception if session is invalid
+        UserDTO user = getUserDTO(request); // Throws exception if session is invalid
         String[] files = request.getParameterValues("files");
         String[] recipients = extractRecipients(request);
         String comment = request.getParameter(COMMENT_FIELD_NAME);
-        String uploadSessionID = uploadService.createSession(files, recipients, comment);
-        if (notificationLog.isInfoEnabled())
+        String uploadSessionID = uploadService.createSession(user, files, recipients, comment);
+        if (operationLog.isInfoEnabled())
         {
-            notificationLog.info("Start file upload session with ID " + uploadSessionID);
+            operationLog.info("Start file upload session with ID " + uploadSessionID);
         }
         
         response.setContentType("application/x-java-jnlp-file");

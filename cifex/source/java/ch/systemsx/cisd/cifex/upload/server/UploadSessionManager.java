@@ -19,6 +19,7 @@ package ch.systemsx.cisd.cifex.upload.server;
 import java.util.HashMap;
 import java.util.Map;
 
+import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.utilities.TokenGenerator;
 
@@ -32,10 +33,10 @@ public class UploadSessionManager
     private final TokenGenerator tokenGenerator = new TokenGenerator();
     private final Map<String, UploadSession> sessions = new HashMap<String, UploadSession>();
     
-    public UploadSession createSession()
+    public UploadSession createSession(UserDTO user)
     {
         String uploadSessionID = tokenGenerator.getNewToken(System.currentTimeMillis());
-        UploadSession uploadSession = new UploadSession(uploadSessionID);
+        UploadSession uploadSession = new UploadSession(uploadSessionID, user);
         sessions.put(uploadSessionID, uploadSession);
         return uploadSession;
     }

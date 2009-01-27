@@ -104,6 +104,7 @@ public class FileUploadClient implements IUploadListener
         frame.setBounds(200, 200, 600, 300);
         frame.setVisible(true);
         uploader.upload();
+        frame.setVisible(false);
     }
     
     private JPanel createGUI()

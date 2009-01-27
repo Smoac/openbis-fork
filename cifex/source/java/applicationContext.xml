@@ -74,7 +74,9 @@
         <property name="serviceInterface" value="ch.systemsx.cisd.cifex.upload.IUploadService" />
     </bean>
 
-    <bean id="file-upload-service" class="ch.systemsx.cisd.cifex.upload.server.UploadService"/>
+    <bean id="file-upload-service" class="ch.systemsx.cisd.cifex.upload.server.UploadService">
+        <constructor-arg ref="domain-model"/>
+    </bean>
     
 
     <!-- 

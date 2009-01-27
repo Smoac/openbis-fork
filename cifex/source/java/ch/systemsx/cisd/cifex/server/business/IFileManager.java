@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.cifex.server.business;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.Date;
@@ -128,6 +129,9 @@ public interface IFileManager
     @LogAnnotation(logCategory = LogCategory.OPERATION)
     public void deleteFile(final FileDTO fileDTO);
 
+    @LogAnnotation(logCategory = LogCategory.OPERATION)
+    public File createFile(final UserDTO user, final String fileName);
+    
     /**
      * @throws UserFailureException indicating that <var>filename</var> does not exist and thus has
      *             not been saved.

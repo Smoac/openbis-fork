@@ -27,17 +27,24 @@ public class UploadStatus implements Serializable
 {
     private static final long serialVersionUID = 1L;
     
-    public static final long BLOCK_SIZE = 128 * 1024;
+    public static final int BLOCK_SIZE = 128 * 1024;
     
     private final String[] files;
     private int indexOfCurrentFile;
-    private int blockIndex;
+    private long blockIndex;
     
     private UploadState uploadState = UploadState.INIT;
 
     public UploadStatus(String[] files)
     {
         this.files = files;
+    }
+    
+    public void next()
+    {
+        indexOfCurrentFile++;
+        blockIndex = 0;
+        uploadState = indexOfCurrentFile < files.length ? UploadState.INIT : UploadState.FINISHED;
     }
     
     public String getCurrentFile()
@@ -55,14 +62,21 @@ public class UploadStatus implements Serializable
         this.uploadState = uploadState;
     }
 
-    public final int getBlockIndex()
+    public final long getBlockIndex()
     {
         return blockIndex;
     }
 
-    public final void setBlockIndex(int blockIndex)
+    public final void setBlockIndex(long blockIndex)
     {
         this.blockIndex = blockIndex;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "UploadStatus[" + uploadState + ",fileIndex=" + indexOfCurrentFile + ",blockIndex="
+                + blockIndex + "]";
     }
     
 }

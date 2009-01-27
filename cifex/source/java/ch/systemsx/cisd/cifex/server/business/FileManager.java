@@ -296,8 +296,7 @@ final class FileManager extends AbstractManager implements IFileManager
         assert StringUtils.isNotBlank(contentType) : "Unspecified content type.";
         assert input != null : "Unspecified input stream.";
 
-        final File folder = createFolderFor(user);
-        final File file = FileUtilities.createNextNumberedFile(new File(folder, fileName), null);
+        final File file = createFile(user, fileName);
         boolean success = false;
         try
         {
@@ -350,6 +349,13 @@ final class FileManager extends AbstractManager implements IFileManager
         {
             businessContext.getUserActionLog().logUploadFile(fileName, success);
         }
+    }
+
+    public File createFile(final UserDTO user, final String fileName)
+    {
+        final File folder = createFolderFor(user);
+        final File file = FileUtilities.createNextNumberedFile(new File(folder, fileName), null);
+        return file;
     }
 
     public void throwExceptionOnFileDoesNotExist(final String fileName)

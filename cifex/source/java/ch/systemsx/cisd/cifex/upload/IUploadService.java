@@ -25,5 +25,5 @@ public interface IUploadService
 {
     public UploadStatus getUploadStatus(String uploadSessionID);
     
-    public UploadStatus uploadBlock(String uploadSessionID, byte[] block, boolean lastBlock);
+    public UploadStatus uploadBlock(String uploadSessionID, byte[] block, int blockSize, boolean lastBlock);
 }

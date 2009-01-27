@@ -17,12 +17,17 @@
 package ch.systemsx.cisd.cifex.upload.client;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import ch.systemsx.cisd.cifex.upload.IUploadService;
 import ch.systemsx.cisd.cifex.upload.UploadState;
 import ch.systemsx.cisd.cifex.upload.UploadStatus;
+import ch.systemsx.cisd.common.exceptions.WrappedIOException;
 
 /**
  * 
@@ -49,23 +54,119 @@ class Uploader
     void upload()
     {
         UploadStatus status = getStatus();
-        UploadState state = status.getUploadState();
-        if (state == UploadState.INIT)
+        while (status.getUploadState() != UploadState.FINISHED)
         {
-            String fileName = status.getCurrentFile();
-            File file = new File(fileName);
-            long fileSize = file.length();
-            int blockIndex = status.getBlockIndex();
-            long numberOfBytes = blockIndex * UploadStatus.BLOCK_SIZE;
-            int percentage = (int) ((numberOfBytes * 100) / Math.max(1, fileSize));
-            for (IUploadListener listener : listeners)
-            {
-                listener.uploadingStarted(file);
-                listener.uploadingProgress(percentage, numberOfBytes);
-            }
+            status = upload(status);
         }
     }
 
+    private UploadStatus upload(UploadStatus status)
+    {
+        UploadStatus currentStatus = status;
+        UploadState state = currentStatus.getUploadState();
+        File file = new File(currentStatus.getCurrentFile());
+        RandomAccessFileProvider fileProvider = new RandomAccessFileProvider(file);
+        byte[] bytes = new byte[UploadStatus.BLOCK_SIZE];
+        EnumSet<UploadState> set = EnumSet.of(UploadState.INIT, UploadState.UPLOADING);
+        while (true)
+        {
+            if (state == UploadState.INIT)
+            {
+                fireStartedEvent(file);
+            } 
+            if (state == UploadState.INIT || state == UploadState.UPLOADING)
+            {
+                currentStatus = uploadNextBlock(fileProvider, currentStatus.getBlockIndex(), bytes);
+                state = currentStatus.getUploadState();
+                if (state != UploadState.UPLOADING)
+                {
+                    fileProvider.closeFile();
+                    return currentStatus;
+                }
+            }
+        }
+    }
+    
+    private static final class RandomAccessFileProvider
+    {
+        private final File file;
+        private RandomAccessFile randomAccessFile;
+
+        RandomAccessFileProvider(File file)
+        {
+            this.file = file;
+        }
+        
+        RandomAccessFile getRandomAccessFile()
+        {
+            if (randomAccessFile == null)
+            {
+                try
+                {
+                    randomAccessFile = new RandomAccessFile(file, "r");
+                } catch (FileNotFoundException ex)
+                {
+                    throw new WrappedIOException(ex);
+                }
+            }
+            return randomAccessFile;
+        }
+        
+        void closeFile()
+        {
+            if (randomAccessFile != null)
+            {
+                try
+                {
+                    randomAccessFile.close();
+                } catch (IOException ex)
+                {
+                    throw new WrappedIOException(ex);
+                }
+            }
+        }
+    }
+    
+    private UploadStatus uploadNextBlock(RandomAccessFileProvider fileProvider, long blockIndex, byte[] bytes)
+    {
+        try
+        {
+            RandomAccessFile randomAccessFile = fileProvider.getRandomAccessFile();
+            int blockSize = bytes.length;
+            long filePointer = blockIndex * blockSize;
+            long fileSize = randomAccessFile.length();
+            boolean lastBlock = filePointer + blockSize >= fileSize;
+            if (lastBlock)
+            {
+                blockSize = (int) (fileSize - filePointer);
+            }
+            randomAccessFile.seek(filePointer);
+            randomAccessFile.readFully(bytes, 0, blockSize);
+            fireProgressEvent(filePointer, fileSize);
+            return uploadService.uploadBlock(uploadSessionID, bytes, blockSize, lastBlock);
+        } catch (IOException ex)
+        {
+            throw new WrappedIOException(ex);
+        }
+    }
+
+    private void fireProgressEvent(long numberOfBytes, long fileSize)
+    {
+        int percentage = (int) ((numberOfBytes * 100) / Math.max(1, fileSize));
+        for (IUploadListener listener : listeners)
+        {
+            listener.uploadingProgress(percentage, numberOfBytes);
+        }
+    }
+
+    private void fireStartedEvent(File file)
+    {
+        for (IUploadListener listener : listeners)
+        {
+            listener.uploadingStarted(file);
+        }
+    }
+    
     private UploadStatus getStatus()
     {
         return uploadService.getUploadStatus(uploadSessionID);
