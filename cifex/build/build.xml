@@ -163,6 +163,10 @@
         </antcall>
     	<antcall target="copy-and-sign-jar">
             <param name="dir" value="${lib}/spring"/>
+            <param name="jar" value="spring-web.jar"/>
+        </antcall>
+    	<antcall target="copy-and-sign-jar">
+            <param name="dir" value="${lib}/spring"/>
             <param name="jar" value="spring-context.jar"/>
         </antcall>
     	<antcall target="copy-and-sign-jar">
@@ -172,6 +176,22 @@
     	<antcall target="copy-and-sign-jar">
             <param name="dir" value="${lib}/spring"/>
             <param name="jar" value="spring-core.jar"/>
+        </antcall>
+    	<antcall target="copy-and-sign-jar">
+            <param name="dir" value="${lib}/spring"/>
+            <param name="jar" value="spring-aop.jar"/>
+        </antcall>
+    	<antcall target="copy-and-sign-jar">
+            <param name="dir" value="${lib}/spring/third-party"/>
+            <param name="jar" value="aopalliance.jar"/>
+        </antcall>
+    	<antcall target="copy-and-sign-jar">
+            <param name="dir" value="${lib}/commons-httpclient"/>
+            <param name="jar" value="commons-httpclient.jar"/>
+        </antcall>
+    	<antcall target="copy-and-sign-jar">
+            <param name="dir" value="${lib}/commons-codec"/>
+            <param name="jar" value="commons-codec.jar"/>
         </antcall>
     	<antcall target="copy-and-sign-jar">
             <param name="dir" value="${lib}/commons-logging"/>

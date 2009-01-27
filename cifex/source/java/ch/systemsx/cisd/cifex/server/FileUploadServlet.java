@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -62,8 +61,6 @@ public final class FileUploadServlet extends AbstractFileUploadServlet
     private static final String UPLOAD_FINISHED = "Upload finished.\n";
 
     private static final int MAX_FILENAME_LENGTH = 250;
-
-    private final static String COMMENT_FIELD_NAME = "upload-comment";
 
     @Override
     protected final void doPost(final HttpServletRequest request, final HttpServletResponse response)
@@ -240,12 +237,7 @@ public final class FileUploadServlet extends AbstractFileUploadServlet
             {
                 if (item.getFieldName().equals(RECIPIENTS_FIELD_NAME))
                 {
-                    final StringTokenizer stringTokenizer =
-                            new StringTokenizer(Streams.asString(stream), ", \t\n\r\f");
-                    while (stringTokenizer.hasMoreTokens())
-                    {
-                        userIdentifier.add(stringTokenizer.nextToken());
-                    }
+                    extractRecipients(userIdentifier, Streams.asString(stream));
                 }
                 if (item.getFieldName().equals(COMMENT_FIELD_NAME))
                 {

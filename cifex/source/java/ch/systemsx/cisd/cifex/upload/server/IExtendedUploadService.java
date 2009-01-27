@@ -14,16 +14,21 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.upload;
+package ch.systemsx.cisd.cifex.upload.server;
+
+import ch.systemsx.cisd.cifex.upload.IUploadService;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public interface IUploadService
+public interface IExtendedUploadService extends IUploadService
 {
-    public UploadStatus getUploadStatus(String uploadSessionID);
-    
-    public UploadStatus uploadBlock(String uploadSessionID, byte[] block, boolean lastBlock);
+    /**
+     * Creates a new upload session for the specified files, e-mails of the recipients, and comment.
+     * 
+     *  @return unique upload session ID.
+     */
+    public String createSession(String[] files, String[] recipients, String comment);
 }

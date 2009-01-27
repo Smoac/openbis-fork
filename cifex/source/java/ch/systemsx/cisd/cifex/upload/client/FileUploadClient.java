@@ -18,12 +18,18 @@ package ch.systemsx.cisd.cifex.upload.client;
 
 import java.awt.BorderLayout;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+
+import org.apache.commons.lang.time.DateUtils;
+import org.springframework.remoting.httpinvoker.CommonsHttpInvokerRequestExecutor;
+import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean;
+
+import ch.systemsx.cisd.cifex.upload.IUploadService;
 
 
 /**
@@ -31,43 +37,85 @@ import javax.swing.JPanel;
  *
  * @author Franz-Josef Elmer
  */
-public class FileUploadClient
+public class FileUploadClient implements IUploadListener
 {
-    private final String uploadSessionID;
-    private final List<File> files;
+    private static final String TITLE = "CIFEX Uploader";
 
-    FileUploadClient(String uploadSessionID, List<File> files)
+    private static final int SERVER_TIMEOUT_MIN = 5;
+    
+    private final Uploader uploader;
+
+    private JFrame frame;
+
+    private JPanel panel;
+
+    private JProgressBar progressBar;
+    
+    FileUploadClient(String serviceURL, String uploadSessionID)
     {
-        this.uploadSessionID = uploadSessionID;
-        this.files = files;
+        uploader = new Uploader(createServiceStub(serviceURL), uploadSessionID);
+        uploader.addUploadListener(this);
     }
     
-    void upload()
+    private IUploadService createServiceStub(String serviceURL)
     {
-        JFrame frame = new JFrame("CIFEX Uploader");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.add(createGUI(), BorderLayout.CENTER);
-        frame.setBounds(200, 200, 800, 600);
-        frame.setVisible(true);
+        final HttpInvokerProxyFactoryBean httpInvokerProxy = new HttpInvokerProxyFactoryBean();
+        httpInvokerProxy.setServiceUrl(serviceURL);
+        httpInvokerProxy.setServiceInterface(IUploadService.class);
+        final CommonsHttpInvokerRequestExecutor httpInvokerRequestExecutor =
+                new CommonsHttpInvokerRequestExecutor();
+        httpInvokerRequestExecutor.setReadTimeout((int) DateUtils.MILLIS_PER_MINUTE
+                * SERVER_TIMEOUT_MIN);
+        httpInvokerProxy.setHttpInvokerRequestExecutor(httpInvokerRequestExecutor);
+        httpInvokerProxy.afterPropertiesSet();
+        return (IUploadService) httpInvokerProxy.getObject();
     }
 
+    public void uploadingStarted(File file)
+    {
+        String path = file.getAbsolutePath();
+        frame.setTitle(TITLE + ": " + path);
+        panel.removeAll();
+        panel.add(new JLabel("Uploading " + path));
+        progressBar = new JProgressBar();
+        progressBar.setStringPainted(true);
+        panel.add(progressBar);
+        panel.invalidate();
+        panel.getParent().validate();
+    }
+    
+    public void uploadingFinished()
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void uploadingProgress(int percentage, long numberOfBytes)
+    {
+        progressBar.setValue(percentage);
+        progressBar.setString(Long.toString(numberOfBytes));
+    }
+
+    void upload()
+    {
+        frame = new JFrame(TITLE);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.add(createGUI(), BorderLayout.CENTER);
+        frame.setBounds(200, 200, 600, 300);
+        frame.setVisible(true);
+        uploader.upload();
+    }
+    
     private JPanel createGUI()
     {
-        JPanel panel = new JPanel();
-        panel.add(new JLabel("upload " + files.size() + " files."));
+        panel = new JPanel();
         return panel;
     }
     
     public static void main(String[] args)
     {
-        String uploadSessionID = args[0];
-        List<File> files = new ArrayList<File>(args.length - 1);
-        for (int i = 1; i < files.size(); i++)
-        {
-            files.add(new File(args[i]));
-        }
-        new FileUploadClient(uploadSessionID, files).upload();
-
+        System.out.println("arguments: " + Arrays.asList(args));
+        new FileUploadClient(args[0], args[1]).upload();
     }
 
 }

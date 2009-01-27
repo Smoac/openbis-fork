@@ -21,9 +21,7 @@ package ch.systemsx.cisd.cifex.upload;
  *
  * @author Franz-Josef Elmer
  */
-public interface IUploadService
+public enum UploadState
 {
-    public UploadStatus getUploadStatus(String uploadSessionID);
-    
-    public UploadStatus uploadBlock(String uploadSessionID, byte[] block, boolean lastBlock);
+    INIT, UPLOADING, FINISHED, ABORTED;
 }

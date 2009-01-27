@@ -19,16 +19,19 @@ package ch.systemsx.cisd.cifex.upload.server;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+
 import ch.systemsx.cisd.cifex.server.AbstractFileUploadServlet;
 import ch.systemsx.cisd.cifex.server.HttpUtils;
-import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
-import ch.systemsx.cisd.cifex.upload.IUploadService;
-import ch.systemsx.cisd.cifex.upload.UploadStatus;
 import ch.systemsx.cisd.cifex.upload.client.FileUploadClient;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.utilities.Template;
@@ -38,10 +41,8 @@ import ch.systemsx.cisd.common.utilities.Template;
  *
  * @author Franz-Josef Elmer
  */
-public class File2GBUploadServlet extends AbstractFileUploadServlet implements IUploadService
+public class File2GBUploadServlet extends AbstractFileUploadServlet
 {
-    private static final String UPLOAD_SESSION_MANAGER = "upload-session-manager";
-
     private static final long serialVersionUID = 1L;
     
     private static final Template JNLP_TEMPLATE = new Template("<?xml version='1.0' encoding='utf-8'?>\n" + 
@@ -57,53 +58,74 @@ public class File2GBUploadServlet extends AbstractFileUploadServlet implements I
             "  <resources>\n" + 
             "    <j2se version='1.5+'/>\n" + 
             "    <jar href='cifex.jar'/>\n" + 
+            "    <jar href='spring-web.jar'/>\n" + 
             "    <jar href='spring-context.jar'/>\n" + 
             "    <jar href='spring-beans.jar'/>\n" + 
+            "    <jar href='spring-aop.jar'/>\n" + 
             "    <jar href='spring-core.jar'/>\n" + 
+            "    <jar href='aopalliance.jar'/>\n" + 
+            "    <jar href='commons-codec.jar'/>\n" + 
+            "    <jar href='commons-httpclient.jar'/>\n" + 
             "    <jar href='commons-logging.jar'/>\n" + 
             "  </resources>\n" + 
             "  <application-desc main-class='${main-class}'>\n" +
+            "    <argument>${service-URL}</argument>\n" +
             "    <argument>${upload-session-id}</argument>\n" +
             "  </application-desc>\n" +
             "</jnlp>\n");
+
+    private IExtendedUploadService uploadService;
     
-    
-    public UploadStatus getUploadStatus(String uploadSessionID)
+    @Override
+    public void init() throws ServletException
     {
-        return null;
+        super.init();
+        try
+        {
+            ServletContext servletContext = getServletContext();
+            final BeanFactory context =
+                    WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
+            uploadService = (IExtendedUploadService) context.getBean("file-upload-service");
+        } catch (final Exception ex)
+        {
+            notificationLog.fatal("Failure during LIMS service servlet initialization.", ex);
+            throw new ServletException(ex);
+        }
     }
 
     @Override
     protected final void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException, InvalidSessionException
     {
-        final UserDTO requestUser = getUserDTO(request); // Throws exception if session is invalid
-        System.out.println(requestUser);
-        UploadSession session = getUploadSessionManager(request).createSession();
-        UploadStatus uploadStatus = new UploadStatus(request.getParameterValues("files"));
-        session.setUploadStatus(uploadStatus);
+        getUserDTO(request); // Throws exception if session is invalid
+        String[] files = request.getParameterValues("files");
+        String[] recipients = extractRecipients(request);
+        String comment = request.getParameter(COMMENT_FIELD_NAME);
+        String uploadSessionID = uploadService.createSession(files, recipients, comment);
+        if (notificationLog.isInfoEnabled())
+        {
+            notificationLog.info("Start file upload session with ID " + uploadSessionID);
+        }
         
         response.setContentType("application/x-java-jnlp-file");
         PrintWriter writer = new PrintWriter(new OutputStreamWriter(response.getOutputStream()));
         Template template = JNLP_TEMPLATE.createFreshCopy();
         template.attemptToBind("base-URL", createBaseURL(request));
         template.attemptToBind("main-class", FileUploadClient.class.getName());
-        template.attemptToBind("upload-session-id", session.getSessionID());
+        template.attemptToBind("service-URL", HttpUtils.getBasicURL(request) + "/cifex/file-upload-service");
+        template.attemptToBind("upload-session-id", uploadSessionID);
         writer.print(template.createText());
         writer.close();
     }
-    
-    private UploadSessionManager getUploadSessionManager(HttpServletRequest request)
-    {
-        UploadSessionManager manager = (UploadSessionManager) request.getAttribute(UPLOAD_SESSION_MANAGER);
-        if (manager == null)
-        {
-            manager = new UploadSessionManager();
-            request.setAttribute(UPLOAD_SESSION_MANAGER, manager);
-        }
-        return manager;
-    }
 
+    private String[] extractRecipients(final HttpServletRequest request)
+    {
+        List<String> rec = new ArrayList<String>();
+        extractRecipients(rec, request.getParameter(RECIPIENTS_FIELD_NAME));
+        String[] recipients = rec.toArray(new String[0]);
+        return recipients;
+    }
+    
     private String createBaseURL(final HttpServletRequest request)
     {
         String url = HttpUtils.getBasicURL(request);
@@ -115,19 +137,5 @@ public class File2GBUploadServlet extends AbstractFileUploadServlet implements I
             url = url + "/cifex/";
         }
         return url;
-    }
-    
-    private String createFileList(String[] files)
-    {
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < files.length; i++)
-        {
-            builder.append(files[i]);
-            if (i < files.length - 1)
-            {
-                builder.append(',');
-            }
-        }
-        return builder.toString();
     }
 }

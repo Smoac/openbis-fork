@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.upload;
+package ch.systemsx.cisd.cifex.upload.client;
+
+import java.io.File;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public interface IUploadService
+public interface IUploadListener
 {
-    public UploadStatus getUploadStatus(String uploadSessionID);
+    public void uploadingStarted(File file);
     
-    public UploadStatus uploadBlock(String uploadSessionID, byte[] block, boolean lastBlock);
+    public void uploadingProgress(int percentage, long numberOfBytes);
+    
+    public void uploadingFinished();
 }

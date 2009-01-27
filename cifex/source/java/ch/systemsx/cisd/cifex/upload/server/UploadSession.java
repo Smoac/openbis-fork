@@ -23,36 +23,54 @@ import ch.systemsx.cisd.cifex.upload.UploadStatus;
  *
  * @author Franz-Josef Elmer
  */
-public class UploadSession
+class UploadSession
 {
-
-    private String sessionID;
+    private final String sessionID;
     
     private UploadStatus uploadStatus;
+    
+    private String[] recipients;
+    
+    private String comment;
 
-    public UploadSession(String sessionID)
+    UploadSession(String sessionID)
     {
         this.sessionID = sessionID;
     }
 
-    public final String getSessionID()
+    final String getSessionID()
     {
         return sessionID;
     }
 
-    public final UploadStatus getUploadStatus()
+    final UploadStatus getUploadStatus()
     {
         return uploadStatus;
     }
 
-    public final void setUploadStatus(UploadStatus uploadStatus)
+    final void setUploadStatus(UploadStatus uploadStatus)
     {
         this.uploadStatus = uploadStatus;
     }
 
-    public final void setSessionID(String sessionID)
+    final String[] getRecipients()
     {
-        this.sessionID = sessionID;
+        return recipients;
+    }
+
+    final void setRecipients(String[] recipients)
+    {
+        this.recipients = recipients;
+    }
+
+    final String getComment()
+    {
+        return comment;
+    }
+
+    final void setComment(String comments)
+    {
+        this.comment = comments;
     }
 
 }

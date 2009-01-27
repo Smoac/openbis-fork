@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.cifex.server;
 
+import java.util.List;
+import java.util.StringTokenizer;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -32,6 +35,8 @@ public abstract class AbstractFileUploadServlet extends AbstractCIFEXServiceServ
      * the widget.
      */
     protected final static String RECIPIENTS_FIELD_NAME = "email-addresses";
+
+    protected final static String COMMENT_FIELD_NAME = "upload-comment";
 
     private static final String MAX_UPLOAD_SIZE = "max-upload-size";
 
@@ -65,6 +70,15 @@ public abstract class AbstractFileUploadServlet extends AbstractCIFEXServiceServ
     protected final void postInitialization()
     {
         maxUploadSizeInBytes = getMaxUploadSizeInMegabytes() * FileUtils.ONE_MB;
+    }
+
+    protected void extractRecipients(final List<String> recipientsIdentifies, String recipients)
+    {
+        final StringTokenizer stringTokenizer = new StringTokenizer(recipients, ", \t\n\r\f");
+        while (stringTokenizer.hasMoreTokens())
+        {
+            recipientsIdentifies.add(stringTokenizer.nextToken());
+        }
     }
 
 
