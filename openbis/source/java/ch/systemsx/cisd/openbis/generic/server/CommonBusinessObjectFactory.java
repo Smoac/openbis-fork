@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProcedureBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
@@ -36,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ProcedureBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ProjectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.PropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.PropertyTypeTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.RoleAssignmentTable;
@@ -122,6 +124,11 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
             EntityKind entityKind)
     {
         return new EntityTypePropertyTypeBO(getDaoFactory(), session, entityKind);
+    }
+
+    public IProjectBO createProjectBO(Session session)
+    {
+        return new ProjectBO(getDaoFactory(), session);
     }
 
 }

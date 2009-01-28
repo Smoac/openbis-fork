@@ -28,10 +28,25 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
  */
 public interface IProjectDAO
 {
+    /**
+     * Lists all projects.
+     */
     public List<ProjectPE> listProjects();
 
+    /**
+     * Lists projects from given group.
+     */
     public List<ProjectPE> listProjects(GroupPE group);
 
+    /**
+     * Returns project for given database instance code, group code and project code or null if such
+     * a project does not exist.
+     */
     public ProjectPE tryFindProject(String databaseInstanceCode, String groupCode,
             String projectCode);
+
+    /**
+     * Creates a new project.
+     */
+    public void createProject(ProjectPE project);
 }

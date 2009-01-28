@@ -77,4 +77,9 @@ public interface ICommonBusinessObjectFactory
      */
     public IEntityTypePropertyTypeBO createEntityTypePropertyTypeBO(Session session,
             EntityKind entityKind);
+
+    /**
+     * Creates a {@link IProjectBO} <i>Business Object</i>.
+     */
+    public IProjectBO createProjectBO(final Session session);
 }

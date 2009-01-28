@@ -24,6 +24,7 @@ import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -85,12 +86,10 @@ public class ProjectDAO extends AbstractDAO implements IProjectDAO
         final Criteria criteria = getSession().createCriteria(ProjectPE.class);
         criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(projectCode)));
         final Criteria groupCriteria = criteria.createCriteria("group");
-        groupCriteria.add(
-                Restrictions.eq("code", CodeConverter.tryToDatabase(groupCode)));
+        groupCriteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(groupCode)));
         if (StringUtils.isBlank(databaseInstanceCode))
         {
-            groupCriteria.add(
-                    Restrictions.eq("databaseInstance", getDatabaseInstance()));
+            groupCriteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
         } else
         {
             groupCriteria.createCriteria("databaseInstance").add(
@@ -98,6 +97,21 @@ public class ProjectDAO extends AbstractDAO implements IProjectDAO
         }
         final ProjectPE project = (ProjectPE) criteria.uniqueResult();
         return project;
+    }
+
+    public void createProject(ProjectPE project)
+    {
+        assert project != null : "Missing project.";
+        validatePE(project);
+
+        project.setCode(CodeConverter.tryToDatabase(project.getCode()));
+        final HibernateTemplate template = getHibernateTemplate();
+        template.persist(project);
+        template.flush();
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("ADD: project '%s'.", project));
+        }
     }
 
 }

@@ -114,6 +114,7 @@ public class ManagerTestTool
     {
         exp.allowing(daoFactory).getHomeDatabaseInstance();
         DatabaseInstancePE db = new DatabaseInstancePE();
+        db.setCode(EXAMPLE_DATABASE_INSTANCE.getCode());
         Long dbId = 3123L;
         db.setId(dbId);
         exp.will(Expectations.returnValue(db));

@@ -121,7 +121,8 @@ public final class ProjectRegistrationForm extends AbstractRegistrationForm
 
         private final String createMessage()
         {
-            return "Project <b>" + project + "</b> successfully registered.";
+            return "Project <b>" + project.getIdentifier().toUpperCase()
+                    + "</b> successfully registered.";
         }
 
         //

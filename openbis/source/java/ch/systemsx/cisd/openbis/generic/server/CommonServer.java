@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTy
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
@@ -459,7 +460,10 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public void registerProject(String sessionToken, ProjectIdentifier projectIdentifier,
             String description, String leaderId)
     {
-        getSessionManager().getSession(sessionToken);
-        throw new UserFailureException("Not implemented");
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
+        projectBO.define(projectIdentifier, description, leaderId);
+        projectBO.save();
+
     }
 }

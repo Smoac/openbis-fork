@@ -125,7 +125,6 @@ public class ProjectDAOTest extends AbstractDAOTest
 
         AssertJUnit.assertNull(daoFactory.getProjectDAO().tryFindProject("nonexistent",
                 templateProject.getGroup().getCode(), templateProject.getCode()));
-
     }
-
+    // FIXME: add test
 }
