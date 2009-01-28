@@ -30,6 +30,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.shared.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
@@ -329,7 +330,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         Collections.sort(externalData);
         return externalData;
     }
-    
+
     public final List<PropertyTypePE> listPropertyTypes(final String sessionToken)
     {
         final Session session = getSessionManager().getSession(sessionToken);
@@ -421,9 +422,14 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             final String defaultValue)
     {
         assert sessionToken != null : "Unspecified session token";
+        Session session = getSessionManager().getSession(sessionToken);
 
-        getSessionManager().getSession(sessionToken);
-        return "Warning: feature not implemented";
+        IEntityTypePropertyTypeBO etptBO =
+                businessObjectFactory.createEntityTypePropertyTypeBO(session, entityKind);
+        etptBO.createAssignment(propertyTypeCode, entityTypeCode, isMandatory, defaultValue);
+        return String.format("%s property type '%s' successfully assigned to %s type '%s'",
+                isMandatory ? "Mandatory" : "Optional", propertyTypeCode, entityKind.getLabel(),
+                entityTypeCode);
 
     }
 

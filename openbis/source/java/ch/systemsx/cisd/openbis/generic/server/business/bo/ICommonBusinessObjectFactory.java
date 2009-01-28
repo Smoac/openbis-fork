@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * The <i>generic</i> specific <i>Business Object</i> factory.
@@ -70,4 +71,10 @@ public interface ICommonBusinessObjectFactory
      * Creates a {@link IProcedureBO} <i>Business Object</i>.
      */
     public IProcedureBO createProcedureBO(Session session);
+
+    /**
+     * Creates a {@link IEntityTypePropertyTypeBO} <i>Business Object</i>.
+     */
+    public IEntityTypePropertyTypeBO createEntityTypePropertyTypeBO(Session session,
+            EntityKind entityKind);
 }

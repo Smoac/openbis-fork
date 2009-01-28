@@ -222,6 +222,24 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         return list;
     }
 
+    public final <T extends EntityPropertyPE, ET extends EntityType, ETPT extends EntityTypePropertyType<ET>> T createProperty(
+            PropertyTypePE propertyType, EntityTypePropertyTypePE entityTypPropertyType,
+            final PersonPE registrator, String value)
+    {
+        if (entityTypPropertyType.isMandatory() && value == null)
+        {
+            throw UserFailureException.fromTemplate("No entity property value for '%s'.",
+                    propertyType.getCode());
+        }
+        if (value != null)
+        {
+            final String validated =
+                    propertyValueValidator.validatePropertyValue(propertyType, value);
+            return createEntityProperty(registrator, propertyType, entityTypPropertyType, validated);
+        }
+        return null;
+    }
+
     //
     // Helper classes
     //

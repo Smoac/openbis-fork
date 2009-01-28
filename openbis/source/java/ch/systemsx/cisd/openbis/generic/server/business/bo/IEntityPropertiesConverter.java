@@ -22,7 +22,9 @@ import ch.systemsx.cisd.openbis.generic.client.shared.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.client.shared.EntityType;
 import ch.systemsx.cisd.openbis.generic.client.shared.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 
 /**
  * Converter between {@link EntityProperty} and {@link EntityPropertyPE}.
@@ -45,4 +47,11 @@ public interface IEntityPropertiesConverter
     public <T extends EntityPropertyPE, ET extends EntityType, ETPT extends EntityTypePropertyType<ET>> List<T> convertProperties(
             final EntityProperty<ET, ETPT>[] properties, final String entityTypeCode,
             final PersonPE registrator);
+
+    /**
+     * Creates {@link EntityPropertyPE}.
+     */
+    public <T extends EntityPropertyPE, ET extends EntityType, ETPT extends EntityTypePropertyType<ET>> T createProperty(
+            PropertyTypePE propertyType, EntityTypePropertyTypePE entityTypPropertyType,
+            final PersonPE registrator, String value);
 }

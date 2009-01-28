@@ -338,6 +338,11 @@ public abstract class Dict
     public static final String SAMPLES_LIST = "samples_list";
 
     //
+    // Vocabulary Browser
+    //
+    public static final String VOCABULARY_BROWSER = "vocabulary_browser";
+
+    //
     // Unclassified
     //
     public static final String LEADER = "leader";

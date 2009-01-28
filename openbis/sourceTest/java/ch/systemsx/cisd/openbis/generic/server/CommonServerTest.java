@@ -424,12 +424,13 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(Arrays.asList(externalDataPE)));
                 }
             });
-        
-        List<ExternalDataPE> list = createServer().listExternalData(SESSION_TOKEN, sampleIdentifier);
-        
+
+        List<ExternalDataPE> list =
+                createServer().listExternalData(SESSION_TOKEN, sampleIdentifier);
+
         assertEquals(1, list.size());
         assertSame(externalDataPE, list.get(0));
-        
+
         context.assertIsSatisfied();
     }
 
@@ -458,7 +459,7 @@ public final class CommonServerTest extends AbstractServerTestCase
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testListExperiments()
     {
@@ -615,6 +616,33 @@ public final class CommonServerTest extends AbstractServerTestCase
                 }
             });
         createServer().registerVocabulary(SESSION_TOKEN, new Vocabulary());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testAssignPropertyType()
+    {
+        final Session session = prepareGetSession();
+        final EntityKind entityKind = EntityKind.EXPERIMENT;
+        final String propertyTypeCode = "USER.DISTANCE";
+        final String entityTypeCode = "ARCHERY";
+        final boolean mandatory = true;
+        final String value = "50m";
+        context.checking(new Expectations()
+            {
+                {
+                    one(commonBusinessObjectFactory).createEntityTypePropertyTypeBO(session,
+                            entityKind);
+                    will(returnValue(entityTypePropertyTypeBO));
+
+                    one(entityTypePropertyTypeBO).createAssignment(propertyTypeCode,
+                            entityTypeCode, mandatory, value);
+                }
+            });
+        assertEquals(
+                "Mandatory property type 'USER.DISTANCE' successfully assigned to experiment type 'ARCHERY'",
+                createServer().assignPropertyType(SESSION_TOKEN, entityKind, propertyTypeCode,
+                        entityTypeCode, mandatory, value));
         context.assertIsSatisfied();
     }
 

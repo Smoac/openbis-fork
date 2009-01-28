@@ -98,4 +98,9 @@ public enum EntityKind
     {
         return cast(entityClass);
     }
+
+    public final String getEntityTypeFieldName()
+    {
+        return entityLabel + "Type";
+    }
 }

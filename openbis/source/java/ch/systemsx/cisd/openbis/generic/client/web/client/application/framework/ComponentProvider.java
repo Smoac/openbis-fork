@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.propert
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBatchRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleRegistrationPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
 
@@ -207,6 +208,23 @@ final class ComponentProvider
                 public String getId()
                 {
                     return VocabularyRegistrationForm.ID;
+                }
+            };
+    }
+
+    public final ITabItemFactory getVocabularyBrowser()
+    {
+        return new ITabItemFactory()
+            {
+                public ITabItem create()
+                {
+                    Component component = new VocabularyBrowser(viewContext);
+                    return new DefaultTabItem(getMessage(Dict.VOCABULARY_BROWSER), component, true);
+                }
+
+                public String getId()
+                {
+                    return VocabularyBrowser.ID;
                 }
             };
     }

@@ -24,6 +24,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.shared.DataType;
 import ch.systemsx.cisd.openbis.generic.client.shared.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
@@ -31,6 +32,8 @@ import ch.systemsx.cisd.openbis.generic.client.shared.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
@@ -201,5 +204,58 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
                 entityPropertiesConverter.convertProperties(properties, SAMPLE_TYPE_CODE
                         .toLowerCase(), ManagerTestTool.EXAMPLE_PERSON);
         assertEquals(1, convertedProperties.size());
+    }
+
+    @Test
+    public void testCreateProperty() throws Exception
+    {
+        final IEntityPropertiesConverter entityPropertiesConverter =
+                createEntityPropertiesConverter(EntityKind.SAMPLE);
+        final PropertyTypePE propertyType = new PropertyTypePE();
+        EntityKind entityKind = EntityKind.EXPERIMENT;
+        EntityTypePropertyTypePE assignment =
+                EntityTypePropertyTypePE.createEntityTypePropertyType(entityKind);
+        PersonPE registrator = new PersonPE();
+        final String defaultValue = "val";
+        context.checking(new Expectations()
+            {
+                {
+                    one(propertyValueValidator).validatePropertyValue(propertyType, defaultValue);
+                }
+            });
+        assertEquals(registrator, entityPropertiesConverter.createProperty(propertyType,
+                assignment, registrator, defaultValue).getRegistrator());
+    }
+
+    @Test(expectedExceptions = UserFailureException.class)
+    public void testCreatePropertyMandatoryWithNullGlobal() throws Exception
+    {
+        final IEntityPropertiesConverter entityPropertiesConverter =
+                createEntityPropertiesConverter(EntityKind.SAMPLE);
+        final PropertyTypePE propertyType = new PropertyTypePE();
+        EntityKind entityKind = EntityKind.EXPERIMENT;
+        EntityTypePropertyTypePE assignment =
+                EntityTypePropertyTypePE.createEntityTypePropertyType(entityKind);
+        assignment.setMandatory(true);
+        PersonPE registrator = new PersonPE();
+        final String defaultValue = null;
+        entityPropertiesConverter.createProperty(propertyType, assignment, registrator,
+                defaultValue);
+    }
+
+    @Test
+    public void testCreatePropertyNotMandatoryWithNullGlobal() throws Exception
+    {
+        final IEntityPropertiesConverter entityPropertiesConverter =
+                createEntityPropertiesConverter(EntityKind.EXPERIMENT);
+        final PropertyTypePE propertyType = new PropertyTypePE();
+        EntityKind entityKind = EntityKind.EXPERIMENT;
+        EntityTypePropertyTypePE assignment =
+                EntityTypePropertyTypePE.createEntityTypePropertyType(entityKind);
+        assignment.setMandatory(false);
+        PersonPE registrator = new PersonPE();
+        final String defaultValue = null;
+        assertNull(entityPropertiesConverter.createProperty(propertyType, assignment, registrator,
+                defaultValue));
     }
 }

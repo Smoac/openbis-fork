@@ -19,15 +19,22 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -79,6 +86,51 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
                     entityType));
         }
         return assignments;
+    }
+
+    public EntityTypePropertyTypePE tryFindAssignment(EntityTypePE entityType,
+            PropertyTypePE propertyType)
+    {
+        assert entityType != null : "Unspecified entity type.";
+        assert propertyType != null : "Unspecified property type.";
+
+        final Criteria criteria =
+                getSession().createCriteria(getEntityTypePropertyTypeAssignmentClass());
+        criteria.add(Restrictions.eq("propertyTypeInternal", propertyType));
+        criteria.add(Restrictions.eq("entityTypeInternal", entityType));
+        final EntityTypePropertyTypePE etpt = (EntityTypePropertyTypePE) criteria.uniqueResult();
+        return etpt;
+    }
+
+    public final void createEntityPropertyTypeAssignment(
+            final EntityTypePropertyTypePE entityPropertyTypeAssignement)
+            throws DataAccessException
+    {
+        assert entityPropertyTypeAssignement != null : "Unspecified EntityTypePropertyType";
+        validatePE(entityPropertyTypeAssignement);
+
+        final HibernateTemplate template = getHibernateTemplate();
+        template.save(entityPropertyTypeAssignement);
+        template.flush();
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("ADD: assignment of property '"
+                    + entityPropertyTypeAssignement.getPropertyType().getCode()
+                    + "' with entity type '"
+                    + entityPropertyTypeAssignement.getEntityType().getCode() + "'.");
+        }
+    }
+
+    public List<IEntityPropertiesHolder<EntityPropertyPE>> listEntities(
+            final EntityTypePE entityType) throws DataAccessException
+    {
+        assert entityType != null : "Unspecified entity type.";
+
+        final DetachedCriteria criteria = DetachedCriteria.forClass(entityKind.getEntityClass());
+        criteria.add(Restrictions.eq(entityKind.getEntityTypeFieldName(), entityType));
+        final List<IEntityPropertiesHolder<EntityPropertyPE>> list =
+                cast(getHibernateTemplate().findByCriteria(criteria));
+        return list;
     }
 
 }

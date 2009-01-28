@@ -27,6 +27,7 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.generic.client.shared.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
@@ -117,6 +118,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected IProcedureBO procedureBO;
 
+    protected IEntityTypePropertyTypeBO entityTypePropertyTypeBO;
+
     @BeforeMethod
     @SuppressWarnings("unchecked")
     public void setUp()
@@ -144,6 +147,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         experimentBO = context.mock(IExperimentBO.class);
         propertyTypeBO = context.mock(IPropertyTypeBO.class);
         vocabularyBO = context.mock(IVocabularyBO.class);
+        entityTypePropertyTypeBO = context.mock(IEntityTypePropertyTypeBO.class);
         // Table
         externalDataTable = context.mock(IExternalDataTable.class);
         experimentTable = context.mock(IExperimentTable.class);
