@@ -16,7 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.Code;
+import ch.systemsx.cisd.openbis.generic.client.shared.CodeWithRegistration;
+import ch.systemsx.cisd.openbis.generic.client.shared.Person;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**
@@ -24,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
  * 
  * @author Tomasz Pylak
  */
-public class Project extends Code<Project>
+public class Project extends CodeWithRegistration<Project>
 {
     private Group group;
 

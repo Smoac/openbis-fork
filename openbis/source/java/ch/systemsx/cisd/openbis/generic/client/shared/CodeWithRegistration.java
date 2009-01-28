@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
+package ch.systemsx.cisd.openbis.generic.client.shared;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.Code;
-import ch.systemsx.cisd.openbis.generic.client.shared.ICodeProvider;
 
 /**
  * An {@link AbstractRegistrationHolder} extension which holds a code.

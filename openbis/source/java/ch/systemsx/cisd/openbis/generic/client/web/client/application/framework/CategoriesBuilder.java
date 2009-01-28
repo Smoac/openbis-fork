@@ -140,7 +140,7 @@ public class CategoriesBuilder
     private MenuCategory createProjectsTypesCategory()
     {
         final List<MenuElement> elements = new ArrayList<MenuElement>();
-        elements.add(new MenuElement(MENU_ELEMENTS.LIST, "List", provider.getDummyComponent()));
+        elements.add(new MenuElement(MENU_ELEMENTS.LIST, "List", provider.getProjectBrowser()));
         elements.add(new MenuElement(MENU_ELEMENTS.REGISTER, "Register", provider
                 .getDummyComponent()));
         return new MenuCategory(CATEGORIES.PROJECTS, "Projects", elements);

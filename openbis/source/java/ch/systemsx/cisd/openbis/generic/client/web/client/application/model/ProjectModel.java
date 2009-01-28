@@ -43,6 +43,8 @@ public class ProjectModel extends BaseModelData
         set(ModelDataPropertyNames.DESCRIPTION, project.getDescription());
         set(ModelDataPropertyNames.GROUP, project.getGroup());
         set(ModelDataPropertyNames.PROJECT_WITH_GROUP, renderProjectWithGroup(project));
+        set(ModelDataPropertyNames.REGISTRATOR, project.getRegistrator());
+        set(ModelDataPropertyNames.REGISTRATION_DATE, project.getRegistrationDate());
         set(ModelDataPropertyNames.OBJECT, project);
     }
 

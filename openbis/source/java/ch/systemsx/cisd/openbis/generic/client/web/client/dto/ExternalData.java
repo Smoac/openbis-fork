@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import java.util.Date;
 
+import ch.systemsx.cisd.openbis.generic.client.shared.CodeWithRegistration;
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 

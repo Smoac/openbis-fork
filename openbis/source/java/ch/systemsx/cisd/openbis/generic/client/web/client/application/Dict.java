@@ -355,6 +355,11 @@ public abstract class Dict
     public static final String IS_MANAGED_INTERNALLY = "is_managed_internally";
 
     //
+    // Project Browser
+    //
+    public static final String PROJECT_BROWSER = "project_browser";
+
+    //
     // Unclassified
     //
     public static final String LEADER = "leader";

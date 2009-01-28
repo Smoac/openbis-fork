@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.common.annotation.CollectionMapping;
+import ch.systemsx.cisd.openbis.generic.client.shared.CodeWithRegistration;
 import ch.systemsx.cisd.openbis.generic.client.shared.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.client.shared.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleProperty;

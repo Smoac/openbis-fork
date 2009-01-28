@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
+package ch.systemsx.cisd.openbis.generic.client.shared;
 
 import java.util.Date;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
+
 
 /**
  * Super class of <i>DTO</i>s which hold registration data.

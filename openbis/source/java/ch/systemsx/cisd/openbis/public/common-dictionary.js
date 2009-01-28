@@ -140,7 +140,7 @@ var common = {
   vocabulary_terms: "Terms",
   vocabulary_terms_empty: "White space or comma separated list",
   mandatory: "Mandatory",
-  default_value: "Default Value",
+  default_value: "Global Value",
   entity_type_assignments: "{0} Type Assignment{1}",
   
   //
@@ -185,6 +185,11 @@ var common = {
  //
  vocabulary_browser: "Vocabulary Browser",
  is_managed_internally: "Managed Internally?",
+ 
+ //
+ // Project Browser
+ //
+ project_browser: "Project Browser",
  
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

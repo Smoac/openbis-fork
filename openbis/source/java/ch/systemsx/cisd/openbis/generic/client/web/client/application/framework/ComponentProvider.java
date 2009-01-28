@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.PersonsVie
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.RolesView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentRegistrationPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project.ProjectBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeAssignmentBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeAssignmentForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeBrowser;
@@ -225,6 +226,23 @@ final class ComponentProvider
                 public String getId()
                 {
                     return VocabularyBrowser.ID;
+                }
+            };
+    }
+
+    public final ITabItemFactory getProjectBrowser()
+    {
+        return new ITabItemFactory()
+            {
+                public ITabItem create()
+                {
+                    Component component = new ProjectBrowser(viewContext);
+                    return new DefaultTabItem(getMessage(Dict.PROJECT_BROWSER), component, true);
+                }
+
+                public String getId()
+                {
+                    return ProjectBrowser.ID;
                 }
             };
     }

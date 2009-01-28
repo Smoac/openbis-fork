@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Person;
+import ch.systemsx.cisd.openbis.generic.client.shared.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -46,6 +46,8 @@ public final class ProjectTranslator
         result.setDescription(project.getDescription());
         result.setGroup(GroupTranslator.translate(project.getGroup()));
         result.setProjectLeader(PersonTranslator.translate(project.getProjectLeader()));
+        result.setRegistrator(PersonTranslator.translate(project.getRegistrator()));
+        result.setRegistrationDate(project.getRegistrationDate());
         result.setIdentifier(IdentifierHelper.createProjectIdentifier(project).toString());
         return result;
     }
