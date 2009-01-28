@@ -342,6 +342,8 @@ public abstract class Dict
     //
     public static final String VOCABULARY_BROWSER = "vocabulary_browser";
 
+    public static final String IS_MANAGED_INTERNALLY = "is_managed_internally";
+
     //
     // Unclassified
     //

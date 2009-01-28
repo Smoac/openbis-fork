@@ -42,8 +42,8 @@ public interface IVocabularyDAO
     VocabularyPE tryFindVocabularyByCode(final String vocabularyCode);
 
     /**
-     * Return all available vocabularies which have <code>internalNamespace</code> set to
-     * <code>false</code>.
+     * Return available vocabularies.
      */
-    List<VocabularyPE> listVocabularies();
+    List<VocabularyPE> listVocabularies(boolean excludeInternal);
+
 }

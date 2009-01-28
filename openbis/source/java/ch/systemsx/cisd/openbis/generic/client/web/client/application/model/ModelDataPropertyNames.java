@@ -91,7 +91,7 @@ public final class ModelDataPropertyNames
     public static final String VERSION_FILE_NAME = "versionsFileName";
 
     public static final String PROCEDURE = "procedure";
-    
+
     public static final String PROCEDURE_TYPE = "procedureType";
 
     public static final String MATERIAL_TYPE = "materialType";
@@ -113,6 +113,8 @@ public final class ModelDataPropertyNames
     public static final String PROPERTY_TYPE_CODE = "propertyTypeCode";
 
     public static final String ENTITY_TYPE_CODE = "entityTypeCode";
+
+    public static final String IS_MANAGED_INTERNALLY = "isManagedInternally";
 
     private ModelDataPropertyNames()
     {

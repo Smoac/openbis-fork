@@ -187,7 +187,8 @@ public interface ICommonServer extends IServer
             final SampleIdentifier identifier);
 
     /**
-     * For given {@link ExperimentIdentifier} returns the corresponding list of {@link ExternalDataPE}.
+     * For given {@link ExperimentIdentifier} returns the corresponding list of
+     * {@link ExternalDataPE}.
      * 
      * @return a sorted list of {@link ExternalDataPE}.
      */
@@ -196,7 +197,7 @@ public interface ICommonServer extends IServer
     public List<ExternalDataPE> listExternalData(final String sessionToken,
             @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class)
             final ExperimentIdentifier identifier);
-    
+
     /**
      * Performs an <i>Hibernate Search</i> based on given parameters.
      */
@@ -240,7 +241,8 @@ public interface ICommonServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<VocabularyPE> listVocabularies(final String sessionToken, final boolean withTerms);
+    public List<VocabularyPE> listVocabularies(final String sessionToken, final boolean withTerms,
+            boolean excludeInternal);
 
     /**
      * Registers given {@link PropertyType}.

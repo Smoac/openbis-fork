@@ -95,12 +95,13 @@ final class VocabularyDAO extends AbstractDAO implements IVocabularyDAO
         return entity;
     }
 
-    public final List<VocabularyPE> listVocabularies()
+    public final List<VocabularyPE> listVocabularies(boolean excludeInternal)
     {
+        String excludeInternalQuery = " and v.internalNamespace = false";
         final List<VocabularyPE> list =
                 cast(getHibernateTemplate().find(
-                        String.format("from %s v where v.internalNamespace = false "
-                                + "and v.databaseInstance = ?", TABLE_NAME),
+                        String.format("from %s v where v.databaseInstance = ?"
+                                + (excludeInternal ? excludeInternalQuery : ""), TABLE_NAME),
                         toArray(getDatabaseInstance())));
         if (operationLog.isDebugEnabled())
         {
@@ -108,4 +109,5 @@ final class VocabularyDAO extends AbstractDAO implements IVocabularyDAO
         }
         return list;
     }
+
 }

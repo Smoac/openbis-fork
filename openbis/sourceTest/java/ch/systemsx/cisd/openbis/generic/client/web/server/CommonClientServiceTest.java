@@ -268,21 +268,23 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
     public final void testListVocabularies()
     {
         final VocabularyPE vocabularyPE = createVocabulary();
+        final boolean excludeInternals = true;
         context.checking(new Expectations()
             {
                 {
                     prepareGetSessionToken(this);
 
-                    one(commonServer).listVocabularies(SESSION_TOKEN, false);
+                    one(commonServer).listVocabularies(SESSION_TOKEN, false, excludeInternals);
                     will(returnValue(Collections.singletonList(vocabularyPE)));
                 }
             });
-        final List<Vocabulary> vocabularies = commonClientService.listVocabularies(false);
+        final List<Vocabulary> vocabularies =
+                commonClientService.listVocabularies(false, excludeInternals);
         assertEquals(1, vocabularies.size());
         assertVocabularyEquals(vocabularyPE, vocabularies.get(0));
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testListExternalDataForExperiment()
     {
@@ -303,13 +305,13 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                     will(returnValue(Collections.singletonList(externalDataPE)));
                 }
             });
-        
+
         List<ExternalData> list =
                 commonClientService.listExternalDataForExperiment("db:/group/project/exp");
         assertEquals(1, list.size());
         assertEquals("PNG", list.get(0).getFileFormatType().getCode());
         assertEquals("Portable Network Graphics", list.get(0).getFileFormatType().getDescription());
-        
+
         context.assertIsSatisfied();
     }
 }

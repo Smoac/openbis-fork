@@ -159,8 +159,8 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /** @see ICommonClientService#listDataTypes() */
     public void listDataTypes(final AsyncCallback<List<DataType>> asyncCallback);
 
-    /** @see ICommonClientService#listVocabularies(boolean) */
-    public void listVocabularies(final boolean withTerms,
+    /** @see ICommonClientService#listVocabularies(boolean,boolean) */
+    public void listVocabularies(final boolean withTerms, boolean excludeInternal,
             final AsyncCallback<List<Vocabulary>> asyncCallback);
 
     /** @see ICommonClientService#assignPropertyType(EntityKind, String, String, boolean, String) */

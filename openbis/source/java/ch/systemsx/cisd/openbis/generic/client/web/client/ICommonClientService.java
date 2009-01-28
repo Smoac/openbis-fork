@@ -193,7 +193,8 @@ public interface ICommonClientService extends IClientService
      * Note that the vocabulary terms are included/loaded.
      * </p>
      */
-    public List<Vocabulary> listVocabularies(boolean withTerms) throws UserFailureException;
+    public List<Vocabulary> listVocabularies(boolean withTerms, boolean excludeInternal)
+            throws UserFailureException;
 
     /**
      * Assigns property type to entity type.

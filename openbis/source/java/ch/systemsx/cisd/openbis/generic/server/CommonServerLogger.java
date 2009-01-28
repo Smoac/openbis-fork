@@ -228,7 +228,8 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
-    public final List<VocabularyPE> listVocabularies(final String sessionToken, boolean withTerms)
+    public final List<VocabularyPE> listVocabularies(final String sessionToken, boolean withTerms,
+            boolean excludeInternal)
     {
         logAccess(sessionToken, "list_vocabularies");
         return null;

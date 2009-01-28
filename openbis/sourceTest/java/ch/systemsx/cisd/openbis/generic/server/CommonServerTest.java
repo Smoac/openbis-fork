@@ -567,18 +567,19 @@ public final class CommonServerTest extends AbstractServerTestCase
     public final void testListVocabularies()
     {
         final Session session = prepareGetSession();
+        final boolean excludeInternal = true;
         context.checking(new Expectations()
             {
                 {
                     one(daoFactory).getVocabularyDAO();
                     will(returnValue(vocabularyDAO));
 
-                    one(vocabularyDAO).listVocabularies();
+                    one(vocabularyDAO).listVocabularies(excludeInternal);
                     will(returnValue(Collections.emptyList()));
                 }
             });
         final List<VocabularyPE> vocabularies =
-                createServer().listVocabularies(session.getSessionToken(), true);
+                createServer().listVocabularies(session.getSessionToken(), true, excludeInternal);
         assertEquals(0, vocabularies.size());
         context.assertIsSatisfied();
     }

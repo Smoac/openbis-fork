@@ -179,6 +179,7 @@ var common = {
  // Vocabulary Browser
  //
  vocabulary_browser: "Vocabulary Browser",
+ is_managed_internally: "Managed Internally?",
 
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

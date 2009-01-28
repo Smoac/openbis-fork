@@ -186,6 +186,12 @@ public interface ICommonServer extends IServer
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
             final SampleIdentifier identifier);
 
+    /**
+     * For given {@link ExperimentIdentifier} returns the corresponding list of
+     * {@link ExternalDataPE}.
+     * 
+     * @return a sorted list of {@link ExternalDataPE}.
+     */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     public List<ExternalDataPE> listExternalData(final String sessionToken,
@@ -235,7 +241,8 @@ public interface ICommonServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<VocabularyPE> listVocabularies(final String sessionToken, final boolean withTerms);
+    public List<VocabularyPE> listVocabularies(final String sessionToken, final boolean withTerms,
+            boolean excludeInternal);
 
     /**
      * Registers given {@link PropertyType}.

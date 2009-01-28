@@ -399,13 +399,13 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     }
 
     public final List<VocabularyPE> listVocabularies(final String sessionToken,
-            final boolean withTerms)
+            final boolean withTerms, boolean excludeInternal)
     {
         assert sessionToken != null : "Unspecified session token";
         // Not needed but just to refresh/check the session.
         getSessionManager().getSession(sessionToken);
         final List<VocabularyPE> vocabularies =
-                getDAOFactory().getVocabularyDAO().listVocabularies();
+                getDAOFactory().getVocabularyDAO().listVocabularies(excludeInternal);
         if (withTerms)
         {
             for (final VocabularyPE vocabularyPE : vocabularies)

@@ -26,8 +26,11 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.shared.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.YesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GridWithRPCProxy;
 
@@ -50,13 +53,21 @@ public class VocabularyGrid extends GridWithRPCProxy<Vocabulary, VocabularyModel
     {
         final ArrayList<ColumnConfig> configs = new ArrayList<ColumnConfig>();
         configs.add(ColumnConfigFactory.createCodeColumnConfig(context));
+        configs.add(ColumnConfigFactory.createDefaultColumnConfig(context
+                .getMessage(Dict.DESCRIPTION), ModelDataPropertyNames.DESCRIPTION));
+        final ColumnConfig internallyManaged =
+                ColumnConfigFactory.createDefaultColumnConfig(context
+                        .getMessage(Dict.IS_MANAGED_INTERNALLY),
+                        ModelDataPropertyNames.IS_MANAGED_INTERNALLY);
+        internallyManaged.setRenderer(new YesNoRenderer());
+        configs.add(internallyManaged);
         return new ColumnModel(configs);
     }
 
     @Override
     protected void loadDataFromService(AsyncCallback<BaseListLoadResult<VocabularyModel>> callback)
     {
-        viewContext.getService().listVocabularies(true,
+        viewContext.getService().listVocabularies(true, false,
                 new ListVocabulariesCallback(viewContext, callback));
     }
 

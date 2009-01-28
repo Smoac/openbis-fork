@@ -42,6 +42,8 @@ public final class VocabularyModel extends BaseModelData
     {
         assert vocabulary != null : "Unspecified data type.";
         set(ModelDataPropertyNames.CODE, vocabulary.getCode());
+        set(ModelDataPropertyNames.DESCRIPTION, vocabulary.getDescription());
+        set(ModelDataPropertyNames.IS_MANAGED_INTERNALLY, vocabulary.isManagedInternally());
         set(ModelDataPropertyNames.OBJECT, vocabulary);
     }
 

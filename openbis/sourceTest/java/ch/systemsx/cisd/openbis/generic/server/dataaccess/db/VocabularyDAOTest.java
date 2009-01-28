@@ -114,8 +114,18 @@ public final class VocabularyDAOTest extends AbstractDAOTest
     public final void testListVocabularies()
     {
         final IVocabularyDAO vocabularyDAO = daoFactory.getVocabularyDAO();
-        final List<VocabularyPE> vocabularies = vocabularyDAO.listVocabularies();
+        final List<VocabularyPE> vocabularies = vocabularyDAO.listVocabularies(true);
         assertEquals(3, vocabularies.size());
+        final VocabularyPE vocabularyPE = vocabularies.get(0);
+        assertFalse(HibernateUtils.isInitialized(vocabularyPE.getTerms()));
+    }
+
+    @Test
+    public final void testListAllVocabularies()
+    {
+        final IVocabularyDAO vocabularyDAO = daoFactory.getVocabularyDAO();
+        final List<VocabularyPE> vocabularies = vocabularyDAO.listVocabularies(false);
+        assertEquals(5, vocabularies.size());
         final VocabularyPE vocabularyPE = vocabularies.get(0);
         assertFalse(HibernateUtils.isInitialized(vocabularyPE.getTerms()));
     }
