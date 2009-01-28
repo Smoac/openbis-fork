@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2009 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,40 +16,37 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget;
 
+import java.util.List;
+
 import com.extjs.gxt.ui.client.widget.PagingToolBar;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolItem;
 
 /**
- * A small {@link PagingToolBar} extension which does not contain the <i>Refresh</i> button.
+ * Use this subclass instead of the {@link PagingToolBar}. It is compatible with our UI testing
+ * framework. It also allows to remove the default refresh button.
  * 
- * @author Christian Ribeaud
+ * @author Tomasz Pylak
  */
-public final class PagingToolBarWithoutRefresh extends PagingToolBar
+public class PagingToolBarAdapter extends PagingToolBar
 {
 
-    public PagingToolBarWithoutRefresh(int pageSize)
+    public PagingToolBarAdapter(int pageSize)
     {
         super(pageSize);
     }
 
-    private final void removeRefreshButton()
+    protected final void removeOriginalRefreshButton()
     {
         final int refreshIndex = toolBar.indexOf(refresh);
         if (refreshIndex > -1)
         {
             toolBar.remove(refresh);
-            // Remove the SeparatorToolItem placed just before the refresh button.
-            toolBar.remove(toolBar.getItem(refreshIndex - 1));
         }
     }
 
-    //
-    // PagingToolBar
-    //
-
-    @Override
-    protected final void afterRender()
+    /** Exposes items of the toolbar. NOTE: use only for testing! */
+    public List<ToolItem> getItems()
     {
-        removeRefreshButton();
-        super.afterRender();
+        return toolBar.getItems();
     }
 }

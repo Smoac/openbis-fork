@@ -45,9 +45,8 @@ public final class ExperimentBrowser extends LayoutContainer implements Listener
         setId(ID);
         setLayout(new RowLayout());
 
-        experimentBrowserGrid = new ExperimentBrowserGrid(viewContext);
-        final ExperimentBrowserToolbar toolbar =
-                new ExperimentBrowserToolbar(viewContext, experimentBrowserGrid);
+        final ExperimentBrowserToolbar toolbar = new ExperimentBrowserToolbar(viewContext);
+        experimentBrowserGrid = new ExperimentBrowserGrid(viewContext, toolbar);
 
         add(toolbar);
         add(experimentBrowserGrid, new RowData(1, 1));

@@ -16,14 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment;
 
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.ComponentEvent;
-import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
@@ -34,10 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExperimentTypeModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ProjectModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid.IDataRefreshCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 
 /**
@@ -50,103 +41,29 @@ class ExperimentBrowserToolbar extends ToolBar
 {
     public static final String ID = "experiment-browser-toolbar";
 
-    private static final String PREFIX = ID + "_";
-
-    static final String REFRESH_BUTTON_ID = GenericConstants.ID_PREFIX + PREFIX + "refresh-button";
-
-    private final ExperimentBrowserGrid experimentBrowserGrid;
-
     private final ExperimentTypeSelectionWidget selectExperimentTypeCombo;
 
     private final ProjectSelectionWidget selectProjectCombo;
 
-    private final Button submitButton;
-
-    private final Button exportButton;
-
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    public ExperimentBrowserToolbar(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final ExperimentBrowserGrid experimentBrowserGrid)
+    public ExperimentBrowserToolbar(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        this.experimentBrowserGrid = experimentBrowserGrid;
         this.viewContext = viewContext;
         selectExperimentTypeCombo = new ExperimentTypeSelectionWidget(viewContext, ID);
         selectProjectCombo = new ProjectSelectionWidget(viewContext, ID);
-        submitButton = createSubmitButton();
-        submitButton.setEnabled(false);
-        exportButton = createExportButton();
-        exportButton.setEnabled(false);
-        addSelectSampleTypeListeners();
-        addSelectGroupListeners();
+        display();
     }
 
-    private final void refreshButtons(final Project projectOrNull,
-            final ExperimentType experimentTypeOrNull)
+    public void setCriteriaChangedListener(SelectionChangedListener<?> criteriaChangedListener)
     {
-        final boolean experimentTypeSelected = experimentTypeOrNull != null;
-        final boolean projectChosen = projectOrNull != null;
-        final boolean enabled = experimentTypeSelected && projectChosen;
-        submitButton.setEnabled(enabled);
-        exportButton.setEnabled(enabled);
-        if (enabled)
-        {
-            submitButton.setTitle("Load or update experiment table");
-            exportButton.setTitle("Export experiment table to excel file");
-        } else
-        {
-            final String msg = "HINT: To activate choose experiment type and project.";
-            submitButton.setTitle(msg);
-            exportButton.setTitle(msg);
-        }
-    }
-
-    private void addSelectGroupListeners()
-    {
-        selectProjectCombo.addSelectionChangedListener(new SelectionChangedListener<ProjectModel>()
-            {
-                //
-                // SelectionChangedListener
-                //
-
-                @Override
-                public final void selectionChanged(final SelectionChangedEvent<ProjectModel> se)
-                {
-                    final ProjectModel selectedItem = se.getSelectedItem();
-                    refreshButtons(selectedItem != null ? (Project) selectedItem
-                            .get(ModelDataPropertyNames.OBJECT) : null, selectExperimentTypeCombo
-                            .tryGetSelectedExperimentType());
-                }
-            });
-
-    }
-
-    private void addSelectSampleTypeListeners()
-    {
-        selectExperimentTypeCombo
-                .addSelectionChangedListener(new SelectionChangedListener<ExperimentTypeModel>()
-                    {
-
-                        //
-                        // SelectionChangedListener
-                        //
-
-                        @Override
-                        public final void selectionChanged(
-                                final SelectionChangedEvent<ExperimentTypeModel> se)
-                        {
-                            final ExperimentTypeModel selectedItem = se.getSelectedItem();
-                            refreshButtons(selectProjectCombo.tryGetSelectedProject(),
-                                    selectedItem != null ? (ExperimentType) selectedItem
-                                            .get(ModelDataPropertyNames.OBJECT) : null);
-                        }
-                    });
+        selectProjectCombo.addSelectionChangedListener(criteriaChangedListener);
+        selectExperimentTypeCombo.addSelectionChangedListener(criteriaChangedListener);
     }
 
     private void display()
     {
         setBorders(true);
-        removeAll();
         add(new LabelToolItem(viewContext.getMessage(Dict.EXPERIMENT_TYPE)
                 + GenericConstants.LABEL_SEPARATOR));
         add(new AdapterToolItem(selectExperimentTypeCombo));
@@ -154,75 +71,32 @@ class ExperimentBrowserToolbar extends ToolBar
         add(new LabelToolItem(viewContext.getMessage(Dict.PROJECT)
                 + GenericConstants.LABEL_SEPARATOR));
         add(new AdapterToolItem(selectProjectCombo));
-        add(new FillToolItem());
-        add(new AdapterToolItem(submitButton));
-        add(new SeparatorToolItem());
-        add(new AdapterToolItem(exportButton));
-        layout();
     }
 
-    private Button createSubmitButton()
+    public final ListExperimentsCriteria tryGetCriteria()
     {
-        final Button refreshButton =
-                new Button(viewContext.getMessage(Dict.BUTTON_REFRESH),
-                        new SelectionListener<ButtonEvent>()
-                            {
-                                //
-                                // SelectionListener
-                                //
-
-                                @Override
-                                public final void componentSelected(final ButtonEvent ce)
-                                {
-                                    final ExperimentType selectedType =
-                                            selectExperimentTypeCombo
-                                                    .tryGetSelectedExperimentType();
-                                    assert selectedType != null : "No experiment type selected.";
-                                    final Project selectedProject =
-                                            selectProjectCombo.tryGetSelectedProject();
-                                    assert selectedProject != null : "No project selected.";
-                                    experimentBrowserGrid.refresh(createRefreshCallback(),
-                                            selectedType, selectedProject);
-                                }
-                            });
-        refreshButton.setId(REFRESH_BUTTON_ID);
-        return refreshButton;
-    }
-
-    private IDataRefreshCallback createRefreshCallback()
-    {
-        return new IDataRefreshCallback()
-            {
-                public void postRefresh(boolean wasSuccessful)
-                {
-                    if (wasSuccessful)
-                    {
-                        exportButton.setEnabled(true);
-                    }
-                }
-            };
-    }
-
-    private final Button createExportButton()
-    {
-        final Button button =
-                new Button(viewContext.getMessage(Dict.BUTTON_EXPORT_DATA),
-                        new SelectionListener<ComponentEvent>()
-                            {
-                                @Override
-                                public final void componentSelected(final ComponentEvent ce)
-                                {
-                                    experimentBrowserGrid.export();
-                                }
-                            });
-        return button;
+        final ExperimentType selectedType =
+                selectExperimentTypeCombo.tryGetSelectedExperimentType();
+        if (selectedType == null)
+        {
+            return null;
+        }
+        final Project selectedProject = selectProjectCombo.tryGetSelectedProject();
+        if (selectedProject == null)
+        {
+            return null;
+        }
+        ListExperimentsCriteria criteria = new ListExperimentsCriteria();
+        criteria.setExperimentType(selectedType);
+        criteria.setProjectCode(selectedProject.getCode());
+        criteria.setGroupCode(selectedProject.getGroup().getCode());
+        return criteria;
     }
 
     @Override
     protected final void onRender(final Element parent, final int pos)
     {
         super.onRender(parent, pos);
-        display();
     }
 
 }

@@ -53,12 +53,27 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
     MatchingEntitiesPanel(final IViewContext<ICommonClientServiceAsync> viewContext,
             final SearchableEntity searchableEntity, final String queryText)
     {
-        super(viewContext, GRID_ID);
+        super(viewContext, GRID_ID, false);
         this.searchableEntity = searchableEntity;
         this.queryText = queryText;
         setId(PREFIX + XDOM.getUniqueId());
+        updateDefaultRefreshButtons();
     }
 
+    @Override
+    protected boolean isRefreshEnabled()
+    {
+        return true;
+    }
+
+    /** used to refresh the results of the previously executed query */
+    @Override
+    protected final void refresh()
+    {
+        super.refresh(null, null, false);
+    }
+
+    /** used to make a first data refresh, but can be also called many times */
     public final void refresh(final IDataRefreshCallback newRefreshCallback)
     {
         super.refresh(newRefreshCallback, null, true);

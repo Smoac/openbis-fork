@@ -32,23 +32,28 @@ import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.PagingToolBar;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.BrowserGridPagingToolBar.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ColumnDefsAndConfigs;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.PagingToolBarWithoutRefresh;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
@@ -65,29 +70,51 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo.SortDir;
 public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> extends
         LayoutContainer
 {
+    /** Shows the detail view for the specified entity */
     abstract protected void showEntityViewer(M modelData);
 
     abstract protected void listEntities(DefaultResultSetConfig<String, T> resultSetConfig,
             AbstractAsyncCallback<ResultSet<T>> callback);
 
+    /** Converts specified list of entities into a list of grid rows models */
     abstract protected List<M> createModels(List<T> entities);
 
+    /**
+     * Called when user wants to export the data. It can happen only after a previous refresh of the
+     * data has taken place. The export criteria has only the cache key
+     */
     abstract protected void prepareExportEntities(TableExportCriteria<T> exportCriteria,
             AbstractAsyncCallback<String> callback);
 
+    /**
+     * @return definition of all the columns in the grid: visible properties and the mechanism of
+     *         creating each column's value from the row model
+     */
     abstract protected ColumnDefsAndConfigs<T> createColumnsDefinition();
 
-    private static final int PAGE_SIZE = 50;
+    /**
+     * Called when the user wants to refresh the data. Should be implemented by calling
+     * {@link #refresh(IDataRefreshCallback, String, boolean) at some point. }
+     */
+    abstract protected void refresh();
+
+    /** @return should the refresh button be enabled? */
+    abstract protected boolean isRefreshEnabled();
 
     protected final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    // NOTE: private fields should remain unaccessible to subclasses!
+    // ------ private section. NOTE: it should remain unaccessible to subclasses! ---------------
+
+    private static final int PAGE_SIZE = 50;
 
     private final PagingLoader<PagingLoadConfig> pagingLoader;
 
     private final ContentPanel contentPanel;
 
     private final Grid<M> grid;
+
+    // the toolbar has the refresh and export buttons besides the paging controls
+    private final BrowserGridPagingToolBar pagingToolbar;
 
     // available columns configs and definitions
     private ColumnDefsAndConfigs<T> columns;
@@ -113,17 +140,30 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
     protected AbstractBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             String gridId)
     {
+        this(viewContext, gridId, true);
+    }
+
+    protected AbstractBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
+            String gridId, boolean showHeader)
+    {
         this.viewContext = viewContext;
         this.pagingLoader = createPagingLoader();
 
         this.grid = createGrid(pagingLoader, createEntityViewerHandler(), gridId);
-        this.contentPanel = createContentPanel();
+        this.pagingToolbar =
+                new BrowserGridPagingToolBar(asActionInvoker(), viewContext, PAGE_SIZE);
+        pagingToolbar.bind(pagingLoader);
+
+        this.contentPanel = createEmptyContentPanel();
+        contentPanel.add(grid);
+        contentPanel.setBottomComponent(pagingToolbar);
+        contentPanel.setHeaderVisible(showHeader);
 
         setLayout(new FitLayout());
         add(contentPanel);
     }
 
-    private final PagingLoader<PagingLoadConfig> createPagingLoader()
+    private PagingLoader<PagingLoadConfig> createPagingLoader()
     {
         final RpcProxy<PagingLoadConfig, PagingLoadResult<M>> proxy = createDataLoaderProxy();
         final BasePagingLoader<PagingLoadConfig, PagingLoadResult<M>> newPagingLoader =
@@ -198,7 +238,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
     }
 
     /** @return number of rows in the grid */
-    public int getRowNumber()
+    public final int getRowNumber()
     {
         return grid.getStore().getCount();
     }
@@ -227,7 +267,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
         @Override
         protected final void finishOnFailure(final Throwable caught)
         {
-            refreshCallback.postRefresh(false);
+            onComplete(false);
             delegate.onFailure(caught);
         }
 
@@ -244,8 +284,13 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
                     new BasePagingLoadResult<M>(models, resultSetConfig.getOffset(), result
                             .getTotalLength());
             delegate.onSuccess(loadResult);
-            // notify that the refresh is done
-            refreshCallback.postRefresh(true);
+            onComplete(true);
+        }
+
+        // notify that the refresh is done
+        private void onComplete(boolean wasSuccessful)
+        {
+            refreshCallback.postRefresh(wasSuccessful);
         }
     }
 
@@ -262,15 +307,55 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
             };
     }
 
-    // creates a panel with grid and a toolbar for paging
-    private ContentPanel createContentPanel()
+    // wraps this browser into the interface appropriate for the toolbar. If this class would just
+    // implement the interface it could be very confusing for the code reader.
+    private final IBrowserGridActionInvoker asActionInvoker()
     {
-        ContentPanel panel = createEmptyContentPanel();
-        panel.add(grid);
-        final PagingToolBar toolBar = new PagingToolBarWithoutRefresh(PAGE_SIZE);
-        toolBar.bind(pagingLoader);
-        panel.setBottomComponent(toolBar);
-        return panel;
+        final AbstractBrowserGrid<T, M> delegate = this;
+        return new IBrowserGridActionInvoker()
+            {
+                public void export()
+                {
+                    delegate.export();
+                }
+
+                public void refresh()
+                {
+                    delegate.refresh();
+                }
+            };
+    }
+
+    protected final SelectionChangedListener<?> addRefreshButton(ToolBar container)
+    {
+        String title = viewContext.getMessage(Dict.BUTTON_SHOW);
+        Button showButton = BrowserGridPagingToolBar.createRefreshButton(title, asActionInvoker());
+        container.add(new AdapterToolItem(showButton));
+        return createRefreshButtonsListener(showButton);
+    }
+
+    private <D extends ModelData> SelectionChangedListener<D> createRefreshButtonsListener(
+            final Button showButton)
+    {
+        return new SelectionChangedListener<D>()
+            {
+                @Override
+                public void selectionChanged(SelectionChangedEvent<D> se)
+                {
+                    updateDefaultRefreshButtons();
+
+                    boolean isEnabled = isRefreshEnabled();
+                    // Refreshes the state of the specified refresh button.
+                    BrowserGridPagingToolBar
+                            .updateRefreshButton(showButton, isEnabled, viewContext);
+                }
+            };
+    }
+
+    protected final void updateDefaultRefreshButtons()
+    {
+        boolean isEnabled = isRefreshEnabled();
+        pagingToolbar.updateDefaultRefreshButton(isEnabled);
     }
 
     /**
@@ -279,12 +364,21 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
      * Note that, doing so, the result set associated on the server side will be removed.
      * </p>
      */
-    protected void refresh(final IDataRefreshCallback newRefreshCallback, String newHeaderOrNull,
-            boolean refreshColumnsDefinition)
+    protected final void refresh(String headerOrNull, boolean refreshColumnsDefinition)
+    {
+        refresh(null, headerOrNull, refreshColumnsDefinition);
+    }
+
+    /**
+     * @externalRefreshCallbackOrNull external class can define it's own refresh callback method. It
+     *                                will be merged with the internal one.
+     */
+    protected final void refresh(final IDataRefreshCallback externalRefreshCallbackOrNull,
+            String headerOrNull, boolean refreshColumnsDefinition)
     {
         disposeCache();
-        this.refreshCallback = newRefreshCallback;
-        setHeader(newHeaderOrNull);
+        this.refreshCallback = createRefreshCallback(externalRefreshCallbackOrNull);
+        setHeader(headerOrNull);
         if (refreshColumnsDefinition)
         {
             this.columns = createColumnsDefinition();
@@ -296,14 +390,52 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
         pagingLoader.load(0, PAGE_SIZE);
     }
 
-    private void setHeader(String newHeaderOrNull)
+    private IDataRefreshCallback createRefreshCallback(
+            IDataRefreshCallback externalRefreshCallbackOrNull)
     {
-        if (newHeaderOrNull != null)
+        IDataRefreshCallback internalCallback = createInternalPostRefreshCallback();
+        if (externalRefreshCallbackOrNull == null)
         {
-            this.contentPanel.setHeading(newHeaderOrNull);
+            return internalCallback;
         } else
         {
-            this.contentPanel.setHeaderVisible(false);
+            return mergeCallbacks(internalCallback, externalRefreshCallbackOrNull);
+        }
+    }
+
+    private IDataRefreshCallback createInternalPostRefreshCallback()
+    {
+        return new IDataRefreshCallback()
+            {
+                public void postRefresh(boolean wasSuccessful)
+                {
+                    if (wasSuccessful)
+                    {
+                        pagingToolbar.enableExportButton();
+                    }
+                }
+            };
+    }
+
+    private static IDataRefreshCallback mergeCallbacks(final IDataRefreshCallback c1,
+            final IDataRefreshCallback c2)
+    {
+        return new IDataRefreshCallback()
+            {
+                public void postRefresh(boolean wasSuccessful)
+                {
+                    c1.postRefresh(wasSuccessful);
+                    c2.postRefresh(wasSuccessful);
+                }
+            };
+    }
+
+    private void setHeader(String headerOrNull)
+    {
+        if (headerOrNull != null)
+        {
+            assert this.contentPanel.isHeaderVisible() : "header was switched off";
+            this.contentPanel.setHeading(headerOrNull);
         }
     }
 
@@ -331,7 +463,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
         }
     }
 
-    public void disposeCache()
+    public final void disposeCache()
     {
         if (resultSetKey != null)
         {

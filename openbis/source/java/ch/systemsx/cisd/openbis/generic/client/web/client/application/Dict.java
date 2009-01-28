@@ -74,6 +74,14 @@ public abstract class Dict
     // Buttons
     //
 
+    public static final String TOOLTIP_REFRESH_ENABLED = "tooltip_refresh_enabled";
+
+    public static final String TOOLTIP_REFRESH_DISABLED = "tooltip_refresh_disabled";
+
+    public static final String TOOLTIP_EXPORT_ENABLED = "tooltip_export_enabled";
+
+    public static final String TOOLTIP_EXPORT_DISABLED = "tooltip_export_disabled";
+
     public static final String BUTTON_SAVE = "button_save";
 
     public static final String BUTTON_CANCEL = "button_cancel";
@@ -83,6 +91,8 @@ public abstract class Dict
     public static final String BUTTON_SUBMIT = "button_submit";
 
     public static final String BUTTON_REFRESH = "button_refresh";
+
+    public static final String BUTTON_SHOW = "button_show";
 
     public static final String BUTTON_EXPORT_DATA = "button_exportData";
 

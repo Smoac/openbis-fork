@@ -38,6 +38,7 @@ import com.extjs.gxt.ui.client.widget.form.MultiField;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolItem;
 import com.extjs.gxt.ui.client.widget.tree.Tree;
 import com.extjs.gxt.ui.client.widget.tree.TreeItem;
 import com.google.gwt.user.client.Element;
@@ -49,6 +50,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.LeftMenu;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.PagingToolBarAdapter;
 
 /**
  * Useful static methods for testing.
@@ -319,15 +321,7 @@ public final class GWTTestUtil
         @SuppressWarnings("unchecked")
         public final boolean handle(final Widget widgetOrNull)
         {
-            Widget widget = widgetOrNull;
-            if (widgetOrNull instanceof AdapterToolItem)
-            {
-                widget = ((AdapterToolItem) widgetOrNull).getWidget();
-            }
-            if (widgetOrNull instanceof AdapterField)
-            {
-                widget = ((AdapterField) widgetOrNull).getWidget();
-            }
+            Widget widget = unwrapWidget(widgetOrNull);
             if (handler.handle(widget))
             {
                 return true;
@@ -344,10 +338,58 @@ public final class GWTTestUtil
             } else if (widget instanceof MultiField)
             {
                 return new MultiFieldHandler(this).handle((MultiField<Field<?>>) widget);
+            } else if (widget instanceof PagingToolBarAdapter)
+            {
+                return new PagingToolBarHandler(this).handle((PagingToolBarAdapter) widget);
+
             } else
             {
                 return false;
             }
+        }
+
+        private static Widget unwrapWidget(final Widget widgetOrNull)
+        {
+            if (widgetOrNull == null)
+            {
+                return null;
+            }
+            if (widgetOrNull instanceof AdapterToolItem)
+            {
+                return ((AdapterToolItem) widgetOrNull).getWidget();
+            }
+            if (widgetOrNull instanceof AdapterField)
+            {
+                return ((AdapterField) widgetOrNull).getWidget();
+            }
+            return widgetOrNull;
+        }
+    }
+
+    private static final class PagingToolBarHandler implements IWidgetHandler<PagingToolBarAdapter>
+    {
+        private final IWidgetHandler<Widget> handler;
+
+        PagingToolBarHandler(final IWidgetHandler<Widget> handler)
+        {
+            this.handler = handler;
+        }
+
+        //
+        // IWidgetHandler
+        //
+
+        public final boolean handle(final PagingToolBarAdapter pagingToolBar)
+        {
+            for (final ToolItem item : pagingToolBar.getItems())
+            {
+                if (handler.handle(item))
+                {
+                    return true;
+                }
+
+            }
+            return false;
         }
     }
 

@@ -41,6 +41,12 @@ public class ExternalDataGrid extends AbstractBrowserGrid<ExternalData, External
     }
 
     @Override
+    protected boolean isRefreshEnabled()
+    {
+        return true;
+    }
+
+    @Override
     protected ColumnDefsAndConfigs<ExternalData> createColumnsDefinition()
     {
         List<IColumnDefinitionUI<ExternalData>> list =
@@ -72,6 +78,12 @@ public class ExternalDataGrid extends AbstractBrowserGrid<ExternalData, External
 
     @Override
     protected void showEntityViewer(ExternalDataModel modelData)
+    {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    protected void refresh()
     {
         // TODO Auto-generated method stub
     }

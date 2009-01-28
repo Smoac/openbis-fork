@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experi
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 
 import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentType;
@@ -34,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetCo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 
@@ -51,12 +51,24 @@ public final class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment,
 
     public static final String GRID_ID = BROWSER_ID + "_grid";
 
-    private ListExperimentsCriteria criteria;
+    private final ExperimentBrowserToolbar topToolbar;
 
-    ExperimentBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext)
+    private ListExperimentsCriteria criteria;
+    
+    ExperimentBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
+            ExperimentBrowserToolbar topToolbar)
     {
         super(viewContext, GRID_ID);
+        this.topToolbar = topToolbar;
+        SelectionChangedListener<?> refreshButtonListener = addRefreshButton(topToolbar);
+        this.topToolbar.setCriteriaChangedListener(refreshButtonListener);
         setId(BROWSER_ID);
+    }
+
+    @Override
+    protected boolean isRefreshEnabled()
+    {
+        return topToolbar.tryGetCriteria() != null;
     }
 
     @Override
@@ -118,24 +130,20 @@ public final class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment,
         return builder.toString();
     }
 
-    public final void refresh(final IDataRefreshCallback newRefreshCallback,
-            final ExperimentType newSelectedType, final Project selectedProject)
+    @Override
+    public final void refresh()
     {
-        boolean refreshColumnsDefinition = hasColumnsDefinitionChanged(newSelectedType);
-        this.criteria = createListCriteria(newSelectedType, selectedProject);
+        ListExperimentsCriteria newCriteria = topToolbar.tryGetCriteria();
+        if (newCriteria == null)
+        {
+            return;
+        }
+        boolean refreshColumnsDefinition =
+                hasColumnsDefinitionChanged(newCriteria.getExperimentType());
+        this.criteria = newCriteria;
         String newHeader = createHeader(criteria);
 
-        super.refresh(newRefreshCallback, newHeader, refreshColumnsDefinition);
-    }
-
-    private static ListExperimentsCriteria createListCriteria(final ExperimentType selectedType,
-            final Project selectedProject)
-    {
-        ListExperimentsCriteria criteria = new ListExperimentsCriteria();
-        criteria.setExperimentType(selectedType);
-        criteria.setProjectCode(selectedProject.getCode());
-        criteria.setGroupCode(selectedProject.getGroup().getCode());
-        return criteria;
+        super.refresh(newHeader, refreshColumnsDefinition);
     }
 
     private boolean hasColumnsDefinitionChanged(ExperimentType entityType)

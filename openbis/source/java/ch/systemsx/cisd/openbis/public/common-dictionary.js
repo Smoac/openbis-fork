@@ -39,9 +39,14 @@ var common = {
   button_reset: "Reset",
   button_submit: "Submit",
   button_refresh: "Refresh",
+  button_show: "Show",
   button_exportData: "Export Data",
   button_add_group: "Add Group",
-  
+  tooltip_refresh_disabled: "To activate select appropriate criteria first.",
+  tooltip_refresh_enabled: "Load or update the table.",
+  tooltip_export_enabled: "Export the table visible on the screen to an Excel file",
+  tooltip_export_disabled: "Refresh the data before exporting them.",
+
   //
   // LoginWidget
   //
@@ -135,7 +140,7 @@ var common = {
   vocabulary_terms: "Terms",
   vocabulary_terms_empty: "White space or comma separated list",
   mandatory: "Mandatory",
-  default_value: "Global Value",
+  default_value: "Default Value",
   entity_type_assignments: "{0} Type Assignment{1}",
   
   //
@@ -180,7 +185,7 @@ var common = {
  //
  vocabulary_browser: "Vocabulary Browser",
  is_managed_internally: "Managed Internally?",
-
+ 
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma
 };

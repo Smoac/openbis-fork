@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
@@ -51,12 +52,25 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
 
     public static final String GRID_ID = GenericConstants.ID_PREFIX + PREFIX + "grid";
 
+    private final SampleBrowserToolbar topToolbar;
+
+    // criteria used in the previous refresh operation or null if it has not occurred yet
     private ListSampleCriteria criteria;
 
-    SampleBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext)
+    SampleBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
+            SampleBrowserToolbar topToolbar)
     {
         super(viewContext, GRID_ID);
+        this.topToolbar = topToolbar;
+        SelectionChangedListener<?> refreshButtonListener = addRefreshButton(topToolbar);
+        this.topToolbar.setCriteriaChangedListener(refreshButtonListener);
         setId(BROWSER_ID);
+    }
+
+    @Override
+    protected boolean isRefreshEnabled()
+    {
+        return topToolbar.tryGetCriteria() != null;
     }
 
     @Override
@@ -123,14 +137,19 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
      * <code>resultSetKey</code> will be removed.
      * </p>
      */
-    public final void refresh(ListSampleCriteria newCriteria,
-            final IDataRefreshCallback newRefreshCallback)
+    @Override
+    public final void refresh()
     {
+        ListSampleCriteria newCriteria = topToolbar.tryGetCriteria();
+        if (newCriteria == null)
+        {
+            return;
+        }
         boolean refreshColumnsDefinition = hasColumnsDefinitionChanged(newCriteria);
         this.criteria = newCriteria;
         String newHeader = createHeader(newCriteria);
 
-        super.refresh(newRefreshCallback, newHeader, refreshColumnsDefinition);
+        super.refresh(newHeader, refreshColumnsDefinition);
     }
 
     @Override

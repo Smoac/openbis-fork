@@ -45,9 +45,8 @@ public final class SampleBrowser extends LayoutContainer implements Listener<Tab
         setId(ID);
         setLayout(new RowLayout());
 
-        sampleBrowserGrid = new SampleBrowserGrid(viewContext);
-        final SampleBrowserToolbar toolbar =
-                new SampleBrowserToolbar(viewContext, sampleBrowserGrid);
+        final SampleBrowserToolbar toolbar = new SampleBrowserToolbar(viewContext);
+        sampleBrowserGrid = new SampleBrowserGrid(viewContext, toolbar);
 
         add(toolbar);
         add(sampleBrowserGrid, new RowData(1, 1));

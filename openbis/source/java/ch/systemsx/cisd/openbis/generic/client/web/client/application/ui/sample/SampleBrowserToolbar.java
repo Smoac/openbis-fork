@@ -16,13 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample;
 
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
@@ -32,11 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.GroupModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 
@@ -52,176 +43,61 @@ final class SampleBrowserToolbar extends ToolBar
 
     private static final String PREFIX = ID + "_";
 
-    static final String REFRESH_BUTTON_ID = GenericConstants.ID_PREFIX + PREFIX + "refresh-button";
-
     public static final String INCLUDE_GROUP_CHECKBOX_ID =
             GenericConstants.ID_PREFIX + PREFIX + "include-group-checkbox";
-
-    private final SampleBrowserGrid entitiesBrowser;
 
     private final SampleTypeSelectionWidget selectSampleTypeCombo;
 
     private final GroupSelectionWidget selectGroupCombo;
 
-    private final ToolbarController controller;
-
-    private final Button submitButton;
-
-    private final Button exportButton;
-
     private final IViewContext<?> viewContext;
 
-    public SampleBrowserToolbar(final IViewContext<?> viewContext,
-            final SampleBrowserGrid sampleBrowserGrid)
+    public SampleBrowserToolbar(final IViewContext<?> viewContext)
     {
-        this.entitiesBrowser = sampleBrowserGrid;
         this.viewContext = viewContext;
         selectSampleTypeCombo = new SampleTypeSelectionWidget(viewContext, ID, true);
         selectGroupCombo = new GroupSelectionWidget(viewContext, ID);
-        submitButton = createSubmitButton();
-        submitButton.setEnabled(false);
-        exportButton = createExportButton();
-        exportButton.setEnabled(false);
-        controller = new ToolbarController(submitButton, exportButton);
-        controller.disableExportButton();
-        addSelectSampleTypeListeners();
-        addSelectGroupListeners();
+        display();
     }
 
-    private void addSelectGroupListeners()
+    public ListSampleCriteria tryGetCriteria()
     {
-        selectGroupCombo.addSelectionChangedListener(new SelectionChangedListener<GroupModel>()
-            {
+        final SampleType selectedType = selectSampleTypeCombo.tryGetSelectedSampleType();
+        if (selectedType == null)
+        {
+            return null;
+        }
+        final Group selectedGroup = selectGroupCombo.tryGetSelectedGroup();
+        if (selectedGroup == null)
+        {
+            return null;
+        }
+        final boolean includeInstance = GroupSelectionWidget.isSharedGroup(selectedGroup);
+        final boolean includeGroup = (includeInstance == false);
 
-                //
-                // SelectionChangedListener
-                //
-
-                @Override
-                public final void selectionChanged(final SelectionChangedEvent<GroupModel> se)
-                {
-                    final GroupModel selectedItem = se.getSelectedItem();
-                    Group group =
-                            selectedItem != null ? (Group) selectedItem
-                                    .get(ModelDataPropertyNames.OBJECT) : null;
-                    controller.refreshSubmitButtons(selectSampleTypeCombo
-                            .tryGetSelectedSampleType(), group);
-                }
-            });
+        ListSampleCriteria criteria = new ListSampleCriteria();
+        criteria.setSampleType(selectedType);
+        criteria.setGroupCode(selectedGroup.getCode());
+        criteria.setIncludeGroup(includeGroup);
+        criteria.setIncludeInstance(includeInstance);
+        return criteria;
     }
 
-    private void addSelectSampleTypeListeners()
+    public void setCriteriaChangedListener(SelectionChangedListener<?> criteriaChangedListener)
     {
-        selectSampleTypeCombo
-                .addSelectionChangedListener(new SelectionChangedListener<SampleTypeModel>()
-                    {
-                        //
-                        // SelectionChangedListener
-                        //
-
-                        @Override
-                        public final void selectionChanged(
-                                final SelectionChangedEvent<SampleTypeModel> se)
-                        {
-                            final SampleTypeModel selectedItem = se.getSelectedItem();
-                            SampleType sampleType =
-                                    selectedItem != null ? (SampleType) selectedItem
-                                            .get(ModelDataPropertyNames.OBJECT) : null;
-                            controller.refreshSubmitButtons(sampleType, selectGroupCombo
-                                    .tryGetSelectedGroup());
-                        }
-                    });
+        selectGroupCombo.addSelectionChangedListener(criteriaChangedListener);
+        selectSampleTypeCombo.addSelectionChangedListener(criteriaChangedListener);
     }
 
     private void display()
     {
         setBorders(true);
-        removeAll();
         add(new LabelToolItem(viewContext.getMessage(Dict.SAMPLE_TYPE)
                 + GenericConstants.LABEL_SEPARATOR));
         add(new AdapterToolItem(selectSampleTypeCombo));
         add(new SeparatorToolItem());
         add(new LabelToolItem(viewContext.getMessage(Dict.GROUP) + GenericConstants.LABEL_SEPARATOR));
         add(new AdapterToolItem(selectGroupCombo));
-        add(new FillToolItem());
-        add(new AdapterToolItem(submitButton));
-        add(new SeparatorToolItem());
-        add(new AdapterToolItem(exportButton));
-        layout();
-    }
-
-    private Button createSubmitButton()
-    {
-        final Button refreshButton =
-                new Button(viewContext.getMessage(Dict.BUTTON_REFRESH),
-                        new SelectionListener<ButtonEvent>()
-                            {
-                                //
-                                // SelectionListener
-                                //
-
-                                @Override
-                                public final void componentSelected(final ButtonEvent ce)
-                                {
-                                    final SampleType selectedType =
-                                            selectSampleTypeCombo.tryGetSelectedSampleType();
-                                    assert selectedType != null : "No sample type is selected.";
-                                    final Group selectedGroup =
-                                            selectGroupCombo.tryGetSelectedGroup();
-                                    assert selectedGroup != null : "No group is selected.";
-                                    final boolean includeInstance =
-                                            GroupSelectionWidget.isSharedGroup(selectedGroup);
-                                    final boolean includeGroup = (includeInstance == false);
-                                    ListSampleCriteria criteria =
-                                            createListCriteria(selectedType, selectedGroup,
-                                                    includeGroup, includeInstance);
-
-                                    entitiesBrowser.refresh(criteria, createPostRefreshCallback());
-                                }
-
-                                private ListSampleCriteria createListCriteria(
-                                        final SampleType selectedType, final Group selectedGroup,
-                                        final Boolean includeGroup, final Boolean includeInstance)
-                                {
-                                    ListSampleCriteria criteria = new ListSampleCriteria();
-                                    criteria.setSampleType(selectedType);
-                                    criteria.setGroupCode(selectedGroup.getCode());
-                                    criteria.setIncludeGroup(includeGroup);
-                                    criteria.setIncludeInstance(includeInstance);
-                                    return criteria;
-                                }
-
-                                private IDataRefreshCallback createPostRefreshCallback()
-                                {
-                                    return new IDataRefreshCallback()
-                                        {
-                                            public void postRefresh(boolean wasSuccessful)
-                                            {
-                                                if (wasSuccessful)
-                                                {
-                                                    controller.enableExportButton();
-                                                }
-                                            }
-                                        };
-                                }
-                            });
-        refreshButton.setId(REFRESH_BUTTON_ID);
-        return refreshButton;
-    }
-
-    private Button createExportButton()
-    {
-        final Button button =
-                new Button(viewContext.getMessage(Dict.BUTTON_EXPORT_DATA),
-                        new SelectionListener<ButtonEvent>()
-                            {
-                                @Override
-                                public void componentSelected(ButtonEvent ce)
-                                {
-                                    entitiesBrowser.export();
-                                }
-                            });
-        return button;
     }
 
     //
@@ -232,7 +108,6 @@ final class SampleBrowserToolbar extends ToolBar
     protected final void onRender(final Element parent, final int pos)
     {
         super.onRender(parent, pos);
-        display();
     }
 
 }
