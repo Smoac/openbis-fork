@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.Date;
+
 import junit.framework.Assert;
 
 import org.testng.annotations.DataProvider;
@@ -23,6 +25,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
@@ -64,9 +67,9 @@ public class EntityPropertyTypeDAOTest extends AbstractDAOTest
         Assert.assertNull(assignment);
     }
 
-    @Test(groups = "broken", dataProvider = "entityKindsWithEntityTypeAndPropertyTypeNotAssigned")
+    @Test(dataProvider = "entityKindsWithEntityTypeAndPropertyTypeNotAssigned")
     public void testCreateEntityPropertyTypeAssignment(EntityKind entityKind, String typeCode,
-            String propertyCode) throws Exception
+            String propertyCode)
     {
         // prepare data
         EntityTypePE entityType =
@@ -101,12 +104,14 @@ public class EntityPropertyTypeDAOTest extends AbstractDAOTest
     private EntityTypePropertyTypePE createAssignment(EntityKind entityKind,
             EntityTypePE entityType, PropertyTypePE propertyType)
     {
-        EntityTypePropertyTypePE entityPropertyTypeAssignement =
+        final PersonPE registrator = getTestPerson();
+        EntityTypePropertyTypePE result =
                 EntityTypePropertyTypePE.createEntityTypePropertyType(entityKind);
-        entityPropertyTypeAssignement.setEntityType(entityType);
-        entityPropertyTypeAssignement.setPropertyType(propertyType);
-        entityPropertyTypeAssignement.setRegistrator(getTestPerson());
-        return entityPropertyTypeAssignement;
+        result.setEntityType(entityType);
+        result.setPropertyType(propertyType);
+        result.setRegistrator(registrator);
+        result.setRegistrationDate(new Date());
+        return result;
     }
 
     @SuppressWarnings("unused")
