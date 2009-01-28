@@ -35,6 +35,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -42,6 +43,8 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.layout.RowData;
+import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -161,6 +164,28 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
 
         setLayout(new FitLayout());
         add(contentPanel);
+    }
+
+    /** @return this grid as a disposable component with a specified toolbar at the top. */
+    protected final DisposableComponent createWithToolbar(final Component toolbar)
+    {
+        final LayoutContainer container = new LayoutContainer();
+        container.setLayout(new RowLayout());
+        container.add(toolbar);
+        container.add(this, new RowData(1, 1));
+
+        return new DisposableComponent()
+            {
+                public void dispose()
+                {
+                    disposeCache();
+                }
+
+                public Component getComponent()
+                {
+                    return container;
+                }
+            };
     }
 
     private PagingLoader<PagingLoadConfig> createPagingLoader()
@@ -463,7 +488,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
         }
     }
 
-    public final void disposeCache()
+    private void disposeCache()
     {
         if (resultSetKey != null)
         {

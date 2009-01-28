@@ -104,6 +104,9 @@ public class MainTabPanel extends TabPanel
         } else
         {
             String tabId = tabItemFactory.getId();
+            // Note that if not set, is then automatically generated. So this is why we test for
+            // 'ID_PREFIX'. We want the user to set an unique id.
+            assert tabId.startsWith(GenericConstants.ID_PREFIX) : "Unspecified component id.";
             final MainTabItem newTab = new MainTabItem(tabItemFactory.create(), tabId);
             add(newTab);
             openTabs.put(tabId, newTab);

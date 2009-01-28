@@ -23,15 +23,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GroupsView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.PersonsView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.RolesView;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentBrowser;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentRegistrationPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project.ProjectBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeAssignmentBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeAssignmentForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBatchRegistrationPanel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowser;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyRegistrationForm;
@@ -65,14 +66,13 @@ final class ComponentProvider
             {
                 public ITabItem create()
                 {
-                    SampleBrowser sampleBrowser = new SampleBrowser(viewContext);
-                    return new DefaultTabItem(getMessage(Dict.SAMPLE_BROWSER), sampleBrowser,
-                            false, sampleBrowser);
+                    DisposableComponent browser = SampleBrowserGrid.create(viewContext);
+                    return DefaultTabItem.create(getMessage(Dict.SAMPLE_BROWSER), browser, false);
                 }
 
                 public String getId()
                 {
-                    return SampleBrowser.ID;
+                    return SampleBrowserGrid.BROWSER_ID;
                 }
             };
     }
@@ -253,14 +253,14 @@ final class ComponentProvider
             {
                 public ITabItem create()
                 {
-                    ExperimentBrowser experimentBrowser = new ExperimentBrowser(viewContext);
-                    return new DefaultTabItem(getMessage(Dict.EXPERIMENT_BROWSER),
-                            experimentBrowser, false, experimentBrowser);
+                    DisposableComponent browser = ExperimentBrowserGrid.create(viewContext);
+                    return DefaultTabItem.create(getMessage(Dict.EXPERIMENT_BROWSER), browser,
+                            false);
                 }
 
                 public String getId()
                 {
-                    return ExperimentBrowser.ID;
+                    return ExperimentBrowserGrid.BROWSER_ID;
                 }
             };
     }

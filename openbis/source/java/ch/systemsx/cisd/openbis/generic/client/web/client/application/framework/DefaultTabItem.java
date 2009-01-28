@@ -16,11 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
+import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.TabPanelEvent;
 import com.extjs.gxt.ui.client.widget.Component;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
 
 /**
  * A default {@link ITabItem} implementation.
@@ -43,14 +44,34 @@ public class DefaultTabItem implements ITabItem
         this(title, component, isCloseConfirmationNeeded, null);
     }
 
-    public DefaultTabItem(final String title, final Component component,
+    public static DefaultTabItem create(final String title, final DisposableComponent component,
+            boolean isCloseConfirmationNeeded)
+    {
+        Listener<TabPanelEvent> eventListener = createCloseEventListener(component);
+        return new DefaultTabItem(title, component.getComponent(), isCloseConfirmationNeeded,
+                eventListener);
+    }
+
+    private static Listener<TabPanelEvent> createCloseEventListener(
+            final DisposableComponent component)
+    {
+        return new Listener<TabPanelEvent>()
+            {
+                public final void handleEvent(final TabPanelEvent be)
+                {
+                    if (be.type == Events.Close)
+                    {
+                        component.dispose();
+                    }
+                }
+            };
+    }
+
+    private DefaultTabItem(final String title, final Component component,
             boolean isCloseConfirmationNeeded, final Listener<TabPanelEvent> tabPanelEventListener)
     {
         assert title != null : "Unspecified title.";
         assert component != null : "Unspecified component.";
-        // Note that if not set, is then automatically generated. So this is why we test for
-        // 'ID_PREFIX'. We want the user to set an unique id.
-        assert component.getId().startsWith(GenericConstants.ID_PREFIX) : "Unspecified component id.";
         this.title = title;
         this.component = component;
         this.isCloseConfirmationNeeded = isCloseConfirmationNeeded;

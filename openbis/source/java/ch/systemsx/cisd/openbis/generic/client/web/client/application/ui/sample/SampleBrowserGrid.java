@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -46,18 +47,27 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
  */
 public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleModel>
 {
-    private static final String PREFIX = "sample-browser-grid_";
+    private static final String PREFIX = GenericConstants.ID_PREFIX + "sample-browser-grid_";
 
-    public static final String BROWSER_ID = GenericConstants.ID_PREFIX + PREFIX + "sample_browser";
+    // browser consists of the grid and the toolbar
+    public static final String BROWSER_ID = PREFIX + "sample_browser";
 
-    public static final String GRID_ID = GenericConstants.ID_PREFIX + PREFIX + "grid";
+    public static final String GRID_ID = PREFIX + "grid";
 
     private final SampleBrowserToolbar topToolbar;
 
     // criteria used in the previous refresh operation or null if it has not occurred yet
     private ListSampleCriteria criteria;
 
-    SampleBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
+    public static DisposableComponent create(
+            final IViewContext<ICommonClientServiceAsync> viewContext)
+    {
+        final SampleBrowserToolbar toolbar = new SampleBrowserToolbar(viewContext);
+        final SampleBrowserGrid browserGrid = new SampleBrowserGrid(viewContext, toolbar);
+        return browserGrid.createWithToolbar(toolbar);
+    }
+
+    private SampleBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             SampleBrowserToolbar topToolbar)
     {
         super(viewContext, GRID_ID);
@@ -138,7 +148,7 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
      * </p>
      */
     @Override
-    public final void refresh()
+    protected final void refresh()
     {
         ListSampleCriteria newCriteria = topToolbar.tryGetCriteria();
         if (newCriteria == null)

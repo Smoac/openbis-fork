@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import com.extjs.gxt.ui.client.Events;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.TabPanelEvent;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
@@ -188,9 +185,7 @@ final class SearchWidget extends LayoutContainer
     private static ITabItemFactory createTabFactory(
             final MatchingEntitiesPanel matchingEntitiesPanel, String title)
     {
-        final DefaultTabItem tab =
-                new DefaultTabItem(title, matchingEntitiesPanel, false,
-                        createTabPanelEventListener(matchingEntitiesPanel));
+        final DefaultTabItem tab = new DefaultTabItem(title, matchingEntitiesPanel, false);
         // this tab cannot be opened for the second time, so we can create it outside of the
         // factory
         return new ITabItemFactory()
@@ -239,20 +234,4 @@ final class SearchWidget extends LayoutContainer
                     };
         return button;
     }
-
-    private static Listener<TabPanelEvent> createTabPanelEventListener(
-            final MatchingEntitiesPanel matchingEntitiesPanel)
-    {
-        return new Listener<TabPanelEvent>()
-            {
-                public void handleEvent(TabPanelEvent be)
-                {
-                    if (be.type == Events.Close)
-                    {
-                        matchingEntitiesPanel.disposeCache();
-                    }
-                }
-            };
-    }
-
 }

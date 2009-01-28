@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExperimentModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
@@ -54,8 +55,16 @@ public final class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment,
     private final ExperimentBrowserToolbar topToolbar;
 
     private ListExperimentsCriteria criteria;
-    
-    ExperimentBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
+
+    public static DisposableComponent create(
+            final IViewContext<ICommonClientServiceAsync> viewContext)
+    {
+        final ExperimentBrowserToolbar toolbar = new ExperimentBrowserToolbar(viewContext);
+        final ExperimentBrowserGrid browserGrid = new ExperimentBrowserGrid(viewContext, toolbar);
+        return browserGrid.createWithToolbar(toolbar);
+    }
+
+    private ExperimentBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             ExperimentBrowserToolbar topToolbar)
     {
         super(viewContext, GRID_ID);
@@ -131,7 +140,7 @@ public final class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment,
     }
 
     @Override
-    public final void refresh()
+    protected final void refresh()
     {
         ListExperimentsCriteria newCriteria = topToolbar.tryGetCriteria();
         if (newCriteria == null)
