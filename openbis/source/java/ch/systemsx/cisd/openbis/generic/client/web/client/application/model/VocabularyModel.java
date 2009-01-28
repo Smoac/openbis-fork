@@ -44,6 +44,8 @@ public final class VocabularyModel extends BaseModelData
         set(ModelDataPropertyNames.CODE, vocabulary.getCode());
         set(ModelDataPropertyNames.DESCRIPTION, vocabulary.getDescription());
         set(ModelDataPropertyNames.IS_MANAGED_INTERNALLY, vocabulary.isManagedInternally());
+        set(ModelDataPropertyNames.REGISTRATOR, vocabulary.getRegistrator());
+        set(ModelDataPropertyNames.REGISTRATION_DATE, vocabulary.getRegistrationDate());
         set(ModelDataPropertyNames.OBJECT, vocabulary);
     }
 

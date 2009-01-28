@@ -20,13 +20,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.common.annotation.CollectionMapping;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CodeWithRegistration;
 
 /**
  * Controlled vocabulary.
  * 
  * @author Izabela Adamczyk
  */
-public final class Vocabulary extends Code<Vocabulary>
+public final class Vocabulary extends CodeWithRegistration<Vocabulary>
 {
     private List<VocabularyTerm> terms = new ArrayList<VocabularyTerm>();
 

@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.YesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GridWithRPCProxy;
@@ -61,6 +62,19 @@ public class VocabularyGrid extends GridWithRPCProxy<Vocabulary, VocabularyModel
                         ModelDataPropertyNames.IS_MANAGED_INTERNALLY);
         internallyManaged.setRenderer(new YesNoRenderer());
         configs.add(internallyManaged);
+
+        final ColumnConfig registratorColumnConfig =
+                ColumnConfigFactory.createDefaultColumnConfig(context.getMessage(Dict.REGISTRATOR),
+                        ModelDataPropertyNames.REGISTRATOR);
+        configs.add(registratorColumnConfig);
+
+        final ColumnConfig registrationDateColumnConfig =
+                ColumnConfigFactory.createDefaultColumnConfig(context
+                        .getMessage(Dict.REGISTRATION_DATE),
+                        ModelDataPropertyNames.REGISTRATION_DATE);
+        registrationDateColumnConfig.setDateTimeFormat(DateRenderer.DEFAULT_DATE_TIME_FORMAT);
+        configs.add(registrationDateColumnConfig);
+
         return new ColumnModel(configs);
     }
 
