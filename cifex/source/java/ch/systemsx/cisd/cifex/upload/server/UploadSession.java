@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.cifex.upload.server;
 
+import java.io.File;
 import java.io.RandomAccessFile;
 
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
@@ -30,7 +31,11 @@ class UploadSession
 {
     private final String sessionID;
     
-    private UserDTO user;
+    private final UserDTO user;
+    
+    private String url;
+    
+    private File file;
     
     private RandomAccessFile randomAccessFile;
     
@@ -40,10 +45,11 @@ class UploadSession
     
     private String comment;
 
-    UploadSession(String sessionID, UserDTO user)
+    UploadSession(String sessionID, UserDTO user, String url)
     {
         this.sessionID = sessionID;
         this.user = user;
+        this.url = url;
     }
 
     final String getSessionID()
@@ -54,6 +60,26 @@ class UploadSession
     final UserDTO getUser()
     {
         return user;
+    }
+
+    final String getUrl()
+    {
+        return url;
+    }
+
+    public final void setUrl(String url)
+    {
+        this.url = url;
+    }
+
+    final File getFile()
+    {
+        return file;
+    }
+
+    final void setFile(File file)
+    {
+        this.file = file;
     }
 
     public final RandomAccessFile getRandomAccessFile()

@@ -26,6 +26,8 @@ import ch.systemsx.cisd.cifex.client.application.model.IDataGridModel;
 import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.FileUploadWidget;
 import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
+import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
+import ch.systemsx.cisd.cifex.client.dto.Configuration;
 import ch.systemsx.cisd.cifex.client.dto.File;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
@@ -58,15 +60,35 @@ final class MainPage extends AbstractMainPage
         }
     }
 
-    private final HTML createExplanationPanel()
+    private final Widget createExplanationPanel()
     {
-        final boolean isPermanent = context.getModel().getUser().isPermanent();
-        final String maxRequestUploadSizeTest =
-                getMaxRequestUploadSizeText(context.getModel().getConfiguration()
-                        .getMaxUploadRequestSizeInMB());
-        return new HTML(isPermanent ? context.getMessageResources()
-                .getUploadFilesHelpPermanentUser(maxRequestUploadSizeTest) : context
-                .getMessageResources().getUploadFilesHelpTemporaryUser(maxRequestUploadSizeTest));
+        Model model = context.getModel();
+        final boolean isPermanent = model.getUser().isPermanent();
+        Configuration configuration = model.getConfiguration();
+        int maxUploadRequestSizeInMB = configuration.getMaxUploadRequestSizeInMB();
+        final String maxRequestUploadSize =
+                getMaxRequestUploadSizeText(maxUploadRequestSizeInMB);
+        StringBuffer notesText = new StringBuffer();
+        notesText.append(messageResources.getUploadFilesHelpUpload(maxRequestUploadSize));
+        if (maxUploadRequestSizeInMB > 2048)
+        {
+            String link = messageResources.getUploadFilesHelpJavaUploaderLink();
+            String title = messageResources.getUploadFilesHelpJavaUploaderTitle();
+            String anchor =
+                    DOMUtils.createAnchor(title, link, Constants.FILE2GB_UPLOAD_SERVLET_NAME, null,
+                            null, false);
+            notesText.append(' ').append(messageResources.getUploadFilesHelpJavaUpload(anchor));
+        }
+        if (isPermanent)
+        {
+            notesText.append(messageResources.getUploadFilesHelpPermanentUser());
+        } else
+        {
+            notesText.append(messageResources.getUploadFilesHelpTemporaryUser());
+        }
+        notesText.append(messageResources.getUploadFilesHelpSecurity());
+        HTML notes = new HTML(notesText.toString());
+        return notes;
     }
 
     //

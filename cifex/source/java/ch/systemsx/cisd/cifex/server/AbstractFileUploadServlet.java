@@ -19,6 +19,8 @@ package ch.systemsx.cisd.cifex.server;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -34,6 +36,8 @@ public abstract class AbstractFileUploadServlet extends AbstractCIFEXServiceServ
      * was successful, so if you change the value of the constant here it should also be changed in
      * the widget.
      */
+    public static final int MAX_FILENAME_LENGTH = 250;
+    
     protected final static String RECIPIENTS_FIELD_NAME = "email-addresses";
 
     protected final static String COMMENT_FIELD_NAME = "upload-comment";
@@ -78,6 +82,18 @@ public abstract class AbstractFileUploadServlet extends AbstractCIFEXServiceServ
         while (stringTokenizer.hasMoreTokens())
         {
             recipientsIdentifies.add(stringTokenizer.nextToken());
+        }
+    }
+
+    protected String getURLForEmail(final HttpServletRequest request)
+    {
+        final String overrideURL = domainModel.getBusinessContext().getOverrideURL();
+        if (StringUtils.isBlank(overrideURL))
+        {
+            return HttpUtils.getBasicURL(request);
+        } else
+        {
+            return overrideURL;
         }
     }
 

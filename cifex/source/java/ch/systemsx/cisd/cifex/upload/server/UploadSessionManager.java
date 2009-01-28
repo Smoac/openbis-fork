@@ -33,10 +33,10 @@ public class UploadSessionManager
     private final TokenGenerator tokenGenerator = new TokenGenerator();
     private final Map<String, UploadSession> sessions = new HashMap<String, UploadSession>();
     
-    public UploadSession createSession(UserDTO user)
+    public UploadSession createSession(UserDTO user, String url)
     {
         String uploadSessionID = tokenGenerator.getNewToken(System.currentTimeMillis());
-        UploadSession uploadSession = new UploadSession(uploadSessionID, user);
+        UploadSession uploadSession = new UploadSession(uploadSessionID, user, url);
         sessions.put(uploadSessionID, uploadSession);
         return uploadSession;
     }

@@ -40,6 +40,7 @@ import ch.systemsx.cisd.cifex.server.business.IFileManager;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.server.util.FileUploadFeedbackProvider;
+import ch.systemsx.cisd.cifex.server.util.FilenameUtilities;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -59,8 +60,6 @@ public final class FileUploadServlet extends AbstractFileUploadServlet
     private static final long serialVersionUID = 1L;
 
     private static final String UPLOAD_FINISHED = "Upload finished.\n";
-
-    private static final int MAX_FILENAME_LENGTH = 250;
 
     @Override
     protected final void doPost(final HttpServletRequest request, final HttpServletResponse response)
@@ -143,39 +142,6 @@ public final class FileUploadServlet extends AbstractFileUploadServlet
         }
     }
 
-    private String enforceMaxLength(final String filename)
-    {
-        if (filename.length() > MAX_FILENAME_LENGTH)
-        {
-            final String extension = FilenameUtils.getExtension(filename);
-            if (extension.length() > MAX_FILENAME_LENGTH / 2)
-            {
-                return filename.substring(0, MAX_FILENAME_LENGTH);
-            } else
-            {
-                final String filenameWithoutExtension = FilenameUtils.removeExtension(filename);
-                final int maxLengthWithoutExtension = 250 - extension.length() - 1;
-                return filenameWithoutExtension.substring(0, maxLengthWithoutExtension)
-                        + FilenameUtils.EXTENSION_SEPARATOR_STR + extension;
-            }
-        } else
-        {
-            return filename;
-        }
-    }
-
-    private String getURLForEmail(final HttpServletRequest request)
-    {
-        final String overrideURL = domainModel.getBusinessContext().getOverrideURL();
-        if (StringUtils.isBlank(overrideURL))
-        {
-            return HttpUtils.getBasicURL(request);
-        } else
-        {
-            return overrideURL;
-        }
-    }
-
     private final void extractEmailsAndUploadFilesAndComment(final HttpServletRequest request,
             final UserDTO requestUser, final String[] pathnamesToUpload, final List<FileDTO> files,
             final List<String> userIdentifier, final StringBuffer comment)
@@ -221,9 +187,13 @@ public final class FileUploadServlet extends AbstractFileUploadServlet
                         operationLog.debug(String.format("Handle field '%s' with file '%s'.", item
                                 .getFieldName(), item.getName()));
                     }
+                    String fileName =
+                            FilenameUtilities.ensureMaximumSize(filenameInStream,
+                                    MAX_FILENAME_LENGTH);
+                    String contentType = item.getContentType();
                     final FileDTO file =
-                            fileManager.saveFile(requestUser, enforceMaxLength(filenameInStream),
-                                    comment.toString(), item.getContentType(), stream);
+                            fileManager.saveFile(requestUser, fileName, comment.toString(),
+                                    contentType, stream);
                     files.add(file);
                 } else
                 {

@@ -106,6 +106,11 @@ public interface IFileManager
     @LogAnnotation(logCategory = LogCategory.OPERATION)
     public FileDTO saveFile(final UserDTO user, final String fileName, String comment,
             final String contentType, final InputStream inputStream);
+    
+    @LogAnnotation(logCategory = LogCategory.OPERATION)
+    public void registerFileLinkAndInformRecipients(final UserDTO user, final String fileName,
+            final String comment, final String contentType, final File file, String[] recipients,
+            String url);
 
     /**
      * Creates sharing links between the users specified by their e-mail addresses or user id (with

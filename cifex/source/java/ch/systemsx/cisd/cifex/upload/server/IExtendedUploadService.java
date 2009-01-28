@@ -27,10 +27,10 @@ import ch.systemsx.cisd.cifex.upload.IUploadService;
 public interface IExtendedUploadService extends IUploadService
 {
     /**
-     * Creates a new upload session for the specified files, e-mails of the recipients, and comment.
-     * @param user TODO
+     * Creates a new upload session for the specified user, URL, files, e-mails of the recipients,
+     * and comment.
      * 
-     *  @return unique upload session ID.
+     * @return unique upload session ID.
      */
-    public String createSession(UserDTO user, String[] files, String[] recipients, String comment);
+    public String createSession(UserDTO user, String url);
 }

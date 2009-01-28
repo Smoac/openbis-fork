@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.cifex.upload;
 
+import java.io.File;
 import java.io.Serializable;
 
 /**
@@ -27,11 +28,9 @@ public class UploadStatus implements Serializable
 {
     private static final long serialVersionUID = 1L;
     
-    public static final int BLOCK_SIZE = 128 * 1024;
-    
     private final String[] files;
     private int indexOfCurrentFile;
-    private long blockIndex;
+    private long filePointer;
     
     private UploadState uploadState = UploadState.INIT;
 
@@ -43,13 +42,24 @@ public class UploadStatus implements Serializable
     public void next()
     {
         indexOfCurrentFile++;
-        blockIndex = 0;
+        filePointer = 0;
         uploadState = indexOfCurrentFile < files.length ? UploadState.INIT : UploadState.FINISHED;
     }
     
     public String getCurrentFile()
     {
         return files[indexOfCurrentFile];
+    }
+    
+    public String getNameOfCurrentFile()
+    {
+        String fileName = getCurrentFile();
+        int indexOfLastPathSeparator = fileName.lastIndexOf(File.separatorChar);
+        if (indexOfLastPathSeparator > 0)
+        {
+            fileName = fileName.substring(indexOfLastPathSeparator + 1);
+        }
+        return fileName;
     }
 
     public final UploadState getUploadState()
@@ -62,21 +72,21 @@ public class UploadStatus implements Serializable
         this.uploadState = uploadState;
     }
 
-    public final long getBlockIndex()
+    public final long getFilePointer()
     {
-        return blockIndex;
+        return filePointer;
     }
 
-    public final void setBlockIndex(long blockIndex)
+    public final void setFilePointer(long filePointer)
     {
-        this.blockIndex = blockIndex;
+        this.filePointer = filePointer;
     }
 
     @Override
     public String toString()
     {
-        return "UploadStatus[" + uploadState + ",fileIndex=" + indexOfCurrentFile + ",blockIndex="
-                + blockIndex + "]";
+        return "UploadStatus[" + uploadState + ",fileIndex=" + indexOfCurrentFile + ",filePointer="
+                + filePointer + "]";
     }
     
 }

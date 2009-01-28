@@ -24,10 +24,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -61,7 +63,6 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
-import ch.systemsx.cisd.common.utilities.PasswordGenerator;
 
 /**
  * The only <code>IFileManager</code> implementation.
@@ -314,16 +315,8 @@ final class FileManager extends AbstractManager implements IFileManager
                 final long byteCount = countingInputStream.getByteCount();
                 if (byteCount > 0)
                 {
-                    final FileDTO fileDTO = new FileDTO(user.getID());
-                    fileDTO.setName(fileName);
-                    fileDTO.setContentType(contentType);
-                    fileDTO.setPath(FileUtilities.getRelativeFile(businessContext.getFileStore(),
-                            file));
-                    fileDTO.setComment(comment);
-                    fileDTO.setExpirationDate(DateUtils.addMinutes(new Date(), businessContext
-                            .getFileRetention()));
-                    fileDTO.setSize(byteCount);
-                    daoFactory.getFileDAO().createFile(fileDTO);
+                    final FileDTO fileDTO =
+                            registerFile(user, fileName, comment, contentType, file, byteCount);
                     success = true;
                     return fileDTO;
                 } else
@@ -351,11 +344,35 @@ final class FileManager extends AbstractManager implements IFileManager
         }
     }
 
+    @Transactional
+    public void registerFileLinkAndInformRecipients(UserDTO user, String fileName, String comment,
+            String contentType, File file, String[] recipients, String url)
+    {
+        FileDTO fileDTO = registerFile(user, fileName, comment, contentType, file, file.length());
+        shareFilesWith(url, user, Arrays.asList(recipients), Collections.singleton(fileDTO),
+                comment);
+    }
+
+    private FileDTO registerFile(final UserDTO user, final String fileName, final String comment,
+            final String contentType, final File file, final long byteCount)
+    {
+        final FileDTO fileDTO = new FileDTO(user.getID());
+        fileDTO.setName(fileName);
+        fileDTO.setContentType(contentType);
+        fileDTO.setPath(FileUtilities.getRelativeFile(businessContext.getFileStore(),
+                file));
+        fileDTO.setComment(comment);
+        fileDTO.setExpirationDate(DateUtils.addMinutes(new Date(), businessContext
+                .getFileRetention()));
+        fileDTO.setSize(byteCount);
+        daoFactory.getFileDAO().createFile(fileDTO);
+        return fileDTO;
+    }
+
     public File createFile(final UserDTO user, final String fileName)
     {
         final File folder = createFolderFor(user);
-        final File file = FileUtilities.createNextNumberedFile(new File(folder, fileName), null);
-        return file;
+        return FileUtilities.createNextNumberedFile(new File(folder, fileName), null);
     }
 
     public void throwExceptionOnFileDoesNotExist(final String fileName)
@@ -402,117 +419,14 @@ final class FileManager extends AbstractManager implements IFileManager
                     createTableMapOfExistingUsersWithEmailAsKey();
             final TableMap<String, UserDTO> existingUniqueUsers =
                     createTableMapOfExistingUsersWithUserCodeAsKey();
-            final IFileDAO fileDAO = daoFactory.getFileDAO();
-            final PasswordGenerator passwordGenerator = businessContext.getPasswordGenerator();
-            final IMailClient mailClient = businessContext.getMailClient();
-            boolean notified = false;
             for (final String identifier : userIdentifiers)
             {
-                final String lowerCaseIdentifier = identifier.toLowerCase();
-                Set<UserDTO> usersOrNull = null;
-                String password = null;
-                // If the Identifier start with "id:", it is not a email
-                if (lowerCaseIdentifier.startsWith(USER_ID_PREFIX))
-                {
-                    usersOrNull = new HashSet<UserDTO>();
-                    final UserDTO userOrNull =
-                            existingUniqueUsers.tryGet(lowerCaseIdentifier.substring(USER_ID_PREFIX
-                                    .length()));
-                    if (userOrNull != null && StringUtils.isNotBlank(userOrNull.getEmail()))
-                    {
-                        usersOrNull.add(userOrNull);
-                    } else
-                    {
-                        invalidEmailAdresses.add(lowerCaseIdentifier);
-                    }
-                } else
-                {
-                    usersOrNull = existingUsers.tryGet(lowerCaseIdentifier);
-                    // Try to create user.
-                    if (usersOrNull == null)
-                    {
-                        password = passwordGenerator.generatePassword(10);
-                        final UserDTO user =
-                                tryCreateUser(requestUser, lowerCaseIdentifier, password);
-                        if (user != null)
-                        {
-                            existingUsers.add(user);
-                            usersOrNull = Collections.singleton(user);
-                        } else
-                        {
-                            // Email address is invalid because user does not exist and requestUser
-                            // is not allowed to create new users.
-                            invalidEmailAdresses.add(lowerCaseIdentifier);
-                        }
-                    }
-                }
-                if (usersOrNull != null)
-                {
-                    allUsers.addAll(usersOrNull);
-                    // Implementation note: we do the sharing link creation and the email sending in
-                    // two loops in order to ensure that all database links are created before any
-                    // email is sent (note that this method is @Transactional).
-                    final List<String> alreadyExistingSharingLinks = new ArrayList<String>();
-                    for (final UserDTO user : usersOrNull)
-                    {
-                        for (final FileDTO file : files)
-                        {
-                            try
-                            {
-                                fileDAO.createSharingLink(file.getID(), user.getID());
-                            } catch (final DataIntegrityViolationException ex)
-                            {
-                                alreadyExistingSharingLinks.add(user.getUserCode());
-                                operationLog.error(String.format(
-                                        "Sharing file %s with user %s for the second time.", file
-                                                .getPath(), user.getUserCode()), ex);
-                            }
-                        }
-                    }
-                    if (alreadyExistingSharingLinks.size() > 0)
-                    {
-                        final String msg =
-                                String
-                                        .format(
-                                                "Cannot share file with the users twice (%s). Operation failed.",
-                                                alreadyExistingSharingLinks);
-
-                        throw new UserFailureException(msg);
-                    }
-                    for (final UserDTO user : usersOrNull)
-                    {
-                        final EMailBuilderForUploadedFiles builder =
-                                new EMailBuilderForUploadedFiles(mailClient, requestUser, user
-                                        .getEmail());
-                        builder.setURL(url);
-                        builder.setPassword(password);
-                        builder.setUserCode(user.getUserCode());
-                        for (final FileDTO fileDTO : files)
-                        {
-                            builder.addFile(fileDTO);
-                        }
-                        if (StringUtils.isNotBlank(comment))
-                        {
-                            builder.setComment(comment);
-                        }
-                        try
-                        {
-                            builder.sendEMail();
-                            notified = false;
-                        } catch (final EnvironmentFailureException ex)
-                        {
-                            if (notified == false)
-                            {
-                                // As we are sure that we get correct email addresses, this
-                                // exception can only be related to the configuration and/or
-                                // environment. So inform the administrator about the problem.
-                                notificationLog.error(
-                                        "A problem has occurred while sending email.", ex);
-                                notified = true;
-                            }
-                        }
-                    }
-                }
+                Set<UserDTO> users = new LinkedHashSet<UserDTO>();
+                String password =
+                        handlIdentifer(identifier, requestUser, existingUsers, existingUniqueUsers,
+                                invalidEmailAdresses, users);
+                allUsers.addAll(users);
+                createLinksAndSendEmails(users, files, url, comment, requestUser, password);
             }
             success = true;
             return invalidEmailAdresses;
@@ -520,6 +434,119 @@ final class FileManager extends AbstractManager implements IFileManager
         {
             businessContext.getUserActionLog().logShareFiles(files, allUsers, userIdentifiers,
                     invalidEmailAdresses, success);
+        }
+    }
+
+    private String handlIdentifer(final String identifier, final UserDTO requestUser,
+            final TableMapNonUniqueKey<String, UserDTO> existingUsers,
+            final TableMap<String, UserDTO> existingUniqueUsers,
+            final List<String> invalidEmailAdresses, Set<UserDTO> users)
+    {
+        String password = null;
+        final String lowerCaseIdentifier = identifier.toLowerCase();
+        // If the Identifier start with "id:", it is not a email
+        if (lowerCaseIdentifier.startsWith(USER_ID_PREFIX))
+        {
+            final UserDTO userOrNull =
+                    existingUniqueUsers.tryGet(lowerCaseIdentifier.substring(USER_ID_PREFIX
+                            .length()));
+            if (userOrNull != null && StringUtils.isNotBlank(userOrNull.getEmail()))
+            {
+                users.add(userOrNull);
+            } else
+            {
+                invalidEmailAdresses.add(lowerCaseIdentifier);
+            }
+        } else
+        {
+            Set<UserDTO> existingUsersOrNull = existingUsers.tryGet(lowerCaseIdentifier);
+            if (existingUsersOrNull == null)
+            {
+                password = businessContext.getPasswordGenerator().generatePassword(10);
+                final UserDTO user =
+                        tryCreateUser(requestUser, lowerCaseIdentifier, password);
+                if (user != null)
+                {
+                    existingUsers.add(user);
+                    users.add(user);
+                } else
+                {
+                    // Email address is invalid because user does not exist and requestUser
+                    // is not allowed to create new users.
+                    invalidEmailAdresses.add(lowerCaseIdentifier);
+                }
+            } else
+            {
+                users.addAll(existingUsersOrNull);
+            }
+        }
+        return password;
+    }
+
+    private void createLinksAndSendEmails(Set<UserDTO> users,
+            final Collection<FileDTO> files, final String url, final String comment,
+            final UserDTO requestUser, String password)
+    {
+        final IFileDAO fileDAO = daoFactory.getFileDAO();
+        final IMailClient mailClient = businessContext.getMailClient();
+        // Implementation note: we do the sharing link creation and the email sending in
+        // two loops in order to ensure that all database links are created before any
+        // email is sent (note that this method is @Transactional).
+        final List<String> alreadyExistingSharingLinks = new ArrayList<String>();
+        for (final UserDTO user : users)
+        {
+            for (final FileDTO file : files)
+            {
+                try
+                {
+                    fileDAO.createSharingLink(file.getID(), user.getID());
+                } catch (final DataIntegrityViolationException ex)
+                {
+                    alreadyExistingSharingLinks.add(user.getUserCode());
+                    operationLog.error(String.format(
+                            "Sharing file %s with user %s for the second time.", file
+                                    .getPath(), user.getUserCode()), ex);
+                }
+            }
+        }
+        if (alreadyExistingSharingLinks.size() > 0)
+        {
+            throw new UserFailureException(("Cannot share file with the users twice ("
+                    + alreadyExistingSharingLinks + "). Operation failed."));
+        }
+        boolean notified = false;
+        for (final UserDTO user : users)
+        {
+            String email = user.getEmail();
+            final EMailBuilderForUploadedFiles builder =
+                    new EMailBuilderForUploadedFiles(mailClient, requestUser, email);
+            builder.setURL(url);
+            builder.setPassword(password);
+            builder.setUserCode(user.getUserCode());
+            for (final FileDTO fileDTO : files)
+            {
+                builder.addFile(fileDTO);
+            }
+            if (StringUtils.isNotBlank(comment))
+            {
+                builder.setComment(comment);
+            }
+            try
+            {
+                builder.sendEMail();
+                notified = false;
+            } catch (final EnvironmentFailureException ex)
+            {
+                if (notified == false)
+                {
+                    // As we are sure that we get correct email addresses, this
+                    // exception can only be related to the configuration and/or
+                    // environment. So inform the administrator about the problem.
+                    notificationLog.error(
+                            "A problem has occurred while sending email.", ex);
+                    notified = true;
+                }
+            }
         }
     }
 

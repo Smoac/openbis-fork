@@ -379,13 +379,6 @@ public interface IMessageResources extends Messages
     public String getFileUploadButtonLabel();
     
     /**
-     * Returns the 2GB file upload submit button label.
-     * 
-     * @gwt.key file2GBUpload.button.label
-     */
-    public String getFile2GBUploadButtonLabel();
-
-    /**
      * Returns the file upload feedback 'byte read till now' label.
      * 
      * @gwt.key fileupload.feedback.bytes.label
@@ -730,18 +723,53 @@ public interface IMessageResources extends Messages
     public String getUploadedFilesPartTitle();
 
     /**
-     * Returns the help text for uploading files.
+     * Returns the help text for uploading files section upload.
      * 
-     * @gwt.key uploadfiles.help.permanent
+     * @gwt.key uploadfiles.help.upload
      */
-    public String getUploadFilesHelpPermanentUser(String maxRequestUploadSize);
+    public String getUploadFilesHelpUpload(String maxRequestUploadSize);
 
     /**
-     * Returns the help text for uploading files.
+     * Returns the help text for uploading files section Java upload.
      * 
-     * @gwt.key uploadfiles.help.temporary
+     * @gwt.key uploadfiles.help.javaUpload
      */
-    public String getUploadFilesHelpTemporaryUser(String maxRequestUploadSize);
+    public String getUploadFilesHelpJavaUpload(Object link);
+    
+    /**
+     * Returns the name of Java uploader link.
+     * 
+     * @gwt.key uploadfiles.help.javaUploaderLink
+     */
+    public String getUploadFilesHelpJavaUploaderLink();
+    
+    /**
+     * Returns the title of Java uploader link.
+     * 
+     * @gwt.key uploadfiles.help.javaUploaderTitle
+     */
+    public String getUploadFilesHelpJavaUploaderTitle();
+    
+    /**
+     * Returns the help text for uploading files section security.
+     * 
+     * @gwt.key uploadfiles.help.security
+     */
+    public String getUploadFilesHelpSecurity();
+    
+    /**
+     * Returns the help text for uploading files section recipients (case permanent user).
+     * 
+     * @gwt.key uploadfiles.help.permanentUser
+     */
+    public String getUploadFilesHelpPermanentUser();
+    
+    /**
+     * Returns the help text for uploading files section recipients (case temporary user).
+     * 
+     * @gwt.key uploadfiles.help.temporaryUser
+     */
+    public String getUploadFilesHelpTemporaryUser();
 
     /**
      * Returns the upload file part title.

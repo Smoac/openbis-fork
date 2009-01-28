@@ -14,18 +14,22 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.upload;
+package ch.systemsx.cisd.cifex.server.util;
+
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public interface IUploadService
+public class FilenameUtilitiesTest extends AssertJUnit
 {
-    public void add(String uploadSessionID, String[] files, String[] recipients, String comment);
-    
-    public UploadStatus getUploadStatus(String uploadSessionID);
-    
-    public UploadStatus uploadBlock(String uploadSessionID, byte[] block, int blockSize, boolean lastBlock);
+    @Test
+    public void testGetMimeTypeOfPDF()
+    {
+        assertEquals("application/pdf", FilenameUtilities.getMimeType("a.pdf"));
+        assertEquals("application/pdf", FilenameUtilities.getMimeType("a.PDF"));
+    }
 }

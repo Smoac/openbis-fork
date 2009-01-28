@@ -40,7 +40,6 @@ import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.utils.CifexValidator;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
-import ch.systemsx.cisd.cifex.client.application.utils.WindowUtils;
 import ch.systemsx.cisd.cifex.client.dto.User;
 
 /**
@@ -50,8 +49,6 @@ import ch.systemsx.cisd.cifex.client.dto.User;
  */
 public final class FileUploadWidget extends Form
 {
-
-    private static final String EMAIL_ADDRESSES = "email-addresses";
 
     private static final int FIELD_WIDTH = 230;
 
@@ -72,8 +69,6 @@ public final class FileUploadWidget extends Form
     private final ViewContext context;
 
     private Button submitButton;
-    
-    private Button submit2GBButton;
 
     private Button validateButton;
 
@@ -139,25 +134,6 @@ public final class FileUploadWidget extends Form
                 }
 
             });
-        
-        int maxUploadRequestSizeInMB = context.getModel().getConfiguration().getMaxUploadRequestSizeInMB();
-        if (maxUploadRequestSizeInMB < 0 || maxUploadRequestSizeInMB > 2048)
-        {
-            submit2GBButton = addButton(context.getMessageResources().getFile2GBUploadButtonLabel());
-            submit2GBButton.addButtonListener(new ButtonListenerAdapter()
-            {
-                
-                //
-                // ButtonListenerAdapter
-                //
-                
-                public final void onClick(final Button but, final EventObject e)
-                {
-                    submit2GBForm();
-                }
-                
-            });
-        }
         render();
     }
 
@@ -270,7 +246,7 @@ public final class FileUploadWidget extends Form
         textAreaConfig.setAllowBlank(false);
         final IMessageResources messageResources = context.getMessageResources();
         textAreaConfig.setFieldLabel(messageResources.getRecipientFieldLabel());
-        textAreaConfig.setName(EMAIL_ADDRESSES);
+        textAreaConfig.setName("email-addresses");
         textAreaConfig.setPreventScrollbars(false);
         textAreaConfig.setWidth(FIELD_WIDTH);
         textAreaConfig.setValidator(CifexValidator.getUserFieldValidator());
@@ -327,41 +303,17 @@ public final class FileUploadWidget extends Form
         return (String[]) filePaths.toArray(StringUtils.EMPTY_STRING_ARRAY);
     }
 
-    private final void submit2GBForm()
-    {
-        if (isValid() == false)
-        {
-//            return;
-        }
-        disableSubmitButtons();
-        final String[] filenames = getFilePaths();
-        if (filenames.length == 0)
-        {
-            enableSubmitButtons();
-            return;
-        }
-        
-        StringBuffer buffer = new StringBuffer();
-        for (int i = 0; i < filenames.length; i++)
-        {
-            buffer.append("files=").append(filenames[i]).append("&");
-        }
-        buffer.append(EMAIL_ADDRESSES).append("=").append(userTextArea.getText());
-        WindowUtils.openNewDependentWindow(Constants.FILE2GB_UPLOAD_SERVLET_NAME + "?" + buffer);
-        enableSubmitButtons();
-    }
-    
-    private final void submitForm()
+    protected final void submitForm()
     {
         if (isValid() == false)
         {
             return;
         }
-        disableSubmitButtons();
+        submitButton.disable();
         final String[] filenames = getFilePaths();
         if (filenames.length == 0)
         {
-            enableSubmitButtons();
+            submitButton.enable();
             return;
         }
         context.getCifexService().registerFilenamesForUpload(filenames,
@@ -381,26 +333,8 @@ public final class FileUploadWidget extends Form
                         public final void onFailure(final Throwable caught)
                         {
                             super.onFailure(caught);
-                            enableSubmitButtons();
+                            submitButton.enable();
                         }
                     });
-    }
-
-    private void disableSubmitButtons()
-    {
-        submitButton.disable();
-        if (submit2GBButton != null)
-        {
-            submit2GBButton.disable();
-        }
-    }
-
-    private void enableSubmitButtons()
-    {
-        submitButton.enable();
-        if (submit2GBButton != null)
-        {
-            submit2GBButton.enable();
-        }
     }
 }

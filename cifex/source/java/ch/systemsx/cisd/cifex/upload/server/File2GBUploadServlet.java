@@ -19,8 +19,6 @@ package ch.systemsx.cisd.cifex.upload.server;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -99,10 +97,8 @@ public class File2GBUploadServlet extends AbstractFileUploadServlet
             throws ServletException, IOException, InvalidSessionException
     {
         UserDTO user = getUserDTO(request); // Throws exception if session is invalid
-        String[] files = request.getParameterValues("files");
-        String[] recipients = extractRecipients(request);
-        String comment = request.getParameter(COMMENT_FIELD_NAME);
-        String uploadSessionID = uploadService.createSession(user, files, recipients, comment);
+        String url = getURLForEmail(request);
+        String uploadSessionID = uploadService.createSession(user, url);
         if (operationLog.isInfoEnabled())
         {
             operationLog.info("Start file upload session with ID " + uploadSessionID);
@@ -119,14 +115,6 @@ public class File2GBUploadServlet extends AbstractFileUploadServlet
         writer.close();
     }
 
-    private String[] extractRecipients(final HttpServletRequest request)
-    {
-        List<String> rec = new ArrayList<String>();
-        extractRecipients(rec, request.getParameter(RECIPIENTS_FIELD_NAME));
-        String[] recipients = rec.toArray(new String[0]);
-        return recipients;
-    }
-    
     private String createBaseURL(final HttpServletRequest request)
     {
         String url = HttpUtils.getBasicURL(request);

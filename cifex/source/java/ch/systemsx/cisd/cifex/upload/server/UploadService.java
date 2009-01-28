@@ -16,18 +16,19 @@
 
 package ch.systemsx.cisd.cifex.upload.server;
 
+import static ch.systemsx.cisd.cifex.server.AbstractFileUploadServlet.MAX_FILENAME_LENGTH;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.Arrays;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.cifex.server.CIFEXServiceImpl;
 import ch.systemsx.cisd.cifex.server.business.DomainModel;
 import ch.systemsx.cisd.cifex.server.business.IFileManager;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.cifex.server.util.FilenameUtilities;
 import ch.systemsx.cisd.cifex.upload.UploadState;
 import ch.systemsx.cisd.cifex.upload.UploadStatus;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
@@ -43,9 +44,6 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 public class UploadService implements IExtendedUploadService
 {
-    private static final Logger notificationLog =
-            LogFactory.getLogger(LogCategory.NOTIFY, UploadService.class);
-
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, UploadService.class);
 
@@ -62,17 +60,18 @@ public class UploadService implements IExtendedUploadService
         this.fileManager = fileManager;
     }
 
-    public String createSession(UserDTO user, String[] files, String[] recipients, String comment)
+    public String createSession(UserDTO user, String url)
     {
-        UploadSession session = sessionManager.createSession(user);
+        return sessionManager.createSession(user, url).getSessionID();
+    }
+
+    public void add(String uploadSessionID, String[] files, String[] recipients, String comment)
+    {
+        UploadSession session = sessionManager.getSession(uploadSessionID);
         session.setUploadStatus(new UploadStatus(files));
         session.setRecipients(recipients);
         session.setComment(comment);
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info("Upload file session created for the following files: " + Arrays.asList(files));
-        }
-        return session.getSessionID();
+        
     }
 
     public UploadStatus getUploadStatus(String uploadSessionID)
@@ -93,28 +92,26 @@ public class UploadService implements IExtendedUploadService
     {
         UploadSession session = sessionManager.getSession(uploadSessionID);
         UploadStatus status = session.getUploadStatus();
-        if (operationLog.isInfoEnabled())
+        if (operationLog.isDebugEnabled())
         {
-            operationLog.info("Upload " + (lastBlock ? "last block" : "block") + ": " + status);
+            operationLog.debug("Upload " + (lastBlock ? "last block" : "block") + ": " + status);
         }
         UploadState state = status.getUploadState();
+        UserDTO user = session.getUser();
         if (state == UploadState.INIT)
         {
-            String currentFile = status.getCurrentFile();
-            int indexOfLastPathSeparator = currentFile.lastIndexOf(File.separatorChar);
-            if (indexOfLastPathSeparator > 0)
-            {
-                currentFile = currentFile.substring(indexOfLastPathSeparator + 1);
-            }
-            File file = fileManager.createFile(session.getUser(), currentFile);
+            String fileName =
+                    FilenameUtilities.ensureMaximumSize(status.getNameOfCurrentFile(),
+                            MAX_FILENAME_LENGTH);
+            File file = fileManager.createFile(user, fileName);
+            session.setFile(file);
             RandomAccessFile randomAccessFile = createRandomAccessFile(file);
             session.setRandomAccessFile(randomAccessFile);
         }
         if (state == UploadState.INIT || state == UploadState.UPLOADING)
         {
             RandomAccessFile randomAccessFile = session.getRandomAccessFile();
-            long blockIndex = status.getBlockIndex();
-            long filePointer = blockIndex * UploadStatus.BLOCK_SIZE;
+            long filePointer = status.getFilePointer();
             try
             {
                 randomAccessFile.seek(filePointer);
@@ -122,15 +119,20 @@ public class UploadService implements IExtendedUploadService
                 if (lastBlock)
                 {
                     randomAccessFile.close();
+                    File file = session.getFile();
+                    String contentType = FilenameUtilities.getMimeType(file.getName());
+                    String comment = session.getComment();
+                    fileManager.registerFileLinkAndInformRecipients(user, status.getNameOfCurrentFile(), comment,
+                            contentType, file, session.getRecipients(), session.getUrl());
                     status.next();
                 } else
                 {
                     status.setUploadState(UploadState.UPLOADING);
-                    status.setBlockIndex(blockIndex + 1);
+                    status.setFilePointer(filePointer + blockSize);
                 }
-                if (operationLog.isInfoEnabled())
+                if (operationLog.isDebugEnabled())
                 {
-                    operationLog.info("Block uploaded: " + status);
+                    operationLog.debug("Block uploaded: " + status);
                 }
                 return status;
             } catch (IOException ex)

@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -36,6 +35,8 @@ import ch.systemsx.cisd.common.exceptions.WrappedIOException;
  */
 class Uploader
 {
+    private static final int BLOCK_SIZE = 64 * 1024;
+    
     private final Set<IUploadListener> listeners = new LinkedHashSet<IUploadListener>();
     private final IUploadService uploadService;
     private final String uploadSessionID;
@@ -66,8 +67,7 @@ class Uploader
         UploadState state = currentStatus.getUploadState();
         File file = new File(currentStatus.getCurrentFile());
         RandomAccessFileProvider fileProvider = new RandomAccessFileProvider(file);
-        byte[] bytes = new byte[UploadStatus.BLOCK_SIZE];
-        EnumSet<UploadState> set = EnumSet.of(UploadState.INIT, UploadState.UPLOADING);
+        byte[] bytes = new byte[BLOCK_SIZE];
         while (true)
         {
             if (state == UploadState.INIT)
@@ -76,7 +76,7 @@ class Uploader
             } 
             if (state == UploadState.INIT || state == UploadState.UPLOADING)
             {
-                currentStatus = uploadNextBlock(fileProvider, currentStatus.getBlockIndex(), bytes);
+                currentStatus = uploadNextBlock(fileProvider, currentStatus.getFilePointer(), bytes);
                 state = currentStatus.getUploadState();
                 if (state != UploadState.UPLOADING)
                 {
@@ -127,13 +127,12 @@ class Uploader
         }
     }
     
-    private UploadStatus uploadNextBlock(RandomAccessFileProvider fileProvider, long blockIndex, byte[] bytes)
+    private UploadStatus uploadNextBlock(RandomAccessFileProvider fileProvider, long filePointer, byte[] bytes)
     {
         try
         {
             RandomAccessFile randomAccessFile = fileProvider.getRandomAccessFile();
             int blockSize = bytes.length;
-            long filePointer = blockIndex * blockSize;
             long fileSize = randomAccessFile.length();
             boolean lastBlock = filePointer + blockSize >= fileSize;
             if (lastBlock)

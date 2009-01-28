@@ -125,7 +125,7 @@ public final class DOMUtils
      * 
      * @param title
      */
-    private final static String createAnchor(final String title, final String value, final String href,
+    public final static String createAnchor(final String title, final String value, final String href,
             final String target, final String id, final boolean html)
     {
         assert value != null : "Undefined value.";
