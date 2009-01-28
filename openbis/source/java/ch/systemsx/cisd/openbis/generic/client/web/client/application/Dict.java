@@ -360,6 +360,11 @@ public abstract class Dict
     public static final String PROJECT_BROWSER = "project_browser";
 
     //
+    // Project Registration
+    //
+    public static final String PROJECT_REGISTRATION = "project_registration";
+
+    //
     // Unclassified
     //
     public static final String LEADER = "leader";

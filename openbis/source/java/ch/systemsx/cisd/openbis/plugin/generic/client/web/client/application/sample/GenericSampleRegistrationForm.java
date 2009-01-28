@@ -137,7 +137,7 @@ public final class GenericSampleRegistrationForm extends
     @Override
     protected void createEntitySpecificFields()
     {
-        groupSelectionWidget = new GroupSelectionWidget(viewContext, getId());
+        groupSelectionWidget = new GroupSelectionWidget(viewContext, getId(), true);
         groupSelectionWidget.setLabelSeparator(GenericConstants.MANDATORY_LABEL_SEPARATOR);
         groupSelectionWidget.setFieldLabel(viewContext.getMessage(Dict.GROUP));
         groupSelectionWidget.setAllowBlank(false);

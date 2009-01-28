@@ -213,4 +213,9 @@ public interface ICommonClientService extends IClientService
      */
     public void registerVocabulary(final Vocabulary vocabulary) throws UserFailureException;
 
+    /**
+     * Registers given {@link Project}.
+     */
+    public void registerProject(final Project project) throws UserFailureException;
+
 }

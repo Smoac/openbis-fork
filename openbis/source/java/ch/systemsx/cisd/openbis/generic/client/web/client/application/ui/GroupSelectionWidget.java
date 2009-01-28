@@ -54,9 +54,13 @@ public final class GroupSelectionWidget extends ComboBox<GroupModel>
 
     public static final String SHARED_GROUP_CODE = "(Shared)";
 
-    public GroupSelectionWidget(final IViewContext<?> viewContext, final String idSuffix)
+    private final boolean addShared;
+
+    public GroupSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
+            boolean addShared)
     {
         this.viewContext = viewContext;
+        this.addShared = addShared;
         setId(ID + idSuffix);
         setDisplayField(ModelDataPropertyNames.CODE);
         setEditable(false);
@@ -119,7 +123,10 @@ public final class GroupSelectionWidget extends ComboBox<GroupModel>
         {
             final ListStore<GroupModel> groupStore = getStore();
             groupStore.removeAll();
-            groupStore.add(new GroupModel(createSharedGroup()));
+            if (addShared)
+            {
+                groupStore.add(new GroupModel(createSharedGroup()));
+            }
             groupStore.add(GroupModel.convert(result));
             if (groupStore.getCount() > 0)
             {

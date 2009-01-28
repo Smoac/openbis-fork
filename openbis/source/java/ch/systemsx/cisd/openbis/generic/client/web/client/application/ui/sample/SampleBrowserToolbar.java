@@ -56,7 +56,7 @@ final class SampleBrowserToolbar extends ToolBar
     {
         this.viewContext = viewContext;
         selectSampleTypeCombo = new SampleTypeSelectionWidget(viewContext, ID, true);
-        selectGroupCombo = new GroupSelectionWidget(viewContext, ID);
+        selectGroupCombo = new GroupSelectionWidget(viewContext, ID, true);
         display();
     }
 
@@ -73,7 +73,7 @@ final class SampleBrowserToolbar extends ToolBar
             return null;
         }
         final boolean includeInstance = GroupSelectionWidget.isSharedGroup(selectedGroup);
-        final boolean includeGroup = (includeInstance == false);
+        final boolean includeGroup = includeInstance == false;
 
         ListSampleCriteria criteria = new ListSampleCriteria();
         criteria.setSampleType(selectedType);

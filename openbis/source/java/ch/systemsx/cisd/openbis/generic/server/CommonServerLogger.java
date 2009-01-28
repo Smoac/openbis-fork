@@ -257,4 +257,10 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logTracking(sessionToken, "register_vocabulary", "VOCABULARY(%s)", vocabulary.getCode());
     }
+
+    public void registerProject(String sessionToken, ProjectIdentifier projectIdentifier,
+            String description, String leaderId)
+    {
+        logTracking(sessionToken, "register_project", "PROJECT(%s)", projectIdentifier);
+    }
 }

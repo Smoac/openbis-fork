@@ -175,4 +175,8 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /** @see ICommonClientService#registerVocabulary(Vocabulary) */
     public void registerVocabulary(final Vocabulary vocabulary,
             final AsyncCallback<Void> asyncCallback);
+
+    /** @see ICommonClientService#registerProject(Project) */
+    public void registerProject(Project project,
+            final AsyncCallback<Void> projectRegistrationCallback);
 }

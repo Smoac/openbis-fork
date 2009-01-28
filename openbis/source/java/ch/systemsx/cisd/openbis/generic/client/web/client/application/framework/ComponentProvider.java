@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experim
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project.ProjectBrowser;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project.ProjectRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeAssignmentBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeAssignmentForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeBrowser;
@@ -209,6 +210,24 @@ final class ComponentProvider
                 public String getId()
                 {
                     return VocabularyRegistrationForm.ID;
+                }
+            };
+    }
+
+    public final ITabItemFactory getProjectRegistration()
+    {
+        return new ITabItemFactory()
+            {
+                public ITabItem create()
+                {
+                    Component component = new ProjectRegistrationForm(viewContext);
+                    return new DefaultTabItem(getMessage(Dict.PROJECT_REGISTRATION), component,
+                            true);
+                }
+
+                public String getId()
+                {
+                    return ProjectRegistrationForm.ID;
                 }
             };
     }

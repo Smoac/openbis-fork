@@ -451,8 +451,15 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         assert vocabulary != null : "Unspecified vocabulary";
 
         final Session session = getSessionManager().getSession(sessionToken);
-        final IVocabularyBO propertyTypeBO = businessObjectFactory.createVocabularyBO(session);
-        propertyTypeBO.define(vocabulary);
-        propertyTypeBO.save();
+        final IVocabularyBO vocabularyBO = businessObjectFactory.createVocabularyBO(session);
+        vocabularyBO.define(vocabulary);
+        vocabularyBO.save();
+    }
+
+    public void registerProject(String sessionToken, ProjectIdentifier projectIdentifier,
+            String description, String leaderId)
+    {
+        getSessionManager().getSession(sessionToken);
+        throw new UserFailureException("Not implemented");
     }
 }

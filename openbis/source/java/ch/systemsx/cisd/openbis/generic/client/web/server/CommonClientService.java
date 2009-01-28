@@ -81,6 +81,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceId
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.plugin.AbstractClientService;
@@ -645,5 +647,25 @@ public final class CommonClientService extends AbstractClientService implements
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
+    }
+
+    public void registerProject(Project project)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        assert project != null : "Unspecified project.";
+        try
+        {
+            final String sessionToken = getSessionToken();
+            final ProjectIdentifier projectIdentifier =
+                    new ProjectIdentifierFactory(project.getIdentifier()).createIdentifier();
+            Person leader = project.getProjectLeader();
+            final String leaderId = leader == null ? null : project.getProjectLeader().getUserId();
+            commonServer.registerProject(sessionToken, projectIdentifier, project.getDescription(),
+                    leaderId);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+
     }
 }
