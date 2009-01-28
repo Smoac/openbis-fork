@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
@@ -38,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * 
  * @author Izabela Adamczyk
  */
+@Friend(toClasses = EntityTypePropertyTypeBO.class)
 public final class EntityTypePropertyTypeBOTest extends AbstractBOTest
 {
 
