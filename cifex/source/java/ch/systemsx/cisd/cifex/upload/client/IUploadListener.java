@@ -25,9 +25,11 @@ import java.io.File;
  */
 public interface IUploadListener
 {
-    public void uploadingStarted(File file);
+    public void uploadingStarted(File file, long fileSize);
     
     public void uploadingProgress(int percentage, long numberOfBytes);
     
-    public void uploadingFinished();
+    public void fileUploaded();
+    
+    public void uploadingFinished(boolean successful);
 }

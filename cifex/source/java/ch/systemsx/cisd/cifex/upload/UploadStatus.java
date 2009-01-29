@@ -28,13 +28,12 @@ public class UploadStatus implements Serializable
 {
     private static final long serialVersionUID = 1L;
     
-    private final String[] files;
+    private String[] files;
     private int indexOfCurrentFile;
     private long filePointer;
-    
-    private UploadState uploadState = UploadState.INIT;
+    private UploadState uploadState = UploadState.INITIALIZED;
 
-    public UploadStatus(String[] files)
+    public final void setFiles(String[] files)
     {
         this.files = files;
     }
@@ -43,7 +42,7 @@ public class UploadStatus implements Serializable
     {
         indexOfCurrentFile++;
         filePointer = 0;
-        uploadState = indexOfCurrentFile < files.length ? UploadState.INIT : UploadState.FINISHED;
+        uploadState = indexOfCurrentFile < files.length ? UploadState.READY_FOR_NEXT_FILE : UploadState.FINISHED;
     }
     
     public String getCurrentFile()

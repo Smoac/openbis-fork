@@ -44,6 +44,7 @@ import ch.systemsx.cisd.cifex.server.util.FilenameUtilities;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.utilities.StringUtilities;
 
 /**
  * Servlet for uploading file into Cifex.
@@ -207,7 +208,7 @@ public final class FileUploadServlet extends AbstractFileUploadServlet
             {
                 if (item.getFieldName().equals(RECIPIENTS_FIELD_NAME))
                 {
-                    extractRecipients(userIdentifier, Streams.asString(stream));
+                    userIdentifier.addAll(StringUtilities.tokenize(Streams.asString(stream)));
                 }
                 if (item.getFieldName().equals(COMMENT_FIELD_NAME))
                 {

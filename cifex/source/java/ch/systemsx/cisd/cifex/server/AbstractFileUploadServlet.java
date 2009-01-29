@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.cifex.server;
 
-import java.util.List;
-import java.util.StringTokenizer;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.FileUtils;
@@ -74,15 +71,6 @@ public abstract class AbstractFileUploadServlet extends AbstractCIFEXServiceServ
     protected final void postInitialization()
     {
         maxUploadSizeInBytes = getMaxUploadSizeInMegabytes() * FileUtils.ONE_MB;
-    }
-
-    protected void extractRecipients(final List<String> recipientsIdentifies, String recipients)
-    {
-        final StringTokenizer stringTokenizer = new StringTokenizer(recipients, ", \t\n\r\f");
-        while (stringTokenizer.hasMoreTokens())
-        {
-            recipientsIdentifies.add(stringTokenizer.nextToken());
-        }
     }
 
     protected String getURLForEmail(final HttpServletRequest request)

@@ -33,13 +33,13 @@ class UploadSession
     
     private final UserDTO user;
     
+    private final UploadStatus uploadStatus;
+    
     private String url;
     
     private File file;
     
     private RandomAccessFile randomAccessFile;
-    
-    private UploadStatus uploadStatus;
     
     private String[] recipients;
     
@@ -50,6 +50,7 @@ class UploadSession
         this.sessionID = sessionID;
         this.user = user;
         this.url = url;
+        uploadStatus = new UploadStatus();
     }
 
     final String getSessionID()
@@ -95,11 +96,6 @@ class UploadSession
     final UploadStatus getUploadStatus()
     {
         return uploadStatus;
-    }
-
-    final void setUploadStatus(UploadStatus uploadStatus)
-    {
-        this.uploadStatus = uploadStatus;
     }
 
     final String[] getRecipients()

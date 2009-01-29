@@ -23,9 +23,13 @@ package ch.systemsx.cisd.cifex.upload;
  */
 public interface IUploadService
 {
-    public void add(String uploadSessionID, String[] files, String[] recipients, String comment);
+    public UploadStatus cancel(String uploadSessionID);
+    
+    public UploadStatus defineUploadParameters(String uploadSessionID, String[] files, String recipients, String comment);
     
     public UploadStatus getUploadStatus(String uploadSessionID);
+    
+    public UploadStatus startUploading(String uploadSessionID);
     
     public UploadStatus uploadBlock(String uploadSessionID, byte[] block, int blockSize, boolean lastBlock);
 }

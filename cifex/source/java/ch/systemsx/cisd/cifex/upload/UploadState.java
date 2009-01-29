@@ -23,5 +23,5 @@ package ch.systemsx.cisd.cifex.upload;
  */
 public enum UploadState
 {
-    INIT, UPLOADING, FINISHED, ABORTED;
+    INITIALIZED, READY_FOR_NEXT_FILE, UPLOADING, FINISHED, ABORTED;
 }

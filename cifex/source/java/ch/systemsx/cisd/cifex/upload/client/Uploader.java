@@ -20,12 +20,15 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.EnumSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import ch.systemsx.cisd.cifex.upload.IUploadService;
 import ch.systemsx.cisd.cifex.upload.UploadState;
 import ch.systemsx.cisd.cifex.upload.UploadStatus;
+import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.WrappedIOException;
 
 /**
@@ -35,58 +38,12 @@ import ch.systemsx.cisd.common.exceptions.WrappedIOException;
  */
 class Uploader
 {
-    private static final int BLOCK_SIZE = 64 * 1024;
-    
-    private final Set<IUploadListener> listeners = new LinkedHashSet<IUploadListener>();
-    private final IUploadService uploadService;
-    private final String uploadSessionID;
+    private static final EnumSet<UploadState> FINAL_STATES =
+            EnumSet.of(UploadState.FINISHED, UploadState.ABORTED);
 
-    Uploader(IUploadService uploadService, String uploadSessionID)
-    {
-        this.uploadService = uploadService;
-        this.uploadSessionID = uploadSessionID;
-    }
-    
-    void addUploadListener(IUploadListener uploadListener)
-    {
-        listeners.add(uploadListener);
-    }
-    
-    void upload()
-    {
-        UploadStatus status = getStatus();
-        while (status.getUploadState() != UploadState.FINISHED)
-        {
-            status = upload(status);
-        }
-    }
+    private static final EnumSet<UploadState> RUNNING_STATES =
+            EnumSet.of(UploadState.READY_FOR_NEXT_FILE, UploadState.UPLOADING);
 
-    private UploadStatus upload(UploadStatus status)
-    {
-        UploadStatus currentStatus = status;
-        UploadState state = currentStatus.getUploadState();
-        File file = new File(currentStatus.getCurrentFile());
-        RandomAccessFileProvider fileProvider = new RandomAccessFileProvider(file);
-        byte[] bytes = new byte[BLOCK_SIZE];
-        while (true)
-        {
-            if (state == UploadState.INIT)
-            {
-                fireStartedEvent(file);
-            } 
-            if (state == UploadState.INIT || state == UploadState.UPLOADING)
-            {
-                currentStatus = uploadNextBlock(fileProvider, currentStatus.getFilePointer(), bytes);
-                state = currentStatus.getUploadState();
-                if (state != UploadState.UPLOADING)
-                {
-                    fileProvider.closeFile();
-                    return currentStatus;
-                }
-            }
-        }
-    }
-    
     private static final class RandomAccessFileProvider
     {
         private final File file;
@@ -127,6 +84,96 @@ class Uploader
         }
     }
     
+    private static final int BLOCK_SIZE = 64 * 1024;
+    
+    private final Set<IUploadListener> listeners = new LinkedHashSet<IUploadListener>();
+    private final IUploadService uploadService;
+    private final String uploadSessionID;
+    
+    Uploader(IUploadService uploadService, String uploadSessionID)
+    {
+        this.uploadService = uploadService;
+        this.uploadSessionID = uploadSessionID;
+    }
+    
+    void addUploadListener(IUploadListener uploadListener)
+    {
+        listeners.add(uploadListener);
+    }
+    
+    boolean isUploading()
+    {
+        try
+        {
+            UploadStatus status = uploadService.getUploadStatus(uploadSessionID);
+            return RUNNING_STATES.contains(status.getUploadState());
+        } catch (RuntimeException ex)
+        {
+            ex.printStackTrace();
+            return false;
+        }
+    }
+    
+    void cancel()
+    {
+        try
+        {
+            uploadService.cancel(uploadSessionID);
+        } catch (RuntimeException ex)
+        {
+            ex.printStackTrace();
+        }
+    }
+    
+    void upload(List<File> files, String recipients, String comment)
+    {
+        String[] paths = new String[files.size()];
+        try
+        {
+            for (int i = 0; i < files.size(); i++)
+            {
+                paths[i] = files.get(i).getCanonicalPath();
+            }
+        } catch (IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+        
+        UploadStatus status = uploadService.getUploadStatus(uploadSessionID);
+        byte[] bytes = new byte[BLOCK_SIZE];
+        RandomAccessFileProvider fileProvider = null;
+        long fileSize = 0;
+        while (FINAL_STATES.contains(status.getUploadState()) == false)
+        {
+            switch (status.getUploadState())
+            {
+                case INITIALIZED:
+                    status = uploadService.defineUploadParameters(uploadSessionID, paths, recipients, comment);
+                    break;
+                case READY_FOR_NEXT_FILE:
+                    if (fileProvider != null)
+                    {
+                        fileProvider.closeFile();
+                        fireUploadedEvent();
+                    }
+                    File file = new File(status.getCurrentFile());
+                    fileSize = file.length();
+                    fileProvider = new RandomAccessFileProvider(file);
+                    fireStartedEvent(file, fileSize);
+                    status = uploadService.startUploading(uploadSessionID);
+                    break;
+                case UPLOADING:
+                    status = uploadNextBlock(fileProvider, status.getFilePointer(), bytes);
+                    fireProgressEvent(status.getFilePointer(), fileSize);
+                    break;
+                case FINISHED:
+                case ABORTED:
+                    break;
+            }
+        }
+        fireFinishedEvent(status.getUploadState() == UploadState.FINISHED);
+    }
+
     private UploadStatus uploadNextBlock(RandomAccessFileProvider fileProvider, long filePointer, byte[] bytes)
     {
         try
@@ -141,7 +188,6 @@ class Uploader
             }
             randomAccessFile.seek(filePointer);
             randomAccessFile.readFully(bytes, 0, blockSize);
-            fireProgressEvent(filePointer, fileSize);
             return uploadService.uploadBlock(uploadSessionID, bytes, blockSize, lastBlock);
         } catch (IOException ex)
         {
@@ -149,6 +195,14 @@ class Uploader
         }
     }
 
+    private void fireStartedEvent(File file, long fileSize)
+    {
+        for (IUploadListener listener : listeners)
+        {
+            listener.uploadingStarted(file, fileSize);
+        }
+    }
+    
     private void fireProgressEvent(long numberOfBytes, long fileSize)
     {
         int percentage = (int) ((numberOfBytes * 100) / Math.max(1, fileSize));
@@ -158,16 +212,20 @@ class Uploader
         }
     }
 
-    private void fireStartedEvent(File file)
+    private void fireFinishedEvent(boolean successful)
     {
         for (IUploadListener listener : listeners)
         {
-            listener.uploadingStarted(file);
+            listener.uploadingFinished(successful);
         }
     }
     
-    private UploadStatus getStatus()
+    private void fireUploadedEvent()
     {
-        return uploadService.getUploadStatus(uploadSessionID);
+        for (IUploadListener listener : listeners)
+        {
+            listener.fileUploaded();
+        }
     }
+
 }
