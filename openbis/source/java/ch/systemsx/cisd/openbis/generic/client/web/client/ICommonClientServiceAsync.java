@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.shared.Person;
 import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.shared.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
@@ -96,6 +97,12 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<String> asyncCallback);
 
     /**
+     * @see ICommonClientService#prepareExportPropertyTypes(TableExportCriteria)
+     */
+    public void prepareExportPropertyTypes(final TableExportCriteria<PropertyType> criteria,
+            AsyncCallback<String> asyncCallback);
+
+    /**
      * @see ICommonClientService#prepareExportExperiments(TableExportCriteria)
      */
     public void prepareExportExperiments(TableExportCriteria<Experiment> exportCriteria,
@@ -155,6 +162,10 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
 
     /** @see ICommonClientService#listPropertyTypes() */
     public void listPropertyTypes(final AsyncCallback<List<PropertyType>> asyncCallback);
+
+    /** @see ICommonClientService#listPropertyTypes() */
+    public void listPropertyTypes(DefaultResultSetConfig<String, PropertyType> criteria,
+            final AsyncCallback<ResultSet<PropertyType>> asyncCallback);
 
     /** @see ICommonClientService#listDataTypes() */
     public void listDataTypes(final AsyncCallback<List<DataType>> asyncCallback);

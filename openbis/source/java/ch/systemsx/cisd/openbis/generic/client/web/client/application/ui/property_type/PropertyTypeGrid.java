@@ -16,87 +16,88 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.data.BaseListLoadResult;
-import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
-import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
 import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.PropertyTypeModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.ETPTRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GridWithRPCProxy;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ColumnDefsAndConfigs;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 
 /**
  * {@link GridWithRPCProxy} displaying property types.
  * 
  * @author Izabela Adamczyk
  */
-class PropertyTypeGrid extends GridWithRPCProxy<PropertyType, PropertyTypeModel>
+public class PropertyTypeGrid extends AbstractBrowserGrid<PropertyType, PropertyTypeModel>
 {
-    private final CommonViewContext viewContext;
+    // browser consists of the grid and the paging toolbar
+    public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "property-type-browser";
 
-    public PropertyTypeGrid(CommonViewContext viewContext, String id)
+    public static final String GRID_ID = BROWSER_ID + "_grid";
+
+    public static DisposableComponent create(
+            final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(createColumnModel(viewContext), id);
-        this.viewContext = viewContext;
+        return new PropertyTypeGrid(viewContext).asDisposableWithoutToolbar();
     }
 
-    private static ColumnModel createColumnModel(IViewContext<?> context)
+    private PropertyTypeGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-        configs.add(ColumnConfigFactory.createDefaultColumnConfig(context.getMessage(Dict.LABEL),
-                ModelDataPropertyNames.LABEL));
-        configs.add(ColumnConfigFactory.createCodeColumnConfig(context));
-        configs.add(ColumnConfigFactory.createDefaultColumnConfig(context
-                .getMessage(Dict.DATA_TYPE), ModelDataPropertyNames.DATA_TYPE));
-        configs.add(ColumnConfigFactory.createDefaultColumnConfig(context
-                .getMessage(Dict.VOCABULARY), ModelDataPropertyNames.CONTROLLED_VOCABULARY));
-        configs.add(ColumnConfigFactory.createDefaultColumnConfig(context
-                .getMessage(Dict.DESCRIPTION), ModelDataPropertyNames.DESCRIPTION));
-        configs.add(defineEtptColumn(Dict.SAMPLE_TYPES, ModelDataPropertyNames.SAMPLE_TYPES,
-                context));
-        configs.add(defineEtptColumn(Dict.EXPERIMENT_TYPES,
-                ModelDataPropertyNames.EXPERIMENT_TYPES, context));
-        configs.add(defineEtptColumn(Dict.MATERIAL_TYPES, ModelDataPropertyNames.MATERIAL_TYPES,
-                context));
-        return new ColumnModel(configs);
+        super(viewContext, GRID_ID, false, true);
+        setId(BROWSER_ID);
+        updateDefaultRefreshButton();
     }
 
     @Override
-    protected void loadDataFromService(AsyncCallback<BaseListLoadResult<PropertyTypeModel>> callback)
+    protected ColumnDefsAndConfigs<PropertyType> createColumnsDefinition()
     {
-        viewContext.getService().listPropertyTypes(
-                new ListPropertyTypesCallback(viewContext, callback));
+        return ColumnDefsAndConfigs.create(PropertyTypeModel.createColumnsSchema(viewContext));
     }
 
-    class ListPropertyTypesCallback extends DelegatingAsyncCallback
+    @Override
+    protected List<PropertyTypeModel> createModels(List<PropertyType> entities)
     {
-        public ListPropertyTypesCallback(IViewContext<?> context,
-                AsyncCallback<BaseListLoadResult<PropertyTypeModel>> callback)
-        {
-            super(context, callback);
-        }
-
-        @Override
-        protected List<PropertyTypeModel> convert(List<PropertyType> result)
-        {
-            return PropertyTypeModel.convert(result);
-        }
+        return PropertyTypeModel.convert(entities);
     }
 
-    private static ColumnConfig defineEtptColumn(String dictCode, String id, IViewContext<?> context)
+    @Override
+    protected boolean isRefreshEnabled()
     {
-        final ColumnConfig column =
-                ColumnConfigFactory.createDefaultColumnConfig(context.getMessage(dictCode), id);
-        column.setRenderer(new ETPTRenderer());
-        return column;
+        return true;
+    }
+
+    @Override
+    protected void listEntities(DefaultResultSetConfig<String, PropertyType> resultSetConfig,
+            AbstractAsyncCallback<ResultSet<PropertyType>> callback)
+    {
+        viewContext.getService().listPropertyTypes(resultSetConfig, callback);
+    }
+
+    @Override
+    protected void prepareExportEntities(TableExportCriteria<PropertyType> exportCriteria,
+            AbstractAsyncCallback<String> callback)
+    {
+        viewContext.getService().prepareExportPropertyTypes(exportCriteria, callback);
+    }
+
+    @Override
+    protected void refresh()
+    {
+        super.refresh(null, false);
+    }
+
+    @Override
+    protected void showEntityViewer(PropertyTypeModel modelData)
+    {
+        // do nothing
     }
 }

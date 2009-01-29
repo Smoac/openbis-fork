@@ -49,7 +49,7 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
 {
     private static final String PREFIX = GenericConstants.ID_PREFIX + "sample-browser-grid_";
 
-    // browser consists of the grid and the toolbar
+    // browser consists of the grid and the paging toolbar
     public static final String BROWSER_ID = PREFIX + "sample_browser";
 
     public static final String GRID_ID = PREFIX + "grid";
@@ -64,7 +64,7 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
     {
         final SampleBrowserToolbar toolbar = new SampleBrowserToolbar(viewContext);
         final SampleBrowserGrid browserGrid = new SampleBrowserGrid(viewContext, toolbar);
-        return browserGrid.createWithToolbar(toolbar);
+        return browserGrid.asDisposableWithToolbar(toolbar);
     }
 
     private SampleBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,

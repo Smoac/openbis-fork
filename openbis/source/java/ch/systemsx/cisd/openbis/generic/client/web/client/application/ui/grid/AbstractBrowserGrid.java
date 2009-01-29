@@ -47,6 +47,7 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -119,6 +120,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
     // the toolbar has the refresh and export buttons besides the paging controls
     private final BrowserGridPagingToolBar pagingToolbar;
 
+    // should the data be automatically loaded when the grid is rendered for the first time?
+    private final boolean refreshAutomatically;
+
     // available columns configs and definitions
     private ColumnDefsAndConfigs<T> columns;
 
@@ -143,13 +147,14 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
     protected AbstractBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             String gridId)
     {
-        this(viewContext, gridId, true);
+        this(viewContext, gridId, true, false);
     }
 
     protected AbstractBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
-            String gridId, boolean showHeader)
+            String gridId, boolean showHeader, boolean refreshAutomatically)
     {
         this.viewContext = viewContext;
+        this.refreshAutomatically = refreshAutomatically;
         this.pagingLoader = createPagingLoader();
 
         this.grid = createGrid(pagingLoader, createEntityViewerHandler(), gridId);
@@ -167,13 +172,24 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
     }
 
     /** @return this grid as a disposable component with a specified toolbar at the top. */
-    protected final DisposableComponent createWithToolbar(final Component toolbar)
+    protected final DisposableComponent asDisposableWithToolbar(final Component toolbar)
     {
         final LayoutContainer container = new LayoutContainer();
         container.setLayout(new RowLayout());
         container.add(toolbar);
         container.add(this, new RowData(1, 1));
 
+        return asDisposableComponent(container);
+    }
+
+    /** @return this grid as a disposable component */
+    protected final DisposableComponent asDisposableWithoutToolbar()
+    {
+        return asDisposableComponent(this);
+    }
+
+    private DisposableComponent asDisposableComponent(final Component component)
+    {
         return new DisposableComponent()
             {
                 public void dispose()
@@ -183,9 +199,20 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
 
                 public Component getComponent()
                 {
-                    return container;
+                    return component;
                 }
             };
+    }
+
+    @Override
+    protected void onRender(final Element parent, final int pos)
+    {
+        super.onRender(parent, pos);
+        if (refreshAutomatically)
+        {
+            layout();
+            refresh();
+        }
     }
 
     private PagingLoader<PagingLoadConfig> createPagingLoader()
@@ -367,7 +394,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
                 @Override
                 public void selectionChanged(SelectionChangedEvent<D> se)
                 {
-                    updateDefaultRefreshButtons();
+                    updateDefaultRefreshButton();
 
                     boolean isEnabled = isRefreshEnabled();
                     // Refreshes the state of the specified refresh button.
@@ -377,7 +404,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
             };
     }
 
-    protected final void updateDefaultRefreshButtons()
+    protected final void updateDefaultRefreshButton()
     {
         boolean isEnabled = isRefreshEnabled();
         pagingToolbar.updateDefaultRefreshButton(isEnabled);
@@ -401,10 +428,11 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
     protected final void refresh(final IDataRefreshCallback externalRefreshCallbackOrNull,
             String headerOrNull, boolean refreshColumnsDefinition)
     {
+        pagingToolbar.updateDefaultRefreshButton(false);
         disposeCache();
         this.refreshCallback = createRefreshCallback(externalRefreshCallbackOrNull);
         setHeader(headerOrNull);
-        if (refreshColumnsDefinition)
+        if (columns == null || refreshColumnsDefinition)
         {
             this.columns = createColumnsDefinition();
         }
@@ -434,6 +462,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
             {
                 public void postRefresh(boolean wasSuccessful)
                 {
+                    pagingToolbar.updateDefaultRefreshButton(true);
                     if (wasSuccessful)
                     {
                         pagingToolbar.enableExportButton();

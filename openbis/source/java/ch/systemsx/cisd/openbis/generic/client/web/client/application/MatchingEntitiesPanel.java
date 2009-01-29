@@ -53,11 +53,12 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
     MatchingEntitiesPanel(final IViewContext<ICommonClientServiceAsync> viewContext,
             final SearchableEntity searchableEntity, final String queryText)
     {
-        super(viewContext, GRID_ID, false);
+        // NOTE: refreshAutomatically is false, refreshing should be called manually
+        super(viewContext, GRID_ID, false, false);
         this.searchableEntity = searchableEntity;
         this.queryText = queryText;
         setId(PREFIX + XDOM.getUniqueId());
-        updateDefaultRefreshButtons();
+        updateDefaultRefreshButton();
     }
 
     @Override

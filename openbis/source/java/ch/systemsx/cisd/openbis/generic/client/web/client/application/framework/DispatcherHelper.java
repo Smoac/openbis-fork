@@ -41,7 +41,8 @@ public final class DispatcherHelper
     }
 
     /**
-     * Creates and dispatches an event of type {@link AppEvents#NAVI_EVENT}.
+     * Creates and dispatches an event of type {@link AppEvents#NAVI_EVENT}. The event opens a new
+     * tab.
      */
     public final static void dispatchNaviEvent(final ITabItemFactory tabItemFactory)
     {

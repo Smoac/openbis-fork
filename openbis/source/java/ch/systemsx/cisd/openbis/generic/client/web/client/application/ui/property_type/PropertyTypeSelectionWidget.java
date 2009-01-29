@@ -28,7 +28,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.PropertyTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 
@@ -50,7 +49,7 @@ public final class PropertyTypeSelectionWidget extends ComboBox<PropertyTypeMode
     {
         this.viewContext = viewContext;
         setId(ID + idSuffix);
-        setDisplayField(ModelDataPropertyNames.CODE);
+        setDisplayField(PropertyTypeColDefKind.CODE.id());
         setEditable(false);
         setWidth(180);
         setFieldLabel(viewContext.getMessage(Dict.PROPERTY_TYPE));

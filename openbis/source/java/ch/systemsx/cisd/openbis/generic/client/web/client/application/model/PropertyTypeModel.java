@@ -19,35 +19,60 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionUI;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
  * {@link ModelData} for {@link PropertyType}.
  * 
  * @author Izabela Adamczyk
  */
-public class PropertyTypeModel extends BaseModelData
+public class PropertyTypeModel extends AbstractEntityModel<PropertyType>
 {
+    private static final long serialVersionUID = 1L;
 
-    public PropertyTypeModel(PropertyType propertyType)
+    public PropertyTypeModel(PropertyType entity)
     {
-        set(ModelDataPropertyNames.CODE, propertyType.getCode());
-        set(ModelDataPropertyNames.LABEL, propertyType.getLabel());
-        set(ModelDataPropertyNames.DATA_TYPE, propertyType.getDataType().getCode());
-        set(ModelDataPropertyNames.CONTROLLED_VOCABULARY,
-                propertyType.getVocabulary() != null ? propertyType.getVocabulary().getCode()
-                        : null);
-        set(ModelDataPropertyNames.DESCRIPTION, propertyType.getDescription());
-        set(ModelDataPropertyNames.EXPERIMENT_TYPES, propertyType.getExperimentTypePropertyTypes());
-        set(ModelDataPropertyNames.MATERIAL_TYPES, propertyType.getMaterialTypePropertyTypes());
-        set(ModelDataPropertyNames.SAMPLE_TYPES, propertyType.getSampleTypePropertyTypes());
-        set(ModelDataPropertyNames.OBJECT, propertyType);
+        super(entity, createColumnsSchema(null));
+
+        overwriteTypes(PropertyTypeColDefKind.EXPERIMENT_TYPES);
+        overwriteTypes(PropertyTypeColDefKind.MATERIAL_TYPES);
+        overwriteTypes(PropertyTypeColDefKind.SAMPLE_TYPES);
     }
 
-    private static final long serialVersionUID = 1L;
+    private void overwriteTypes(PropertyTypeColDefKind columnKind)
+    {
+        String columnId = columnKind.id();
+        String commaValues = get(columnId);
+        String newValue = rerenderTypes(commaValues);
+        set(columnId, newValue);
+    }
+
+    private static String rerenderTypes(String commaValues)
+    {
+        String[] tokens = commaValues.split(",");
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < tokens.length; i++)
+        {
+            final Element div = DOM.createDiv();
+            div.setInnerText(tokens[i].trim());
+            sb.append(div.getString());
+        }
+        String newValue = sb.toString();
+        return newValue;
+    }
+
+    public static List<IColumnDefinitionUI<PropertyType>> createColumnsSchema(
+            IMessageProvider msgProviderOrNull)
+    {
+        return createColumnsSchemaFrom(PropertyTypeColDefKind.values(), msgProviderOrNull);
+    }
 
     public final static List<PropertyTypeModel> convert(final List<PropertyType> types)
     {

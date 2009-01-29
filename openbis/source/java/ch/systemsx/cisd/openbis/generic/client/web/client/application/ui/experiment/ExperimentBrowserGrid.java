@@ -61,7 +61,7 @@ public final class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment,
     {
         final ExperimentBrowserToolbar toolbar = new ExperimentBrowserToolbar(viewContext);
         final ExperimentBrowserGrid browserGrid = new ExperimentBrowserGrid(viewContext, toolbar);
-        return browserGrid.createWithToolbar(toolbar);
+        return browserGrid.asDisposableWithToolbar(toolbar);
     }
 
     private ExperimentBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,

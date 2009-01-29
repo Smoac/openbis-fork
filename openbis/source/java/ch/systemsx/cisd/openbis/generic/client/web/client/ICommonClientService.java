@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.client.shared.Person;
 import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.shared.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
@@ -128,6 +129,13 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
+     * Returns a key which can be used be the export servlet (and eventually
+     * {@link #getExportTable(String)}) to reference the export criteria in an easy way.
+     */
+    public String prepareExportPropertyTypes(final TableExportCriteria<PropertyType> criteria)
+            throws UserFailureException;
+
+    /**
      * Assumes that preparation of the export ({@link #prepareExportSamples(TableExportCriteria)}
      * or {@link #prepareExportExperiments(TableExportCriteria)} has been invoked before and
      * returned with an exportDataKey passed here as a parameter.
@@ -181,6 +189,12 @@ public interface ICommonClientService extends IClientService
      * Returns a list of all property types.
      */
     public List<PropertyType> listPropertyTypes() throws UserFailureException;
+
+    /**
+     * Returns a chunk of the property types list.
+     */
+    public ResultSet<PropertyType> listPropertyTypes(
+            DefaultResultSetConfig<String, PropertyType> criteria) throws UserFailureException;
 
     /**
      * Returns a list of all data types.

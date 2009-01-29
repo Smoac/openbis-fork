@@ -95,7 +95,7 @@ public final class FillPropertyTypeAssignmentForm extends AbstractDefaultTestCom
                 (PropertyTypeSelectionWidget) GWTTestUtil
                         .getWidgetWithID(PropertyTypeSelectionWidget.ID + widgetId
                                 + PropertyTypeAssignmentForm.PROPERTY_TYPE_ID_SUFFIX);
-        GWTUtils.setSelectedItem(propertyTypeSelector, ModelDataPropertyNames.CODE,
+        GWTUtils.setSelectedItem(propertyTypeSelector, PropertyTypeColDefKind.CODE.id(),
                 propertyTypeCode);
         return propertyTypeSelector;
     }

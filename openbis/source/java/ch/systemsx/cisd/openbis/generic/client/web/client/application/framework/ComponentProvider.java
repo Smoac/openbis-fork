@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project.ProjectRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeAssignmentBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeAssignmentForm;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeBrowser;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBatchRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
@@ -290,13 +290,13 @@ final class ComponentProvider
             {
                 public ITabItem create()
                 {
-                    Component component = new PropertyTypeBrowser(viewContext);
-                    return new DefaultTabItem(getMessage(Dict.PROPERTY_TYPES), component, false);
+                    DisposableComponent component = PropertyTypeGrid.create(viewContext);
+                    return DefaultTabItem.create(getMessage(Dict.PROPERTY_TYPES), component, false);
                 }
 
                 public String getId()
                 {
-                    return PropertyTypeBrowser.ID;
+                    return PropertyTypeGrid.BROWSER_ID;
                 }
             };
     }

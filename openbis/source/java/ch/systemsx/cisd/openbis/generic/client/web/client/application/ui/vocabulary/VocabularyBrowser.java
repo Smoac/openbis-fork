@@ -42,7 +42,7 @@ public final class VocabularyBrowser extends ContentPanel
 {
     private static final String PREFIX = "vocabulary-browser";
 
-    public static final String ID = GenericConstants.ID_PREFIX + PREFIX;;
+    public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 

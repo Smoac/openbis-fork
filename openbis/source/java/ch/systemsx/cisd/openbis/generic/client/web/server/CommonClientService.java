@@ -354,6 +354,12 @@ public final class CommonClientService extends AbstractClientService implements
         return prepareExportEntities(criteria);
     }
 
+    public String prepareExportPropertyTypes(TableExportCriteria<PropertyType> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return prepareExportEntities(criteria);
+    }
+
     private <T> String prepareExportEntities(TableExportCriteria<T> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -387,6 +393,30 @@ public final class CommonClientService extends AbstractClientService implements
             final TableExportCriteria<T> exportCriteria = getAndRemoveExportCriteria(exportDataKey);
             final List<T> entities = fetchCachedEntities(exportCriteria);
             return TSVRenderer.createTable(entities, exportCriteria.getColumnDefs());
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public ResultSet<PropertyType> listPropertyTypes(
+            DefaultResultSetConfig<String, PropertyType> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final IResultSetManager<String> resultSetManager = getResultSetManager();
+            IOriginalDataProvider<PropertyType> dataProvider =
+                    new IOriginalDataProvider<PropertyType>()
+                        {
+                            public List<PropertyType> getOriginalData() throws UserFailureException
+                            {
+                                return listPropertyTypes();
+                            }
+                        };
+            final IResultSet<String, PropertyType> result =
+                    resultSetManager.getResultSet(criteria, dataProvider);
+            return ResultSetTranslator.translate(result);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -561,17 +591,22 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            final List<PropertyType> result = new ArrayList<PropertyType>();
             final List<PropertyTypePE> propertyTypes = commonServer.listPropertyTypes(sessionToken);
-            for (final PropertyTypePE propType : propertyTypes)
-            {
-                result.add(PropertyTypeTranslator.translate(propType));
-            }
-            return result;
+            return translate(propertyTypes);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
+    }
+
+    private static List<PropertyType> translate(final List<PropertyTypePE> propertyTypes)
+    {
+        final List<PropertyType> result = new ArrayList<PropertyType>();
+        for (final PropertyTypePE propType : propertyTypes)
+        {
+            result.add(PropertyTypeTranslator.translate(propType));
+        }
+        return result;
     }
 
     public final List<DataType> listDataTypes()
