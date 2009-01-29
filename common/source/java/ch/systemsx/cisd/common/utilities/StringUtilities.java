@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.common.utilities;
 
 import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -221,5 +223,23 @@ public final class StringUtilities
         {
             return s1OrNull.compareTo(s2OrNull);
         }
+    }
+    
+    /**
+     * Returns a list of tokens of the specified string which are separated by at least one
+     * whitespace character or comma symbol.
+     */
+    public static List<String> tokenize(String textOrNull)
+    {
+        List<String> list = new ArrayList<String>();
+        if (textOrNull != null)
+        {
+            final StringTokenizer stringTokenizer = new StringTokenizer(textOrNull, ", \t\n\r\f");
+            while (stringTokenizer.hasMoreTokens())
+            {
+                list.add(stringTokenizer.nextToken());
+            }
+        }
+        return list;
     }
 }

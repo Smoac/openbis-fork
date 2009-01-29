@@ -90,4 +90,14 @@ public class StringUtilitiesTest
         assertEquals("19th", StringUtilities.getOrdinal(19));
     }
 
+    @Test
+    public void testTokenize()
+    {
+        assertEquals("[]", StringUtilities.tokenize(null).toString());
+        assertEquals("[]", StringUtilities.tokenize("").toString());
+        assertEquals("[]", StringUtilities.tokenize(" ").toString());
+        assertEquals("[]", StringUtilities.tokenize(", ,").toString());
+        assertEquals("[abc]", StringUtilities.tokenize("abc").toString());
+        assertEquals("[a, b, c, d]", StringUtilities.tokenize(" a,b c\n d ").toString());
+    }
 }
