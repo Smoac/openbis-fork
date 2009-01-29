@@ -49,8 +49,8 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         super(daoFactory, session);
     }
 
-    private ProjectPE createProject(final ProjectIdentifier projectIdentifier,
-            String description, String leaderId)
+    private ProjectPE createProject(final ProjectIdentifier projectIdentifier, String description,
+            String leaderId)
     {
         final ProjectPE result = new ProjectPE();
         final GroupPE group =

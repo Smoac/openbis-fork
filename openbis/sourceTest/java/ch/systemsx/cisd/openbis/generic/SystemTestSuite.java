@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Authentica
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AuthorizationManagementConsolTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.EntityTypePropertyTypeAssignmentTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ExperimentBrowserTest;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ProjectRegistrationTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.PropertyTypeAssignmentBrowserTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.PropertyTypeBrowserTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.PropertyTypeRegistrationTest;
@@ -61,6 +62,7 @@ public class SystemTestSuite extends GWTTestSuite
         testSuite.addTestSuite(VocabularyRegistrationTest.class);
         testSuite.addTestSuite(PropertyTypeRegistrationTest.class);
         testSuite.addTestSuite(GenericExperimentAttachmentDownloadTest.class);
+        testSuite.addTestSuite(ProjectRegistrationTest.class);
         return testSuite;
     }
 }

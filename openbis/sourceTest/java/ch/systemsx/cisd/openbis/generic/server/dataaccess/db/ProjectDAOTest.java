@@ -24,6 +24,8 @@ import java.util.List;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**
@@ -35,6 +37,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
     { "db", "project" })
 public class ProjectDAOTest extends AbstractDAOTest
 {
+
+    private static final String DESCRIPTION_NEW_PROJECT = "New project.";
+
+    private static final String NONEXISTENT = "nonexistent";
 
     public static final String NOE = "NOE";
 
@@ -117,14 +123,50 @@ public class ProjectDAOTest extends AbstractDAOTest
 
         AssertJUnit.assertNull(daoFactory.getProjectDAO().tryFindProject(
                 templateProject.getGroup().getDatabaseInstance().getCode(),
-                templateProject.getGroup().getCode(), "nonexistent"));
+                templateProject.getGroup().getCode(), NONEXISTENT));
 
         AssertJUnit.assertNull(daoFactory.getProjectDAO().tryFindProject(
-                templateProject.getGroup().getDatabaseInstance().getCode(), "nonexistent",
+                templateProject.getGroup().getDatabaseInstance().getCode(), NONEXISTENT,
                 templateProject.getCode()));
 
-        AssertJUnit.assertNull(daoFactory.getProjectDAO().tryFindProject("nonexistent",
+        AssertJUnit.assertNull(daoFactory.getProjectDAO().tryFindProject(NONEXISTENT,
                 templateProject.getGroup().getCode(), templateProject.getCode()));
     }
-    // FIXME: add test
+
+    @Test
+    public void testCreateProject() throws Exception
+    {
+        final List<ProjectPE> allProjects = daoFactory.getProjectDAO().listProjects();
+        Collections.sort(allProjects);
+        final ProjectPE templateProject = allProjects.get(3);
+        assertEquals(templateProject.getCode(), TESTPROJ);
+        AssertJUnit.assertNull(daoFactory.getProjectDAO().tryFindProject(
+                templateProject.getGroup().getDatabaseInstance().getCode(),
+                templateProject.getGroup().getCode(), NONEXISTENT));
+        final ProjectPE newProject =
+                prepareProject(templateProject.getGroup(), NONEXISTENT, DESCRIPTION_NEW_PROJECT,
+                        getSystemPerson());
+        daoFactory.getProjectDAO().createProject(newProject);
+        final ProjectPE registeredProject =
+                daoFactory.getProjectDAO().tryFindProject(
+                        templateProject.getGroup().getDatabaseInstance().getCode(),
+                        templateProject.getGroup().getCode(), NONEXISTENT);
+        AssertJUnit.assertNotNull(registeredProject);
+        assertEquals(registeredProject.getDescription(), DESCRIPTION_NEW_PROJECT);
+        assertEquals(registeredProject.getGroup(), templateProject.getGroup());
+        assertEquals(registeredProject.getProjectLeader(), getSystemPerson());
+    }
+
+    private ProjectPE prepareProject(GroupPE group, String code, String description, PersonPE leader)
+    {
+        final ProjectPE result = new ProjectPE();
+        result.setCode(code);
+        result.setDescription(description);
+        result.setGroup(group);
+        result.setProjectLeader(leader);
+        final PersonPE systemPerson = getSystemPerson();
+        result.setRegistrator(systemPerson);
+        return result;
+    }
+
 }
