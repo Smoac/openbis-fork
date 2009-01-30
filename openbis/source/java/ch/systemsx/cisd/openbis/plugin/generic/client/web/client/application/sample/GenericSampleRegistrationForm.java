@@ -22,6 +22,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 
+import ch.systemsx.cisd.openbis.generic.client.shared.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.shared.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
@@ -34,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCal
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;

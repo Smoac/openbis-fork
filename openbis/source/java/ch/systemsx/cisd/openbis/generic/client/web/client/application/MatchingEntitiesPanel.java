@@ -21,6 +21,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.XDOM;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 
+import ch.systemsx.cisd.openbis.generic.client.shared.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
@@ -29,7 +30,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Ab
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;

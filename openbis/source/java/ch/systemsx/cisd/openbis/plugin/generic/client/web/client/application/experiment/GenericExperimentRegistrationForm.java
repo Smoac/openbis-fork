@@ -27,6 +27,7 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 
+import ch.systemsx.cisd.openbis.generic.client.shared.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentTypePropertyType;
@@ -38,7 +39,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ProjectSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;

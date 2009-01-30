@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.shared;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
 
 /**
  * An <i>abstract</i> entity type property type.
