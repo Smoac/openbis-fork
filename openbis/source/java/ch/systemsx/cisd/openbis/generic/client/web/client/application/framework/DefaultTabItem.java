@@ -44,7 +44,7 @@ public class DefaultTabItem implements ITabItem
         this(title, component, isCloseConfirmationNeeded, null);
     }
 
-    public static DefaultTabItem create(final String title, final DisposableComponent component,
+    public static ITabItem create(final String title, final DisposableComponent component,
             boolean isCloseConfirmationNeeded)
     {
         Listener<TabPanelEvent> eventListener = createCloseEventListener(component);
