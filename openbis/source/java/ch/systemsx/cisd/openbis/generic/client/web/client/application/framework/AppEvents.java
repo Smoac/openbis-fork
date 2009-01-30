@@ -39,13 +39,19 @@ public class AppEvents
      */
     private final static int STARTING_VALUE = 1000000;
 
+    // TODO 2009-01-30, Tomasz Pylak: is this needed at all? It's fired i n some places, but never
+    // handled
     public final static int CALLBACK_FINISHED = STARTING_VALUE + 10;
 
+    // opens the main application window
     public final static int INIT = STARTING_VALUE + 20;
 
+    // opens the starting page with login window
     public final static int LOGIN = STARTING_VALUE + 30;
 
+    // opens a new tab
     public static final int NAVI_EVENT = STARTING_VALUE + 40;
 
+    // opens a new browser window with a specified URL
     public static final int OPEN_URL_EVENT = STARTING_VALUE + 50;
 }
