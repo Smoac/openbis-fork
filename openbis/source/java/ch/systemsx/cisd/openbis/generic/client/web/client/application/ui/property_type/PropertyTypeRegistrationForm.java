@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type;
 
+import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -32,7 +33,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DataTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
@@ -155,9 +155,9 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
         propertyType.setDataType(selectedDataType);
         if (DataTypeCode.CONTROLLEDVOCABULARY.equals(selectedDataType.getCode()))
         {
-            final VocabularyModel vocabulary =
+            final BaseModelData vocabulary =
                     GWTUtils.tryGetSingleSelectedModel(vocabularySelectionWidget);
-            if (VocabularyModel.NEW_VOCABULARY_CODE.equals(vocabulary
+            if (VocabularySelectionWidget.NEW_VOCABULARY_CODE.equals(vocabulary
                     .get(ModelDataPropertyNames.CODE)))
             {
                 propertyType.setVocabulary(vocabularyRegistrationFieldSet.createVocabulary());

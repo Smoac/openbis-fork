@@ -143,11 +143,6 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
-     * Returns a list of all property types.
-     */
-    public List<PropertyType> listPropertyTypes() throws UserFailureException;
-
-    /**
      * Returns a chunk of the property types list.
      */
     public ResultSet<PropertyType> listPropertyTypes(
@@ -185,6 +180,21 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
+     * Returns a list of all vocabularies.
+     * <p>
+     * Note that the vocabulary terms are included/loaded.
+     * </p>
+     */
+    public ResultSet<Vocabulary> listVocabularies(boolean withTerms, boolean excludeInternal,
+            DefaultResultSetConfig<String, Vocabulary> criteria) throws UserFailureException;
+
+    /**
+     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for Vocabularies.
+     */
+    public String prepareExportVocabularies(final TableExportCriteria<Vocabulary> criteria)
+            throws UserFailureException;
+
+    /**
      * Assumes that preparation of the export ({@link #prepareExportSamples(TableExportCriteria)}
      * or {@link #prepareExportExperiments(TableExportCriteria)} has been invoked before and
      * returned with an exportDataKey passed here as a parameter.
@@ -219,15 +229,6 @@ public interface ICommonClientService extends IClientService
      * Returns a list of all data types.
      */
     public List<DataType> listDataTypes() throws UserFailureException;
-
-    /**
-     * Returns a list of all vocabularies.
-     * <p>
-     * Note that the vocabulary terms are included/loaded.
-     * </p>
-     */
-    public List<Vocabulary> listVocabularies(boolean withTerms, boolean excludeInternal)
-            throws UserFailureException;
 
     /**
      * Assigns property type to entity type.

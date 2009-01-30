@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.propert
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBatchRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleRegistrationPanel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyBrowser;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
 
@@ -238,13 +238,14 @@ final class ComponentProvider
             {
                 public ITabItem create()
                 {
-                    Component component = new VocabularyBrowser(viewContext);
-                    return new DefaultTabItem(getMessage(Dict.VOCABULARY_BROWSER), component, true);
+                    DisposableComponent component = VocabularyGrid.create(viewContext);
+                    return DefaultTabItem.create(getMessage(Dict.VOCABULARY_BROWSER), component,
+                            true);
                 }
 
                 public String getId()
                 {
-                    return VocabularyBrowser.ID;
+                    return VocabularyGrid.GRID_ID;
                 }
             };
     }

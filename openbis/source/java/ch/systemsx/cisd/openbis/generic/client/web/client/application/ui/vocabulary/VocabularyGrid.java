@@ -16,87 +16,65 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.extjs.gxt.ui.client.data.BaseListLoadResult;
-import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
-import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
 import ch.systemsx.cisd.openbis.generic.client.shared.Vocabulary;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.YesNoRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GridWithRPCProxy;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 
 /**
- * {@link GridWithRPCProxy} displaying vocabularies.
+ * Grid displaying vocabularies.
  * 
- * @author Izabela Adamczyk
+ * @author Tomasz Pylak
  */
-public class VocabularyGrid extends GridWithRPCProxy<Vocabulary, VocabularyModel>
+public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary, VocabularyModel>
 {
-    private final CommonViewContext viewContext;
+    // browser consists of the grid and the paging toolbar
+    public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "vocabulary-browser";
 
-    public VocabularyGrid(final CommonViewContext viewContext, String idPrefix)
+    public static final String GRID_ID = BROWSER_ID + "_grid";
+
+    public static DisposableComponent create(
+            final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(createColumnModel(viewContext), idPrefix);
-        this.viewContext = viewContext;
+        return new VocabularyGrid(viewContext).asDisposableWithoutToolbar();
     }
 
-    private static ColumnModel createColumnModel(IViewContext<?> context)
+    private VocabularyGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        final ArrayList<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-        configs.add(ColumnConfigFactory.createCodeColumnConfig(context));
-        configs.add(ColumnConfigFactory.createDefaultColumnConfig(context
-                .getMessage(Dict.DESCRIPTION), ModelDataPropertyNames.DESCRIPTION));
-        final ColumnConfig internallyManaged =
-                ColumnConfigFactory.createDefaultColumnConfig(context
-                        .getMessage(Dict.IS_MANAGED_INTERNALLY),
-                        ModelDataPropertyNames.IS_MANAGED_INTERNALLY);
-        internallyManaged.setRenderer(new YesNoRenderer());
-        configs.add(internallyManaged);
-
-        final ColumnConfig registratorColumnConfig =
-                ColumnConfigFactory.createDefaultColumnConfig(context.getMessage(Dict.REGISTRATOR),
-                        ModelDataPropertyNames.REGISTRATOR);
-        configs.add(registratorColumnConfig);
-
-        final ColumnConfig registrationDateColumnConfig =
-                ColumnConfigFactory.createDefaultColumnConfig(context
-                        .getMessage(Dict.REGISTRATION_DATE),
-                        ModelDataPropertyNames.REGISTRATION_DATE);
-        registrationDateColumnConfig.setDateTimeFormat(DateRenderer.DEFAULT_DATE_TIME_FORMAT);
-        configs.add(registrationDateColumnConfig);
-
-        return new ColumnModel(configs);
+        super(viewContext, BROWSER_ID, GRID_ID);
     }
 
     @Override
-    protected void loadDataFromService(AsyncCallback<BaseListLoadResult<VocabularyModel>> callback)
+    protected IColumnDefinitionKind<Vocabulary>[] getStaticColumnsDefinition()
     {
-        viewContext.getService().listVocabularies(true, false,
-                new ListVocabulariesCallback(viewContext, callback));
+        return VocabularyColDefKind.values();
     }
 
-    class ListVocabulariesCallback extends DelegatingAsyncCallback
+    @Override
+    protected VocabularyModel createModel(Vocabulary entity)
     {
-        public ListVocabulariesCallback(IViewContext<?> context,
-                AsyncCallback<BaseListLoadResult<VocabularyModel>> callback)
-        {
-            super(context, callback);
-        }
+        return new VocabularyModel(entity, getStaticColumnsDefinition());
+    }
 
-        @Override
-        protected List<VocabularyModel> convert(List<Vocabulary> result)
-        {
-            return VocabularyModel.convert(result);
-        }
+    @Override
+    protected void listEntities(DefaultResultSetConfig<String, Vocabulary> resultSetConfig,
+            AbstractAsyncCallback<ResultSet<Vocabulary>> callback)
+    {
+        viewContext.getService().listVocabularies(true, false, resultSetConfig, callback);
+    }
+
+    @Override
+    protected void prepareExportEntities(TableExportCriteria<Vocabulary> exportCriteria,
+            AbstractAsyncCallback<String> callback)
+    {
+        viewContext.getService().prepareExportVocabularies(exportCriteria, callback);
     }
 }

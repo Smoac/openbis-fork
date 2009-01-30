@@ -32,6 +32,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 
 /**
  * {@link ComboBox} containing list of property type codes loaded from the server.
@@ -95,14 +97,18 @@ public final class PropertyTypeSelectionWidget extends
 
     void refresh()
     {
-        viewContext.getService().listPropertyTypes(new ListPropertyTypesCallback(viewContext));
+        DefaultResultSetConfig<String, PropertyType> config =
+                DefaultResultSetConfig.createFetchAll();
+        viewContext.getService().listPropertyTypes(config,
+                new ListPropertyTypesCallback(viewContext));
     }
 
     //
     // Helper classes
     //
 
-    public final class ListPropertyTypesCallback extends AbstractAsyncCallback<List<PropertyType>>
+    public final class ListPropertyTypesCallback extends
+            AbstractAsyncCallback<ResultSet<PropertyType>>
     {
         ListPropertyTypesCallback(final IViewContext<ICommonClientServiceAsync> viewContext)
         {
@@ -110,11 +116,11 @@ public final class PropertyTypeSelectionWidget extends
         }
 
         @Override
-        protected void process(final List<PropertyType> result)
+        protected void process(final ResultSet<PropertyType> result)
         {
             final ListStore<PropertyTypeComboModel> propertyTypeStore = getStore();
             propertyTypeStore.removeAll();
-            propertyTypeStore.add(convert(result));
+            propertyTypeStore.add(convert(result.getList()));
             if (propertyTypeStore.getCount() > 0)
             {
                 setEnabled(true);

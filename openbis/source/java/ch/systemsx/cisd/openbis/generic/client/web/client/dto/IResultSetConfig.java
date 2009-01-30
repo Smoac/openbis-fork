@@ -30,9 +30,6 @@ public interface IResultSetConfig<K, T> extends IResultSetKeyHolder<K>
 {
     public static final int NO_LIMIT = -1;
 
-    /** offset which should be used to start fetching from the first element */
-    public static final int FIRST_ELEM_OFFSET = 0;
-
     /**
      * The offset for the first record to retrieve.
      */

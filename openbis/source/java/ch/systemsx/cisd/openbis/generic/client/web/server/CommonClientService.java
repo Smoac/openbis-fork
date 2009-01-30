@@ -161,9 +161,7 @@ public final class CommonClientService extends AbstractClientService implements
     private static <T> IResultSetConfig<String, T> createExportListCriteria(
             final TableExportCriteria<T> exportCriteria)
     {
-        final DefaultResultSetConfig<String, T> criteria = new DefaultResultSetConfig<String, T>();
-        criteria.setLimit(IResultSetConfig.NO_LIMIT);
-        criteria.setOffset(IResultSetConfig.FIRST_ELEM_OFFSET);
+        final DefaultResultSetConfig<String, T> criteria = DefaultResultSetConfig.createFetchAll();
         criteria.setSortInfo(exportCriteria.getSortInfo());
         criteria.setResultSetKey(exportCriteria.getResultSetKey());
         return criteria;
@@ -452,6 +450,12 @@ public final class CommonClientService extends AbstractClientService implements
         return prepareExportEntities(criteria);
     }
 
+    public String prepareExportVocabularies(final TableExportCriteria<Vocabulary> criteria)
+            throws UserFailureException
+    {
+        return prepareExportEntities(criteria);
+    }
+
     // ---------------- methods which list entities using cache
 
     public final ResultSet<Sample> listSamples(final ListSampleCriteria listCriteria)
@@ -562,6 +566,35 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    public ResultSet<Vocabulary> listVocabularies(final boolean withTerms,
+            final boolean excludeInternal, DefaultResultSetConfig<String, Vocabulary> criteria)
+            throws UserFailureException
+    {
+        return listEntities(criteria, new IOriginalDataProvider<Vocabulary>()
+            {
+                public List<Vocabulary> getOriginalData() throws UserFailureException
+                {
+                    return listVocabularies(withTerms, excludeInternal);
+                }
+            });
+    }
+
+    private List<Vocabulary> listVocabularies(final boolean withTerms, boolean excludeInternal)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            final List<VocabularyPE> vocabularies =
+                    commonServer.listVocabularies(sessionToken, withTerms, excludeInternal);
+            return BeanUtils.createBeanList(Vocabulary.class, vocabularies, DtoConverters
+                    .getVocabularyConverter());
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
     // ---------------- end list using cache ----------
 
     public final List<ExternalData> listExternalData(final String sampleIdentifier)
@@ -635,7 +668,7 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public List<PropertyType> listPropertyTypes()
+    private List<PropertyType> listPropertyTypes()
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
@@ -658,22 +691,6 @@ public final class CommonClientService extends AbstractClientService implements
             final List<DataTypePE> dataTypes = commonServer.listDataTypes(sessionToken);
             return BeanUtils.createBeanList(DataType.class, dataTypes, DtoConverters
                     .getDataTypeConverter());
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
-    }
-
-    public final List<Vocabulary> listVocabularies(final boolean withTerms, boolean excludeInternal)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
-    {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final List<VocabularyPE> vocabularies =
-                    commonServer.listVocabularies(sessionToken, withTerms, excludeInternal);
-            return BeanUtils.createBeanList(Vocabulary.class, vocabularies, DtoConverters
-                    .getVocabularyConverter());
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

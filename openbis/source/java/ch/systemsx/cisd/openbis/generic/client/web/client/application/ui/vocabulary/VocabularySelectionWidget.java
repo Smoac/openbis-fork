@@ -16,8 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
@@ -28,16 +30,19 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 
 /**
  * A {@link ComboBox} extension for selecting a {@link Vocabulary}.
  * 
  * @author Christian Ribeaud
  */
-public class VocabularySelectionWidget extends ComboBox<VocabularyModel>
+public class VocabularySelectionWidget extends ComboBox<BaseModelData>
 {
+    public static final String NEW_VOCABULARY_CODE = "(New Vocabulary)";
+
     private static final String PREFIX = "vocabulary-select";
 
     public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
@@ -53,7 +58,7 @@ public class VocabularySelectionWidget extends ComboBox<VocabularyModel>
         setEditable(false);
         setWidth(100);
         setFieldLabel(viewContext.getMessage(Dict.VOCABULARY));
-        setStore(new ListStore<VocabularyModel>());
+        setStore(new ListStore<BaseModelData>());
     }
 
     /**
@@ -68,7 +73,9 @@ public class VocabularySelectionWidget extends ComboBox<VocabularyModel>
 
     private final void loadVocabularies()
     {
-        viewContext.getService().listVocabularies(false, true,
+        DefaultResultSetConfig<String, Vocabulary> criteria =
+                DefaultResultSetConfig.createFetchAll();
+        viewContext.getService().listVocabularies(false, true, criteria,
                 new ListVocabulariesCallback(viewContext));
     }
 
@@ -77,9 +84,9 @@ public class VocabularySelectionWidget extends ComboBox<VocabularyModel>
      */
     protected void refreshStore(final List<Vocabulary> result)
     {
-        final ListStore<VocabularyModel> vocabularyStore = getStore();
+        final ListStore<BaseModelData> vocabularyStore = getStore();
         vocabularyStore.removeAll();
-        vocabularyStore.add(VocabularyModel.convert(result));
+        vocabularyStore.add(convert(result));
         setEnabled(true);
         if (vocabularyStore.getCount() > 0)
         {
@@ -95,6 +102,34 @@ public class VocabularySelectionWidget extends ComboBox<VocabularyModel>
     // ComboBox
     //
 
+    private static List<BaseModelData> convert(List<Vocabulary> list)
+    {
+        final List<BaseModelData> result = new ArrayList<BaseModelData>();
+        for (final Vocabulary vocabulary : list)
+        {
+            result.add(createModel(vocabulary));
+        }
+        return result;
+    }
+
+    private static BaseModelData createModel(Vocabulary vocabulary)
+    {
+        return createModel(vocabulary, vocabulary.getCode());
+    }
+
+    protected final static BaseModelData createNewVocabularyVocabularyModel()
+    {
+        return createModel(null, NEW_VOCABULARY_CODE);
+    }
+
+    private static BaseModelData createModel(Object object, String code)
+    {
+        final BaseModelData model = new BaseModelData();
+        model.set(ModelDataPropertyNames.CODE, code);
+        model.set(ModelDataPropertyNames.OBJECT, object);
+        return model;
+    }
+
     @Override
     protected final void afterRender()
     {
@@ -106,7 +141,8 @@ public class VocabularySelectionWidget extends ComboBox<VocabularyModel>
     // Helper classes
     //
 
-    public final class ListVocabulariesCallback extends AbstractAsyncCallback<List<Vocabulary>>
+    public final class ListVocabulariesCallback extends
+            AbstractAsyncCallback<ResultSet<Vocabulary>>
     {
         ListVocabulariesCallback(final IViewContext<ICommonClientServiceAsync> viewContext)
         {
@@ -118,9 +154,9 @@ public class VocabularySelectionWidget extends ComboBox<VocabularyModel>
         //
 
         @Override
-        protected final void process(final List<Vocabulary> result)
+        protected final void process(final ResultSet<Vocabulary> result)
         {
-            refreshStore(result);
+            refreshStore(result.getList());
         }
 
     }

@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.shared.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.client.shared.VocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -278,8 +279,10 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                     will(returnValue(Collections.singletonList(vocabularyPE)));
                 }
             });
+        DefaultResultSetConfig<String, Vocabulary> criteria =
+                DefaultResultSetConfig.createFetchAll();
         final List<Vocabulary> vocabularies =
-                commonClientService.listVocabularies(false, excludeInternals);
+                commonClientService.listVocabularies(false, excludeInternals, criteria).getList();
         assertEquals(1, vocabularies.size());
         assertVocabularyEquals(vocabularyPE, vocabularies.get(0));
         context.assertIsSatisfied();

@@ -132,9 +132,6 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void prepareExportPropertyTypes(final TableExportCriteria<PropertyType> criteria,
             AsyncCallback<String> asyncCallback);
 
-    /** @see ICommonClientService#listPropertyTypes() */
-    public void listPropertyTypes(final AsyncCallback<List<PropertyType>> asyncCallback);
-
     /**
      * @see ICommonClientService#listMatchingEntities(SearchableEntity, String, IResultSetConfig)
      */
@@ -152,6 +149,15 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
 
     /** @see ICommonClientService#prepareExportProjects(TableExportCriteria) */
     public void prepareExportProjects(TableExportCriteria<Project> exportCriteria,
+            AsyncCallback<String> callback);
+
+    /** @see ICommonClientService#listVocabularies(boolean, boolean, DefaultResultSetConfig) */
+    public void listVocabularies(final boolean withTerms, boolean excludeInternal,
+            DefaultResultSetConfig<String, Vocabulary> criteria,
+            final AsyncCallback<ResultSet<Vocabulary>> asyncCallback);
+
+    /** @see ICommonClientService#prepareExportVocabularies(TableExportCriteria) */
+    public void prepareExportVocabularies(TableExportCriteria<Vocabulary> exportCriteria,
             AsyncCallback<String> callback);
 
     /**
@@ -187,10 +193,6 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
 
     /** @see ICommonClientService#listDataTypes() */
     public void listDataTypes(final AsyncCallback<List<DataType>> asyncCallback);
-
-    /** @see ICommonClientService#listVocabularies(boolean,boolean) */
-    public void listVocabularies(final boolean withTerms, boolean excludeInternal,
-            final AsyncCallback<List<Vocabulary>> asyncCallback);
 
     /** @see ICommonClientService#assignPropertyType(EntityKind, String, String, boolean, String) */
     public void assignPropertyType(EntityKind entityKind, String propertyTypeCode,

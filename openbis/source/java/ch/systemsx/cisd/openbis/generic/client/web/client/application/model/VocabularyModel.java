@@ -16,57 +16,22 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.extjs.gxt.ui.client.data.BaseModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.shared.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionKind;
 
 /**
  * A {@link BaseModelData} extension suitable for {@link Vocabulary}.
  * 
  * @author Christian Ribeaud
  */
-public final class VocabularyModel extends BaseModelData
+public final class VocabularyModel extends AbstractEntityModel<Vocabulary>
 {
-    public static final String NEW_VOCABULARY_CODE = "(New Vocabulary)";
-
     private static final long serialVersionUID = 1L;
 
-    private VocabularyModel()
+    public VocabularyModel(Vocabulary entity, IColumnDefinitionKind<Vocabulary>[] colDefKinds)
     {
+        super(entity, colDefKinds, null);
     }
-
-    public VocabularyModel(final Vocabulary vocabulary)
-    {
-        assert vocabulary != null : "Unspecified data type.";
-        set(ModelDataPropertyNames.CODE, vocabulary.getCode());
-        set(ModelDataPropertyNames.DESCRIPTION, vocabulary.getDescription());
-        set(ModelDataPropertyNames.IS_MANAGED_INTERNALLY, vocabulary.isManagedInternally());
-        set(ModelDataPropertyNames.REGISTRATOR, vocabulary.getRegistrator());
-        set(ModelDataPropertyNames.REGISTRATION_DATE, vocabulary.getRegistrationDate());
-        set(ModelDataPropertyNames.OBJECT, vocabulary);
-    }
-
-    public final static VocabularyModel createNewVocabularyVocabularyModel()
-    {
-        final VocabularyModel model = new VocabularyModel();
-        model.set(ModelDataPropertyNames.CODE, NEW_VOCABULARY_CODE);
-        model.set(ModelDataPropertyNames.OBJECT, null);
-        return model;
-    }
-
-    public final static List<VocabularyModel> convert(final List<Vocabulary> vocabularies)
-    {
-        assert vocabularies != null : "Unspecified vocabularies.";
-        final List<VocabularyModel> vocabularyModels =
-                new ArrayList<VocabularyModel>(vocabularies.size());
-        for (final Vocabulary vocabulary : vocabularies)
-        {
-            vocabularyModels.add(new VocabularyModel(vocabulary));
-        }
-        return vocabularyModels;
-    }
-
 }
