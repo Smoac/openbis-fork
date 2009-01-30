@@ -39,6 +39,11 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
      */
     private K resultSetKeyOrNull;
 
+    public static <K, T> DefaultResultSetConfig<K, T> createFetchAll()
+    {
+        return new DefaultResultSetConfig<K, T>();
+    }
+
     public final void setLimit(final int limit)
     {
         this.limit = limit;

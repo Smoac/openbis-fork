@@ -16,58 +16,21 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.extjs.gxt.ui.client.data.BaseModelData;
-
 import ch.systemsx.cisd.openbis.generic.client.shared.EntityTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.client.shared.MaterialTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
-import ch.systemsx.cisd.openbis.generic.client.shared.SampleTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionKind;
 
 /**
- * {@link BaseModelData} extension for {@link EntityTypePropertyType}s.
+ * Model extension for {@link EntityTypePropertyType}s.
  * 
- * @author Izabela Adamczyk
+ * @author Tomasz Pylak
  */
-public class ETPTModel extends BaseModelData
+public class ETPTModel extends AbstractEntityModel<EntityTypePropertyType<?>>
 {
-
     private static final long serialVersionUID = 1L;
 
-    public ETPTModel()
+    public ETPTModel(EntityTypePropertyType<?> entity,
+            IColumnDefinitionKind<EntityTypePropertyType<?>>[] colDefKinds)
     {
-    }
-
-    private ETPTModel(EntityTypePropertyType<?> etpt, String entityKind)
-    {
-        set(ModelDataPropertyNames.IS_MANDATORY, etpt.isMandatory());
-        set(ModelDataPropertyNames.PROPERTY_TYPE_CODE, etpt.getPropertyType().getCode());
-        set(ModelDataPropertyNames.ENTITY_TYPE_CODE, etpt.getEntityType().getCode());
-        set(ModelDataPropertyNames.ENTITY_KIND, entityKind);
-    }
-
-    public final static List<ETPTModel> asModels(final List<PropertyType> propertyTypes)
-    {
-        final List<ETPTModel> models = new ArrayList<ETPTModel>(propertyTypes.size());
-        for (final PropertyType propertyType : propertyTypes)
-        {
-            for (ExperimentTypePropertyType etpt : propertyType.getExperimentTypePropertyTypes())
-            {
-                models.add(new ETPTModel(etpt, "EXPERIMENT"));
-            }
-            for (SampleTypePropertyType etpt : propertyType.getSampleTypePropertyTypes())
-            {
-                models.add(new ETPTModel(etpt, "SAMPLE"));
-            }
-
-            for (MaterialTypePropertyType etpt : propertyType.getMaterialTypePropertyTypes())
-            {
-                models.add(new ETPTModel(etpt, "MATERIAL"));
-            }
-        }
-        return models;
+        super(entity, colDefKinds, null);
     }
 }

@@ -17,15 +17,17 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.CheckPropertyTypeAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.FillPropertyTypeAssignmentForm;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeAssignmentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeAssignmentForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.CheckSampleTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ListSamples;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleRow;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.renderer.SimpleYesNoRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 
@@ -43,31 +45,34 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
 
     private static final String NO_COMMENT = "No comment.";
 
-    private static final String EXPERIMENT = "EXPERIMENT";
-
     private static final String COMPOUND_HCS = "COMPOUND_HCS";
 
     private static final String USER_COMMENT = "USER.COMMENT";
 
-    private static final String SAMPLE = "SAMPLE";
-
     private static final String CONTROL_LAYOUT = "CONTROL_LAYOUT";
 
+    private static final EntityKind EXPERIMENT = EntityKind.EXPERIMENT;
+
+    private static final EntityKind SAMPLE = EntityKind.SAMPLE;
+
     private final void prepareListingAfterAssignment(String propertyTypeCode,
-            String entityTypeCode, String entityKindName, int expectedEntries, boolean isMandatory)
+            String entityTypeCode, EntityKind entityKind, int expectedEntries, boolean isMandatory)
     {
         remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.PROPERTY_TYPES,
                 CategoriesBuilder.MENU_ELEMENTS.LIST_ASSIGNMENTS,
                 PropertyTypeAssignmentForm.AssignPropertyTypeCallback.class));
         CheckPropertyTypeAssignmentTable table = new CheckPropertyTypeAssignmentTable();
-        table.expectedRow(new Row().withCell(ModelDataPropertyNames.PROPERTY_TYPE_CODE,
-                propertyTypeCode).withCell(ModelDataPropertyNames.ENTITY_TYPE_CODE, entityTypeCode)
-                .withCell(ModelDataPropertyNames.ENTITY_KIND, entityKindName).withCell(
-                        ModelDataPropertyNames.IS_MANDATORY, isMandatory));
+        table.expectedRow(new Row().withCell(
+                PropertyTypeAssignmentColDefKind.PROPERTY_TYPE_CODE.id(), propertyTypeCode)
+                .withCell(PropertyTypeAssignmentColDefKind.ENTITY_TYPE_CODE.id(), entityTypeCode)
+                .withCell(PropertyTypeAssignmentColDefKind.ENTITY_KIND.id(),
+                        entityKind.getDescription()).withCell(
+                        PropertyTypeAssignmentColDefKind.IS_MANDATORY.id(),
+                        SimpleYesNoRenderer.render(isMandatory)));
         remoteConsole.prepare(table.expectedSize(expectedEntries));
     }
 
-    public final void testAssignmenExperimentPropertyType()
+    public final void testAssignExperimentPropertyType()
     {
         remoteConsole.prepare(new Login("test", "a"));
         remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.PROPERTY_TYPES,

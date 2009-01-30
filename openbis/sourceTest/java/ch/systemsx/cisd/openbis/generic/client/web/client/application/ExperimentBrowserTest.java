@@ -35,7 +35,7 @@ public class ExperimentBrowserTest extends AbstractGWTTestCase
     public final void testListExperiments()
     {
         loginAndGotoListExperimentsTab();
-        remoteConsole.prepare(new ListExperiments("DEFAULT", "SIRNA_HCS"));
+        remoteConsole.prepare(new ListExperiments("DEFAULT (CISD)", "SIRNA_HCS"));
         CheckExperimentTable table = new CheckExperimentTable();
         table.expectedRow(new ExperimentRow("EXP-REUSE").valid());
         table.expectedRow(new ExperimentRow("EXP-X").invalid());
@@ -49,5 +49,5 @@ public class ExperimentBrowserTest extends AbstractGWTTestCase
         remoteConsole.prepare(new Login("test", "a"));
         remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.EXPERIMENTS,
                 CategoriesBuilder.MENU_ELEMENTS.LIST));
-    }
+    }   
 }

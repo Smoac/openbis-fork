@@ -26,10 +26,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.RolesView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project.ProjectBrowser;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project.ProjectGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project.ProjectRegistrationForm;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeAssignmentBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeAssignmentForm;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeAssignmentGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBatchRegistrationPanel;
@@ -255,13 +255,13 @@ final class ComponentProvider
             {
                 public ITabItem create()
                 {
-                    Component component = new ProjectBrowser(viewContext);
-                    return new DefaultTabItem(getMessage(Dict.PROJECT_BROWSER), component, true);
+                    DisposableComponent component = ProjectGrid.create(viewContext);
+                    return DefaultTabItem.create(getMessage(Dict.PROJECT_BROWSER), component, true);
                 }
 
                 public String getId()
                 {
-                    return ProjectBrowser.ID;
+                    return ProjectGrid.BROWSER_ID;
                 }
             };
     }
@@ -325,14 +325,14 @@ final class ComponentProvider
             {
                 public ITabItem create()
                 {
-                    Component component = new PropertyTypeAssignmentBrowser(viewContext);
-                    return new DefaultTabItem(getMessage(Dict.PROPERTY_TYPE_ASSIGNMENTS),
+                    DisposableComponent component = PropertyTypeAssignmentGrid.create(viewContext);
+                    return DefaultTabItem.create(getMessage(Dict.PROPERTY_TYPE_ASSIGNMENTS),
                             component, false);
                 }
 
                 public String getId()
                 {
-                    return PropertyTypeAssignmentBrowser.ID;
+                    return PropertyTypeAssignmentGrid.BROWSER_ID;
                 }
             };
     }

@@ -17,11 +17,11 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project.CheckProjectTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project.FillProjectRegistrationForm;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project.ProjectColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project.ProjectRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
@@ -49,8 +49,8 @@ public class ProjectRegistrationTest extends AbstractGWTTestCase
                 CategoriesBuilder.MENU_ELEMENTS.LIST,
                 ProjectRegistrationForm.ProjectRegistrationCallback.class));
         final CheckProjectTable table = new CheckProjectTable();
-        table.expectedRow(new Row().withCell(ModelDataPropertyNames.CODE, PROJECT_CODE_HER_MAJESTY)
-                .withCell(ModelDataPropertyNames.DESCRIPTION, DESCRIPTION_PROJECT_007));
+        table.expectedRow(new Row().withCell(ProjectColDefKind.CODE.id(), PROJECT_CODE_HER_MAJESTY)
+                .withCell(ProjectColDefKind.DESCRIPTION.id(), DESCRIPTION_PROJECT_007));
         remoteConsole.prepare(table.expectedSize(5));
 
         launchTest(20000);

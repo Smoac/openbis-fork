@@ -40,6 +40,12 @@ public class AbstractEntityModel<T> extends BaseModelData
 {
     private static final long serialVersionUID = 1L;
 
+    protected AbstractEntityModel(final T entity, IColumnDefinitionKind<T>[] colDefKinds,
+            IMessageProvider msgProviderOrNull)
+    {
+        this(entity, createColumnsSchemaFrom(colDefKinds, msgProviderOrNull));
+    }
+
     protected AbstractEntityModel(final T entity, List<? extends IColumnDefinition<T>> columnsSchema)
     {
         set(ModelDataPropertyNames.OBJECT, entity);
@@ -78,7 +84,8 @@ public class AbstractEntityModel<T> extends BaseModelData
         return value;
     }
 
-    protected static <T> List<IColumnDefinitionUI<T>> createColumnsSchemaFrom(
+    /** @param msgProviderOrNull if null, no headers labels will be generated */
+    public static <T> List<IColumnDefinitionUI<T>> createColumnsSchemaFrom(
             IColumnDefinitionKind<T>[] columnKinds, IMessageProvider msgProviderOrNull)
     {
         List<IColumnDefinitionUI<T>> list = new ArrayList<IColumnDefinitionUI<T>>();

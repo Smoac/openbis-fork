@@ -17,10 +17,10 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.CheckPropertyTypeAssignmentTable;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeAssignmentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 
@@ -38,9 +38,10 @@ public class PropertyTypeAssignmentBrowserTest extends AbstractGWTTestCase
         remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.PROPERTY_TYPES,
                 CategoriesBuilder.MENU_ELEMENTS.LIST_ASSIGNMENTS));
         CheckPropertyTypeAssignmentTable table = new CheckPropertyTypeAssignmentTable();
-        table.expectedRow(new Row().withCell(ModelDataPropertyNames.PROPERTY_TYPE_CODE,
-                "USER.DESCRIPTION").withCell(ModelDataPropertyNames.ENTITY_TYPE_CODE,
-                "CONTROL_LAYOUT").withCell(ModelDataPropertyNames.ENTITY_KIND, "SAMPLE"));
+        table.expectedRow(new Row().withCell(
+                PropertyTypeAssignmentColDefKind.PROPERTY_TYPE_CODE.id(), "USER.DESCRIPTION")
+                .withCell(PropertyTypeAssignmentColDefKind.ENTITY_TYPE_CODE.id(), "CONTROL_LAYOUT")
+                .withCell(PropertyTypeAssignmentColDefKind.ENTITY_KIND.id(), "Sample"));
         remoteConsole.prepare(table.expectedSize(24));
 
         launchTest(20000);

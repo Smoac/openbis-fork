@@ -16,8 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.google.gwt.user.client.Element;
@@ -28,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.PropertyTypeModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 
 /**
@@ -36,8 +38,20 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUt
  * 
  * @author Izabela Adamczyk
  */
-public final class PropertyTypeSelectionWidget extends ComboBox<PropertyTypeModel>
+public final class PropertyTypeSelectionWidget extends
+        ComboBox<PropertyTypeSelectionWidget.PropertyTypeComboModel>
 {
+    private static class PropertyTypeComboModel extends BaseModelData
+    {
+        private static final long serialVersionUID = 1L;
+
+        public PropertyTypeComboModel(PropertyType entity)
+        {
+            set(ModelDataPropertyNames.CODE, entity.getCode());
+            set(ModelDataPropertyNames.OBJECT, entity);
+        }
+    }
+
     private static final String PREFIX = "property-type-select-";
 
     public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
@@ -49,11 +63,11 @@ public final class PropertyTypeSelectionWidget extends ComboBox<PropertyTypeMode
     {
         this.viewContext = viewContext;
         setId(ID + idSuffix);
-        setDisplayField(PropertyTypeColDefKind.CODE.id());
+        setDisplayField(ModelDataPropertyNames.CODE);
         setEditable(false);
         setWidth(180);
         setFieldLabel(viewContext.getMessage(Dict.PROPERTY_TYPE));
-        setStore(new ListStore<PropertyTypeModel>());
+        setStore(new ListStore<PropertyTypeComboModel>());
     }
 
     public final String tryGetSelectedPropertyTypeCode()
@@ -98,9 +112,9 @@ public final class PropertyTypeSelectionWidget extends ComboBox<PropertyTypeMode
         @Override
         protected void process(final List<PropertyType> result)
         {
-            final ListStore<PropertyTypeModel> propertyTypeStore = getStore();
+            final ListStore<PropertyTypeComboModel> propertyTypeStore = getStore();
             propertyTypeStore.removeAll();
-            propertyTypeStore.add(PropertyTypeModel.convert(result));
+            propertyTypeStore.add(convert(result));
             if (propertyTypeStore.getCount() > 0)
             {
                 setEnabled(true);
@@ -111,5 +125,15 @@ public final class PropertyTypeSelectionWidget extends ComboBox<PropertyTypeMode
             }
             applyEmptyText();
         }
+    }
+
+    public final static List<PropertyTypeComboModel> convert(final List<PropertyType> types)
+    {
+        final List<PropertyTypeComboModel> result = new ArrayList<PropertyTypeComboModel>();
+        for (final PropertyType st : types)
+        {
+            result.add(new PropertyTypeComboModel(st));
+        }
+        return result;
     }
 }

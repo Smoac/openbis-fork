@@ -27,8 +27,8 @@ import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentTypePropertyType
 import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.columns.CommonExperimentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.columns.PropertyExperimentColDef;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionUI;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 
@@ -64,17 +64,6 @@ public final class ExperimentModel extends AbstractEntityModel<Experiment>
             list.add(new PropertyExperimentColDef(etpt.getPropertyType()));
         }
         return list;
-    }
-
-    public final static List<ExperimentModel> asExperimentModels(final List<Experiment> experiments)
-    {
-        final List<ExperimentModel> sampleModels =
-                new ArrayList<ExperimentModel>(experiments.size());
-        for (final Experiment exp : experiments)
-        {
-            sampleModels.add(new ExperimentModel(exp));
-        }
-        return sampleModels;
     }
 
     public static ColumnDefsAndConfigs<Experiment> createColumnsSchema(

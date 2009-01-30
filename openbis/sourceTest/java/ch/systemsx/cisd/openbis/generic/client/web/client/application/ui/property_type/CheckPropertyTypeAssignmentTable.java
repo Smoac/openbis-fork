@@ -29,7 +29,7 @@ public class CheckPropertyTypeAssignmentTable extends CheckTableCommand
 {
     public CheckPropertyTypeAssignmentTable()
     {
-        super(PropertyTypeAssignmentGrid.createId(PropertyTypeAssignmentBrowser.ID),
-                PropertyTypeAssignmentGrid.ListPropertyTypesCallback.class);
+        super(PropertyTypeAssignmentGrid.GRID_ID,
+                PropertyTypeAssignmentGrid.ListEntitiesCallback.class);
     }
 }

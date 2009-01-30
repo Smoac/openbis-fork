@@ -16,80 +16,65 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.extjs.gxt.ui.client.data.BaseListLoadResult;
-import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
-import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ProjectModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GridWithRPCProxy;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 
 /**
- * {@link GridWithRPCProxy} displaying projects.
+ * Grid displaying projects.
  * 
- * @author Izabela Adamczyk
+ * @author Tomasz Pylak
  */
-public class ProjectGrid extends GridWithRPCProxy<Project, ProjectModel>
+public class ProjectGrid extends AbstractSimpleBrowserGrid<Project, ProjectModel>
 {
-    private final CommonViewContext viewContext;
+    // browser consists of the grid and the paging toolbar
+    public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "project-browser";
 
-    public ProjectGrid(final CommonViewContext viewContext, String idPrefix)
+    public static final String GRID_ID = BROWSER_ID + "_grid";
+
+    public static DisposableComponent create(
+            final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(createColumnModel(viewContext), idPrefix);
-        this.viewContext = viewContext;
+        return new ProjectGrid(viewContext).asDisposableWithoutToolbar();
     }
 
-    private static ColumnModel createColumnModel(IViewContext<?> context)
+    private ProjectGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        final ArrayList<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-        configs.add(ColumnConfigFactory.createCodeColumnConfig(context));
-
-        configs.add(ColumnConfigFactory.createDefaultColumnConfig(context
-                .getMessage(Dict.DESCRIPTION), ModelDataPropertyNames.DESCRIPTION));
-
-        final ColumnConfig registratorColumnConfig =
-                ColumnConfigFactory.createDefaultColumnConfig(context.getMessage(Dict.REGISTRATOR),
-                        ModelDataPropertyNames.REGISTRATOR);
-        configs.add(registratorColumnConfig);
-
-        final ColumnConfig registrationDateColumnConfig =
-                ColumnConfigFactory.createDefaultColumnConfig(context
-                        .getMessage(Dict.REGISTRATION_DATE),
-                        ModelDataPropertyNames.REGISTRATION_DATE);
-        registrationDateColumnConfig.setDateTimeFormat(DateRenderer.DEFAULT_DATE_TIME_FORMAT);
-        configs.add(registrationDateColumnConfig);
-
-        return new ColumnModel(configs);
+        super(viewContext, BROWSER_ID, GRID_ID);
     }
 
     @Override
-    protected void loadDataFromService(AsyncCallback<BaseListLoadResult<ProjectModel>> callback)
+    protected IColumnDefinitionKind<Project>[] getStaticColumnsDefinition()
     {
-        viewContext.getService().listProjects(new ListProjectsCallback(viewContext, callback));
+        return ProjectColDefKind.values();
     }
 
-    class ListProjectsCallback extends DelegatingAsyncCallback
+    @Override
+    protected ProjectModel createModel(Project entity)
     {
-        public ListProjectsCallback(IViewContext<?> context,
-                AsyncCallback<BaseListLoadResult<ProjectModel>> callback)
-        {
-            super(context, callback);
-        }
+        return new ProjectModel(entity, getStaticColumnsDefinition());
+    }
 
-        @Override
-        protected List<ProjectModel> convert(List<Project> result)
-        {
-            return ProjectModel.convert(result);
-        }
+    @Override
+    protected void listEntities(DefaultResultSetConfig<String, Project> resultSetConfig,
+            AbstractAsyncCallback<ResultSet<Project>> callback)
+    {
+        viewContext.getService().listProjects(resultSetConfig, callback);
+    }
+
+    @Override
+    protected void prepareExportEntities(TableExportCriteria<Project> exportCriteria,
+            AbstractAsyncCallback<String> callback)
+    {
+        viewContext.getService().prepareExportProjects(exportCriteria, callback);
     }
 }

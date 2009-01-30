@@ -62,7 +62,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         }
     }
 
-    private static final String DEFAULT = "DEFAULT";
+    private static final String DEFAULT = "DEFAULT (CISD)";
 
     private static final String EXP_REUSE = "EXP-REUSE";
 
@@ -78,7 +78,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
 
     private static final String SIRNA_HCS = "SIRNA_HCS";
 
-    private static final String NEMO = "NEMO";
+    private static final String NEMO = "NEMO (CISD)";
 
     private static final String EXP1 = "EXP1";
 

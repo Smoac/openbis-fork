@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -51,17 +50,6 @@ public final class MatchingEntityModel extends AbstractEntityModel<MatchingEntit
             IMessageProvider msgProviderOrNull)
     {
         return createColumnsSchemaFrom(MatchingEntityColumnKind.values(), msgProviderOrNull);
-    }
-
-    public final static List<MatchingEntityModel> convert(
-            final List<MatchingEntity> matchingEntities)
-    {
-        final List<MatchingEntityModel> list = new ArrayList<MatchingEntityModel>();
-        for (final MatchingEntity matchingEntity : matchingEntities)
-        {
-            list.add(new MatchingEntityModel(matchingEntity));
-        }
-        return list;
     }
 
     public enum MatchingEntityColumnKind implements IColumnDefinitionKind<MatchingEntity>

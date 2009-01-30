@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.client.shared.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -33,6 +36,16 @@ public final class ProjectTranslator
     private ProjectTranslator()
     {
         // Can not be instantiated.
+    }
+
+    public final static List<Project> translate(final List<ProjectPE> projects)
+    {
+        final List<Project> result = new ArrayList<Project>();
+        for (final ProjectPE project : projects)
+        {
+            result.add(ProjectTranslator.translate(project));
+        }
+        return result;
     }
 
     public final static Project translate(final ProjectPE project)

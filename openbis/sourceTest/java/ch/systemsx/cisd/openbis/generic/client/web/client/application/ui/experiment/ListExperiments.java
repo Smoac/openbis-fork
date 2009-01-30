@@ -62,7 +62,8 @@ public class ListExperiments extends AbstractDefaultTestCommand
 
         GWTUtils.setSelectedItem(experimentTypeSelector, ModelDataPropertyNames.CODE,
                 experimentTypeName);
-        GWTUtils.setSelectedItem(project, ModelDataPropertyNames.CODE, projectCodeOrNull);
+        GWTUtils.setSelectedItem(project, ProjectSelectionWidget.DISPLAY_COLUMN_ID,
+                projectCodeOrNull);
 
         final Button refresh =
                 (Button) GWTTestUtil.getWidgetWithID(BrowserGridPagingToolBar.REFRESH_BUTTON_ID);

@@ -16,51 +16,22 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 
 /**
  * {@link ModelData} for {@link Project}.
  * 
- * @author Izabela Adamczyk
+ * @author Tomasz Pylak
  */
-public class ProjectModel extends BaseModelData
+public class ProjectModel extends AbstractEntityModel<Project>
 {
     private static final long serialVersionUID = 1L;
 
-    public ProjectModel()
+    public ProjectModel(Project entity, IColumnDefinitionKind<Project>[] colDefKinds)
     {
+        super(entity, colDefKinds, null);
     }
-
-    public ProjectModel(final Project project)
-    {
-        set(ModelDataPropertyNames.CODE, project.getCode());
-        set(ModelDataPropertyNames.DESCRIPTION, project.getDescription());
-        set(ModelDataPropertyNames.GROUP, project.getGroup());
-        set(ModelDataPropertyNames.PROJECT_WITH_GROUP, renderProjectWithGroup(project));
-        set(ModelDataPropertyNames.REGISTRATOR, project.getRegistrator());
-        set(ModelDataPropertyNames.REGISTRATION_DATE, project.getRegistrationDate());
-        set(ModelDataPropertyNames.OBJECT, project);
-    }
-
-    private String renderProjectWithGroup(final Project p)
-    {
-        return p.getCode() + " (" + p.getGroup().getCode() + ")";
-    }
-
-    public final static List<ProjectModel> convert(final List<Project> projects)
-    {
-        final List<ProjectModel> result = new ArrayList<ProjectModel>();
-        for (final Project p : projects)
-        {
-            result.add(new ProjectModel(p));
-        }
-        return result;
-    }
-
 }

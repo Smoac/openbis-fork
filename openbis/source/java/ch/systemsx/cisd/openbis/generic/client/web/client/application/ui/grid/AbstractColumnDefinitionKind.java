@@ -34,6 +34,8 @@ public abstract class AbstractColumnDefinitionKind<T>
     /** Renders the cell value of this column for the specified entity. */
     abstract public String tryGetValue(T entity);
 
+    public static final int DATE_COLUMN_WIDTH = 200;
+
     private String headerMsgKey;
 
     private int width;

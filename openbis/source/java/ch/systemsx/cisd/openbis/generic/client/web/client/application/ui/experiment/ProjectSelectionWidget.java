@@ -16,8 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.google.gwt.user.client.Element;
@@ -28,17 +30,38 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ProjectModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 
 /**
  * {@link ComboBox} containing list of projects loaded from the server.
  * 
  * @author Izabela Adamczyk
  */
-public final class ProjectSelectionWidget extends ComboBox<ProjectModel>
+public final class ProjectSelectionWidget extends
+        ComboBox<ProjectSelectionWidget.ProjectComboModel>
 {
+    // @Private
+    static final String DISPLAY_COLUMN_ID = "id";
+
+    private static class ProjectComboModel extends BaseModelData
+    {
+        private static final long serialVersionUID = 1L;
+
+        public ProjectComboModel(Project project)
+        {
+            set(DISPLAY_COLUMN_ID, renderProjectWithGroup(project));
+            set(ModelDataPropertyNames.OBJECT, project);
+        }
+
+        private String renderProjectWithGroup(final Project p)
+        {
+            return p.getCode() + " (" + p.getGroup().getCode() + ")";
+        }
+    }
+
     private static final String PREFIX = "project-select";
 
     public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
@@ -50,11 +73,11 @@ public final class ProjectSelectionWidget extends ComboBox<ProjectModel>
         this.viewContext = viewContext;
         setId(ID + idSuffix);
         setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_EMPTY, "projects"));
-        setDisplayField(ModelDataPropertyNames.PROJECT_WITH_GROUP);
+        setDisplayField(DISPLAY_COLUMN_ID);
         setEditable(false);
         setWidth(200);
         setFieldLabel(viewContext.getMessage(Dict.PROJECT));
-        setStore(new ListStore<ProjectModel>());
+        setStore(new ListStore<ProjectComboModel>());
     }
 
     /**
@@ -76,14 +99,15 @@ public final class ProjectSelectionWidget extends ComboBox<ProjectModel>
 
     void refresh()
     {
-        viewContext.getCommonService().listProjects(new ListProjectsCallback(viewContext));
+        DefaultResultSetConfig<String, Project> config = DefaultResultSetConfig.createFetchAll();
+        viewContext.getCommonService().listProjects(config, new ListProjectsCallback(viewContext));
     }
 
     //
     // Helper classes
     //
 
-    public final class ListProjectsCallback extends AbstractAsyncCallback<List<Project>>
+    public final class ListProjectsCallback extends AbstractAsyncCallback<ResultSet<Project>>
     {
         ListProjectsCallback(final IViewContext<?> viewContext)
         {
@@ -91,11 +115,11 @@ public final class ProjectSelectionWidget extends ComboBox<ProjectModel>
         }
 
         @Override
-        protected void process(final List<Project> result)
+        protected void process(final ResultSet<Project> result)
         {
-            final ListStore<ProjectModel> projectStore = getStore();
+            final ListStore<ProjectComboModel> projectStore = getStore();
             projectStore.removeAll();
-            projectStore.add(ProjectModel.convert(result));
+            projectStore.add(convert(result.getList()));
             if (projectStore.getCount() > 0)
             {
                 setValue(projectStore.getAt(0));
@@ -105,4 +129,13 @@ public final class ProjectSelectionWidget extends ComboBox<ProjectModel>
         }
     }
 
+    private static List<ProjectComboModel> convert(List<Project> projects)
+    {
+        final List<ProjectComboModel> result = new ArrayList<ProjectComboModel>();
+        for (final Project p : projects)
+        {
+            result.add(new ProjectComboModel(p));
+        }
+        return result;
+    }
 }

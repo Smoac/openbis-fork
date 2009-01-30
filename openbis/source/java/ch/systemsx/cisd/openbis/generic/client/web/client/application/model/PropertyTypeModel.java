@@ -16,36 +16,34 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionUI;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
  * {@link ModelData} for {@link PropertyType}.
  * 
  * @author Izabela Adamczyk
+ * @author Tomasz Pylak
  */
 public class PropertyTypeModel extends AbstractEntityModel<PropertyType>
 {
     private static final long serialVersionUID = 1L;
 
-    public PropertyTypeModel(PropertyType entity)
+    public PropertyTypeModel(PropertyType entity, IColumnDefinitionKind<PropertyType>[] colDefKinds)
     {
-        super(entity, createColumnsSchema(null));
+        super(entity, colDefKinds, null);
 
         overwriteTypes(PropertyTypeColDefKind.EXPERIMENT_TYPES);
         overwriteTypes(PropertyTypeColDefKind.MATERIAL_TYPES);
         overwriteTypes(PropertyTypeColDefKind.SAMPLE_TYPES);
     }
 
+    // changes the column value from the export format to the display format
     private void overwriteTypes(PropertyTypeColDefKind columnKind)
     {
         String columnId = columnKind.id();
@@ -54,6 +52,8 @@ public class PropertyTypeModel extends AbstractEntityModel<PropertyType>
         set(columnId, newValue);
     }
 
+    // transforms comma separated value list by replacing each comma with a div element. It results
+    // in one item displayed per line.
     private static String rerenderTypes(String commaValues)
     {
         String[] tokens = commaValues.split(",");
@@ -67,21 +67,4 @@ public class PropertyTypeModel extends AbstractEntityModel<PropertyType>
         String newValue = sb.toString();
         return newValue;
     }
-
-    public static List<IColumnDefinitionUI<PropertyType>> createColumnsSchema(
-            IMessageProvider msgProviderOrNull)
-    {
-        return createColumnsSchemaFrom(PropertyTypeColDefKind.values(), msgProviderOrNull);
-    }
-
-    public final static List<PropertyTypeModel> convert(final List<PropertyType> types)
-    {
-        final List<PropertyTypeModel> result = new ArrayList<PropertyTypeModel>();
-        for (final PropertyType st : types)
-        {
-            result.add(new PropertyTypeModel(st));
-        }
-        return result;
-    }
-
 }

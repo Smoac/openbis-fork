@@ -88,7 +88,8 @@ public enum CommonSampleColDefKind implements IColumnDefinitionKind<Sample>
             }
         }),
 
-    REGISTRATION_DATE(new AbstractColumnDefinitionKind<Sample>(Dict.REGISTRATION_DATE, 200, true)
+    REGISTRATION_DATE(new AbstractColumnDefinitionKind<Sample>(Dict.REGISTRATION_DATE,
+            AbstractColumnDefinitionKind.DATE_COLUMN_WIDTH, true)
         {
             @Override
             public String tryGetValue(Sample entity)

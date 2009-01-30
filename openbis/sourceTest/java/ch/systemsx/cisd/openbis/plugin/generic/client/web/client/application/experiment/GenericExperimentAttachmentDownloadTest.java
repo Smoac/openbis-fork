@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Abstract
  */
 public class GenericExperimentAttachmentDownloadTest extends AbstractGWTTestCase
 {
-    private static final String DEFAULT = "DEFAULT";
+    private static final String DEFAULT = "DEFAULT (CISD)";
 
     private static final String EXP_REUSE = "EXP-REUSE";
 

@@ -21,6 +21,7 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.shared.DataType;
+import ch.systemsx.cisd.openbis.generic.client.shared.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.client.shared.Person;
 import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
@@ -96,11 +97,24 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void prepareExportSamples(final TableExportCriteria<Sample> criteria,
             AsyncCallback<String> asyncCallback);
 
+    /** @see ICommonClientService#listPropertyTypeAssignments(DefaultResultSetConfig) */
+    public void listPropertyTypeAssignments(
+            DefaultResultSetConfig<String, EntityTypePropertyType<?>> criteria,
+            final AsyncCallback<ResultSet<EntityTypePropertyType<?>>> asyncCallback);
+
     /**
-     * @see ICommonClientService#prepareExportPropertyTypes(TableExportCriteria)
+     * @see ICommonClientService#prepareExportPropertyTypeAssignments(TableExportCriteria)
      */
-    public void prepareExportPropertyTypes(final TableExportCriteria<PropertyType> criteria,
+    public void prepareExportPropertyTypeAssignments(
+            final TableExportCriteria<EntityTypePropertyType<?>> criteria,
             AsyncCallback<String> asyncCallback);
+
+    /**
+     * @see ICommonClientService#listExperiments(ListExperimentsCriteria)
+     */
+    public void listExperiments(
+            final ListExperimentsCriteria criteria,
+            AsyncCallback<ResultSet<ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment>> asyncCallback);
 
     /**
      * @see ICommonClientService#prepareExportExperiments(TableExportCriteria)
@@ -108,8 +122,36 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void prepareExportExperiments(TableExportCriteria<Experiment> exportCriteria,
             AsyncCallback<String> callback);
 
+    /** @see ICommonClientService#listPropertyTypes(DefaultResultSetConfig) */
+    public void listPropertyTypes(DefaultResultSetConfig<String, PropertyType> criteria,
+            final AsyncCallback<ResultSet<PropertyType>> asyncCallback);
+
+    /**
+     * @see ICommonClientService#prepareExportPropertyTypes(TableExportCriteria)
+     */
+    public void prepareExportPropertyTypes(final TableExportCriteria<PropertyType> criteria,
+            AsyncCallback<String> asyncCallback);
+
+    /** @see ICommonClientService#listPropertyTypes() */
+    public void listPropertyTypes(final AsyncCallback<List<PropertyType>> asyncCallback);
+
+    /**
+     * @see ICommonClientService#listMatchingEntities(SearchableEntity, String, IResultSetConfig)
+     */
+    public void listMatchingEntities(final SearchableEntity searchableEntity,
+            final String queryText, final IResultSetConfig<String, MatchingEntity> resultSetConfig,
+            final AsyncCallback<ResultSet<MatchingEntity>> asyncCallback);
+
     /** @see ICommonClientService#prepareExportMatchingEntities(TableExportCriteria) */
     public void prepareExportMatchingEntities(TableExportCriteria<MatchingEntity> exportCriteria,
+            AsyncCallback<String> callback);
+
+    /** @see ICommonClientService#listProjects(DefaultResultSetConfig) */
+    public void listProjects(DefaultResultSetConfig<String, Project> criteria,
+            final AsyncCallback<ResultSet<Project>> asyncCallback);
+
+    /** @see ICommonClientService#prepareExportProjects(TableExportCriteria) */
+    public void prepareExportProjects(TableExportCriteria<Project> exportCriteria,
             AsyncCallback<String> callback);
 
     /**
@@ -118,11 +160,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void getExportTable(String exportDataKey, AsyncCallback<String> asyncCallback);
 
     /**
-     * @see ICommonClientService#listExperiments(ListExperimentsCriteria)
+     * @see ICommonClientService#removeResultSet(String)
      */
-    public void listExperiments(
-            final ListExperimentsCriteria criteria,
-            AsyncCallback<ResultSet<ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment>> asyncCallback);
+    public void removeResultSet(final String resultSetKey, final AsyncCallback<Void> asyncCallback);
 
     /**
      * @see ICommonClientService#listExternalData(String)
@@ -141,31 +181,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      */
     public void listSearchableEntities(final AsyncCallback<List<SearchableEntity>> asyncCallback);
 
-    /**
-     * @see ICommonClientService#listMatchingEntities(SearchableEntity, String, IResultSetConfig)
-     */
-    public void listMatchingEntities(final SearchableEntity searchableEntity,
-            final String queryText, final IResultSetConfig<String, MatchingEntity> resultSetConfig,
-            final AsyncCallback<ResultSet<MatchingEntity>> asyncCallback);
-
-    /**
-     * @see ICommonClientService#removeResultSet(String)
-     */
-    public void removeResultSet(final String resultSetKey, final AsyncCallback<Void> asyncCallback);
-
-    /** @see ICommonClientService#listProjects() */
-    public void listProjects(final AsyncCallback<List<Project>> asyncCallback);
-
     /** @see ICommonClientService#listExperimentTypes() */
     public void listExperimentTypes(
             final AsyncCallback<List<ExperimentType>> listExperimentTypesCallback);
-
-    /** @see ICommonClientService#listPropertyTypes() */
-    public void listPropertyTypes(final AsyncCallback<List<PropertyType>> asyncCallback);
-
-    /** @see ICommonClientService#listPropertyTypes() */
-    public void listPropertyTypes(DefaultResultSetConfig<String, PropertyType> criteria,
-            final AsyncCallback<ResultSet<PropertyType>> asyncCallback);
 
     /** @see ICommonClientService#listDataTypes() */
     public void listDataTypes(final AsyncCallback<List<DataType>> asyncCallback);

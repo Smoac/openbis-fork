@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 
@@ -32,6 +35,16 @@ public final class PropertyTypeTranslator
         // Can not be instantiated.
     }
 
+    public final static List<PropertyType> translate(final List<PropertyTypePE> propertyTypes)
+    {
+        final List<PropertyType> result = new ArrayList<PropertyType>();
+        for (final PropertyTypePE propType : propertyTypes)
+        {
+            result.add(PropertyTypeTranslator.translate(propType));
+        }
+        return result;
+    }
+    
     public final static PropertyType translate(final PropertyTypePE propertyType)
     {
         final PropertyType result = new PropertyType();

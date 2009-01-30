@@ -57,7 +57,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.BrowserGridPagingToolBar.IBrowserGridActionInvoker;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
@@ -81,7 +80,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
             AbstractAsyncCallback<ResultSet<T>> callback);
 
     /** Converts specified list of entities into a list of grid rows models */
-    abstract protected List<M> createModels(List<T> entities);
+    abstract protected M createModel(T entity);
 
     /**
      * Called when user wants to export the data. It can happen only after a previous refresh of the
@@ -344,6 +343,16 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
         {
             refreshCallback.postRefresh(wasSuccessful);
         }
+    }
+
+    private List<M> createModels(final List<T> projects)
+    {
+        final List<M> result = new ArrayList<M>();
+        for (final T p : projects)
+        {
+            result.add(createModel(p));
+        }
+        return result;
     }
 
     private Listener<GridEvent> createEntityViewerHandler()

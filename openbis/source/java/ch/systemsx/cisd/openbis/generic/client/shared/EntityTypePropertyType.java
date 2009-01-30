@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.shared;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
 
 /**
  * An <i>abstract</i> entity type property type.
@@ -27,6 +28,8 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public abstract class EntityTypePropertyType<T extends EntityType> implements IsSerializable,
         Comparable<EntityTypePropertyType<T>>
 {
+    private EntityKind entityKind;
+
     private boolean mandatory;
 
     private boolean managedInternally;
@@ -34,6 +37,16 @@ public abstract class EntityTypePropertyType<T extends EntityType> implements Is
     private PropertyType propertyType;
 
     private T entityType;
+
+    public EntityTypePropertyType(EntityKind entityKind)
+    {
+        this.entityKind = entityKind;
+    }
+
+    public EntityKind getEntityKind()
+    {
+        return entityKind;
+    }
 
     public final boolean isMandatory()
     {

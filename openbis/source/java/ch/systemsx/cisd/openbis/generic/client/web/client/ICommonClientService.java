@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.shared.DataType;
+import ch.systemsx.cisd.openbis.generic.client.shared.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.client.shared.Person;
 import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
@@ -115,24 +116,72 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
-     * Returns a key which can be used be the export servlet (and eventually
-     * {@link #getExportTable(String)}) to reference the export criteria in an easy way.
+     * Returns a list of experiments.
      */
+    public ResultSet<Experiment> listExperiments(final ListExperimentsCriteria criteria)
+            throws UserFailureException;
+
+    /**
+     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for experiments.
+     */
+
     public String prepareExportExperiments(final TableExportCriteria<Experiment> criteria)
             throws UserFailureException;
 
     /**
-     * Returns a key which can be used be the export servlet (and eventually
-     * {@link #getExportTable(String)}) to reference the export criteria in an easy way.
+     * Lists the entities matching the search.
+     */
+    public ResultSet<MatchingEntity> listMatchingEntities(
+            final SearchableEntity searchableEntityOrNull, final String queryText,
+            final IResultSetConfig<String, MatchingEntity> resultSetConfig)
+            throws UserFailureException;
+
+    /**
+     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for matching entites.
      */
     public String prepareExportMatchingEntities(final TableExportCriteria<MatchingEntity> criteria)
             throws UserFailureException;
 
     /**
-     * Returns a key which can be used be the export servlet (and eventually
-     * {@link #getExportTable(String)}) to reference the export criteria in an easy way.
+     * Returns a list of all property types.
+     */
+    public List<PropertyType> listPropertyTypes() throws UserFailureException;
+
+    /**
+     * Returns a chunk of the property types list.
+     */
+    public ResultSet<PropertyType> listPropertyTypes(
+            DefaultResultSetConfig<String, PropertyType> criteria) throws UserFailureException;
+
+    /**
+     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for property types.
      */
     public String prepareExportPropertyTypes(final TableExportCriteria<PropertyType> criteria)
+            throws UserFailureException;
+
+    /**
+     * Returns a chunk of the property types assignment list.
+     */
+    public ResultSet<EntityTypePropertyType<?>> listPropertyTypeAssignments(
+            DefaultResultSetConfig<String, EntityTypePropertyType<?>> criteria);
+
+    /**
+     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for property types assignments.
+     */
+    public String prepareExportPropertyTypeAssignments(
+            final TableExportCriteria<EntityTypePropertyType<?>> criteria)
+            throws UserFailureException;
+
+    /**
+     * Returns a list of all projects.
+     */
+    public ResultSet<Project> listProjects(DefaultResultSetConfig<String, Project> criteria)
+            throws UserFailureException;
+
+    /**
+     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for projects.
+     */
+    public String prepareExportProjects(final TableExportCriteria<Project> criteria)
             throws UserFailureException;
 
     /**
@@ -143,10 +192,9 @@ public interface ICommonClientService extends IClientService
     public String getExportTable(String exportDataKey) throws UserFailureException;
 
     /**
-     * Returns a list of experiments.
+     * Removes the session result set associated with given key.
      */
-    public ResultSet<Experiment> listExperiments(final ListExperimentsCriteria criteria)
-            throws UserFailureException;
+    public void removeResultSet(final String resultSetKey) throws UserFailureException;
 
     /**
      * For given <var>sampleIdentifier</var> returns corresponding list of {@link ExternalData}.
@@ -163,38 +211,9 @@ public interface ICommonClientService extends IClientService
     public List<SearchableEntity> listSearchableEntities() throws UserFailureException;
 
     /**
-     * Lists the entities matching the search.
-     */
-    public ResultSet<MatchingEntity> listMatchingEntities(
-            final SearchableEntity searchableEntityOrNull, final String queryText,
-            final IResultSetConfig<String, MatchingEntity> resultSetConfig)
-            throws UserFailureException;
-
-    /**
-     * Removes the session result set associated with given key.
-     */
-    public void removeResultSet(final String resultSetKey) throws UserFailureException;
-
-    /**
-     * Returns a list of all projects.
-     */
-    public List<Project> listProjects() throws UserFailureException;
-
-    /**
      * Returns a list of all experiment types.
      */
     public List<ExperimentType> listExperimentTypes() throws UserFailureException;
-
-    /**
-     * Returns a list of all property types.
-     */
-    public List<PropertyType> listPropertyTypes() throws UserFailureException;
-
-    /**
-     * Returns a chunk of the property types list.
-     */
-    public ResultSet<PropertyType> listPropertyTypes(
-            DefaultResultSetConfig<String, PropertyType> criteria) throws UserFailureException;
 
     /**
      * Returns a list of all data types.

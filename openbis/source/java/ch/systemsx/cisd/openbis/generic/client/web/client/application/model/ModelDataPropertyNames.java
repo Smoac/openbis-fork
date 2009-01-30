@@ -46,10 +46,6 @@ public final class ModelDataPropertyNames
 
     public static final String EMAIL = "email";
 
-    public static final String ENTITY_KIND = "entityKind";
-
-    public static final String ENTITY_TYPE = "entityType";
-
     public static final String FILE_FORMAT_TYPE = "fileFormatType";
 
     public static final String FIRST_NAME = "firstName";
@@ -82,8 +78,6 @@ public final class ModelDataPropertyNames
 
     public static final String USER_ID = "userId";
 
-    public static final String PROJECT_WITH_GROUP = "projectWithGroup";
-
     public static final String PROJECT = "project";
 
     public static final String VERSIONS = "versions";
@@ -94,25 +88,9 @@ public final class ModelDataPropertyNames
 
     public static final String PROCEDURE_TYPE = "procedureType";
 
-    public static final String MATERIAL_TYPE = "materialType";
-
-    public static final String LABEL = "label";
-
     public static final String DATA_TYPE = "dataType";
 
     public static final String CONTROLLED_VOCABULARY = "controlledVocabulary";
-
-    public static final String EXPERIMENT_TYPES = "experimentTypes";
-
-    public static final String MATERIAL_TYPES = "materialTypes";
-
-    public static final String SAMPLE_TYPES = "sampleTypes";
-
-    public static final String IS_MANDATORY = "isMandatory";
-
-    public static final String PROPERTY_TYPE_CODE = "propertyTypeCode";
-
-    public static final String ENTITY_TYPE_CODE = "entityTypeCode";
 
     public static final String IS_MANAGED_INTERNALLY = "isManagedInternally";
 

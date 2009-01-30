@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Samp
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
@@ -47,29 +48,29 @@ public final class FillPropertyTypeAssignmentForm extends AbstractDefaultTestCom
 
     private String defaultValue;
 
-    private String entityKindName;
+    private EntityKind entityKind;
 
     private String widgetId;
 
     public FillPropertyTypeAssignmentForm(final boolean isMandatory, final String propertyTypeCode,
-            final String entityTypeCode, String defaultValue, String entityKindName)
+            final String entityTypeCode, String defaultValue, EntityKind entityKind)
     {
         this.isMandatory = isMandatory;
         this.propertyTypeCode = propertyTypeCode;
         this.entityTypeCode = entityTypeCode;
         this.defaultValue = defaultValue;
-        this.entityKindName = entityKindName;
-        widgetId = PropertyTypeAssignmentForm.ID_PREFIX + entityKindName;
+        this.entityKind = entityKind;
+        widgetId = PropertyTypeAssignmentForm.ID_PREFIX + entityKind;
         addCallbackClass(PropertyTypeSelectionWidget.ListPropertyTypesCallback.class);
         addEntityTypeCallback();
     }
 
     private void addEntityTypeCallback()
     {
-        if (entityKindName.equals("EXPERIMENT"))
+        if (entityKind.equals(EntityKind.EXPERIMENT))
         {
             addCallbackClass(ExperimentTypeSelectionWidget.ListExperimentTypesCallback.class);
-        } else if (entityKindName.equals("SAMPLE"))
+        } else if (entityKind.equals(EntityKind.SAMPLE))
         {
             addCallbackClass(SampleTypeSelectionWidget.ListSampleTypesCallback.class);
         } else
@@ -95,7 +96,7 @@ public final class FillPropertyTypeAssignmentForm extends AbstractDefaultTestCom
                 (PropertyTypeSelectionWidget) GWTTestUtil
                         .getWidgetWithID(PropertyTypeSelectionWidget.ID + widgetId
                                 + PropertyTypeAssignmentForm.PROPERTY_TYPE_ID_SUFFIX);
-        GWTUtils.setSelectedItem(propertyTypeSelector, PropertyTypeColDefKind.CODE.id(),
+        GWTUtils.setSelectedItem(propertyTypeSelector, ModelDataPropertyNames.CODE,
                 propertyTypeCode);
         return propertyTypeSelector;
     }
@@ -124,7 +125,7 @@ public final class FillPropertyTypeAssignmentForm extends AbstractDefaultTestCom
 
     private void chooseEntityType()
     {
-        if (entityKindName.equals("EXPERIMENT"))
+        if (entityKind.equals(EntityKind.EXPERIMENT))
         {
             final ComboBox<ExperimentTypeModel> experimentTypeSelector =
                     (ExperimentTypeSelectionWidget) GWTTestUtil
@@ -134,7 +135,7 @@ public final class FillPropertyTypeAssignmentForm extends AbstractDefaultTestCom
                     entityTypeCode);
             assertEquals(((ExperimentTypeSelectionWidget) experimentTypeSelector)
                     .tryGetSelectedExperimentType().getCode(), entityTypeCode);
-        } else if (entityKindName.equals("SAMPLE"))
+        } else if (entityKind.equals(EntityKind.SAMPLE))
         {
             final ComboBox<SampleTypeModel> sampleTypeSelector =
                     (SampleTypeSelectionWidget) GWTTestUtil
