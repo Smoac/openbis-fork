@@ -240,7 +240,7 @@ final class ComponentProvider
                 {
                     DisposableComponent component = VocabularyGrid.create(viewContext);
                     return DefaultTabItem.create(getMessage(Dict.VOCABULARY_BROWSER), component,
-                            true);
+                            false);
                 }
 
                 public String getId()
@@ -257,7 +257,8 @@ final class ComponentProvider
                 public ITabItem create()
                 {
                     DisposableComponent component = ProjectGrid.create(viewContext);
-                    return DefaultTabItem.create(getMessage(Dict.PROJECT_BROWSER), component, true);
+                    return DefaultTabItem
+                            .create(getMessage(Dict.PROJECT_BROWSER), component, false);
                 }
 
                 public String getId()
