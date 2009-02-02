@@ -28,6 +28,8 @@ import org.apache.commons.lang.StringUtils;
  */
 public abstract class AbstractFileUploadServlet extends AbstractCIFEXServiceServlet
 {
+    private static final long serialVersionUID = 1L;
+
     /*
      * Keep in mind that this constant is used by <code>FileUploadWidget</code> to check if upload
      * was successful, so if you change the value of the constant here it should also be changed in
