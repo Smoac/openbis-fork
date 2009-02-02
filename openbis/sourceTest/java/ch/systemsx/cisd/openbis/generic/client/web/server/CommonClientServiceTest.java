@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
@@ -28,10 +28,10 @@ import ch.systemsx.cisd.openbis.generic.client.shared.DataType;
 import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.shared.Vocabulary;
-import ch.systemsx.cisd.openbis.generic.client.shared.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DefaultResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetKeyGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.translator.VocabularyTranslator;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
@@ -78,11 +79,6 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         return sampleType;
     }
 
-    private final static List<Sample> createSampleList()
-    {
-        return Collections.emptyList();
-    }
-
     private final static void assertDataTypeEquals(final DataTypePE dataTypePE,
             final DataType dataType)
     {
@@ -111,16 +107,6 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         return vocabularyTermPE;
     }
 
-    private final static void assertVocabularyEquals(final VocabularyPE vocabularyPE,
-            final Vocabulary vocabulary)
-    {
-        assertEquals(vocabulary.getCode(), vocabularyPE.getCode());
-        assertEquals(vocabulary.getDescription(), vocabularyPE.getDescription());
-        final List<VocabularyTerm> terms = vocabulary.getTerms();
-        final Set<VocabularyTermPE> termPEs = vocabularyPE.getTerms();
-        assertEquals(terms.size(), termPEs.size());
-    }
-
     //
     // AbstractClientServiceTest
     //
@@ -137,10 +123,50 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
     @Test
     public final void testListSamples()
     {
-        final String resultSetKey = "1";
-        final DefaultResultSet<String, Sample> defaultResultSet =
-                new DefaultResultSet<String, Sample>(resultSetKey, createSampleList(), 0);
-        final ListSampleCriteria listCriteria = createListCriteria();
+        List<Sample> entities = Arrays.asList(new Sample());
+        final ListSampleCriteria criteria = createListCriteria();
+        prepareListEntities(entities, criteria);
+
+        final ResultSet<Sample> resultSet = commonClientService.listSamples(criteria);
+        assertEqualEntities(entities, resultSet);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testListProjects()
+    {
+        List<Project> entities = Arrays.asList(new Project());
+        final DefaultResultSetConfig<String, Project> criteria =
+                DefaultResultSetConfig.createFetchAll();
+        prepareListEntities(entities, criteria);
+
+        final ResultSet<Project> resultSet = commonClientService.listProjects(criteria);
+        assertEqualEntities(entities, resultSet);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testListVocabularies()
+    {
+        final Vocabulary vocabulary = VocabularyTranslator.translate(createVocabulary());
+        final List<Vocabulary> entities = Collections.singletonList(vocabulary);
+        final boolean excludeInternals = true;
+        final DefaultResultSetConfig<String, Vocabulary> criteria =
+                DefaultResultSetConfig.createFetchAll();
+        prepareListEntities(entities, criteria);
+
+        ResultSet<Vocabulary> resultSet =
+                commonClientService.listVocabularies(false, excludeInternals, criteria);
+        assertEqualEntities(entities, resultSet);
+        context.assertIsSatisfied();
+    }
+
+    private final <T> void prepareListEntities(List<T> entities,
+            final DefaultResultSetConfig<String, T> criteria)
+    {
+        final String resultSetKey = "131";
+        final DefaultResultSet<String, T> defaultResultSet =
+                new DefaultResultSet<String, T>(resultSetKey, entities, entities.size());
         context.checking(new Expectations()
             {
                 {
@@ -148,16 +174,25 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                     prepareGetSessionToken(this);
                     prepareGetResultSetManager(this);
 
-                    one(resultSetManager).getResultSet(with(listCriteria),
-                            getAnyOriginalDataProvider(this));
+                    prepareGetResultSet(this, criteria);
                     will(returnValue(defaultResultSet));
                 }
             });
-        final ResultSet<Sample> resultSet = commonClientService.listSamples(listCriteria);
-        assertEquals(0, resultSet.getList().size());
-        assertEquals(resultSetKey, resultSet.getResultSetKey());
-        assertEquals(0, resultSet.getTotalLength());
-        context.assertIsSatisfied();
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> void prepareGetResultSet(Expectations exp,
+            DefaultResultSetConfig<String, T> criteria)
+    {
+        exp.one(resultSetManager).getResultSet(exp.with(criteria),
+                exp.with(Expectations.any(IOriginalDataProvider.class)));
+    }
+
+    private <T> void assertEqualEntities(List<T> entities, final ResultSet<T> resultSet)
+    {
+        assertEquals(entities.size(), resultSet.getList().size());
+        assertEquals(entities.get(0), resultSet.getList().get(0));
+        assertEquals(entities.size(), resultSet.getTotalLength());
     }
 
     @Test
@@ -205,12 +240,6 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         prepareGetHttpSession(exp);
         exp.allowing(httpSession).getAttribute(SessionConstants.OPENBIS_EXPORT_MANAGER);
         exp.will(Expectations.returnValue(manager));
-    }
-
-    @SuppressWarnings("unchecked")
-    private final IOriginalDataProvider<Sample> getAnyOriginalDataProvider(final Expectations exp)
-    {
-        return exp.with(Expectations.any(IOriginalDataProvider.class));
     }
 
     private <T> CacheManager<String, T> createCacheManager()
@@ -262,29 +291,6 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                 }
             });
         commonClientService.registerVocabulary(new Vocabulary());
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public final void testListVocabularies()
-    {
-        final VocabularyPE vocabularyPE = createVocabulary();
-        final boolean excludeInternals = true;
-        context.checking(new Expectations()
-            {
-                {
-                    prepareGetSessionToken(this);
-
-                    one(commonServer).listVocabularies(SESSION_TOKEN, false, excludeInternals);
-                    will(returnValue(Collections.singletonList(vocabularyPE)));
-                }
-            });
-        DefaultResultSetConfig<String, Vocabulary> criteria =
-                DefaultResultSetConfig.createFetchAll();
-        final List<Vocabulary> vocabularies =
-                commonClientService.listVocabularies(false, excludeInternals, criteria).getList();
-        assertEquals(1, vocabularies.size());
-        assertVocabularyEquals(vocabularyPE, vocabularies.get(0));
         context.assertIsSatisfied();
     }
 
