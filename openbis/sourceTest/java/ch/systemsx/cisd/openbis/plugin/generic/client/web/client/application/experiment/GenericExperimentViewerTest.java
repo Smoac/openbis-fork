@@ -67,7 +67,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
     private static final String EXP_REUSE = "EXP-REUSE";
 
     private static final String CISD_CISD_DEFAULT = "CISD:/CISD/DEFAULT";
-    
+
     private static final String EXP_X = "EXP-X";
 
     private static final String A_SIMPLE_EXPERIMENT = "A simple experiment";
@@ -196,10 +196,10 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         sampleTable.expectedRow(new DataSetRow("20080912142304476-3").invalid().withSample(
                 "CISD:/CISD/3VCP1").withSampleType("CELL_PLATE").derived().withIsComplete(null));
         remoteConsole.prepare(checkExperiment);
-        
+
         launchTest(60000);
     }
-    
+
     private void prepareShowExperiment(final String projectName, final String experimentTypeName,
             final String experimentCode)
     {

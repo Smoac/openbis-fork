@@ -70,6 +70,16 @@ public final class SampleModel extends AbstractEntityModel<Sample>
         return columns;
     }
 
+    public static ColumnDefsAndConfigs<Sample> createBasicColumnsSchema(
+            IMessageProvider messageProvider)
+    {
+        assert messageProvider != null : "message provider needed to create table headers";
+
+        ColumnDefsAndConfigs<Sample> columns = new ColumnDefsAndConfigs<Sample>();
+        columns.addColumns(createCommonColumnsSchema(messageProvider));
+        return columns;
+    }
+
     // here we create the columns definition having just one table row. We need them only to render
     // column values (headers have been already created), so no message provider is needed.
     private static List<IColumnDefinitionUI<Sample>> createColumnsSchema(Sample sample)
@@ -100,7 +110,7 @@ public final class SampleModel extends AbstractEntityModel<Sample>
         return list;
     }
 
-    private static List<IColumnDefinitionUI<Sample>> createCommonColumnsSchema(
+    public static List<IColumnDefinitionUI<Sample>> createCommonColumnsSchema(
             IMessageProvider msgProviderOrNull)
     {
         return createColumnsSchemaFrom(CommonSampleColDefKind.values(), msgProviderOrNull);

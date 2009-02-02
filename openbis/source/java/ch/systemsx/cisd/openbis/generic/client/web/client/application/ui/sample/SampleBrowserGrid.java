@@ -45,10 +45,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
  */
 public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleModel>
 {
+    public static final String SAMPLE_BROWSER_SUFFIX = "sample_browser";
+
     private static final String PREFIX = GenericConstants.ID_PREFIX + "sample-browser-grid_";
 
     // browser consists of the grid and the paging toolbar
-    public static final String BROWSER_ID = PREFIX + "sample_browser";
+    public static final String BROWSER_ID = PREFIX + SAMPLE_BROWSER_SUFFIX;
 
     public static final String GRID_ID = PREFIX + "grid";
 
@@ -58,27 +60,56 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
     private ListSampleCriteria criteria;
 
     public static DisposableComponent create(
-            final IViewContext<ICommonClientServiceAsync> viewContext)
+            final IViewContext<ICommonClientServiceAsync> viewContext, String idSuffix)
     {
         final SampleBrowserToolbar toolbar = new SampleBrowserToolbar(viewContext);
-        final SampleBrowserGrid browserGrid = new SampleBrowserGrid(viewContext, toolbar);
+        final SampleBrowserGrid browserGrid = new SampleBrowserGrid(viewContext, toolbar, idSuffix);
         return browserGrid.asDisposableWithToolbar(toolbar);
     }
 
-    private SampleBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
-            SampleBrowserToolbar topToolbar)
+    public static DisposableComponent create(
+            final IViewContext<ICommonClientServiceAsync> viewContext, ListSampleCriteria criteria,
+            String idSuffix)
     {
-        super(viewContext, GRID_ID);
+        final SampleBrowserGrid browserGrid =
+                new SampleBrowserGrid(viewContext, criteria, idSuffix);
+        return browserGrid.asDisposableWithoutToolbar();
+    }
+
+    private SampleBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
+            SampleBrowserToolbar topToolbar, String idSuffix)
+    {
+        super(viewContext, GRID_ID + idSuffix);
         this.topToolbar = topToolbar;
         SelectionChangedListener<?> refreshButtonListener = addRefreshButton(topToolbar);
         this.topToolbar.setCriteriaChangedListener(refreshButtonListener);
         setId(BROWSER_ID);
     }
 
+    private SampleBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
+            ListSampleCriteria criteria, String idSuffix)
+    {
+        super(viewContext, GRID_ID + idSuffix, false, true);
+        this.criteria = criteria;
+        this.topToolbar = null;
+        setId(BROWSER_ID);
+    }
+
     @Override
     protected boolean isRefreshEnabled()
     {
-        return topToolbar.tryGetCriteria() != null;
+        return tryGetCriteria() != null;
+    }
+
+    private ListSampleCriteria tryGetCriteria()
+    {
+        if (topToolbar != null)
+        {
+            return topToolbar.tryGetCriteria();
+        } else
+        {
+            return criteria;
+        }
     }
 
     @Override
@@ -118,8 +149,11 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
     private static final String createHeader(ListSampleCriteria criteria)
     {
         final StringBuilder builder = new StringBuilder("Samples");
-        builder.append(" of type ");
-        builder.append(criteria.getSampleType().getCode());
+        if (criteria.getSampleType() != null)
+        {
+            builder.append(" of type ");
+            builder.append(criteria.getSampleType().getCode());
+        }
         if (criteria.isIncludeGroup())
         {
             builder.append(" belonging to the group ");
@@ -135,6 +169,10 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
                 builder.append(" which are shared among all the groups");
             }
         }
+        if (criteria.getExperimentIdentifier() != null)
+        {
+            return null;
+        }
         return builder.toString();
     }
 
@@ -148,7 +186,7 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
     @Override
     protected final void refresh()
     {
-        ListSampleCriteria newCriteria = topToolbar.tryGetCriteria();
+        ListSampleCriteria newCriteria = tryGetCriteria();
         if (newCriteria == null)
         {
             return;
@@ -175,7 +213,9 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
 
     private boolean hasColumnsDefinitionChanged(ListSampleCriteria newCriteria)
     {
+
         SampleType sampleType = newCriteria.getSampleType();
-        return (criteria == null || sampleType.equals(criteria.getSampleType()) == false);
+        return criteria == null || sampleType != null
+                && sampleType.equals(criteria.getSampleType()) == false;
     }
 }

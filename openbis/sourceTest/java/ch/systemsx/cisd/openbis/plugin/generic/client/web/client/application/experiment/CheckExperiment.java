@@ -16,13 +16,13 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IPropertyChecker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IValueAssertion;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.PropertyCheckingManager;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ListExternalDataCallback;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.ExperimentSamplesSection.ListSamplesCallback;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentViewer.ExperimentInfoCallback;
 
 /**
@@ -45,7 +45,7 @@ public class CheckExperiment extends AbstractDefaultTestCommand implements
         this.identifier = identifierPrefix + "/" + code;
         propertyCheckingManager = new PropertyCheckingManager();
         addCallbackClass(ExperimentInfoCallback.class);
-        addCallbackClass(ListSamplesCallback.class);
+        addCallbackClass(SampleBrowserGrid.ListEntitiesCallback.class);
         addCallbackClass(ListExternalDataCallback.class);
     }
 
@@ -64,6 +64,11 @@ public class CheckExperiment extends AbstractDefaultTestCommand implements
     {
         propertyCheckingManager.assertPropertiesOf(ExperimentPropertiesSection.PROPERTIES_ID_PREFIX
                 + identifier);
+
+        if (sampleSection != null)
+        {
+            sampleSection.execute();
+        }
     }
 
     public CheckTableCommand attachmentsTable()
@@ -76,10 +81,12 @@ public class CheckExperiment extends AbstractDefaultTestCommand implements
 
     public CheckTableCommand sampleTable()
     {
-        sampleSection = new CheckTableCommand(ExperimentSamplesSection.ID_PREFIX + identifier);
+        sampleSection =
+                new CheckTableCommand(SampleBrowserGrid.GRID_ID + ExperimentSamplesSection.PREFIX
+                        + identifier);
         return sampleSection;
     }
-    
+
     public CheckTableCommand dataSetTable()
     {
         return new CheckTableCommand(ExperimentDataSection.ID_PREFIX + identifier);

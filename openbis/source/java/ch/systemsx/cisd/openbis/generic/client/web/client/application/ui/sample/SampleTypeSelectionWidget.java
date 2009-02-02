@@ -103,11 +103,12 @@ public final class SampleTypeSelectionWidget extends ComboBox<SampleTypeModel>
             if (sampleTypeStore.getCount() > 0)
             {
                 setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, "sample type"));
-                setEnabled(true);
             } else
             {
                 setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_EMPTY, "sample types"));
             }
+            setAllowBlank(false);
+            setEnabled(true);
             applyEmptyText();
         }
     }
