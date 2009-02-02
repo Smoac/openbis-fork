@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 
 abstract class AbstractParentSampleColDef extends AbstractColumnDefinition<Sample> implements
@@ -34,7 +35,7 @@ abstract class AbstractParentSampleColDef extends AbstractColumnDefinition<Sampl
 
     AbstractParentSampleColDef(int level, String headerText)
     {
-        super(headerText, AbstractColumnDefinition.DEFAULT_COLUMN_WIDTH, false);
+        super(headerText, AbstractColumnDefinitionKind.DEFAULT_COLUMN_WIDTH, false);
         this.level = level;
     }
 

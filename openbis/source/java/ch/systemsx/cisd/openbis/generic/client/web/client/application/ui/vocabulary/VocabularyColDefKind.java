@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.
  */
 public enum VocabularyColDefKind implements IColumnDefinitionKind<Vocabulary>
 {
-    CODE(new AbstractColumnDefinitionKind<Vocabulary>(Dict.CODE)
+    CODE(new AbstractColumnDefinitionKind<Vocabulary>(Dict.CODE, 200)
         {
             @Override
             public String tryGetValue(Vocabulary entity)
@@ -36,7 +36,7 @@ public enum VocabularyColDefKind implements IColumnDefinitionKind<Vocabulary>
             }
         }),
 
-    DESCRIPTION(new AbstractColumnDefinitionKind<Vocabulary>(Dict.DESCRIPTION)
+    DESCRIPTION(new AbstractColumnDefinitionKind<Vocabulary>(Dict.DESCRIPTION, 300)
         {
             @Override
             public String tryGetValue(Vocabulary entity)
@@ -45,7 +45,8 @@ public enum VocabularyColDefKind implements IColumnDefinitionKind<Vocabulary>
             }
         }),
 
-    IS_MANAGED_INTERNALLY(new AbstractColumnDefinitionKind<Vocabulary>(Dict.IS_MANAGED_INTERNALLY)
+    IS_MANAGED_INTERNALLY(new AbstractColumnDefinitionKind<Vocabulary>(Dict.IS_MANAGED_INTERNALLY,
+            150)
         {
             @Override
             public String tryGetValue(Vocabulary entity)

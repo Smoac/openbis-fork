@@ -29,7 +29,7 @@ public enum PropertyTypeAssignmentColDefKind implements
         IColumnDefinitionKind<EntityTypePropertyType<?>>
 {
     PROPERTY_TYPE_CODE(new AbstractColumnDefinitionKind<EntityTypePropertyType<?>>(
-            Dict.PROPERTY_TYPE_CODE)
+            Dict.PROPERTY_TYPE_CODE, 200)
         {
             @Override
             public String tryGetValue(EntityTypePropertyType<?> entity)
@@ -38,7 +38,8 @@ public enum PropertyTypeAssignmentColDefKind implements
             }
         }),
 
-    ENTITY_TYPE_CODE(new AbstractColumnDefinitionKind<EntityTypePropertyType<?>>(Dict.ASSIGNED_TO)
+    ENTITY_TYPE_CODE(new AbstractColumnDefinitionKind<EntityTypePropertyType<?>>(Dict.ASSIGNED_TO,
+            200)
         {
             @Override
             public String tryGetValue(EntityTypePropertyType<?> entity)

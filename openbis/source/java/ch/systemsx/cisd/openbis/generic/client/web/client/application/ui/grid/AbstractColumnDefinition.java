@@ -23,8 +23,6 @@ public abstract class AbstractColumnDefinition<T> implements IColumnDefinitionUI
 {
     protected abstract String tryGetValue(T entity);
 
-    public static final int DEFAULT_COLUMN_WIDTH = 100;
-
     private String headerText;
 
     private int width;

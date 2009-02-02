@@ -34,7 +34,9 @@ public abstract class AbstractColumnDefinitionKind<T>
     /** Renders the cell value of this column for the specified entity. */
     abstract public String tryGetValue(T entity);
 
-    public static final int DATE_COLUMN_WIDTH = 200;
+    public static final int DATE_COLUMN_WIDTH = 300;
+
+    public static final int DEFAULT_COLUMN_WIDTH = 150;
 
     private String headerMsgKey;
 
@@ -52,7 +54,12 @@ public abstract class AbstractColumnDefinitionKind<T>
 
     public AbstractColumnDefinitionKind(final String headerMsgKey, final boolean isHidden)
     {
-        this(headerMsgKey, AbstractColumnDefinition.DEFAULT_COLUMN_WIDTH, isHidden);
+        this(headerMsgKey, DEFAULT_COLUMN_WIDTH, isHidden);
+    }
+
+    public AbstractColumnDefinitionKind(final String headerMsgKey, final int width)
+    {
+        this(headerMsgKey, width, false);
     }
 
     public AbstractColumnDefinitionKind(final String headerMsgKey)
