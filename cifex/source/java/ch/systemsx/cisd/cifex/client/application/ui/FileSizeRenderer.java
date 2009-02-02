@@ -50,7 +50,7 @@ public final class FileSizeRenderer implements Renderer
         {
             return Constants.TABLE_NULL_VALUE;
         }
-        return FileUtils.byteCountToDisplaySize(((Integer) value).longValue());
+        return FileUtils.byteCountToDisplaySize(((Number) value).longValue());
     }
 
 }

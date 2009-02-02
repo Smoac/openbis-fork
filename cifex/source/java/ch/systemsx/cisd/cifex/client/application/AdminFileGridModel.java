@@ -26,6 +26,7 @@ import com.gwtext.client.data.StringFieldDef;
 import ch.systemsx.cisd.cifex.client.application.ui.CommentRenderer;
 import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
+import ch.systemsx.cisd.cifex.client.application.utils.FileUtils;
 import ch.systemsx.cisd.cifex.client.dto.File;
 
 /**
@@ -62,8 +63,6 @@ public class AdminFileGridModel extends AbstractFileGridModel
         for (int i = 0; i < data.length; i++)
         {
             final File file = (File) data[i];
-            final Long size = file.getSize();
-            // We can not use 'Integer.valueOf' here as GWT does not support it.
             final Object[] objects =
                     new Object[]
                         {
@@ -72,7 +71,7 @@ public class AdminFileGridModel extends AbstractFileGridModel
                                 CommentRenderer.createCommentAnchor(file),
                                 UserRenderer.createUserAnchor(file.getRegisterer()),
                                 file.getContentType(),
-                                size == null ? null : new Integer(size.intValue()),
+                                FileUtils.tryToGetFileSize(file),
                                 file.getRegistrationDate(),
                                 file.getExpirationDate(),
                                 DOMUtils.createAnchor(messageResources.getActionRenewLabel(),
