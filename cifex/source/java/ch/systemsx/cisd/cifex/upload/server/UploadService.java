@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.upload.server;
 
 import static ch.systemsx.cisd.cifex.server.AbstractFileUploadServlet.MAX_FILENAME_LENGTH;
+import static ch.systemsx.cisd.cifex.upload.UploadState.FINISHED;
 import static ch.systemsx.cisd.cifex.upload.UploadState.INITIALIZED;
 import static ch.systemsx.cisd.cifex.upload.UploadState.READY_FOR_NEXT_FILE;
 import static ch.systemsx.cisd.cifex.upload.UploadState.UPLOADING;
@@ -31,7 +32,7 @@ import java.util.List;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.cifex.server.business.DomainModel;
+import ch.systemsx.cisd.cifex.server.business.IDomainModel;
 import ch.systemsx.cisd.cifex.server.business.IFileManager;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.server.util.FilenameUtilities;
@@ -55,12 +56,12 @@ public class UploadService implements IExtendedUploadService
     private final UploadSessionManager sessionManager = new UploadSessionManager();
     private final IFileManager fileManager;
     
-    public UploadService(DomainModel domainModel)
+    public UploadService(IDomainModel domainModel)
     {
         this(domainModel.getFileManager());
     }
     
-    UploadService(IFileManager fileManager)
+    public UploadService(IFileManager fileManager)
     {
         this.fileManager = fileManager;
     }
@@ -84,7 +85,7 @@ public class UploadService implements IExtendedUploadService
         UploadStatus status = getStatusAndCheckState(session, INITIALIZED);
         
         status.setFiles(files);
-        status.setUploadState(READY_FOR_NEXT_FILE);
+        status.setUploadState(fileNames.isEmpty() ? FINISHED : READY_FOR_NEXT_FILE);
         session.setRecipients(StringUtilities.tokenize(recipients).toArray(new String[0]));
         session.setComment(comment);
         return status;

@@ -36,7 +36,7 @@ import ch.systemsx.cisd.common.exceptions.WrappedIOException;
  *
  * @author Franz-Josef Elmer
  */
-class Uploader
+public class Uploader
 {
     private static final EnumSet<UploadState> FINAL_STATES =
             EnumSet.of(UploadState.FINISHED, UploadState.ABORTED);
@@ -90,18 +90,18 @@ class Uploader
     private final IUploadService uploadService;
     private final String uploadSessionID;
     
-    Uploader(IUploadService uploadService, String uploadSessionID)
+    public Uploader(IUploadService uploadService, String uploadSessionID)
     {
         this.uploadService = uploadService;
         this.uploadSessionID = uploadSessionID;
     }
     
-    void addUploadListener(IUploadListener uploadListener)
+    public void addUploadListener(IUploadListener uploadListener)
     {
         listeners.add(uploadListener);
     }
     
-    boolean isUploading()
+    public boolean isUploading()
     {
         try
         {
@@ -114,7 +114,7 @@ class Uploader
         }
     }
     
-    void cancel()
+    public void cancel()
     {
         try
         {
@@ -125,7 +125,7 @@ class Uploader
         }
     }
     
-    void upload(List<File> files, String recipients, String comment)
+    public void upload(List<File> files, String recipients, String comment)
     {
         String[] paths = new String[files.size()];
         try
