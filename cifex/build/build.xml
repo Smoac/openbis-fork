@@ -218,6 +218,11 @@
                 <include name="web-common.xml" />
             </fileset>
         </copy>
+        <copy todir="${webapp.dist}">
+            <fileset dir="${targets.www}">
+                <include name="*.jar"/>
+            </fileset>
+        </copy>
         <!-- Create an empty 'gwt.xml' file. -->
         <echo file="${webapp.dist.web-inf}/gwt.xml" message="" />
         <war warfile="${webapp.file}" webxml="${cifex.server.resource}/web.xml">
