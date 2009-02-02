@@ -28,10 +28,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.cifex.server.AbstractFileUploadServlet;
 import ch.systemsx.cisd.cifex.server.HttpUtils;
+import ch.systemsx.cisd.cifex.server.business.IDomainModel;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
-import ch.systemsx.cisd.cifex.upload.client.FileUploadClient;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.utilities.Template;
 
@@ -44,7 +45,7 @@ public class File2GBUploadServlet extends AbstractFileUploadServlet
 {
     private static final long serialVersionUID = 1L;
     
-    private static final Template JNLP_TEMPLATE = new Template("<?xml version='1.0' encoding='utf-8'?>\n" + 
+    @Private static final Template JNLP_TEMPLATE = new Template("<?xml version='1.0' encoding='utf-8'?>\n" + 
             "<jnlp spec='1.0+' codebase='${base-URL}'>\n" + 
             "  <information>\n" + 
             "    <title>CIFEX File Uploader</title>\n" + 
@@ -75,6 +76,16 @@ public class File2GBUploadServlet extends AbstractFileUploadServlet
 
     private IExtendedUploadService uploadService;
     
+    public File2GBUploadServlet()
+    {
+    }
+    
+    @Private File2GBUploadServlet(IExtendedUploadService uploadService, IDomainModel domainModel)
+    {
+        this.uploadService = uploadService;
+        this.domainModel = domainModel;
+    }
+
     @Override
     public void init() throws ServletException
     {
@@ -108,7 +119,7 @@ public class File2GBUploadServlet extends AbstractFileUploadServlet
         PrintWriter writer = new PrintWriter(new OutputStreamWriter(response.getOutputStream()));
         Template template = JNLP_TEMPLATE.createFreshCopy();
         template.attemptToBind("base-URL", createBaseURL(request));
-        template.attemptToBind("main-class", FileUploadClient.class.getName());
+        template.attemptToBind("main-class", "ch.systemsx.cisd.cifex.upload.client.FileUploadClient");
         template.attemptToBind("service-URL", HttpUtils.getBasicURL(request) + "/cifex/file-upload-service");
         template.attemptToBind("upload-session-id", uploadSessionID);
         writer.print(template.createText());

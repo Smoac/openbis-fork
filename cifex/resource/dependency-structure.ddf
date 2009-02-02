@@ -1,4 +1,4 @@
-#show allResults
+show allResults
 
 {package} = ch.systemsx.cisd.cifex
 {client} = ${package}.client
@@ -38,3 +38,21 @@ layer business-layer2 = [dataaccess-db]
 layer business-layer1 = [dto]
 
 check layeringOf business-layer1 business-layer2 business-layer3
+
+######################################################################
+# Check dependencies package upload
+
+{upload} = ${package}.upload
+[upload] = ${upload}.*
+[upload.common] = [upload] excluding ${upload}.*.*
+[upload.client] = ${upload}.client.*
+[upload.server] = ${upload}.server.*
+check sets [upload] [upload.common] [upload.client] [upload.server]
+
+check [upload] independentOf ${client}.*
+check [upload.common] [upload.client] independentOf ${server}.*
+
+layer upload-common = [upload.common]
+layer upload-client-server = [upload.client] [upload.server]
+
+check layeringOf upload-common upload-client-server 
