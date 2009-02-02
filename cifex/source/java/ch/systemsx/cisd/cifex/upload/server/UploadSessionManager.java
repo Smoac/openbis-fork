@@ -24,7 +24,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.utilities.TokenGenerator;
 
 /**
- * 
+ * Manager of {@link UploadSession} instances.
  *
  * @author Franz-Josef Elmer
  */
@@ -33,6 +33,9 @@ public class UploadSessionManager
     private final TokenGenerator tokenGenerator = new TokenGenerator();
     private final Map<String, UploadSession> sessions = new HashMap<String, UploadSession>();
     
+    /**
+     * Creates a new session for the specified user and URL.
+     */
     public UploadSession createSession(UserDTO user, String url)
     {
         String uploadSessionID = tokenGenerator.getNewToken(System.currentTimeMillis());
@@ -41,6 +44,11 @@ public class UploadSessionManager
         return uploadSession;
     }
     
+    /**
+     * Retrieves the session for the specified ID.
+     * 
+     * @throws EnvironmentFailureException if no session could be found.
+     */
     public UploadSession getSession(String uploadSessionID)
     {
         UploadSession uploadSession = sessions.get(uploadSessionID);
@@ -51,6 +59,9 @@ public class UploadSessionManager
         return uploadSession;
     }
     
+    /**
+     * Removes the session for the specified ID.
+     */
     public void removeSession(String uploadSessionID)
     {
         sessions.remove(uploadSessionID);
