@@ -69,8 +69,9 @@ public final class ExperimentModel extends AbstractEntityModel<Experiment>
     public static ColumnDefsAndConfigs<Experiment> createColumnsSchema(
             IMessageProvider messageProvider, ExperimentType selectedTypeOrNull)
     {
-        ColumnDefsAndConfigs<Experiment> columns = new ColumnDefsAndConfigs<Experiment>();
-        columns.addColumns(createCommonColumnsSchema(messageProvider));
+        List<IColumnDefinitionUI<Experiment>> commonColumnsSchema =
+                createCommonColumnsSchema(messageProvider);
+        ColumnDefsAndConfigs<Experiment> columns = ColumnDefsAndConfigs.create(commonColumnsSchema);
         if (selectedTypeOrNull != null)
         {
             List<IColumnDefinitionUI<Experiment>> propertyColumnsSchema =
