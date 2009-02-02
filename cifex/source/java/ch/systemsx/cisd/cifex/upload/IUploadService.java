@@ -32,4 +32,6 @@ public interface IUploadService
     public UploadStatus startUploading(String uploadSessionID);
     
     public UploadStatus uploadBlock(String uploadSessionID, byte[] block, int blockSize, boolean lastBlock);
+
+    public void finish(String uploadSessionID, boolean successful);
 }

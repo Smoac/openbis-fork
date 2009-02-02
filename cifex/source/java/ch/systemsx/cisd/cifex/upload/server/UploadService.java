@@ -97,7 +97,15 @@ public class UploadService implements IExtendedUploadService
         UploadStatus status = session.getUploadStatus();
         // TODO 2009-01-29, Franz-Josef Elmer: Remove already uploaded files.
         status.setUploadState(UploadState.ABORTED);
+        sessionManager.removeSession(uploadSessionID);
         return status;
+    }
+
+    public void finish(String uploadSessionID, boolean successful)
+    {
+        logInvocation(uploadSessionID, successful ? "Successfully finished." : "Aborted.");
+        sessionManager.getSession(uploadSessionID);
+        sessionManager.removeSession(uploadSessionID);
     }
 
     public UploadStatus startUploading(String uploadSessionID)

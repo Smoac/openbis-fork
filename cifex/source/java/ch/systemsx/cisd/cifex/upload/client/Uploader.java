@@ -171,7 +171,9 @@ class Uploader
                     break;
             }
         }
-        fireFinishedEvent(status.getUploadState() == UploadState.FINISHED);
+        boolean successful = status.getUploadState() == UploadState.FINISHED;
+        uploadService.finish(uploadSessionID, successful);
+        fireFinishedEvent(successful);
     }
 
     private UploadStatus uploadNextBlock(RandomAccessFileProvider fileProvider, long filePointer, byte[] bytes)
