@@ -167,14 +167,6 @@ public abstract class Dict
     public static final String TOO_GENERIC = "too_generic";
 
     //
-    // Sample & Experiment Browsers
-    //
-
-    public static final String BUTTON_ASSIGN_PROPERTY = "button_assign_property";
-
-    public static final String BUTTON_INVALIDATE = "button_invalidate";
-
-    //
     // Sample Browser
     //
 
@@ -203,6 +195,8 @@ public abstract class Dict
     public static final String GENERATED_FROM = "generated_from";
 
     public static final String PART_OF = "part_of";
+
+    public static final String BUTTON_INVALIDATE = "button_invalidate";
 
     //
     // Experiment Browser

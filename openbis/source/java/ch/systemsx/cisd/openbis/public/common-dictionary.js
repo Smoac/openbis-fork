@@ -13,6 +13,7 @@ var common = {
   registrator: "Registrator",
   registration_date: "Registration Date",
   filter: "Filter",
+  not_implemented: "Sorry, feature has not been implemented yet!",
   
   //
   // Field
@@ -43,6 +44,8 @@ var common = {
   button_show: "Show",
   button_exportData: "Export Data",
   button_add_group: "Add Group",
+  button_show_details: "Show Details",
+  
   tooltip_refresh_disabled: "To activate select appropriate criteria first.",
   tooltip_refresh_enabled: "Load or update the table.",
   tooltip_export_enabled: "Export the table visible on the screen to an Excel file",
@@ -114,7 +117,7 @@ var common = {
   part_of: "Container {0}",
   invalidation: "Invalidation",
   invalidation_template: "Invalidated by: {0}<br>Invalidation Date: {1}<br>Invalidation Reason: {2}",
-
+  button_invalidate: "Invalidate",
   
   //
   // Experiment Browser

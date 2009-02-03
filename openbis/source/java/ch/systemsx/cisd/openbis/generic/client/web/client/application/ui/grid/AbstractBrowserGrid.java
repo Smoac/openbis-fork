@@ -30,14 +30,18 @@ import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import com.extjs.gxt.ui.client.event.SelectionEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -460,6 +464,85 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
                     delegate.refresh();
                 }
             };
+    }
+
+    protected interface ISelectedEntityInvoker<M>
+    {
+        void invoke(M selectedItem);
+    }
+
+    protected final ISelectedEntityInvoker<M> asShowEntityInvoker()
+    {
+        return new ISelectedEntityInvoker<M>()
+            {
+                public void invoke(M selectedItem)
+                {
+                    showEntityViewer(selectedItem);
+                }
+            };
+    }
+
+    private ISelectedEntityInvoker<M> createNotImplementedInvoker()
+    {
+        return new ISelectedEntityInvoker<M>()
+            {
+                public void invoke(M selectedItem)
+                {
+                    MessageBox.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING), viewContext
+                            .getMessage(Dict.NOT_IMPLEMENTED), null);
+                }
+            };
+    }
+
+    /**
+     * @return a button which has no action but is enabled only when one entity in the grid is
+     *         selected. Useful only for writing prototypes.
+     */
+    protected final Button createSelectedItemDummyButton(final String title)
+    {
+        return createSelectedItemButton(title, createNotImplementedInvoker());
+    }
+
+    /**
+     * @return a button which is enabled only when one entity in the grid is selected. When button
+     *         is pressed, the specified invoker action is performed.
+     */
+    protected final Button createSelectedItemButton(final String title,
+            final ISelectedEntityInvoker<M> invoker)
+    {
+        final Button button = new Button(title, new SelectionListener<ButtonEvent>()
+            {
+                @Override
+                public void componentSelected(ButtonEvent ce)
+                {
+                    M selectedItem = tryGetSelectedItem();
+                    if (selectedItem != null)
+                    {
+                        invoker.invoke(selectedItem);
+                    }
+                }
+            });
+        button.setEnabled(false);
+        grid.getSelectionModel().addListener(Events.SelectionChange,
+                new Listener<SelectionEvent<ModelData>>()
+                    {
+                        public void handleEvent(SelectionEvent<ModelData> se)
+                        {
+                            boolean enabled = (se.selection.size() > 0);
+                            button.setEnabled(enabled);
+                        }
+
+                    });
+        return button;
+    }
+
+    /**
+     * @return item selected in the grid or null if nothing is selected (can happen when a grid is
+     *         empty)
+     */
+    protected final M tryGetSelectedItem()
+    {
+        return grid.getSelectionModel().getSelectedItem();
     }
 
     protected final SelectionChangedListener<?> addRefreshButton(ToolBar container)

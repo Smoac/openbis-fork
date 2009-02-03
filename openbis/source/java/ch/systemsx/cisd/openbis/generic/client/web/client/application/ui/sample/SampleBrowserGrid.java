@@ -20,11 +20,16 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 
 import ch.systemsx.cisd.openbis.generic.client.shared.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
@@ -85,9 +90,25 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
     {
         super(viewContext, GRID_ID + idSuffix);
         this.topToolbar = topToolbar;
+        extendToolbar();
+        setId(BROWSER_ID);
+    }
+
+    private void extendToolbar()
+    {
         SelectionChangedListener<?> refreshButtonListener = addRefreshButton(topToolbar);
         this.topToolbar.setCriteriaChangedListener(refreshButtonListener);
-        setId(BROWSER_ID);
+        this.topToolbar.add(new FillToolItem());
+
+        String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
+        Button showDetailsButton =
+                createSelectedItemButton(showDetailsTitle, asShowEntityInvoker());
+        this.topToolbar.add(new AdapterToolItem(showDetailsButton));
+
+        this.topToolbar.add(new SeparatorToolItem());
+        String invalidateTitle = viewContext.getMessage(Dict.BUTTON_INVALIDATE);
+        Button invalidateButton = createSelectedItemDummyButton(invalidateTitle);
+        this.topToolbar.add(new AdapterToolItem(invalidateButton));
     }
 
     private SampleBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,

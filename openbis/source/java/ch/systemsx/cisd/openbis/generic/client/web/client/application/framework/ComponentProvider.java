@@ -86,8 +86,8 @@ final class ComponentProvider
             {
                 public ITabItem create()
                 {
-                    return new DefaultTabItem("Not implemented feature", new DummyComponent(),
-                            false);
+                    return new DefaultTabItem(getMessage(Dict.NOT_IMPLEMENTED),
+                            new DummyComponent(), false);
                 }
 
                 public String getId()
@@ -343,30 +343,18 @@ final class ComponentProvider
 
     public ITabItemFactory getPropertyTypeExperimentTypeAssignmentForm()
     {
-        return new ITabItemFactory()
-            {
-                EntityKind entityKind = EntityKind.EXPERIMENT;
-
-                public ITabItem create()
-                {
-                    Component component = new PropertyTypeAssignmentForm(viewContext, entityKind);
-                    return new DefaultTabItem(getMessage(Dict.ASSIGN_EXPERIMENT_PROPERTY_TYPE),
-                            component, true);
-                }
-
-                public String getId()
-                {
-                    return PropertyTypeAssignmentForm.createId(entityKind);
-                }
-            };
+        return getPropertyTypeAssignmentForm(EntityKind.EXPERIMENT);
     }
 
     public ITabItemFactory getPropertyTypeSampleTypeAssignmentForm()
     {
+        return getPropertyTypeAssignmentForm(EntityKind.SAMPLE);
+    }
+
+    private ITabItemFactory getPropertyTypeAssignmentForm(final EntityKind entityKind)
+    {
         return new ITabItemFactory()
             {
-                EntityKind entityKind = EntityKind.SAMPLE;
-
                 public ITabItem create()
                 {
                     Component component = new PropertyTypeAssignmentForm(viewContext, entityKind);
