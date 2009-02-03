@@ -33,6 +33,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridFilterInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo;
@@ -69,6 +70,9 @@ public final class CachedResultSetManagerTest
 
         expectations.one(resultSetConfig).getSortInfo();
         expectations.will(Expectations.returnValue(sortInfo));
+
+        expectations.one(resultSetConfig).getFilterInfos();
+        expectations.will(Expectations.returnValue(new ArrayList<GridFilterInfo<String>>()));
     }
 
     private final static List<Sample> createSampleList()
