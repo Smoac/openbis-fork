@@ -16,8 +16,9 @@
 
 package ch.systemsx.cisd.cifex.upload;
 
-import java.io.File;
 import java.io.Serializable;
+
+import org.apache.commons.io.FilenameUtils;
 
 /**
  * 
@@ -52,13 +53,7 @@ public class UploadStatus implements Serializable
     
     public String getNameOfCurrentFile()
     {
-        String fileName = getCurrentFile();
-        int indexOfLastPathSeparator = fileName.lastIndexOf(File.separatorChar);
-        if (indexOfLastPathSeparator > 0)
-        {
-            fileName = fileName.substring(indexOfLastPathSeparator + 1);
-        }
-        return fileName;
+        return FilenameUtils.getName(getCurrentFile());
     }
 
     public final UploadState getUploadState()
