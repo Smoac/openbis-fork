@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.swing.AbstractListModel;
@@ -348,7 +349,7 @@ public class FileUploadClient implements IUploadListener
                 String tmpDir = System.getProperty("java.io.tmpdir");
                 File keyStoreFile = new File(tmpDir, "CIFEX-keystore");
                 fileOutputStream = new FileOutputStream(keyStoreFile);
-                keyStore.store(fileOutputStream, "cifextest".toCharArray());
+                keyStore.store(fileOutputStream, "changeit".toCharArray());
                 fileOutputStream.close();
                 System.setProperty("javax.net.ssl.trustStore", keyStoreFile.getAbsolutePath());
             } catch (Exception ex)
@@ -373,6 +374,8 @@ public class FileUploadClient implements IUploadListener
     
     private Certificate getServerCertificate(String serviceURL)
     {
+        workAroundABugInJava6();
+        
         SSLSocket socket = null;
         try
         {
@@ -407,6 +410,19 @@ public class FileUploadClient implements IUploadListener
             }
         }
         
+    }
+
+    // see comment submitted on 31-JAN-2008 for 
+    // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6514454
+    private void workAroundABugInJava6()
+    {
+        try
+        {
+            SSLContext.getInstance("SSL").createSSLEngine();
+        } catch (Exception ex)
+        {
+            System.out.println(ex);
+        }
     }
     
     public void uploadingStarted(File file, long fileSize)
