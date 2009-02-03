@@ -55,8 +55,8 @@ public class SampleBrowserTest extends AbstractGWTTestCase
                 "MASTER_PLATE"));
         ExportSamplesTestCommand exportCommand = new ExportSamplesTestCommand(client);
         remoteConsole.prepare(exportCommand);
-        String header = "Group\tCode\tProject\tExperiment\tPlate Geometry";
-        String firstLine = "\tMP\t\t\t384_WELLS_16X24";
+        String header = "Code\tExperiment\tProject\tPlate Geometry";
+        String firstLine = "MP\t\t\t384_WELLS_16X24";
         remoteConsole.prepare(exportCommand.createCheckExportCommand(header, firstLine, 2));
 
         launchTest(20000);
@@ -83,8 +83,8 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ListSamples("CISD", "CELL_PLATE"));
         ExportSamplesTestCommand exportCommand = new ExportSamplesTestCommand(client);
         remoteConsole.prepare(exportCommand);
-        String header = "Group\tCode\tProject\tExperiment\tParent 1\tParent 2";
-        String firstLine = "CISD\t3VCP1\tNEMO\tEXP1\t3V-123\tMP001-1";
+        String header = "Code\tExperiment\tProject\tParent 1\tParent 2";
+        String firstLine = "3VCP1\tEXP1\tNEMO\t3V-123\tMP001-1";
         remoteConsole.prepare(exportCommand.createCheckExportCommand(header, firstLine, 17));
 
         launchTest(20000);

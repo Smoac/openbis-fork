@@ -81,9 +81,7 @@ public class CheckExperiment extends AbstractDefaultTestCommand implements
 
     public CheckTableCommand sampleTable()
     {
-        sampleSection =
-                new CheckTableCommand(SampleBrowserGrid.GRID_ID + ExperimentSamplesSection.PREFIX
-                        + identifier);
+        sampleSection = new CheckTableCommand(ExperimentSamplesSection.createId(identifier));
         return sampleSection;
     }
 
