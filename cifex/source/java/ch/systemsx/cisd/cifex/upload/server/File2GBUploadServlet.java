@@ -37,7 +37,8 @@ import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.utilities.Template;
 
 /**
- * 
+ * Servlet which are triggered by the Web client in order to start the Java upload client via
+ * Java Web Start.
  *
  * @author Franz-Josef Elmer
  */
@@ -142,10 +143,6 @@ public class File2GBUploadServlet extends AbstractFileUploadServlet
     private String createServiceURL(final HttpServletRequest request)
     {
         String baseURL = HttpUtils.getBasicURL(request);
-        if (baseURL.startsWith("https"))
-        {
-//            baseURL = "http://" + request.getServerName() + ":8090/" + request.getContextPath();
-        }
         return baseURL + "/cifex/file-upload-service";
     }
     

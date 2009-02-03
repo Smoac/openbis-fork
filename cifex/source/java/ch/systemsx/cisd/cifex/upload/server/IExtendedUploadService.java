@@ -20,15 +20,14 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.upload.IUploadService;
 
 /**
- * 
+ * Extends {@link IUploadService} by methods not visible for client code.
  *
  * @author Franz-Josef Elmer
  */
 public interface IExtendedUploadService extends IUploadService
 {
     /**
-     * Creates a new upload session for the specified user, URL, files, e-mails of the recipients,
-     * and comment.
+     * Creates a new upload session for the specified user and server URL to be appear in e-mails.
      * 
      * @return unique upload session ID.
      */

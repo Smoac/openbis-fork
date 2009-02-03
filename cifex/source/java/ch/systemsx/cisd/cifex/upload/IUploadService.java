@@ -17,21 +17,52 @@
 package ch.systemsx.cisd.cifex.upload;
 
 /**
- * 
+ * Service interface for file uploading.
  *
  * @author Franz-Josef Elmer
  */
 public interface IUploadService
 {
+    /**
+     * Cancels the specified upload session.
+     */
     public UploadStatus cancel(String uploadSessionID);
+
+    /**
+     * Defines the upload parameters for the specified upload session.
+     * 
+     * @param files Absolute file path of files to be uploaded.
+     * @param recipients Whitespace of comma separated list of recipients (e-mail address or
+     *        <code>id:<em>userID</em></code>).
+     * @param comment Comment to be added in recipient notification.
+     */
+    public UploadStatus defineUploadParameters(String uploadSessionID, String[] files,
+            String recipients, String comment);
     
-    public UploadStatus defineUploadParameters(String uploadSessionID, String[] files, String recipients, String comment);
-    
+    /**
+     * Returns the status of the specified upload session.
+     */
     public UploadStatus getUploadStatus(String uploadSessionID);
     
+    /**
+     * Starts uploading of the specified upload session.
+     */
     public UploadStatus startUploading(String uploadSessionID);
     
+    /**
+     * Uploads a data block for the specified upload session.
+     * 
+     * @param block Block of data bytes.
+     * @param blockSize Number of bytes of <code>block</code> which are to be taken.
+     * @param lastBlock <code>true</code> if <code>block</code> is the last block of a file to be
+     *      uploaded. 
+     */
     public UploadStatus uploadBlock(String uploadSessionID, byte[] block, int blockSize, boolean lastBlock);
 
+    /**
+     * Finishes the specified upload session.
+     * 
+     * @param successful Flag indicating whether the uploading was successful or not.
+     */
     public void finish(String uploadSessionID, boolean successful);
 }

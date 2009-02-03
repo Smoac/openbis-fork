@@ -21,7 +21,7 @@ import java.io.Serializable;
 import org.apache.commons.io.FilenameUtils;
 
 /**
- * 
+ * Status of an uploading session.
  *
  * @author Franz-Josef Elmer
  */
@@ -34,11 +34,18 @@ public class UploadStatus implements Serializable
     private long filePointer;
     private UploadState uploadState = UploadState.INITIALIZED;
 
+    /**
+     * Sets the absolute paths of all files to be uploaded.
+     */
     public final void setFiles(String[] files)
     {
         this.files = files;
     }
     
+    /**
+     * Goes to the next file in the list of files to be uploaded. Also changes the state and
+     * resets the file pointer.
+     */
     public void next()
     {
         indexOfCurrentFile++;
@@ -46,36 +53,57 @@ public class UploadStatus implements Serializable
         uploadState = indexOfCurrentFile < files.length ? UploadState.READY_FOR_NEXT_FILE : UploadState.FINISHED;
     }
     
+    /**
+     * Returns the absolute path of the current file to be uploaded.
+     */
     public String getCurrentFile()
     {
         return files[indexOfCurrentFile];
     }
     
+    /**
+     * Returns only the name of the current file to be uploaded.
+     */
     public String getNameOfCurrentFile()
     {
         return FilenameUtils.getName(getCurrentFile());
     }
 
+    /**
+     * Returns the current upload state.
+     */
     public final UploadState getUploadState()
     {
         return uploadState;
     }
 
+    /**
+     * Sets the upload state.
+     */
     public final void setUploadState(UploadState uploadState)
     {
         this.uploadState = uploadState;
     }
 
+    /**
+     * Returns the file pointer.
+     */
     public final long getFilePointer()
     {
         return filePointer;
     }
 
+    /**
+     * Sets the file pointer.
+     */
     public final void setFilePointer(long filePointer)
     {
         this.filePointer = filePointer;
     }
 
+    /**
+     * Renders this status in a human readable way.
+     */
     @Override
     public String toString()
     {

@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.cifex.upload;
 
 /**
- * 
+ * State of the upload session life cycle
  *
  * @author Franz-Josef Elmer
  */
