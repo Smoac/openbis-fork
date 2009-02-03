@@ -31,7 +31,7 @@ public abstract class AbstractPropertyColDef<T> extends AbstractColumnDefinition
 {
     protected abstract List<? extends EntityProperty<?, ?>> getProperties(T entity);
 
-    private static final int PROPERTY_COLUMN_WIDTH = 80;
+    private static final int PROPERTY_COLUMN_WIDTH = 120;
 
     private static final String PROPERTY_PREFIX = "property";
 
