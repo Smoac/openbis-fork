@@ -37,7 +37,7 @@ public enum CommonExperimentColDefKind implements IColumnDefinitionKind<Experime
             }
         }),
 
-    EXPERIMENT_TYPE(new AbstractColumnDefinitionKind<Experiment>(Dict.EXPERIMENT_TYPE)
+    EXPERIMENT_TYPE(new AbstractColumnDefinitionKind<Experiment>(Dict.EXPERIMENT_TYPE, true)
         {
             @Override
             public String tryGetValue(Experiment entity)
