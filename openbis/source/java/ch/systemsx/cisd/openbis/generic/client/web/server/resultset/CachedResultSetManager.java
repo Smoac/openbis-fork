@@ -30,6 +30,7 @@ import org.apache.log4j.Logger;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridFilterInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo;
@@ -62,6 +63,46 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     private final <T> List<T> cast(final List<?> list)
     {
         return (List<T>) list;
+    }
+
+    private static final <T> List<T> filterData(final List<T> rows,
+            final List<GridFilterInfo<T>> filterInfos)
+    {
+        List<T> filtered = new ArrayList<T>();
+        for (T row : rows)
+        {
+            if (isMatching(row, filterInfos))
+            {
+                filtered.add(row);
+            }
+        }
+        return filtered;
+    }
+
+    // returns true if a row matches all the filters
+    private static final <T> boolean isMatching(final T row,
+            final List<GridFilterInfo<T>> filterInfos)
+    {
+        for (GridFilterInfo<T> filter : filterInfos)
+        {
+            if (isMatching(row, filter) == false)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static final <T> boolean isMatching(final T row, final GridFilterInfo<T> filterInfo)
+    {
+        IColumnDefinition<T> filteredField = filterInfo.getFilteredField();
+        String value = filteredField.getValue(row);
+        return isMatching(value, filterInfo.getFilterPattern());
+    }
+
+    private static boolean isMatching(String value, String filterPattern)
+    {
+        return value.toLowerCase().startsWith(filterPattern.toLowerCase());
     }
 
     private final <T> void sortData(final List<T> data, final SortInfo<T> sortInfo)
@@ -151,7 +192,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     {
         assert resultConfig != null : "Unspecified result configuration";
         assert dataProvider != null : "Unspecified data retriever";
-        final List<T> data;
+        List<T> data;
         K dataKey = resultConfig.getResultSetKey();
         if (dataKey == null)
         {
@@ -166,13 +207,15 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             data = cast(results.get(dataKey));
         }
         assert data != null : "Unspecified data";
+        final int totalLength = data.size();
+        data = filterData(data, resultConfig.getFilterInfos());
         final int size = data.size();
         final int offset = getOffset(size, resultConfig.getOffset());
         final int limit = getLimit(size, resultConfig.getLimit(), offset);
         final SortInfo<T> sortInfo = resultConfig.getSortInfo();
         sortData(data, sortInfo);
         final List<T> list = subList(data, offset, limit);
-        return new DefaultResultSet<K, T>(dataKey, list, size);
+        return new DefaultResultSet<K, T>(dataKey, list, totalLength);
     }
 
     public final synchronized void removeResultSet(final K resultSetKey)

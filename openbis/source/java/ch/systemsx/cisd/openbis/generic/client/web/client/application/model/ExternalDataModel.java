@@ -44,7 +44,7 @@ public final class ExternalDataModel extends AbstractEntityModel<ExternalData>
     public static List<IColumnDefinitionUI<ExternalData>> createColumnsSchema(
             IMessageProvider msgProviderOrNull)
     {
-        return createColumnsSchemaFrom(CommonExternalDataColDefKind.values(), msgProviderOrNull);
+        return createColumnsDefinition(CommonExternalDataColDefKind.values(), msgProviderOrNull);
     }
 
     public final static List<ExternalDataModel> asExternalDataModels(final List<ExternalData> result)

@@ -97,7 +97,7 @@ public final class ExperimentModel extends AbstractEntityModel<Experiment>
     private static List<IColumnDefinitionUI<Experiment>> createCommonColumnsSchema(
             IMessageProvider msgProviderOrNull)
     {
-        return createColumnsSchemaFrom(CommonExperimentColDefKind.values(), msgProviderOrNull);
+        return createColumnsDefinition(CommonExperimentColDefKind.values(), msgProviderOrNull);
     }
 
     private static ArrayList<IColumnDefinitionUI<Experiment>> createColDefList()

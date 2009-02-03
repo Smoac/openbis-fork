@@ -42,7 +42,7 @@ public enum CommonSampleColDefKind implements IColumnDefinitionKind<Sample>
             }
         }),
 
-    GROUP(new AbstractColumnDefinitionKind<Sample>(Dict.GROUP)
+    GROUP(new AbstractColumnDefinitionKind<Sample>(Dict.GROUP, true)
         {
             @Override
             public String tryGetValue(Sample entity)
@@ -107,17 +107,7 @@ public enum CommonSampleColDefKind implements IColumnDefinitionKind<Sample>
             }
         }),
 
-    PROJECT_FOR_SAMPLE(new AbstractColumnDefinitionKind<Sample>(Dict.PROJECT)
-        {
-            @Override
-            public String tryGetValue(Sample entity)
-            {
-                final Experiment exp = tryToGetExperiment(entity);
-                return exp == null ? null : exp.getProject().getCode();
-            }
-        }),
-
-    EXPERIMENT_FOR_SAMPLE(new AbstractColumnDefinitionKind<Sample>(Dict.EXPERIMENT)
+    EXPERIMENT(new AbstractColumnDefinitionKind<Sample>(Dict.EXPERIMENT)
         {
             @Override
             public String tryGetValue(Sample entity)
@@ -127,14 +117,24 @@ public enum CommonSampleColDefKind implements IColumnDefinitionKind<Sample>
             }
         }),
 
-    EXPERIMENT_IDENTIFIER_FOR_SAMPLE(new AbstractColumnDefinitionKind<Sample>(
-            Dict.EXPERIMENT_IDENTIFIER, 200, true)
+    EXPERIMENT_IDENTIFIER(new AbstractColumnDefinitionKind<Sample>(Dict.EXPERIMENT_IDENTIFIER, 200,
+            true)
         {
             @Override
             public String tryGetValue(Sample entity)
             {
                 final Experiment exp = tryToGetExperiment(entity);
                 return exp == null ? null : exp.getIdentifier();
+            }
+        }),
+
+    PROJECT(new AbstractColumnDefinitionKind<Sample>(Dict.PROJECT)
+        {
+            @Override
+            public String tryGetValue(Sample entity)
+            {
+                final Experiment exp = tryToGetExperiment(entity);
+                return exp == null ? null : exp.getProject().getCode();
             }
         });
 

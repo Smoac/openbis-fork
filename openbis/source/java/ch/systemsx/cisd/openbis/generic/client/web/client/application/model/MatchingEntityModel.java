@@ -49,7 +49,7 @@ public final class MatchingEntityModel extends AbstractEntityModel<MatchingEntit
     public static List<IColumnDefinitionUI<MatchingEntity>> createColumnsSchema(
             IMessageProvider msgProviderOrNull)
     {
-        return createColumnsSchemaFrom(MatchingEntityColumnKind.values(), msgProviderOrNull);
+        return createColumnsDefinition(MatchingEntityColumnKind.values(), msgProviderOrNull);
     }
 
     public enum MatchingEntityColumnKind implements IColumnDefinitionKind<MatchingEntity>

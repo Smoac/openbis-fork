@@ -21,6 +21,7 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
+import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -70,9 +71,9 @@ public final class BrowserGridPagingToolBar extends PagingToolBarAdapter
         add(exportButton);
     }
 
-    private void add(Button button)
+    private void add(Widget widget)
     {
-        add(new AdapterToolItem(button));
+        add(new AdapterToolItem(widget));
     }
 
     protected final void updateDefaultRefreshButton(boolean isEnabled)
@@ -115,6 +116,7 @@ public final class BrowserGridPagingToolBar extends PagingToolBarAdapter
         return createRefreshButton(messageProvider.getMessage(Dict.BUTTON_REFRESH), invoker);
     }
 
+    /** creates a new refresh button, the caller has to add it to a parent container */
     public static Button createRefreshButton(String title, final IBrowserGridActionInvoker invoker)
     {
         final Button button = new Button(title, new SelectionListener<ButtonEvent>()
@@ -131,6 +133,7 @@ public final class BrowserGridPagingToolBar extends PagingToolBarAdapter
         return button;
     }
 
+    /** creates a new export button, the caller has to add it to a parent container */
     public static Button createExportButton(IMessageProvider messageProvider,
             final IBrowserGridActionInvoker invoker)
     {

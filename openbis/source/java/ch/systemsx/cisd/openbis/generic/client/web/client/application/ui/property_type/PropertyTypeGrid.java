@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type;
 
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -26,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Ab
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 
@@ -56,6 +59,14 @@ public class PropertyTypeGrid extends AbstractSimpleBrowserGrid<PropertyType, Pr
     protected IColumnDefinitionKind<PropertyType>[] getStaticColumnsDefinition()
     {
         return PropertyTypeColDefKind.values();
+    }
+
+    @Override
+    protected List<IColumnDefinition<PropertyType>> getAvailableFilters()
+    {
+        return asColumnFilters(new PropertyTypeColDefKind[]
+            { PropertyTypeColDefKind.LABEL, PropertyTypeColDefKind.CODE,
+                    PropertyTypeColDefKind.DATA_TYPE });
     }
 
     @Override

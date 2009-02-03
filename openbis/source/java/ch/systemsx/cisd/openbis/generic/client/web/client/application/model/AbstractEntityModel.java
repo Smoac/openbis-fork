@@ -43,7 +43,7 @@ public class AbstractEntityModel<T> extends BaseModelData
     protected AbstractEntityModel(final T entity, IColumnDefinitionKind<T>[] colDefKinds,
             IMessageProvider msgProviderOrNull)
     {
-        this(entity, createColumnsSchemaFrom(colDefKinds, msgProviderOrNull));
+        this(entity, createColumnsDefinition(colDefKinds, msgProviderOrNull));
     }
 
     protected AbstractEntityModel(final T entity, List<? extends IColumnDefinition<T>> columnsSchema)
@@ -85,19 +85,19 @@ public class AbstractEntityModel<T> extends BaseModelData
     }
 
     /** @param msgProviderOrNull if null, no headers labels will be generated */
-    public static <T> List<IColumnDefinitionUI<T>> createColumnsSchemaFrom(
+    public static <T> List<IColumnDefinitionUI<T>> createColumnsDefinition(
             IColumnDefinitionKind<T>[] columnKinds, IMessageProvider msgProviderOrNull)
     {
         List<IColumnDefinitionUI<T>> list = new ArrayList<IColumnDefinitionUI<T>>();
         for (IColumnDefinitionKind<T> columnKind : columnKinds)
         {
-            list.add(createColumn(columnKind, msgProviderOrNull));
+            list.add(createColumnDefinition(columnKind, msgProviderOrNull));
         }
         return list;
     }
 
-    private static <T> IColumnDefinitionUI<T> createColumn(IColumnDefinitionKind<T> columnKind,
-            IMessageProvider messageProviderOrNull)
+    public static <T> IColumnDefinitionUI<T> createColumnDefinition(
+            IColumnDefinitionKind<T> columnKind, IMessageProvider messageProviderOrNull)
     {
         String headerText = null;
         if (messageProviderOrNull != null)

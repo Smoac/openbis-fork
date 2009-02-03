@@ -46,6 +46,8 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -56,11 +58,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.AbstractEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.BrowserGridPagingToolBar.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridFilterInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo;
@@ -104,9 +109,16 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
     /** @return should the refresh button be enabled? */
     abstract protected boolean isRefreshEnabled();
 
+    /** @return on which fields user can set filters? */
+    abstract protected List<IColumnDefinition<T>> getAvailableFilters();
+
     protected final IViewContext<ICommonClientServiceAsync> viewContext;
 
     // ------ private section. NOTE: it should remain unaccessible to subclasses! ---------------
+
+    private static final String LABEL_APPLY_FILTERS_HINT = "Refresh to apply filters";
+
+    private static final String LABEL_FILTERS = "Filters";
 
     private static final int PAGE_SIZE = 50;
 
@@ -119,17 +131,15 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
     // the toolbar has the refresh and export buttons besides the paging controls
     private final BrowserGridPagingToolBar pagingToolbar;
 
-    // should the data be automatically loaded when the grid is rendered for the first time?
     private final boolean refreshAutomatically;
+
+    private final List<PagingColumnFilter<T>> filterWidgets;
 
     // available columns configs and definitions
     private ColumnDefsAndConfigs<T> columns;
 
     // result set key of the last refreshed data
     private String resultSetKey;
-
-    // information about sorting options of the last refreshed data
-    private SortInfo<T> sortInfo;
 
     private IDataRefreshCallback refreshCallback;
 
@@ -149,6 +159,13 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
         this(viewContext, gridId, true, false);
     }
 
+    /**
+     * @param showHeader decides if the header bar on top of the grid should be displayed. If false,
+     *            then an attempt to set a non-null header (e.g. in refresh method) is treated as an
+     *            error.
+     * @param refreshAutomatically should the data be automatically loaded when the grid is rendered
+     *            for the first time?
+     */
     protected AbstractBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             String gridId, boolean showHeader, boolean refreshAutomatically)
     {
@@ -160,14 +177,30 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
         this.pagingToolbar =
                 new BrowserGridPagingToolBar(asActionInvoker(), viewContext, PAGE_SIZE);
         pagingToolbar.bind(pagingLoader);
+        this.filterWidgets = createFilterWidgets(getAvailableFilters());
+
+        final LayoutContainer bottomToolbars = createBottomToolbars(filterWidgets, pagingToolbar);
 
         this.contentPanel = createEmptyContentPanel();
         contentPanel.add(grid);
-        contentPanel.setBottomComponent(pagingToolbar);
+        contentPanel.setBottomComponent(bottomToolbars);
         contentPanel.setHeaderVisible(showHeader);
 
         setLayout(new FitLayout());
         add(contentPanel);
+
+    }
+
+    private static <T> List<PagingColumnFilter<T>> createFilterWidgets(
+            List<IColumnDefinition<T>> availableFilters)
+    {
+        List<PagingColumnFilter<T>> filterWidgets = new ArrayList<PagingColumnFilter<T>>();
+        for (IColumnDefinition<T> columnDefinition : availableFilters)
+        {
+            PagingColumnFilter<T> filterWidget = new PagingColumnFilter<T>(columnDefinition);
+            filterWidgets.add(filterWidget);
+        }
+        return filterWidgets;
     }
 
     /** @return this grid as a disposable component with a specified toolbar at the top. */
@@ -231,8 +264,10 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
                 public final void load(final PagingLoadConfig loadConfig,
                         final AsyncCallback<PagingLoadResult<M>> callback)
                 {
+                    List<GridFilterInfo<T>> appliedFilters = getAppliedFilters();
                     DefaultResultSetConfig<String, T> resultSetConfig =
-                            createPagingConfig(loadConfig, columns.getColumnDefs(), resultSetKey);
+                            createPagingConfig(loadConfig, columns.getColumnDefs(), appliedFilters,
+                                    resultSetKey);
                     ListEntitiesCallback listCallback =
                             new ListEntitiesCallback(viewContext, callback, resultSetConfig);
                     listEntities(resultSetConfig, listCallback);
@@ -240,15 +275,50 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
             };
     }
 
+    // returns filters which user wants to apply to the data
+    private List<GridFilterInfo<T>> getAppliedFilters()
+    {
+        List<GridFilterInfo<T>> filters = new ArrayList<GridFilterInfo<T>>();
+        for (PagingColumnFilter<T> filterWidget : filterWidgets)
+        {
+            GridFilterInfo<T> filter = filterWidget.tryGetFilter();
+            if (filter != null)
+            {
+                filters.add(filter);
+            }
+        }
+        return filters;
+    }
+
+    protected List<IColumnDefinition<T>> asColumnFilters(
+            IColumnDefinitionKind<T>[] filteredColumnKinds)
+    {
+        return asColumnFilters(filteredColumnKinds, viewContext);
+    }
+
+    private static <T> List<IColumnDefinition<T>> asColumnFilters(
+            IColumnDefinitionKind<T>[] filteredColumnKinds, IMessageProvider messageProvider)
+    {
+        List<IColumnDefinition<T>> filters = new ArrayList<IColumnDefinition<T>>();
+        for (IColumnDefinitionKind<T> colDefKind : filteredColumnKinds)
+        {
+            IColumnDefinition<T> codeColDef =
+                    AbstractEntityModel.createColumnDefinition(colDefKind, messageProvider);
+            filters.add(codeColDef);
+        }
+        return filters;
+    }
+
     private static <T> DefaultResultSetConfig<String, T> createPagingConfig(
             PagingLoadConfig loadConfig, List<IColumnDefinition<T>> availableColumns,
-            String resultSetKey)
+            List<GridFilterInfo<T>> appliedFilters, String resultSetKey)
     {
         DefaultResultSetConfig<String, T> resultSetConfig = new DefaultResultSetConfig<String, T>();
         resultSetConfig.setLimit(loadConfig.getLimit());
         resultSetConfig.setOffset(loadConfig.getOffset());
         SortInfo<T> sortInfo = translateSortInfo(loadConfig, availableColumns);
         resultSetConfig.setSortInfo(sortInfo);
+        resultSetConfig.setFilterInfos(appliedFilters);
         resultSetConfig.setResultSetKey(resultSetKey);
         return resultSetConfig;
     }
@@ -256,18 +326,24 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
     private static <T> SortInfo<T> translateSortInfo(PagingLoadConfig loadConfig,
             List<IColumnDefinition<T>> availableColumns)
     {
-        com.extjs.gxt.ui.client.data.SortInfo origSortInfo = loadConfig.getSortInfo();
-        String origSortField = origSortInfo.getSortField();
+        com.extjs.gxt.ui.client.data.SortInfo sortInfo = loadConfig.getSortInfo();
+        return translateSortInfo(sortInfo.getSortField(), sortInfo.getSortDir(), availableColumns);
+    }
+
+    private static <T> SortInfo<T> translateSortInfo(String dortFieldId,
+            com.extjs.gxt.ui.client.Style.SortDir sortDir,
+            List<IColumnDefinition<T>> availableColumns)
+    {
         IColumnDefinition<T> sortColumnDefinition = null;
-        if (origSortField != null)
+        if (dortFieldId != null)
         {
             Map<String, IColumnDefinition<T>> availableColumnsMap = asColumnIdMap(availableColumns);
-            sortColumnDefinition = availableColumnsMap.get(origSortField);
+            sortColumnDefinition = availableColumnsMap.get(dortFieldId);
             assert sortColumnDefinition != null : "sortColumnDefinition is null";
         }
         SortInfo<T> sortInfo = new SortInfo<T>();
         sortInfo.setSortField(sortColumnDefinition);
-        sortInfo.setSortDir(translate(origSortInfo.getSortDir()));
+        sortInfo.setSortDir(translate(sortDir));
         return sortInfo;
     }
 
@@ -328,7 +404,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
             // save the key of the result, later we can refer to the result in the cache using this
             // key
             saveCacheKey(result.getResultSetKey());
-            saveSortInfo(resultSetConfig.getSortInfo());
             // convert the result to the model data for the grid control
             final List<M> models = createModels(result.getList());
             final PagingLoadResult<M> loadResult =
@@ -510,11 +585,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
         return getSelectedColumns(availableColumnsMap, columnModel);
     }
 
-    private void saveSortInfo(SortInfo<T> newSortInfo)
-    {
-        this.sortInfo = newSortInfo;
-    }
-
     private void saveCacheKey(final String newResultSetKey)
     {
         if (resultSetKey == null)
@@ -549,10 +619,18 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
         assert resultSetKey != null : "refresh before exporting, resultSetKey is null!";
 
         final List<IColumnDefinition<T>> columnDefs = getSelectedColumns(columns.getColumnDefs());
+        SortInfo<T> sortInfo = getGridSortInfo();
         final TableExportCriteria<T> exportCriteria =
-                new TableExportCriteria<T>(resultSetKey, sortInfo, columnDefs);
+                new TableExportCriteria<T>(resultSetKey, sortInfo, getAppliedFilters(), columnDefs);
 
         prepareExportEntities(exportCriteria, callback);
+    }
+
+    // returns info about soring in current grid
+    private SortInfo<T> getGridSortInfo()
+    {
+        ListStore<M> store = grid.getStore();
+        return translateSortInfo(store.getSortField(), store.getSortDir(), columns.getColumnDefs());
     }
 
     // ------- generic static helpers
@@ -564,6 +642,36 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
         contentPanel.setBodyBorder(false);
         contentPanel.setLayout(new FitLayout());
         return contentPanel;
+    }
+
+    private static <T> LayoutContainer createBottomToolbars(
+            List<PagingColumnFilter<T>> filterWidgets, Component pagingToolbar)
+    {
+        Component filterToolbar = createFilterToolbar(filterWidgets);
+
+        LayoutContainer bottomToolbars = new LayoutContainer();
+        bottomToolbars.setLayout(new RowLayout(com.extjs.gxt.ui.client.Style.Orientation.VERTICAL));
+        bottomToolbars.add(filterToolbar);
+        bottomToolbars.add(pagingToolbar);
+        return bottomToolbars;
+    }
+
+    private static <T> ToolBar createFilterToolbar(List<PagingColumnFilter<T>> filterWidgets)
+    {
+        ToolBar filterToolbar = new ToolBar();
+        if (filterWidgets.size() == 0)
+        {
+            return filterToolbar;
+        }
+        filterToolbar.add(new LabelToolItem(LABEL_FILTERS + ": "));
+
+        for (PagingColumnFilter<T> filterWidget : filterWidgets)
+        {
+            filterToolbar.add(new AdapterToolItem(filterWidget));
+        }
+        filterToolbar.add(new FillToolItem());
+        filterToolbar.add(new LabelToolItem(LABEL_APPLY_FILTERS_HINT));
+        return filterToolbar;
     }
 
     private static final <T extends ModelData> Grid<T> createGrid(

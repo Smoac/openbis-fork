@@ -145,17 +145,23 @@ public final class CommonClientService extends AbstractClientService implements
     private final <T> List<T> fetchCachedEntities(final TableExportCriteria<T> exportCriteria)
     {
         final IResultSetManager<String> resultSetManager = getResultSetManager();
+        IResultSetConfig<String, T> resultSetConfig = createExportListCriteria(exportCriteria);
+        IOriginalDataProvider<T> dummyDataProvider = createDummyDataProvider();
         final IResultSet<String, T> result =
-                resultSetManager.getResultSet(createExportListCriteria(exportCriteria),
-                        new IOriginalDataProvider<T>()
-                            {
-                                public List<T> getOriginalData() throws UserFailureException
-                                {
-                                    throw new IllegalStateException("Data not found in the cache");
-                                }
-                            });
+                resultSetManager.getResultSet(resultSetConfig, dummyDataProvider);
         final ResultSet<T> entities = ResultSetTranslator.translate(result);
         return entities.getList();
+    }
+
+    private static <T> IOriginalDataProvider<T> createDummyDataProvider()
+    {
+        return new IOriginalDataProvider<T>()
+            {
+                public List<T> getOriginalData() throws UserFailureException
+                {
+                    throw new IllegalStateException("Data not found in the cache");
+                }
+            };
     }
 
     private static <T> IResultSetConfig<String, T> createExportListCriteria(
@@ -163,6 +169,7 @@ public final class CommonClientService extends AbstractClientService implements
     {
         final DefaultResultSetConfig<String, T> criteria = DefaultResultSetConfig.createFetchAll();
         criteria.setSortInfo(exportCriteria.getSortInfo());
+        criteria.setFilterInfos(exportCriteria.getFilterInfos());
         criteria.setResultSetKey(exportCriteria.getResultSetKey());
         return criteria;
     }
@@ -189,6 +196,7 @@ public final class CommonClientService extends AbstractClientService implements
      */
     public final String getExportTable(final String exportDataKey)
     {
+        // NOTE: no generics in GWT
         return getGenericExportTable(exportDataKey);
     }
 

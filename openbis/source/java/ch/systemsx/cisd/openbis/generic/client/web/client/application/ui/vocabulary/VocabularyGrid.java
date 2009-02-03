@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary;
 
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.client.shared.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -26,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Ab
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 
@@ -56,6 +59,13 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary, Vocabu
     protected IColumnDefinitionKind<Vocabulary>[] getStaticColumnsDefinition()
     {
         return VocabularyColDefKind.values();
+    }
+
+    @Override
+    protected List<IColumnDefinition<Vocabulary>> getAvailableFilters()
+    {
+        return asColumnFilters(new VocabularyColDefKind[]
+            { VocabularyColDefKind.CODE });
     }
 
     @Override

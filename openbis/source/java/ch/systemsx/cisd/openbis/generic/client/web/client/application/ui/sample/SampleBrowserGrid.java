@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample;
 
+import java.util.List;
+
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 
@@ -30,8 +32,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
@@ -125,6 +129,7 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
         criteria.setLimit(resultSetConfig.getLimit());
         criteria.setOffset(resultSetConfig.getOffset());
         criteria.setSortInfo(resultSetConfig.getSortInfo());
+        criteria.setFilterInfos(resultSetConfig.getFilterInfos());
         criteria.setResultSetKey(resultSetConfig.getResultSetKey());
     }
 
@@ -132,6 +137,14 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
     protected SampleModel createModel(Sample entity)
     {
         return new SampleModel(entity);
+    }
+
+    @Override
+    protected List<IColumnDefinition<Sample>> getAvailableFilters()
+    {
+        return asColumnFilters(new CommonSampleColDefKind[]
+            { CommonSampleColDefKind.CODE, CommonSampleColDefKind.EXPERIMENT,
+                    CommonSampleColDefKind.PROJECT, CommonSampleColDefKind.GROUP });
     }
 
     @Override
@@ -208,6 +221,7 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
     @Override
     protected ColumnDefsAndConfigs<Sample> createColumnsDefinition()
     {
+        assert criteria != null : "criteria not set!";
         return SampleModel.createColumnsSchema(viewContext, criteria.getSampleType());
     }
 

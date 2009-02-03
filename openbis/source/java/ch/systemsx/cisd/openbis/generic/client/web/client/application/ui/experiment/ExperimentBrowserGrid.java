@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment;
 
+import java.util.List;
+
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 
@@ -28,11 +30,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExperimentModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.columns.CommonExperimentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -91,6 +95,7 @@ public final class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment,
         criteria.setLimit(resultSetConfig.getLimit());
         criteria.setOffset(resultSetConfig.getOffset());
         criteria.setSortInfo(resultSetConfig.getSortInfo());
+        criteria.setFilterInfos(resultSetConfig.getFilterInfos());
         criteria.setResultSetKey(resultSetConfig.getResultSetKey());
     }
 
@@ -156,5 +161,13 @@ public final class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment,
     private boolean hasColumnsDefinitionChanged(ExperimentType entityType)
     {
         return (criteria == null || entityType.equals(criteria.getExperimentType()) == false);
+    }
+
+    @Override
+    protected List<IColumnDefinition<Experiment>> getAvailableFilters()
+    {
+        return asColumnFilters(new CommonExperimentColDefKind[]
+            { CommonExperimentColDefKind.CODE, CommonExperimentColDefKind.GROUP,
+                    CommonExperimentColDefKind.PROJECT });
     }
 }

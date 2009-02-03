@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project;
 
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -25,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Ab
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -76,5 +79,12 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project, ProjectModel
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportProjects(exportCriteria, callback);
+    }
+
+    @Override
+    protected List<IColumnDefinition<Project>> getAvailableFilters()
+    {
+        return asColumnFilters(new ProjectColDefKind[]
+            { ProjectColDefKind.CODE, ProjectColDefKind.GROUP });
     }
 }

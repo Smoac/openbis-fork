@@ -47,7 +47,7 @@ abstract public class AbstractSimpleBrowserGrid<T/* Entity */, M extends ModelDa
     {
         IColumnDefinitionKind<T>[] colDefKinds = getStaticColumnsDefinition();
         List<IColumnDefinitionUI<T>> colDefs =
-                AbstractEntityModel.createColumnsSchemaFrom(colDefKinds, viewContext);
+                AbstractEntityModel.createColumnsDefinition(colDefKinds, viewContext);
         return ColumnDefsAndConfigs.create(colDefs);
     }
 

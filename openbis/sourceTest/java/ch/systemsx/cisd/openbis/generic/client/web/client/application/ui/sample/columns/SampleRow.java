@@ -60,18 +60,18 @@ public class SampleRow extends Row
 
     public SampleRow experiment(final String projectCode, final String experimentCode)
     {
-        withCell(CommonSampleColDefKind.PROJECT_FOR_SAMPLE, projectCode);
-        withCell(CommonSampleColDefKind.EXPERIMENT_FOR_SAMPLE, experimentCode);
+        withCell(CommonSampleColDefKind.PROJECT, projectCode);
+        withCell(CommonSampleColDefKind.EXPERIMENT, experimentCode);
         final String experimentIdentifier = groupIdentifier + projectCode + "/" + experimentCode;
-        withCell(CommonSampleColDefKind.EXPERIMENT_IDENTIFIER_FOR_SAMPLE, experimentIdentifier);
+        withCell(CommonSampleColDefKind.EXPERIMENT_IDENTIFIER, experimentIdentifier);
         return this;
     }
 
     public SampleRow noExperiment()
     {
-        withCell(CommonSampleColDefKind.PROJECT_FOR_SAMPLE, null);
-        withCell(CommonSampleColDefKind.EXPERIMENT_FOR_SAMPLE, null);
-        withCell(CommonSampleColDefKind.EXPERIMENT_IDENTIFIER_FOR_SAMPLE, null);
+        withCell(CommonSampleColDefKind.PROJECT, null);
+        withCell(CommonSampleColDefKind.EXPERIMENT, null);
+        withCell(CommonSampleColDefKind.EXPERIMENT_IDENTIFIER, null);
         return this;
     }
 

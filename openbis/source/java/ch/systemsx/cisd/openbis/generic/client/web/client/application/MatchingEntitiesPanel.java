@@ -26,10 +26,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.MatchingEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.MatchingEntityModel.MatchingEntityColumnKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
@@ -119,6 +121,14 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportMatchingEntities(exportCriteria, callback);
+    }
+
+    @Override
+    protected List<IColumnDefinition<MatchingEntity>> getAvailableFilters()
+    {
+        return asColumnFilters(new MatchingEntityColumnKind[]
+            { MatchingEntityColumnKind.ENTITY_KIND, MatchingEntityColumnKind.ENTITY_TYPE,
+                    MatchingEntityColumnKind.MATCHING_FIELD });
     }
 
 }

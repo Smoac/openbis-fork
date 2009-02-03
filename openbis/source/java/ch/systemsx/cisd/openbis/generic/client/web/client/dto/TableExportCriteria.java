@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
@@ -34,6 +35,9 @@ public class TableExportCriteria<T/* exported entity */> implements IResultSetKe
 
     private SortInfo<T> sortInfo = new SortInfo<T>();
 
+    /** @see IResultSetConfig#getFilterInfos() */
+    private List<GridFilterInfo<T>> filterInfos = new ArrayList<GridFilterInfo<T>>();
+
     // which columns should be exported
     private List<IColumnDefinition<T>> columnDefs;
 
@@ -43,10 +47,11 @@ public class TableExportCriteria<T/* exported entity */> implements IResultSetKe
     }
 
     public TableExportCriteria(String resultSetKey, SortInfo<T> sortInfo,
-            List<IColumnDefinition<T>> columnDefs)
+            List<GridFilterInfo<T>> filterInfos, List<IColumnDefinition<T>> columnDefs)
     {
         this.resultSetKey = resultSetKey;
         this.sortInfo = sortInfo;
+        this.filterInfos = filterInfos;
         this.columnDefs = columnDefs;
     }
 
@@ -58,6 +63,11 @@ public class TableExportCriteria<T/* exported entity */> implements IResultSetKe
     public SortInfo<T> getSortInfo()
     {
         return sortInfo;
+    }
+
+    public List<GridFilterInfo<T>> getFilterInfos()
+    {
+        return filterInfos;
     }
 
     public List<IColumnDefinition<T>> getColumnDefs()

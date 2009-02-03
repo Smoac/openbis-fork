@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
 
 /**
@@ -46,4 +48,7 @@ public interface IResultSetConfig<K, T> extends IResultSetKeyHolder<K>
      * Returns the sort info.
      */
     public SortInfo<T> getSortInfo();
+
+    /** The filters which should be applied for the result */
+    public List<GridFilterInfo<T>> getFilterInfos();
 }

@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
@@ -30,6 +33,8 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
     private int offset = 0;
 
     private SortInfo<T> sortInfo = new SortInfo<T>();
+
+    private List<GridFilterInfo<T>> filterInfos = new ArrayList<GridFilterInfo<T>>();
 
     /**
      * The result set key.
@@ -64,6 +69,11 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
         this.resultSetKeyOrNull = resultSetKey;
     }
 
+    public List<GridFilterInfo<T>> getFilterInfos()
+    {
+        return filterInfos;
+    }
+
     //
     // IResultSetConfig
     //
@@ -87,5 +97,10 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
     public final K getResultSetKey()
     {
         return resultSetKeyOrNull;
+    }
+
+    public void setFilterInfos(List<GridFilterInfo<T>> filterInfos)
+    {
+        this.filterInfos = filterInfos;
     }
 }

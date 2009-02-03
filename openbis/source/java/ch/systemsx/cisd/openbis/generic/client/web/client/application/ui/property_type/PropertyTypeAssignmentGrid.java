@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type;
 
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.client.shared.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -26,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Ab
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 
@@ -58,6 +61,15 @@ public class PropertyTypeAssignmentGrid extends
     protected IColumnDefinitionKind<EntityTypePropertyType<?>>[] getStaticColumnsDefinition()
     {
         return PropertyTypeAssignmentColDefKind.values();
+    }
+
+    @Override
+    protected List<IColumnDefinition<EntityTypePropertyType<?>>> getAvailableFilters()
+    {
+        return asColumnFilters(new PropertyTypeAssignmentColDefKind[]
+            { PropertyTypeAssignmentColDefKind.PROPERTY_TYPE_CODE,
+                    PropertyTypeAssignmentColDefKind.ENTITY_TYPE_CODE,
+                    PropertyTypeAssignmentColDefKind.ENTITY_KIND });
     }
 
     @Override
