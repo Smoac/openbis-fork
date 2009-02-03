@@ -127,7 +127,7 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
     protected List<IColumnDefinition<MatchingEntity>> getAvailableFilters()
     {
         return asColumnFilters(new MatchingEntityColumnKind[]
-            { MatchingEntityColumnKind.ENTITY_KIND, MatchingEntityColumnKind.ENTITY_TYPE,
+            { MatchingEntityColumnKind.ENTITY_TYPE, MatchingEntityColumnKind.IDENTIFIER,
                     MatchingEntityColumnKind.MATCHING_FIELD });
     }
 
