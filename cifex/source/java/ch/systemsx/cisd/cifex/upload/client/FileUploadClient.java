@@ -23,9 +23,17 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URL;
+import java.security.KeyStore;
+import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 import javax.swing.AbstractListModel;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -48,6 +56,8 @@ import org.springframework.remoting.httpinvoker.CommonsHttpInvokerRequestExecuto
 import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean;
 
 import ch.systemsx.cisd.cifex.upload.IUploadService;
+import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 
@@ -301,9 +311,10 @@ public class FileUploadClient implements IUploadListener
         filePanel.add(addButton, BorderLayout.SOUTH);
         return filePanel;
     }
-
+    
     private IUploadService createServiceStub(String serviceURL)
     {
+        setUpKeyStore(serviceURL);
         final HttpInvokerProxyFactoryBean httpInvokerProxy = new HttpInvokerProxyFactoryBean();
         httpInvokerProxy.setServiceUrl(serviceURL);
         httpInvokerProxy.setServiceInterface(IUploadService.class);
@@ -315,13 +326,96 @@ public class FileUploadClient implements IUploadListener
         httpInvokerProxy.afterPropertiesSet();
         return (IUploadService) httpInvokerProxy.getObject();
     }
+
+    private void setUpKeyStore(String serviceURL)
+    {
+        if (serviceURL.startsWith("https"))
+        {
+            Certificate certificate = getServerCertificate(serviceURL);
+            KeyStore keyStore;
+            try
+            {
+                keyStore = KeyStore.getInstance("JKS");
+                keyStore.load(null, null);
+                keyStore.setCertificateEntry("cifex", certificate);
+            } catch (Exception ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
+            FileOutputStream fileOutputStream = null;
+            try
+            {
+                String tmpDir = System.getProperty("java.io.tmpdir");
+                File keyStoreFile = new File(tmpDir, "CIFEX-keystore");
+                fileOutputStream = new FileOutputStream(keyStoreFile);
+                keyStore.store(fileOutputStream, "cifextest".toCharArray());
+                fileOutputStream.close();
+                System.setProperty("javax.net.ssl.trustStore", keyStoreFile.getAbsolutePath());
+            } catch (Exception ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            } finally
+            {
+                // IOUtils.closeQuietly() isn't used because it is not in the client classpath
+                if (fileOutputStream != null)
+                {
+                    try
+                    {
+                        fileOutputStream.close();
+                    } catch (IOException ex)
+                    {
+                        // ignored
+                    }
+                }
+            }
+        }
+    }
+    
+    private Certificate getServerCertificate(String serviceURL)
+    {
+        SSLSocket socket = null;
+        try
+        {
+            URL url = new URL(serviceURL);
+            int port = url.getPort();
+            String hostname = url.getHost();
+            System.out.println("host:" + hostname + " port:" + port);
+            SSLSocketFactory factory = HttpsURLConnection.getDefaultSSLSocketFactory();
+            socket = (SSLSocket) factory.createSocket(hostname, port);
+            socket.startHandshake();
+            Certificate[] serverCerts = socket.getSession().getPeerCertificates();
+            if (serverCerts.length == 0)
+            {
+                throw new EnvironmentFailureException("At least one server certificate expected.");
+            }
+            return serverCerts[0];
+        } catch (Exception e)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(e);
+        } finally
+        {
+            // IOUtils.closeQuietly() isn't used because it is not in the client classpath
+            if (socket != null)
+            {
+                try
+                {
+                    socket.close();
+                } catch (IOException ex)
+                {
+                    // ignored
+                }
+            }
+        }
+        
+    }
     
     public void uploadingStarted(File file, long fileSize)
     {
         String path = file.getAbsolutePath();
         frame.setTitle(TITLE + ": " + path);
         progressPanel.removeAll();
-        progressPanel.add(new JLabel(file.getName() + " (" + FileUtilities.byteCountToDisplaySize(fileSize) + ")"));
+        String humanReadableFileSize = FileUtilities.byteCountToDisplaySize(fileSize);
+        progressPanel.add(new JLabel(file.getName() + " (" + humanReadableFileSize + ")"));
         progressBar = new JProgressBar();
         progressBar.setStringPainted(true);
         progressPanel.add(progressBar);
@@ -364,7 +458,6 @@ public class FileUploadClient implements IUploadListener
 
     public void uploadingFinished(boolean successful)
     {
-        System.out.println("FileUploadClient.uploadingFinished()");
         if (successful)
         {
             JOptionPane.showMessageDialog(frame, "Uploading finish. Please update CIFEX in your Web browser");

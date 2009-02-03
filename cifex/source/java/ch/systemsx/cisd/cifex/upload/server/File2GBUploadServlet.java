@@ -120,7 +120,7 @@ public class File2GBUploadServlet extends AbstractFileUploadServlet
         Template template = JNLP_TEMPLATE.createFreshCopy();
         template.attemptToBind("base-URL", createBaseURL(request));
         template.attemptToBind("main-class", "ch.systemsx.cisd.cifex.upload.client.FileUploadClient");
-        template.attemptToBind("service-URL", HttpUtils.getBasicURL(request) + "/cifex/file-upload-service");
+        template.attemptToBind("service-URL", createServiceURL(request));
         template.attemptToBind("upload-session-id", uploadSessionID);
         writer.print(template.createText());
         writer.close();
@@ -134,8 +134,19 @@ public class File2GBUploadServlet extends AbstractFileUploadServlet
             url = url + "/ch.systemsx.cisd.cifex.Cifex/";
         } else
         {
-            url = url + "/cifex/";
+            url = url + "/";
         }
         return url;
     }
+    
+    private String createServiceURL(final HttpServletRequest request)
+    {
+        String baseURL = HttpUtils.getBasicURL(request);
+        if (baseURL.startsWith("https"))
+        {
+//            baseURL = "http://" + request.getServerName() + ":8090/" + request.getContextPath();
+        }
+        return baseURL + "/cifex/file-upload-service";
+    }
+    
 }

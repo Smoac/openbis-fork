@@ -143,7 +143,7 @@ public class File2GBUploadServletTest extends AssertJUnit
         createServlet().doGet(request, response);
         
         Template template = File2GBUploadServlet.JNLP_TEMPLATE.createFreshCopy();
-        template.bind("base-URL", BASE_URL + "/cifex/");
+        template.bind("base-URL", BASE_URL + "/");
         template.bind("main-class", "ch.systemsx.cisd.cifex.upload.client.FileUploadClient");
         template.bind("service-URL", BASE_URL + "/cifex/file-upload-service");
         template.bind("upload-session-id", UPLOAD_SESSION_ID);
