@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
  */
 public class ExperimentSamplesSection extends SectionPanel
 {
-    static final String PREFIX = "experiment-samples-section_";
+    private static final String PREFIX = "experiment-samples-section_";
 
     private DisposableComponent sampleDisposableGrid;
 
@@ -42,8 +42,14 @@ public class ExperimentSamplesSection extends SectionPanel
         String experimentIdentifier = experiment.getIdentifier();
         sampleDisposableGrid =
                 SampleBrowserGrid.create(viewContext.getCommonViewContext(), experimentIdentifier,
-                        PREFIX + experimentIdentifier);
+                        createId(experimentIdentifier));
         add(sampleDisposableGrid.getComponent(), new RowData(-1, 200));
+    }
+
+    // @Private
+    static String createId(String experimentIdentifier)
+    {
+        return SampleBrowserGrid.GRID_ID + PREFIX + experimentIdentifier;
     }
 
     @Override

@@ -56,45 +56,73 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
 {
     private static final String PREFIX = GenericConstants.ID_PREFIX + "sample-browser";
 
-    // browser consists of the grid and the paging toolbar
+    // browser consists of the grid and additional toolbars (paging, filtering)
     public static final String BROWSER_ID = PREFIX + "_main";
 
     public static final String GRID_ID = PREFIX + "_grid";
 
-    private final SampleBrowserToolbar topToolbar;
+    private final ICriteriaProvider criteriaProvider;
 
     // criteria used in the previous refresh operation or null if it has not occurred yet
     private ListSampleCriteria criteria;
+
+    private interface ICriteriaProvider
+    {
+        ListSampleCriteria tryGetCriteria();
+    }
 
     public static DisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         final SampleBrowserToolbar toolbar = new SampleBrowserToolbar(viewContext);
-        final SampleBrowserGrid browserGrid = new SampleBrowserGrid(viewContext, toolbar);
+        ICriteriaProvider criteriaProvider = asCriteriaProvider(toolbar);
+        final SampleBrowserGrid browserGrid =
+                new SampleBrowserGrid(viewContext, criteriaProvider, GRID_ID, true, false);
+        browserGrid.extendTopToolbar(toolbar);
         return browserGrid.asDisposableWithToolbar(toolbar);
     }
 
-    public static DisposableComponent create(
-            final IViewContext<ICommonClientServiceAsync> viewContext, String experimentIdentifier,
-            String idSuffix)
+    private static ICriteriaProvider asCriteriaProvider(final SampleBrowserToolbar toolbar)
     {
-        ListSampleCriteria criteria = new ListSampleCriteria();
-        criteria.setExperimentIdentifier(experimentIdentifier);
+        return new ICriteriaProvider()
+            {
+                public ListSampleCriteria tryGetCriteria()
+                {
+                    return toolbar.tryGetCriteria();
+                }
+            };
+    }
+
+    public static DisposableComponent create(
+            final IViewContext<ICommonClientServiceAsync> viewContext,
+            final String experimentIdentifier, String gridId)
+    {
+        ICriteriaProvider criteriaProvider = new ICriteriaProvider()
+            {
+                public ListSampleCriteria tryGetCriteria()
+                {
+                    ListSampleCriteria criteria = new ListSampleCriteria();
+                    criteria.setExperimentIdentifier(experimentIdentifier);
+                    return criteria;
+                }
+            };
+
         final SampleBrowserGrid browserGrid =
-                new SampleBrowserGrid(viewContext, criteria, idSuffix);
+                new SampleBrowserGrid(viewContext, criteriaProvider, gridId, false, true);
         return browserGrid.asDisposableWithoutToolbar();
     }
 
     private SampleBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
-            SampleBrowserToolbar topToolbar)
+            ICriteriaProvider criteriaProvider, String gridId, boolean showHeader,
+            boolean refreshAutomatically)
     {
-        super(viewContext, GRID_ID);
-        this.topToolbar = topToolbar;
-        extendToolbar();
+        super(viewContext, gridId, showHeader, refreshAutomatically);
+        this.criteriaProvider = criteriaProvider;
         setId(BROWSER_ID);
     }
 
-    private void extendToolbar()
+    // adds show, show-details and invalidate buttons
+    private void extendTopToolbar(SampleBrowserToolbar toolbar)
     {
         String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
         Button showDetailsButton =
@@ -103,39 +131,19 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
         String invalidateTitle = viewContext.getMessage(Dict.BUTTON_INVALIDATE);
         Button invalidateButton = createSelectedItemDummyButton(invalidateTitle);
 
-        SelectionChangedListener<?> refreshButtonListener = addRefreshButton(topToolbar);
-        this.topToolbar.setCriteriaChangedListener(refreshButtonListener);
+        SelectionChangedListener<?> refreshButtonListener = addRefreshButton(toolbar);
+        toolbar.setCriteriaChangedListener(refreshButtonListener);
 
-        this.topToolbar.add(new FillToolItem());
-        this.topToolbar.add(new AdapterToolItem(showDetailsButton));
-        this.topToolbar.add(new SeparatorToolItem());
-        this.topToolbar.add(new AdapterToolItem(invalidateButton));
-    }
-
-    private SampleBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
-            ListSampleCriteria criteria, String idSuffix)
-    {
-        super(viewContext, GRID_ID + idSuffix, false, true);
-        this.criteria = criteria;
-        this.topToolbar = null;
-        setId(BROWSER_ID);
+        toolbar.add(new FillToolItem());
+        toolbar.add(new AdapterToolItem(showDetailsButton));
+        toolbar.add(new SeparatorToolItem());
+        toolbar.add(new AdapterToolItem(invalidateButton));
     }
 
     @Override
     protected boolean isRefreshEnabled()
     {
-        return tryGetCriteria() != null;
-    }
-
-    private ListSampleCriteria tryGetCriteria()
-    {
-        if (topToolbar != null)
-        {
-            return topToolbar.tryGetCriteria();
-        } else
-        {
-            return criteria;
-        }
+        return criteriaProvider.tryGetCriteria() != null;
     }
 
     @Override
@@ -221,7 +229,7 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
     @Override
     protected final void refresh()
     {
-        ListSampleCriteria newCriteria = tryGetCriteria();
+        ListSampleCriteria newCriteria = criteriaProvider.tryGetCriteria();
         if (newCriteria == null)
         {
             return;
