@@ -44,9 +44,7 @@ public final class ShowSample extends AbstractDefaultTestCommand
     @SuppressWarnings("unchecked")
     public void execute()
     {
-        final Widget widget =
-                GWTTestUtil.getWidgetWithID(SampleBrowserGrid.GRID_ID
-                        + SampleBrowserGrid.SAMPLE_BROWSER_SUFFIX);
+        final Widget widget = GWTTestUtil.getWidgetWithID(SampleBrowserGrid.GRID_ID);
         assertTrue(widget instanceof Grid);
         final Grid<SampleModel> table = (Grid<SampleModel>) widget;
         table.fireEvent(Events.CellDoubleClick, createGridEvent(table));

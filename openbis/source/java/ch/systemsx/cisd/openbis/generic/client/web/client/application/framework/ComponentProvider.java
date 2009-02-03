@@ -67,9 +67,7 @@ final class ComponentProvider
             {
                 public ITabItem create()
                 {
-                    DisposableComponent browser =
-                            SampleBrowserGrid.create(viewContext,
-                                    SampleBrowserGrid.SAMPLE_BROWSER_SUFFIX);
+                    DisposableComponent browser = SampleBrowserGrid.create(viewContext);
                     return DefaultTabItem.create(getMessage(Dict.SAMPLE_BROWSER), browser, false);
                 }
 

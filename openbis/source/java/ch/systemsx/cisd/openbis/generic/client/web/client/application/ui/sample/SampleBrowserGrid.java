@@ -54,14 +54,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
  */
 public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleModel>
 {
-    public static final String SAMPLE_BROWSER_SUFFIX = "sample_browser";
-
-    private static final String PREFIX = GenericConstants.ID_PREFIX + "sample-browser-grid_";
+    private static final String PREFIX = GenericConstants.ID_PREFIX + "sample-browser";
 
     // browser consists of the grid and the paging toolbar
-    public static final String BROWSER_ID = PREFIX + SAMPLE_BROWSER_SUFFIX;
+    public static final String BROWSER_ID = PREFIX + "_main";
 
-    public static final String GRID_ID = PREFIX + "grid";
+    public static final String GRID_ID = PREFIX + "_grid";
 
     private final SampleBrowserToolbar topToolbar;
 
@@ -69,26 +67,28 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
     private ListSampleCriteria criteria;
 
     public static DisposableComponent create(
-            final IViewContext<ICommonClientServiceAsync> viewContext, String idSuffix)
+            final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         final SampleBrowserToolbar toolbar = new SampleBrowserToolbar(viewContext);
-        final SampleBrowserGrid browserGrid = new SampleBrowserGrid(viewContext, toolbar, idSuffix);
+        final SampleBrowserGrid browserGrid = new SampleBrowserGrid(viewContext, toolbar);
         return browserGrid.asDisposableWithToolbar(toolbar);
     }
 
     public static DisposableComponent create(
-            final IViewContext<ICommonClientServiceAsync> viewContext, ListSampleCriteria criteria,
+            final IViewContext<ICommonClientServiceAsync> viewContext, String experimentIdentifier,
             String idSuffix)
     {
+        ListSampleCriteria criteria = new ListSampleCriteria();
+        criteria.setExperimentIdentifier(experimentIdentifier);
         final SampleBrowserGrid browserGrid =
                 new SampleBrowserGrid(viewContext, criteria, idSuffix);
         return browserGrid.asDisposableWithoutToolbar();
     }
 
     private SampleBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
-            SampleBrowserToolbar topToolbar, String idSuffix)
+            SampleBrowserToolbar topToolbar)
     {
-        super(viewContext, GRID_ID + idSuffix);
+        super(viewContext, GRID_ID);
         this.topToolbar = topToolbar;
         extendToolbar();
         setId(BROWSER_ID);
@@ -96,18 +96,19 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
 
     private void extendToolbar()
     {
-        SelectionChangedListener<?> refreshButtonListener = addRefreshButton(topToolbar);
-        this.topToolbar.setCriteriaChangedListener(refreshButtonListener);
-        this.topToolbar.add(new FillToolItem());
-
         String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
         Button showDetailsButton =
                 createSelectedItemButton(showDetailsTitle, asShowEntityInvoker());
-        this.topToolbar.add(new AdapterToolItem(showDetailsButton));
 
-        this.topToolbar.add(new SeparatorToolItem());
         String invalidateTitle = viewContext.getMessage(Dict.BUTTON_INVALIDATE);
         Button invalidateButton = createSelectedItemDummyButton(invalidateTitle);
+
+        SelectionChangedListener<?> refreshButtonListener = addRefreshButton(topToolbar);
+        this.topToolbar.setCriteriaChangedListener(refreshButtonListener);
+
+        this.topToolbar.add(new FillToolItem());
+        this.topToolbar.add(new AdapterToolItem(showDetailsButton));
+        this.topToolbar.add(new SeparatorToolItem());
         this.topToolbar.add(new AdapterToolItem(invalidateButton));
     }
 

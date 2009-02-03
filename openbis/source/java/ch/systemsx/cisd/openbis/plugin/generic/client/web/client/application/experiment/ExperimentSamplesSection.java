@@ -23,7 +23,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 
 /**
  * {@link SectionPanel} containing experiment samples.
@@ -40,11 +39,10 @@ public class ExperimentSamplesSection extends SectionPanel
     {
         super("Samples");
         setLayout(new RowLayout());
-        ListSampleCriteria criteria = new ListSampleCriteria();
-        criteria.setExperimentIdentifier(experiment.getIdentifier());
+        String experimentIdentifier = experiment.getIdentifier();
         sampleDisposableGrid =
-                SampleBrowserGrid.create(viewContext.getCommonViewContext(), criteria, PREFIX
-                        + experiment.getIdentifier());
+                SampleBrowserGrid.create(viewContext.getCommonViewContext(), experimentIdentifier,
+                        PREFIX + experimentIdentifier);
         add(sampleDisposableGrid.getComponent(), new RowData(-1, 200));
     }
 

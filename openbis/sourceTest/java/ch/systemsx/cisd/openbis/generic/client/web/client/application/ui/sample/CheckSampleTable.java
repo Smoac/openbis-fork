@@ -28,8 +28,7 @@ public class CheckSampleTable extends CheckTableCommand
 {
     public CheckSampleTable()
     {
-        super(SampleBrowserGrid.GRID_ID + SampleBrowserGrid.SAMPLE_BROWSER_SUFFIX,
-                SampleBrowserGrid.ListEntitiesCallback.class);
+        super(SampleBrowserGrid.GRID_ID, SampleBrowserGrid.ListEntitiesCallback.class);
     }
 
 }
