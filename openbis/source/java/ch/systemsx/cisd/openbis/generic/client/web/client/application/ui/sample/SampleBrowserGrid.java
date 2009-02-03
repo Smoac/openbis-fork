@@ -144,7 +144,7 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
     {
         return asColumnFilters(new CommonSampleColDefKind[]
             { CommonSampleColDefKind.CODE, CommonSampleColDefKind.EXPERIMENT,
-                    CommonSampleColDefKind.PROJECT, CommonSampleColDefKind.GROUP });
+                    CommonSampleColDefKind.PROJECT });
     }
 
     @Override
