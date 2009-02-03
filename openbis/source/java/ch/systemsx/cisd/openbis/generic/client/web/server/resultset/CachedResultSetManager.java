@@ -207,7 +207,6 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             data = cast(results.get(dataKey));
         }
         assert data != null : "Unspecified data";
-        final int totalLength = data.size();
         data = filterData(data, resultConfig.getFilterInfos());
         final int size = data.size();
         final int offset = getOffset(size, resultConfig.getOffset());
@@ -215,7 +214,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         final SortInfo<T> sortInfo = resultConfig.getSortInfo();
         sortData(data, sortInfo);
         final List<T> list = subList(data, offset, limit);
-        return new DefaultResultSet<K, T>(dataKey, list, totalLength);
+        return new DefaultResultSet<K, T>(dataKey, list, size);
     }
 
     public final synchronized void removeResultSet(final K resultSetKey)
