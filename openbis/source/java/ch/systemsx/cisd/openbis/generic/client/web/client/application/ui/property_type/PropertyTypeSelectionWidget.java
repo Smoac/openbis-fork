@@ -22,16 +22,14 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 
@@ -41,8 +39,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
  * @author Izabela Adamczyk
  */
 public final class PropertyTypeSelectionWidget extends
-        ComboBox<PropertyTypeSelectionWidget.PropertyTypeComboModel>
+        DropDownList<PropertyTypeSelectionWidget.PropertyTypeComboModel, PropertyType>
 {
+    private static final String EMPTY_RESULT_SUFFIX = "property types";
+
+    private static final String CHOOSE_SUFFIX = "property type";
+
     private static class PropertyTypeComboModel extends BaseModelData
     {
         private static final long serialVersionUID = 1L;
@@ -54,22 +56,16 @@ public final class PropertyTypeSelectionWidget extends
         }
     }
 
-    private static final String PREFIX = "property-type-select-";
-
-    public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
+    static final String SUFFIX = "property-type";
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     public PropertyTypeSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext,
             final String idSuffix)
     {
+        super(viewContext, SUFFIX + idSuffix, Dict.PROPERTY_TYPE, ModelDataPropertyNames.CODE,
+                CHOOSE_SUFFIX, EMPTY_RESULT_SUFFIX);
         this.viewContext = viewContext;
-        setId(ID + idSuffix);
-        setDisplayField(ModelDataPropertyNames.CODE);
-        setEditable(false);
-        setWidth(180);
-        setFieldLabel(viewContext.getMessage(Dict.PROPERTY_TYPE));
-        setStore(new ListStore<PropertyTypeComboModel>());
     }
 
     public final String tryGetSelectedPropertyTypeCode()
@@ -85,27 +81,8 @@ public final class PropertyTypeSelectionWidget extends
      */
     public final PropertyType tryGetSelectedPropertyType()
     {
-        return GWTUtils.tryGetSingleSelected(this);
+        return super.tryGetSelected();
     }
-
-    @Override
-    protected void onRender(final Element parent, final int pos)
-    {
-        super.onRender(parent, pos);
-        refresh();
-    }
-
-    void refresh()
-    {
-        DefaultResultSetConfig<String, PropertyType> config =
-                DefaultResultSetConfig.createFetchAll();
-        viewContext.getService().listPropertyTypes(config,
-                new ListPropertyTypesCallback(viewContext));
-    }
-
-    //
-    // Helper classes
-    //
 
     public final class ListPropertyTypesCallback extends
             AbstractAsyncCallback<ResultSet<PropertyType>>
@@ -120,20 +97,22 @@ public final class PropertyTypeSelectionWidget extends
         {
             final ListStore<PropertyTypeComboModel> propertyTypeStore = getStore();
             propertyTypeStore.removeAll();
-            propertyTypeStore.add(convert(result.getList()));
+            propertyTypeStore.add(convertItems(result.getList()));
             if (propertyTypeStore.getCount() > 0)
             {
-                setEnabled(true);
-                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, "property type"));
+                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, CHOOSE_SUFFIX));
+                setReadOnly(false);
             } else
             {
-                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_EMPTY, "property types"));
+                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_EMPTY, EMPTY_RESULT_SUFFIX));
+                setReadOnly(true);
             }
             applyEmptyText();
         }
     }
 
-    public final static List<PropertyTypeComboModel> convert(final List<PropertyType> types)
+    @Override
+    protected List<PropertyTypeComboModel> convertItems(List<PropertyType> types)
     {
         final List<PropertyTypeComboModel> result = new ArrayList<PropertyTypeComboModel>();
         for (final PropertyType st : types)
@@ -141,5 +120,14 @@ public final class PropertyTypeSelectionWidget extends
             result.add(new PropertyTypeComboModel(st));
         }
         return result;
+    }
+
+    @Override
+    protected void loadData(AbstractAsyncCallback<List<PropertyType>> callback)
+    {
+        DefaultResultSetConfig<String, PropertyType> config =
+                DefaultResultSetConfig.createFetchAll();
+        viewContext.getService().listPropertyTypes(config,
+                new ListPropertyTypesCallback(viewContext));
     }
 }

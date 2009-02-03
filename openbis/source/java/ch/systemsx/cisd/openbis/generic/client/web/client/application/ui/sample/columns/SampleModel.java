@@ -110,7 +110,7 @@ public final class SampleModel extends AbstractEntityModel<Sample>
         return list;
     }
 
-    public static List<IColumnDefinitionUI<Sample>> createCommonColumnsSchema(
+    private static List<IColumnDefinitionUI<Sample>> createCommonColumnsSchema(
             IMessageProvider msgProviderOrNull)
     {
         return createColumnsSchemaFrom(CommonSampleColDefKind.values(), msgProviderOrNull);

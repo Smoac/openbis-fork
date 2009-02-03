@@ -43,7 +43,7 @@ public class ListSamples extends AbstractDefaultTestCommand
         this.groupNameOrNull = groupNameOrNull;
         this.sampleTypeNameOrNull = sampleTypeNameOrNull;
         addCallbackClass(GroupSelectionWidget.ListGroupsCallback.class);
-        addCallbackClass(SampleTypeSelectionWidget.ListSampleTypesCallback.class);
+        addCallbackClass(SampleTypeSelectionWidget.ListItemsCallback.class);
     }
 
     //
@@ -54,11 +54,12 @@ public class ListSamples extends AbstractDefaultTestCommand
     {
         final GroupSelectionWidget groupSelector =
                 (GroupSelectionWidget) GWTTestUtil.getWidgetWithID(GroupSelectionWidget.ID
-                        + SampleBrowserToolbar.ID);
+                        + GroupSelectionWidget.SUFFIX + SampleBrowserToolbar.ID);
 
         final ComboBox<SampleTypeModel> sampleTypeSelector =
                 (SampleTypeSelectionWidget) GWTTestUtil
-                        .getWidgetWithID(SampleTypeSelectionWidget.ID + SampleBrowserToolbar.ID);
+                        .getWidgetWithID(SampleTypeSelectionWidget.ID
+                                + SampleTypeSelectionWidget.SUFFIX + SampleBrowserToolbar.ID);
 
         GWTUtils.setSelectedItem(sampleTypeSelector, ModelDataPropertyNames.CODE,
                 sampleTypeNameOrNull);

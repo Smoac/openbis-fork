@@ -20,11 +20,11 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SearchableEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 
 /**
@@ -32,22 +32,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
  * 
  * @author Christian Ribeaud
  */
-final class SearchableEntitySelectionWidget extends ComboBox<SearchableEntityModel>
+final class SearchableEntitySelectionWidget extends
+        DropDownList<SearchableEntityModel, SearchableEntity>
 {
-    private static final String PREFIX = "seachable-entity-select";
-
-    public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
 
     private final IViewContext<ICommonClientServiceAsync> commonContext;
 
     SearchableEntitySelectionWidget(final IViewContext<ICommonClientServiceAsync> commonContext)
     {
+        super(commonContext, "", "", ModelDataPropertyNames.DESCRIPTION, "", "");
         this.commonContext = commonContext;
-        setId(ID);
-        setEditable(false);
-        setDisplayField(ModelDataPropertyNames.DESCRIPTION);
-        setWidth(100);
-        setStore(new ListStore<SearchableEntityModel>());
     }
 
     /**
@@ -62,22 +56,6 @@ final class SearchableEntitySelectionWidget extends ComboBox<SearchableEntityMod
         return selection.get(0).get(ModelDataPropertyNames.OBJECT);
     }
 
-    //
-    // ComboBox
-    //
-
-    @Override
-    protected final void onRender(final Element parent, final int index)
-    {
-        super.onRender(parent, index);
-        commonContext.getService()
-                .listSearchableEntities(new ListSearchableEntities(commonContext));
-    }
-
-    //
-    // Helper classes
-    //
-
     public final class ListSearchableEntities extends AbstractAsyncCallback<List<SearchableEntity>>
     {
 
@@ -85,10 +63,6 @@ final class SearchableEntitySelectionWidget extends ComboBox<SearchableEntityMod
         {
             super(viewContext);
         }
-
-        //
-        // AbstractAsyncCallback
-        //
 
         @Override
         protected final void process(final List<SearchableEntity> result)
@@ -99,6 +73,19 @@ final class SearchableEntitySelectionWidget extends ComboBox<SearchableEntityMod
             searchableEntityStore.add(SearchableEntityModel.convert(result));
             setValue(searchableEntityStore.getAt(0));
         }
+    }
+
+    @Override
+    protected List<SearchableEntityModel> convertItems(List<SearchableEntity> result)
+    {
+        return SearchableEntityModel.convert(result);
+    }
+
+    @Override
+    protected void loadData(AbstractAsyncCallback<List<SearchableEntity>> callback)
+    {
+        commonContext.getService()
+                .listSearchableEntities(new ListSearchableEntities(commonContext));
     }
 
 }

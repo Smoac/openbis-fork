@@ -22,15 +22,13 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -41,8 +39,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
  * @author Izabela Adamczyk
  */
 public final class ProjectSelectionWidget extends
-        ComboBox<ProjectSelectionWidget.ProjectComboModel>
+        DropDownList<ProjectSelectionWidget.ProjectComboModel, Project>
 {
+    private static final String EMPTY_RESULT_SUFFIX = "projects";
+
+    private static final String CHOOSE_SUFFIX = "project";
+
     // @Private
     static final String DISPLAY_COLUMN_ID = "id";
 
@@ -62,22 +64,15 @@ public final class ProjectSelectionWidget extends
         }
     }
 
-    private static final String PREFIX = "project-select";
-
-    public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
+    public static final String SUFFIX = CHOOSE_SUFFIX;
 
     private final IViewContext<?> viewContext;
 
     public ProjectSelectionWidget(final IViewContext<?> viewContext, final String idSuffix)
     {
+        super(viewContext, SUFFIX + idSuffix, Dict.PROJECT, DISPLAY_COLUMN_ID, CHOOSE_SUFFIX,
+                EMPTY_RESULT_SUFFIX);
         this.viewContext = viewContext;
-        setId(ID + idSuffix);
-        setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_EMPTY, "projects"));
-        setDisplayField(DISPLAY_COLUMN_ID);
-        setEditable(false);
-        setWidth(200);
-        setFieldLabel(viewContext.getMessage(Dict.PROJECT));
-        setStore(new ListStore<ProjectComboModel>());
     }
 
     /**
@@ -87,25 +82,8 @@ public final class ProjectSelectionWidget extends
      */
     public final Project tryGetSelectedProject()
     {
-        return GWTUtils.tryGetSingleSelected(this);
+        return super.tryGetSelected();
     }
-
-    @Override
-    protected void onRender(final Element parent, final int pos)
-    {
-        super.onRender(parent, pos);
-        refresh();
-    }
-
-    void refresh()
-    {
-        DefaultResultSetConfig<String, Project> config = DefaultResultSetConfig.createFetchAll();
-        viewContext.getCommonService().listProjects(config, new ListProjectsCallback(viewContext));
-    }
-
-    //
-    // Helper classes
-    //
 
     public final class ListProjectsCallback extends AbstractAsyncCallback<ResultSet<Project>>
     {
@@ -119,17 +97,23 @@ public final class ProjectSelectionWidget extends
         {
             final ListStore<ProjectComboModel> projectStore = getStore();
             projectStore.removeAll();
-            projectStore.add(convert(result.getList()));
+            projectStore.add(convertItems(result.getList()));
             if (projectStore.getCount() > 0)
             {
-                setValue(projectStore.getAt(0));
-                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, "project"));
+                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, CHOOSE_SUFFIX));
+                setReadOnly(false);
+            } else
+            {
+                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_EMPTY, EMPTY_RESULT_SUFFIX));
+                setReadOnly(true);
             }
+            applyEmptyText();
             fireEvent(AppEvents.CALLBACK_FINISHED);
         }
     }
 
-    private static List<ProjectComboModel> convert(List<Project> projects)
+    @Override
+    protected List<ProjectComboModel> convertItems(List<Project> projects)
     {
         final List<ProjectComboModel> result = new ArrayList<ProjectComboModel>();
         for (final Project p : projects)
@@ -137,5 +121,12 @@ public final class ProjectSelectionWidget extends
             result.add(new ProjectComboModel(p));
         }
         return result;
+    }
+
+    @Override
+    protected void loadData(AbstractAsyncCallback<List<Project>> callback)
+    {
+        DefaultResultSetConfig<String, Project> config = DefaultResultSetConfig.createFetchAll();
+        viewContext.getCommonService().listProjects(config, new ListProjectsCallback(viewContext));
     }
 }

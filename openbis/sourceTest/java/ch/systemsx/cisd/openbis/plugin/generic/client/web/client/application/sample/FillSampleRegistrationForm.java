@@ -89,7 +89,7 @@ public final class FillSampleRegistrationForm extends AbstractDefaultTestCommand
 
         final GroupSelectionWidget groupSelector =
                 (GroupSelectionWidget) GWTTestUtil.getWidgetWithID(GroupSelectionWidget.ID
-                        + GenericSampleRegistrationForm.ID);
+                        + GroupSelectionWidget.SUFFIX + GenericSampleRegistrationForm.ID);
         GWTUtils.setSelectedItem(groupSelector, ModelDataPropertyNames.CODE, groupNameOrNull);
 
         if (StringUtils.isBlank(parent) == false)

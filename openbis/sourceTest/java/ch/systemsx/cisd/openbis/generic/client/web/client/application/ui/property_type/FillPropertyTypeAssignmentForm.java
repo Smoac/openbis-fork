@@ -69,10 +69,10 @@ public final class FillPropertyTypeAssignmentForm extends AbstractDefaultTestCom
     {
         if (entityKind.equals(EntityKind.EXPERIMENT))
         {
-            addCallbackClass(ExperimentTypeSelectionWidget.ListExperimentTypesCallback.class);
+            addCallbackClass(ExperimentTypeSelectionWidget.ListItemsCallback.class);
         } else if (entityKind.equals(EntityKind.SAMPLE))
         {
-            addCallbackClass(SampleTypeSelectionWidget.ListSampleTypesCallback.class);
+            addCallbackClass(SampleTypeSelectionWidget.ListItemsCallback.class);
         } else
         {
             throw new IllegalArgumentException();
@@ -94,7 +94,8 @@ public final class FillPropertyTypeAssignmentForm extends AbstractDefaultTestCom
     {
         final PropertyTypeSelectionWidget propertyTypeSelector =
                 (PropertyTypeSelectionWidget) GWTTestUtil
-                        .getWidgetWithID(PropertyTypeSelectionWidget.ID + widgetId
+                        .getWidgetWithID(PropertyTypeSelectionWidget.ID
+                                + PropertyTypeSelectionWidget.SUFFIX + widgetId
                                 + PropertyTypeAssignmentForm.PROPERTY_TYPE_ID_SUFFIX);
         GWTUtils.setSelectedItem(propertyTypeSelector, ModelDataPropertyNames.CODE,
                 propertyTypeCode);
@@ -130,6 +131,7 @@ public final class FillPropertyTypeAssignmentForm extends AbstractDefaultTestCom
             final ComboBox<ExperimentTypeModel> experimentTypeSelector =
                     (ExperimentTypeSelectionWidget) GWTTestUtil
                             .getWidgetWithID(ExperimentTypeSelectionWidget.ID
+                                    + ExperimentTypeSelectionWidget.SUFFIX
                                     + PropertyTypeAssignmentForm.EXPERIMENT_TYPE_ID_SUFFIX);
             GWTUtils.setSelectedItem(experimentTypeSelector, ModelDataPropertyNames.CODE,
                     entityTypeCode);
@@ -140,6 +142,7 @@ public final class FillPropertyTypeAssignmentForm extends AbstractDefaultTestCom
             final ComboBox<SampleTypeModel> sampleTypeSelector =
                     (SampleTypeSelectionWidget) GWTTestUtil
                             .getWidgetWithID(SampleTypeSelectionWidget.ID
+                                    + SampleTypeSelectionWidget.SUFFIX
                                     + PropertyTypeAssignmentForm.SAMPLE_TYPE_ID_SUFFIX);
             GWTUtils.setSelectedItem(sampleTypeSelector, ModelDataPropertyNames.CODE,
                     entityTypeCode);

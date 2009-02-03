@@ -36,7 +36,7 @@ public final class ChooseTypeOfNewExperiment extends AbstractDefaultTestCommand
     public ChooseTypeOfNewExperiment(final String experimentTypeNameOrNull)
     {
         this.experimentTypeNameOrNull = experimentTypeNameOrNull;
-        addCallbackClass(ExperimentTypeSelectionWidget.ListExperimentTypesCallback.class);
+        addCallbackClass(ExperimentTypeSelectionWidget.ListItemsCallback.class);
     }
 
     //
@@ -48,6 +48,7 @@ public final class ChooseTypeOfNewExperiment extends AbstractDefaultTestCommand
         final ComboBox<ExperimentTypeModel> experimentTypeSelector =
                 (ExperimentTypeSelectionWidget) GWTTestUtil
                         .getWidgetWithID(ExperimentTypeSelectionWidget.ID
+                                + ExperimentTypeSelectionWidget.SUFFIX
                                 + ExperimentRegistrationPanel.ID);
         GWTUtils.setSelectedItem(experimentTypeSelector, ModelDataPropertyNames.CODE,
                 experimentTypeNameOrNull);

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget
 
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.google.gwt.user.client.Element;
 
 /**
  * Dialog with YES and NO buttons.
@@ -47,6 +48,12 @@ public abstract class ConfirmationDialog extends Dialog
         {
             onNo();
         }
+    }
+
+    @Override
+    protected void onRender(Element parent, int pos)
+    {
+        super.onRender(parent, pos);
     }
 
     abstract protected void onYes();

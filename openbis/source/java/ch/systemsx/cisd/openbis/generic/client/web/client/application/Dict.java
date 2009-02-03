@@ -373,5 +373,8 @@ public abstract class Dict
 
     public static final String ENTITY_TYPE_ASSIGNMENTS = "entity_type_assignments";
 
+    public static final String COMBO_BOX_EXPECTED_VALUE_FROM_THE_LIST =
+            "combo_box_expected_value_from_the_list";
+
     // ----- end generic ------------------
 }

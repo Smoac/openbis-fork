@@ -16,11 +16,11 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
-import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
@@ -34,7 +34,7 @@ public class ExperimentSamplesSection extends SectionPanel
 {
     static final String PREFIX = "experiment-samples-section_";
 
-    private Component grid;
+    private DisposableComponent sampleDisposableGrid;
 
     public ExperimentSamplesSection(final Experiment experiment, final IViewContext<?> viewContext)
     {
@@ -42,10 +42,17 @@ public class ExperimentSamplesSection extends SectionPanel
         setLayout(new RowLayout());
         ListSampleCriteria criteria = new ListSampleCriteria();
         criteria.setExperimentIdentifier(experiment.getIdentifier());
-        grid =
-                SampleBrowserGrid.create(viewContext.getCommonViewContext(), criteria,
-                        PREFIX + experiment.getIdentifier()).getComponent();
-        add(grid, new RowData(-1, 200));
+        sampleDisposableGrid =
+                SampleBrowserGrid.create(viewContext.getCommonViewContext(), criteria, PREFIX
+                        + experiment.getIdentifier());
+        add(sampleDisposableGrid.getComponent(), new RowData(-1, 200));
+    }
+
+    @Override
+    protected void onDetach()
+    {
+        sampleDisposableGrid.dispose();
+        super.onDetach();
     }
 
 }

@@ -20,6 +20,7 @@ var common = {
   
   combobox_empty: "- No {0} found -",
   combobox_choose: "Choose {0}...",
+  combo_box_expected_value_from_the_list: "Value from the list required",
   invalid_code_message: "{0} contains invalid characters. Allowed characters are: letters, numbers, hyphen (\"-\") and underscore (\"_\").",
   
   //

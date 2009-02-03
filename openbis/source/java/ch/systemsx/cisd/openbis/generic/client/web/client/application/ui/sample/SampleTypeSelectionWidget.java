@@ -18,29 +18,23 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleTypeModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 
 /**
  * {@link ComboBox} containing list of sample types loaded from the server.
  * 
  * @author Izabela Adamczyk
  */
-public final class SampleTypeSelectionWidget extends ComboBox<SampleTypeModel>
+public final class SampleTypeSelectionWidget extends DropDownList<SampleTypeModel, SampleType>
 {
-    private static final String PREFIX = "sample-type-select_";
-
-    public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
+    public static final String SUFFIX = "sample-type";
 
     private final IViewContext<?> viewContext;
 
@@ -49,15 +43,10 @@ public final class SampleTypeSelectionWidget extends ComboBox<SampleTypeModel>
     public SampleTypeSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
             final boolean onlyListable)
     {
+        super(viewContext, SUFFIX + idSuffix, Dict.SAMPLE_TYPE, ModelDataPropertyNames.CODE,
+                "sample type", "sample types");
         this.viewContext = viewContext;
         this.onlyListable = onlyListable;
-        setId(ID + idSuffix);
-        setEnabled(false);
-        setDisplayField(ModelDataPropertyNames.CODE);
-        setEditable(false);
-        setWidth(150);
-        setFieldLabel(viewContext.getMessage(Dict.SAMPLE_TYPE));
-        setStore(new ListStore<SampleTypeModel>());
     }
 
     /**
@@ -67,49 +56,19 @@ public final class SampleTypeSelectionWidget extends ComboBox<SampleTypeModel>
      */
     public final SampleType tryGetSelectedSampleType()
     {
-        return GWTUtils.tryGetSingleSelected(this);
+        return super.tryGetSelected();
     }
 
     @Override
-    protected void onRender(final Element parent, final int pos)
+    protected List<SampleTypeModel> convertItems(List<SampleType> result)
     {
-        super.onRender(parent, pos);
-        refresh();
+        return SampleTypeModel.convert(result, onlyListable);
     }
 
-    void refresh()
+    @Override
+    protected void loadData(AbstractAsyncCallback<List<SampleType>> callback)
     {
-        viewContext.getCommonService().listSampleTypes(new ListSampleTypesCallback(viewContext));
-    }
+        viewContext.getCommonService().listSampleTypes(callback);
 
-    //
-    // Helper classes
-    //
-
-    public final class ListSampleTypesCallback extends AbstractAsyncCallback<List<SampleType>>
-    {
-
-        ListSampleTypesCallback(final IViewContext<?> viewContext)
-        {
-            super(viewContext);
-        }
-
-        @Override
-        protected void process(final List<SampleType> result)
-        {
-            final ListStore<SampleTypeModel> sampleTypeStore = getStore();
-            sampleTypeStore.removeAll();
-            sampleTypeStore.add(SampleTypeModel.convert(result, onlyListable));
-            if (sampleTypeStore.getCount() > 0)
-            {
-                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, "sample type"));
-            } else
-            {
-                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_EMPTY, "sample types"));
-            }
-            setAllowBlank(false);
-            setEnabled(true);
-            applyEmptyText();
-        }
     }
 }

@@ -18,44 +18,35 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experi
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExperimentTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.DropDownList;
 
 /**
  * {@link ComboBox} containing list of experiment types loaded from the server.
  * 
  * @author Izabela Adamczyk
  */
-public final class ExperimentTypeSelectionWidget extends ComboBox<ExperimentTypeModel>
+public final class ExperimentTypeSelectionWidget extends
+        DropDownList<ExperimentTypeModel, ExperimentType>
 {
-    private static final String PREFIX = "experiment-type-select_";
-
-    public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
+    public static final String SUFFIX = "experiment-type";
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     public ExperimentTypeSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext,
             final String idSuffix)
     {
+        super(viewContext, SUFFIX + idSuffix, Dict.EXPERIMENT_TYPE, ModelDataPropertyNames.CODE,
+                "experiment type", "experiment types");
         this.viewContext = viewContext;
-        setId(ID + idSuffix);
-        setEnabled(false);
-        setDisplayField(ModelDataPropertyNames.CODE);
-        setEditable(false);
-        setWidth(180);
-        setFieldLabel(viewContext.getMessage(Dict.EXPERIMENT_TYPE));
-        setStore(new ListStore<ExperimentTypeModel>());
     }
 
     /**
@@ -65,48 +56,18 @@ public final class ExperimentTypeSelectionWidget extends ComboBox<ExperimentType
      */
     public final ExperimentType tryGetSelectedExperimentType()
     {
-        return GWTUtils.tryGetSingleSelected(this);
+        return super.tryGetSelected();
     }
 
     @Override
-    protected void onRender(final Element parent, final int pos)
+    protected List<ExperimentTypeModel> convertItems(List<ExperimentType> result)
     {
-        super.onRender(parent, pos);
-        refresh();
+        return ExperimentTypeModel.convert(result);
     }
 
-    void refresh()
+    @Override
+    protected void loadData(AbstractAsyncCallback<List<ExperimentType>> callback)
     {
-        viewContext.getService().listExperimentTypes(new ListExperimentTypesCallback(viewContext));
-    }
-
-    //
-    // Helper classes
-    //
-
-    public final class ListExperimentTypesCallback extends
-            AbstractAsyncCallback<List<ExperimentType>>
-    {
-        ListExperimentTypesCallback(final IViewContext<ICommonClientServiceAsync> viewContext)
-        {
-            super(viewContext);
-        }
-
-        @Override
-        protected void process(final List<ExperimentType> result)
-        {
-            final ListStore<ExperimentTypeModel> experimentTypeStore = getStore();
-            experimentTypeStore.removeAll();
-            experimentTypeStore.add(ExperimentTypeModel.convert(result));
-            if (experimentTypeStore.getCount() > 0)
-            {
-                setEnabled(true);
-                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, "experiment type"));
-            } else
-            {
-                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_EMPTY, "experiment types"));
-            }
-            applyEmptyText();
-        }
+        viewContext.getService().listExperimentTypes(callback);
     }
 }

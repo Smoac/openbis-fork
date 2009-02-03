@@ -77,7 +77,7 @@ public final class FillExperimentRegistrationForm extends AbstractDefaultTestCom
 
         final ProjectSelectionWidget projectSelector =
                 (ProjectSelectionWidget) GWTTestUtil.getWidgetWithID(ProjectSelectionWidget.ID
-                        + GenericExperimentRegistrationForm.ID);
+                        + ProjectSelectionWidget.SUFFIX + GenericExperimentRegistrationForm.ID);
         GWTUtils.setSelectedItem(projectSelector, ModelDataPropertyNames.CODE, projectNameOrNull);
 
         final TextArea samplesField =

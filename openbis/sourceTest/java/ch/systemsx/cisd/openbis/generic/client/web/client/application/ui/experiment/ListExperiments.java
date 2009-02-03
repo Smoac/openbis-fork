@@ -42,7 +42,7 @@ public class ListExperiments extends AbstractDefaultTestCommand
         this.projectCodeOrNull = projectNameOrNull;
         this.experimentTypeName = experimentTypeNameOrNull;
         addCallbackClass(ProjectSelectionWidget.ListProjectsCallback.class);
-        addCallbackClass(ExperimentTypeSelectionWidget.ListExperimentTypesCallback.class);
+        addCallbackClass(ExperimentTypeSelectionWidget.ListItemsCallback.class);
     }
 
     //
@@ -53,11 +53,12 @@ public class ListExperiments extends AbstractDefaultTestCommand
     {
         final ProjectSelectionWidget project =
                 (ProjectSelectionWidget) GWTTestUtil.getWidgetWithID(ProjectSelectionWidget.ID
-                        + ExperimentBrowserToolbar.ID);
+                        + ProjectSelectionWidget.SUFFIX + ExperimentBrowserToolbar.ID);
 
         final ComboBox<ExperimentTypeModel> experimentTypeSelector =
                 (ExperimentTypeSelectionWidget) GWTTestUtil
                         .getWidgetWithID(ExperimentTypeSelectionWidget.ID
+                                + ExperimentTypeSelectionWidget.SUFFIX
                                 + ExperimentBrowserToolbar.ID);
 
         GWTUtils.setSelectedItem(experimentTypeSelector, ModelDataPropertyNames.CODE,

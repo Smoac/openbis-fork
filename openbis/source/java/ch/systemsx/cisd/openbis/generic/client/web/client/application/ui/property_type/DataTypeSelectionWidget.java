@@ -29,37 +29,37 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DataTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.DropDownList;
 
 /**
  * A {@link ComboBox} extension for selecting a {@link DataType}.
  * 
  * @author Christian Ribeaud
  */
-public final class DataTypeSelectionWidget extends ComboBox<DataTypeModel>
+public final class DataTypeSelectionWidget extends DropDownList<DataTypeModel, DataType>
 {
-    private static final String PREFIX = "data-type-select";
+    private static final String EMPTY_RESULT = "data types";
 
-    public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
+    private static final String CHOOSE = "data type";
+
+    public static final String SUFFIX = "data-type";
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     public DataTypeSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext,
             final boolean mandatory)
     {
+        super(viewContext, SUFFIX, Dict.DATA_TYPE, ModelDataPropertyNames.CODE, CHOOSE,
+                EMPTY_RESULT);
         this.viewContext = viewContext;
-        setId(ID);
-        setDisplayField(ModelDataPropertyNames.CODE);
-        setEditable(false);
-        setEnabled(false);
-        setWidth(100);
-        setFieldLabel(viewContext.getMessage(Dict.DATA_TYPE));
         if (mandatory)
         {
             setLabelSeparator(GenericConstants.MANDATORY_LABEL_SEPARATOR);
             setAllowBlank(false);
+        } else
+        {
+            setAllowBlank(true);
         }
-        setStore(new ListStore<DataTypeModel>());
     }
 
     /**
@@ -69,28 +69,8 @@ public final class DataTypeSelectionWidget extends ComboBox<DataTypeModel>
      */
     public final DataType tryGetSelectedDataType()
     {
-        return GWTUtils.tryGetSingleSelected(this);
+        return super.tryGetSelected();
     }
-
-    private final void loadDataTypes()
-    {
-        viewContext.getService().listDataTypes(new ListDataTypesCallback(viewContext));
-    }
-
-    //
-    // ComboBox
-    //
-
-    @Override
-    protected final void afterRender()
-    {
-        super.afterRender();
-        loadDataTypes();
-    }
-
-    //
-    // Helper classes
-    //
 
     public final class ListDataTypesCallback extends AbstractAsyncCallback<List<DataType>>
     {
@@ -99,25 +79,34 @@ public final class DataTypeSelectionWidget extends ComboBox<DataTypeModel>
             super(viewContext);
         }
 
-        //
-        // AbstractAsyncCallback
-        //
-
         @Override
         protected final void process(final List<DataType> result)
         {
             final ListStore<DataTypeModel> dataTypeStore = getStore();
             dataTypeStore.removeAll();
-            dataTypeStore.add(DataTypeModel.convert(result));
-            setEnabled(true);
+            dataTypeStore.add(convertItems(result));
             if (dataTypeStore.getCount() > 0)
             {
-                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, "data type"));
+                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, CHOOSE));
+                setReadOnly(false);
             } else
             {
-                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_EMPTY, "data types"));
+                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_EMPTY, EMPTY_RESULT));
+                setReadOnly(true);
             }
             applyEmptyText();
         }
+    }
+
+    @Override
+    protected List<DataTypeModel> convertItems(List<DataType> result)
+    {
+        return DataTypeModel.convert(result);
+    }
+
+    @Override
+    protected void loadData(AbstractAsyncCallback<List<DataType>> callback)
+    {
+        viewContext.getService().listDataTypes(new ListDataTypesCallback(viewContext));
     }
 }

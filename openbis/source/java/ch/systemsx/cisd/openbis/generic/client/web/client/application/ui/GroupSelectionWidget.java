@@ -20,16 +20,14 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.GroupModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.User;
@@ -39,11 +37,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.User;
  * 
  * @author Izabela Adamczyk
  */
-public final class GroupSelectionWidget extends ComboBox<GroupModel>
+public final class GroupSelectionWidget extends DropDownList<GroupModel, Group>
 {
-    private static final String PREFIX = "group-select";
+    private static final String EMPTY_RESULT_SUFFIX = "groups";
 
-    public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
+    private static final String CHOOSE_SUFFIX = "group";
+
+    public static final String SUFFIX = "group-select";
 
     private final IViewContext<?> viewContext;
 
@@ -59,15 +59,10 @@ public final class GroupSelectionWidget extends ComboBox<GroupModel>
     public GroupSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
             boolean addShared)
     {
+        super(viewContext, SUFFIX + idSuffix, Dict.GROUP, ModelDataPropertyNames.CODE,
+                CHOOSE_SUFFIX, EMPTY_RESULT_SUFFIX);
         this.viewContext = viewContext;
         this.addShared = addShared;
-        setId(ID + idSuffix);
-        setDisplayField(ModelDataPropertyNames.CODE);
-        setEditable(false);
-        setEnabled(false);
-        setWidth(150);
-        setFieldLabel(viewContext.getMessage(Dict.GROUP));
-        setStore(new ListStore<GroupModel>());
     }
 
     /**
@@ -77,28 +72,8 @@ public final class GroupSelectionWidget extends ComboBox<GroupModel>
      */
     public final Group tryGetSelectedGroup()
     {
-        return GWTUtils.tryGetSingleSelected(this);
+        return super.tryGetSelected();
     }
-
-    void refresh()
-    {
-        viewContext.getCommonService().listGroups(null, new ListGroupsCallback(viewContext));
-    }
-
-    //
-    // ComboBox
-    //
-
-    @Override
-    protected void onRender(final Element parent, final int pos)
-    {
-        super.onRender(parent, pos);
-        refresh();
-    }
-
-    //
-    // Helper classes
-    //
 
     private Group createSharedGroup()
     {
@@ -114,10 +89,6 @@ public final class GroupSelectionWidget extends ComboBox<GroupModel>
             super(viewContext);
         }
 
-        //
-        // AbstractAsyncCallback
-        //
-
         @Override
         protected final void process(final List<Group> result)
         {
@@ -127,12 +98,11 @@ public final class GroupSelectionWidget extends ComboBox<GroupModel>
             {
                 groupStore.add(new GroupModel(createSharedGroup()));
             }
-            groupStore.add(GroupModel.convert(result));
+            groupStore.add(convertItems(result));
             if (groupStore.getCount() > 0)
             {
-                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, "group"));
-                applyEmptyText();
-                setEnabled(true);
+                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, CHOOSE_SUFFIX));
+                setReadOnly(false);
                 final int homeGroupIndex = getHomeGroupIndex(groupStore);
                 if (homeGroupIndex > -1)
                 {
@@ -140,8 +110,8 @@ public final class GroupSelectionWidget extends ComboBox<GroupModel>
                 }
             } else
             {
-                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_EMPTY, "groups"));
-                applyEmptyText();
+                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_EMPTY, EMPTY_RESULT_SUFFIX));
+                setReadOnly(true);
             }
             fireEvent(AppEvents.CALLBACK_FINISHED);
         }
@@ -163,5 +133,18 @@ public final class GroupSelectionWidget extends ComboBox<GroupModel>
             }
             return -1;
         }
+    }
+
+    @Override
+    protected List<GroupModel> convertItems(List<Group> result)
+    {
+        return GroupModel.convert(result);
+    }
+
+    @Override
+    protected void loadData(AbstractAsyncCallback<List<Group>> callback)
+    {
+        viewContext.getCommonService().listGroups(null, new ListGroupsCallback(viewContext));
+
     }
 }

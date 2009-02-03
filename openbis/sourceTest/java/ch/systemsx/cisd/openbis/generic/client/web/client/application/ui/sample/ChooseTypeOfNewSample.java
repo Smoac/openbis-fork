@@ -36,7 +36,7 @@ public final class ChooseTypeOfNewSample extends AbstractDefaultTestCommand
     public ChooseTypeOfNewSample(final String sampleTypeNameOrNull)
     {
         this.sampleTypeNameOrNull = sampleTypeNameOrNull;
-        addCallbackClass(SampleTypeSelectionWidget.ListSampleTypesCallback.class);
+        addCallbackClass(SampleTypeSelectionWidget.ListItemsCallback.class);
     }
 
     //
@@ -47,7 +47,8 @@ public final class ChooseTypeOfNewSample extends AbstractDefaultTestCommand
     {
         final ComboBox<SampleTypeModel> sampleTypeSelector =
                 (SampleTypeSelectionWidget) GWTTestUtil
-                        .getWidgetWithID(SampleTypeSelectionWidget.ID + SampleRegistrationPanel.ID);
+                        .getWidgetWithID(SampleTypeSelectionWidget.ID
+                                + SampleTypeSelectionWidget.SUFFIX + SampleRegistrationPanel.ID);
         GWTUtils.setSelectedItem(sampleTypeSelector, ModelDataPropertyNames.CODE,
                 sampleTypeNameOrNull);
     }

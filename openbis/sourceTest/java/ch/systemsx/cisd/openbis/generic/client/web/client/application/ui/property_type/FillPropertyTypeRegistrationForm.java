@@ -67,7 +67,9 @@ public final class FillPropertyTypeRegistrationForm extends AbstractDefaultTestC
         GWTTestUtil.setTextFieldValue(PropertyTypeRegistrationForm.ID + "_label", label);
         GWTTestUtil
                 .setTextFieldValue(PropertyTypeRegistrationForm.ID + "_description", description);
-        final Widget widgetWithID = GWTTestUtil.getWidgetWithID(DataTypeSelectionWidget.ID);
+        final Widget widgetWithID =
+                GWTTestUtil.getWidgetWithID(DataTypeSelectionWidget.ID
+                        + DataTypeSelectionWidget.SUFFIX);
         assertTrue(widgetWithID instanceof DataTypeSelectionWidget);
         final ComboBox<DataTypeModel> dataTypeSelectionWidget =
                 (DataTypeSelectionWidget) widgetWithID;
