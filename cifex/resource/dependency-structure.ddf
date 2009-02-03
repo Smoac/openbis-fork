@@ -1,4 +1,4 @@
-show allResults
+#show allResults
 
 {package} = ch.systemsx.cisd.cifex
 {client} = ${package}.client
