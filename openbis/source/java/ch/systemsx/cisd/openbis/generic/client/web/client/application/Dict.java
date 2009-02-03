@@ -50,6 +50,8 @@ public abstract class Dict
 
     public static final String REGISTRATION_DATE = "registration_date";
 
+    public static final String NOT_IMPLEMENTED = "not_implemented";
+
     //
     // Field
     //
@@ -93,6 +95,8 @@ public abstract class Dict
     public static final String BUTTON_REFRESH = "button_refresh";
 
     public static final String BUTTON_SHOW = "button_show";
+
+    public static final String BUTTON_SHOW_DETAILS = "button_show_details";
 
     public static final String BUTTON_EXPORT_DATA = "button_exportData";
 
@@ -161,6 +165,14 @@ public abstract class Dict
     public static final String MATCHING_FIELD = "matching_field";
 
     public static final String TOO_GENERIC = "too_generic";
+
+    //
+    // Sample & Experiment Browsers
+    //
+
+    public static final String BUTTON_ASSIGN_PROPERTY = "button_assign_property";
+
+    public static final String BUTTON_INVALIDATE = "button_invalidate";
 
     //
     // Sample Browser
