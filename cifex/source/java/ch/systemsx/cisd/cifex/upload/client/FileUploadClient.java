@@ -58,7 +58,6 @@ import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean;
 
 import ch.systemsx.cisd.cifex.upload.IUploadService;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 
@@ -332,13 +331,16 @@ public class FileUploadClient implements IUploadListener
     {
         if (serviceURL.startsWith("https"))
         {
-            Certificate certificate = getServerCertificate(serviceURL);
+            Certificate[] certificates = getServerCertificate(serviceURL);
             KeyStore keyStore;
             try
             {
                 keyStore = KeyStore.getInstance("JKS");
                 keyStore.load(null, null);
-                keyStore.setCertificateEntry("cifex", certificate);
+                for (int i = 0; i < certificates.length; i++)
+                {
+                    keyStore.setCertificateEntry("cifex" + i, certificates[i]);
+                }
             } catch (Exception ex)
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -346,8 +348,10 @@ public class FileUploadClient implements IUploadListener
             FileOutputStream fileOutputStream = null;
             try
             {
-                String tmpDir = System.getProperty("java.io.tmpdir");
-                File keyStoreFile = new File(tmpDir, "CIFEX-keystore");
+                String homeDir = System.getProperty("user.home");
+                File cifexDir = new File(homeDir, ".cifex");
+                cifexDir.mkdirs();
+                File keyStoreFile = new File(cifexDir, "keystore");
                 fileOutputStream = new FileOutputStream(keyStoreFile);
                 keyStore.store(fileOutputStream, "changeit".toCharArray());
                 fileOutputStream.close();
@@ -372,7 +376,7 @@ public class FileUploadClient implements IUploadListener
         }
     }
     
-    private Certificate getServerCertificate(String serviceURL)
+    private Certificate[] getServerCertificate(String serviceURL)
     {
         workAroundABugInJava6();
         
@@ -386,12 +390,7 @@ public class FileUploadClient implements IUploadListener
             SSLSocketFactory factory = HttpsURLConnection.getDefaultSSLSocketFactory();
             socket = (SSLSocket) factory.createSocket(hostname, port);
             socket.startHandshake();
-            Certificate[] serverCerts = socket.getSession().getPeerCertificates();
-            if (serverCerts.length == 0)
-            {
-                throw new EnvironmentFailureException("At least one server certificate expected.");
-            }
-            return serverCerts[0];
+            return socket.getSession().getPeerCertificates();
         } catch (Exception e)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(e);
