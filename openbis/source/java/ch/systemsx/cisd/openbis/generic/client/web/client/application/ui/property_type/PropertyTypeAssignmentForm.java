@@ -81,17 +81,17 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer
 
     private ExperimentTypeSelectionWidget experimentTypeSelectionWidget;
 
-    PropertyTypeSelectionWidget propertyTypeSelectionWidget;
+    private PropertyTypeSelectionWidget propertyTypeSelectionWidget;
 
     private Field<?> defaultValueField;
 
     private CheckBox mandatoryCheckbox;
 
-    private InfoBox infoBox;
+    private final InfoBox infoBox;
 
-    private FormPanel formPanel;
+    private final FormPanel formPanel;
 
-    private EntityKind entityKind;
+    private final EntityKind entityKind;
 
     public PropertyTypeAssignmentForm(final IViewContext<ICommonClientServiceAsync> viewContext,
             EntityKind entityKind)
