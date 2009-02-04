@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.renderer;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.renderer;
 
 /**
  * @author Tomasz Pylak

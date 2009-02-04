@@ -18,9 +18,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
 import ch.systemsx.cisd.openbis.generic.client.shared.AbstractRegistrationHolder;
 import ch.systemsx.cisd.openbis.generic.client.shared.Person;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.renderer.SimpleDateRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.renderer.SimplePersonRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.renderer.SimpleYesNoRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.renderer.SimpleDateRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.renderer.SimplePersonRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.renderer.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IInvalidationProvider;
 
 /**
