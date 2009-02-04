@@ -161,7 +161,7 @@ var common = {
   sample_batch_registration: "Sample Batch Registration",
   sample_registration: "Sample Registration",
   sample_broser: "Sample Browser",
-  list_groups: "List Groups",
+  list_groups: "Groups Browser",
   confirm_title: "Confirmation",
   confirm_close_msg: "All unsaved changes will be lost. Are you sure?",
   

@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.D
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnFilter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddGroupDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 
@@ -125,7 +126,7 @@ public class GroupsView extends ContentPanel
         final ColumnConfig registrationDateColumnConfig = new ColumnConfig();
         registrationDateColumnConfig.setId(ModelDataPropertyNames.REGISTRATION_DATE);
         registrationDateColumnConfig.setHeader(viewContext.getMessage(Dict.REGISTRATION_DATE));
-        registrationDateColumnConfig.setWidth(ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
+        registrationDateColumnConfig.setWidth(AbstractColumnDefinitionKind.DATE_COLUMN_WIDTH);
         registrationDateColumnConfig.setAlignment(HorizontalAlignment.RIGHT);
         registrationDateColumnConfig.setDateTimeFormat(DateRenderer.DEFAULT_DATE_TIME_FORMAT);
         configs.add(registrationDateColumnConfig);
@@ -139,7 +140,7 @@ public class GroupsView extends ContentPanel
 
         final ContentPanel cp = new ContentPanel();
         cp.setBodyBorder(false);
-        cp.setHeading(viewContext.getMessage(Dict.LIST_GROUPS));
+        cp.setHeaderVisible(false);
         cp.setButtonAlign(HorizontalAlignment.CENTER);
 
         cp.setLayout(new FitLayout());

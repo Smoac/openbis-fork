@@ -337,7 +337,7 @@ public abstract class Dict
     //
     // Role View
     //
-    static final String ROLE = "role";
+    public static final String ROLE = "role";
 
     public static final String CONFIRM_ROLE_REMOVAL_MSG = "confirm_role_removal_msg";
 

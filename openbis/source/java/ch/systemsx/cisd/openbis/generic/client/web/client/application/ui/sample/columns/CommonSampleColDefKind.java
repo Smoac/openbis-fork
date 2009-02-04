@@ -79,25 +79,6 @@ public enum CommonSampleColDefKind implements IColumnDefinitionKind<Sample>
             }
         }),
 
-    REGISTRATOR(new AbstractColumnDefinitionKind<Sample>(Dict.REGISTRATOR, true)
-        {
-            @Override
-            public String tryGetValue(Sample entity)
-            {
-                return renderRegistrator(entity);
-            }
-        }),
-
-    REGISTRATION_DATE(new AbstractColumnDefinitionKind<Sample>(Dict.REGISTRATION_DATE,
-            AbstractColumnDefinitionKind.DATE_COLUMN_WIDTH, true)
-        {
-            @Override
-            public String tryGetValue(Sample entity)
-            {
-                return renderRegistrationDate(entity);
-            }
-        }),
-
     IS_INVALID(new AbstractColumnDefinitionKind<Sample>(Dict.IS_INVALID, true)
         {
             @Override
@@ -135,6 +116,25 @@ public enum CommonSampleColDefKind implements IColumnDefinitionKind<Sample>
             {
                 final Experiment exp = tryToGetExperiment(entity);
                 return exp == null ? null : exp.getProject().getCode();
+            }
+        }),
+
+    REGISTRATOR(new AbstractColumnDefinitionKind<Sample>(Dict.REGISTRATOR)
+        {
+            @Override
+            public String tryGetValue(Sample entity)
+            {
+                return renderRegistrator(entity);
+            }
+        }),
+
+    REGISTRATION_DATE(new AbstractColumnDefinitionKind<Sample>(Dict.REGISTRATION_DATE,
+            AbstractColumnDefinitionKind.DATE_COLUMN_WIDTH)
+        {
+            @Override
+            public String tryGetValue(Sample entity)
+            {
+                return renderRegistrationDate(entity);
             }
         });
 

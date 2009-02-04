@@ -55,9 +55,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 public class RolesView extends ContentPanel
 {
 
-    private static final String LIST_ROLES = "List Roles";
-
-    private static final String ROLE_LIST = "Role List";
+    private static final String LIST_ROLES = "Roles Browser";
 
     private static final String BUTTON_ADD_ROLE = "Add Role";
 
@@ -116,8 +114,8 @@ public class RolesView extends ContentPanel
 
         final ColumnConfig roleColumnConfig = new ColumnConfig();
         roleColumnConfig.setId(ModelDataPropertyNames.ROLE);
-        roleColumnConfig.setHeader(Dict.ROLE);
-        roleColumnConfig.setWidth(ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
+        roleColumnConfig.setHeader(viewContext.getMessage(Dict.ROLE));
+        roleColumnConfig.setWidth(150);
         configs.add(roleColumnConfig);
 
         final ColumnModel cm = new ColumnModel(configs);
@@ -127,7 +125,7 @@ public class RolesView extends ContentPanel
 
         final ContentPanel cp = new ContentPanel();
         cp.setBodyBorder(false);
-        cp.setHeading(ROLE_LIST);
+        cp.setHeaderVisible(false);
         cp.setButtonAlign(HorizontalAlignment.CENTER);
         final RolesView roleList = this;
 

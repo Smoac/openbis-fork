@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.D
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnFilter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddPersonDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 
 /**
@@ -54,11 +55,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUt
 public class PersonsView extends ContentPanel
 {
 
-    private static final String LIST_PERSONS = "List Persons";
+    private static final String LIST_PERSONS = "Persons Browser";
 
     private static final String BUTTON_ADD_PERSON = "Add Person";
-
-    private static final String PERSON_LIST = "Person List";
 
     private static final String EMAIL = "Email";
 
@@ -119,7 +118,7 @@ public class PersonsView extends ContentPanel
         final ColumnConfig emailNameColumnConfig = new ColumnConfig();
         emailNameColumnConfig.setId(ModelDataPropertyNames.EMAIL);
         emailNameColumnConfig.setHeader(EMAIL);
-        emailNameColumnConfig.setWidth(ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
+        emailNameColumnConfig.setWidth(200);
         configs.add(emailNameColumnConfig);
 
         final ColumnConfig registratorColumnConfig = new ColumnConfig();
@@ -131,7 +130,7 @@ public class PersonsView extends ContentPanel
         final ColumnConfig registrationDateColumnConfig = new ColumnConfig();
         registrationDateColumnConfig.setId(ModelDataPropertyNames.REGISTRATION_DATE);
         registrationDateColumnConfig.setHeader(viewContext.getMessage(Dict.REGISTRATION_DATE));
-        registrationDateColumnConfig.setWidth(ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
+        registrationDateColumnConfig.setWidth(AbstractColumnDefinitionKind.DATE_COLUMN_WIDTH);
         registrationDateColumnConfig.setAlignment(HorizontalAlignment.RIGHT);
         registrationDateColumnConfig.setDateTimeFormat(DateRenderer.DEFAULT_DATE_TIME_FORMAT);
         configs.add(registrationDateColumnConfig);
@@ -143,7 +142,7 @@ public class PersonsView extends ContentPanel
 
         final ContentPanel cp = new ContentPanel();
         cp.setBodyBorder(false);
-        cp.setHeading(PERSON_LIST);
+        cp.setHeaderVisible(false);
         cp.setButtonAlign(HorizontalAlignment.CENTER);
         final PersonsView personList = this;
 
