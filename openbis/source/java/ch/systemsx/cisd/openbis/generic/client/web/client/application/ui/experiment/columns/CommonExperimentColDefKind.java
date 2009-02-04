@@ -56,6 +56,15 @@ public enum CommonExperimentColDefKind implements IColumnDefinitionKind<Experime
             }
         }),
 
+    DATABASE_INSTANCE(new AbstractColumnDefinitionKind<Experiment>(Dict.DATABASE_INSTANCE, true)
+        {
+            @Override
+            public String tryGetValue(Experiment entity)
+            {
+                return entity.getProject().getGroup().getInstance().getCode();
+            }
+        }),
+
     GROUP(new AbstractColumnDefinitionKind<Experiment>(Dict.GROUP, true)
         {
             @Override
