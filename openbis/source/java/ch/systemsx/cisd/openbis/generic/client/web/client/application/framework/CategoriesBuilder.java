@@ -29,8 +29,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.MenuElemen
  */
 public class CategoriesBuilder
 {
-    private static final String LABEL_SEARCH = "Search";
-
     private static final String LABEL_REGISTER = "Register";
 
     private static final String LABEL_BROWSE = "Browse";
@@ -60,8 +58,6 @@ public class CategoriesBuilder
     {
 
         public static final String ADD_ROLE = "ADD_ROLE";
-
-        public static final String SEARCH = "SEARCH";
 
         public static final String ASSIGN = "ASSIGN";
 
@@ -113,8 +109,6 @@ public class CategoriesBuilder
                 .getSampleRegistration()));
         elements.add(new MenuElement(MENU_ELEMENTS.REGISTER_FROM_FILE, "Register from File",
                 provider.getSampleBatchRegistration()));
-        elements.add(new MenuElement(MENU_ELEMENTS.SEARCH, LABEL_SEARCH, provider
-                .getDummyComponent()));
         return new MenuCategory(CATEGORIES.SAMPLES, "Samples", elements);
     }
 
@@ -182,8 +176,6 @@ public class CategoriesBuilder
                 .add(new MenuElement(MENU_ELEMENTS.LIST, LABEL_BROWSE, provider.getDummyComponent()));
         elements.add(new MenuElement(MENU_ELEMENTS.REGISTER, LABEL_REGISTER, provider
                 .getDummyComponent()));
-        elements.add(new MenuElement(MENU_ELEMENTS.SEARCH, LABEL_SEARCH, provider
-                .getDummyComponent()));
         return new MenuCategory(CATEGORIES.MATERIALS, "Materials", elements);
     }
 
@@ -194,8 +186,6 @@ public class CategoriesBuilder
                 .getExperimentBrowser()));
         elements.add(new MenuElement(MENU_ELEMENTS.REGISTER, LABEL_REGISTER, provider
                 .getExperimentRegistration()));
-        elements.add(new MenuElement(MENU_ELEMENTS.SEARCH, LABEL_SEARCH, provider
-                .getDummyComponent()));
         return new MenuCategory(CATEGORIES.EXPERIMENTS, "Experiments", elements);
     }
 
