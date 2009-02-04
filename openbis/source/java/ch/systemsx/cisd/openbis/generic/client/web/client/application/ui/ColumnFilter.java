@@ -34,7 +34,7 @@ public class ColumnFilter<T extends ModelData> extends StoreFilterField<T>
     {
         this.column = columnName;
         setWidth(100);
-        setEmptyText(label + "...");
+        setEmptyText(label);
         bind(store);
     }
 
