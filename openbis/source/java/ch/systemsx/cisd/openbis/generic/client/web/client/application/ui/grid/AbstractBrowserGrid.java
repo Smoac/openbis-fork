@@ -572,6 +572,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
     {
         String title = viewContext.getMessage(Dict.BUTTON_SHOW);
         Button showButton = BrowserGridPagingToolBar.createRefreshButton(title, asActionInvoker());
+        showButton.setEnabled(false);
         container.add(new AdapterToolItem(showButton));
         return createRefreshButtonsListener(showButton);
     }
