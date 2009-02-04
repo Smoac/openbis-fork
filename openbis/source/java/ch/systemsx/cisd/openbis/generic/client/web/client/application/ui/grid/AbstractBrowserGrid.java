@@ -50,7 +50,6 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
@@ -65,6 +64,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncC
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.AbstractEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.BrowserGridPagingToolBar.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelagatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
@@ -116,13 +116,15 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
     /** @return on which fields user can set filters? */
     abstract protected List<IColumnDefinition<T>> getAvailableFilters();
 
+    // --------
+
     protected final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    // ------ private section. NOTE: it should remain unaccessible to subclasses! ---------------
-
-    private static final String LABEL_APPLY_FILTERS_HINT = "Refresh to apply filters";
+    // ------------ dictionary messages which should be moved to an external file
 
     private static final String LABEL_FILTERS = "Filters";
+
+    // ------ private section. NOTE: it should remain unaccessible to subclasses! ---------------
 
     private static final int PAGE_SIZE = 50;
 
@@ -138,6 +140,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
     private final boolean refreshAutomatically;
 
     private final List<PagingColumnFilter<T>> filterWidgets;
+
+    // --------- non-final fields
 
     // available columns configs and definitions
     private ColumnDefsAndConfigs<T> columns;
@@ -181,10 +185,10 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
         this.pagingToolbar =
                 new BrowserGridPagingToolBar(asActionInvoker(), viewContext, PAGE_SIZE);
         pagingToolbar.bind(pagingLoader);
-        this.filterWidgets = createFilterWidgets(getAvailableFilters());
+        this.filterWidgets = createFilterWidgets();
+        Component filterToolbar = createFilterToolbar(filterWidgets);
 
-        final LayoutContainer bottomToolbars = createBottomToolbars(filterWidgets, pagingToolbar);
-
+        final LayoutContainer bottomToolbars = createBottomToolbars(filterToolbar, pagingToolbar);
         this.contentPanel = createEmptyContentPanel();
         contentPanel.add(grid);
         contentPanel.setBottomComponent(bottomToolbars);
@@ -192,16 +196,35 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
 
         setLayout(new FitLayout());
         add(contentPanel);
+    }
 
+    private List<PagingColumnFilter<T>> createFilterWidgets()
+    {
+        return createFilterWidgets(getAvailableFilters(), createApplyFiltersDelagator());
+    }
+
+    private IDelagatedAction createApplyFiltersDelagator()
+    {
+        return new IDelagatedAction()
+            {
+                public void execute()
+                {
+                    if (isHardRefreshNeeded() == false)
+                    {
+                        reloadData();
+                    }
+                }
+            };
     }
 
     private static <T> List<PagingColumnFilter<T>> createFilterWidgets(
-            List<IColumnDefinition<T>> availableFilters)
+            List<IColumnDefinition<T>> availableFilters, IDelagatedAction onFilterAction)
     {
         List<PagingColumnFilter<T>> filterWidgets = new ArrayList<PagingColumnFilter<T>>();
         for (IColumnDefinition<T> columnDefinition : availableFilters)
         {
-            PagingColumnFilter<T> filterWidget = new PagingColumnFilter<T>(columnDefinition);
+            PagingColumnFilter<T> filterWidget =
+                    new PagingColumnFilter<T>(columnDefinition, onFilterAction);
             filterWidgets.add(filterWidget);
         }
         return filterWidgets;
@@ -603,10 +626,16 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
         {
             this.columns = createColumnsDefinition();
         }
+        GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
 
+        reloadData();
+    }
+
+    // refreshes the data, does not clear the cache
+    private void reloadData()
+    {
         ColumnModel columnModel = new ColumnModel(columns.getColumnConfigs());
         grid.reconfigure(grid.getStore(), columnModel);
-        GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
         pagingLoader.load(0, PAGE_SIZE);
     }
 
@@ -689,6 +718,11 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
         }
     }
 
+    private boolean isHardRefreshNeeded()
+    {
+        return resultSetKey == null;
+    }
+
     /** Export always deals with data from the previous refresh operation */
     public final void export()
     {
@@ -727,11 +761,10 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
         return contentPanel;
     }
 
-    private static <T> LayoutContainer createBottomToolbars(
-            List<PagingColumnFilter<T>> filterWidgets, Component pagingToolbar)
+    // creates filter and paging toolbars
+    private static <T> LayoutContainer createBottomToolbars(Component filterToolbar,
+            Component pagingToolbar)
     {
-        Component filterToolbar = createFilterToolbar(filterWidgets);
-
         LayoutContainer bottomToolbars = new LayoutContainer();
         bottomToolbars.setLayout(new RowLayout(com.extjs.gxt.ui.client.Style.Orientation.VERTICAL));
         bottomToolbars.add(filterToolbar);
@@ -746,14 +779,12 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
         {
             return filterToolbar;
         }
-        filterToolbar.add(new LabelToolItem(LABEL_FILTERS + ": "));
 
+        filterToolbar.add(new LabelToolItem(LABEL_FILTERS + ": "));
         for (PagingColumnFilter<T> filterWidget : filterWidgets)
         {
             filterToolbar.add(new AdapterToolItem(filterWidget));
         }
-        filterToolbar.add(new FillToolItem());
-        filterToolbar.add(new LabelToolItem(LABEL_APPLY_FILTERS_HINT));
         return filterToolbar;
     }
 

@@ -20,6 +20,7 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.widget.StoreFilterField;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelagatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridFilterInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 
@@ -32,11 +33,14 @@ public class PagingColumnFilter<T/* entity */> extends StoreFilterField<ModelDat
 {
     private final IColumnDefinition<T> filteredField;
 
-    public PagingColumnFilter(IColumnDefinition<T> filteredField)
+    private final IDelagatedAction onFilterAction;
+
+    public PagingColumnFilter(IColumnDefinition<T> filteredField, IDelagatedAction onFilterAction)
     {
         this.filteredField = filteredField;
+        this.onFilterAction = onFilterAction;
         setWidth(100);
-        String label = filteredField.getHeader() + "...";
+        String label = filteredField.getHeader();
         setEmptyText(label);
     }
 
@@ -53,11 +57,18 @@ public class PagingColumnFilter<T/* entity */> extends StoreFilterField<ModelDat
         }
     }
 
-    /** We do not use this method, data are filtered on the server side */
+    @Override
+    protected void onFilter()
+    {
+        super.onFilter();
+        onFilterAction.execute();
+    }
+
+    /** NOTE: We do not use this method, data are filtered on the server side */
     @Override
     protected boolean doSelect(Store<ModelData> store, ModelData parent, ModelData record,
             String property, String filterText)
     {
-        return true;
+        return true; // never called
     }
 }
