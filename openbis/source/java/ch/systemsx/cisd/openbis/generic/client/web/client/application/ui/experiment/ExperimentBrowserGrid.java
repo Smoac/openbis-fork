@@ -188,7 +188,6 @@ public final class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment,
     protected List<IColumnDefinition<Experiment>> getAvailableFilters()
     {
         return asColumnFilters(new CommonExperimentColDefKind[]
-            { CommonExperimentColDefKind.CODE, CommonExperimentColDefKind.GROUP,
-                    CommonExperimentColDefKind.PROJECT });
+            { CommonExperimentColDefKind.CODE, CommonExperimentColDefKind.GROUP });
     }
 }
