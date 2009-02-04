@@ -56,7 +56,7 @@ public enum CommonExperimentColDefKind implements IColumnDefinitionKind<Experime
             }
         }),
 
-    GROUP(new AbstractColumnDefinitionKind<Experiment>(Dict.GROUP)
+    GROUP(new AbstractColumnDefinitionKind<Experiment>(Dict.GROUP, true)
         {
             @Override
             public String tryGetValue(Experiment entity)
@@ -65,7 +65,7 @@ public enum CommonExperimentColDefKind implements IColumnDefinitionKind<Experime
             }
         }),
 
-    PROJECT(new AbstractColumnDefinitionKind<Experiment>(Dict.PROJECT)
+    PROJECT(new AbstractColumnDefinitionKind<Experiment>(Dict.PROJECT, true)
         {
             @Override
             public String tryGetValue(Experiment entity)
