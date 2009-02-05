@@ -31,13 +31,11 @@
                returnaddress="cisd-group@systemsx.ch" mailhost="127.0.0.1"
                xsldir="webapps/cruisecontrol/xsl/"
                css="webapps/cruisecontrol/css/cruisecontrol.css">
-          <map alias="brinn" address="bernd.rinn@systemsx.ch"/>
-          <map alias="charlesr" address="charles.ramin-wright@systemsx.ch"/>
-          <map alias="felmer" address="franz-josef.elmer@systemsx.ch"/>
-          <map alias="hadrian" address="adrian.honegger@systemsx.ch"/>
-          <map alias="ribeaudc" address="christian.ribeaud@systemsx.ch"/>
-          <map alias="tpylak" address="tomasz.pylak@systemsx.ch"/>
-	        <map alias="izabel" address="izabela.adamczyk@systemsx.ch" />
+          <map alias="brinn" address="bernd.rinn@bsse.ethz.ch"/>
+          <map alias="charlesr" address="charles.ramin-wright@bsse.ethz.ch"/>
+          <map alias="felmer" address="franz-josef.elmer@bsse.ethz.ch"/>
+          <map alias="tpylak" address="tomasz.pylak@bsse.ethz.ch"/>
+          <map alias="izabel" address="izabela.adamczyk@bsse.ethz.ch" />
         </htmlemail>
       </onfailure>
     </publishers>
@@ -67,13 +65,11 @@
                returnaddress="cisd-group@systemsx.ch" mailhost="127.0.0.1"
                xsldir="webapps/cruisecontrol/xsl/"
                css="webapps/cruisecontrol/css/cruisecontrol.css">
-          <map alias="felmer" address="franz-josef.elmer@systemsx.ch"/>
-          <map alias="brinn" address="bernd.rinn@systemsx.ch"/>
-          <map alias="charlesr" address="charles.ramin-wright@systemsx.ch"/>
-          <map alias="hadrian" address="adrian.honeggar@systemsx.ch"/>
-          <map alias="ribeaudc" address="christian.ribeaud@systemsx.ch "/>
-          <map alias="tpylak" address="tomasz.pylak@systemsx.ch"/>
-          <map alias="izabel" address="izabela.adamczyk@systemsx.ch" />
+          <map alias="felmer" address="franz-josef.elmer@bsse.ethz.ch"/>
+          <map alias="brinn" address="bernd.rinn@bsse.ethz.ch"/>
+          <map alias="charlesr" address="charles.ramin-wright@bsse.ethz.ch"/>
+          <map alias="tpylak" address="tomasz.pylak@bsse.ethz.ch"/>
+          <map alias="izabel" address="izabela.adamczyk@bsse.ethz.ch" />
         </htmlemail>
       </onfailure>
     </publishers>
@@ -101,26 +97,24 @@
                returnaddress="cisd-group@systemsx.ch" mailhost="127.0.0.1"
                xsldir="webapps/cruisecontrol/xsl/"
                css="webapps/cruisecontrol/css/cruisecontrol.css">
-          <map alias="felmer" address="franz-josef.elmer@systemsx.ch"/>
-          <map alias="brinn" address="bernd.rinn@systemsx.ch"/>
-          <map alias="charlesr" address="charles.ramin-wright@systemsx.ch"/>
-          <map alias="hadrian" address="adrian.honeggar@systemsx.ch"/>
-          <map alias="ribeaudc" address="christian.ribeaud@systemsx.ch "/>
-          <map alias="tpylak" address="tomasz.pylak@systemsx.ch"/>
-          <map alias="izabel" address="izabela.adamczyk@systemsx.ch" />
+          <map alias="felmer" address="franz-josef.elmer@bsse.ethz.ch"/>
+          <map alias="brinn" address="bernd.rinn@bsse.ethz.ch"/>
+          <map alias="charlesr" address="charles.ramin-wright@bsse.ethz.ch"/>
+          <map alias="tpylak" address="tomasz.pylak@bsse.ethz.ch"/>
+          <map alias="izabel" address="izabela.adamczyk@bsse.ethz.ch" />
         </htmlemail>
       </onfailure>
     </publishers>
   </project>
 
-  <project name="integration-tests" requiremodification="false">
+  <!--project name="integration-tests" requiremodification="false">
     <modificationset quietperiod="${quiet-period}">
       <svn localWorkingCopy="${project.trunk}"/>
     </modificationset>
     <schedule interval="60">
       <ant target="nightly-build" time="0200" buildfile="${project.trunk}/build/build.xml" anthome="apache-ant"/>
     </schedule>
-  </project>
+  </project-->
   
   <project name="build_resources">
     <schedule>
@@ -240,36 +234,11 @@
     </modificationset>
   </project>
   
-  <project name="lims_base">
-    <modificationset quietperiod="${quiet-period}">
-      <buildstatus logdir="logs/build_resources"/>
-      <buildstatus logdir="logs/libraries"/>
-      <buildstatus logdir="logs/common"/>
-      <buildstatus logdir="logs/openbis"/>
-      <svn localWorkingCopy="${project.trunk}"/>
-    </modificationset>
-  </project>
-  
   <project name="dataset_download">
     <modificationset quietperiod="${quiet-period}">
       <buildstatus logdir="logs/build_resources"/>
       <buildstatus logdir="logs/libraries"/>
       <buildstatus logdir="logs/common"/>
-      <buildstatus logdir="logs/openbis"/>
-      <svn localWorkingCopy="${project.trunk}"/>
-    </modificationset>
-  </project>
-  
-  <project name="lims">
-    <modificationset quietperiod="${quiet-period}">
-      <buildstatus logdir="logs/build_resources"/>
-      <buildstatus logdir="logs/libraries"/>
-      <buildstatus logdir="logs/common"/>
-      <buildstatus logdir="logs/authentication"/>
-      <buildstatus logdir="logs/dbmigration"/>
-      <buildstatus logdir="logs/server-common"/>
-      <buildstatus logdir="logs/dataset_download"/>
-      <buildstatus logdir="logs/lims_base"/>
       <buildstatus logdir="logs/openbis"/>
       <svn localWorkingCopy="${project.trunk}"/>
     </modificationset>
