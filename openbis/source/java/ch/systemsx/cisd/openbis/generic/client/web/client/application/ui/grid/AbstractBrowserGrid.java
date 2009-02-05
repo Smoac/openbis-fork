@@ -421,6 +421,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
         @Override
         protected final void finishOnFailure(final Throwable caught)
         {
+            grid.el().unmask();
             onComplete(false);
             delegate.onFailure(caught);
         }
@@ -551,7 +552,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
                     {
                         public void handleEvent(SelectionEvent<ModelData> se)
                         {
-                            boolean enabled = (se.selection.size() > 0);
+                            boolean enabled = se.selection.size() > 0;
                             button.setEnabled(enabled);
                         }
 
@@ -821,6 +822,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
                     exportDataKey);
             WindowUtils.openWindow(methodWithParameters.toString());
         }
+
     }
 
     // creates a map to quickly find a definition by its identifier
