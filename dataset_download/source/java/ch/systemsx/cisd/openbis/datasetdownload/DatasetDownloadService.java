@@ -31,9 +31,9 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.lims.base.IDataSetService;
-import ch.systemsx.cisd.lims.base.IWebService;
 import ch.systemsx.cisd.lims.base.RMIBasedLIMSServiceFactory;
 import ch.systemsx.cisd.lims.base.ServiceRegistry;
+import ch.systemsx.cisd.openbis.generic.shared.IWebService;
 
 /**
  * Main class of the service. Starts up jetty with {@link DatasetDownloadServlet}.
