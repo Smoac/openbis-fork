@@ -226,7 +226,7 @@ public class FileUploadClient implements IUploadListener
     private JButton createUploadButton(final FileListModel fileListModel,
             final JTextArea recipientsTextArea, final JTextArea commentTextArea)
     {
-        final JButton uploadButton = new JButton("upload");
+        final JButton uploadButton = new JButton("Upload");
         uploadButton.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent e)
