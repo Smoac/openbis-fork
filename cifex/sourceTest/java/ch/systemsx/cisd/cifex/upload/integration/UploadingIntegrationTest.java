@@ -41,23 +41,29 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class UploadingIntegrationTest extends AssertJUnit
 {
     private static final int BLOCK_SIZE = 64 * 1024;
+
     private static final String TEST_URL = "test-url";
-    private static final File PLAYGROUND = new File(System.getProperty("user.dir"), "targets/playground");
+
+    private static final File PLAYGROUND =
+            new File(System.getProperty("user.dir"), "targets/playground");
+
     private static final File CLIENT_FOLDER = new File(PLAYGROUND, "clientFolder");
+
     private static final File FILE_STORE = new File(PLAYGROUND, "file-store");
-    
+
     private static final String SMALL_FILE = "small-file";
+
     private static final long SMALL_FILE_SIZE = 10;
+
     private static final String LARGE_FILE = "large-file";
+
     private static final long LARGE_FILE_SIZE = 200;
-    
+
     private static void createRandomData(File file, long sizeInKB)
     {
         Random random = new Random();
@@ -82,13 +88,17 @@ public class UploadingIntegrationTest extends AssertJUnit
             }
         }
     }
-    
+
     private Mockery context;
+
     private IFileManager fileManager;
+
     private Uploader uploader;
+
     private IUploadListener listener;
+
     private UserDTO user;
-    
+
     @BeforeMethod
     public void setUp()
     {
@@ -101,7 +111,7 @@ public class UploadingIntegrationTest extends AssertJUnit
         uploader = new Uploader(uploadService, sessionID);
         listener = context.mock(IUploadListener.class);
         uploader.addUploadListener(listener);
-        
+
         FileUtilities.deleteRecursively(PLAYGROUND);
         CLIENT_FOLDER.mkdirs();
         FILE_STORE.mkdirs();
@@ -116,7 +126,7 @@ public class UploadingIntegrationTest extends AssertJUnit
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testNoFile() throws IOException
     {
@@ -126,12 +136,12 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(listener).uploadingFinished(true);
                 }
             });
-        
-        uploader.upload(Arrays.<File>asList(), "Albert\nGalileo", "no comment");
-        
+
+        uploader.upload(Arrays.<File> asList(), "Albert\nGalileo", "no comment");
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testUploadTwice() throws IOException
     {
@@ -141,48 +151,50 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(listener).uploadingFinished(true);
                 }
             });
-        
-        uploader.upload(Arrays.<File>asList(), "Albert\nGalileo", "no comment");
+
+        uploader.upload(Arrays.<File> asList(), "Albert\nGalileo", "no comment");
         try
         {
-            uploader.upload(Arrays.<File>asList(), "Albert\nGalileo", "no comment");
+            uploader.upload(Arrays.<File> asList(), "Albert\nGalileo", "no comment");
             fail("EnvironmentFailureException expected");
-        } catch (EnvironmentFailureException e) {
+        } catch (EnvironmentFailureException e)
+        {
             String message = e.getMessage();
-            assertTrue("Unexpected message: " + message, message.startsWith("No upload session found"));
+            assertTrue("Unexpected message: " + message, message
+                    .startsWith("No upload session found"));
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testSingleSmallFile() throws IOException
     {
         final File fileOnClient = new File(CLIENT_FOLDER, SMALL_FILE);
         final File fileInFileStore = new File(FILE_STORE, SMALL_FILE);
         context.checking(new Expectations()
-        {
             {
-                one(listener).uploadingStarted(fileOnClient, SMALL_FILE_SIZE * 1024L);
-                
-                one(fileManager).createFile(user, SMALL_FILE);
-                will(returnValue(fileInFileStore));
-                
-                one(fileManager).registerFileLinkAndInformRecipients(user, SMALL_FILE,
-                        "no comment", "application/octet-stream", fileInFileStore, new String[]
-                                                                                              { "Albert", "Galileo" }, TEST_URL);
-                
-                one(listener).uploadingProgress(0, 0);
-                one(listener).uploadingFinished(true);
-            }
-        });
-        
+                {
+                    one(listener).uploadingStarted(fileOnClient, SMALL_FILE_SIZE * 1024L);
+
+                    one(fileManager).createFile(user, SMALL_FILE);
+                    will(returnValue(fileInFileStore));
+
+                    one(fileManager).registerFileLinkAndInformRecipients(user, SMALL_FILE,
+                            "no comment", "application/octet-stream", fileInFileStore, new String[]
+                                { "Albert", "Galileo" }, TEST_URL);
+
+                    one(listener).uploadingProgress(0, 0);
+                    one(listener).uploadingFinished(true);
+                }
+            });
+
         uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", "no comment");
-        
+
         assertEqualContent(fileOnClient, fileInFileStore);
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testSingleLargeFile() throws IOException
     {
@@ -207,14 +219,15 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(listener).uploadingFinished(true);
                 }
             });
-        
+
         uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", "no comment");
-        
+
         assertEqualContent(fileOnClient, fileInFileStore);
         context.assertIsSatisfied();
     }
-    
-    private void assertEqualContent(File fileWithExpectedContent, File fileWithActualContent) throws IOException
+
+    private void assertEqualContent(File fileWithExpectedContent, File fileWithActualContent)
+            throws IOException
     {
         long length = fileWithExpectedContent.length();
         assertEquals(length, fileWithActualContent.length());
@@ -239,7 +252,7 @@ public class UploadingIntegrationTest extends AssertJUnit
             IOUtils.closeQuietly(streamWithExpectedContent);
             IOUtils.closeQuietly(streamWithActualContent);
         }
-        
+
     }
 
 }

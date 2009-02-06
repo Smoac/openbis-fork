@@ -40,27 +40,29 @@ import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.utilities.Template;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses=File2GBUploadServlet.class)
+@Friend(toClasses = File2GBUploadServlet.class)
 public class File2GBUploadServletTest extends AssertJUnit
 {
     private static final String SCHEME = "http";
+
     private static final String HOST = "server";
+
     private static final int PORT = 8080;
+
     private static final String CONTEXT_PATH = "/cifex";
+
     private static final String BASE_URL = SCHEME + "://" + HOST + ":" + PORT + CONTEXT_PATH;
 
     private static final String UPLOAD_SESSION_ID = "upload-session-id";
 
     private static final UserDTO USER = createUser("Einstein");
-    
+
     private static final class MockServletOutputStream extends ServletOutputStream
     {
         private final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        
+
         @Override
         public void write(int b) throws IOException
         {
@@ -73,7 +75,7 @@ public class File2GBUploadServletTest extends AssertJUnit
             return outputStream.toString();
         }
     }
-    
+
     private static UserDTO createUser(String userID)
     {
         UserDTO user = new UserDTO();
@@ -81,11 +83,13 @@ public class File2GBUploadServletTest extends AssertJUnit
         user.setEmail(userID + "@users.org");
         return user;
     }
-    
+
     private Mockery context;
-    
+
     private HttpServletRequest request;
+
     private HttpServletResponse response;
+
     private HttpSession httpSession;
 
     private IExtendedUploadService uploadService;
@@ -103,7 +107,7 @@ public class File2GBUploadServletTest extends AssertJUnit
         request = context.mock(HttpServletRequest.class);
         response = context.mock(HttpServletResponse.class);
         httpSession = context.mock(HttpSession.class);
-        
+
         uploadService = context.mock(IExtendedUploadService.class);
         domainModel = context.mock(IDomainModel.class);
         businessContext = context.mock(IBusinessContext.class);
@@ -112,7 +116,7 @@ public class File2GBUploadServletTest extends AssertJUnit
                 {
                     allowing(domainModel).getBusinessContext();
                     will(returnValue(businessContext));
-                    
+
                     allowing(businessContext).getOverrideURL();
                     will(returnValue(null));
                 }
@@ -127,6 +131,7 @@ public class File2GBUploadServletTest extends AssertJUnit
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
     }
+
     @Test
     public void testJNLPFile() throws Exception
     {
@@ -139,19 +144,19 @@ public class File2GBUploadServletTest extends AssertJUnit
                     will(returnValue(UPLOAD_SESSION_ID));
                 }
             });
-        
+
         createServlet().doGet(request, response);
-        
+
         Template template = File2GBUploadServlet.JNLP_TEMPLATE.createFreshCopy();
         template.bind("base-URL", BASE_URL + "/");
         template.bind("main-class", "ch.systemsx.cisd.cifex.upload.client.FileUploadClient");
         template.bind("service-URL", BASE_URL + "/cifex/file-upload-service");
         template.bind("upload-session-id", UPLOAD_SESSION_ID);
         assertEquals(template.createText(false), outputStream.toString());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     private void prepareRequest()
     {
         context.checking(new Expectations()
@@ -159,25 +164,25 @@ public class File2GBUploadServletTest extends AssertJUnit
                 {
                     one(request).getSession(false);
                     will(returnValue(httpSession));
-                    
+
                     one(httpSession).getAttribute(CIFEXServiceImpl.SESSION_NAME);
                     will(returnValue(USER));
-                    
+
                     allowing(request).getScheme();
                     will(returnValue(SCHEME));
-                    
+
                     allowing(request).getServerName();
                     will(returnValue(HOST));
-                    
+
                     allowing(request).getServerPort();
                     will(returnValue(PORT));
-                    
+
                     allowing(request).getContextPath();
                     will(returnValue(CONTEXT_PATH));
                 }
             });
     }
-    
+
     private void prepareResponse()
     {
         context.checking(new Expectations()
@@ -195,7 +200,7 @@ public class File2GBUploadServletTest extends AssertJUnit
                 }
             });
     }
-    
+
     private File2GBUploadServlet createServlet()
     {
         return new File2GBUploadServlet(uploadService, domainModel);
