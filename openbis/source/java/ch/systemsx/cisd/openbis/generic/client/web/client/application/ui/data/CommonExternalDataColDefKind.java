@@ -44,7 +44,7 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
                 return entity.getCode();
             }
         }),
-        
+
     PRODECUDRE_TYPE(new AbstractColumnDefinitionKind<ExternalData>(Dict.PROCEDURE_TYPE)
         {
             @Override
@@ -136,8 +136,17 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
             {
                 return SimpleDateRenderer.renderDate(entity.getProductionDate());
             }
+        }),
+
+    DATA_PRODUCER_CODE(new AbstractColumnDefinitionKind<ExternalData>(Dict.DATA_PRODUCER_CODE, true)
+        {
+            @Override
+            public String tryGetValue(ExternalData entity)
+            {
+                return entity.getDataProducerCode();
+            }
         });
-    
+
     /**
      * Creates column model from all definitions.
      */
@@ -156,7 +165,6 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
         }
         return new ColumnModel(configs);
     }
-
 
     private final AbstractColumnDefinitionKind<ExternalData> columnDefinitionKind;
 

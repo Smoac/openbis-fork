@@ -294,6 +294,8 @@ public abstract class Dict
 
     public static final String PRODUCTION_DATE = "production_date";
 
+    public static final String DATA_PRODUCER_CODE = "data_producer_code";
+
     //
     // Sample Registration
     //
