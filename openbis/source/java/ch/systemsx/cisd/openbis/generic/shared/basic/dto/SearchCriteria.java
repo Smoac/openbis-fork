@@ -27,9 +27,9 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public class SearchCriteria implements IsSerializable
 {
-    List<DataSetSearchCriterion> criteria;
+    private List<DataSetSearchCriterion> criteria;
 
-    CriteriaConnection connection;
+    private CriteriaConnection connection;
 
     public static enum CriteriaConnection// FIXME name
     {

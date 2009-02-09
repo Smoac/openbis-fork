@@ -25,7 +25,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public final class DataSetSearchHit implements IsSerializable
 {
-    ExternalData dataSet;
+    private ExternalData dataSet;
 
     public DataSetSearchHit()
     {
