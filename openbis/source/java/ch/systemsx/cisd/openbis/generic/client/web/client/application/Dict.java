@@ -240,6 +240,8 @@ public abstract class Dict
 
     public static final String DEFAULT_VALUE = "default_value";
 
+    public static final String DEFAULT_VALUE_TOOLTIP = "default_value_tooltip";
+
     // -------- generic plugin dictionary -------------------
 
     //

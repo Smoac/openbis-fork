@@ -144,7 +144,8 @@ var common = {
   vocabulary_terms: "Terms",
   vocabulary_terms_empty: "White space or comma separated list",
   mandatory: "Mandatory",
-  default_value: "Global Value",
+  default_value: "Initial Value",
+  default_value_tooltip: "The value of the assigned property for all currently existing entities.",
   entity_type_assignments: "{0} Type Assignment{1}",
   
   //

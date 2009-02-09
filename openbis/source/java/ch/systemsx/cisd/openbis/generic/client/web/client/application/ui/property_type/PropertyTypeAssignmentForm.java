@@ -288,6 +288,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer
                     PropertyFieldFactory.createField(propertyType, false, viewContext
                             .getMessage(Dict.DEFAULT_VALUE), createChildId(DEFAULT_VALUE_ID_PART
                             + propertyType.isInternalNamespace() + propertyType.getSimpleCode()));
+            field.setToolTip(viewContext.getMessage(Dict.DEFAULT_VALUE_TOOLTIP));
             defaultValueField = field;
             defaultValueField.show();
             formPanel.add(defaultValueField);
