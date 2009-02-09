@@ -152,7 +152,7 @@ public class CategoriesBuilder
                 .getPropertyTypeAssignmentBrowser()));
         elements.add(new MenuElement(MENU_ELEMENTS.REGISTER, LABEL_REGISTER, provider
                 .getPropertyTypeRegistration()));
-        elements.add(new MenuElement(MENU_ELEMENTS.ASSIGN_ETPT, "Assign to Expriment Type",
+        elements.add(new MenuElement(MENU_ELEMENTS.ASSIGN_ETPT, "Assign to Experiment Type",
                 provider.getPropertyTypeExperimentTypeAssignmentForm()));
         elements.add(new MenuElement(MENU_ELEMENTS.ASSIGN_STPT, "Assign to Sample Type", provider
                 .getPropertyTypeSampleTypeAssignmentForm()));

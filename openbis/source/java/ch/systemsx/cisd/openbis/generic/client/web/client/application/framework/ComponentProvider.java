@@ -341,23 +341,24 @@ final class ComponentProvider
 
     public ITabItemFactory getPropertyTypeExperimentTypeAssignmentForm()
     {
-        return getPropertyTypeAssignmentForm(EntityKind.EXPERIMENT);
+        return getPropertyTypeAssignmentForm(EntityKind.EXPERIMENT,
+                Dict.ASSIGN_EXPERIMENT_PROPERTY_TYPE);
     }
 
     public ITabItemFactory getPropertyTypeSampleTypeAssignmentForm()
     {
-        return getPropertyTypeAssignmentForm(EntityKind.SAMPLE);
+        return getPropertyTypeAssignmentForm(EntityKind.SAMPLE, Dict.ASSIGN_SAMPLE_PROPERTY_TYPE);
     }
 
-    private ITabItemFactory getPropertyTypeAssignmentForm(final EntityKind entityKind)
+    private ITabItemFactory getPropertyTypeAssignmentForm(final EntityKind entityKind,
+            final String messageKey)
     {
         return new ITabItemFactory()
             {
                 public ITabItem create()
                 {
                     Component component = new PropertyTypeAssignmentForm(viewContext, entityKind);
-                    return new DefaultTabItem(getMessage(Dict.ASSIGN_SAMPLE_PROPERTY_TYPE),
-                            component, true);
+                    return new DefaultTabItem(getMessage(messageKey), component, true);
                 }
 
                 public String getId()
