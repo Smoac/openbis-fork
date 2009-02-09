@@ -39,10 +39,12 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
+import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.validator.NotNull;
 
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 
 /**
  * <i>Persistent Entity</i> object of an entity 'procedure'.
@@ -136,6 +138,7 @@ public class ProcedurePE implements IIdHolder, Serializable
     @ManyToOne(fetch = FetchType.LAZY)
     @NotNull(message = ValidationMessages.EXPERIMENT_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN, updatable = false)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_EXPERIMENT)
     private ExperimentPE getExperimentInternal()
     {
         return experiment;

@@ -28,12 +28,15 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.Location;
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 
 /**
  * Kind of <i>Java Bean</i> or <i>Value Object</i> which contains any information we would like to
@@ -48,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.Location;
 @Table(name = TableNames.EXTERNAL_DATA_TABLE, uniqueConstraints = @UniqueConstraint(columnNames =
     { ColumnNames.LOCATION_COLUMN, ColumnNames.LOCATOR_TYPE_COLUMN }))
 @PrimaryKeyJoinColumn(name = ColumnNames.DATA_ID_COLUMN)
+@Indexed
 public final class ExternalDataPE extends DataPE
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
@@ -125,6 +129,7 @@ public final class ExternalDataPE extends DataPE
     @ManyToOne(fetch = FetchType.EAGER)
     @NotNull(message = ValidationMessages.FILE_FORMAT_TYPE_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.FILE_FORMAT_TYPE, updatable = false)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_FILE_FORMAT_TYPE)
     public FileFormatTypePE getFileFormatType()
     {
         return fileFormatType;

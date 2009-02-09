@@ -48,6 +48,7 @@ import org.hibernate.validator.NotNull;
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 
 /**
  * A <i>Persistence Entity</i> which represents a person.
@@ -93,7 +94,7 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
 
     @Column(name = ColumnNames.FIRST_NAME_COLUMN)
     @Length(max = 30, message = ValidationMessages.FIRST_NAME_LENGTH_MESSAGE)
-    @Field(index = Index.TOKENIZED, name = "First Name", store = Store.YES)
+    @Field(index = Index.TOKENIZED, name = SearchFieldConstants.PERSON_FIRST_NAME, store = Store.YES)
     public final String getFirstName()
     {
         return firstName;
@@ -106,7 +107,7 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
 
     @Column(name = ColumnNames.LAST_NAME_COLUMN)
     @Length(max = 30, message = ValidationMessages.LAST_NAME_LENGTH_MESSAGE)
-    @Field(index = Index.TOKENIZED, name = "Last Name", store = Store.YES)
+    @Field(index = Index.TOKENIZED, name = SearchFieldConstants.PERSON_LAST_NAME, store = Store.YES)
     public final String getLastName()
     {
         return lastName;

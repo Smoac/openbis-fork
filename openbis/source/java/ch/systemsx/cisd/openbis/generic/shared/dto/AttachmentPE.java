@@ -48,6 +48,7 @@ import org.hibernate.validator.NotNull;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
 /**
@@ -86,10 +87,6 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
      */
     public static class AttachmentSearchBridge implements FieldBridge
     {
-        private static final String FIELD_PREFIX = "attachment: ";
-
-        private static final String FILE_NAME_PREFIX = "attachment name: ";
-
         public void set(String name, Object/* AttachmentPE */value,
                 Document/* Lucene document */document, LuceneOptions luceneOptions)
         {
@@ -99,7 +96,8 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
 
             // index the file name. Make the field code unique, so that we can recognize which field
             // has matched the query later on
-            String attachmentNameFieldName = FILE_NAME_PREFIX + attachmentName;
+            String attachmentNameFieldName =
+                    SearchFieldConstants.PREFIX_ATTACHMENT_FILE_NAME + attachmentName;
             Field field =
                     new Field(attachmentNameFieldName, attachmentName, Field.Store.YES,
                             luceneOptions.getIndex());
@@ -109,7 +107,9 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
         private void indexFileContent(Document document, LuceneOptions luceneOptions,
                 AttachmentPE attachment, String attachmentName)
         {
-            String fieldName = FIELD_PREFIX + attachmentName + ", ver. " + attachment.getVersion();
+            String fieldName =
+                    SearchFieldConstants.PREFIX_ATTACHMENT + attachmentName + ", ver. "
+                            + attachment.getVersion();
             byte[] byteContent = attachment.getAttachmentContent().getValue();
             String fieldValue = new String(byteContent);
             Field field =

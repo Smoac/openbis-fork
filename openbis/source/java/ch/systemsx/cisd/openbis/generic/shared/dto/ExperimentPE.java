@@ -62,6 +62,7 @@ import ch.systemsx.cisd.common.collections.UnmodifiableListDecorator;
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -153,7 +154,7 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.PERSON_REGISTERER_COLUMN, updatable = false)
-    @IndexedEmbedded(prefix = SEARCH_PREFIX_REGISTRATOR)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_REGISTRATOR)
     public PersonPE getRegistrator()
     {
         return registrator;
@@ -182,7 +183,7 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
     @Length(min = 1, max = 40, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
     @Pattern(regex = AbstractIdAndCodeHolder.CODE_PATTERN, flags = java.util.regex.Pattern.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
-    @Field(index = Index.TOKENIZED, store = Store.YES)
+    @Field(index = Index.TOKENIZED, store = Store.YES, name = SearchFieldConstants.CODE)
     public String getCode()
     {
         return code;
@@ -196,6 +197,7 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
     @ManyToOne(fetch = FetchType.EAGER)
     @NotNull(message = ValidationMessages.PROJECT_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.PROJECT_COLUMN, updatable = false)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_PROJECT)
     public ProjectPE getProject()
     {
         return project;
@@ -221,6 +223,7 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
     @ManyToOne(fetch = FetchType.EAGER)
     @NotNull(message = ValidationMessages.EXPERIMENT_TYPE_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.EXPERIMENT_TYPE_COLUMN, updatable = false)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_EXPERIMENT_TYPE)
     public ExperimentTypePE getExperimentType()
     {
         return experimentType;
@@ -247,7 +250,7 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entity")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @IndexedEmbedded
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_PROPERTIES)
     private Set<ExperimentPropertyPE> getExperimentProperties()
     {
         return properties;
@@ -287,7 +290,7 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
     }
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "parentInternal")
-    @IndexedEmbedded(prefix = "")
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_EXPERIMENT_ATTACHMENTS)
     @Private
     // for Hibernate and bean conversion only
     public Set<AttachmentPE> getInternalAttachments()

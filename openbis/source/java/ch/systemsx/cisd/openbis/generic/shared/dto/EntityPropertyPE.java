@@ -80,16 +80,15 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
     public static class EntityPropertySearchBridge implements FieldBridge
     {
 
-        private static final String PROPERTY_FIELD_PREFIX = "property: ";
-
         public void set(String name, Object/* EntityPropertyPE */value,
                 Document/* Lucene document */document, LuceneOptions luceneOptions)
         {
             EntityPropertyPE entityProperty = (EntityPropertyPE) value;
             String fieldValue = entityProperty.tryGetUntypedValue();
-            String fieldName = PROPERTY_FIELD_PREFIX + getPropertyFieldName(entityProperty);
+            String fieldPrefix = name;
+            String fieldFullName = fieldPrefix + getPropertyFieldName(entityProperty);
             Field field =
-                    new Field(fieldName, fieldValue, luceneOptions.getStore(), luceneOptions
+                    new Field(fieldFullName, fieldValue, luceneOptions.getStore(), luceneOptions
                             .getIndex());
             if (luceneOptions.getBoost() != null)
             {
@@ -100,7 +99,9 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
 
         private String getPropertyFieldName(EntityPropertyPE entityProperty)
         {
-            return entityProperty.getEntityTypePropertyType().getPropertyType().getLabel();
+            PropertyTypePE propertyType =
+                    entityProperty.getEntityTypePropertyType().getPropertyType();
+            return propertyType.getCode();
         }
     }
 

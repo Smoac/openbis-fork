@@ -61,6 +61,7 @@ import org.hibernate.validator.Pattern;
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -199,6 +200,7 @@ public class SamplePE implements IIdAndCodeHolder, Comparable<SamplePE>,
     @ManyToOne(fetch = FetchType.EAGER)
     @NotNull(message = ValidationMessages.SAMPLE_TYPE_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.SAMPLE_TYPE_COLUMN, updatable = false)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_SAMPLE_TYPE)
     public SampleTypePE getSampleType()
     {
         return sampleType;
@@ -211,7 +213,7 @@ public class SamplePE implements IIdAndCodeHolder, Comparable<SamplePE>,
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entity")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @IndexedEmbedded
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_PROPERTIES)
     private Set<SamplePropertyPE> getSampleProperties()
     {
         return properties;
@@ -333,7 +335,7 @@ public class SamplePE implements IIdAndCodeHolder, Comparable<SamplePE>,
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
     @Length(min = 1, max = 40, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @Pattern(regex = AbstractIdAndCodeHolder.CODE_PATTERN, flags = java.util.regex.Pattern.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
-    @Field(index = Index.TOKENIZED, store = Store.YES)
+    @Field(index = Index.TOKENIZED, store = Store.YES, name = SearchFieldConstants.CODE)
     public String getCode()
     {
         return code;
@@ -357,7 +359,7 @@ public class SamplePE implements IIdAndCodeHolder, Comparable<SamplePE>,
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.PERSON_REGISTERER_COLUMN, updatable = false)
-    @IndexedEmbedded(prefix = SEARCH_PREFIX_REGISTRATOR)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_REGISTRATOR)
     public PersonPE getRegistrator()
     {
         return registrator;

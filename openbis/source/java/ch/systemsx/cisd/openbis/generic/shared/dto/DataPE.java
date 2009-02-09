@@ -41,11 +41,14 @@ import javax.persistence.UniqueConstraint;
 import org.hibernate.annotations.Check;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
+import org.hibernate.search.annotations.DocumentId;
+import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 
 /**
  * Kind of <i>Java Bean</i> or <i>Value Object</i> which contains any information we would like to
@@ -106,6 +109,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE>
     @ManyToOne(fetch = FetchType.EAGER)
     @NotNull(message = ValidationMessages.DATA_SET_TYPE_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.DATA_SET_TYPE_COLUMN)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_DATASET_TYPE)
     /** Returns <code>dataSetType</code>. */
     public DataSetTypePE getDataSetType()
     {
@@ -137,6 +141,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE>
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.SAMPLE_ACQUIRED_FROM)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_DATASET_SAMPLE)
     public SamplePE getSampleAcquiredFrom()
     {
         return sampleAcquiredFrom;
@@ -144,6 +149,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE>
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.SAMPLE_DERIVED_FROM)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_DATASET_SAMPLE)
     public SamplePE getSampleDerivedFrom()
     {
         return sampleDerivedFrom;
@@ -242,6 +248,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE>
     @Id
     @SequenceGenerator(name = SequenceNames.DATA_SEQUENCE, sequenceName = SequenceNames.DATA_SEQUENCE, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.DATA_SEQUENCE)
+    @DocumentId
     public Long getId()
     {
         return id;
@@ -260,6 +267,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE>
     @ManyToOne(fetch = FetchType.LAZY)
     @NotNull(message = ValidationMessages.PROCEDURE_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.PROCEDURE_PRODUCED_BY_COLUMN)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_PROCEDURE)
     public ProcedurePE getProcedure()
     {
         return procedure;

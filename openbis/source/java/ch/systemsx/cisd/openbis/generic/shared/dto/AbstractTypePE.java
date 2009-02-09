@@ -20,11 +20,15 @@ import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Store;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 
 /**
  * Abstract Persistence Entity representing a type.
@@ -72,6 +76,7 @@ public abstract class AbstractTypePE extends AbstractIdAndCodeHolder<AbstractTyp
     @Length(min = 1, max = 40, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
     @Pattern(regex = AbstractIdAndCodeHolder.CODE_PATTERN, flags = java.util.regex.Pattern.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
+    @Field(index = Index.TOKENIZED, store = Store.YES, name = SearchFieldConstants.CODE)
     public String getCode()
     {
         return code;

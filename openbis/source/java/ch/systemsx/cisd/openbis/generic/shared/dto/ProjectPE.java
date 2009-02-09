@@ -34,12 +34,17 @@ import javax.persistence.UniqueConstraint;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.IndexedEmbedded;
+import org.hibernate.search.annotations.Store;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
 /**
@@ -104,6 +109,7 @@ public final class ProjectPE extends HibernateAbstractRegistrationHolder impleme
     @ManyToOne(fetch = FetchType.EAGER)
     @NotNull(message = ValidationMessages.GROUP_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.GROUP_COLUMN, updatable = false)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_GROUP)
     public final GroupPE getGroup()
     {
         return group;
@@ -221,6 +227,7 @@ public final class ProjectPE extends HibernateAbstractRegistrationHolder impleme
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
     @Length(min = 1, max = 40, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @Pattern(regex = AbstractIdAndCodeHolder.CODE_PATTERN, flags = java.util.regex.Pattern.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
+    @Field(index = Index.TOKENIZED, store = Store.YES, name = SearchFieldConstants.CODE)
     public final String getCode()
     {
         return code;
