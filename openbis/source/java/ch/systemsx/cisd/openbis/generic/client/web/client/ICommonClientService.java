@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetSearchHit;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
@@ -40,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 /**
@@ -127,6 +129,12 @@ public interface ICommonClientService extends IClientService
 
     public String prepareExportExperiments(final TableExportCriteria<Experiment> criteria)
             throws UserFailureException;
+
+    /**
+     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for data set search hits.
+     */
+    public String prepareExportDataSetSearchHits(
+            TableExportCriteria<DataSetSearchHit> exportCriteria) throws UserFailureException;
 
     /**
      * Lists the entities matching the search.
@@ -251,5 +259,12 @@ public interface ICommonClientService extends IClientService
      * Registers given {@link Project}.
      */
     public void registerProject(final Project project) throws UserFailureException;
+
+    /**
+     * Returns {@link DataSetSearchHit} fulfilling given {@link SearchCriteria}.
+     */
+    public ResultSet<DataSetSearchHit> searchForDataSets(SearchCriteria criteria,
+            final IResultSetConfig<String, DataSetSearchHit> resultSetConfig)
+            throws UserFailureException;
 
 }

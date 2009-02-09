@@ -30,7 +30,9 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.GroupVali
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.MatchingEntityValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ProjectValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetSearchHitDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
@@ -275,5 +277,12 @@ public interface ICommonServer extends IServer
     public void registerProject(String sessionToken,
             @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class)
             ProjectIdentifier projectIdentifier, String description, String leaderId);
+
+    /**
+     * Performs an <i>Hibernate Search</i> based on given parameters.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public List<DataSetSearchHitDTO> searchForDataSets(String sessionToken, SearchCriteria criteria);
 
 }

@@ -20,6 +20,7 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetSearchHit;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
@@ -41,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 /**
@@ -121,6 +123,12 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      */
     public void prepareExportExperiments(TableExportCriteria<Experiment> exportCriteria,
             AsyncCallback<String> callback);
+
+    /**
+     * @see ICommonClientService#prepareExportDataSetSearchHits(TableExportCriteria)
+     */
+    public void prepareExportDataSetSearchHits(
+            TableExportCriteria<DataSetSearchHit> exportCriteria, AsyncCallback<String> callback);
 
     /** @see ICommonClientService#listPropertyTypes(DefaultResultSetConfig) */
     public void listPropertyTypes(DefaultResultSetConfig<String, PropertyType> criteria,
@@ -210,4 +218,12 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /** @see ICommonClientService#registerProject(Project) */
     public void registerProject(Project project,
             final AsyncCallback<Void> projectRegistrationCallback);
+
+    /**
+     * @see ICommonClientService#searchForDataSets(SearchCriteria, IResultSetConfig)
+     */
+    public void searchForDataSets(SearchCriteria criteria,
+            final IResultSetConfig<String, DataSetSearchHit> resultSetConfig,
+            final AsyncCallback<ResultSet<DataSetSearchHit>> callback);
+
 }

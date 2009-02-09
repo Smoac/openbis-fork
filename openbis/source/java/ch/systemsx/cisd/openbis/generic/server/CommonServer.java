@@ -43,7 +43,9 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetSearchHitDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -68,6 +70,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -465,5 +468,27 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         projectBO.define(projectIdentifier, description, leaderId);
         projectBO.save();
 
+    }
+
+    public List<DataSetSearchHitDTO> searchForDataSets(String sessionToken, SearchCriteria criteria)
+    {
+        // Not needed but just to refresh/check the session.
+        getSessionManager().getSession(sessionToken);
+        try
+        {
+            List<ExternalDataPE> data =
+                    listExternalData(sessionToken, SampleIdentifierFactory
+                            .parse("CISD:/CISD/3VCP1"));
+            final List<DataSetSearchHitDTO> hits = new ArrayList<DataSetSearchHitDTO>();
+            for (ExternalDataPE d : data)
+            {
+                hits.add(new DataSetSearchHitDTO(d));
+            }
+            return hits;
+            // return new ArrayList<DataSetSearchHitDTO>();// FIXME
+        } catch (final DataAccessException ex)
+        {
+            throw new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
+        }
     }
 }

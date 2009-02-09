@@ -23,7 +23,9 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetSearchHitDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
@@ -262,5 +264,11 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
             String description, String leaderId)
     {
         logTracking(sessionToken, "register_project", "PROJECT(%s)", projectIdentifier);
+    }
+
+    public List<DataSetSearchHitDTO> searchForDataSets(String sessionToken, SearchCriteria criteria)
+    {
+        logAccess(sessionToken, "search_for_datasets");
+        return null;
     }
 }
