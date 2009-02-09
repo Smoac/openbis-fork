@@ -107,14 +107,14 @@
     </publishers>
   </project>
 
-  <!--project name="integration-tests" requiremodification="false">
+  <project name="integration-tests" requiremodification="false">
     <modificationset quietperiod="${quiet-period}">
       <svn localWorkingCopy="${project.trunk}"/>
     </modificationset>
     <schedule interval="60">
       <ant target="nightly-build" time="0200" buildfile="${project.trunk}/build/build.xml" anthome="apache-ant"/>
     </schedule>
-  </project-->
+  </project>
   
   <project name="build_resources">
     <schedule>
@@ -276,6 +276,7 @@
       <buildstatus logdir="logs/common"/>
       <buildstatus logdir="logs/bds"/>
       <buildstatus logdir="logs/openbis"/>
+      <buildstatus logdir="logs/server-common"/>
       <svn localWorkingCopy="${project.trunk}"/>
     </modificationset>
   </project>
