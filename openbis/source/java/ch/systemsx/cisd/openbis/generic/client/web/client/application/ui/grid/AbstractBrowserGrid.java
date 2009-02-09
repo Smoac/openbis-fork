@@ -35,6 +35,7 @@ import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import com.extjs.gxt.ui.client.event.SelectionEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
@@ -547,11 +548,11 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
             });
         button.setEnabled(false);
         grid.getSelectionModel().addListener(Events.SelectionChange,
-                new Listener<SelectionChangedEvent<ModelData>>()
+                new Listener<SelectionEvent<ModelData>>()
                     {
-                        public void handleEvent(SelectionChangedEvent<ModelData> se)
+                        public void handleEvent(SelectionEvent<ModelData> se)
                         {
-                            boolean enabled = se.getSelection().size() > 0;
+                            boolean enabled = se.selection.size() > 0;
                             button.setEnabled(enabled);
                         }
 
