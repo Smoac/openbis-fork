@@ -23,13 +23,13 @@ import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 
 /**
  * The toolbar of experiment browser.

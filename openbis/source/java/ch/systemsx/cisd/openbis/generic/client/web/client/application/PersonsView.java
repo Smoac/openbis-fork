@@ -37,7 +37,6 @@ import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.PersonModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
@@ -46,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnF
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddPersonDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
 /**
  * Implements person listing functionality.

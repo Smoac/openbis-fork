@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;

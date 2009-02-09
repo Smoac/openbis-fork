@@ -18,10 +18,10 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.CodeWithRegistration;
-import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentProperty;
-import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.client.shared.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 
 /**

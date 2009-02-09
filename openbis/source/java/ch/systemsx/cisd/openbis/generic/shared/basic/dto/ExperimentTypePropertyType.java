@@ -14,17 +14,21 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.shared;
+package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
+
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 
 /**
- * A role that holds a identifier.
+ * The {@link EntityTypePropertyType} extension for <i>Experiment Type</i>.
  * 
- * @author Christian Ribeaud
+ * @author Izabela Adamczyk
  */
-public interface IIdentifierHolder
+public class ExperimentTypePropertyType extends EntityTypePropertyType<ExperimentType> implements
+        IsSerializable
 {
-    /**
-     * Returns a <code>String</code> that uniquely identifies this object.
-     */
-    public String getIdentifier();
+    public ExperimentTypePropertyType()
+    {
+        super(EntityKind.EXPERIMENT);
+    }
 }

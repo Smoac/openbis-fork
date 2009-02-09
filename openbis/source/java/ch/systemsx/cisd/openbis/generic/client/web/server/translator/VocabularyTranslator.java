@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.Vocabulary;
-import ch.systemsx.cisd.openbis.generic.client.shared.VocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2007 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.shared;
+package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-
+import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * A vocabulary term.
+ * Available types of entity properties.
  * 
  * @author Izabela Adamczyk
  */
-public final class VocabularyTerm extends Code<VocabularyTerm>
+public enum DataTypeCode implements IsSerializable
 {
-    public VocabularyTerm()
-    {
-    }
+    INTEGER, VARCHAR, REAL, TIMESTAMP, BOOLEAN, CONTROLLEDVOCABULARY;
 }

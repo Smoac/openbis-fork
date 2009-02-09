@@ -23,16 +23,16 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.Element;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.EntityKind;
-import ch.systemsx.cisd.openbis.generic.client.shared.EntityProperty;
-import ch.systemsx.cisd.openbis.generic.client.shared.EntityType;
-import ch.systemsx.cisd.openbis.generic.client.shared.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.PropertyFieldFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**

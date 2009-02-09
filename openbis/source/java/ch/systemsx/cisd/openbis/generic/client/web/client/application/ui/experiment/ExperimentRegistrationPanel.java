@@ -16,10 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExperimentTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.EntityRegistrationPanel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
  * The {@link EntityRegistrationPanel} extension for registering an experiment.

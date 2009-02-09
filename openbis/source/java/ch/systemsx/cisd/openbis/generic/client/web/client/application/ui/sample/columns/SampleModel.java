@@ -21,9 +21,6 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.SampleProperty;
-import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
-import ch.systemsx.cisd.openbis.generic.client.shared.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.AbstractEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
@@ -31,6 +28,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Co
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 
 /**
  * {@link ModelData} for {@link Sample}

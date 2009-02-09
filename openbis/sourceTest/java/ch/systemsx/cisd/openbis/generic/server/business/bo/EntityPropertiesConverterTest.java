@@ -25,12 +25,12 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.client.shared.DataType;
-import ch.systemsx.cisd.openbis.generic.client.shared.DataTypeCode;
-import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
-import ch.systemsx.cisd.openbis.generic.client.shared.SampleProperty;
-import ch.systemsx.cisd.openbis.generic.client.shared.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;

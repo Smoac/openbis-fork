@@ -24,10 +24,6 @@ import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.DataType;
-import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
-import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
-import ch.systemsx.cisd.openbis.generic.client.shared.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
@@ -43,6 +39,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.translator.VocabularyT
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;

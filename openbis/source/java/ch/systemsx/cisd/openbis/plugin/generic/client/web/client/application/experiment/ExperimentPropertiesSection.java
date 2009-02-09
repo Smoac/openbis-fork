@@ -19,9 +19,6 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ex
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentProperty;
-import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.client.shared.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -30,6 +27,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.propert
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
 /**
  * {@link SectionPanel} containing experiment properties.

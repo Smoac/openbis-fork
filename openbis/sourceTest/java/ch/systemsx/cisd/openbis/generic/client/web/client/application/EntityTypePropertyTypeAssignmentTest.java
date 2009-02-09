@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
@@ -30,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
  * A {@link AbstractGWTTestCase} extension to test Entity Property Type Assignment.

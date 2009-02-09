@@ -19,9 +19,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 import java.util.List;
 import java.util.Set;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
-import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
-import ch.systemsx.cisd.openbis.generic.client.shared.SampleTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;

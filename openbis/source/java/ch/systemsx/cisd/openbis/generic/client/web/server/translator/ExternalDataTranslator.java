@@ -21,14 +21,14 @@ import java.util.List;
 import java.util.Set;
 
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
-import ch.systemsx.cisd.openbis.generic.client.shared.AbstractType;
-import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ProcedureType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;

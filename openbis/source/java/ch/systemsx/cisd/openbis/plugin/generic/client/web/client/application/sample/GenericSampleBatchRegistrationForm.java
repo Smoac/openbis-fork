@@ -37,7 +37,6 @@ import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.google.gwt.user.client.ui.HTML;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -48,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.HelpHtml;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.FormPanelListener;
 

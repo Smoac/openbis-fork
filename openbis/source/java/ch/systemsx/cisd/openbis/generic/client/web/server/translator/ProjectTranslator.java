@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;

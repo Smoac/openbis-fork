@@ -21,7 +21,6 @@ import java.util.List;
 import com.extjs.gxt.ui.client.XDOM;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
@@ -36,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
  * A {@link LayoutContainer} extension which displays the matching entities.

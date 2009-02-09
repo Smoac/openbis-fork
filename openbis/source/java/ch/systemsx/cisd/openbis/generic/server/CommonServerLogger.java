@@ -20,10 +20,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
-import ch.systemsx.cisd.openbis.generic.client.shared.NewSample;
-import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
-import ch.systemsx.cisd.openbis.generic.client.shared.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;

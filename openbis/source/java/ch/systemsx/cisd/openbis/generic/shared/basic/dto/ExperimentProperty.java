@@ -14,25 +14,18 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.shared;
+package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
+
+import com.google.gwt.user.client.rpc.IsSerializable;
 
 
 /**
- * The <i>GWT</i> equivalent to {@link AbstractType}.
+ * The {@link EntityProperty} extension for <i>Experiment</i>.
  * 
- * @author Christian Ribeaud
+ * @author Izabela Adamczyk
  */
-public abstract class AbstractType extends Code<AbstractType>
+public final class ExperimentProperty extends
+        EntityProperty<ExperimentType, ExperimentTypePropertyType> implements IsSerializable
 {
-    private String description;
-
-    public final String getDescription()
-    {
-        return description;
-    }
-
-    public final void setDescription(final String description)
-    {
-        this.description = description;
-    }
+    public static final ExperimentProperty[] EMPTY_ARRAY = new ExperimentProperty[0];
 }

@@ -21,8 +21,8 @@ import java.util.ArrayList;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
 /**
  * {@link ModelData} for {@link Person}.

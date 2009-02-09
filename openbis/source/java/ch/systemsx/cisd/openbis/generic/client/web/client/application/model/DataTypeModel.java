@@ -21,7 +21,7 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.DataType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 
 /**
  * A {@link BaseModelData} extension suitable for {@link DataType}.

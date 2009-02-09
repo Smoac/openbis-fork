@@ -20,14 +20,14 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.NewExperiment;
-import ch.systemsx.cisd.openbis.generic.client.shared.NewSample;
-import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
  * Asynchronous version of {@link IGenericClientService}.

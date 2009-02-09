@@ -20,9 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;

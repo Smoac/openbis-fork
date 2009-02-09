@@ -16,11 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.renderer.SimpleYesNoRenderer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 /**
  * @author Tomasz Pylak

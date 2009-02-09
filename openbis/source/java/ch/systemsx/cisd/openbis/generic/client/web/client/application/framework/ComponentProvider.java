@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework
 
 import com.extjs.gxt.ui.client.widget.Component;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.EntityKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GroupsView;
@@ -38,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyRegistrationForm;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
  * Creates and provides GUI modules/components (such as sample browser).

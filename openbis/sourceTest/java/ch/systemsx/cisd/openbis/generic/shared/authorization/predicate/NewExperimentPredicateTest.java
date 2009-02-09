@@ -18,8 +18,8 @@ package ch.systemsx.cisd.openbis.generic.shared.authorization.predicate;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationTestCase;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 
 /**
  * Test cases for corresponding {@link NewExperimentPredicate} class.

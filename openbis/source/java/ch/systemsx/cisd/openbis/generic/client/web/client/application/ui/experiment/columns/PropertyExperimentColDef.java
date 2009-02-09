@@ -20,10 +20,10 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.EntityProperty;
-import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractPropertyColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
  * @author Tomasz Pylak

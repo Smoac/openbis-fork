@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 
 /**
  * Model extension for {@link EntityTypePropertyType}s.

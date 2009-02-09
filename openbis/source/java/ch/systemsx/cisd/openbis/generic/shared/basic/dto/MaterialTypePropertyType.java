@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.shared;
+package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 
 /**
- * The {@link EntityProperty} extension for <i>Experiment</i>.
+ * The {@link EntityTypePropertyType} extension for <i>Material Type</i>.
  * 
  * @author Izabela Adamczyk
  */
-public final class ExperimentProperty extends
-        EntityProperty<ExperimentType, ExperimentTypePropertyType> implements IsSerializable
+public class MaterialTypePropertyType extends EntityTypePropertyType<MaterialType> implements
+        IsSerializable
 {
-    public static final ExperimentProperty[] EMPTY_ARRAY = new ExperimentProperty[0];
+    public MaterialTypePropertyType()
+    {
+        super(EntityKind.MATERIAL);
+    }
 }

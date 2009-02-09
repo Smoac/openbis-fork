@@ -22,7 +22,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 
 /**
  * {@link ModelData} for {@link ExperimentType}.

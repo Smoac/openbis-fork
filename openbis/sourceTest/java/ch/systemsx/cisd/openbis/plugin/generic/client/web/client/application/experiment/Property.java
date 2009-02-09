@@ -18,9 +18,9 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ex
 
 import junit.framework.Assert;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractProperty;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IValueAssertion;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
 /**
  * Extends {@link AbstractProperty} with methods for {@link Person}

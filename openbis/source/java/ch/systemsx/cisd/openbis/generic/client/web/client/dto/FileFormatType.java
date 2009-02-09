@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.AbstractType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 
 /**

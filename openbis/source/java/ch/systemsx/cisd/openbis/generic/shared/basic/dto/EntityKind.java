@@ -14,21 +14,30 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.shared;
+package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-
 /**
- * The {@link EntityTypePropertyType} extension for <i>Material Type</i>.
+ * The <i>GWT</i> counterpart to
+ * {@link ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind}.
  * 
- * @author Izabela Adamczyk
+ * @author Christian Ribeaud
  */
-public class MaterialTypePropertyType extends EntityTypePropertyType<MaterialType> implements
-        IsSerializable
+public enum EntityKind implements IsSerializable
 {
-    public MaterialTypePropertyType()
+    MATERIAL("Material"), EXPERIMENT("Experiment"), SAMPLE("Sample");
+
+    private final String description;
+
+    private EntityKind(final String description)
     {
-        super(EntityKind.MATERIAL);
+        this.description = description;
     }
+
+    public final String getDescription()
+    {
+        return description;
+    }
+
 }

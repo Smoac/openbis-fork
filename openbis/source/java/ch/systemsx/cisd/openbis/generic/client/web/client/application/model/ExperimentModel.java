@@ -21,16 +21,16 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentProperty;
-import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.columns.CommonExperimentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.columns.PropertyExperimentColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
  * {@link ModelData} for {@link Experiment}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 ETH Zuerich, CISD
+ * Copyright 2008 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,25 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.shared;
+package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * Available types of entity properties.
+ * The <i>GWT</i> equivalent to {@link AbstractType}.
  * 
- * @author Izabela Adamczyk
+ * @author Christian Ribeaud
  */
-public enum DataTypeCode implements IsSerializable
+public abstract class AbstractType extends Code<AbstractType>
 {
-    INTEGER, VARCHAR, REAL, TIMESTAMP, BOOLEAN, CONTROLLEDVOCABULARY;
+    private String description;
+
+    public final String getDescription()
+    {
+        return description;
+    }
+
+    public final void setDescription(final String description)
+    {
+        this.description = description;
+    }
 }

@@ -20,11 +20,6 @@ import java.util.Set;
 
 import com.google.gwt.user.client.ui.Widget;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.EntityKind;
-import ch.systemsx.cisd.openbis.generic.client.shared.EntityType;
-import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.client.shared.IIdentifierHolder;
-import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -34,6 +29,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ClientPluginAdapter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentViewer;

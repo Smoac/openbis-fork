@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabu
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -31,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetCo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 /**
  * Grid displaying vocabularies.

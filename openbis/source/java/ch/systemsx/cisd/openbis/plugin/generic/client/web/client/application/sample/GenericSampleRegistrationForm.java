@@ -22,11 +22,6 @@ import java.util.List;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.EntityKind;
-import ch.systemsx.cisd.openbis.generic.client.shared.NewSample;
-import ch.systemsx.cisd.openbis.generic.client.shared.SampleProperty;
-import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
-import ch.systemsx.cisd.openbis.generic.client.shared.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -36,6 +31,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSe
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
 

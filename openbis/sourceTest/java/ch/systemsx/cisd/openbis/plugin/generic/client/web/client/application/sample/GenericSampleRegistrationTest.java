@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.NewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
@@ -32,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTab
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.FailureExpectation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 import ch.systemsx.cisd.openbis.generic.shared.IPluginCommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertyField;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.SampleTypeCode;
 

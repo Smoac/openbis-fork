@@ -14,30 +14,41 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.shared;
+package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
+
+import java.util.Date;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+
 /**
- * The <i>GWT</i> counterpart to
- * {@link ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind}.
+ * Super class of <i>DTO</i>s which hold registration data.
  * 
  * @author Christian Ribeaud
  */
-public enum EntityKind implements IsSerializable
+public abstract class AbstractRegistrationHolder implements IsSerializable
 {
-    MATERIAL("Material"), EXPERIMENT("Experiment"), SAMPLE("Sample");
+    private Date registrationDate;
 
-    private final String description;
+    private Person registrator;
 
-    private EntityKind(final String description)
+    public final Date getRegistrationDate()
     {
-        this.description = description;
+        return registrationDate;
     }
 
-    public final String getDescription()
+    public final void setRegistrationDate(final Date registrationDate)
     {
-        return description;
+        this.registrationDate = registrationDate;
     }
 
+    public final Person getRegistrator()
+    {
+        return registrator;
+    }
+
+    public final void setRegistrator(final Person registrator)
+    {
+        this.registrator = registrator;
+    }
 }

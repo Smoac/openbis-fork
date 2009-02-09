@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.renderer;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
 /**
  * @author Tomasz Pylak

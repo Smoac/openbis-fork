@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.shared;
+package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
 import java.util.Comparator;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeProvider;
 
 /**
  * A code.

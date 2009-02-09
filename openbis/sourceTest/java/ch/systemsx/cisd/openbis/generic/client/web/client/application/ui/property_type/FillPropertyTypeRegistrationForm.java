@@ -19,13 +19,13 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.proper
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.google.gwt.user.client.ui.Widget;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DataTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 
 /**
  * A {@link AbstractDefaultTestCommand} extension for filling {@link PropertyTypeRegistrationForm}.

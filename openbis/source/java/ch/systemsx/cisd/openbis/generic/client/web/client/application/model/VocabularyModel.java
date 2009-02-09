@@ -18,8 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 /**
  * A {@link BaseModelData} extension suitable for {@link Vocabulary}.

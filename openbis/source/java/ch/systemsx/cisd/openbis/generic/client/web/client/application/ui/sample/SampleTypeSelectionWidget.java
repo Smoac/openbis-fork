@@ -20,12 +20,12 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleTypeModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
  * {@link ComboBox} containing list of sample types loaded from the server.

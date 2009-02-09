@@ -14,33 +14,26 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.shared;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
+package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 
 /**
- * The {@link EntityTypePropertyType} extension for <i>Sample Type</i>.
+ * An <i>abstract</i> entity type.
  * 
- * @author Izabela Adamczyk
+ * @author Christian Ribeaud
  */
-public class SampleTypePropertyType extends EntityTypePropertyType<SampleType> implements
-        IsSerializable
+public class EntityType extends AbstractType
 {
-    public SampleTypePropertyType()
+    private DatabaseInstance databaseInstance;
+
+    public final DatabaseInstance getDatabaseInstance()
     {
-        super(EntityKind.SAMPLE);
+        return databaseInstance;
     }
 
-    private boolean isDisplayed;
-
-    public final boolean isDisplayed()
+    public final void setDatabaseInstance(final DatabaseInstance databaseInstance)
     {
-        return isDisplayed;
+        this.databaseInstance = databaseInstance;
     }
 
-    public final void setDisplayed(final boolean isDisplayed)
-    {
-        this.isDisplayed = isDisplayed;
-    }
 }

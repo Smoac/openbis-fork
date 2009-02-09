@@ -19,10 +19,10 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin;
 import java.util.HashMap;
 import java.util.Map;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.EntityKind;
-import ch.systemsx.cisd.openbis.generic.client.shared.EntityType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ClientPluginFactory;
 
 /**
@@ -48,8 +48,7 @@ public final class DefaultClientPluginFactoryProvider implements IClientPluginFa
             final IViewContext<ICommonClientServiceAsync> originalViewContext)
     {
         // Automatically generated part - START
-        registerPluginFactory(new ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory(
-                originalViewContext));
+        registerPluginFactory(new ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory(originalViewContext));
         // Automatically generated part - END
     }
 

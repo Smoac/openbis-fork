@@ -19,10 +19,10 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.client.shared.NewSample;
-import ch.systemsx.cisd.openbis.generic.client.shared.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;

@@ -14,35 +14,16 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.shared;
+package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 
 /**
- * @author Franz-Josef Elmer
+ * The <i>GWT</i> equivalent to {@link MaterialTypePE}.
+ * 
+ * @author Izabela Adamczyk
  */
-public class DatabaseInstance extends Code<DatabaseInstance>
+public class MaterialType extends EntityType
 {
-    private String uuid;
 
-    private String identifier;
-
-    public final String getUuid()
-    {
-        return uuid;
-    }
-
-    public final void setUuid(String uuid)
-    {
-        this.uuid = uuid;
-    }
-
-    public String getIdentifier()
-    {
-        return identifier;
-    }
-
-    public void setIdentifier(String identifier)
-    {
-        this.identifier = identifier;
-    }
 }

@@ -19,10 +19,10 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.renderer.SimplePersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DOMUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
 /**
  * A <i>static</i> class to render {@link Person}.

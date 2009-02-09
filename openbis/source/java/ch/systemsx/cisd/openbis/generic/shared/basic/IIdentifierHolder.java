@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.shared;
-
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
+package ch.systemsx.cisd.openbis.generic.shared.basic;
 
 /**
- * The <i>GWT</i> equivalent to {@link MaterialTypePE}.
+ * A role that holds a identifier.
  * 
- * @author Izabela Adamczyk
+ * @author Christian Ribeaud
  */
-public class MaterialType extends EntityType
+public interface IIdentifierHolder
 {
-
+    /**
+     * Returns a <code>String</code> that uniquely identifies this object.
+     */
+    public String getIdentifier();
 }

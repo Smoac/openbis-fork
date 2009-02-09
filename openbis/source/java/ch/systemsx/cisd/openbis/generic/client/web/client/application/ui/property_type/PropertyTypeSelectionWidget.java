@@ -23,7 +23,6 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -32,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Mode
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
  * {@link ComboBox} containing list of property type codes loaded from the server.

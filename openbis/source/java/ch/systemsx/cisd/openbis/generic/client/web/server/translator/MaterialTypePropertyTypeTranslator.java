@@ -19,9 +19,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 import java.util.List;
 import java.util.Set;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.MaterialType;
-import ch.systemsx.cisd.openbis.generic.client.shared.MaterialTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePropertyTypePE;

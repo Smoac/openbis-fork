@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.authorization.predicate;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;

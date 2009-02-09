@@ -14,43 +14,35 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.shared;
+package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * A class that represents a data type.
- * 
- * @author Izabela Adamczyk
+ * @author Franz-Josef Elmer
  */
-public final class DataType implements IsSerializable
+public class DatabaseInstance extends Code<DatabaseInstance>
 {
-    private DataTypeCode code;
+    private String uuid;
 
-    private String description;
+    private String identifier;
 
-    public DataType()
+    public final String getUuid()
     {
+        return uuid;
     }
 
-    public DataTypeCode getCode()
+    public final void setUuid(String uuid)
     {
-        return code;
+        this.uuid = uuid;
     }
 
-    public void setCode(final DataTypeCode code)
+    public String getIdentifier()
     {
-        this.code = code;
+        return identifier;
     }
 
-    public String getDescription()
+    public void setIdentifier(String identifier)
     {
-        return description;
+        this.identifier = identifier;
     }
-
-    public void setDescription(final String description)
-    {
-        this.description = description;
-    }
-
 }

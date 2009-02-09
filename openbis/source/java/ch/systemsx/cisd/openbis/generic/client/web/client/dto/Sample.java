@@ -20,11 +20,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.common.annotation.CollectionMapping;
-import ch.systemsx.cisd.openbis.generic.client.shared.CodeWithRegistration;
-import ch.systemsx.cisd.openbis.generic.client.shared.DatabaseInstance;
-import ch.systemsx.cisd.openbis.generic.client.shared.IIdentifierHolder;
-import ch.systemsx.cisd.openbis.generic.client.shared.SampleProperty;
-import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
  * <i>Java Bean</i> which contain information about <i>sample</i>.

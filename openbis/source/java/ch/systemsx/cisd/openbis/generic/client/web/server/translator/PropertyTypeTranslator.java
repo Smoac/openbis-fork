@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 
 /**

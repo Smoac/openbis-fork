@@ -14,26 +14,18 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.shared;
+package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
+
 
 
 /**
- * An <i>abstract</i> entity type.
+ * A vocabulary term.
  * 
- * @author Christian Ribeaud
+ * @author Izabela Adamczyk
  */
-public class EntityType extends AbstractType
+public final class VocabularyTerm extends Code<VocabularyTerm>
 {
-    private DatabaseInstance databaseInstance;
-
-    public final DatabaseInstance getDatabaseInstance()
+    public VocabularyTerm()
     {
-        return databaseInstance;
     }
-
-    public final void setDatabaseInstance(final DatabaseInstance databaseInstance)
-    {
-        this.databaseInstance = databaseInstance;
-    }
-
 }

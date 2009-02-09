@@ -20,7 +20,6 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -28,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExperimentTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.DropDownList;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 
 /**
  * {@link ComboBox} containing list of experiment types loaded from the server.

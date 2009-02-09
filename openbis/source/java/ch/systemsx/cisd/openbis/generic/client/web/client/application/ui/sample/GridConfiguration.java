@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
  * Stores the information about grid state.

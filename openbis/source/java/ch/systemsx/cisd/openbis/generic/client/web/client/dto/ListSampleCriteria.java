@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
  * Criteria for listing <i>samples</i>. This class offers 3 kinds of filters, but only one can be

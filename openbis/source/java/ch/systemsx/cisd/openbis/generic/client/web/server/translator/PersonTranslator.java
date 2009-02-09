@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**

@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.client.shared.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 
 /**

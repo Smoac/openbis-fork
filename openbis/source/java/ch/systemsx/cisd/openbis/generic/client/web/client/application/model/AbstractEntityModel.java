@@ -21,8 +21,6 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.AbstractRegistrationHolder;
-import ch.systemsx.cisd.openbis.generic.client.shared.Person;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.InvalidableWithCodeRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
@@ -32,6 +30,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IC
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IInvalidationProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractRegistrationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
 /**
  * @author Franz-Josef Elmer

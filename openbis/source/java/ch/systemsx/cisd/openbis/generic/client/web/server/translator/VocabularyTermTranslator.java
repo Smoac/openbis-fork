@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.VocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 
 /**

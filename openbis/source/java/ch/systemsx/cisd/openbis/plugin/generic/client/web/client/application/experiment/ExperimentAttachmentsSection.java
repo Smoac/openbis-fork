@@ -37,7 +37,6 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -56,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 
 /**
  * {@link SectionPanel} containing experiment attachments.

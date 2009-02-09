@@ -24,9 +24,9 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.client.shared.Vocabulary;
-import ch.systemsx.cisd.openbis.generic.client.shared.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 
 /**

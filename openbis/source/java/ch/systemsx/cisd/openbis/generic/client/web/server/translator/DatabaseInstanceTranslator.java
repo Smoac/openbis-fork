@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
-import ch.systemsx.cisd.openbis.generic.client.shared.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 
