@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * FIXME
+ * Single result of data set search.
  * 
  * @author Izabela Adamczyk
  */

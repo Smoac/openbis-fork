@@ -71,6 +71,9 @@ public class CriterionWidget extends HorizontalPanel
         add(removeButton = createRemoveButton(), tableData);
     }
 
+    /**
+     * Allows to enable/disable "remove" button.
+     */
     public void enableRemoveButton(boolean enable)
     {
         removeButton.setEnabled(enable);
@@ -121,12 +124,19 @@ public class CriterionWidget extends HorizontalPanel
         parent.removeCriterion(this);
     }
 
+    /**
+     * Resets the state of criterion <em>name</em> and <em>value</em>.
+     */
     public void reset()
     {
         valueField.reset();
         nameField.reset();
     }
 
+    /**
+     * Returns {@link DataSetSearchCriterion} for selected <em>name</em> and <em>value</em>. If
+     * either <em>name</em> or <em>value</em> is not specified, returns null.
+     */
     public DataSetSearchCriterion tryGetValue()
     {
 

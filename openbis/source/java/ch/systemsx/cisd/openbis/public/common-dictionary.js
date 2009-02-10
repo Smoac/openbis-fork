@@ -206,6 +206,8 @@ var common = {
  //
  data_set_search: "Data Set Search",
  location: "Location",
+ match_all: "Match all criteria",
+ match_any: "Match any criteria",
  
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

@@ -77,6 +77,10 @@ public final class DataSetSearchFieldsSelectionWidget extends
         return null;
     }
 
+    /**
+     * Returns {@link DataSetSearchField} connected with selected option, or null - if nothing
+     * selected.
+     */
     public DataSetSearchField tryGetSelectedField()
     {
         return (DataSetSearchField) GWTUtils.tryGetSingleSelected(this);

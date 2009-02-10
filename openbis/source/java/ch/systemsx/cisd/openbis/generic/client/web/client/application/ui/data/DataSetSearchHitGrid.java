@@ -97,7 +97,7 @@ public class DataSetSearchHitGrid extends
         }
     }
 
-    protected IColumnDefinitionKind<DataSetSearchHit>[] getStaticColumnsDefinition()
+    private IColumnDefinitionKind<DataSetSearchHit>[] getStaticColumnsDefinition()
     {
         return DataSetSearchHitColDefKind.values();
     }
@@ -129,7 +129,7 @@ public class DataSetSearchHitGrid extends
         viewContext.getService().prepareExportDataSetSearchHits(exportCriteria, callback);
     }
 
-    protected void refresh(SearchCriteria newCriteria)
+    private void refresh(SearchCriteria newCriteria)
     {
         criteria = newCriteria;
         refresh();

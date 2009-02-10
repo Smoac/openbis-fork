@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetSearchHit;
 
 /**
- * FIXME
+ * Definition of data set search results table columns.
  * 
  * @author Izabela Adamczyk
  */

@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 /**
- * FIXME
+ * Single result of data set search.
  * 
  * @author Izabela Adamczyk
  */

@@ -19,12 +19,10 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
-import com.extjs.gxt.ui.client.Style.VerticalAlignment;
 import com.extjs.gxt.ui.client.widget.VerticalPanel;
-import com.extjs.gxt.ui.client.widget.layout.TableData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
@@ -44,10 +42,9 @@ public class CriteriaWidget extends VerticalPanel
     {
         setLayoutOnChange(true);
         criteriaWidgets = new ArrayList<CriterionWidget>();
-        final TableData radioData =
-                new TableData(HorizontalAlignment.CENTER, VerticalAlignment.MIDDLE);
-        radioData.setPadding(5);
-        add(matchRadios = new MatchCriteriaRadio(), radioData);
+        add(matchRadios =
+                new MatchCriteriaRadio(viewContext.getMessage(Dict.MATCH_ALL), viewContext
+                        .getMessage(Dict.MATCH_ANY)));
         addCriterion(new CriterionWidget(viewContext, this, "first"));
     }
 

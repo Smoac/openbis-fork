@@ -379,6 +379,10 @@ public abstract class Dict
     //
     public static final String DATA_SET_SEARCH = "data_set_search";
 
+    public static final String MATCH_ALL = "match_all";
+
+    public static final String MATCH_ANY = "match_any";
+
     //
     // Unclassified
     //

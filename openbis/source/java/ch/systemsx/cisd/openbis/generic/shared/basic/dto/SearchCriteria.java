@@ -21,7 +21,7 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * FIXME
+ * Describes search criteria specific to data set search.
  * 
  * @author Izabela Adamczyk
  */

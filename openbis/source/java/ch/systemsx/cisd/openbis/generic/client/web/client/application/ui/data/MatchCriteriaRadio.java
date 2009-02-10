@@ -16,13 +16,19 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.VerticalAlignment;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
+import com.extjs.gxt.ui.client.widget.layout.TableData;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria.CriteriaConnection;
 
 /**
+ * Widget which enables to select {@link CriteriaConnection} type.
+ * 
  * @author Izabela Adamczyk
  */
 public class MatchCriteriaRadio extends HorizontalPanel
@@ -32,20 +38,23 @@ public class MatchCriteriaRadio extends HorizontalPanel
 
     private final Radio andRadio;
 
-    public MatchCriteriaRadio()
+    public MatchCriteriaRadio(String matchAll, String matchAny)
     {
         RadioGroup group = new RadioGroup();
         andRadio = new Radio();
-        andRadio.setBoxLabel("match all"); // FIXME
+        andRadio.setBoxLabel(matchAll);
 
         orRadio = new Radio();
-        orRadio.setBoxLabel("match any");
+        orRadio.setBoxLabel(matchAny);
 
         group.add(andRadio);
         group.add(orRadio);
 
         reset();
-        add(group);
+        final TableData radioData =
+                new TableData(HorizontalAlignment.CENTER, VerticalAlignment.MIDDLE);
+        radioData.setPadding(5);
+        add(group, radioData);
     }
 
     public void reset()
