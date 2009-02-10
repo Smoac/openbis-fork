@@ -8,6 +8,8 @@ TIME_TO_COMPLETE=60 # time (in seconds) needed by the whole pipeline to process 
 BIN_PATHS="/opt/local/bin /usr/bin /usr/sbin"
 TRUE=1
 FALSE=0
+USER=`whoami`
+DATABASE=lims_integration_test
 
 # all paths are relative to the template directory
 TEMPLATE=templates
@@ -17,10 +19,8 @@ WORK=$TARGETS/playground
 INSTALL=$TARGETS/install
 LOCAL_PROJECTS=..
 
-LIMS_SERVER_NAME=openBIS-server
-LIMS_SERVER=$WORK/$LIMS_SERVER_NAME
-LIMS_CLIENT_NAME=openBIS-client
-LIMS_CLIENT=$WORK/$LIMS_CLIENT_NAME
+OPENBIS_SERVER_NAME=openBIS-server
+OPENBIS_SERVER=$WORK/$OPENBIS_SERVER_NAME
 
 DATA=$WORK/data
 ERR_LOG=$WORK/all_err_log.txt
@@ -76,22 +76,21 @@ function run_psql {
 function build_zips {
     build_etl=$1
     build_dmv=$2
-    build_lims=$3
+    build_openbis=$3
     use_local_source=$4
 
-    if [ $build_etl == "true" -o $build_dmv == "true" -o $build_lims == "true" ]; then
+    if [ $build_etl == "true" -o $build_dmv == "true" -o $build_openbis == "true" ]; then
         mkdir -p $INSTALL
 		if [ "$use_local_source" = "true" ]; then
-    		build_zips_from_local $build_etl $build_dmv $build_lims
+    		build_zips_from_local $build_etl $build_dmv $build_openbis
     	else
-	    	build_zips_from_svn $build_etl $build_dmv $build_lims
+	    	build_zips_from_svn $build_etl $build_dmv $build_openbis
 		fi
     else
 		echo "No components to build were specified (--help explains how to do this)."
 		echo "Build process skipped."
     fi
-    assert_file_exists_or_die "$INSTALL/openBIS-server*.zip"
-    assert_file_exists_or_die "$INSTALL/openBIS-client*.zip"
+    assert_file_exists_or_die "$INSTALL/openbis*.zip"
     assert_file_exists_or_die "$INSTALL/etlserver*.zip"
     assert_file_exists_or_die "$INSTALL/datamover*.zip"
 
@@ -100,9 +99,9 @@ function build_zips {
 function build_zips_from_local {
     build_etl=$1
     build_dmv=$2
-    build_lims=$3
+    build_openbis=$3
 
-    build_components build_local $build_etl $build_dmv $build_lims
+    build_components build_local $build_etl $build_dmv $build_openbis
 }
 
 function build_local {
@@ -115,7 +114,7 @@ function build_components {
     build_cmd=$1
     build_etl=$2
     build_dmv=$3
-    build_lims=$4
+    build_openbis=$4
 
     if [ $build_etl == "true" ]; then
 	rm -f $INSTALL/etlserver*.zip
@@ -125,10 +124,9 @@ function build_components {
 	rm -f $INSTALL/datamover*.zip
 	$build_cmd datamover
     fi
-    if [ $build_lims == "true" ]; then
-	rm -f $INSTALL/openBIS-server*.zip
-	rm -f $INSTALL/openBIS-client*.zip
-        $build_cmd lims
+    if [ $build_openbis == "true" ]; then
+	rm -f $INSTALL/openbis*.zip
+        $build_cmd openbis
     fi
 }
 
@@ -144,12 +142,12 @@ function build_remote {
 function build_zips_from_svn {
     build_etl=$1
     build_dmv=$2
-    build_lims=$3
+    build_openbis=$3
 
     RSC=build_resources
     rm -fr $RSC
     run_svn checkout svn+ssh://source.systemsx.ch/repos/cisd/build_resources/trunk $RSC
-    build_components "build_remote $RSC" $build_etl $build_dmv $build_lims
+    build_components "build_remote $RSC" $build_etl $build_dmv $build_openbis
     mv $RSC/*.zip $INSTALL
     rm -fr $RSC 
 }
@@ -207,47 +205,35 @@ function wait_for_server {
     fi
 }
 
-function install_lims_server {
-    local install_lims=$1
+function install_openbis_server {
+    local install_openbis=$1
+    psql -U postgres -c "drop database $DATABASE"
+    psql -U postgres -c "create database $DATABASE with owner $USER encoding = 'UNICODE'"
+    psql -U $USER -d $DATABASE -f $TEMPLATE/$OPENBIS_SERVER_NAME/test_database.sql
 
-    if [ $install_lims == "true" ]; then
-        rm -fr $LIMS_SERVER
-	copy_templates $LIMS_SERVER_NAME
+    if [ $install_openbis == "true" ]; then
+        rm -fr $OPENBIS_SERVER
+	copy_templates $OPENBIS_SERVER_NAME
     
-        unzip -d $LIMS_SERVER $INSTALL/openBIS-server*.zip
-	$LIMS_SERVER/openBIS-server/install.sh $PWD/$LIMS_SERVER $LIMS_SERVER/service.properties
+        unzip -d $OPENBIS_SERVER $INSTALL/openbis*.zip
+	$OPENBIS_SERVER/openbis/install.sh $PWD/$OPENBIS_SERVER $OPENBIS_SERVER/service.properties $OPENBIS_SERVER/openbis/log.xml
 	wait_for_server
     else
-        copy_templates $LIMS_SERVER_NAME
-        restart_lims
+        copy_templates $OPENBIS_SERVER_NAME
+        restart_openbis
     fi
 }
 
 
-function startup_lims_server {
-    call_in_dir bin/startup.sh $LIMS_SERVER/apache-tomcat
+function startup_openbis_server {
+    call_in_dir bin/startup.sh $OPENBIS_SERVER/jetty
     wait_for_server
 }
 
-function shutdown_lims_server {
+function shutdown_openbis_server {
     if [ "`check_server_port`" != "" ]; then
-        $LIMS_SERVER/apache-tomcat/bin/shutdown.sh
+        $OPENBIS_SERVER/jetty/bin/shutdown.sh
     fi
-}
-
-function register_cell_plates {
-    assert_dir_exists_or_die $LIMS_CLIENT
-    call_in_dir load-lims-data.sh $LIMS_CLIENT
-}
-
-function install_lims_client {
-    local install_lims=$1
-
-    if [ $install_lims == "true" ]; then
-        rm -fr $WORK/$LIMS_CLIENT_NAME
-	unpack openBIS-client
-    fi
-    cp -fR $TEMPLATE/$LIMS_CLIENT_NAME $WORK
 }
 
 # unpack everything, override default configuration with test configuation	
@@ -278,34 +264,30 @@ function install_datamovers {
     fi
 }
 
-function restart_lims {
-    assert_dir_exists_or_die $LIMS_SERVER
-    shutdown_lims_server
+function restart_openbis {
+    assert_dir_exists_or_die $OPENBIS_SERVER
+    shutdown_openbis_server
     sleep 1
-    startup_lims_server
+    startup_openbis_server
     sleep 4
 }
 
 function install {
     local install_etl=$1
     local install_dmv=$2
-    local install_lims=$3
+    local install_openbis=$3
     local reinstall_all=$4
 
     mkdir -p $WORK
     if [ $reinstall_all == "true" ];then
 	    install_etls "true"
 	    install_datamovers "true"
-	    install_lims_client "true"
-	    install_lims_server	"true"
+	    install_openbis_server	"true"
     else
 	    install_etls $install_etl
 	    install_datamovers $install_dmv
-	    install_lims_client $install_lims
-	    install_lims_server	$install_lims
+	    install_openbis_server	$install_openbis
     fi
-
-    register_cell_plates
 }
 
 
@@ -574,11 +556,6 @@ function launch_tests {
 
 function assert_correct_experiment_info {
     echo ==== assert correct experiment info ====
-    local res=$WORK/client-result.txt
-    call_in_dir check-results.sh $LIMS_CLIENT/ > $res
-    assert_pattern_present $res 1 "DATA_ACQUISITION.processing-dir.Processing parameters from file .*processing-parameters.txt"
-    assert_pattern_present $res 2 "DATA_ACQUISITION.*HCS_IMAGE.*NEMO.*EXP1.*HCS_IMAGE\/.*3VCP[[:digit:]].*microX.*3VCP[[:digit:]]" 
-    assert_pattern_present $res 5 "IMAGE_ANALYSIS.*HCS_IMAGE_ANALYSIS_DATA.*NEMO.*EXP1.*HCS_IMAGE_ANALYSIS_DATA.*3VCP[[:digit:]].*microX.*3VCP[[:digit:]]" 
 }
 
 function assert_empty_in_out_folders {
@@ -731,7 +708,7 @@ function assert_correct_dataset_content_in_database {
     local pattern=$2
     echo ==== assert correct dataset $dataset_id content in database with pattern $pattern ====
     local psql=`run_psql`
-    local dataset=`$psql -U postgres -d lims_integration_test \
+    local dataset=`$psql -U postgres -d openbis_integration_test \
        -c "select d.id, pt.code as procedure_type, d.code, d.is_placeholder, r.data_id_parent, \
                   ed.is_complete, d.data_producer_code, d.production_timestamp \
            from data as d left join data_set_relationships as r on r.data_id_child = d.id \
@@ -774,13 +751,13 @@ function assert_correct_content {
 function integration_tests {
     install_etl=$1
     install_dmv=$2
-    install_lims=$3
+    install_openbis=$3
     use_local_source=$4
     reinstall_all=$5
     
     init_log
     #ÊNOTE: Comment this line if you want to use different libraries.
-    build_zips $install_etl $install_dmv $install_lims $use_local_source
+    build_zips $install_etl $install_dmv $install_openbis $use_local_source
     
     # Prepare empty incoming data
     rm -fr $DATA
@@ -788,12 +765,12 @@ function integration_tests {
     cp -R $TEMPLATE/data $WORK
     clean_svn $DATA
 
-    install $install_etl $install_dmv $install_lims $reinstall_all
+    install $install_etl $install_dmv $install_openbis $reinstall_all
     launch_tests
     
     assert_correct_content
     
-    shutdown_lims_server
+    shutdown_openbis_server
     exit_if_assertion_failed
 }
 
@@ -805,8 +782,8 @@ function clean_after_tests {
 }
 
 function print_help {
-    echo "Usage: $0 [ (--etl | --lims | --dmv)* | --all [ --local-source ]]"
-    echo "	--etl, --lims, --dmv	build chosen components only"
+    echo "Usage: $0 [ (--etl | --openbis | --dmv)* | --all [ --local-source ]]"
+    echo "	--etl, --openbis, --dmv	build chosen components only"
     echo "	--all 			build all components"
     echo "	--local-source		use local source code during building process instead of downloading it from svn"
     echo "	--reinstall-all		reinstalls all packeges new from the zip file which is in the installation direcory (also reinstall the packages which are not build)"  
@@ -817,7 +794,7 @@ function print_help {
     echo "Examples:"
     echo "- Rebuild everything, fetch sources from svn:"
     echo "	$0 --all"
-    echo "- Use lims server and client installation from previous tests, rebuild etl server and datamover using local source:"
+    echo "- Use openbis server and client installation from previous tests, rebuild etl server and datamover using local source:"
     echo "	$0 --etl --dmv --local-source"
     echo "- Rebuild etl server only fetching sources from svn:"
     echo "	$0 --etl"
@@ -829,7 +806,7 @@ if [ "$1" = "--clean" ]; then
 else
     install_etl=false
     install_dmv=false
-    install_lims=false
+    install_openbis=false
     use_local_source=false
     reinstall_all=false
     while [ ! "$1" = "" ]; do
@@ -840,13 +817,13 @@ else
 	    '-d'|'--dmv')
 		install_dmv=true
 		;;
-	    '-l'|'--lims')
-		install_lims=true
+	    '-o'|'--openbis')
+		install_openbis=true
 		;;
 	    '-a'|'--all')
 	        install_etl=true
 		install_dmv=true
-		install_lims=true
+		install_openbis=true
 		;;
 	    '--local-source')
 		use_local_source=true
@@ -870,5 +847,5 @@ else
          esac
 	 shift
     done
-    integration_tests $install_etl $install_dmv $install_lims $use_local_source $reinstall_all
+    integration_tests $install_etl $install_dmv $install_openbis $use_local_source $reinstall_all
 fi
