@@ -38,15 +38,15 @@ public class CriterionWidget extends HorizontalPanel
 
     private final CriteriaWidget parent;
 
-    private DataSetSearchFieldsSelectionWidget nameField;
+    private final DataSetSearchFieldsSelectionWidget nameField;
 
     private final String idSuffix;
 
+    private final TextField<String> valueField;
+
+    private final Button removeButton;
+
     private int generatedChildren;
-
-    private TextField<String> valueField;
-
-    private Button removeButton;
 
     public CriterionWidget(IViewContext<ICommonClientServiceAsync> viewContext,
             CriteriaWidget parent, String idSuffix)
@@ -102,7 +102,7 @@ public class CriterionWidget extends HorizontalPanel
             };
     }
 
-    String getChildId()
+    private String getChildId()
     {
         return idSuffix + "_" + generatedChildren;
     }

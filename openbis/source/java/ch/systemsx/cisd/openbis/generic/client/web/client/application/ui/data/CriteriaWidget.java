@@ -38,7 +38,7 @@ public class CriteriaWidget extends VerticalPanel
 {
     private final List<CriterionWidget> criteriaWidgets;
 
-    private MatchCriteriaRadio matchRadios;
+    private final MatchCriteriaRadio matchRadios;
 
     public CriteriaWidget(IViewContext<ICommonClientServiceAsync> viewContext)
     {
