@@ -84,7 +84,7 @@
 	        description="Runs integration tests, rebuild etl and openbis from local workspace. The Datamover distribution needs to be in the target directory">
 		<antcall target="internal-launch">
 			<param name="arg1" value="--etl" />
-			<param name="arg2" value="--lims" />
+			<param name="arg2" value="--openbis" />
 			<param name="arg3" value="--local-source" />
 			<param name="arg4" value="--reinstall-all" />
 		</antcall>
