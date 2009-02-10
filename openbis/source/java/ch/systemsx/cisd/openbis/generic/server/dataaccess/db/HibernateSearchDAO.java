@@ -29,14 +29,13 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexReader.FieldOption;
-import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.queryParser.QueryParser;
-import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
 import org.apache.lucene.search.highlight.TokenSources;
+import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -53,11 +52,14 @@ import org.springframework.jdbc.support.JdbcAccessor;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.SearchAnalyzer;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.LuceneQueryBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetSearchHitDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IMatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
 
@@ -97,22 +99,10 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         final List<SearchHit> list =
                 AbstractDAO.cast((List<?>) getHibernateTemplate().execute(new HibernateCallback()
                     {
-
-                        //
-                        // HibernateCallback
-                        //
-
                         public final Object doInHibernate(final Session session)
                                 throws HibernateException, SQLException
                         {
-                            try
-                            {
-                                return doSearchEntitiesByTerm(session, entityClass, searchTerm);
-                            } catch (final ParseException ex)
-                            {
-                                throw new HibernateException(String.format(
-                                        "Search term '%s' could not be parsed.", searchTerm), ex);
-                            }
+                            return doSearchEntitiesByTerm(session, entityClass, searchTerm);
                         }
                     }));
         if (operationLog.isDebugEnabled())
@@ -126,14 +116,14 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
 
     private final <T extends IMatchingEntity> List<SearchHit> doSearchEntitiesByTerm(
             final Session session, final Class<T> entityClass, final String userQuery)
-            throws DataAccessException, ParseException
+            throws DataAccessException, UserFailureException
     {
         final FullTextSession fullTextSession = Search.getFullTextSession(session);
-        SearchAnalyzer analyzer = new SearchAnalyzer();
+        Analyzer analyzer = LuceneQueryBuilder.createSearchAnalyzer();
 
         MyIndexReaderProvider<T> indexProvider =
                 new MyIndexReaderProvider<T>(fullTextSession, entityClass);
-        String searchQuery = disableFieldQuery(userQuery);
+        String searchQuery = LuceneQueryBuilder.disableFieldQuery(userQuery);
 
         try
         {
@@ -153,32 +143,12 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         }
     }
 
-    // disables field query by escaping all field separator characters.
-    @Private
-    static String disableFieldQuery(String userQuery)
-    {
-        char fieldSep = ':';
-        char escapeChar = '\\';
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < userQuery.length(); i++)
-        {
-            char ch = userQuery.charAt(i);
-            if (ch == fieldSep && (i == 0 || userQuery.charAt(i - 1) != escapeChar))
-            {
-                // add escape character to an unescaped field separator
-                sb.append(escapeChar);
-            }
-            sb.append(ch);
-        }
-        return sb.toString();
-    }
-
     private final <T extends IMatchingEntity> List<SearchHit> searchTermInField(
             final FullTextSession fullTextSession, final String fieldName, final String searchTerm,
             final Class<T> entityClass, Analyzer analyzer, IndexReader indexReader)
-            throws DataAccessException, ParseException
+            throws DataAccessException, UserFailureException
     {
-        Query query = createLuceneQuery(fieldName, searchTerm, analyzer);
+        Query query = LuceneQueryBuilder.parseQuery(fieldName, searchTerm, analyzer);
         query = rewriteQuery(indexReader, query);
         final FullTextQuery hibernateQuery =
                 fullTextSession.createFullTextQuery(query, entityClass);
@@ -269,15 +239,6 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         operationLog.error("error during search result highlighting: " + ex.getMessage());
     }
 
-    private Query createLuceneQuery(final String fieldName, final String searchTerm,
-            Analyzer analyzer) throws ParseException
-    {
-        final QueryParser parser = new QueryParser(fieldName, analyzer);
-        parser.setAllowLeadingWildcard(true);
-        BooleanQuery.setMaxClauseCount(Integer.MAX_VALUE);
-        return parser.parse(searchTerm);
-    }
-
     private static final class MyHighlighter
     {
         private final IndexReader indexReader;
@@ -345,5 +306,53 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         {
             readerProvider.closeReader(indexReader);
         }
+    }
+
+    public List<DataSetSearchHitDTO> searchForDataSets(final SearchCriteria criteria)
+    {
+        final List<DataSetSearchHitDTO> list =
+                AbstractDAO.cast((List<?>) getHibernateTemplate().execute(new HibernateCallback()
+                    {
+                        public final Object doInHibernate(final Session session)
+                                throws HibernateException, SQLException
+                        {
+                            return searchForDataSets(session, criteria);
+                        }
+                    }));
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format(
+                    "%d matching datasets have been found for search criteria '%s'.", list.size(),
+                    criteria.toString()));
+        }
+        return list;
+    }
+
+    private List<DataSetSearchHitDTO> searchForDataSets(Session session,
+            SearchCriteria datasetSearchCriteria)
+    {
+        Query query = LuceneQueryBuilder.createQuery(datasetSearchCriteria);
+        final FullTextSession fullTextSession = Search.getFullTextSession(session);
+        final FullTextQuery hibernateQuery =
+                fullTextSession.createFullTextQuery(query, ExternalDataPE.class);
+
+        Criteria criteria = getSession().createCriteria(ExternalDataPE.class);
+        criteria.setFetchMode("parents", FetchMode.JOIN);
+        criteria.setFetchMode("procedure", FetchMode.JOIN);
+        hibernateQuery.setCriteriaQuery(criteria);
+
+        List<ExternalDataPE> datasets = AbstractDAO.cast(hibernateQuery.list());
+        datasets = filterNulls(datasets);
+        return asDataSetHits(datasets);
+    }
+
+    private static List<DataSetSearchHitDTO> asDataSetHits(List<ExternalDataPE> datasets)
+    {
+        List<DataSetSearchHitDTO> result = new ArrayList<DataSetSearchHitDTO>();
+        for (ExternalDataPE dataset : datasets)
+        {
+            result.add(new DataSetSearchHitDTO(dataset));
+        }
+        return result;
     }
 }

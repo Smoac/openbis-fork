@@ -32,7 +32,7 @@ public final class SearchFieldConstants
 
     public static final String PREFIX_EXPERIMENT = "experiment" + SEPARATOR;
 
-    public static final String PREFIX_DATASET_SAMPLE = "sample" + SEPARATOR;
+    public static final String PREFIX_SAMPLE = "sample" + SEPARATOR;
 
     public static final String PREFIX_DATASET_TYPE = "dataset type" + SEPARATOR;
 

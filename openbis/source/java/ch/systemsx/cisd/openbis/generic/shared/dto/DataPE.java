@@ -141,7 +141,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE>
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.SAMPLE_ACQUIRED_FROM)
-    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_DATASET_SAMPLE)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_SAMPLE)
     public SamplePE getSampleAcquiredFrom()
     {
         return sampleAcquiredFrom;
@@ -149,7 +149,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE>
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.SAMPLE_DERIVED_FROM)
-    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_DATASET_SAMPLE)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_SAMPLE)
     public SamplePE getSampleDerivedFrom()
     {
         return sampleDerivedFrom;

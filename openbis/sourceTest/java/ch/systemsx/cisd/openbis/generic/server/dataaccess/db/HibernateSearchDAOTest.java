@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.LuceneQueryBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE;
@@ -140,7 +141,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     @Test(dataProvider = "queryEscaping")
     public final void testDisableAdvancedSearch(String unescapedQuery, String escapedQuery)
     {
-        String query = HibernateSearchDAO.disableFieldQuery(unescapedQuery);
+        String query = LuceneQueryBuilder.disableFieldQuery(unescapedQuery);
         assertEquals(escapedQuery, query);
     }
 
