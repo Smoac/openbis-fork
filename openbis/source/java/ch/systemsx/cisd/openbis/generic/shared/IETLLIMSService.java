@@ -41,9 +41,9 @@ public interface IETLLIMSService extends IWebService, IDataStoreInfoProvider
      * 
      * @param sessionToken the user authentication token. Must not be <code>null</code>.
      * @param sampleIdentifier an identifier which uniquely identifies the sample.
-     * @return <code>null</code> if no experiment could be found for given <var>dataSetInfo</var>.
+     * @return <code>null</code> if no experiment could be found for given <var>sampleIdentifier</var>.
      */
-    public ExperimentPE getBaseExperiment(final String sessionToken,
+    public ExperimentPE tryToGetBaseExperiment(final String sessionToken,
             final SampleIdentifier sampleIdentifier) throws UserFailureException;
 
     /**
@@ -55,7 +55,7 @@ public interface IETLLIMSService extends IWebService, IDataStoreInfoProvider
      * @return <code>null</code> if no appropriated sample found. Returns an empty array if a a
      *         sample found with no properties.
      */
-    public SamplePropertyPE[] getPropertiesOfTopSampleRegisteredFor(final String sessionToken,
+    public SamplePropertyPE[] tryToGetPropertiesOfTopSampleRegisteredFor(final String sessionToken,
             final SampleIdentifier sampleIdentifier) throws UserFailureException;
 
     /**

@@ -16,18 +16,26 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.Date;
 import java.util.List;
 
+import net.sf.beanlib.hibernate3.Hibernate3SequenceGenerator;
+
+import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.springframework.dao.DataAccessException;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SequenceNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
 
 /**
@@ -37,6 +45,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
  */
 final class ExternalDataDAO extends AbstractDAO implements IExternalDataDAO
 {
+    private final static String DATA_CODE_DATE_FORMAT_PATTERN = "yyyyMMddHHmmssSSS";
+    
     private final static Class<ExternalDataPE> ENTITY_CLASS = ExternalDataPE.class;
 
     private static final Logger operationLog =
@@ -70,5 +80,58 @@ final class ExternalDataDAO extends AbstractDAO implements IExternalDataDAO
                     sample, sourceType));
         }
         return list;
+    }
+
+    public ExternalDataPE tryToFindDataSetByCode(String dataSetCode)
+    {
+        assert dataSetCode != null : "Unspecified data set code.";
+
+        final List<ExternalDataPE> list =
+                cast(getHibernateTemplate().find(
+                        String.format("select e from %s e where e.code = ?", ENTITY_CLASS.getSimpleName()),
+                        toArray(dataSetCode)));
+        final ExternalDataPE entity = tryFindEntity(list, "data set");
+        if (operationLog.isDebugEnabled())
+        {
+            String methodName = MethodUtils.getCurrentMethod().getName();
+            operationLog.debug(String.format("%s(%s): '%s'.", methodName, dataSetCode, entity));
+        }
+        return entity;
+    }
+
+    public String createDataSetCode()
+    {
+        long id =
+                Hibernate3SequenceGenerator.nextval(SequenceNames.DATA_SEQUENCE, getSession(true));
+        return DateFormatUtils.format(new Date(), DATA_CODE_DATE_FORMAT_PATTERN) + "-"
+                + Long.toString(id);
+    }
+
+    public void createDataSet(ExternalDataPE dataset)
+    {
+        assert dataset != null : "Unspecified data set.";
+        
+        dataset.setCode(CodeConverter.tryToDatabase(dataset.getCode()));
+        final HibernateTemplate template = getHibernateTemplate();
+        template.save(dataset);
+        template.flush();
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("ADD: data set '%s'.", dataset));
+        }
+    }
+
+    public void updateDataSet(ExternalDataPE dataset)
+    {
+        assert dataset != null : "Given data set can not be null.";
+        validatePE(dataset);
+
+        final HibernateTemplate template = getHibernateTemplate();
+        template.update(dataset);
+        template.flush();
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("UPDATE: data set '%s'.", dataset));
+        }
     }
 }

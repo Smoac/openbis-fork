@@ -23,12 +23,15 @@ import org.hibernate.SessionFactory;
 
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProcedureDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProcedureTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
@@ -69,11 +72,17 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
 
     private final IVocabularyDAO vocabularyDAO;
 
-    private IProcedureTypeDAO procedureTypeDAO;
+    private final IProcedureTypeDAO procedureTypeDAO;
 
-    private IProcedureDAO procedureDAO;
+    private final IProcedureDAO procedureDAO;
 
-    private IExperimentAttachmentDAO experimentAttachmentDAO;
+    private final IExperimentAttachmentDAO experimentAttachmentDAO;
+
+    private final DataSetTypeDAO dataSetTypeDAO;
+
+    private final FileFormatTypeDAO fileFormatTypeDAO;
+
+    private final LocatorTypeDAO locatorTypeDAO;
 
     public DAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory)
@@ -91,6 +100,9 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         procedureTypeDAO = new ProcedureTypeDAO(sessionFactory, databaseInstance);
         procedureDAO = new ProcedureDAO(sessionFactory, databaseInstance);
         experimentAttachmentDAO = new ExperimentAttachmentDAO(sessionFactory, databaseInstance);
+        dataSetTypeDAO = new DataSetTypeDAO(sessionFactory, databaseInstance);
+        fileFormatTypeDAO = new FileFormatTypeDAO(sessionFactory, databaseInstance);
+        locatorTypeDAO = new LocatorTypeDAO(sessionFactory, databaseInstance);
         final EntityKind[] entityKinds = EntityKind.values();
         for (final EntityKind entityKind : entityKinds)
         {
@@ -169,5 +181,20 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     public final IExperimentAttachmentDAO getExperimentAttachmentDAO()
     {
         return experimentAttachmentDAO;
+    }
+
+    public IDataSetTypeDAO getDataSetTypeDAO()
+    {
+        return dataSetTypeDAO;
+    }
+
+    public IFileFormatTypeDAO getFileFormatTypeDAO()
+    {
+        return fileFormatTypeDAO;
+    }
+
+    public ILocatorTypeDAO getLocatorTypeDAO()
+    {
+        return locatorTypeDAO;
     }
 }

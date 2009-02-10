@@ -39,5 +39,25 @@ public interface IExternalDataDAO
      */
     public List<ExternalDataPE> listExternalData(final SamplePE sample, final SourceType sourceType)
             throws DataAccessException;
+    
+    /**
+     * Tries to get the data set for the specified code.
+     */
+    public ExternalDataPE tryToFindDataSetByCode(String dataSetCode);
 
+    /**
+     * Creates a unique data set code.
+     */
+    public String createDataSetCode();
+
+    /**
+     * Persists the specified data set.
+     */
+    public void createDataSet(ExternalDataPE dataset);
+
+    /**
+     * Updates the specified data set.
+     */
+    public void updateDataSet(ExternalDataPE dataset);
+    
 }

@@ -93,6 +93,11 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         this.authenticationService = authenticationService;
         this.businessObjectFactory = businessObjectFactory;
     }
+    
+    ICommonBusinessObjectFactory getBusinessObjectFactory()
+    {
+        return businessObjectFactory;
+    }
 
     //
     // AbstractServer

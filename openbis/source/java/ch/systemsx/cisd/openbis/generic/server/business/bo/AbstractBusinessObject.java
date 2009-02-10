@@ -20,14 +20,17 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProcedureDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProcedureTypeDAO;
@@ -167,5 +170,20 @@ abstract class AbstractBusinessObject implements IDAOFactory
     public final IExperimentAttachmentDAO getExperimentAttachmentDAO()
     {
         return daoFactory.getExperimentAttachmentDAO();
+    }
+
+    public IDataSetTypeDAO getDataSetTypeDAO()
+    {
+        return daoFactory.getDataSetTypeDAO();
+    }
+
+    public IFileFormatTypeDAO getFileFormatTypeDAO()
+    {
+        return daoFactory.getFileFormatTypeDAO();
+    }
+
+    public ILocatorTypeDAO getLocatorTypeDAO()
+    {
+        return daoFactory.getLocatorTypeDAO();
     }
 }

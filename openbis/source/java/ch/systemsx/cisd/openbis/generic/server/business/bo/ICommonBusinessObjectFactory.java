@@ -38,6 +38,11 @@ public interface ICommonBusinessObjectFactory
     public ISampleBO createSampleBO(final Session session);
 
     /**
+     * Creates a {@link IExternalDataBO} <i>Business Object</i>.
+     */
+    public IExternalDataBO createExternalDataBO(Session session);
+    
+    /**
      * Creates a {@link IExternalDataTable} <i>Business Object</i>.
      */
     public IExternalDataTable createExternalDataTable(final Session session);
@@ -82,4 +87,5 @@ public interface ICommonBusinessObjectFactory
      * Creates a {@link IProjectBO} <i>Business Object</i>.
      */
     public IProjectBO createProjectBO(final Session session);
+    
 }
