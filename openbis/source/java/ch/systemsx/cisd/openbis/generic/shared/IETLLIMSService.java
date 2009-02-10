@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.ISessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -33,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  * 
  * @author Christian Ribeaud
  */
-public interface IETLLIMSService extends IWebService, IDataStoreInfoProvider
+public interface IETLLIMSService extends IWebService, IDataStoreInfoProvider, ISessionProvider
 {
     /**
      * Returns the home database instance.
