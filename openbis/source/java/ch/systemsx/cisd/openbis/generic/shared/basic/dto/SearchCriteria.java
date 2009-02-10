@@ -21,10 +21,11 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * FIXME
+ * FIXME change the name, add a comment
  * 
  * @author Izabela Adamczyk
  */
+// TODO 2009-02-10, Tomasz Pylak: rename to DataSetSearchCriteria
 public class SearchCriteria implements IsSerializable
 {
     private List<DataSetSearchCriterion> criteria;
@@ -58,6 +59,21 @@ public class SearchCriteria implements IsSerializable
     public void setConnection(CriteriaConnection connection)
     {
         this.connection = connection;
+    }
+
+    @Override
+    public String toString()
+    {
+        StringBuffer sb = new StringBuffer();
+        sb.append(connection);
+        sb.append(" of ");
+        for (DataSetSearchCriterion criterion : criteria)
+        {
+            sb.append("[ ");
+            sb.append(criterion.toString());
+            sb.append("] ");
+        }
+        return sb.toString();
     }
 
 }
