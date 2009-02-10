@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DataSetSearchHitModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionKind;
@@ -54,7 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
  * @author Izabela Adamczyk
  */
 public class DataSetSearchHitGrid extends
-        AbstractSimpleBrowserGrid<DataSetSearchHit, DataSetSearchHitModel>
+        AbstractSimpleBrowserGrid<DataSetSearchHit, BaseEntityModel<DataSetSearchHit>>
 {
     // browser consists of the grid and the paging toolbar
     public static final String BROWSER_ID =
@@ -95,9 +95,9 @@ public class DataSetSearchHitGrid extends
     }
 
     @Override
-    protected DataSetSearchHitModel createModel(DataSetSearchHit entity)
+    protected BaseEntityModel<DataSetSearchHit> createModel(DataSetSearchHit entity)
     {
-        return new DataSetSearchHitModel(entity, getStaticColumnsDefinition());
+        return new BaseEntityModel<DataSetSearchHit>(entity, getStaticColumnsDefinition());
     }
 
     @Override

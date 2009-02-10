@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
  * 
  * @author Izabela Adamczyk
  */
-public final class ExperimentModel extends AbstractEntityModel<Experiment>
+public final class ExperimentModel extends BaseEntityModel<Experiment>
 {
     private static final long serialVersionUID = 1L;
 

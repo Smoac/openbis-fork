@@ -30,13 +30,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
  * @author Izabela Adamczyk
  * @author Tomasz Pylak
  */
-public class PropertyTypeModel extends AbstractEntityModel<PropertyType>
+public class PropertyTypeModel extends BaseEntityModel<PropertyType>
 {
     private static final long serialVersionUID = 1L;
 
     public PropertyTypeModel(PropertyType entity, IColumnDefinitionKind<PropertyType>[] colDefKinds)
     {
-        super(entity, colDefKinds, null);
+        super(entity, colDefKinds);
 
         overwriteTypes(PropertyTypeColDefKind.EXPERIMENT_TYPES);
         overwriteTypes(PropertyTypeColDefKind.MATERIAL_TYPES);

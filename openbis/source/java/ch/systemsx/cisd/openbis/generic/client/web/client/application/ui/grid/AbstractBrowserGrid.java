@@ -61,7 +61,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.AbstractEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.BrowserGridPagingToolBar.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelagatedAction;
@@ -330,7 +330,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
         for (IColumnDefinitionKind<T> colDefKind : filteredColumnKinds)
         {
             IColumnDefinition<T> codeColDef =
-                    AbstractEntityModel.createColumnDefinition(colDefKind, messageProvider);
+                    BaseEntityModel.createColumnDefinition(colDefKind, messageProvider);
             filters.add(codeColDef);
         }
         return filters;

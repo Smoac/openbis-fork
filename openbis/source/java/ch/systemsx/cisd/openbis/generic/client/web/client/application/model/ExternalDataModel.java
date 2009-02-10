@@ -16,14 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.extjs.gxt.ui.client.data.ModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.CommonExternalDataColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionUI;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 
 /**
@@ -31,29 +26,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
  * 
  * @author Christian Ribeaud
  */
-public final class ExternalDataModel extends AbstractEntityModel<ExternalData>
+public final class ExternalDataModel extends BaseEntityModel<ExternalData>
 {
 
     private static final long serialVersionUID = 1L;
 
     public ExternalDataModel(final ExternalData externalData)
     {
-        super(externalData, createColumnsSchema(null));
+        super(externalData, CommonExternalDataColDefKind.values());
     }
 
-    public static List<IColumnDefinitionUI<ExternalData>> createColumnsSchema(
-            IMessageProvider msgProviderOrNull)
-    {
-        return createColumnsDefinition(CommonExternalDataColDefKind.values(), msgProviderOrNull);
-    }
-
-    public final static List<ExternalDataModel> asExternalDataModels(final List<ExternalData> result)
-    {
-        final List<ExternalDataModel> models = new ArrayList<ExternalDataModel>(result.size());
-        for (final ExternalData externalData : result)
-        {
-            models.add(new ExternalDataModel(externalData));
-        }
-        return models;
-    }
 }

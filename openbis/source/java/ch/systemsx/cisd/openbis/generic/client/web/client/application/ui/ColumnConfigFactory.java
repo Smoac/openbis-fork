@@ -48,11 +48,6 @@ public final class ColumnConfigFactory
         return createDefaultColumnConfig(messageProvider.getMessage(Dict.REGISTRATOR), id);
     }
 
-    public final static ColumnConfig createCodeColumnConfig(final IMessageProvider messageProvider)
-    {
-        return createCodeColumnConfig(messageProvider, ModelDataPropertyNames.CODE);
-    }
-
     public final static ColumnConfig createCodeColumnConfig(final IMessageProvider messageProvider,
             String id)
     {

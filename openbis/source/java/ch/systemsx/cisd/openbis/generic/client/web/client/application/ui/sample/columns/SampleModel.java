@@ -22,7 +22,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.AbstractEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionUI;
@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
  * @author Izabela Adamczyk
  * @author Tomasz Pylak
  */
-public final class SampleModel extends AbstractEntityModel<Sample>
+public final class SampleModel extends BaseEntityModel<Sample>
 {
     private static final long serialVersionUID = 1L;
 

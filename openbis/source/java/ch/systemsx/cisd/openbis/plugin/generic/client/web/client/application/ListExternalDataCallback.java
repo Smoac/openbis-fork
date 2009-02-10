@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.BaseListLoadResult;
@@ -51,10 +52,20 @@ public final class ListExternalDataCallback extends AbstractAsyncCallback<List<E
     @Override
     protected final void process(final List<ExternalData> result)
     {
-        final List<ExternalDataModel> externalDataModels =
-                ExternalDataModel.asExternalDataModels(result);
+        final List<ExternalDataModel> externalDataModels = asExternalDataModels(result);
         final BaseListLoadResult<ExternalDataModel> baseListLoadResult =
                 new BaseListLoadResult<ExternalDataModel>(externalDataModels);
         delegate.onSuccess(baseListLoadResult);
+    }
+
+    private final static List<ExternalDataModel> asExternalDataModels(
+            final List<ExternalData> result)
+    {
+        final List<ExternalDataModel> models = new ArrayList<ExternalDataModel>(result.size());
+        for (final ExternalData externalData : result)
+        {
+            models.add(new ExternalDataModel(externalData));
+        }
+        return models;
     }
 }

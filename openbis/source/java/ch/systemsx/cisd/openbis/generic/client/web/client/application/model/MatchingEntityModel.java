@@ -33,13 +33,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
  * 
  * @author Christian Ribeaud
  */
-public final class MatchingEntityModel extends AbstractEntityModel<MatchingEntity>
+public final class MatchingEntityModel extends BaseEntityModel<MatchingEntity>
 {
     private static final long serialVersionUID = 1L;
 
     public MatchingEntityModel(final MatchingEntity entity)
     {
-        super(entity, createColumnsSchema(null));
+        super(entity, getStaticColumnsDefinition());
 
         // override registrator column adding a link
         set(MatchingEntityColumnKind.REGISTRATOR.id(), PersonRenderer.createPersonAnchor(entity
@@ -49,7 +49,12 @@ public final class MatchingEntityModel extends AbstractEntityModel<MatchingEntit
     public static List<IColumnDefinitionUI<MatchingEntity>> createColumnsSchema(
             IMessageProvider msgProviderOrNull)
     {
-        return createColumnsDefinition(MatchingEntityColumnKind.values(), msgProviderOrNull);
+        return createColumnsDefinition(getStaticColumnsDefinition(), msgProviderOrNull);
+    }
+
+    private static IColumnDefinitionKind<MatchingEntity>[] getStaticColumnsDefinition()
+    {
+        return MatchingEntityColumnKind.values();
     }
 
     public enum MatchingEntityColumnKind implements IColumnDefinitionKind<MatchingEntity>

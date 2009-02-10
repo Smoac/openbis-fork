@@ -22,7 +22,7 @@ import com.extjs.gxt.ui.client.data.ModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.AbstractEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 
 /**
  * Grid displaying all the entities without any criteria (useful when there is no specific toolbar).
@@ -47,7 +47,7 @@ abstract public class AbstractSimpleBrowserGrid<T/* Entity */, M extends ModelDa
     {
         IColumnDefinitionKind<T>[] colDefKinds = getStaticColumnsDefinition();
         List<IColumnDefinitionUI<T>> colDefs =
-                AbstractEntityModel.createColumnsDefinition(colDefKinds, viewContext);
+                BaseEntityModel.createColumnsDefinition(colDefKinds, viewContext);
         return ColumnDefsAndConfigs.create(colDefs);
     }
 

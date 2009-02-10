@@ -36,17 +36,16 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 /**
  * @author Franz-Josef Elmer
  */
-public class AbstractEntityModel<T> extends BaseModelData
+public class BaseEntityModel<T> extends BaseModelData
 {
     private static final long serialVersionUID = 1L;
 
-    protected AbstractEntityModel(final T entity, IColumnDefinitionKind<T>[] colDefKinds,
-            IMessageProvider msgProviderOrNull)
+    public BaseEntityModel(final T entity, IColumnDefinitionKind<T>[] colDefKinds)
     {
-        this(entity, createColumnsDefinition(colDefKinds, msgProviderOrNull));
+        this(entity, createColumnsDefinition(colDefKinds, null));
     }
 
-    protected AbstractEntityModel(final T entity, List<? extends IColumnDefinition<T>> columnsSchema)
+    protected BaseEntityModel(final T entity, List<? extends IColumnDefinition<T>> columnsSchema)
     {
         set(ModelDataPropertyNames.OBJECT, entity);
 
@@ -101,8 +100,7 @@ public class AbstractEntityModel<T> extends BaseModelData
         if (messageProviderOrNull != null)
         {
             headerText =
-                    messageProviderOrNull.getMessage(columnKind.getDescriptor()
-                            .getHeaderMsgKey());
+                    messageProviderOrNull.getMessage(columnKind.getDescriptor().getHeaderMsgKey());
         }
         return new CommonColumnDefinition<T>(columnKind, headerText);
     }
