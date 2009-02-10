@@ -33,6 +33,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.AbstractEntityModel;
@@ -145,7 +146,7 @@ public class DataSetSearchHitGrid extends
         super.refresh(criteria.toString(), false);
     }
 
-    class DataSetSearchWindow extends Dialog
+    private class DataSetSearchWindow extends Dialog
     {
         static final int WIDTH = 550;
 
@@ -160,7 +161,7 @@ public class DataSetSearchHitGrid extends
             setResizable(false);
             add(criteriaWidget = new CriteriaWidget(viewContext), new FitData(5));
             final ButtonBar bar = new ButtonBar();
-            bar.add(new Button("Cancel")
+            bar.add(new Button(viewContext.getMessage(Dict.BUTTON_CANCEL))
                 {
                     @Override
                     protected void onClick(ComponentEvent ce)
@@ -169,7 +170,7 @@ public class DataSetSearchHitGrid extends
                         DataSetSearchWindow.this.hide();
                     }
                 });
-            bar.add(new Button("Reset")
+            bar.add(new Button(viewContext.getMessage(Dict.BUTTON_RESET))
                 {
                     @Override
                     protected void onClick(ComponentEvent ce)
