@@ -45,5 +45,6 @@
 	<classpathentry kind="lib" path="/libraries/lucene/lucene-core.jar" sourcepath="/libraries/lucene/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/commons-fileupload/commons-fileupload.jar" sourcepath="/libraries/commons-fileupload/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/lucene-highlighter/lucene-highlighter.jar"/>
+	<classpathentry kind="lib" path="/libraries/beanlib-hibernate/beanlib-hibernate.jar" sourcepath="/libraries/beanlib-hibernate/src.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
