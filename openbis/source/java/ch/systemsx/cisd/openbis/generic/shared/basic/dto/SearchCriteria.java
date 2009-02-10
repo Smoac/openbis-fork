@@ -67,7 +67,7 @@ public class SearchCriteria implements IsSerializable
         final StringBuilder sb = new StringBuilder();
         for (final DataSetSearchCriterion element : getCriteria())
         {
-            if (sb.toString().equals("") == false)
+            if (sb.length() > 0)
             {
                 sb.append(" " + getConnection().name() + " ");
             }
