@@ -45,6 +45,9 @@ public final class RoleCodeTranslator
         } else if ("OBSERVER".equals(code))
         {
             return RoleCode.OBSERVER;
+        } else if ("ETL_SERVER".equals(code))
+        {
+            return RoleCode.ETL_SERVER;
         } else
         {
             throw new IllegalArgumentException("Unknown role set");

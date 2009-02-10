@@ -38,6 +38,7 @@ public class RoleListBox extends ListBox
         // enumeration.
         addItem(OBSERVER);
         addItem("USER");
+        addItem("ETL_SERVER");
         addItem("GROUP_ADMIN");
         addItem(INSTANCE_ADMIN);
         setVisibleItemCount(1);
