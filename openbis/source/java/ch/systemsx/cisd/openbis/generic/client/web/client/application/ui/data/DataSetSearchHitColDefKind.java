@@ -16,17 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
-import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetSearchHit;
 
 /**
@@ -53,25 +45,6 @@ public enum DataSetSearchHitColDefKind implements IColumnDefinitionKind<DataSetS
                 return entity.getDataSet().getLocation();
             }
         });
-
-    /**
-     * Creates column model from all definitions.
-     */
-    public static ColumnModel createColumnModel(IMessageProvider messageProvider)
-    {
-        IColumnDefinitionKind<?>[] values = DataSetSearchHitColDefKind.values();
-        List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-        for (IColumnDefinitionKind<?> colDefKind : values)
-        {
-            String header = messageProvider.getMessage(colDefKind.getHeaderMsgKey());
-            String id = colDefKind.id();
-            ColumnConfig columnConfig = ColumnConfigFactory.createDefaultColumnConfig(header, id);
-            columnConfig.setHidden(colDefKind.isHidden());
-            columnConfig.setWidth(colDefKind.getWidth());
-            configs.add(columnConfig);
-        }
-        return new ColumnModel(configs);
-    }
 
     private final AbstractColumnDefinitionKind<DataSetSearchHit> columnDefinitionKind;
 
