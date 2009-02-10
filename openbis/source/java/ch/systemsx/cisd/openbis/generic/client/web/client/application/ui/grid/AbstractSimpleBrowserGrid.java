@@ -18,8 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.data.ModelData;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
@@ -29,8 +27,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
  * 
  * @author Tomasz Pylak
  */
-abstract public class AbstractSimpleBrowserGrid<T/* Entity */, M extends ModelData> extends
-        AbstractBrowserGrid<T, M>
+abstract public class AbstractSimpleBrowserGrid<T/* Entity */> extends
+        AbstractBrowserGrid<T, BaseEntityModel<T>>
 {
     abstract protected IColumnDefinitionKind<T>[] getStaticColumnsDefinition();
 
@@ -43,7 +41,7 @@ abstract public class AbstractSimpleBrowserGrid<T/* Entity */, M extends ModelDa
     }
 
     @Override
-    protected ColumnDefsAndConfigs<T> createColumnsDefinition()
+    protected final ColumnDefsAndConfigs<T> createColumnsDefinition()
     {
         IColumnDefinitionKind<T>[] colDefKinds = getStaticColumnsDefinition();
         List<IColumnDefinitionUI<T>> colDefs =
@@ -52,7 +50,7 @@ abstract public class AbstractSimpleBrowserGrid<T/* Entity */, M extends ModelDa
     }
 
     @Override
-    protected boolean isRefreshEnabled()
+    protected final boolean isRefreshEnabled()
     {
         return true;
     }
@@ -64,8 +62,14 @@ abstract public class AbstractSimpleBrowserGrid<T/* Entity */, M extends ModelDa
     }
 
     @Override
-    protected void showEntityViewer(M modelData)
+    protected final void showEntityViewer(BaseEntityModel<T> modelData)
     {
         // do nothing
+    }
+
+    @Override
+    protected BaseEntityModel<T> createModel(T entity)
+    {
+        return new BaseEntityModel<T>(entity, getStaticColumnsDefinition());
     }
 }

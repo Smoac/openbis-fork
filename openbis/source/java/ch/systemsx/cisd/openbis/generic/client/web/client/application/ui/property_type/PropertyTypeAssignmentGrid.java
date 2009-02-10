@@ -22,7 +22,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionKind;
@@ -37,9 +36,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
  * 
  * @author Izabela Adamczyk
  */
-public class PropertyTypeAssignmentGrid
-        extends
-        AbstractSimpleBrowserGrid<EntityTypePropertyType<?>, BaseEntityModel<EntityTypePropertyType<?>>>
+public class PropertyTypeAssignmentGrid extends
+        AbstractSimpleBrowserGrid<EntityTypePropertyType<?>>
 {
     // browser consists of the grid and the paging toolbar
     public static final String BROWSER_ID =
@@ -71,13 +69,6 @@ public class PropertyTypeAssignmentGrid
             { PropertyTypeAssignmentColDefKind.PROPERTY_TYPE_CODE,
                     PropertyTypeAssignmentColDefKind.ENTITY_TYPE_CODE,
                     PropertyTypeAssignmentColDefKind.ENTITY_KIND });
-    }
-
-    @Override
-    protected BaseEntityModel<EntityTypePropertyType<?>> createModel(
-            EntityTypePropertyType<?> entity)
-    {
-        return new BaseEntityModel<EntityTypePropertyType<?>>(entity, getStaticColumnsDefinition());
     }
 
     @Override

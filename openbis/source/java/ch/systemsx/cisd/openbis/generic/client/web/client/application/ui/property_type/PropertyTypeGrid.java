@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
  * 
  * @author Tomasz Pylak
  */
-public class PropertyTypeGrid extends AbstractSimpleBrowserGrid<PropertyType, PropertyTypeModel>
+public class PropertyTypeGrid extends AbstractSimpleBrowserGrid<PropertyType>
 {
     // browser consists of the grid and the paging toolbar
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "property-type-browser";
