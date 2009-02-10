@@ -68,9 +68,7 @@ public class AbstractEntityModel<T> extends BaseModelData
         String value = column.getValue(entity);
         if (column instanceof CommonColumnDefinition)
         {
-            IColumnDefinitionKind<?> columnKind =
-                    ((CommonColumnDefinition<?>) column).getColumnDefinitionKind();
-            String headerMsgKey = columnKind.getHeaderMsgKey();
+            String headerMsgKey = ((CommonColumnDefinition<?>) column).getHeaderMsgKey();
             if (headerMsgKey.equals(Dict.REGISTRATOR)
                     && entity instanceof AbstractRegistrationHolder)
             {
@@ -102,7 +100,9 @@ public class AbstractEntityModel<T> extends BaseModelData
         String headerText = null;
         if (messageProviderOrNull != null)
         {
-            headerText = messageProviderOrNull.getMessage(columnKind.getHeaderMsgKey());
+            headerText =
+                    messageProviderOrNull.getMessage(columnKind.getDescriptor()
+                            .getHeaderMsgKey());
         }
         return new CommonColumnDefinition<T>(columnKind, headerText);
     }

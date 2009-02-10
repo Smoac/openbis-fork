@@ -17,15 +17,11 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.CommonExternalDataColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.renderer.SimpleYesNoRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.RendererTestUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DataSetRow extends Row
@@ -37,7 +33,7 @@ public class DataSetRow extends Row
         this.code = code;
         withCell(CommonExternalDataColDefKind.CODE, code);
     }
-    
+
     public DataSetRow invalid()
     {
         withInvalidation(true);
@@ -53,10 +49,10 @@ public class DataSetRow extends Row
         withCell(CommonExternalDataColDefKind.CODE, code);
         return this;
     }
-    
+
     private void withInvalidation(boolean isInvalid)
     {
-        withCell(CommonSampleColDefKind.IS_INVALID, SimpleYesNoRenderer.render(isInvalid));
+        withCell(CommonExternalDataColDefKind.IS_INVALID, SimpleYesNoRenderer.render(isInvalid));
     }
 
     public DataSetRow withIsComplete(Boolean complete)
@@ -65,29 +61,29 @@ public class DataSetRow extends Row
         withCell(CommonExternalDataColDefKind.IS_COMPLETE, value);
         return this;
     }
-    
+
     public DataSetRow derived()
     {
         return withIsDerived(true);
     }
-    
+
     public DataSetRow notDerived()
     {
         return withIsDerived(false);
     }
-    
+
     private DataSetRow withIsDerived(boolean derived)
     {
         withCell(CommonExternalDataColDefKind.IS_DERIVED, derived);
         return this;
     }
-    
+
     public DataSetRow withFileFormatType(String type)
     {
         withCell(CommonExternalDataColDefKind.FILE_FORMAT_TYPE, type);
         return this;
     }
-    
+
     public DataSetRow withLocation(String location)
     {
         withCell(CommonExternalDataColDefKind.LOCATION, location);
@@ -99,25 +95,25 @@ public class DataSetRow extends Row
         withCell(CommonExternalDataColDefKind.PRODECUDRE_TYPE, procedureType);
         return this;
     }
-    
+
     public DataSetRow withSample(String sampleIdentifier)
     {
         withCell(CommonExternalDataColDefKind.SAMPLE_IDENTIFIER, sampleIdentifier);
         return this;
     }
-    
+
     public DataSetRow withSampleType(String sampleType)
     {
         withCell(CommonExternalDataColDefKind.SAMPLE_TYPE, sampleType);
         return this;
     }
-    
-    private void withCell(IColumnDefinitionKind<?> definition, boolean value)
+
+    private void withCell(CommonExternalDataColDefKind definition, boolean value)
     {
         withCell(definition.id(), SimpleYesNoRenderer.render(value));
     }
-    
-    private void withCell(IColumnDefinitionKind<?> definition, String value)
+
+    private void withCell(CommonExternalDataColDefKind definition, String value)
     {
         withCell(definition.id(), value);
     }

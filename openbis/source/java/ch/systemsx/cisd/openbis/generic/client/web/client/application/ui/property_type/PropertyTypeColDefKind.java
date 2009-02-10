@@ -102,7 +102,7 @@ public enum PropertyTypeColDefKind implements IColumnDefinitionKind<PropertyType
                 return render(entity.getMaterialTypePropertyTypes());
             }
         });
-
+    
     private final AbstractColumnDefinitionKind<PropertyType> columnDefinitionKind;
 
     private PropertyTypeColDefKind(AbstractColumnDefinitionKind<PropertyType> columnDefinitionKind)
@@ -110,29 +110,14 @@ public enum PropertyTypeColDefKind implements IColumnDefinitionKind<PropertyType
         this.columnDefinitionKind = columnDefinitionKind;
     }
 
-    public String getHeaderMsgKey()
-    {
-        return columnDefinitionKind.getHeaderMsgKey();
-    }
-
-    public int getWidth()
-    {
-        return columnDefinitionKind.getWidth();
-    }
-
     public String id()
     {
         return name();
     }
 
-    public boolean isHidden()
+    public AbstractColumnDefinitionKind<PropertyType> getDescriptor()
     {
-        return columnDefinitionKind.isHidden();
-    }
-
-    public String tryGetValue(PropertyType entity)
-    {
-        return columnDefinitionKind.tryGetValue(entity);
+        return columnDefinitionKind;
     }
 
     private static String render(List<? extends EntityTypePropertyType<?>> list)

@@ -145,29 +145,14 @@ public enum CommonSampleColDefKind implements IColumnDefinitionKind<Sample>
         this.columnDefinitionKind = columnDefinitionKind;
     }
 
-    public String getHeaderMsgKey()
-    {
-        return columnDefinitionKind.getHeaderMsgKey();
-    }
-
-    public int getWidth()
-    {
-        return columnDefinitionKind.getWidth();
-    }
-
     public String id()
     {
         return name();
     }
 
-    public boolean isHidden()
+    public AbstractColumnDefinitionKind<Sample> getDescriptor()
     {
-        return columnDefinitionKind.isHidden();
-    }
-
-    public String tryGetValue(Sample entity)
-    {
-        return columnDefinitionKind.tryGetValue(entity);
+        return columnDefinitionKind;
     }
 
     private final static Experiment tryToGetExperiment(final Sample sample)

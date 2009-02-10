@@ -20,23 +20,12 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
  * Column rendering data provider and cell rendering for tables with rows of type <code>T</code>.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IColumnDefinitionKind<T> extends IsSerializable
 {
-    /** Returns default column width. */
-    public int getWidth();
-    
-    /** Returns <code>true</code> if this column should initially be hidden. */
-    public boolean isHidden();
-    
-    /** Returns key in the translations dictionary. */
-    public String getHeaderMsgKey();
-    
-    public String id();
-    
-    /** Renders the cell value of this column for the specified entity. */
-    public String tryGetValue(T entity);
+    public AbstractColumnDefinitionKind<T> getDescriptor();
 
+    public String id();
 }

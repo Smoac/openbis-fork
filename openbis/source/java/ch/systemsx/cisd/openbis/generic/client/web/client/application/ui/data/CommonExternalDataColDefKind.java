@@ -138,29 +138,31 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
             }
         }),
 
-    DATA_PRODUCER_CODE(new AbstractColumnDefinitionKind<ExternalData>(Dict.DATA_PRODUCER_CODE, true)
-        {
-            @Override
-            public String tryGetValue(ExternalData entity)
-            {
-                return entity.getDataProducerCode();
-            }
-        });
+    DATA_PRODUCER_CODE(
+            new AbstractColumnDefinitionKind<ExternalData>(Dict.DATA_PRODUCER_CODE, true)
+                {
+                    @Override
+                    public String tryGetValue(ExternalData entity)
+                    {
+                        return entity.getDataProducerCode();
+                    }
+                });
 
     /**
      * Creates column model from all definitions.
      */
     public static ColumnModel createColumnModel(IMessageProvider messageProvider)
     {
-        IColumnDefinitionKind<?>[] values = CommonExternalDataColDefKind.values();
+        CommonExternalDataColDefKind[] values = CommonExternalDataColDefKind.values();
         List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-        for (IColumnDefinitionKind<?> colDefKind : values)
+        for (CommonExternalDataColDefKind colDefKind : values)
         {
-            String header = messageProvider.getMessage(colDefKind.getHeaderMsgKey());
+            AbstractColumnDefinitionKind<?> colDesc = colDefKind.getDescriptor();
+            String header = messageProvider.getMessage(colDesc.getHeaderMsgKey());
             String id = colDefKind.id();
             ColumnConfig columnConfig = ColumnConfigFactory.createDefaultColumnConfig(header, id);
-            columnConfig.setHidden(colDefKind.isHidden());
-            columnConfig.setWidth(colDefKind.getWidth());
+            columnConfig.setHidden(colDesc.isHidden());
+            columnConfig.setWidth(colDesc.getWidth());
             configs.add(columnConfig);
         }
         return new ColumnModel(configs);
@@ -174,29 +176,14 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
         this.columnDefinitionKind = columnDefinitionKind;
     }
 
-    public String getHeaderMsgKey()
-    {
-        return columnDefinitionKind.getHeaderMsgKey();
-    }
-
-    public int getWidth()
-    {
-        return columnDefinitionKind.getWidth();
-    }
-
     public String id()
     {
         return name();
     }
 
-    public boolean isHidden()
+    public AbstractColumnDefinitionKind<ExternalData> getDescriptor()
     {
-        return columnDefinitionKind.isHidden();
-    }
-
-    public String tryGetValue(ExternalData entity)
-    {
-        return columnDefinitionKind.tryGetValue(entity);
+        return columnDefinitionKind;
     }
 
 }

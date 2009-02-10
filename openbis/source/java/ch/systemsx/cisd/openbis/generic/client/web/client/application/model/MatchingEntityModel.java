@@ -118,29 +118,14 @@ public final class MatchingEntityModel extends AbstractEntityModel<MatchingEntit
             this.columnDefinitionKind = columnDefinitionKind;
         }
 
-        public String getHeaderMsgKey()
-        {
-            return columnDefinitionKind.getHeaderMsgKey();
-        }
-
-        public int getWidth()
-        {
-            return columnDefinitionKind.getWidth();
-        }
-
         public String id()
         {
             return name();
         }
 
-        public boolean isHidden()
+        public AbstractColumnDefinitionKind<MatchingEntity> getDescriptor()
         {
-            return columnDefinitionKind.isHidden();
-        }
-
-        public String tryGetValue(MatchingEntity entity)
-        {
-            return columnDefinitionKind.tryGetValue(entity);
+            return columnDefinitionKind;
         }
     }
 

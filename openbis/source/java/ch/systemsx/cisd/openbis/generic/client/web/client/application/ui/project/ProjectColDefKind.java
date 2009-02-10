@@ -79,28 +79,13 @@ public enum ProjectColDefKind implements IColumnDefinitionKind<Project>
         this.columnDefinitionKind = columnDefinitionKind;
     }
 
-    public String getHeaderMsgKey()
-    {
-        return columnDefinitionKind.getHeaderMsgKey();
-    }
-
-    public int getWidth()
-    {
-        return columnDefinitionKind.getWidth();
-    }
-
     public String id()
     {
         return name();
     }
 
-    public boolean isHidden()
+    public AbstractColumnDefinitionKind<Project> getDescriptor()
     {
-        return columnDefinitionKind.isHidden();
-    }
-
-    public String tryGetValue(Project entity)
-    {
-        return columnDefinitionKind.tryGetValue(entity);
+        return columnDefinitionKind;
     }
 }

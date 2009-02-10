@@ -118,29 +118,13 @@ public enum CommonExperimentColDefKind implements IColumnDefinitionKind<Experime
         this.columnDefinitionKind = columnDefinitionKind;
     }
 
-    public String getHeaderMsgKey()
-    {
-        return columnDefinitionKind.getHeaderMsgKey();
-    }
-
-    public int getWidth()
-    {
-        return columnDefinitionKind.getWidth();
-    }
-
     public String id()
     {
         return name();
     }
 
-    public boolean isHidden()
+    public AbstractColumnDefinitionKind<Experiment> getDescriptor()
     {
-        return columnDefinitionKind.isHidden();
+        return columnDefinitionKind;
     }
-
-    public String tryGetValue(Experiment entity)
-    {
-        return columnDefinitionKind.tryGetValue(entity);
-    }
-
 }

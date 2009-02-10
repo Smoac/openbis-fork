@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
 /**
  * Abstract superclass which holds meta data. Subclasses must implement
- * {@link IColumnDefinitionKind#tryGetValue(Object)}.
+ * {@link AbstractColumnDefinitionKind#tryGetValue(Object)}.
  * 
  * @author Franz-Josef Elmer
  */
@@ -67,17 +67,19 @@ public abstract class AbstractColumnDefinitionKind<T>
         this(headerMsgKey, false);
     }
 
+    /** Returns default column width. */
     public int getWidth()
     {
         return width;
     }
 
+    /** Returns <code>true</code> if this column should initially be hidden. */
     public boolean isHidden()
     {
         return isHidden;
     }
 
-    // key in the translations dictionary
+    /** Returns key in the translations dictionary. */
     public String getHeaderMsgKey()
     {
         return headerMsgKey;

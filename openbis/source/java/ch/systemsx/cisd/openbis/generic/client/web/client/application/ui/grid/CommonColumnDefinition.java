@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
-
 /**
  * Definition of table columns for entities of type <code>T</code> together with the instructions
  * to render each column value.
@@ -27,7 +26,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 public class CommonColumnDefinition<T> extends AbstractColumnDefinition<T>
 {
     protected IColumnDefinitionKind<T> columnDefinitionKind;
-    
+
     /** Default constructor for GWT. */
     public CommonColumnDefinition()
     {
@@ -39,22 +38,23 @@ public class CommonColumnDefinition<T> extends AbstractColumnDefinition<T>
     public CommonColumnDefinition(final IColumnDefinitionKind<T> columnDefinitionKind,
             final String headerText)
     {
-        super(headerText, columnDefinitionKind.getWidth(), columnDefinitionKind.isHidden());
+        super(headerText, columnDefinitionKind.getDescriptor().getWidth(), columnDefinitionKind
+                .getDescriptor().isHidden());
         this.columnDefinitionKind = columnDefinitionKind;
     }
-    
+
     /**
      * Returns the column definition kind.
      */
-    public final IColumnDefinitionKind<T> getColumnDefinitionKind()
+    public String getHeaderMsgKey()
     {
-        return columnDefinitionKind;
+        return columnDefinitionKind.getDescriptor().getHeaderMsgKey();
     }
 
     @Override
     protected String tryGetValue(T entity)
     {
-        return columnDefinitionKind.tryGetValue(entity);
+        return columnDefinitionKind.getDescriptor().tryGetValue(entity);
     }
 
     public String getIdentifier()
