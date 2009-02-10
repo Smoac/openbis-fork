@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
+import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
@@ -34,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IProcedureBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentAttachmentDAO;
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.IWebService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
@@ -65,15 +67,21 @@ public class ETLService implements IETLLIMSService
     private static final String PROCESSING_DESCRIPTION_TEMPLATE = "$processing-description-for-%s";
     private static final String ENCODING = "utf-8";
     
-    private final CommonServer commonServer;
-    private final IDAOFactory daoFactory;
-    private final ICommonBusinessObjectFactory boFactory;
+    private ICommonServer commonServer;
+    
+    private ISessionManager<Session> sessionManager;
+    
+    private IDAOFactory daoFactory;
+    
+    private ICommonBusinessObjectFactory boFactory;
 
-    public ETLService(CommonServer commonServer)
+    public ETLService(ICommonServer commonServer, ISessionManager<Session> sessionManager,
+            IDAOFactory daoFactory, ICommonBusinessObjectFactory boFactory)
     {
         this.commonServer = commonServer;
-        this.daoFactory = commonServer.getDAOFactory();
-        boFactory = commonServer.getBusinessObjectFactory();
+        this.sessionManager = sessionManager;
+        this.daoFactory = daoFactory;
+        this.boFactory = boFactory;
     }
     
     public int getVersion()
@@ -108,7 +116,7 @@ public class ETLService implements IETLLIMSService
         assert sessionToken != null : "Unspecified session token.";
         assert sampleIdentifier != null : "Unspecified sample identifier.";
 
-        final Session session = commonServer.getSessionManager().getSession(sessionToken);
+        final Session session = sessionManager.getSession(sessionToken);
         ExperimentPE experiment = tryToLoadExperimentBySampleIdentifier(session, sampleIdentifier);
         enrichWithProcessingInstructions(experiment);
         return experiment;
@@ -211,7 +219,7 @@ public class ETLService implements IETLLIMSService
         assert sessionToken != null : "Unspecified session token.";
         assert sampleIdentifier != null : "Unspecified sample identifier.";
 
-        final Session session = commonServer.getSessionManager().getSession(sessionToken);
+        final Session session = sessionManager.getSession(sessionToken);
         final ISampleBO sampleBO = boFactory.createSampleBO(session);
         sampleBO.loadBySampleIdentifier(sampleIdentifier);
         SamplePE sample = sampleBO.getSample();
@@ -239,7 +247,7 @@ public class ETLService implements IETLLIMSService
         assert sessionToken != null : "Unspecified session token.";
         assert experimentIdentifier != null : "Unspecified experiment identifier.";
         
-        final Session session = commonServer.getSessionManager().getSession(sessionToken);
+        final Session session = sessionManager.getSession(sessionToken);
         makeSureGroupCodeIsFilled(session, experimentIdentifier);
         final IExperimentBO experimentBO = boFactory.createExperimentBO(session);
         experimentBO.loadByExperimentIdentifier(experimentIdentifier);
@@ -294,7 +302,7 @@ public class ETLService implements IETLLIMSService
         assert sessionToken != null : "Unspecified session token.";
         assert sampleIdentifier != null : "Unspecified sample identifier.";
         
-        final Session session = commonServer.getSessionManager().getSession(sessionToken);
+        final Session session = sessionManager.getSession(sessionToken);
         ExperimentPE experiment = tryToLoadExperimentBySampleIdentifier(session, sampleIdentifier);
         if (experiment == null)
         {

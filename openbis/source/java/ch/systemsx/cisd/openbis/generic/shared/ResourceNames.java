@@ -33,5 +33,6 @@ public final class ResourceNames
         // Can not be instantiated.
     }
 
+    public final static String COMMON_SERVER = "common-server";
     public final static String COMMON_SERVICE = "common-service";
 }
