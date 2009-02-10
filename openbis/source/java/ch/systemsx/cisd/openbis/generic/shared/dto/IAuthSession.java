@@ -16,13 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.io.Serializable;
+
 
 /**
  * Session interface used by authorization framework.
  * 
  * @author Tomasz Pylak
  */
-public interface IAuthSession
+public interface IAuthSession extends Serializable
 {
 
     /** @return home group code of the currently logged in user or null if user has no home group */

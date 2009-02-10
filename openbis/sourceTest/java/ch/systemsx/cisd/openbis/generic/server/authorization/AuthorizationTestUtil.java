@@ -242,6 +242,8 @@ public final class AuthorizationTestUtil
         person.setRoleAssignments(new HashSet<RoleAssignmentPE>(Arrays.asList(roleAssignments)));
         return new IAuthSession()
             {
+                private static final long serialVersionUID = 1L;
+
                 public PersonPE tryGetPerson()
                 {
                     return person;
