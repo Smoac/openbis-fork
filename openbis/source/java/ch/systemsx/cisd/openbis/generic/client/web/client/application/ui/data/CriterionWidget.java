@@ -60,15 +60,19 @@ public class CriterionWidget extends HorizontalPanel
         generatedChildren = 0;
         this.parent = parent;
         this.idSuffix = idSuffix;
+        this.nameField = nameField;
+        this.valueField = new TextField<String>();
+        this.removeButton = createRemoveButton();
+
         final TableData tableData =
                 new TableData(HorizontalAlignment.LEFT, VerticalAlignment.BOTTOM);
         tableData.setPadding(1);
-        add(this.nameField = nameField, tableData);
-        nameField.setWidth(300);
-        add(valueField = new TextField<String>(), tableData);
+        add(this.nameField, tableData);
+        this.nameField.setWidth(300);
+        add(valueField, tableData);
         valueField.setWidth(150);
         add(createAddButton(), tableData);
-        add(removeButton = createRemoveButton(), tableData);
+        add(removeButton, tableData);
     }
 
     /**
@@ -154,5 +158,17 @@ public class CriterionWidget extends HorizontalPanel
         }
         return null;
 
+    }
+
+    public String tryGetDescription()
+    {
+        DataSetSearchCriterion criterion = tryGetValue();
+        String name = nameField.tryGetSelectedCode();
+        if (criterion == null || name == null)
+        {
+            return null;
+        }
+
+        return name + " = " + criterion.getValue();
     }
 }

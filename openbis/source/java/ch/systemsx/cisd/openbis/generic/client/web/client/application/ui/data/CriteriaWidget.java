@@ -113,6 +113,31 @@ public class CriteriaWidget extends VerticalPanel
 
     }
 
+    /** description of the search criteria for the user */
+    public String getCriteriaDescription()
+    {
+        StringBuffer sb = new StringBuffer();
+        sb.append(matchRadios.getSelectedLabel());
+        sb.append(": ");
+        boolean first = true;
+        for (CriterionWidget cw : criteriaWidgets)
+        {
+            String desc = cw.tryGetDescription();
+            if (desc != null)
+            {
+                if (first == false)
+                {
+                    sb.append(", ");
+                } else
+                {
+                    first = false;
+                }
+                sb.append(desc);
+            }
+        }
+        return sb.toString();
+    }
+
     /**
      * Resets "match criteria" radio buttons to initial values, removes unnecessary criteria widgets
      * and resets the remaining ones.

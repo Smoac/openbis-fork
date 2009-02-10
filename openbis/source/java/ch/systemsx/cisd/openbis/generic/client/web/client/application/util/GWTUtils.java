@@ -139,7 +139,8 @@ public final class GWTUtils
      * 
      * @returns <code>null</code> if nothing is selected.
      */
-    public final static <T extends ModelData> T tryGetSingleSelectedModel(final ComboBox<T> comboBox)
+    private final static <T extends ModelData> T tryGetSingleSelectedModel(
+            final ComboBox<T> comboBox)
     {
         assert comboBox != null : "Unspecified combo box.";
         final List<T> selection = comboBox.getSelection();
@@ -150,6 +151,23 @@ public final class GWTUtils
             return selection.get(0);
         }
         return null;
+    }
+
+    /**
+     * Tries to return the selected object code (saved as {@link ModelDataPropertyNames#CODE} in the
+     * model) from the given {@link ComboBox}.
+     * 
+     * @returns <code>null</code> if nothing is selected.
+     */
+    public final static <T extends ModelData, O> String tryGetSingleSelectedCode(
+            final ComboBox<T> comboBox)
+    {
+        T selectedModel = GWTUtils.tryGetSingleSelectedModel(comboBox);
+        if (selectedModel == null)
+        {
+            return null;
+        }
+        return selectedModel.get(ModelDataPropertyNames.CODE);
     }
 
     /**

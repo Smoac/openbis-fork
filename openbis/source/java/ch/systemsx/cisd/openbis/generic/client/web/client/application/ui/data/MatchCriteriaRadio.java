@@ -62,14 +62,24 @@ public class MatchCriteriaRadio extends HorizontalPanel
         orRadio.setValue(true);
     }
 
+    String getSelectedLabel()
+    {
+        return isAndSelected() ? andRadio.getBoxLabel() : orRadio.getBoxLabel();
+    }
+
     SearchCriteria.CriteriaConnection getSelected()
     {
-        if (andRadio.getValue() != null && andRadio.getValue().booleanValue() == true)
+        if (isAndSelected())
         {
             return SearchCriteria.CriteriaConnection.AND;
         } else
         {
             return SearchCriteria.CriteriaConnection.OR;
         }
+    }
+
+    private boolean isAndSelected()
+    {
+        return andRadio.getValue() != null && andRadio.getValue().booleanValue() == true;
     }
 }

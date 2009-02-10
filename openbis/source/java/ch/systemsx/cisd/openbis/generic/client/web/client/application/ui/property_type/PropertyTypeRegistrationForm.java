@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -155,16 +154,15 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
         propertyType.setDataType(selectedDataType);
         if (DataTypeCode.CONTROLLEDVOCABULARY.equals(selectedDataType.getCode()))
         {
-            final BaseModelData vocabulary =
-                    GWTUtils.tryGetSingleSelectedModel(vocabularySelectionWidget);
-            if (VocabularySelectionWidget.NEW_VOCABULARY_CODE.equals(vocabulary
-                    .get(ModelDataPropertyNames.CODE)))
+            final String selectedVocabularyCode =
+                    GWTUtils.tryGetSingleSelectedCode(vocabularySelectionWidget);
+            if (VocabularySelectionWidget.NEW_VOCABULARY_CODE.equals(selectedVocabularyCode))
             {
                 propertyType.setVocabulary(vocabularyRegistrationFieldSet.createVocabulary());
             } else
             {
-                propertyType.setVocabulary((Vocabulary) vocabulary
-                        .get(ModelDataPropertyNames.OBJECT));
+                propertyType.setVocabulary((Vocabulary) GWTUtils
+                        .tryGetSingleSelected(vocabularySelectionWidget));
             }
         }
         return propertyType;

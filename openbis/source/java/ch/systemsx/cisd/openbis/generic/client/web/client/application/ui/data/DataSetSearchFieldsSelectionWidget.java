@@ -86,6 +86,14 @@ public final class DataSetSearchFieldsSelectionWidget extends
         return (DataSetSearchField) GWTUtils.tryGetSingleSelected(this);
     }
 
+    /**
+     * Returns code of the selected option, or null - if nothing selected.
+     */
+    public String tryGetSelectedCode()
+    {
+        return GWTUtils.tryGetSingleSelectedCode(this);
+    }
+
     public DataSetSearchFieldsSelectionWidget(DataSetSearchFieldsSelectionWidget source,
             final String idSuffix)
     {
@@ -181,8 +189,9 @@ public final class DataSetSearchFieldsSelectionWidget extends
     private DataSetSearchFieldComboModel createComboModel(final PropertyType propertyType,
             DataSetSearchField searchField, boolean useCode)
     {
-        String prefix = getDisplayName(searchField.getKind()) + ": ";
-        String code = prefix + (useCode ? propertyType.getCode() : propertyType.getLabel());
+        String prefix = getDisplayName(searchField.getKind());
+        String property = (useCode ? propertyType.getCode() : propertyType.getLabel());
+        String code = prefix + " \'" + property + "\'";
         return new DataSetSearchFieldComboModel(code, searchField);
     }
 
