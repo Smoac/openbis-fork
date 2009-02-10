@@ -168,7 +168,7 @@ public abstract class AbstractServer<T extends IServer> implements IServer,
         return sessionManager.getSession(sessionToken);
     }
 
-    public final int getVersion()
+    public int getVersion()
     {
         return 1;
     }

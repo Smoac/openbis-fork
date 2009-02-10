@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
@@ -48,6 +50,7 @@ public interface IWebService
      * @return A session token for the user if the user has been successfully authenticated or
      *         <code>null</code> otherwise.
      */
+    @Transactional
     public String authenticate(String user, String password) throws UserFailureException;
 
     /**

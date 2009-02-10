@@ -16,34 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
-import javax.annotation.Resource;
-
-import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
-import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-@Controller
-@RequestMapping(
-    { "/rmi-etl", "/genericopenbis/rmi-etl" })
-public class ETLServiceServer extends HttpInvokerServiceExporter
+public interface IETLService extends IETLLIMSService, IServer
 {
-    @Resource(name = ResourceNames.ETL_SERVICE)
-    private IETLLIMSService etlService;
-    
-    @Override
-    public void afterPropertiesSet()
-    {
-        setServiceInterface(IETLLIMSService.class);
-        setService(etlService);
-        super.afterPropertiesSet();
-    }
-    
+
 }

@@ -16,7 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.shared;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
@@ -34,6 +38,7 @@ public interface IETLLIMSService extends IWebService, IDataStoreInfoProvider
     /**
      * Returns the home database instance.
      */
+    @Transactional(readOnly = true)
     public DatabaseInstancePE getHomeDatabaseInstance();
 
     /**
@@ -43,6 +48,8 @@ public interface IETLLIMSService extends IWebService, IDataStoreInfoProvider
      * @param sampleIdentifier an identifier which uniquely identifies the sample.
      * @return <code>null</code> if no experiment could be found for given <var>sampleIdentifier</var>.
      */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.ETL_SERVER)
     public ExperimentPE tryToGetBaseExperiment(final String sessionToken,
             final SampleIdentifier sampleIdentifier) throws UserFailureException;
 
@@ -55,6 +62,8 @@ public interface IETLLIMSService extends IWebService, IDataStoreInfoProvider
      * @return <code>null</code> if no appropriated sample found. Returns an empty array if a a
      *         sample found with no properties.
      */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.ETL_SERVER)
     public SamplePropertyPE[] tryToGetPropertiesOfTopSampleRegisteredFor(final String sessionToken,
             final SampleIdentifier sampleIdentifier) throws UserFailureException;
 
@@ -70,6 +79,8 @@ public interface IETLLIMSService extends IWebService, IDataStoreInfoProvider
      * @throws UserFailureException if given data set code could not be found in the persistence
      *             layer.
      */
+    @Transactional
+    @RolesAllowed(RoleSet.ETL_SERVER)
     public void registerDataSet(final String sessionToken, final SampleIdentifier sampleIdentifier,
             final String procedureTypeCode, final ExternalData externalData)
             throws UserFailureException;
@@ -77,6 +88,8 @@ public interface IETLLIMSService extends IWebService, IDataStoreInfoProvider
     /**
      * Creates and returns a unique code for a new data set.
      */
+    @Transactional
+    @RolesAllowed(RoleSet.ETL_SERVER)
     public String createDataSetCode(final String sessionToken) throws UserFailureException;
 
 }

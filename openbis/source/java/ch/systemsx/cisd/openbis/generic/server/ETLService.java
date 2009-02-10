@@ -35,8 +35,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IProcedureBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentAttachmentDAO;
-import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.IWebService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -59,7 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  *
  * @author Franz-Josef Elmer
  */
-public class ETLService implements IETLLIMSService
+public class ETLService extends AbstractServer<IETLService> implements IETLService
 {
     private static final String PROCESSING_PATH = "$processing-path-for-";
     private static final String PROCESSING_PATH_TEMPLATE = PROCESSING_PATH + "%s";
@@ -67,23 +65,33 @@ public class ETLService implements IETLLIMSService
     private static final String PROCESSING_DESCRIPTION_TEMPLATE = "$processing-description-for-%s";
     private static final String ENCODING = "utf-8";
     
-    private ICommonServer commonServer;
-    
     private ISessionManager<Session> sessionManager;
     
     private IDAOFactory daoFactory;
     
     private ICommonBusinessObjectFactory boFactory;
-
-    public ETLService(ICommonServer commonServer, ISessionManager<Session> sessionManager,
+    
+    public ETLService(ISessionManager<Session> sessionManager,
             IDAOFactory daoFactory, ICommonBusinessObjectFactory boFactory)
     {
-        this.commonServer = commonServer;
+        super(sessionManager, daoFactory);
         this.sessionManager = sessionManager;
         this.daoFactory = daoFactory;
         this.boFactory = boFactory;
     }
     
+    @Override
+    protected Class<IETLService> getProxyInterface()
+    {
+        return IETLService.class;
+    }
+
+    public IETLService createLogger(boolean invocationSuccessful)
+    {
+        return new ETLServiceLogger(getSessionManager(), invocationSuccessful);
+    }
+
+    @Override
     public int getVersion()
     {
         return IWebService.VERSION;
@@ -96,13 +104,13 @@ public class ETLService implements IETLLIMSService
     
     public String authenticate(String user, String password) throws UserFailureException
     {
-        Session session = commonServer.tryToAuthenticate(user, password);
+        Session session = tryToAuthenticate(user, password);
         return session == null ? null : session.getSessionToken();
     }
     
     public void closeSession(String sessionToken) throws UserFailureException
     {
-        commonServer.logout(sessionToken);
+        logout(sessionToken);
     }
     
     public String createDataSetCode(String sessionToken) throws UserFailureException

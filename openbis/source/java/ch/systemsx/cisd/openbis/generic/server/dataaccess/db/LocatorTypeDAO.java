@@ -42,7 +42,7 @@ public class LocatorTypeDAO extends AbstractTypeDAO<LocatorTypePE> implements IL
 
     public LocatorTypePE tryToFindLocatorTypeByCode(String code)
     {
-        return tryFindTypeByCode(code);
+        return tryFindTypeByCode(code, false);
     }
 
 }

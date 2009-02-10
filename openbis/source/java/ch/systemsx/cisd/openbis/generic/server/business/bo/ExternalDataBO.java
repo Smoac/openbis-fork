@@ -78,7 +78,7 @@ public class ExternalDataBO extends AbstractBusinessObject implements IExternalD
         assert location != null : "Undefined location.";
         final LocatorType locatorType = data.getLocatorType();
         assert locatorType != null : "Undefined location type.";
-        assert sourceType != null : "Undefined source type.";
+        assert type != null : "Undefined source type.";
         assert procedure != null : "Unspecified procedure";
 
         sourceType = type;
