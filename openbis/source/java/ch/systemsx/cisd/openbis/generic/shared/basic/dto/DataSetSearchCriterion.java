@@ -72,6 +72,11 @@ public class DataSetSearchCriterion implements IsSerializable
             return propertyCodeOrNull;
         }
 
+        @Override
+        public String toString()
+        {
+            return kind + (propertyCodeOrNull == null ? "" : "." + propertyCodeOrNull);
+        }
     }
 
     public enum DataSetSearchFieldKind
@@ -104,4 +109,9 @@ public class DataSetSearchCriterion implements IsSerializable
         this.value = value;
     }
 
+    @Override
+    public String toString()
+    {
+        return field.toString() + " = " + value;
+    }
 }
