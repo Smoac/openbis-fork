@@ -29,7 +29,6 @@ import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.layout.FitData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
@@ -149,7 +148,6 @@ public class DataSetSearchHitGrid extends
         public DataSetSearchToolbar(final DataSetSearchHitGrid grid, String buttonName)
         {
             add(new FillToolItem());
-            add(new SeparatorToolItem());
             add(new TextToolItem(buttonName, new SelectionListener<ToolBarEvent>()
                 {
                     @Override
