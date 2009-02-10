@@ -375,6 +375,11 @@ public abstract class Dict
     public static final String PROJECT_REGISTRATION = "project_registration";
 
     //
+    // Data Set Search
+    //
+    public static final String DATA_SET_SEARCH = "data_set_search";
+
+    //
     // Unclassified
     //
     public static final String LEADER = "leader";

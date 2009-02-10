@@ -21,7 +21,7 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * FIXME change the name, add a comment
+ * FIXME
  * 
  * @author Izabela Adamczyk
  */
@@ -32,7 +32,7 @@ public class SearchCriteria implements IsSerializable
 
     private CriteriaConnection connection;
 
-    public static enum CriteriaConnection// FIXME name
+    public enum CriteriaConnection implements IsSerializable
     {
         AND, OR
     }
@@ -64,16 +64,15 @@ public class SearchCriteria implements IsSerializable
     @Override
     public String toString()
     {
-        StringBuffer sb = new StringBuffer();
-        sb.append(connection);
-        sb.append(" of ");
-        for (DataSetSearchCriterion criterion : criteria)
+        final StringBuilder sb = new StringBuilder();
+        for (final DataSetSearchCriterion element : getCriteria())
         {
-            sb.append("[ ");
-            sb.append(criterion.toString());
-            sb.append("] ");
+            if (sb.toString().equals("") == false)
+            {
+                sb.append(" " + getConnection().name() + " ");
+            }
+            sb.append(element);
         }
         return sb.toString();
     }
-
 }

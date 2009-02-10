@@ -63,4 +63,5 @@ final class LoginPage extends LayoutContainer
         add(verticalPanel);
         layout();
     }
+
 }

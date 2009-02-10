@@ -200,6 +200,13 @@ var common = {
  // Project Registration
  //
  project_registration: "Project Registration",
+  
+ //
+ // Data Set Search
+ //
+ data_set_search: "Data Set Search",
+ location: "Location",
+ 
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma
 };

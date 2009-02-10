@@ -51,6 +51,8 @@ public class CategoriesBuilder
 
         public static final String SAMPLES = "SAMPLES";
 
+        public static final String DATA_SETS = "DATA_SETS";
+
         public static final String PROPERTY_TYPES = "PROPERTY_TYPES";
     }
 
@@ -74,6 +76,8 @@ public class CategoriesBuilder
         public static final String MANAGE = "MANAGE";
 
         public static final String LIST_ASSIGNMENTS = "LIST_ASSIGNMENTS";
+
+        public static final String SEARCH = "SEARCH";
     }
 
     public final ComponentProvider provider;
@@ -95,6 +99,7 @@ public class CategoriesBuilder
         categories.add(createPropertyTypesCategory());
         categories.add(createVocabulariesCategory());
         categories.add(createProjectsTypesCategory());
+        categories.add(createDataSetsCategory());
         categories.add(createGroupsCategory());
         categories.add(createPersonsCategory());
         categories.add(createRolesCategory());
@@ -157,6 +162,13 @@ public class CategoriesBuilder
         elements.add(new MenuElement(MENU_ELEMENTS.ASSIGN_STPT, "Assign to Sample Type", provider
                 .getPropertyTypeSampleTypeAssignmentForm()));
         return new MenuCategory(CATEGORIES.PROPERTY_TYPES, "Property Types", elements);
+    }
+
+    private MenuCategory createDataSetsCategory()
+    {
+        final List<MenuElement> elements = new ArrayList<MenuElement>();
+        elements.add(new MenuElement(MENU_ELEMENTS.SEARCH, "Search", provider.getDataSetSearch()));
+        return new MenuCategory(CATEGORIES.DATA_SETS, "Data Sets", elements);
     }
 
     private MenuCategory createVocabulariesCategory()

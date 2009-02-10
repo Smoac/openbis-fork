@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GroupsView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.PersonsView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.RolesView;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchHitGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
@@ -364,6 +365,23 @@ final class ComponentProvider
                 public String getId()
                 {
                     return PropertyTypeAssignmentForm.createId(entityKind);
+                }
+            };
+    }
+
+    public ITabItemFactory getDataSetSearch()
+    {
+        return new ITabItemFactory()
+            {
+                public ITabItem create()
+                {
+                    DisposableComponent browser = DataSetSearchHitGrid.create(viewContext);
+                    return DefaultTabItem.create(getMessage(Dict.DATA_SET_SEARCH), browser, false);
+                }
+
+                public String getId()
+                {
+                    return DataSetSearchHitGrid.BROWSER_ID;
                 }
             };
     }

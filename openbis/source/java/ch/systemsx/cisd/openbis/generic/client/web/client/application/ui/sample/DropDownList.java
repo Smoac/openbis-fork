@@ -68,7 +68,7 @@ public abstract class DropDownList<M extends ModelData, E> extends ComboBox<M>
 
     abstract protected List<M> convertItems(final List<E> result);
 
-    public final E tryGetSelected()
+    public E tryGetSelected()
     {
         return GWTUtils.tryGetSingleSelected(this);
     }
@@ -117,7 +117,8 @@ public abstract class DropDownList<M extends ModelData, E> extends ComboBox<M>
 
     private boolean valueNotInTheList()
     {
-        return getValue() == null && getRawValue() != null && getRawValue() != "";
+        return getValue() == null && getRawValue() != null && getRawValue().equals("") == false
+                && getRawValue().equals(getEmptyText()) == false;
     }
 
     @Override

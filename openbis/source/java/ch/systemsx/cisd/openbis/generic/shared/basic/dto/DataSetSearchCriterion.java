@@ -75,13 +75,22 @@ public class DataSetSearchCriterion implements IsSerializable
         @Override
         public String toString()
         {
-            return kind + (propertyCodeOrNull == null ? "" : "." + propertyCodeOrNull);
+            StringBuilder sb = new StringBuilder();
+            sb.append(getKind());
+            if (getKind().equals(DataSetSearchFieldKind.EXPERIMENT_PROPERTY)
+                    || getKind().equals(DataSetSearchFieldKind.SAMPLE_PROPERTY))
+            {
+                sb.append(".");
+                sb.append(tryGetPropertyCode());
+            }
+            return sb.toString();
         }
+
     }
 
-    public enum DataSetSearchFieldKind
+    public enum DataSetSearchFieldKind implements IsSerializable
     {
-        EXPERIMENT, GROUP, PROJECT, SAMPLE, EXPERIMENT_TYPE, SAMPLE_TYPE, DATA_SET_TYPE, FILE_TYPE,
+        DATA_SET_TYPE, EXPERIMENT, EXPERIMENT_TYPE, FILE_TYPE, GROUP, PROJECT, SAMPLE, SAMPLE_TYPE,
         EXPERIMENT_PROPERTY, SAMPLE_PROPERTY
     }
 
@@ -112,6 +121,11 @@ public class DataSetSearchCriterion implements IsSerializable
     @Override
     public String toString()
     {
-        return field.toString() + " = " + value;
+        StringBuilder sb = new StringBuilder();
+        sb.append(getField());
+        sb.append(": ");
+        sb.append(getValue());
+        return sb.toString();
     }
+
 }
