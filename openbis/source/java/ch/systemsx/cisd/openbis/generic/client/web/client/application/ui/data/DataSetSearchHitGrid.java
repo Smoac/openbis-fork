@@ -216,5 +216,6 @@ public class DataSetSearchHitGrid extends
     @Override
     protected void showEntityViewer(DataSetSearchHitModel modelData)
     {
+        // do nothing - no viewer for datasets is available yet
     }
 }

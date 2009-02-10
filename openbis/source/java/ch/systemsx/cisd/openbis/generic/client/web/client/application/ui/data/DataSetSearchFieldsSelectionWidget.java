@@ -136,7 +136,7 @@ public final class DataSetSearchFieldsSelectionWidget extends
             {
                 continue;
             }
-            result.add(new DataSetSearchFieldComboModel(field.name(), DataSetSearchField
+            result.add(new DataSetSearchFieldComboModel(getDisplayName(field), DataSetSearchField
                     .createSimpleField(field)));
         }
         Collections.sort(types);
@@ -144,22 +144,75 @@ public final class DataSetSearchFieldsSelectionWidget extends
         {
             if (st.getExperimentTypePropertyTypes().size() > 0)
             {
-                result.add(new DataSetSearchFieldComboModel(
-                        DataSetSearchFieldKind.EXPERIMENT_PROPERTY.name() + "." + st.getCode(),
-                        DataSetSearchField.createExperimentProperty(st.getCode())));
+                DataSetSearchField field =
+                        DataSetSearchField.createExperimentProperty(st.getCode());
+                DataSetSearchFieldComboModel comboModel =
+                        createComboModel(st, field, isLabelDuplicated(st, types));
+                result.add(comboModel);
             }
         }
         for (final PropertyType st : types)
         {
             if (st.getSampleTypePropertyTypes().size() > 0)
             {
-                result
-                        .add(new DataSetSearchFieldComboModel(
-                                DataSetSearchFieldKind.SAMPLE_PROPERTY.name() + "." + st.getCode(),
-                                DataSetSearchField.createSampleProperty(st.getCode())));
+                DataSetSearchField field = DataSetSearchField.createSampleProperty(st.getCode());
+                DataSetSearchFieldComboModel comboModel =
+                        createComboModel(st, field, isLabelDuplicated(st, types));
+                result.add(comboModel);
             }
         }
         return result;
+    }
+
+    private static boolean isLabelDuplicated(PropertyType propertyType,
+            List<PropertyType> propertyTypes)
+    {
+        for (PropertyType prop : propertyTypes)
+        {
+            // NOTE: equality by reference
+            if (prop != propertyType && prop.getLabel().equals(propertyType.getLabel()))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private DataSetSearchFieldComboModel createComboModel(final PropertyType propertyType,
+            DataSetSearchField searchField, boolean useCode)
+    {
+        String prefix = getDisplayName(searchField.getKind()) + ": ";
+        String code = prefix + (useCode ? propertyType.getCode() : propertyType.getLabel());
+        return new DataSetSearchFieldComboModel(code, searchField);
+    }
+
+    private static String getDisplayName(DataSetSearchFieldKind field)
+    {
+        switch (field)
+        {
+            case DATA_SET_TYPE:
+                return "Data Set Type";
+            case EXPERIMENT:
+                return "Experiment Code";
+            case EXPERIMENT_PROPERTY:
+                return "Experiment property";
+            case EXPERIMENT_TYPE:
+                return "Experiment Type";
+            case FILE_TYPE:
+                return "File Type";
+            case GROUP:
+                return "Group Code";
+            case PROJECT:
+                return "Project Code";
+            case SAMPLE:
+                return "Sample Code";
+            case SAMPLE_PROPERTY:
+                return "Sample Property";
+            case SAMPLE_TYPE:
+                return "Sample Type";
+            default:
+                throw new IllegalStateException("unknown enum " + field);
+        }
     }
 
     @Override
