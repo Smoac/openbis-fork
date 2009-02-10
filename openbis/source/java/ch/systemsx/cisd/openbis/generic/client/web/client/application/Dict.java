@@ -383,6 +383,8 @@ public abstract class Dict
 
     public static final String MATCH_ANY = "match_any";
 
+    public static final String BUTTON_CHANGE_QUERY = "button_change_query";
+
     //
     // Unclassified
     //

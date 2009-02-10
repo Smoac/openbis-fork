@@ -208,6 +208,7 @@ var common = {
  location: "Location",
  match_all: "Match all criteria",
  match_any: "Match any criteria",
+ button_change_query : "Change Query",
  
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

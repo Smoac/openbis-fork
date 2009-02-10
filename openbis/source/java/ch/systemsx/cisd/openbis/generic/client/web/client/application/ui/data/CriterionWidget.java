@@ -110,6 +110,9 @@ public class CriterionWidget extends HorizontalPanel
         return idSuffix + "_" + generatedChildren;
     }
 
+    /**
+     * Adds a new {@link CriterionWidget} coping data from given the <em>name field</em>.
+     */
     private void createNew()
     {
         CriterionWidget newCriterion =

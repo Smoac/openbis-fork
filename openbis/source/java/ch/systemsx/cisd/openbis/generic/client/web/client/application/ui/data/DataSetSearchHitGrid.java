@@ -28,6 +28,8 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.layout.FitData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
@@ -36,13 +38,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.AbstractEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DataSetSearchHitModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetSearchHit;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
@@ -51,12 +50,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
 
 /**
- * Grid with data set search hits.
+ * Grid with data set search results.
  * 
  * @author Izabela Adamczyk
  */
 public class DataSetSearchHitGrid extends
-        AbstractBrowserGrid<DataSetSearchHit, DataSetSearchHitModel>
+        AbstractSimpleBrowserGrid<DataSetSearchHit, DataSetSearchHitModel>
 {
     // browser consists of the grid and the paging toolbar
     public static final String BROWSER_ID =
@@ -70,34 +69,21 @@ public class DataSetSearchHitGrid extends
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         DataSetSearchHitGrid grid = new DataSetSearchHitGrid(viewContext);
-        return grid.asDisposableWithToolbar(new DataSetSearchToolbar(grid));
+        return grid.asDisposableWithToolbar(new DataSetSearchToolbar(grid, viewContext
+                .getMessage(Dict.BUTTON_CHANGE_QUERY)));
     }
 
     private SearchCriteria criteria;
 
     private DataSetSearchHitGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(viewContext, GRID_ID, true, true);
+        super(viewContext, BROWSER_ID, GRID_ID);
         searchWindow = new DataSetSearchWindow();
 
     }
 
-    private static class DataSetSearchToolbar extends ToolBar
-    {
-        public DataSetSearchToolbar(final DataSetSearchHitGrid grid)
-        {
-            add(new TextToolItem("Change Query", new SelectionListener<ToolBarEvent>()
-                {
-                    @Override
-                    public void componentSelected(ToolBarEvent ce)
-                    {
-                        grid.showSearchDialog();
-                    }
-                }));
-        }
-    }
-
-    private IColumnDefinitionKind<DataSetSearchHit>[] getStaticColumnsDefinition()
+    @Override
+    protected IColumnDefinitionKind<DataSetSearchHit>[] getStaticColumnsDefinition()
     {
         return DataSetSearchHitColDefKind.values();
     }
@@ -143,23 +129,61 @@ public class DataSetSearchHitGrid extends
             showSearchDialog();
             return;
         }
-        super.refresh(criteria.toString(), false);
+        super.refresh();
     }
 
+    private void showSearchDialog()
+    {
+        searchWindow.show();
+    }
+
+    //
+    // Helper classes
+    //
+
+    /**
+     * Contains a button opening {@link DataSetSearchWindow}.
+     */
+    private static class DataSetSearchToolbar extends ToolBar
+    {
+        public DataSetSearchToolbar(final DataSetSearchHitGrid grid, String buttonName)
+        {
+            add(new FillToolItem());
+            add(new SeparatorToolItem());
+            add(new TextToolItem(buttonName, new SelectionListener<ToolBarEvent>()
+                {
+                    @Override
+                    public void componentSelected(ToolBarEvent ce)
+                    {
+                        grid.showSearchDialog();
+                    }
+                }));
+        }
+    }
+
+    /**
+     * Shows {@link CriteriaWidget}, allowing to specify search criteria.
+     * 
+     * @author Izabela Adamczyk
+     */
     private class DataSetSearchWindow extends Dialog
     {
-        static final int WIDTH = 550;
+        private static final int MARGIN = 5;
+
+        private static final int HEIGHT = 400;
+
+        private static final int WIDTH = 550;
 
         private CriteriaWidget criteriaWidget;
 
         public DataSetSearchWindow()
         {
-            setSize(WIDTH, 400);
+            setSize(WIDTH, HEIGHT);
             setModal(true);
             setScrollMode(Scroll.AUTOY);
             setLayout(new FitLayout());
             setResizable(false);
-            add(criteriaWidget = new CriteriaWidget(viewContext), new FitData(5));
+            add(criteriaWidget = new CriteriaWidget(viewContext), new FitData(MARGIN));
             final ButtonBar bar = new ButtonBar();
             bar.add(new Button(viewContext.getMessage(Dict.BUTTON_CANCEL))
                 {
@@ -178,7 +202,7 @@ public class DataSetSearchHitGrid extends
                         criteriaWidget.reset();
                     }
                 });
-            bar.add(new Button("Search")
+            bar.add(new Button(viewContext.getMessage(Dict.SEARCH_BUTTON))
                 {
                     @Override
                     protected void onClick(ComponentEvent ce)
@@ -193,29 +217,4 @@ public class DataSetSearchHitGrid extends
         }
     }
 
-    private void showSearchDialog()
-    {
-        searchWindow.show();
-    }
-
-    @Override
-    protected ColumnDefsAndConfigs<DataSetSearchHit> createColumnsDefinition()
-    {
-        IColumnDefinitionKind<DataSetSearchHit>[] colDefKinds = getStaticColumnsDefinition();
-        List<IColumnDefinitionUI<DataSetSearchHit>> colDefs =
-                AbstractEntityModel.createColumnsDefinition(colDefKinds, viewContext);
-        return ColumnDefsAndConfigs.create(colDefs);
-    }
-
-    @Override
-    protected boolean isRefreshEnabled()
-    {
-        return false;
-    }
-
-    @Override
-    protected void showEntityViewer(DataSetSearchHitModel modelData)
-    {
-        // do nothing - no viewer for datasets is available yet
-    }
 }

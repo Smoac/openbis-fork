@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
  */
 public class CriteriaWidget extends VerticalPanel
 {
+
     private final List<CriterionWidget> criteriaWidgets;
 
     private final MatchCriteriaRadio matchRadios;
