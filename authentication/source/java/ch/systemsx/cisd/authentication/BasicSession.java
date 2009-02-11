@@ -30,16 +30,12 @@ public class BasicSession implements Serializable
     protected static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss";
     private static final long serialVersionUID = 1L;
     
-    private String sessionToken;
-    private String userName;
-    private Principal principal;
-    private String remoteHost;
-    private long sessionStart;
-    private int sessionExpirationTime;
-    
-    public BasicSession()
-    {
-    }
+    private final String sessionToken;
+    private final String userName;
+    private final Principal principal;
+    private final String remoteHost;
+    private final long sessionStart;
+    private final int sessionExpirationTime;
 
     /**
      * Creates an instance from the specified session token, user name, principal, remoteHost, and
