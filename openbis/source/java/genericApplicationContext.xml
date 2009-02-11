@@ -82,6 +82,10 @@
         <constructor-arg ref="request-context-provider" />
     </bean>
     
+    <!-- 
+        // ETL Service with interceptors for translating results
+    -->
+    
     <bean id="etl-service" class="org.springframework.aop.framework.ProxyFactoryBean">
         <property name="proxyInterfaces">
             <list>
@@ -97,15 +101,14 @@
         </property>
         <property name="interceptorNames">
             <list>
+                <value>exception-translator</value>
                 <value>hibernate-transformer</value>
             </list>
         </property>
     </bean>
 
-
-    <!-- 
-        // Hibernate transformer
-    -->
+    <bean id="exception-translator"
+        class="ch.systemsx.cisd.openbis.generic.server.util.ServiceExceptionTranslator" />
 
     <bean id="hibernate-transformer" class="ch.systemsx.cisd.openbis.generic.server.util.HibernateTransformer" />
     
