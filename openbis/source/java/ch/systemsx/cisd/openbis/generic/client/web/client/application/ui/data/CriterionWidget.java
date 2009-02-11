@@ -25,16 +25,23 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriterion.DataSetSearchField;
 
 /**
+ * Allows to specify one criterion.
+ * 
  * @author Izabela Adamczyk
  */
 public class CriterionWidget extends HorizontalPanel
 {
+
+    private static final String PREFIX = "data_set_search_criterion_";
+
+    public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
 
     private final CriteriaWidget parent;
 
@@ -54,7 +61,7 @@ public class CriterionWidget extends HorizontalPanel
         this(parent, idSuffix, new DataSetSearchFieldsSelectionWidget(viewContext, idSuffix));
     }
 
-    public CriterionWidget(CriteriaWidget parent, String idSuffix,
+    private CriterionWidget(final CriteriaWidget parent, String idSuffix,
             DataSetSearchFieldsSelectionWidget nameField)
     {
         generatedChildren = 0;
@@ -62,6 +69,7 @@ public class CriterionWidget extends HorizontalPanel
         this.idSuffix = idSuffix;
         this.nameField = nameField;
         this.valueField = new TextField<String>();
+        valueField.setId(ID + idSuffix);
         this.removeButton = createRemoveButton();
 
         final TableData tableData =

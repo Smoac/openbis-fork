@@ -209,6 +209,10 @@ var common = {
  match_all: "Match all criteria",
  match_any: "Match any criteria",
  button_change_query : "Search",
+ data_set_type: "Data Set Type",
+ file_format_type: "File Type",
+ production_date: "Production Date",
+ data_producer_code: "Producer",
  
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

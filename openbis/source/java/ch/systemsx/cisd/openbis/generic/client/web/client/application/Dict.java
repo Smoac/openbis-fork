@@ -385,6 +385,8 @@ public abstract class Dict
 
     public static final String BUTTON_CHANGE_QUERY = "button_change_query";
 
+    public static final String DATA_SET_TYPE = "data_set_type";
+
     //
     // Unclassified
     //

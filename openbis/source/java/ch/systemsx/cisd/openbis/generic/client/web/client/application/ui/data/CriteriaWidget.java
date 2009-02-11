@@ -35,6 +35,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
 public class CriteriaWidget extends VerticalPanel
 {
 
+    public static final String FIRST_ID_SUFFIX = "first";
+
     private final List<CriterionWidget> criteriaWidgets;
 
     private final MatchCriteriaRadio matchRadios;
@@ -46,7 +48,7 @@ public class CriteriaWidget extends VerticalPanel
         add(matchRadios =
                 new MatchCriteriaRadio(viewContext.getMessage(Dict.MATCH_ALL), viewContext
                         .getMessage(Dict.MATCH_ANY)));
-        addCriterion(new CriterionWidget(viewContext, this, "first"));
+        addCriterion(new CriterionWidget(viewContext, this, FIRST_ID_SUFFIX));
     }
 
     private void enableRemovalIfOneExists(final boolean enable)

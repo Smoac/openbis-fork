@@ -20,7 +20,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.event.ToolBarEvent;
 import com.extjs.gxt.ui.client.widget.Dialog;
@@ -156,8 +156,10 @@ public class DataSetSearchHitGrid extends AbstractSimpleBrowserGrid<DataSetSearc
      * 
      * @author Izabela Adamczyk
      */
-    private class DataSetSearchWindow extends Dialog
+    public class DataSetSearchWindow extends Dialog
     {
+        public static final String SEARCH_BUTTON_ID = BROWSER_ID + "search_button";
+
         private static final int MARGIN = 5;
 
         private static final int HEIGHT = 400;
@@ -175,33 +177,39 @@ public class DataSetSearchHitGrid extends AbstractSimpleBrowserGrid<DataSetSearc
             setResizable(false);
             add(criteriaWidget = new CriteriaWidget(viewContext), new FitData(MARGIN));
             final ButtonBar bar = new ButtonBar();
-            bar.add(new Button(viewContext.getMessage(Dict.BUTTON_CANCEL))
-                {
-                    @Override
-                    protected void onClick(ComponentEvent ce)
-                    {
-                        super.onClick(ce);
-                        DataSetSearchWindow.this.hide();
-                    }
-                });
-            bar.add(new Button(viewContext.getMessage(Dict.BUTTON_RESET))
-                {
-                    @Override
-                    protected void onClick(ComponentEvent ce)
-                    {
-                        criteriaWidget.reset();
-                    }
-                });
-            bar.add(new Button(viewContext.getMessage(Dict.SEARCH_BUTTON))
-                {
-                    @Override
-                    protected void onClick(ComponentEvent ce)
-                    {
-                        super.onClick(ce);
-                        DataSetSearchHitGrid.this.refresh(criteriaWidget.tryGetCriteria());
-                        DataSetSearchWindow.this.hide();
-                    }
-                });
+            bar.add(new Button(viewContext.getMessage(Dict.BUTTON_CANCEL),
+                    new SelectionListener<ButtonEvent>()
+                        {
+                            @Override
+                            public void componentSelected(ButtonEvent ce)
+                            {
+                                DataSetSearchWindow.this.hide();
+                            }
+                        }));
+            bar.add(new Button(viewContext.getMessage(Dict.BUTTON_RESET),
+                    new SelectionListener<ButtonEvent>()
+                        {
+                            @Override
+                            public void componentSelected(ButtonEvent ce)
+                            {
+                                criteriaWidget.reset();
+                            }
+                        }));
+            final Button searchButton =
+                    new Button(viewContext.getMessage(Dict.SEARCH_BUTTON),
+                            new SelectionListener<ButtonEvent>()
+                                {
+                                    @Override
+                                    public void componentSelected(ButtonEvent ce)
+                                    {
+                                        DataSetSearchHitGrid.this.refresh(criteriaWidget
+                                                .tryGetCriteria());
+                                        DataSetSearchWindow.this.hide();
+                                    }
+                                });
+
+            searchButton.setId(SEARCH_BUTTON_ID);
+            bar.add(searchButton);
             setButtonBar(bar);
             setButtons("");
         }

@@ -28,7 +28,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetSearchHit;
  */
 public enum DataSetSearchHitColDefKind implements IColumnDefinitionKind<DataSetSearchHit>
 {
-    CODE(new AbstractColumnDefinitionKind<DataSetSearchHit>(Dict.CODE)
+
+    CODE(new AbstractColumnDefinitionKind<DataSetSearchHit>(Dict.CODE, 200)
         {
             @Override
             public String tryGetValue(DataSetSearchHit entity)
@@ -37,14 +38,121 @@ public enum DataSetSearchHitColDefKind implements IColumnDefinitionKind<DataSetS
             }
         }),
 
-    LOCATION(new AbstractColumnDefinitionKind<DataSetSearchHit>(Dict.LOCATION)
+    DATA_SET_TYPE(new AbstractColumnDefinitionKind<DataSetSearchHit>(Dict.DATA_SET_TYPE, 120)
+        {
+            @Override
+            public String tryGetValue(DataSetSearchHit entity)
+            {
+                return entity.getDataSet().getDataSetType().getCode();
+            }
+        }),
+
+    LOCATION(new AbstractColumnDefinitionKind<DataSetSearchHit>(Dict.LOCATION, 200)
         {
             @Override
             public String tryGetValue(DataSetSearchHit entity)
             {
                 return entity.getDataSet().getLocation();
             }
-        });
+        }),
+
+    FILE_TYPE(new AbstractColumnDefinitionKind<DataSetSearchHit>(Dict.FILE_FORMAT_TYPE, 120)
+        {
+            @Override
+            public String tryGetValue(DataSetSearchHit entity)
+            {
+                return entity.getDataSet().getFileFormatType().getCode();
+            }
+        }),
+
+    SAMPLE(new AbstractColumnDefinitionKind<DataSetSearchHit>(Dict.SAMPLE, 100)
+        {
+            @Override
+            public String tryGetValue(DataSetSearchHit entity)
+            {
+                return entity.getDataSet().getSampleCode();
+            }
+        }),
+
+    SAMPLE_IDENTIFIER(new AbstractColumnDefinitionKind<DataSetSearchHit>(Dict.SAMPLE_IDENTIFIER,
+            true)
+        {
+            @Override
+            public String tryGetValue(DataSetSearchHit entity)
+            {
+                return entity.getDataSet().getSampleIdentifier();
+            }
+        }),
+
+    SAMPLE_TYPE(new AbstractColumnDefinitionKind<DataSetSearchHit>(Dict.SAMPLE_TYPE, 100)
+        {
+            @Override
+            public String tryGetValue(DataSetSearchHit entity)
+            {
+                return entity.getDataSet().getSampleType().getCode();
+            }
+        }),
+
+    GROUP(new AbstractColumnDefinitionKind<DataSetSearchHit>(Dict.GROUP, 100)
+        {
+            @Override
+            public String tryGetValue(DataSetSearchHit entity)
+            {
+                return entity.getDataSet().getProcedure().getExperiment().getProject().getGroup()
+                        .getCode();
+            }
+        }),
+
+    PROJECT(new AbstractColumnDefinitionKind<DataSetSearchHit>(Dict.PROJECT, 100)
+        {
+            @Override
+            public String tryGetValue(DataSetSearchHit entity)
+            {
+                return entity.getDataSet().getProcedure().getExperiment().getProject().getCode();
+            }
+        }),
+
+    EXPERIMENT(new AbstractColumnDefinitionKind<DataSetSearchHit>(Dict.EXPERIMENT, 100)
+        {
+            @Override
+            public String tryGetValue(DataSetSearchHit entity)
+            {
+                return entity.getDataSet().getProcedure().getExperiment().getCode();
+            }
+        }),
+
+    EXPERIMENT_TYPE(new AbstractColumnDefinitionKind<DataSetSearchHit>(Dict.EXPERIMENT_TYPE, 120)
+        {
+            @Override
+            public String tryGetValue(DataSetSearchHit entity)
+            {
+                return entity.getDataSet().getProcedure().getExperiment().getExperimentType()
+                        .getCode();
+            }
+        }),
+
+    REGISTRATION_DATE(new AbstractColumnDefinitionKind<DataSetSearchHit>(Dict.REGISTRATION_DATE,
+            200, true)
+        {
+            @Override
+            public String tryGetValue(DataSetSearchHit entity)
+            {
+                return renderRegistrationDate(entity.getDataSet());
+            }
+        }),
+
+    IS_INVALID(new AbstractColumnDefinitionKind<DataSetSearchHit>(Dict.IS_INVALID, 100, true)
+        {
+            @Override
+            public String tryGetValue(DataSetSearchHit entity)
+            {
+                return renderInvalidationFlag(entity.getDataSet());
+            }
+        }),
+
+    ;
+
+    // TODO 2009-02-09 Tomasz Pylak: show EXPERIMENT_PROPERTY, SAMPLE_PROPERTY
 
     private final AbstractColumnDefinitionKind<DataSetSearchHit> columnDefinitionKind;
 

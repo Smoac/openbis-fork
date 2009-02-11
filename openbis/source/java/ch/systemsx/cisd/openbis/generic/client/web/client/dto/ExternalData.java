@@ -27,33 +27,38 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
  * 
  * @author Christian Ribeaud
  */
-public class ExternalData extends CodeWithRegistration<ExternalData> implements IInvalidationProvider
+public class ExternalData extends CodeWithRegistration<ExternalData> implements
+        IInvalidationProvider
 {
     private ProcedureType procedureType;
-    
+
     private String sampleIdentifier;
-    
+
     private SampleType sampleType;
-    
+
     private boolean derived;
-    
+
     private Boolean complete;
-    
+
     private Invalidation invalidation;
-    
+
     private DataSetType dataSetType;
-    
+
     private Date productionDate;
-    
+
     private String producerCode;
-    
+
     private String parentCode;
-    
+
     private String location;
 
     private FileFormatType fileFormatType;
 
     private LocatorType locatorType;
+
+    private Procedure procedure;
+
+    private String sampleCode;
 
     public final ProcedureType getProcedureType()
     {
@@ -68,6 +73,11 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements 
     public final String getSampleIdentifier()
     {
         return sampleIdentifier;
+    }
+
+    public final String getSampleCode()
+    {
+        return sampleCode;
     }
 
     public final void setSampleIdentifier(String sampleIdentifier)
@@ -183,6 +193,21 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements 
     public final void setInvalidation(Invalidation invalidation)
     {
         this.invalidation = invalidation;
+    }
+
+    public Procedure getProcedure()
+    {
+        return procedure;
+    }
+
+    public void setProcedure(Procedure procedure)
+    {
+        this.procedure = procedure;
+    }
+
+    public void setSampleCode(String sampleCode)
+    {
+        this.sampleCode = sampleCode;
     }
 
 }

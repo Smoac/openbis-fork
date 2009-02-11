@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.LocatorType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Procedure;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ProcedureType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -37,8 +38,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ExternalDataTranslator
@@ -46,7 +45,7 @@ public class ExternalDataTranslator
     private ExternalDataTranslator()
     {
     }
-    
+
     public static List<ExternalData> translate(List<ExternalDataPE> list)
     {
         ArrayList<ExternalData> result = new ArrayList<ExternalData>(list.size());
@@ -56,7 +55,7 @@ public class ExternalDataTranslator
         }
         return result;
     }
-    
+
     public static ExternalData translate(ExternalDataPE externalDataPE)
     {
         SamplePE sample = tryToGetSample(externalDataPE);
@@ -66,16 +65,21 @@ public class ExternalDataTranslator
         externalData.setDataProducerCode(externalDataPE.getDataProducerCode());
         externalData.setDataSetType(fill(new DataSetType(), externalDataPE.getDataSetType()));
         externalData.setDerived(externalDataPE.getSampleDerivedFrom() != null);
-        externalData.setFileFormatType(fill(new FileFormatType(), externalDataPE.getFileFormatType()));
+        externalData.setFileFormatType(fill(new FileFormatType(), externalDataPE
+                .getFileFormatType()));
         externalData.setInvalidation(tryToGetInvalidation(sample));
         externalData.setLocation(externalDataPE.getLocation());
-        externalData.setLocatorType(fill( new LocatorType(), externalDataPE.getLocatorType()));
+        externalData.setLocatorType(fill(new LocatorType(), externalDataPE.getLocatorType()));
         externalData.setParentCode(tryToGetCodeOfFirstParent(externalDataPE));
         externalData.setProcedureType(getProcedureType(externalDataPE));
         externalData.setProductionDate(externalDataPE.getProductionDate());
         externalData.setRegistrationDate(externalDataPE.getRegistrationDate());
-        externalData.setSampleIdentifier(sample == null ? null : sample.getSampleIdentifier().toString());
-        externalData.setSampleType(sample == null ? null : fill(new SampleType(), sample.getSampleType()));
+        externalData.setSampleIdentifier(sample == null ? null : sample.getSampleIdentifier()
+                .toString());
+        externalData.setSampleType(sample == null ? null : fill(new SampleType(), sample
+                .getSampleType()));
+        externalData.setSampleCode(sample == null ? null : sample.getCode());
+        externalData.setProcedure(getProcedure(externalDataPE));
         return externalData;
     }
 
@@ -88,7 +92,12 @@ public class ExternalDataTranslator
         }
         return fill(new ProcedureType(), procedure.getProcedureType());
     }
-    
+
+    private static Procedure getProcedure(ExternalDataPE externalDataPE)
+    {
+        return ProcedureTranslator.translate(externalDataPE.getProcedure());
+    }
+
     private static Invalidation tryToGetInvalidation(SamplePE sample)
     {
         if (sample == null)
@@ -106,13 +115,13 @@ public class ExternalDataTranslator
         result.setRegistrator(PersonTranslator.translate(invalidation.getRegistrator()));
         return result;
     }
-    
+
     private static String tryToGetCodeOfFirstParent(ExternalDataPE externalDataPE)
     {
         Set<DataPE> parents = externalDataPE.getParents();
         return parents.isEmpty() ? null : parents.iterator().next().getCode();
     }
-    
+
     private static SamplePE tryToGetSample(ExternalDataPE externalDataPE)
     {
         SamplePE sample = externalDataPE.getSampleAcquiredFrom();
@@ -122,7 +131,7 @@ public class ExternalDataTranslator
         }
         return externalDataPE.getSampleDerivedFrom();
     }
-    
+
     private static <T extends AbstractType> T fill(T type, AbstractTypePE typePEOrNull)
     {
         if (typePEOrNull != null)
@@ -132,5 +141,5 @@ public class ExternalDataTranslator
         }
         return type;
     }
-    
+
 }

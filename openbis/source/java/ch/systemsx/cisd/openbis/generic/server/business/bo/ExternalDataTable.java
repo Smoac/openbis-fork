@@ -70,15 +70,14 @@ public final class ExternalDataTable extends AbstractSampleIdentifierBusinessObj
         externalData.addAll(getExternalDataDAO().listExternalData(sample, SourceType.DERIVED));
         for (ExternalDataPE externalDataPE : externalData)
         {
-            HibernateUtils.initialize(externalDataPE.getParents());
-            HibernateUtils.initialize(externalDataPE.getProcedure());
+            enrichWithParentsAndProcedure(externalDataPE);
         }
     }
 
     public void loadByExperimentIdentifier(ExperimentIdentifier identifier)
     {
         assert identifier != null : "Unspecified experiment identifier";
-        
+
         ProjectPE project =
                 getProjectDAO().tryFindProject(identifier.getDatabaseInstanceCode(),
                         identifier.getGroupCode(), identifier.getProjectCode());
@@ -88,14 +87,22 @@ public final class ExternalDataTable extends AbstractSampleIdentifierBusinessObj
         List<ProcedurePE> procedures = experiment.getProcedures();
         for (ProcedurePE procedure : procedures)
         {
-            
+
             Set<DataPE> data = procedure.getData();
             for (DataPE dataSet : data)
             {
                 ExternalDataPE externalDataPE = (ExternalDataPE) dataSet;
-                HibernateUtils.initialize(externalDataPE.getParents());
+                enrichWithParentsAndProcedure(externalDataPE);
                 externalData.add(externalDataPE);
             }
         }
+    }
+
+    private void enrichWithParentsAndProcedure(ExternalDataPE externalDataPE)
+    {
+        HibernateUtils.initialize(externalDataPE.getParents());
+        HibernateUtils.initialize(externalDataPE.getProcedure());
+        final ExperimentPE exp = externalDataPE.getProcedure().getExperiment();
+        HibernateUtils.initialize(exp);
     }
 }
