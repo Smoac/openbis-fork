@@ -35,6 +35,10 @@ public final class Session extends BasicSession implements IAuthSession
      * is not defined.
      */
     private PersonPE personOrNull;
+    
+    public Session()
+    {
+    }
 
     public Session(final String user, final String sessionToken, final Principal principal,
             final String remoteHost, final long sessionStart)
