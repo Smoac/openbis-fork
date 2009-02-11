@@ -89,6 +89,12 @@
     </bean>
 
     <!-- 
+        // Hibernate transformer
+    -->
+
+    <bean id="hibernate-transformer" class="ch.systemsx.cisd.openbis.generic.server.util.HibernateTransformer" />
+    
+    <!-- 
         // Transaction
     -->
 
