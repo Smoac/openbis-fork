@@ -95,7 +95,12 @@ public class ExternalDataTranslator
 
     private static Procedure getProcedure(ExternalDataPE externalDataPE)
     {
-        return ProcedureTranslator.translate(externalDataPE.getProcedure());
+        final ProcedurePE procedure = externalDataPE.getProcedure();
+        if (procedure == null)
+        {
+            return null;
+        }
+        return ProcedureTranslator.translate(procedure);
     }
 
     private static Invalidation tryToGetInvalidation(SamplePE sample)

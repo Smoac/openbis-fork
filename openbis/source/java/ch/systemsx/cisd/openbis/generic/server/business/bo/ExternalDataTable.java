@@ -102,7 +102,10 @@ public final class ExternalDataTable extends AbstractSampleIdentifierBusinessObj
     {
         HibernateUtils.initialize(externalDataPE.getParents());
         HibernateUtils.initialize(externalDataPE.getProcedure());
-        final ExperimentPE exp = externalDataPE.getProcedure().getExperiment();
-        HibernateUtils.initialize(exp);
+        if (externalDataPE.getProcedure() != null)
+        {
+            final ExperimentPE exp = externalDataPE.getProcedure().getExperiment();
+            HibernateUtils.initialize(exp);
+        }
     }
 }

@@ -20,6 +20,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetSearchHit;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Procedure;
 
 /**
  * Definition of data set search results table columns.
@@ -98,8 +100,12 @@ public enum DataSetSearchHitColDefKind implements IColumnDefinitionKind<DataSetS
             @Override
             public String tryGetValue(DataSetSearchHit entity)
             {
-                return entity.getDataSet().getProcedure().getExperiment().getProject().getGroup()
-                        .getCode();
+                final Experiment exp = tryGetExperiment(entity);
+                if (exp == null)
+                {
+                    return null;
+                }
+                return exp.getProject().getGroup().getCode();
             }
         }),
 
@@ -108,7 +114,12 @@ public enum DataSetSearchHitColDefKind implements IColumnDefinitionKind<DataSetS
             @Override
             public String tryGetValue(DataSetSearchHit entity)
             {
-                return entity.getDataSet().getProcedure().getExperiment().getProject().getCode();
+                final Experiment exp = tryGetExperiment(entity);
+                if (exp == null)
+                {
+                    return null;
+                }
+                return exp.getProject().getCode();
             }
         }),
 
@@ -117,7 +128,12 @@ public enum DataSetSearchHitColDefKind implements IColumnDefinitionKind<DataSetS
             @Override
             public String tryGetValue(DataSetSearchHit entity)
             {
-                return entity.getDataSet().getProcedure().getExperiment().getCode();
+                final Experiment exp = tryGetExperiment(entity);
+                if (exp == null)
+                {
+                    return null;
+                }
+                return exp.getCode();
             }
         }),
 
@@ -126,9 +142,14 @@ public enum DataSetSearchHitColDefKind implements IColumnDefinitionKind<DataSetS
             @Override
             public String tryGetValue(DataSetSearchHit entity)
             {
-                return entity.getDataSet().getProcedure().getExperiment().getExperimentType()
-                        .getCode();
+                final Experiment experimentOrNull = tryGetExperiment(entity);
+                if (experimentOrNull == null)
+                {
+                    return null;
+                }
+                return experimentOrNull.getExperimentType().getCode();
             }
+
         }),
 
     REGISTRATION_DATE(new AbstractColumnDefinitionKind<DataSetSearchHit>(Dict.REGISTRATION_DATE,
@@ -170,6 +191,21 @@ public enum DataSetSearchHitColDefKind implements IColumnDefinitionKind<DataSetS
     public AbstractColumnDefinitionKind<DataSetSearchHit> getDescriptor()
     {
         return columnDefinitionKind;
+    }
+
+    private static Experiment tryGetExperiment(DataSetSearchHit entity)
+    {
+        final Procedure procetureOrNull = tryGetProceture(entity);
+        if (procetureOrNull == null)
+        {
+            return null;
+        }
+        return procetureOrNull.getExperiment();
+    }
+
+    private static Procedure tryGetProceture(DataSetSearchHit entity)
+    {
+        return entity.getDataSet().getProcedure();
     }
 
 }
