@@ -295,6 +295,9 @@
             <lib dir="${lib}/hibernate">
                 <include name="hibernate3.jar" />
             </lib>
+            <lib dir="${lib}/beanlib-hibernate">
+                <include name="beanlib-hibernate.jar" />
+            </lib>
             <lib dir="${lib}/hibernate/jta">
                 <include name="jta.jar" />
             </lib>
