@@ -708,7 +708,7 @@ function assert_correct_dataset_content_in_database {
     local pattern=$2
     echo ==== assert correct dataset $dataset_id content in database with pattern $pattern ====
     local psql=`run_psql`
-    local dataset=`$psql -U postgres -d openbis_integration_test \
+    local dataset=`$psql -U postgres -d lims_integration_test \
        -c "select d.id, pt.code as procedure_type, d.code, d.is_placeholder, r.data_id_parent, \
                   ed.is_complete, d.data_producer_code, d.production_timestamp \
            from data as d left join data_set_relationships as r on r.data_id_child = d.id \
