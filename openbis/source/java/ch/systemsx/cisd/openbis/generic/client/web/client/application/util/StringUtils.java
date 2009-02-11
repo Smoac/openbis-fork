@@ -83,4 +83,16 @@ public final class StringUtils
             return word.substring(0, 1).toUpperCase() + word.substring(1).toLowerCase();
         }
     }
+
+    public final static String abbreviate(final String value, final int maxLength)
+    {
+        assert maxLength > 4;
+        if (value.length() > maxLength)
+        {
+            return value.substring(0, maxLength - 3) + "...";
+        } else
+        {
+            return value;
+        }
+    }
 }

@@ -52,7 +52,7 @@ public final class FillSearchCriteria extends AbstractDefaultTestCommand
                                 + CriteriaWidget.FIRST_ID_SUFFIX);
         GWTUtils.setSelectedItem(selector, ModelDataPropertyNames.CODE, field);
 
-        GWTTestUtil.clickButtonWithID(DataSetSearchHitGrid.DataSetSearchWindow.SEARCH_BUTTON_ID);
+        GWTTestUtil.clickButtonWithID(DataSetSearchWindow.SEARCH_BUTTON_ID);
     }
 
 }

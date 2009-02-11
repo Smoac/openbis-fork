@@ -19,18 +19,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.event.ToolBarEvent;
-import com.extjs.gxt.ui.client.widget.Dialog;
-import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.button.ButtonBar;
-import com.extjs.gxt.ui.client.widget.layout.FitData;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -54,20 +42,23 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
  */
 public class DataSetSearchHitGrid extends AbstractSimpleBrowserGrid<DataSetSearchHit>
 {
+
     // browser consists of the grid and the paging toolbar
     public static final String BROWSER_ID =
             GenericConstants.ID_PREFIX + "data-set-search-hit-browser";
 
     public static final String GRID_ID = BROWSER_ID + "_grid";
 
-    private final DataSetSearchWindow searchWindow;
-
     public static DisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         DataSetSearchHitGrid grid = new DataSetSearchHitGrid(viewContext);
-        return grid.asDisposableWithToolbar(new DataSetSearchToolbar(grid, viewContext
-                .getMessage(Dict.BUTTON_CHANGE_QUERY)));
+        final DataSetSearchWindow searchWindow = new DataSetSearchWindow(viewContext);
+        final DataSetSearchToolbar toolbar =
+                new DataSetSearchToolbar(grid, viewContext.getMessage(Dict.BUTTON_CHANGE_QUERY),
+                        searchWindow);
+        searchWindow.setUpdateListener(toolbar);
+        return grid.asDisposableWithToolbar(toolbar);
     }
 
     private SearchCriteria criteria;
@@ -75,7 +66,6 @@ public class DataSetSearchHitGrid extends AbstractSimpleBrowserGrid<DataSetSearc
     private DataSetSearchHitGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, BROWSER_ID, GRID_ID);
-        searchWindow = new DataSetSearchWindow();
 
     }
 
@@ -106,7 +96,7 @@ public class DataSetSearchHitGrid extends AbstractSimpleBrowserGrid<DataSetSearc
         viewContext.getService().prepareExportDataSetSearchHits(exportCriteria, callback);
     }
 
-    private void refresh(SearchCriteria newCriteria)
+    public void refresh(SearchCriteria newCriteria)
     {
         criteria = newCriteria;
         refresh();
@@ -117,102 +107,9 @@ public class DataSetSearchHitGrid extends AbstractSimpleBrowserGrid<DataSetSearc
     {
         if (criteria == null)
         {
-            showSearchDialog();
             return;
         }
         super.refresh();
-    }
-
-    private void showSearchDialog()
-    {
-        searchWindow.show();
-    }
-
-    //
-    // Helper classes
-    //
-
-    /**
-     * Contains a button opening {@link DataSetSearchWindow}.
-     */
-    private static class DataSetSearchToolbar extends ToolBar
-    {
-        public DataSetSearchToolbar(final DataSetSearchHitGrid grid, String buttonName)
-        {
-            add(new FillToolItem());
-            add(new TextToolItem(buttonName, new SelectionListener<ToolBarEvent>()
-                {
-                    @Override
-                    public void componentSelected(ToolBarEvent ce)
-                    {
-                        grid.showSearchDialog();
-                    }
-                }));
-        }
-    }
-
-    /**
-     * Shows {@link CriteriaWidget}, allowing to specify search criteria.
-     * 
-     * @author Izabela Adamczyk
-     */
-    public class DataSetSearchWindow extends Dialog
-    {
-        public static final String SEARCH_BUTTON_ID = BROWSER_ID + "search_button";
-
-        private static final int MARGIN = 5;
-
-        private static final int HEIGHT = 400;
-
-        private static final int WIDTH = 550;
-
-        private CriteriaWidget criteriaWidget;
-
-        public DataSetSearchWindow()
-        {
-            setSize(WIDTH, HEIGHT);
-            setModal(true);
-            setScrollMode(Scroll.AUTOY);
-            setLayout(new FitLayout());
-            setResizable(false);
-            add(criteriaWidget = new CriteriaWidget(viewContext), new FitData(MARGIN));
-            final ButtonBar bar = new ButtonBar();
-            bar.add(new Button(viewContext.getMessage(Dict.BUTTON_CANCEL),
-                    new SelectionListener<ButtonEvent>()
-                        {
-                            @Override
-                            public void componentSelected(ButtonEvent ce)
-                            {
-                                DataSetSearchWindow.this.hide();
-                            }
-                        }));
-            bar.add(new Button(viewContext.getMessage(Dict.BUTTON_RESET),
-                    new SelectionListener<ButtonEvent>()
-                        {
-                            @Override
-                            public void componentSelected(ButtonEvent ce)
-                            {
-                                criteriaWidget.reset();
-                            }
-                        }));
-            final Button searchButton =
-                    new Button(viewContext.getMessage(Dict.SEARCH_BUTTON),
-                            new SelectionListener<ButtonEvent>()
-                                {
-                                    @Override
-                                    public void componentSelected(ButtonEvent ce)
-                                    {
-                                        DataSetSearchHitGrid.this.refresh(criteriaWidget
-                                                .tryGetCriteria());
-                                        DataSetSearchWindow.this.hide();
-                                    }
-                                });
-
-            searchButton.setId(SEARCH_BUTTON_ID);
-            bar.add(searchButton);
-            setButtonBar(bar);
-            setButtons("");
-        }
     }
 
 }
