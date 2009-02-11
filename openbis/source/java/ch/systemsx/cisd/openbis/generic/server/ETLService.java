@@ -126,7 +126,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
 
         final Session session = sessionManager.getSession(sessionToken);
         ExperimentPE experiment = tryToLoadExperimentBySampleIdentifier(session, sampleIdentifier);
-        enrichWithProcessingInstructions(experiment);
+        enrichWithPropertiesAndProcessingInstructions(experiment);
         return experiment;
         
     }
@@ -146,12 +146,13 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         return procedure == null ? null : procedure.getExperiment();
     }
     
-    private void enrichWithProcessingInstructions(ExperimentPE experiment)
+    private void enrichWithPropertiesAndProcessingInstructions(ExperimentPE experiment)
     {
         if (experiment == null)
         {
             return;
         }
+        HibernateUtils.initialize(experiment.getProperties());
         final List<ProcessingInstructionDTO> instructions =
                 new ArrayList<ProcessingInstructionDTO>();
         final IExperimentAttachmentDAO experimentAttachmentDAO =
