@@ -158,9 +158,8 @@ public class ExternalDataBO extends AbstractBusinessObject implements IExternalD
             final ProcedurePE procedure = getOrCreateUnknownProcedure(experiment);
             parent = new ExternalDataPE();
             parent.setCode(parentDataSetCode);
-            DataSetTypePE dataSetType = new DataSetTypePE();
-            dataSetType.setCode(DataSetTypeCode.UNKNOWN.getCode());
-            parent.setDataSetType(dataSetType);
+            String code = DataSetTypeCode.UNKNOWN.getCode();
+            parent.setDataSetType(getDataSetTypeDAO().tryToFindDataSetTypeByCode(code));
             parent.setProcedure(procedure);
             parent.setSampleDerivedFrom(sample);
             parent.setPlaceholder(true);
