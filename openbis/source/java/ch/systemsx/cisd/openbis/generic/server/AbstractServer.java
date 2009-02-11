@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleSession;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -165,7 +166,7 @@ public abstract class AbstractServer<T extends IServer> implements IServer,
 
     public final IAuthSession getSession(final String sessionToken) throws UserFailureException
     {
-        return sessionManager.getSession(sessionToken);
+        return new SimpleSession(sessionManager.getSession(sessionToken));
     }
 
     public int getVersion()
