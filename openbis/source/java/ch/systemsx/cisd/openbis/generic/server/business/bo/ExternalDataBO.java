@@ -146,17 +146,17 @@ public class ExternalDataBO extends AbstractBusinessObject implements IExternalD
         return fileFormatTypeOrNull;
     }
     
-    private final ExternalDataPE getOrCreateParentData(final String parentDataSetCode,
+    private final DataPE getOrCreateParentData(final String parentDataSetCode,
             ExperimentPE experiment, SamplePE sample)
     {
         assert parentDataSetCode != null : "Unspecified parent data set code.";
 
         final IExternalDataDAO dataDAO = getExternalDataDAO();
-        ExternalDataPE parent = dataDAO.tryToFindDataSetByCode(parentDataSetCode);
+        DataPE parent = dataDAO.tryToFindDataSetByCode(parentDataSetCode);
         if (parent == null)
         {
             final ProcedurePE procedure = getOrCreateUnknownProcedure(experiment);
-            parent = new ExternalDataPE();
+            parent = new DataPE();
             parent.setCode(parentDataSetCode);
             String code = DataSetTypeCode.UNKNOWN.getCode();
             parent.setDataSetType(getDataSetTypeDAO().tryToFindDataSetTypeByCode(code));

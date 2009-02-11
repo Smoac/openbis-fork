@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -107,7 +108,7 @@ final class ExternalDataDAO extends AbstractDAO implements IExternalDataDAO
                 + Long.toString(id);
     }
 
-    public void createDataSet(ExternalDataPE dataset)
+    public void createDataSet(DataPE dataset)
     {
         assert dataset != null : "Unspecified data set.";
         

@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.springframework.dao.DataAccessException;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
@@ -53,7 +54,7 @@ public interface IExternalDataDAO
     /**
      * Persists the specified data set.
      */
-    public void createDataSet(ExternalDataPE dataset);
+    public void createDataSet(DataPE dataset);
 
     /**
      * Updates the specified data set.
