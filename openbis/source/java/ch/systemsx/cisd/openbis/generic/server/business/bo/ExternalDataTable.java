@@ -91,9 +91,13 @@ public final class ExternalDataTable extends AbstractSampleIdentifierBusinessObj
             Set<DataPE> data = procedure.getData();
             for (DataPE dataSet : data)
             {
-                ExternalDataPE externalDataPE = (ExternalDataPE) dataSet;
-                enrichWithParentsAndProcedure(externalDataPE);
-                externalData.add(externalDataPE);
+                HibernateUtils.initialize(dataSet.getParents());
+                if (dataSet instanceof ExternalDataPE)
+                {
+                    ExternalDataPE externalDataPE = (ExternalDataPE) dataSet;
+                    enrichWithParentsAndProcedure(externalDataPE);
+                    externalData.add(externalDataPE);
+                }
             }
         }
     }
