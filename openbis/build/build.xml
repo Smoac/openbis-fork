@@ -295,9 +295,6 @@
             <lib dir="${lib}/hibernate">
                 <include name="hibernate3.jar" />
             </lib>
-            <lib dir="${lib}/beanlib-hibernate">
-                <include name="beanlib-hibernate.jar" />
-            </lib>
             <lib dir="${lib}/hibernate/jta">
                 <include name="jta.jar" />
             </lib>
@@ -325,6 +322,13 @@
             <lib dir="${lib}/slf4j/log4j12">
                 <include name="*.jar" />
                 <exclude name="src.jar" />
+            </lib>
+            <!-- Beanlib -->
+            <lib dir="${lib}/beanlib">
+                <include name="beanlib.jar" />
+            </lib>
+            <lib dir="${lib}/beanlib-hibernate">
+                <include name="beanlib-hibernate.jar" />
             </lib>
             <!-- Hibernate Search -->
             <lib dir="${lib}/hibernate-search">
