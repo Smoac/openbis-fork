@@ -103,7 +103,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         String query = "exp";
         final List<SearchHit> hits =
                 hibernateSearchDAO.searchEntitiesByTerm(ExperimentPE.class, query);
-        assertEquals(2, hits.size());
+        assertEquals(5, hits.size());
         for (SearchHit searchHit : hits)
         {
             ExperimentPE entity = ((ExperimentPE) searchHit.getEntity());

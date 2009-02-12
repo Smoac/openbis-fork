@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 
 import java.util.Collections;
 import java.util.List;
@@ -62,12 +63,12 @@ public class ExperimentDAOTest extends AbstractDAOTest
     {
         final List<ExperimentPE> experiments = daoFactory.getExperimentDAO().listExperiments();
         Collections.sort(experiments);
-        assertEquals(5, experiments.size());
-        assertEquals(CISD_CISD_DEFAULT_EXP_REUSE, experiments.get(0).getIdentifier());
-        assertEquals(CISD_CISD_DEFAULT_EXP_X, experiments.get(1).getIdentifier());
-        assertEquals(CISD_CISD_NEMO_EXP1, experiments.get(2).getIdentifier());
-        assertEquals(CISD_CISD_NEMO_EXP10, experiments.get(3).getIdentifier());
-        assertEquals(CISD_CISD_NEMO_EXP11, experiments.get(4).getIdentifier());
+        assertEqualsOrGreater(8, experiments.size());
+        assertExperimentIdentifierPresent(CISD_CISD_DEFAULT_EXP_REUSE, experiments);
+        assertExperimentIdentifierPresent(CISD_CISD_DEFAULT_EXP_X, experiments);
+        assertExperimentIdentifierPresent(CISD_CISD_NEMO_EXP1, experiments);
+        assertExperimentIdentifierPresent(CISD_CISD_NEMO_EXP10, experiments);
+        assertExperimentIdentifierPresent(CISD_CISD_NEMO_EXP11, experiments);
     }
 
     @Test
@@ -75,9 +76,9 @@ public class ExperimentDAOTest extends AbstractDAOTest
     {
         List<ExperimentPE> experiments = daoFactory.getExperimentDAO().listExperiments();
         Collections.sort(experiments);
-        assertEquals(5, experiments.size());
-        final ExperimentPE expInNemo = experiments.get(4);
-        assertEquals(CISD_CISD_NEMO_EXP11, expInNemo.getIdentifier());
+        assertEqualsOrGreater(8, experiments.size());
+        final ExperimentPE expInNemo =
+                assertExperimentIdentifierPresent(CISD_CISD_NEMO_EXP11, experiments);
 
         final ProjectPE projectNemo = expInNemo.getProject();
         assertEquals(ProjectDAOTest.NEMO, projectNemo.getCode());
@@ -87,15 +88,14 @@ public class ExperimentDAOTest extends AbstractDAOTest
 
         experiments = daoFactory.getExperimentDAO().listExperiments(expType, projectNemo);
         Collections.sort(experiments);
-        assertEquals(3, experiments.size());
-        ExperimentPE exp1 = experiments.get(0);
-        assertEquals(CISD_CISD_NEMO_EXP1, exp1.getIdentifier());
+        assertEquals(4, experiments.size());
+        ExperimentPE exp1 = assertExperimentIdentifierPresent(CISD_CISD_NEMO_EXP1, experiments);
         List<ProcedurePE> procedures = exp1.getProcedures();
         assertEquals(2, procedures.size());
         assertEquals(1, procedures.get(0).getData().size());
         assertEquals(1, procedures.get(1).getData().size());
-        assertEquals(CISD_CISD_NEMO_EXP10, experiments.get(1).getIdentifier());
-        assertEquals(CISD_CISD_NEMO_EXP11, experiments.get(2).getIdentifier());
+        assertExperimentIdentifierPresent(CISD_CISD_NEMO_EXP10, experiments);
+        assertExperimentIdentifierPresent(CISD_CISD_NEMO_EXP11, experiments);
     }
 
     @Test
@@ -103,7 +103,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
     {
         List<ExperimentPE> experiments = daoFactory.getExperimentDAO().listExperiments();
         Collections.sort(experiments);
-        assertEquals(5, experiments.size());
+        assertEqualsOrGreater(8, experiments.size());
         final ExperimentPE expInDefault = experiments.get(0);
         assertEquals(CISD_CISD_DEFAULT_EXP_REUSE, expInDefault.getIdentifier());
 
@@ -125,7 +125,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
     {
         List<ExperimentPE> experiments = daoFactory.getExperimentDAO().listExperiments();
         Collections.sort(experiments);
-        assertEquals(5, experiments.size());
+        assertEqualsOrGreater(8, experiments.size());
         final ExperimentPE expInDefault = experiments.get(0);
         assertEquals(CISD_CISD_DEFAULT_EXP_REUSE, expInDefault.getIdentifier());
 
@@ -149,13 +149,14 @@ public class ExperimentDAOTest extends AbstractDAOTest
     {
         List<ExperimentPE> experiments = daoFactory.getExperimentDAO().listExperiments();
         Collections.sort(experiments);
-        assertEquals(5, experiments.size());
-        final ExperimentPE templateExp = experiments.get(2);
-        assertEquals(CISD_CISD_NEMO_EXP1, templateExp.getIdentifier());
+        assertEqualsOrGreater(8, experiments.size());
+        final ExperimentPE templateExp =
+                assertExperimentIdentifierPresent(CISD_CISD_NEMO_EXP1, experiments);
 
-        ExperimentPE experiment = daoFactory.getExperimentDAO().tryFindByCodeAndProject(
-                templateExp.getProject(), templateExp.getCode());
-        
+        ExperimentPE experiment =
+                daoFactory.getExperimentDAO().tryFindByCodeAndProject(templateExp.getProject(),
+                        templateExp.getCode());
+
         assertEquals(CISD_CISD_NEMO_EXP1, experiment.getIdentifier());
         List<ProcedurePE> procedures = experiment.getProcedures();
         assertEquals(2, procedures.size());
@@ -168,9 +169,9 @@ public class ExperimentDAOTest extends AbstractDAOTest
     {
         List<ExperimentPE> experiments = daoFactory.getExperimentDAO().listExperiments();
         Collections.sort(experiments);
-        assertEquals(5, experiments.size());
-        final ExperimentPE templateExp = experiments.get(4);
-        assertEquals(CISD_CISD_NEMO_EXP11, templateExp.getIdentifier());
+        assertEqualsOrGreater(8, experiments.size());
+        final ExperimentPE templateExp =
+                assertExperimentIdentifierPresent(CISD_CISD_NEMO_EXP11, experiments);
 
         AssertJUnit.assertNull(daoFactory.getExperimentDAO().tryFindByCodeAndProject(
                 templateExp.getProject(), "nonexistent"));
@@ -180,22 +181,24 @@ public class ExperimentDAOTest extends AbstractDAOTest
     public void testCreateExperiment() throws Exception
     {
         List<ExperimentPE> experimentsBefore = daoFactory.getExperimentDAO().listExperiments();
-        assertEquals(5, experimentsBefore.size());
+        int sizeBefore = experimentsBefore.size();
+        assertEqualsOrGreater(8, sizeBefore);
 
         ExperimentPE experiment = createExperiment("CISD", "CISD", "NEMO", "EXP12", "SIRNA_HCS");
         daoFactory.getExperimentDAO().createExperiment(experiment);
 
         List<ExperimentPE> experimentsAfter = daoFactory.getExperimentDAO().listExperiments();
-        assertEquals(6, experimentsAfter.size());
+        assertEquals(sizeBefore + 1, experimentsAfter.size());
         Collections.sort(experimentsAfter);
-        assertExperimentsEqual(experiment, experimentsAfter.get(5));
+        assertExperimentsEqual(experiment, experimentsAfter.get(sizeBefore));
     }
 
     @Test
     public void testCreateExperimentsOfDifferentTypes() throws Exception
     {
         List<ExperimentPE> experimentsBefore = daoFactory.getExperimentDAO().listExperiments();
-        assertEquals(5, experimentsBefore.size());
+        int sizeBefore = experimentsBefore.size();
+        assertEqualsOrGreater(8, sizeBefore);
 
         ExperimentPE experiment = createExperiment("CISD", "CISD", "NEMO", "EXP13", "SIRNA_HCS");
         daoFactory.getExperimentDAO().createExperiment(experiment);
@@ -206,12 +209,12 @@ public class ExperimentDAOTest extends AbstractDAOTest
 
         List<ExperimentPE> experimentsAfter = daoFactory.getExperimentDAO().listExperiments();
         Collections.sort(experimentsAfter);
-        assertEquals(7, experimentsAfter.size());
-        assertExperimentsEqual(experiment, experimentsAfter.get(6));
-        assertEquals(experiment.getExperimentType().getCode(), experimentsAfter.get(6)
+        assertEquals(sizeBefore + 2, experimentsAfter.size());
+        assertExperimentsEqual(experiment, experimentsAfter.get(sizeBefore + 1));
+        assertEquals(experiment.getExperimentType().getCode(), experimentsAfter.get(sizeBefore + 1)
                 .getExperimentType().getCode());
-        assertExperimentsEqual(experiment2, experimentsAfter.get(5));
-        assertEquals(experiment2.getExperimentType().getCode(), experimentsAfter.get(5)
+        assertExperimentsEqual(experiment2, experimentsAfter.get(sizeBefore));
+        assertEquals(experiment2.getExperimentType().getCode(), experimentsAfter.get(sizeBefore)
                 .getExperimentType().getCode());
     }
 
@@ -220,8 +223,8 @@ public class ExperimentDAOTest extends AbstractDAOTest
     {
         List<ExperimentPE> experimentsBefore = daoFactory.getExperimentDAO().listExperiments();
         Collections.sort(experimentsBefore);
-        assertEquals(5, experimentsBefore.size());
-        assertEquals(CISD_CISD_NEMO_EXP11, experimentsBefore.get(4).getIdentifier());
+        assertEqualsOrGreater(8, experimentsBefore.size());
+        assertExperimentIdentifierPresent(CISD_CISD_NEMO_EXP11, experimentsBefore);
 
         ExperimentPE experiment = createExperiment("CISD", "CISD", "NEMO", "EXP11", "SIRNA_HCS");
         boolean exceptionThrown = false;
@@ -233,6 +236,29 @@ public class ExperimentDAOTest extends AbstractDAOTest
             exceptionThrown = true;
         }
         assertTrue(exceptionThrown);
+    }
+
+    private static ExperimentPE assertExperimentIdentifierPresent(String experimentIdentifier,
+            List<ExperimentPE> experiments)
+    {
+        for (ExperimentPE experiment : experiments)
+        {
+            if (experiment.getIdentifier().equals(experimentIdentifier))
+            {
+                return experiment;
+            }
+        }
+        fail("Experiment with the identifier '" + experimentIdentifier
+                + "' expected, but not found.");
+        return null; // never reached
+    }
+
+    private static void assertEqualsOrGreater(int minimalSize, int actualSize)
+    {
+        if (actualSize < minimalSize)
+        {
+            fail("At least " + minimalSize + " items expected, but only " + actualSize + " found.");
+        }
     }
 
     @Test(dataProvider = "illegalCodesProvider")

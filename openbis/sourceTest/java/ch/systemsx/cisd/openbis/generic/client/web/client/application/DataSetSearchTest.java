@@ -19,10 +19,12 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchHitColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchHitGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.FillSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriterion.DataSetSearchFieldKind;
 
 /**
@@ -36,20 +38,68 @@ public class DataSetSearchTest extends AbstractGWTTestCase
     public final void testSearch()
     {
         loginAndGotoTab();
-        remoteConsole.prepare(new FillSearchCriteria().addSimpleCriterion(
-                DataSetSearchFieldKind.EXPERIMENT, "exp1").addExperimentPropertyCriterion(
-                "Description", "*"));
-        remoteConsole.prepare(createCheckTable());
+        FillSearchCriteria fillCriteriaCmd = new FillSearchCriteria();
+        fillCriteriaCmd.addSimpleCriterion(DataSetSearchFieldKind.EXPERIMENT, "exp");
+        fillCriteriaCmd.addSimpleCriterion(DataSetSearchFieldKind.PROJECT, "nemo");
+        fillCriteriaCmd.addSamplePropertyCriterion("Comment", "*stuff*");
+        remoteConsole.prepare(fillCriteriaCmd);
+
+        final CheckTableCommand checkResultTableCmd = createCheckSearchGridCmd();
+        checkResultTableCmd.expectedSize(2);
+        Row row = new Row();
+        row.withCell(DataSetSearchHitColDefKind.LOCATION.id(), "a/1");
+        row.withCell(DataSetSearchHitColDefKind.LOCATION.id(), "a/3");
+        checkResultTableCmd.expectedRow(row);
+        remoteConsole.prepare(checkResultTableCmd);
+
         launchTest(20000);
     }
 
-    private final static CheckTableCommand createCheckTable()
+    public final void testSearchUnknownGroup()
     {
-        final CheckTableCommand table =
-                new CheckTableCommand(DataSetSearchHitGrid.GRID_ID,
-                        DataSetSearchHitGrid.ListEntitiesCallback.class);
-        table.expectedSize(0); // FIXME: Adjust after test database updated
-        return table;
+        loginAndGotoTab();
+        FillSearchCriteria fillCriteriaCmd = new FillSearchCriteria();
+        fillCriteriaCmd.addSimpleCriterion(DataSetSearchFieldKind.GROUP, "koko");
+        remoteConsole.prepare(fillCriteriaCmd);
+
+        final CheckTableCommand checkResultTableCmd = createCheckSearchGridCmd();
+        checkResultTableCmd.expectedSize(0);
+        remoteConsole.prepare(checkResultTableCmd);
+
+        launchTest(20000);
+    }
+
+    public final void testSearchForFileType()
+    {
+        loginAndGotoTab();
+        FillSearchCriteria fillCriteriaCmd = new FillSearchCriteria();
+        fillCriteriaCmd.addSimpleCriterion(DataSetSearchFieldKind.GROUP, "cisd");
+        fillCriteriaCmd.addSimpleCriterion(DataSetSearchFieldKind.FILE_TYPE, "tiff");
+
+        remoteConsole.prepare(fillCriteriaCmd);
+
+        final CheckTableCommand checkResultTableCmd = createCheckSearchGridCmd();
+        checkResultTableCmd.expectedSize(2);
+        Row row1 =
+                createTiffRow().withCell(DataSetSearchHitColDefKind.LOCATION.id(), "xxx/yyy/zzz");
+        checkResultTableCmd.expectedRow(row1);
+        Row row2 = createTiffRow().withCell(DataSetSearchHitColDefKind.LOCATION.id(), "a/1");
+        checkResultTableCmd.expectedRow(row2);
+
+        remoteConsole.prepare(checkResultTableCmd);
+
+        launchTest(20000);
+    }
+
+    private Row createTiffRow()
+    {
+        return new Row().withCell(DataSetSearchHitColDefKind.FILE_TYPE.id(), "TIFF");
+    }
+
+    private static CheckTableCommand createCheckSearchGridCmd()
+    {
+        return new CheckTableCommand(DataSetSearchHitGrid.GRID_ID,
+                DataSetSearchHitGrid.ListEntitiesCallback.class);
     }
 
     private void loginAndGotoTab()

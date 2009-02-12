@@ -476,13 +476,13 @@ CREATE SEQUENCE database_instance_id_seq
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('database_instance_id_seq', 1, true);
+SELECT pg_catalog.setval('database_instance_id_seq', 2, true);
 CREATE SEQUENCE etpt_id_seq
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('etpt_id_seq', 5, true);
+SELECT pg_catalog.setval('etpt_id_seq', 7, true);
 CREATE SEQUENCE event_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -507,13 +507,13 @@ CREATE SEQUENCE experiment_id_seq
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('experiment_id_seq', 9, true);
+SELECT pg_catalog.setval('experiment_id_seq', 20, true);
 CREATE SEQUENCE experiment_property_id_seq
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('experiment_property_id_seq', 12, true);
+SELECT pg_catalog.setval('experiment_property_id_seq', 19, true);
 CREATE SEQUENCE experiment_type_id_seq
     INCREMENT BY 1
     NO MAXVALUE
@@ -531,7 +531,7 @@ CREATE SEQUENCE group_id_seq
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('group_id_seq', 2, true);
+SELECT pg_catalog.setval('group_id_seq', 6, true);
 CREATE SEQUENCE invalidation_id_seq
     INCREMENT BY 1
     NO MAXVALUE
@@ -573,19 +573,19 @@ CREATE SEQUENCE mtpt_id_seq
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('mtpt_id_seq', 22, true);
+SELECT pg_catalog.setval('mtpt_id_seq', 23, true);
 CREATE SEQUENCE person_id_seq
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('person_id_seq', 3, true);
+SELECT pg_catalog.setval('person_id_seq', 6, true);
 CREATE SEQUENCE procedure_id_seq
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('procedure_id_seq', 10, true);
+SELECT pg_catalog.setval('procedure_id_seq', 18, true);
 CREATE SEQUENCE procedure_type_id_seq
     INCREMENT BY 1
     NO MAXVALUE
@@ -597,13 +597,13 @@ CREATE SEQUENCE project_id_seq
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('project_id_seq', 4, true);
+SELECT pg_catalog.setval('project_id_seq', 5, true);
 CREATE SEQUENCE property_type_id_seq
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('property_type_id_seq', 15, true);
+SELECT pg_catalog.setval('property_type_id_seq', 20, true);
 CREATE SEQUENCE role_assignment_id_seq
     INCREMENT BY 1
     NO MAXVALUE
@@ -615,13 +615,13 @@ CREATE SEQUENCE sample_id_seq
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('sample_id_seq', 1032, true);
+SELECT pg_catalog.setval('sample_id_seq', 1044, true);
 CREATE SEQUENCE sample_property_id_seq
     INCREMENT BY 1
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('sample_property_id_seq', 25, true);
+SELECT pg_catalog.setval('sample_property_id_seq', 34, true);
 CREATE SEQUENCE sample_type_id_seq
     INCREMENT BY 1
     NO MAXVALUE
@@ -633,5 +633,5 @@ CREATE SEQUENCE stpt_id_seq
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('stpt_id_seq', 5, true);
+SELECT pg_catalog.setval('stpt_id_seq', 9, true);
 

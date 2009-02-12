@@ -48,7 +48,7 @@ public class SearchTest extends AbstractGWTTestCase
     {
         final CheckTableCommand checkTableCommand =
                 new CheckTableCommand(MatchingEntitiesPanel.GRID_ID,
-                        MatchingEntitiesPanel.ListEntitiesCallback.class).expectedSize(5);
+                        MatchingEntitiesPanel.ListEntitiesCallback.class).expectedSize(8);
         checkTableCommand.expectedRow(createRow("CISD:/CISD/NEMO/EXP10"));
         checkTableCommand.expectedRow(createRow("CISD:/CISD/NEMO/EXP11"));
         checkTableCommand.expectedRow(createRow("CISD:/CISD/NEMO/EXP1"));

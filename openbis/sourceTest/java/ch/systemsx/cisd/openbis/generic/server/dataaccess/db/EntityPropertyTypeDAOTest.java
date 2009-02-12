@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import junit.framework.Assert;
 
@@ -25,6 +27,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -97,8 +100,23 @@ public class EntityPropertyTypeDAOTest extends AbstractDAOTest
         String typeCode = "SIRNA_HCS";
         EntityTypePE entityType =
                 daoFactory.getEntityTypeDAO(entityKind).tryToFindEntityTypeByCode(typeCode);
-        Assert.assertEquals(daoFactory.getExperimentDAO().listExperiments(), daoFactory
+        List<ExperimentPE> allExperiments = daoFactory.getExperimentDAO().listExperiments();
+        Assert.assertEquals(filter(allExperiments, entityType), daoFactory
                 .getEntityPropertyTypeDAO(entityKind).listEntities(entityType));
+    }
+
+    private static List<ExperimentPE> filter(List<ExperimentPE> allExperiments,
+            EntityTypePE entityType)
+    {
+        List<ExperimentPE> result = new ArrayList<ExperimentPE>();
+        for (ExperimentPE experimentPE : allExperiments)
+        {
+            if (experimentPE.getExperimentType().getCode().equals(entityType.getCode()))
+            {
+                result.add(experimentPE);
+            }
+        }
+        return result;
     }
 
     private EntityTypePropertyTypePE createAssignment(EntityKind entityKind,

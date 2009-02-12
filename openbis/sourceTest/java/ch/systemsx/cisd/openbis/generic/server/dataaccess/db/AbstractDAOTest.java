@@ -70,7 +70,7 @@ public abstract class AbstractDAOTest extends AbstractTransactionalTestNGSpringC
         System.setProperty("mass-upload-folder", "sourceTest/sql/postgresql");
     }
 
-    static final Long ANOTHER_DATABASE_INSTANCE_ID = new Long(3);
+    static final Long ANOTHER_DATABASE_INSTANCE_ID = new Long(2);
 
     static final String EXCEED_40_CHARACTERS = StringUtils.repeat("A", 41);
 

@@ -44,6 +44,7 @@ public final class FillSearchCriteria extends AbstractDefaultTestCommand
     {
         criteria = new ArrayList<Criterion>();
         criteriaDefined = false;
+        matchAll();
         addCallbackClass(DataSetSearchFieldsSelectionWidget.ListPropertyTypesCallback.class);
     }
 

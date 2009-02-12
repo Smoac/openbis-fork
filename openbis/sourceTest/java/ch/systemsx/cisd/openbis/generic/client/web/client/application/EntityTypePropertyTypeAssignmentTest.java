@@ -79,8 +79,8 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
                 CategoriesBuilder.MENU_ELEMENTS.ASSIGN_ETPT));
         final boolean mandatory = true;
         remoteConsole.prepare(new FillPropertyTypeAssignmentForm(mandatory, USER_COMMENT,
-                COMPOUND_HCS, null, EXPERIMENT));
-        prepareListingAfterAssignment(USER_COMMENT, COMPOUND_HCS, EXPERIMENT, 25, mandatory);
+                COMPOUND_HCS, "a comment", EXPERIMENT));
+        prepareListingAfterAssignment(USER_COMMENT, COMPOUND_HCS, EXPERIMENT, 29, mandatory);
         launchTest(20000);
     }
 
