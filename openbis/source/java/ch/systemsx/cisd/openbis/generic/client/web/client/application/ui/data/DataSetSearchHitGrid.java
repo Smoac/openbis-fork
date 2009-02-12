@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
 import java.util.List;
 
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -79,7 +78,8 @@ public class DataSetSearchHitGrid extends AbstractSimpleBrowserGrid<DataSetSearc
     protected List<IColumnDefinition<DataSetSearchHit>> getAvailableFilters()
     {
         return asColumnFilters(new DataSetSearchHitColDefKind[]
-            { DataSetSearchHitColDefKind.CODE, DataSetSearchHitColDefKind.LOCATION });
+            { DataSetSearchHitColDefKind.CODE, DataSetSearchHitColDefKind.LOCATION,
+                    DataSetSearchHitColDefKind.FILE_TYPE });
     }
 
     @Override

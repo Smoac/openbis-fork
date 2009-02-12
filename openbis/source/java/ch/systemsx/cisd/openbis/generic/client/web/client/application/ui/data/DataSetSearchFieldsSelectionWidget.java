@@ -58,6 +58,9 @@ public final class DataSetSearchFieldsSelectionWidget extends
 
     private boolean dataLoaded;
 
+    private static final DataSetSearchFieldComboModel ANY =
+            new DataSetSearchFieldComboModel("(Any)", null);
+
     public DataSetSearchFieldsSelectionWidget(
             final IViewContext<ICommonClientServiceAsync> viewContext, final String idSuffix)
     {
@@ -127,6 +130,7 @@ public final class DataSetSearchFieldsSelectionWidget extends
                 setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_EMPTY, EMPTY_RESULT_SUFFIX));
                 setReadOnly(true);
             }
+            setValue(ANY);
             applyEmptyText();
             dataLoaded = true;
         }
@@ -137,6 +141,7 @@ public final class DataSetSearchFieldsSelectionWidget extends
     {
         final List<DataSetSearchFieldComboModel> result =
                 new ArrayList<DataSetSearchFieldComboModel>();
+        result.add(ANY);
         for (DataSetSearchFieldKind field : DataSetSearchFieldKind.values())
         {
             if (field.equals(DataSetSearchFieldKind.EXPERIMENT_PROPERTY)
@@ -211,4 +216,23 @@ public final class DataSetSearchFieldsSelectionWidget extends
                     new ListPropertyTypesCallback(viewContext));
         }
     }
+
+    public List<DataSetSearchField> getAllRealFields()
+    {
+        List<DataSetSearchField> list = new ArrayList<DataSetSearchField>();
+        for (DataSetSearchFieldComboModel model : getStore().getModels())
+        {
+            if (model.equals(ANY) == false)
+            {
+                list.add((DataSetSearchField) model.get(ModelDataPropertyNames.OBJECT));
+            }
+        }
+        return list;
+    }
+
+    public boolean isAny()
+    {
+        return ANY.equals(getValue());
+    }
+
 }

@@ -90,6 +90,7 @@ public class DataSetSearchCriterion implements IsSerializable
 
     public enum DataSetSearchFieldKind implements IsSerializable
     {
+
         DATA_SET_TYPE("Data Set Type"),
 
         EXPERIMENT("Experiment Code"),

@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.VerticalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -186,5 +189,23 @@ public class CriterionWidget extends HorizontalPanel
         }
 
         return name + " = " + criterion.getValue();
+    }
+
+    public List<DataSetSearchCriterion> tryGetAny()
+    {
+        final String selectedValue = valueField.getValue();
+        if (nameField.isAny() && StringUtils.isBlank(selectedValue) == false)
+        {
+            List<DataSetSearchCriterion> list = new ArrayList<DataSetSearchCriterion>();
+            for (DataSetSearchField field : nameField.getAllRealFields())
+            {
+                final DataSetSearchCriterion result = new DataSetSearchCriterion();
+                result.setField(field);
+                result.setValue(selectedValue);
+                list.add(result);
+            }
+            return list;
+        }
+        return null;
     }
 }
