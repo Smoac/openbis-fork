@@ -120,6 +120,7 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
 
         final Criteria criteria = createListSampleForTypeCriteria(sampleType);
         criteria.add(Restrictions.eq("group", group));
+        criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
         final List<SamplePE> list = cast(criteria.list());
         if (operationLog.isDebugEnabled())
         {
@@ -138,6 +139,7 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
 
         final Criteria criteria = createListSampleForTypeCriteria(sampleType);
         criteria.add(Restrictions.eq("databaseInstance", databaseInstance));
+        criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
         final List<SamplePE> list = cast(criteria.list());
         if (operationLog.isDebugEnabled())
         {
