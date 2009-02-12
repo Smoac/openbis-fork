@@ -69,6 +69,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyT
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
@@ -337,7 +338,7 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public final void registerGroupRole(final String roleSetCode, final String group,
+    public final void registerGroupRole(final RoleSetCode roleSetCode, final String group,
             final String person)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -354,7 +355,7 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public final void registerInstanceRole(final String roleSetCode, final String person)
+    public final void registerInstanceRole(final RoleSetCode roleSetCode, final String person)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
@@ -368,7 +369,7 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public final void deleteGroupRole(final String roleSetCode, final String group,
+    public final void deleteGroupRole(final RoleSetCode roleSetCode, final String group,
             final String person)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -386,7 +387,7 @@ public final class CommonClientService extends AbstractClientService implements
 
     }
 
-    public final void deleteInstanceRole(final String roleSetCode, final String person)
+    public final void deleteInstanceRole(final RoleSetCode roleSetCode, final String person)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try

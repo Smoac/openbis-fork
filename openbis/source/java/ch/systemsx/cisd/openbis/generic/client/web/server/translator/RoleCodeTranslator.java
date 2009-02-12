@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 
 /**
@@ -31,21 +32,24 @@ public final class RoleCodeTranslator
         // Can not be instantiated.
     }
 
-    public final static RoleCode translate(final String code)
+    public final static RoleCode translate(final RoleSetCode code)
     {
-        if ("INSTANCE_ADMIN".equals(code))
+        if (RoleSetCode.INSTANCE_ADMIN.equals(code))
         {
             return RoleCode.ADMIN;
-        } else if ("GROUP_ADMIN".equals(code))
+        } else if (RoleSetCode.GROUP_ADMIN.equals(code))
         {
             return RoleCode.ADMIN;
-        } else if ("USER".equals(code))
+        } else if (RoleSetCode.USER.equals(code))
         {
             return RoleCode.USER;
-        } else if ("OBSERVER".equals(code))
+        } else if (RoleSetCode.OBSERVER.equals(code))
         {
             return RoleCode.OBSERVER;
-        } else if ("ETL_SERVER".equals(code))
+        } else if (RoleSetCode.INSTANCE_ETL_SERVER.equals(code))
+        {
+            return RoleCode.ETL_SERVER;
+        } else if (RoleSetCode.GROUP_ETL_SERVER.equals(code))
         {
             return RoleCode.ETL_SERVER;
         } else

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 
 /**
@@ -41,32 +42,38 @@ public final class RoleAssignmentTranslator
         result.setGroup(GroupTranslator.translate(role.getGroup()));
         result.setInstance(DatabaseInstanceTranslator.translate(role.getDatabaseInstance()));
         result.setPerson(PersonTranslator.translate(role.getPerson()));
-        result.setCode(getRoleCode(role));
+        result.setRoleSetCode(getRoleCode(role));
         return result;
     }
 
-    private final static String getRoleCode(final RoleAssignmentPE role)
+    private final static RoleSetCode getRoleCode(final RoleAssignmentPE role)
     {
-        String code;
+        RoleSetCode code;
         switch (role.getRole())
         {
             case ADMIN:
                 if (role.getGroup() == null)
                 {
-                    code = "INSTANCE_ADMIN";
+                    code = RoleSetCode.INSTANCE_ADMIN;
                 } else
                 {
-                    code = "GROUP_ADMIN";
+                    code = RoleSetCode.GROUP_ADMIN;
                 }
                 break;
             case OBSERVER:
-                code = "OBSERVER";
+                code = RoleSetCode.OBSERVER;
                 break;
             case USER:
-                code = "USER";
+                code = RoleSetCode.USER;
                 break;
             case ETL_SERVER:
-                code = "ETL_SERVER";
+                if (role.getGroup() == null)
+                {
+                    code = RoleSetCode.INSTANCE_ETL_SERVER;
+                } else
+                {
+                    code = RoleSetCode.GROUP_ETL_SERVER;
+                }
                 break;
             default:
                 throw new IllegalArgumentException("Unknown role");

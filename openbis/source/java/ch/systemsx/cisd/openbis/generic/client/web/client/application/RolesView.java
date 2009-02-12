@@ -182,13 +182,13 @@ public class RolesView extends ContentPanel
                 if (StringUtils.isBlank((String) selectedRole.get(ModelDataPropertyNames.GROUP)))
                 {
                     viewContext.getService().deleteInstanceRole(
-                            (String) selectedRole.get(ModelDataPropertyNames.ROLE),
+                            selectedRole.getRoleSetCode(),
                             (String) selectedRole.get(ModelDataPropertyNames.PERSON),
                             roleListRefreshCallback);
                 } else
                 {
                     viewContext.getService().deleteGroupRole(
-                            (String) selectedRole.get(ModelDataPropertyNames.ROLE),
+                            selectedRole.getRoleSetCode(),
                             (String) selectedRole.get(ModelDataPropertyNames.GROUP),
                             (String) selectedRole.get(ModelDataPropertyNames.PERSON),
                             roleListRefreshCallback);

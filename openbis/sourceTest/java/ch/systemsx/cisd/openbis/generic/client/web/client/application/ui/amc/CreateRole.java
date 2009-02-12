@@ -21,6 +21,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 
 /**
  * A {@link AbstractDefaultTestCommand} extension for creating a role.
@@ -63,7 +64,7 @@ public final class CreateRole extends AbstractDefaultTestCommand
             GWTUtils.setSelectedItem(listBox, roleNameOrNull);
         } else
         {
-            GWTUtils.setSelectedItem(listBox, RoleListBox.INSTANCE_ADMIN);
+            GWTUtils.setSelectedItem(listBox, RoleSetCode.INSTANCE_ADMIN.toString());
         }
         GWTTestUtil.getTextFieldWithID(AddRoleDialog.PERSON_FIELD_ID).setValue(personName);
         GWTTestUtil.clickButtonWithID(AddRoleDialog.SAVE_BUTTON_ID);

@@ -26,10 +26,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.Che
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CreateGroup;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CreatePerson;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CreateRole;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.RoleListBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.FailureExpectation;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 
 /**
  * A {@link AbstractGWTTestCase} extension to test <i>AMC</i>.
@@ -74,9 +74,9 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
         remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.ROLES,
                 CategoriesBuilder.MENU_ELEMENTS.LIST));
         remoteConsole.prepare(new CreateRole(TEST_GROUP.toUpperCase(), USER_ID,
-                RoleListBox.OBSERVER));
-        remoteConsole
-                .prepare(new CheckRole(TEST_GROUP.toUpperCase(), USER_ID, RoleListBox.OBSERVER));
+                RoleSetCode.OBSERVER.toString()));
+        remoteConsole.prepare(new CheckRole(TEST_GROUP.toUpperCase(), USER_ID, RoleSetCode.OBSERVER
+                .toString()));
 
         launchTest(20000);
     }

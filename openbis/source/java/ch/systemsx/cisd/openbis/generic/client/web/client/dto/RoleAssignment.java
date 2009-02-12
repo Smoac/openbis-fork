@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**
@@ -28,6 +29,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
  */
 public final class RoleAssignment extends Code<RoleAssignment>
 {
+    private RoleSetCode roleSetCode;
+    
     private Person person;
 
     private Group group;
@@ -36,6 +39,17 @@ public final class RoleAssignment extends Code<RoleAssignment>
 
     public RoleAssignment()
     {
+    }
+
+    public final RoleSetCode getRoleSetCode()
+    {
+        return roleSetCode;
+    }
+
+    public final void setRoleSetCode(RoleSetCode roleSetCode)
+    {
+        this.roleSetCode = roleSetCode;
+        setCode(roleSetCode.toString());
     }
 
     public Group getGroup()

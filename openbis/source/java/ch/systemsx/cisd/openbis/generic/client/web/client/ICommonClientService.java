@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -80,24 +81,24 @@ public interface ICommonClientService extends IClientService
     /**
      * Registers a new role from given role set code, group code and person code
      */
-    public void registerGroupRole(String roleSetCode, String group, String person)
+    public void registerGroupRole(RoleSetCode roleSetCode, String group, String person)
             throws UserFailureException;
 
     /**
      * Deletes the role described by given role set code, group code and person code
      */
-    public void deleteGroupRole(String roleSetCode, String group, String person)
+    public void deleteGroupRole(RoleSetCode roleSetCode, String group, String person)
             throws UserFailureException;
 
     /**
      * Registers a new role from given role set code and person code
      */
-    public void registerInstanceRole(String roleSetCode, String person) throws UserFailureException;
+    public void registerInstanceRole(RoleSetCode roleSetCode, String person) throws UserFailureException;
 
     /**
      * Deletes the role described by given role set code and person code
      */
-    public void deleteInstanceRole(String roleSetCode, String person) throws UserFailureException;
+    public void deleteInstanceRole(RoleSetCode roleSetCode, String person) throws UserFailureException;
 
     /**
      * Returns a list of sample types.

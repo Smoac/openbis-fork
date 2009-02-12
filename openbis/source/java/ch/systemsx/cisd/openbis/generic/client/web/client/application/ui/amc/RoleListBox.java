@@ -21,6 +21,8 @@ import com.google.gwt.user.client.ui.ChangeListener;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
+
 /**
  * {@link ListBox} with RoleSets.
  * 
@@ -28,19 +30,13 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public class RoleListBox extends ListBox
 {
-    public static final String OBSERVER = "OBSERVER";
-
-    public static final String INSTANCE_ADMIN = "INSTANCE_ADMIN";
-
     public RoleListBox(final TextField<String> group)
     {
-        // TODO 2008-10-08, Christian Ribeaud: Get this from the database or, at least, make an
-        // enumeration.
-        addItem(OBSERVER);
-        addItem("USER");
-        addItem("ETL_SERVER");
-        addItem("GROUP_ADMIN");
-        addItem(INSTANCE_ADMIN);
+        RoleSetCode[] values = RoleSetCode.values();
+        for (RoleSetCode visibleRoleCode : values)
+        {
+            addItem(visibleRoleCode.toString());
+        }
         setVisibleItemCount(1);
 
         addChangeListener(new ChangeListener()
@@ -51,7 +47,8 @@ public class RoleListBox extends ListBox
 
                 public final void onChange(final Widget sender)
                 {
-                    if (getSelectedIndex() != 3)
+                    boolean groupLevel = RoleSetCode.values()[getSelectedIndex()].isGroupLevel();
+                    if (groupLevel)
                     {
                         group.show();
                         group.setAllowBlank(false);
@@ -65,8 +62,8 @@ public class RoleListBox extends ListBox
 
     }
 
-    public final String getValue()
+    public final RoleSetCode getValue()
     {
-        return getValue(getSelectedIndex());
+        return RoleSetCode.values()[getSelectedIndex()];
     }
 }

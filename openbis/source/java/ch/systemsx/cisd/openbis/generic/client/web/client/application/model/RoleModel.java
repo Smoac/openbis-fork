@@ -20,6 +20,7 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 
 /**
  * {@link ModelData} for {@link RoleAssignment}.
@@ -36,6 +37,11 @@ public class RoleModel extends BaseModelData
         set(ModelDataPropertyNames.PERSON, role.getPerson().getUserId());
         set(ModelDataPropertyNames.ROLE, role.getCode());
         set(ModelDataPropertyNames.DATABASE_INSTANCE, role.getInstance() != null ? role.getInstance().getCode() : "");
+    }
+    
+    public RoleSetCode getRoleSetCode()
+    {
+        return RoleSetCode.valueOf((String) get(ModelDataPropertyNames.ROLE)); 
     }
 
 }

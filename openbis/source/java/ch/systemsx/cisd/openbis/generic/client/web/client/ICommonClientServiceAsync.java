@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -68,20 +69,20 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /** @see ICommonClientService#listRoles() */
     public void listRoles(AsyncCallback<List<RoleAssignment>> asyncCallback);
 
-    /** @see ICommonClientService#registerGroupRole(String, String, String) */
-    public void registerGroupRole(String roleSetCode, String group, String person,
+    /** @see ICommonClientService#registerGroupRole(RoleSetCode, String, String) */
+    public void registerGroupRole(RoleSetCode roleSetCode, String group, String person,
             AsyncCallback<Void> asyncCallback);
 
-    /** @see ICommonClientService#deleteGroupRole(String, String, String) */
-    public void deleteGroupRole(String roleSetCode, String group, String person,
+    /** @see ICommonClientService#deleteGroupRole(RoleSetCode, String, String) */
+    public void deleteGroupRole(RoleSetCode roleSetCode, String group, String person,
             AsyncCallback<Void> asyncCallback);
 
-    /** @see ICommonClientService#registerInstanceRole(String, String) */
-    public void registerInstanceRole(String roleSetCode, String person,
+    /** @see ICommonClientService#registerInstanceRole(RoleSetCode, String) */
+    public void registerInstanceRole(RoleSetCode roleSetCode, String person,
             AsyncCallback<Void> asyncCallback);
 
-    /** @see ICommonClientService#deleteInstanceRole(String, String) */
-    public void deleteInstanceRole(String roleSetCode, String person,
+    /** @see ICommonClientService#deleteInstanceRole(RoleSetCode, String) */
+    public void deleteInstanceRole(RoleSetCode roleSetCode, String person,
             AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#listSampleTypes() */
