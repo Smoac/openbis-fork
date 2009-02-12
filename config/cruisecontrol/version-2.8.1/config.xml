@@ -43,7 +43,7 @@
   
   <!-- Projects -->
 
-  <project name="lims (nightly build)" requiremodification="false">
+  <!--project name="lims (nightly build)" requiremodification="false">
     <bootstrappers>
       <svnbootstrapper localWorkingCopy="${lims.nightly-build.dir}"/>
     </bootstrappers>
@@ -73,7 +73,7 @@
         </htmlemail>
       </onfailure>
     </publishers>
-  </project>
+  </project-->
 
   <project name="openbis (nightly build)" requiremodification="false">
     <bootstrappers>
