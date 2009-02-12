@@ -18,7 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.VerticalAlignment;
-import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.TextField;
@@ -39,9 +40,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriterion.
 public class CriterionWidget extends HorizontalPanel
 {
 
-    private static final String PREFIX = "data_set_search_criterion_";
+    private static final String PREFIX = "data_set_search_criterion";
 
     public static final String ID = GenericConstants.ID_PREFIX + PREFIX;
+
+    public static final String VALUE_FIELD_ID_PREFIX = ID + "_value";
+
+    public static final String REMOVE_BUTTON_ID_PREFIX = ID + "_remove";
+
+    public static final String ADD_BUTTON_ID_PREFIX = ID + "_add";
 
     private final CriteriaWidget parent;
 
@@ -69,8 +76,7 @@ public class CriterionWidget extends HorizontalPanel
         this.idSuffix = idSuffix;
         this.nameField = nameField;
         this.valueField = new TextField<String>();
-        valueField.setId(ID + idSuffix);
-        this.removeButton = createRemoveButton();
+        valueField.setId(VALUE_FIELD_ID_PREFIX + idSuffix);
 
         final TableData tableData =
                 new TableData(HorizontalAlignment.LEFT, VerticalAlignment.BOTTOM);
@@ -79,8 +85,8 @@ public class CriterionWidget extends HorizontalPanel
         this.nameField.setWidth(300);
         add(valueField, tableData);
         valueField.setWidth(150);
-        add(createAddButton(), tableData);
-        add(removeButton, tableData);
+        add(createAddButton(idSuffix), tableData);
+        add(removeButton = createRemoveButton(idSuffix), tableData);
     }
 
     /**
@@ -91,30 +97,32 @@ public class CriterionWidget extends HorizontalPanel
         removeButton.setEnabled(enable);
     }
 
-    private Button createRemoveButton()
+    private Button createRemoveButton(String id)
     {
-        return new Button("-")
+        final Button button = new Button("-", new SelectionListener<ButtonEvent>()
             {
                 @Override
-                protected void onClick(ComponentEvent ce)
+                public void componentSelected(ButtonEvent ce)
                 {
-                    super.onClick(ce);
                     remove();
                 }
-            };
+            });
+        button.setId(REMOVE_BUTTON_ID_PREFIX + id);
+        return button;
     }
 
-    private Button createAddButton()
+    private Button createAddButton(String id)
     {
-        return new Button("+")
+        final Button button = new Button("+", new SelectionListener<ButtonEvent>()
             {
                 @Override
-                protected void onClick(ComponentEvent ce)
+                public void componentSelected(ButtonEvent ce)
                 {
-                    super.onClick(ce);
                     createNew();
                 }
-            };
+            });
+        button.setId(ADD_BUTTON_ID_PREFIX + id);
+        return button;
     }
 
     private String getChildId()

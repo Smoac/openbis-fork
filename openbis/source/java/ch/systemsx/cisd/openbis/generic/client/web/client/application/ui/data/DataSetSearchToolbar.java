@@ -45,7 +45,6 @@ class DataSetSearchToolbar extends ToolBar
     {
         grid.refresh(searchCriteria);
         description.setLabel(StringUtils.abbreviate(searchDescription, 100));
-        // description.setTitle(searchDescription);
         description.setToolTip(searchDescription);
     }
 

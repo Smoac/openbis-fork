@@ -90,8 +90,38 @@ public class DataSetSearchCriterion implements IsSerializable
 
     public enum DataSetSearchFieldKind implements IsSerializable
     {
-        DATA_SET_TYPE, EXPERIMENT, EXPERIMENT_TYPE, FILE_TYPE, GROUP, PROJECT, SAMPLE, SAMPLE_TYPE,
-        EXPERIMENT_PROPERTY, SAMPLE_PROPERTY
+        DATA_SET_TYPE("Data Set Type"),
+
+        EXPERIMENT("Experiment Code"),
+
+        EXPERIMENT_TYPE("Experiment Type"),
+
+        FILE_TYPE("File Type"),
+
+        GROUP("Group Code"),
+
+        PROJECT("Project Code"),
+
+        SAMPLE("Sample Code"),
+
+        SAMPLE_TYPE("Sample Type"),
+
+        EXPERIMENT_PROPERTY("Experiment Property"),
+
+        SAMPLE_PROPERTY("Sample Property");
+
+        private final String description;
+
+        private DataSetSearchFieldKind(String description)
+        {
+            this.description = description;
+        }
+
+        public String description()
+        {
+            return description;
+        }
+
     }
 
     public DataSetSearchCriterion()

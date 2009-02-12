@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.Da
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.FillSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriterion.DataSetSearchFieldKind;
 
 /**
  * A {@link AbstractGWTTestCase} extension to test <i>Data Set Search</i>.
@@ -35,7 +36,9 @@ public class DataSetSearchTest extends AbstractGWTTestCase
     public final void testSearch()
     {
         loginAndGotoTab();
-        remoteConsole.prepare(new FillSearchCriteria("Experiment Code", "exp1"));
+        remoteConsole.prepare(new FillSearchCriteria().addSimpleCriterion(
+                DataSetSearchFieldKind.EXPERIMENT, "exp1").addExperimentPropertyCriterion(
+                "Description", "*"));
         remoteConsole.prepare(createCheckTable());
         launchTest(20000);
     }

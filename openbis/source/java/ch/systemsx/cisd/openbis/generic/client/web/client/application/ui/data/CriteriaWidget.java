@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
 public class CriteriaWidget extends VerticalPanel
 {
 
-    public static final String FIRST_ID_SUFFIX = "first";
+    public static final String FIRST_ID_SUFFIX = "_first";
 
     private final List<CriterionWidget> criteriaWidgets;
 

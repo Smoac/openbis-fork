@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria.CriteriaConnection;
 
@@ -33,6 +34,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria.Criteria
  */
 public class MatchCriteriaRadio extends HorizontalPanel
 {
+    private static final String PREFIX = "match_criteria_radio";
+
+    private static final String ID = GenericConstants.ID_PREFIX + PREFIX;
+
+    public static final String OR_RADIO_ID = ID + "_or";
+
+    public static final String AND_RADIO_ID = ID + "_and";
 
     private final Radio orRadio;
 
@@ -42,9 +50,11 @@ public class MatchCriteriaRadio extends HorizontalPanel
     {
         RadioGroup group = new RadioGroup();
         andRadio = new Radio();
+        andRadio.setId(AND_RADIO_ID);
         andRadio.setBoxLabel(matchAll);
 
         orRadio = new Radio();
+        orRadio.setId(OR_RADIO_ID);
         orRadio.setBoxLabel(matchAny);
 
         group.add(andRadio);

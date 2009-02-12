@@ -190,38 +190,14 @@ public final class DataSetSearchFieldsSelectionWidget extends
             DataSetSearchField searchField, boolean useCode)
     {
         String prefix = getDisplayName(searchField.getKind());
-        String property = (useCode ? propertyType.getCode() : propertyType.getLabel());
+        String property = useCode ? propertyType.getCode() : propertyType.getLabel();
         String code = prefix + " \'" + property + "\'";
         return new DataSetSearchFieldComboModel(code, searchField);
     }
 
     private static String getDisplayName(DataSetSearchFieldKind field)
     {
-        switch (field)
-        {
-            case DATA_SET_TYPE:
-                return "Data Set Type";
-            case EXPERIMENT:
-                return "Experiment Code";
-            case EXPERIMENT_PROPERTY:
-                return "Experiment property";
-            case EXPERIMENT_TYPE:
-                return "Experiment Type";
-            case FILE_TYPE:
-                return "File Type";
-            case GROUP:
-                return "Group Code";
-            case PROJECT:
-                return "Project Code";
-            case SAMPLE:
-                return "Sample Code";
-            case SAMPLE_PROPERTY:
-                return "Sample Property";
-            case SAMPLE_TYPE:
-                return "Sample Type";
-            default:
-                throw new IllegalStateException("unknown enum " + field);
-        }
+        return field.description();
     }
 
     @Override
