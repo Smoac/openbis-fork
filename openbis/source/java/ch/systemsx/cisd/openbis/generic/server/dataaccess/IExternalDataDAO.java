@@ -44,7 +44,7 @@ public interface IExternalDataDAO
     /**
      * Tries to get the data set for the specified code.
      */
-    public ExternalDataPE tryToFindDataSetByCode(String dataSetCode);
+    public DataPE tryToFindDataSetByCode(String dataSetCode);
 
     /**
      * Creates a unique data set code.

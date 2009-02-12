@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SequenceNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 
 /**
  * Implementation of {@link IExternalDataDAO} for databases.
@@ -46,9 +47,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
  */
 final class ExternalDataDAO extends AbstractDAO implements IExternalDataDAO
 {
+    private static final String EXTERNAL_DATA_UPDATE_TEMPLATE =
+        "insert into %s (data_id, location, loty_id, ffty_id, is_complete, cvte_id_stor_fmt) "
+        + "values (%d, '%s', %d, %d, '%c', %d)";
+    
     private final static String DATA_CODE_DATE_FORMAT_PATTERN = "yyyyMMddHHmmssSSS";
     
     private final static Class<ExternalDataPE> ENTITY_CLASS = ExternalDataPE.class;
+    
+    private final static Class<DataPE> ENTITY_SUPER_CLASS = DataPE.class;
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, ExternalDataDAO.class);
@@ -83,15 +90,15 @@ final class ExternalDataDAO extends AbstractDAO implements IExternalDataDAO
         return list;
     }
 
-    public ExternalDataPE tryToFindDataSetByCode(String dataSetCode)
+    public DataPE tryToFindDataSetByCode(String dataSetCode)
     {
         assert dataSetCode != null : "Unspecified data set code.";
 
-        final List<ExternalDataPE> list =
-                cast(getHibernateTemplate().find(
-                        String.format("select e from %s e where e.code = ?", ENTITY_CLASS.getSimpleName()),
-                        toArray(dataSetCode)));
-        final ExternalDataPE entity = tryFindEntity(list, "data set");
+        String name = ENTITY_SUPER_CLASS.getSimpleName();
+        String hql = String.format("select e from %s e where e.code = ?", name);
+        String normalizedCode = CodeConverter.tryToDatabase(dataSetCode);
+        final List<DataPE> list = cast(getHibernateTemplate().find(hql, toArray(normalizedCode)));
+        final DataPE entity = tryFindEntity(list, "data set");
         if (operationLog.isDebugEnabled())
         {
             String methodName = MethodUtils.getCurrentMethod().getName();
@@ -122,17 +129,38 @@ final class ExternalDataDAO extends AbstractDAO implements IExternalDataDAO
         }
     }
 
-    public void updateDataSet(ExternalDataPE dataset)
+    public void updateDataSet(ExternalDataPE externalData)
     {
-        assert dataset != null : "Given data set can not be null.";
-        validatePE(dataset);
+        assert externalData != null : "Given external data can not be null.";
+        validatePE(externalData);
 
-        final HibernateTemplate template = getHibernateTemplate();
-        template.update(dataset);
-        template.flush();
+        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+        externalData.setCode(CodeConverter.tryToDatabase(externalData.getCode()));
+        Long id = externalData.getId();
+        final DataPE loaded = (DataPE) hibernateTemplate.load(ENTITY_CLASS, id);
+        // This just means that we do not have any entry in 'EXTERNAL_DATA' table for this id. It
+        // might happen when we work with placeholder data.
+        if (loaded instanceof ExternalDataPE == false)
+        {
+            String location = externalData.getLocation();
+            Long locatorTypeID = externalData
+                    .getLocatorType().getId();
+            Long fileFormatTypeID = externalData.getFileFormatType()
+                    .getId();
+            char complete = externalData.getComplete().name().charAt(0);
+            Long storageFormatTermID = externalData.getStorageFormatVocabularyTerm().getId();
+            final String sql =
+                    String.format(EXTERNAL_DATA_UPDATE_TEMPLATE, TableNames.EXTERNAL_DATA_TABLE,
+                            id, location, locatorTypeID, fileFormatTypeID, complete,
+                            storageFormatTermID);
+            executeUpdate(sql);
+            hibernateTemplate.evict(loaded);
+        }
+        hibernateTemplate.update(externalData);
+        hibernateTemplate.flush();
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("UPDATE: data set '%s'.", dataset));
+            operationLog.info(String.format("UPDATE: external data '%s'.", externalData));
         }
     }
 }

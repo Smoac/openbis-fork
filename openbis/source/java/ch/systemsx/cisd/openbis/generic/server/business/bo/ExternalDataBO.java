@@ -193,7 +193,7 @@ public class ExternalDataBO extends AbstractBusinessObject implements IExternalD
         assert externalData != null : "Undefined external data.";
         IExternalDataDAO externalDataDAO = getExternalDataDAO();
         String dataCode = externalData.getCode();
-        ExternalDataPE data = externalDataDAO.tryToFindDataSetByCode(dataCode);
+        DataPE data = externalDataDAO.tryToFindDataSetByCode(dataCode);
         if (data == null)
         {
             externalDataDAO.createDataSet(externalData);
@@ -204,20 +204,10 @@ public class ExternalDataBO extends AbstractBusinessObject implements IExternalD
                 throw new UserFailureException("Already existing data set for code '"
                         + dataCode + "' can not be updated by data set " + externalData);
             }
-            data.setPlaceholder(false);
-            data.setComplete(externalData.getComplete());
-            data.setDataProducerCode(externalData.getDataProducerCode());
-            data.setDataSetType(externalData.getDataSetType());
-            data.setFileFormatType(externalData.getFileFormatType());
-            data.setLocatorType(externalData.getLocatorType());
-            data.setLocation(externalData.getLocation());
-            data.setProcedure(externalData.getProcedure());
-            data.setParents(externalData.getParents());
-            data.setProductionDate(externalData.getProductionDate());
-            data.setRegistrationDate(new Date());
-            data.setSampleAcquiredFrom(externalData.getSampleAcquiredFrom());
-            data.setSampleDerivedFrom(externalData.getSampleDerivedFrom());
-            data.setStorageFormatVocabularyTerm(externalData.getStorageFormatVocabularyTerm());
+            externalData.setPlaceholder(false);
+            sourceType.nullifyProducerSample(externalData);
+            externalData.setId(data.getId());
+            externalData.setRegistrationDate(new Date());
             externalDataDAO.updateDataSet(externalData);
         }
     }

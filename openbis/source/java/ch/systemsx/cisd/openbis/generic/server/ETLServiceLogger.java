@@ -61,7 +61,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
     public ExperimentPE tryToGetBaseExperiment(String sessionToken,
             SampleIdentifier sampleIdentifier) throws UserFailureException
     {
-        // TODO Auto-generated method stub
+        logAccess(sessionToken, "get_experiment", "SAMPLE(%s)", sampleIdentifier);
         return null;
     }
 
