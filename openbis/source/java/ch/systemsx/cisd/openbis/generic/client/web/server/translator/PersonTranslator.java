@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
@@ -43,10 +45,10 @@ public class PersonTranslator
             return null;
         }
         final Person result = new Person();
-        result.setFirstName(person.getFirstName());
-        result.setLastName(person.getLastName());
-        result.setEmail(person.getEmail());
-        result.setUserId(person.getUserId());
+        result.setFirstName(StringEscapeUtils.escapeHtml(person.getFirstName()));
+        result.setLastName(StringEscapeUtils.escapeHtml(person.getLastName()));
+        result.setEmail(StringEscapeUtils.escapeHtml(person.getEmail()));
+        result.setUserId(StringEscapeUtils.escapeHtml(person.getUserId()));
         result.setRegistrationDate(person.getRegistrationDate());
         if (recursively)
         {

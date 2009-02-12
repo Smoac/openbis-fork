@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Procedure;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ProcedureType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -56,7 +58,7 @@ public final class ProcedureTranslator
         result.setDataAcquisition(procedureType.isDataAcquisition());
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(procedureType
                 .getDatabaseInstance()));
-        result.setDescription(procedureType.getDescription());
+        result.setDescription(StringEscapeUtils.escapeHtml(procedureType.getDescription()));
         return result;
     }
 

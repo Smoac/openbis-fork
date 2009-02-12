@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -56,7 +58,7 @@ public final class ProjectTranslator
         }
         final Project result = new Project();
         result.setCode(project.getCode());
-        result.setDescription(project.getDescription());
+        result.setDescription(StringEscapeUtils.escapeHtml(project.getDescription()));
         result.setGroup(GroupTranslator.translate(project.getGroup()));
         result.setProjectLeader(PersonTranslator.translate(project.getProjectLeader()));
         result.setRegistrator(PersonTranslator.translate(project.getRegistrator()));

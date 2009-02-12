@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
@@ -68,7 +70,7 @@ public class ExternalDataTranslator
         externalData.setFileFormatType(fill(new FileFormatType(), externalDataPE
                 .getFileFormatType()));
         externalData.setInvalidation(tryToGetInvalidation(sample));
-        externalData.setLocation(externalDataPE.getLocation());
+        externalData.setLocation(StringEscapeUtils.escapeHtml(externalDataPE.getLocation()));
         externalData.setLocatorType(fill(new LocatorType(), externalDataPE.getLocatorType()));
         externalData.setParentCode(tryToGetCodeOfFirstParent(externalDataPE));
         externalData.setProcedureType(getProcedureType(externalDataPE));
@@ -115,7 +117,7 @@ public class ExternalDataTranslator
             return null;
         }
         Invalidation result = new Invalidation();
-        result.setReason(invalidation.getReason());
+        result.setReason(StringEscapeUtils.escapeHtml(invalidation.getReason()));
         result.setRegistrationDate(invalidation.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(invalidation.getRegistrator()));
         return result;
@@ -142,7 +144,7 @@ public class ExternalDataTranslator
         if (typePEOrNull != null)
         {
             type.setCode(typePEOrNull.getCode());
-            type.setDescription(typePEOrNull.getDescription());
+            type.setDescription(StringEscapeUtils.escapeHtml(typePEOrNull.getDescription()));
         }
         return type;
     }

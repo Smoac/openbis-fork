@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.common.utilities.BeanUtils.Converter;
@@ -287,6 +289,16 @@ public class DtoConverters
             return EntityKind.valueOf(matchingEntity.getEntityKind().name());
         }
 
+        public final String convertToFieldDescription(final SearchHit matchingEntity)
+        {
+            return StringEscapeUtils.escapeHtml(matchingEntity.getFieldDescription());
+        }
+
+        public final String convertToTextFragment(final SearchHit matchingEntity)
+        {
+            return StringEscapeUtils.escapeHtml(matchingEntity.getTextFragment());
+        }
+
     }
 
     /**
@@ -328,6 +340,11 @@ public class DtoConverters
         //
         // BeanUtils.Converter
         //
+
+        public final String convertToDescription(final VocabularyPE vocabulary)
+        {
+            return StringEscapeUtils.escapeHtml(vocabulary.getDescription());
+        }
 
         public final List<VocabularyTerm> convertToTerms(final VocabularyPE vocabulary)
         {

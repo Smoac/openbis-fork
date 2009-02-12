@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
@@ -39,7 +41,7 @@ public final class SamplePropertyTranslator
     public final static SampleProperty translate(final SamplePropertyPE samplePropertyPE)
     {
         final SampleProperty result = new SampleProperty();
-        result.setValue(samplePropertyPE.tryGetUntypedValue());
+        result.setValue(StringEscapeUtils.escapeHtml(samplePropertyPE.tryGetUntypedValue()));
         result
                 .setEntityTypePropertyType(SampleTypePropertyTypeTranslator
                         .translate((SampleTypePropertyTypePE) samplePropertyPE

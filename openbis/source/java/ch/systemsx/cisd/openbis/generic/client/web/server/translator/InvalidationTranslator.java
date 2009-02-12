@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
 
@@ -39,7 +41,7 @@ public final class InvalidationTranslator
             return null;
         }
         final Invalidation newInvalidation = new Invalidation();
-        newInvalidation.setReason(invalidation.getReason());
+        newInvalidation.setReason(StringEscapeUtils.escapeHtml(invalidation.getReason()));
         newInvalidation.setRegistrationDate(invalidation.getRegistrationDate());
         newInvalidation.setRegistrator(PersonTranslator.translate(invalidation.getRegistrator()));
         return newInvalidation;

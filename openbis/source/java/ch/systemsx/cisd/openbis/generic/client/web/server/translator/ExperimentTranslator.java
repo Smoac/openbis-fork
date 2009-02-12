@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
@@ -82,7 +84,7 @@ public final class ExperimentTranslator
     {
         final ExperimentType result = new ExperimentType();
         result.setCode(experimentType.getCode());
-        result.setDescription(experimentType.getDescription());
+        result.setDescription(StringEscapeUtils.escapeHtml(experimentType.getDescription()));
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(experimentType
                 .getDatabaseInstance()));
         result.setExperimentTypePropertyTypes(ExperimentTypePropertyTypeTranslator.translate(
@@ -94,7 +96,7 @@ public final class ExperimentTranslator
     {
         final Attachment result = new Attachment();
         result.setRegistrator(PersonTranslator.translate(attachment.getRegistrator()));
-        result.setFileName(attachment.getFileName());
+        result.setFileName(StringEscapeUtils.escapeHtml(attachment.getFileName()));
         result.setVersion(attachment.getVersion());
         result.setRegistrationDate(attachment.getRegistrationDate());
         return result;
@@ -118,7 +120,7 @@ public final class ExperimentTranslator
     {
         final ExperimentTypePE result = new ExperimentTypePE();
         result.setCode(experimentType.getCode());
-        result.setDescription(experimentType.getDescription());
+        result.setDescription(StringEscapeUtils.escapeHtml(experimentType.getDescription()));
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(experimentType
                 .getDatabaseInstance()));
         return result;

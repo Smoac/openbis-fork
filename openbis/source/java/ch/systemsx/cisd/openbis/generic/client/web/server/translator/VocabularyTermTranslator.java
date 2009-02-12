@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 
@@ -28,7 +30,7 @@ public class VocabularyTermTranslator
     public static VocabularyTerm translate(VocabularyTermPE vt)
     {
         VocabularyTerm result = new VocabularyTerm();
-        result.setCode(vt.getCode());
+        result.setCode(StringEscapeUtils.escapeHtml(vt.getCode()));
         return result;
     }
 

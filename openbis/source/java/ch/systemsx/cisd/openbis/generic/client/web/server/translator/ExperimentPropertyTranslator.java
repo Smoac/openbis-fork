@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePropertyTypePE;
@@ -39,7 +41,7 @@ public final class ExperimentPropertyTranslator
     public final static ExperimentProperty translate(final ExperimentPropertyPE experimentPropertyPE)
     {
         final ExperimentProperty result = new ExperimentProperty();
-        result.setValue(experimentPropertyPE.tryGetUntypedValue());
+        result.setValue(StringEscapeUtils.escapeHtml(experimentPropertyPE.tryGetUntypedValue()));
         result.setEntityTypePropertyType(ExperimentTypePropertyTypeTranslator
                 .translate((ExperimentTypePropertyTypePE) experimentPropertyPE
                         .getEntityTypePropertyType()));

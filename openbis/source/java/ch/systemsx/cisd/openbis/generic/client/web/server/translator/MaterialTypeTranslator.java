@@ -16,11 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 
 /**
- * Translates {@link MaterialTypePE} to  {@link MaterialType}.
+ * Translates {@link MaterialTypePE} to {@link MaterialType}.
  * 
  * @author Izabela Adamczyk
  */
@@ -35,7 +37,7 @@ public class MaterialTypeTranslator
     {
         final MaterialType result = new MaterialType();
         result.setCode(entityTypePE.getCode());
-        result.setDescription(entityTypePE.getDescription());
+        result.setDescription(StringEscapeUtils.escapeHtml(entityTypePE.getDescription()));
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(entityTypePE
                 .getDatabaseInstance()));
         return result;

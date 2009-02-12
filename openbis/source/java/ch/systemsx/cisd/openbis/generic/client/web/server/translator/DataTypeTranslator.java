@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
@@ -37,7 +39,7 @@ public class DataTypeTranslator
     {
         final DataType result = new DataType();
         result.setCode(translate(dataTypePE.getCode()));
-        result.setDescription(dataTypePE.getDescription());
+        result.setDescription(StringEscapeUtils.escapeHtml(dataTypePE.getDescription()));
         return result;
     }
 

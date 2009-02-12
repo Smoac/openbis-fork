@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
@@ -40,7 +42,7 @@ public final class GroupTranslator
         }
         final Group result = new Group();
         result.setCode(group.getCode());
-        result.setDescription(group.getDescription());
+        result.setDescription(StringEscapeUtils.escapeHtml(group.getDescription()));
         result.setInstance(DatabaseInstanceTranslator.translate(group.getDatabaseInstance()));
         result.setRegistrationDate(group.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(group.getRegistrator()));

@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
@@ -58,7 +60,7 @@ public final class VocabularyTranslator
         }
         result.setTerms(list);
         result.setCode(vocabulary.getCode());
-        result.setDescription(vocabulary.getDescription());
+        result.setDescription(StringEscapeUtils.escapeHtml(vocabulary.getDescription()));
         return result;
     }
 

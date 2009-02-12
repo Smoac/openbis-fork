@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 
@@ -44,7 +46,7 @@ public final class PropertyTypeTranslator
         }
         return result;
     }
-    
+
     public final static PropertyType translate(final PropertyTypePE propertyType)
     {
         final PropertyType result = new PropertyType();
@@ -52,10 +54,10 @@ public final class PropertyTypeTranslator
         result.setSimpleCode(propertyType.getSimpleCode());
         result.setInternalNamespace(propertyType.isInternalNamespace());
         result.setManagedInternally(propertyType.isManagedInternally());
-        result.setLabel(propertyType.getLabel());
+        result.setLabel(StringEscapeUtils.escapeHtml(propertyType.getLabel()));
         result.setDataType(DataTypeTranslator.translate(propertyType.getType()));
         result.setVocabulary(VocabularyTranslator.translate(propertyType.getVocabulary()));
-        result.setDescription(propertyType.getDescription());
+        result.setDescription(StringEscapeUtils.escapeHtml(propertyType.getDescription()));
         result.setSampleTypePropertyTypes(SampleTypePropertyTypeTranslator.translate(propertyType
                 .getSampleTypePropertyTypes(), result));
         result.setMaterialTypePropertyTypes(MaterialTypePropertyTypeTranslator.translate(

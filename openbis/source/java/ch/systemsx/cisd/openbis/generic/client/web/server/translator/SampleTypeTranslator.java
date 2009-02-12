@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 
@@ -36,7 +38,7 @@ public class SampleTypeTranslator
         final SampleType result = new SampleType();
         result.setCode(sampleTypePE.getCode());
         result.setListable(sampleTypePE.isListable());
-        result.setDescription(sampleTypePE.getDescription());
+        result.setDescription(StringEscapeUtils.escapeHtml(sampleTypePE.getDescription()));
         result.setGeneratedFromHierarchyDepth(sampleTypePE.getGeneratedFromHierarchyDepth());
         result.setPartOfHierarchyDepth(sampleTypePE.getContainerHierarchyDepth());
         result.setSampleTypePropertyTypes(SampleTypePropertyTypeTranslator.translate(sampleTypePE
