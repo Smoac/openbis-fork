@@ -58,6 +58,17 @@ abstract class AbstractSampleIdentifierBusinessObject extends AbstractBusinessOb
     final SamplePE getSampleByIdentifier(final SampleIdentifier sampleIdentifier)
             throws UserFailureException
     {
+        final SamplePE sample = tryToGetSampleByIdentifier(sampleIdentifier);
+        if (sample == null)
+        {
+            throw UserFailureException.fromTemplate(
+                    "No sample could be found for identifier '%s'.", sampleIdentifier);
+        }
+        return sample;
+    }
+
+    protected SamplePE tryToGetSampleByIdentifier(final SampleIdentifier sampleIdentifier)
+    {
         assert sampleIdentifier != null : "Sample identifier unspecified.";
         final SampleOwner sampleOwner = sampleOwnerFinder.figureSampleOwner(sampleIdentifier);
         final String sampleCode = sampleIdentifier.getSampleCode();
@@ -74,11 +85,6 @@ abstract class AbstractSampleIdentifierBusinessObject extends AbstractBusinessOb
             sample =
                     sampleDAO.tryFindByCodeAndGroup(sampleCode, sampleOwner.tryGetGroup(),
                             HierarchyType.CHILD);
-        }
-        if (sample == null)
-        {
-            throw UserFailureException.fromTemplate(
-                    "No sample could be found for identifier '%s'.", sampleIdentifier);
         }
         return sample;
     }

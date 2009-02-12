@@ -58,6 +58,18 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     // ISampleBO
     //
 
+    public SamplePE tryToGetSample()
+    {
+        return sample;
+    }
+
+    public void tryToLoadBySampleIdentifier(SampleIdentifier identifier)
+    {
+        assert identifier != null : "Unspecified identifier.";
+
+        sample = tryToGetSampleByIdentifier(identifier);
+    }
+
     public final SamplePE getSample() throws IllegalStateException
     {
         if (sample == null)
@@ -70,9 +82,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     public final void loadBySampleIdentifier(final SampleIdentifier identifier)
             throws UserFailureException
     {
-        assert identifier != null : "Unspecified identifier.";
-
-        sample = getSampleByIdentifier(identifier);
+        tryToLoadBySampleIdentifier(identifier);
         if (sample == null)
         {
             throw UserFailureException.fromTemplate(

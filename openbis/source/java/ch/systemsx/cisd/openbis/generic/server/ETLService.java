@@ -135,7 +135,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
             SampleIdentifier sampleIdentifier)
     {
         final ISampleBO sampleBO = boFactory.createSampleBO(session);
-        sampleBO.loadBySampleIdentifier(sampleIdentifier);
+        sampleBO.tryToLoadBySampleIdentifier(sampleIdentifier);
         sampleBO.enrichWithValidProcedure();
         final SamplePE sample = sampleBO.getSample();
         if (sample == null)

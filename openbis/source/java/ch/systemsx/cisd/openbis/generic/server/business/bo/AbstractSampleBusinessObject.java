@@ -146,10 +146,12 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
      * experiment at all, no procedure are joined.
      * </p>
      */
-    final static void enrichWithProcedure(final SamplePE samplePE)
+    final static void enrichWithProcedure(final SamplePE sampleOrNull)
     {
-        assert samplePE != null : "Unspecified procedure holder.";
-        samplePE.setValidProcedure(tryGetValidProcedure(samplePE.getProcedures()));
+        if (sampleOrNull != null)
+        {
+            sampleOrNull.setValidProcedure(tryGetValidProcedure(sampleOrNull.getProcedures()));
+        }
     }
 
     /**

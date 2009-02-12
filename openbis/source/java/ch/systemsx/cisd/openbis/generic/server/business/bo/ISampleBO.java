@@ -30,8 +30,22 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 public interface ISampleBO
 {
 
-    /** Loads a sample given by its identifier. */
+    /** 
+     * Loads a sample given by its identifier. 
+     * 
+     *  @throws UserFailureException if no sample found.
+     */
     void loadBySampleIdentifier(final SampleIdentifier identifier) throws UserFailureException;
+    
+    /**
+     * Tries to load the sample with specified identifier.
+     */
+    void tryToLoadBySampleIdentifier(SampleIdentifier identifier);
+    
+    /**
+     * Returns the loaded or defined sample or <code>null</code>.
+     */
+    SamplePE tryToGetSample();
 
     /** Returns the sample which has been loaded. */
     SamplePE getSample() throws IllegalStateException;
