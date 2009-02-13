@@ -42,7 +42,10 @@ import org.hibernate.annotations.Check;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
 import org.hibernate.search.annotations.DocumentId;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.IndexedEmbedded;
+import org.hibernate.search.annotations.Store;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
@@ -258,6 +261,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE>
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
     @Length(min = 1, max = 40, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @Pattern(regex = AbstractIdAndCodeHolder.CODE_PATTERN, flags = java.util.regex.Pattern.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
+    @Field(index = Index.TOKENIZED, store = Store.YES, name = SearchFieldConstants.CODE)
     public String getCode()
     {
         return code;

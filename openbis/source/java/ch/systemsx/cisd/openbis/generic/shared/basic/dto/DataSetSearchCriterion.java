@@ -149,6 +149,8 @@ public class DataSetSearchCriterion implements IsSerializable
 
         ANY_SAMPLE_PROPERTY("Any Sample Property", true),
 
+        DATA_SET_CODE("Data Set Code"),
+
         DATA_SET_TYPE("Data Set Type"),
 
         EXPERIMENT("Experiment Code"),

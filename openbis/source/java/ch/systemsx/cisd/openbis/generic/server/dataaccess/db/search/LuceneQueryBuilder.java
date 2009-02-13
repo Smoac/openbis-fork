@@ -164,6 +164,8 @@ public class LuceneQueryBuilder
         DataSetSearchFieldKind fieldKind = searchField.getKind();
         switch (fieldKind)
         {
+            case DATA_SET_CODE:
+                return CODE;
             case DATA_SET_TYPE:
                 return SearchFieldConstants.PREFIX_DATASET_TYPE + CODE;
             case FILE_TYPE:
