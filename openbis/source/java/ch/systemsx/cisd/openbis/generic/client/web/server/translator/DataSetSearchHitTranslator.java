@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetSearchHit;
+import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ExperimentTranslator.LoadableFields;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetSearchHitDTO;
 
 /**
@@ -46,7 +47,8 @@ public class DataSetSearchHitTranslator
     public static DataSetSearchHit translate(DataSetSearchHitDTO hit)
     {
         DataSetSearchHit result = new DataSetSearchHit();
-        result.setDataSet(ExternalDataTranslator.translate(hit.getDataSet()));
+        result.setDataSet(ExternalDataTranslator.translate(hit.getDataSet(),
+                LoadableFields.PROPERTIES));
         return result;
     }
 

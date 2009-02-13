@@ -30,6 +30,7 @@ class PropertySampleColDef extends AbstractPropertyColDef<Sample> implements IsS
     // GWT only
     public PropertySampleColDef()
     {
+        super(null, false, false, null);
     }
 
     public PropertySampleColDef(PropertyType propertyType, boolean isDisplayedByDefault)

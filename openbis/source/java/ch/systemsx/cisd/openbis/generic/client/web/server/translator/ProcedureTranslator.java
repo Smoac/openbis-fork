@@ -20,6 +20,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Procedure;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ProcedureType;
+import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ExperimentTranslator.LoadableFields;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
@@ -38,14 +39,16 @@ public final class ProcedureTranslator
         // Can not be instantiated.
     }
 
-    public final static Procedure translate(final ProcedurePE procedure)
+    public final static Procedure translate(final ProcedurePE procedure,
+            final LoadableFields... withExperimentFields)
     {
         if (procedure == null)
         {
             return null;
         }
         final Procedure result = new Procedure();
-        result.setExperiment(ExperimentTranslator.translate(procedure.getExperiment()));
+        result.setExperiment(ExperimentTranslator.translate(procedure.getExperiment(),
+                withExperimentFields));
         result.setProcedureType(translate(procedure.getProcedureType()));
         result.setRegistrationDate(procedure.getRegistrationDate());
         return result;

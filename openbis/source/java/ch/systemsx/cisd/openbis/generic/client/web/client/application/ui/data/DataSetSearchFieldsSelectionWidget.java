@@ -38,11 +38,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriterion.
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriterion.DataSetSearchFieldKind;
 
 /**
- * {@link ComboBox} containing list of search fields loaded from the server and extended by manually
- * configured ones.
+ * {@link ComboBox} containing list of search fields loaded from the server (property types) and
+ * static ones.
  * 
  * @author Izabela Adamczyk
  */
+// TODO 2009-02-13, Tomasz Pylak: fetching of property types is done every time a new widget is
+// created, although all of them are identical. It should be done outside of this class and passed
+// to it.
 public final class DataSetSearchFieldsSelectionWidget extends
         DropDownList<DataSetSearchFieldComboModel, PropertyType>
 {
@@ -57,6 +60,8 @@ public final class DataSetSearchFieldsSelectionWidget extends
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     private boolean dataLoaded;
+
+    private List<PropertyType> propertyTypes;
 
     public DataSetSearchFieldsSelectionWidget(
             final IViewContext<ICommonClientServiceAsync> viewContext, final String idSuffix)
@@ -87,11 +92,17 @@ public final class DataSetSearchFieldsSelectionWidget extends
     }
 
     /**
-     * Returns code of the selected option, or null - if nothing selected.
+     * Returns code of the selected option, or null - if nothing is selected.
      */
     public String tryGetSelectedCode()
     {
         return GWTUtils.tryGetSingleSelectedCode(this);
+    }
+
+    // NOTE: should be removed. See the todo for the whole class.
+    public List<PropertyType> getAvailablePropertyTypes()
+    {
+        return propertyTypes;
     }
 
     public DataSetSearchFieldsSelectionWidget(DataSetSearchFieldsSelectionWidget source,
@@ -115,9 +126,11 @@ public final class DataSetSearchFieldsSelectionWidget extends
         @Override
         protected void process(final ResultSet<PropertyType> result)
         {
+            propertyTypes = result.getList();
+
             final ListStore<DataSetSearchFieldComboModel> propertyTypeStore = getStore();
             propertyTypeStore.removeAll();
-            propertyTypeStore.add(convertItems(result.getList()));
+            propertyTypeStore.add(convertItems(propertyTypes));
             if (propertyTypeStore.getCount() > 0)
             {
                 setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, CHOOSE_SUFFIX));
@@ -128,6 +141,7 @@ public final class DataSetSearchFieldsSelectionWidget extends
                 setReadOnly(true);
             }
             applyEmptyText();
+
             dataLoaded = true;
         }
     }
@@ -173,39 +187,34 @@ public final class DataSetSearchFieldsSelectionWidget extends
     }
 
     private static List<String> addSamplePropertyTypes(
-            final List<DataSetSearchFieldComboModel> result, List<PropertyType> types)
+            final List<DataSetSearchFieldComboModel> result, List<PropertyType> propertyTypes)
     {
-        List<String> allProps = new ArrayList<String>();
-        for (final PropertyType st : types)
-        {
-            if (st.getSampleTypePropertyTypes().size() > 0)
-            {
-                String code = st.getCode();
-                allProps.add(code);
-                DataSetSearchField field = DataSetSearchField.createSampleProperty(code);
-                DataSetSearchFieldComboModel comboModel =
-                        createPropertyComboModel(st, field, isLabelDuplicated(st, types));
-                result.add(comboModel);
-            }
-        }
-        return allProps;
+        List<PropertyType> relevantPropertyTypes =
+                DataSetSearchHitModel.filterSamplePropertyTypes(propertyTypes);
+        return addPropertyTypes(result, relevantPropertyTypes);
     }
 
     private static List<String> addExperimentPropertyTypes(
             final List<DataSetSearchFieldComboModel> result, List<PropertyType> propertyTypes)
     {
+        List<PropertyType> relevantPropertyTypes =
+                DataSetSearchHitModel.filterExperimentPropertyTypes(propertyTypes);
+        return addPropertyTypes(result, relevantPropertyTypes);
+    }
+
+    // returns codes of added properties
+    private static List<String> addPropertyTypes(final List<DataSetSearchFieldComboModel> result,
+            List<PropertyType> types)
+    {
         List<String> allProps = new ArrayList<String>();
-        for (final PropertyType st : propertyTypes)
+        for (final PropertyType st : types)
         {
-            if (st.getExperimentTypePropertyTypes().size() > 0)
-            {
-                String code = st.getCode();
-                allProps.add(code);
-                DataSetSearchField field = DataSetSearchField.createExperimentProperty(code);
-                DataSetSearchFieldComboModel comboModel =
-                        createPropertyComboModel(st, field, isLabelDuplicated(st, propertyTypes));
-                result.add(comboModel);
-            }
+            String code = st.getCode();
+            allProps.add(code);
+            DataSetSearchField field = DataSetSearchField.createSampleProperty(code);
+            DataSetSearchFieldComboModel comboModel =
+                    createPropertyComboModel(st, field, isLabelDuplicated(st, types));
+            result.add(comboModel);
         }
         return allProps;
     }

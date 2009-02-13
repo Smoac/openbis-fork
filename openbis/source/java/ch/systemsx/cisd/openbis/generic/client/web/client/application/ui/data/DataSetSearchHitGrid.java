@@ -24,14 +24,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetSearchHit;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
 
 /**
@@ -39,7 +40,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
  * 
  * @author Izabela Adamczyk
  */
-public class DataSetSearchHitGrid extends AbstractSimpleBrowserGrid<DataSetSearchHit>
+public class DataSetSearchHitGrid extends
+        AbstractBrowserGrid<DataSetSearchHit, DataSetSearchHitModel>
 {
 
     // browser consists of the grid and the paging toolbar
@@ -62,16 +64,13 @@ public class DataSetSearchHitGrid extends AbstractSimpleBrowserGrid<DataSetSearc
 
     private SearchCriteria criteria;
 
+    private List<PropertyType> availablePropertyTypes;
+
     private DataSetSearchHitGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(viewContext, BROWSER_ID, GRID_ID);
-
-    }
-
-    @Override
-    protected IColumnDefinitionKind<DataSetSearchHit>[] getStaticColumnsDefinition()
-    {
-        return DataSetSearchHitColDefKind.values();
+        super(viewContext, GRID_ID, false, true);
+        setId(BROWSER_ID);
+        updateDefaultRefreshButton();
     }
 
     @Override
@@ -96,9 +95,10 @@ public class DataSetSearchHitGrid extends AbstractSimpleBrowserGrid<DataSetSearc
         viewContext.getService().prepareExportDataSetSearchHits(exportCriteria, callback);
     }
 
-    public void refresh(SearchCriteria newCriteria)
+    public void refresh(SearchCriteria newCriteria, List<PropertyType> propertyTypes)
     {
         criteria = newCriteria;
+        availablePropertyTypes = propertyTypes;
         refresh();
     }
 
@@ -109,7 +109,31 @@ public class DataSetSearchHitGrid extends AbstractSimpleBrowserGrid<DataSetSearc
         {
             return;
         }
-        super.refresh();
+        super.refresh(null, false);
+    }
+
+    @Override
+    protected final boolean isRefreshEnabled()
+    {
+        return true;
+    }
+
+    @Override
+    protected final void showEntityViewer(DataSetSearchHitModel modelData)
+    {
+        // do nothing
+    }
+
+    @Override
+    protected DataSetSearchHitModel createModel(DataSetSearchHit entity)
+    {
+        return new DataSetSearchHitModel(entity);
+    }
+
+    @Override
+    protected ColumnDefsAndConfigs<DataSetSearchHit> createColumnsDefinition()
+    {
+        return DataSetSearchHitModel.createColumnsSchema(viewContext, availablePropertyTypes);
     }
 
 }

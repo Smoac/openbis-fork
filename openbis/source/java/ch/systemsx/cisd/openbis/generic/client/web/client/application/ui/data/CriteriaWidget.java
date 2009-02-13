@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriterion;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
 
 /**
@@ -86,6 +87,11 @@ public class CriteriaWidget extends VerticalPanel
         {
             w.reset();
         }
+    }
+
+    public List<PropertyType> getAvailablePropertyTypes()
+    {
+        return criteriaWidgets.get(0).getAvailablePropertyTypes();
     }
 
     /**

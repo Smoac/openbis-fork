@@ -1,5 +1,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
+import java.util.List;
+
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -12,6 +14,8 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
 
 /**
  * Shows {@link CriteriaWidget}, allowing to specify search criteria.
@@ -66,9 +70,13 @@ public class DataSetSearchWindow extends Dialog
                                 @Override
                                 public void componentSelected(ButtonEvent ce)
                                 {
-                                    updateListener.updateSearchResults(criteriaWidget
-                                            .tryGetCriteria(), criteriaWidget
-                                            .getCriteriaDescription());
+                                    List<PropertyType> availablePropertyTypes =
+                                            criteriaWidget.getAvailablePropertyTypes();
+                                    SearchCriteria criteria = criteriaWidget.tryGetCriteria();
+                                    String criteriaDescription =
+                                            criteriaWidget.getCriteriaDescription();
+                                    updateListener.updateSearchResults(criteria,
+                                            criteriaDescription, availablePropertyTypes);
                                     hide();
                                 }
                             });

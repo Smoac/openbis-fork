@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Procedure;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ProcedureType;
+import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ExperimentTranslator.LoadableFields;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractTypePE;
@@ -58,7 +59,8 @@ public class ExternalDataTranslator
         return result;
     }
 
-    public static ExternalData translate(ExternalDataPE externalDataPE)
+    public static ExternalData translate(ExternalDataPE externalDataPE,
+            final LoadableFields... withExperimentFields)
     {
         SamplePE sample = tryToGetSample(externalDataPE);
         ExternalData externalData = new ExternalData();
@@ -81,7 +83,7 @@ public class ExternalDataTranslator
         externalData.setSampleType(sample == null ? null : fill(new SampleType(), sample
                 .getSampleType()));
         externalData.setSampleCode(sample == null ? null : sample.getCode());
-        externalData.setProcedure(getProcedure(externalDataPE));
+        externalData.setProcedure(getProcedure(externalDataPE, withExperimentFields));
         return externalData;
     }
 
@@ -95,14 +97,15 @@ public class ExternalDataTranslator
         return fill(new ProcedureType(), procedure.getProcedureType());
     }
 
-    private static Procedure getProcedure(ExternalDataPE externalDataPE)
+    private static Procedure getProcedure(ExternalDataPE externalDataPE,
+            final LoadableFields... withExperimentFields)
     {
         final ProcedurePE procedure = externalDataPE.getProcedure();
         if (procedure == null)
         {
             return null;
         }
-        return ProcedureTranslator.translate(procedure);
+        return ProcedureTranslator.translate(procedure, withExperimentFields);
     }
 
     private static Invalidation tryToGetInvalidation(SamplePE sample)
