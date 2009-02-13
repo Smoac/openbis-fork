@@ -24,8 +24,11 @@ import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldC
 import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.PREFIX_SAMPLE;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.PREFIX_SAMPLE_TYPE;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
@@ -35,6 +38,8 @@ import org.apache.lucene.search.BooleanClause.Occur;
 
 import ch.systemsx.cisd.common.exceptions.InternalErr;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriterion.DataSetSearchField;
@@ -47,6 +52,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstant
  */
 public class LuceneQueryBuilder
 {
+    private final static Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, LuceneQueryBuilder.class);
+
     /** @throws UserFailureException when some search patterns are incorrect */
     public static Query createQuery(SearchCriteria dataSetCriteria) throws UserFailureException
     {
@@ -55,15 +63,15 @@ public class LuceneQueryBuilder
 
         SearchAnalyzer analyzer = createSearchAnalyzer();
         BooleanQuery resultQuery = new BooleanQuery();
-
         for (DataSetSearchCriterion criterion : criteria)
         {
-            String fieldName = getIndexFieldName(criterion.getField());
+            List<String> fieldNames = getIndexFieldNames(criterion.getField());
             String searchPattern = LuceneQueryBuilder.disableFieldQuery(criterion.getValue());
 
-            Query luceneQuery = parseQuery(fieldName, searchPattern, analyzer);
+            Query luceneQuery = parseQuery(fieldNames, searchPattern, analyzer);
             resultQuery.add(luceneQuery, occureCondition);
         }
+        operationLog.debug("Lucene datasets query: " + resultQuery.toString());
         return resultQuery;
     }
 
@@ -80,8 +88,78 @@ public class LuceneQueryBuilder
         }
     }
 
+    private static List<String> getIndexFieldNames(DataSetSearchField searchField)
+    {
+        DataSetSearchFieldKind fieldKind = searchField.getKind();
+        switch (fieldKind)
+        {
+            case ANY_SAMPLE_PROPERTY:
+                return getSamplePropertyIndexFields(searchField);
+            case ANY_EXPERIMENT_PROPERTY:
+                return getExperimentPropertyIndexFields(searchField);
+            case ANY_FIELD:
+                List<String> fields = new ArrayList<String>();
+                fields.addAll(getSamplePropertyIndexFields(searchField));
+                fields.addAll(getExperimentPropertyIndexFields(searchField));
+                fields.addAll(getAllIndexSimpleFieldNames());
+                return fields;
+            default:
+                return Arrays.asList(getSimpleFieldIndexName(searchField));
+        }
+    }
+
+    private static String getSimpleFieldIndexName(DataSetSearchField searchField)
+    {
+        String indexFieldName = tryGetIndexFieldName(searchField);
+        assert indexFieldName != null;
+        return indexFieldName;
+    }
+
+    private static List<String> getAllIndexSimpleFieldNames()
+    {
+        List<DataSetSearchFieldKind> simpleFieldKinds = DataSetSearchFieldKind.getSimpleFields();
+        List<String> fields = new ArrayList<String>();
+        for (DataSetSearchFieldKind simpleFieldKind : simpleFieldKinds)
+        {
+            DataSetSearchField simpleField = DataSetSearchField.createSimpleField(simpleFieldKind);
+            fields.add(getSimpleFieldIndexName(simpleField));
+        }
+        return fields;
+    }
+
+    private static List<String> getExperimentPropertyIndexFields(DataSetSearchField searchField)
+    {
+        return getPropertyIndexFields(searchField.getAllExperimentPropertyCodes(), true);
+    }
+
+    private static List<String> getSamplePropertyIndexFields(DataSetSearchField searchField)
+    {
+        return getPropertyIndexFields(searchField.getAllSamplePropertyCodesOrNull(), false);
+    }
+
+    private static List<String> getPropertyIndexFields(List<String> allPropertyCodes,
+            boolean isExperiment)
+    {
+        List<String> fields = new ArrayList<String>();
+        assert allPropertyCodes != null;
+        for (String propertyCode : allPropertyCodes)
+        {
+            DataSetSearchField searchField;
+            if (isExperiment)
+            {
+                searchField = DataSetSearchField.createExperimentProperty(propertyCode);
+            } else
+            {
+                searchField = DataSetSearchField.createSampleProperty(propertyCode);
+            }
+            String fieldIndex = tryGetIndexFieldName(searchField);
+            fields.add(fieldIndex);
+        }
+        return fields;
+    }
+
     // returns the field name in the index for the specified dataset query field
-    private static String getIndexFieldName(DataSetSearchField searchField)
+    private static String tryGetIndexFieldName(DataSetSearchField searchField)
     {
         DataSetSearchFieldKind fieldKind = searchField.getKind();
         switch (fieldKind)
@@ -99,13 +177,17 @@ public class LuceneQueryBuilder
             case EXPERIMENT_TYPE:
                 return PREFIX_EXPERIMENT + PREFIX_EXPERIMENT_TYPE + CODE;
             case EXPERIMENT_PROPERTY:
-                return PREFIX_EXPERIMENT + getPropertyIndexField(searchField.tryGetPropertyCode());
+                return PREFIX_EXPERIMENT + getPropertyIndexField(searchField.getPropertyCode());
             case SAMPLE:
                 return PREFIX_SAMPLE + CODE;
             case SAMPLE_TYPE:
                 return PREFIX_SAMPLE + PREFIX_SAMPLE_TYPE + CODE;
             case SAMPLE_PROPERTY:
-                return PREFIX_SAMPLE + getPropertyIndexField(searchField.tryGetPropertyCode());
+                return PREFIX_SAMPLE + getPropertyIndexField(searchField.getPropertyCode());
+            case ANY_SAMPLE_PROPERTY:
+            case ANY_EXPERIMENT_PROPERTY:
+            case ANY_FIELD:
+                return null;
             default:
                 throw InternalErr.error("unknown enum " + fieldKind);
         }
@@ -145,15 +227,34 @@ public class LuceneQueryBuilder
         return new SearchAnalyzer();
     }
 
-    public static Query parseQuery(final String indexFieldName, final String searchPattern,
+    public static Query parseQuery(final String fieldName, final String searchPattern,
             Analyzer analyzer) throws UserFailureException
     {
-        final QueryParser parser = new QueryParser(indexFieldName, analyzer);
+        final QueryParser parser = new QueryParser(fieldName, analyzer);
+        return parseQuery(searchPattern, searchPattern, parser);
+    }
+
+    // creates a query where any field matches the given pattern
+    public static Query parseQuery(final List<String> fieldNames, final String searchPattern,
+            Analyzer analyzer) throws UserFailureException
+    {
+        BooleanQuery resultQuery = new BooleanQuery();
+        for (String fieldName : fieldNames)
+        {
+            Query query = parseQuery(fieldName, searchPattern, analyzer);
+            resultQuery.add(query, Occur.SHOULD);
+        }
+        return resultQuery;
+    }
+
+    private static Query parseQuery(final String searchPattern, String wholeQuery,
+            final QueryParser parser)
+    {
         parser.setAllowLeadingWildcard(true);
         BooleanQuery.setMaxClauseCount(Integer.MAX_VALUE);
         try
         {
-            return parser.parse(searchPattern);
+            return parser.parse(wholeQuery);
         } catch (ParseException ex)
         {
             throw new UserFailureException(String.format("Search pattern '%s' is invalid.",

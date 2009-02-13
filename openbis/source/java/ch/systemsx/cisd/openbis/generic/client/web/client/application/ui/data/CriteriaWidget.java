@@ -102,9 +102,6 @@ public class CriteriaWidget extends VerticalPanel
             if (value != null)
             {
                 criteria.add(value);
-            } else
-            {
-                criteria.addAll(cw.tryGetAny());
             }
         }
         if (criteria.size() > 0)

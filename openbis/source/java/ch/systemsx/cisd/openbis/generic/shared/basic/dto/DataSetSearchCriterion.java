@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
@@ -33,6 +36,30 @@ public class DataSetSearchCriterion implements IsSerializable
 
         private String propertyCodeOrNull;
 
+        private List<String> allExperimentPropertyCodesOrNull;
+
+        private List<String> allSamplePropertyCodesOrNull;
+
+        public static DataSetSearchField createAnyField(List<String> allExperimentPropertyCodes,
+                List<String> allSamplePropertyCodes)
+        {
+            return new DataSetSearchField(DataSetSearchFieldKind.ANY_FIELD, null,
+                    allExperimentPropertyCodes, allSamplePropertyCodes);
+        }
+
+        public static DataSetSearchField createAnyExperimentProperty(
+                List<String> allExperimentPropertyCodes)
+        {
+            return new DataSetSearchField(DataSetSearchFieldKind.ANY_EXPERIMENT_PROPERTY, null,
+                    allExperimentPropertyCodes, null);
+        }
+
+        public static DataSetSearchField createAnySampleProperty(List<String> allSamplePropertyCodes)
+        {
+            return new DataSetSearchField(DataSetSearchFieldKind.ANY_SAMPLE_PROPERTY, null, null,
+                    allSamplePropertyCodes);
+        }
+
         public static DataSetSearchField createExperimentProperty(String propertyCode)
         {
             return new DataSetSearchField(DataSetSearchFieldKind.EXPERIMENT_PROPERTY, propertyCode);
@@ -45,8 +72,8 @@ public class DataSetSearchCriterion implements IsSerializable
 
         public static DataSetSearchField createSimpleField(DataSetSearchFieldKind fieldKind)
         {
-            assert fieldKind != DataSetSearchFieldKind.SAMPLE_PROPERTY;
-            assert fieldKind != DataSetSearchFieldKind.EXPERIMENT_PROPERTY;
+            assert fieldKind.isComplex == false : "only simple field can be created with this method";
+
             return new DataSetSearchField(fieldKind, null);
         }
 
@@ -58,8 +85,17 @@ public class DataSetSearchCriterion implements IsSerializable
 
         private DataSetSearchField(DataSetSearchFieldKind kind, String propertyCodeOrNull)
         {
+            this(kind, propertyCodeOrNull, null, null);
+        }
+
+        private DataSetSearchField(DataSetSearchFieldKind kind, String propertyCodeOrNull,
+                List<String> allExperimentPropertyCodesOrNull,
+                List<String> allSamplePropertyCodesOrNull)
+        {
             this.kind = kind;
             this.propertyCodeOrNull = propertyCodeOrNull;
+            this.allExperimentPropertyCodesOrNull = allExperimentPropertyCodesOrNull;
+            this.allSamplePropertyCodesOrNull = allSamplePropertyCodesOrNull;
         }
 
         public DataSetSearchFieldKind getKind()
@@ -67,9 +103,25 @@ public class DataSetSearchCriterion implements IsSerializable
             return kind;
         }
 
-        public String tryGetPropertyCode()
+        public String getPropertyCode()
         {
+            assert kind == DataSetSearchFieldKind.EXPERIMENT_PROPERTY
+                    || kind == DataSetSearchFieldKind.SAMPLE_PROPERTY;
             return propertyCodeOrNull;
+        }
+
+        public List<String> getAllExperimentPropertyCodes()
+        {
+            assert kind == DataSetSearchFieldKind.ANY_EXPERIMENT_PROPERTY
+                    || kind == DataSetSearchFieldKind.ANY_FIELD;
+            return allExperimentPropertyCodesOrNull;
+        }
+
+        public List<String> getAllSamplePropertyCodesOrNull()
+        {
+            assert kind == DataSetSearchFieldKind.ANY_SAMPLE_PROPERTY
+                    || kind == DataSetSearchFieldKind.ANY_FIELD;
+            return allSamplePropertyCodesOrNull;
         }
 
         @Override
@@ -81,7 +133,7 @@ public class DataSetSearchCriterion implements IsSerializable
                     || getKind().equals(DataSetSearchFieldKind.SAMPLE_PROPERTY))
             {
                 sb.append(".");
-                sb.append(tryGetPropertyCode());
+                sb.append(getPropertyCode());
             }
             return sb.toString();
         }
@@ -90,6 +142,12 @@ public class DataSetSearchCriterion implements IsSerializable
 
     public enum DataSetSearchFieldKind implements IsSerializable
     {
+
+        ANY_FIELD("Any Field", true),
+
+        ANY_EXPERIMENT_PROPERTY("Any Experiment Property", true),
+
+        ANY_SAMPLE_PROPERTY("Any Sample Property", true),
 
         DATA_SET_TYPE("Data Set Type"),
 
@@ -107,15 +165,25 @@ public class DataSetSearchCriterion implements IsSerializable
 
         SAMPLE_TYPE("Sample Type"),
 
-        EXPERIMENT_PROPERTY("Experiment Property"),
+        EXPERIMENT_PROPERTY("Experiment Property", true),
 
-        SAMPLE_PROPERTY("Sample Property");
+        SAMPLE_PROPERTY("Sample Property", true);
 
         private final String description;
 
+        // if field is complex, it needs some additional information to be interpreted (e.g.
+        // property code)
+        private final boolean isComplex;
+
         private DataSetSearchFieldKind(String description)
         {
+            this(description, false);
+        }
+
+        private DataSetSearchFieldKind(String description, boolean isComplex)
+        {
             this.description = description;
+            this.isComplex = isComplex;
         }
 
         public String description()
@@ -123,6 +191,19 @@ public class DataSetSearchCriterion implements IsSerializable
             return description;
         }
 
+        public static List<DataSetSearchFieldKind> getSimpleFields()
+        {
+            List<DataSetSearchFieldKind> result = new ArrayList<DataSetSearchFieldKind>();
+            for (DataSetSearchFieldKind field : DataSetSearchFieldKind.values())
+            {
+                if (field.isComplex == false)
+                {
+                    result.add(field);
+
+                }
+            }
+            return result;
+        }
     }
 
     public DataSetSearchCriterion()

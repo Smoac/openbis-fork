@@ -58,9 +58,6 @@ public final class DataSetSearchFieldsSelectionWidget extends
 
     private boolean dataLoaded;
 
-    private static final DataSetSearchFieldComboModel ANY =
-            new DataSetSearchFieldComboModel("(Any)", null);
-
     public DataSetSearchFieldsSelectionWidget(
             final IViewContext<ICommonClientServiceAsync> viewContext, final String idSuffix)
     {
@@ -130,7 +127,6 @@ public final class DataSetSearchFieldsSelectionWidget extends
                 setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_EMPTY, EMPTY_RESULT_SUFFIX));
                 setReadOnly(true);
             }
-            setValue(ANY);
             applyEmptyText();
             dataLoaded = true;
         }
@@ -141,40 +137,77 @@ public final class DataSetSearchFieldsSelectionWidget extends
     {
         final List<DataSetSearchFieldComboModel> result =
                 new ArrayList<DataSetSearchFieldComboModel>();
-        result.add(ANY);
-        for (DataSetSearchFieldKind field : DataSetSearchFieldKind.values())
+        for (DataSetSearchFieldKind field : DataSetSearchFieldKind.getSimpleFields())
         {
-            if (field.equals(DataSetSearchFieldKind.EXPERIMENT_PROPERTY)
-                    || field.equals(DataSetSearchFieldKind.SAMPLE_PROPERTY))
-            {
-                continue;
-            }
-            result.add(new DataSetSearchFieldComboModel(getDisplayName(field), DataSetSearchField
-                    .createSimpleField(field)));
+            DataSetSearchField simpleField = DataSetSearchField.createSimpleField(field);
+            addFieldComboModel(result, simpleField);
         }
         Collections.sort(types);
-        for (final PropertyType st : types)
-        {
-            if (st.getExperimentTypePropertyTypes().size() > 0)
-            {
-                DataSetSearchField field =
-                        DataSetSearchField.createExperimentProperty(st.getCode());
-                DataSetSearchFieldComboModel comboModel =
-                        createComboModel(st, field, isLabelDuplicated(st, types));
-                result.add(comboModel);
-            }
-        }
+        List<String> allExpProps = addExperimentPropertyTypes(result, types);
+        List<String> allSampleProps = addSamplePropertyTypes(result, types);
+
+        DataSetSearchField anyExperimentProperty =
+                DataSetSearchField.createAnyExperimentProperty(allExpProps);
+        addFieldComboModel(result, anyExperimentProperty);
+
+        DataSetSearchField anySampleProperty =
+                DataSetSearchField.createAnySampleProperty(allSampleProps);
+        addFieldComboModel(result, anySampleProperty);
+
+        DataSetSearchField anyField =
+                DataSetSearchField.createAnyField(allExpProps, allSampleProps);
+        addFieldComboModel(result, anyField);
+
+        return result;
+    }
+
+    private void addFieldComboModel(List<DataSetSearchFieldComboModel> result,
+            DataSetSearchField field)
+    {
+        result.add(createComboModel(field));
+    }
+
+    private static DataSetSearchFieldComboModel createComboModel(DataSetSearchField simpleField)
+    {
+        return new DataSetSearchFieldComboModel(getDisplayName(simpleField.getKind()), simpleField);
+    }
+
+    private static List<String> addSamplePropertyTypes(
+            final List<DataSetSearchFieldComboModel> result, List<PropertyType> types)
+    {
+        List<String> allProps = new ArrayList<String>();
         for (final PropertyType st : types)
         {
             if (st.getSampleTypePropertyTypes().size() > 0)
             {
-                DataSetSearchField field = DataSetSearchField.createSampleProperty(st.getCode());
+                String code = st.getCode();
+                allProps.add(code);
+                DataSetSearchField field = DataSetSearchField.createSampleProperty(code);
                 DataSetSearchFieldComboModel comboModel =
-                        createComboModel(st, field, isLabelDuplicated(st, types));
+                        createPropertyComboModel(st, field, isLabelDuplicated(st, types));
                 result.add(comboModel);
             }
         }
-        return result;
+        return allProps;
+    }
+
+    private static List<String> addExperimentPropertyTypes(
+            final List<DataSetSearchFieldComboModel> result, List<PropertyType> propertyTypes)
+    {
+        List<String> allProps = new ArrayList<String>();
+        for (final PropertyType st : propertyTypes)
+        {
+            if (st.getExperimentTypePropertyTypes().size() > 0)
+            {
+                String code = st.getCode();
+                allProps.add(code);
+                DataSetSearchField field = DataSetSearchField.createExperimentProperty(code);
+                DataSetSearchFieldComboModel comboModel =
+                        createPropertyComboModel(st, field, isLabelDuplicated(st, propertyTypes));
+                result.add(comboModel);
+            }
+        }
+        return allProps;
     }
 
     private static boolean isLabelDuplicated(PropertyType propertyType,
@@ -191,8 +224,8 @@ public final class DataSetSearchFieldsSelectionWidget extends
         return false;
     }
 
-    private DataSetSearchFieldComboModel createComboModel(final PropertyType propertyType,
-            DataSetSearchField searchField, boolean useCode)
+    private static DataSetSearchFieldComboModel createPropertyComboModel(
+            final PropertyType propertyType, DataSetSearchField searchField, boolean useCode)
     {
         String prefix = getDisplayName(searchField.getKind());
         String property = useCode ? propertyType.getCode() : propertyType.getLabel();
@@ -216,23 +249,4 @@ public final class DataSetSearchFieldsSelectionWidget extends
                     new ListPropertyTypesCallback(viewContext));
         }
     }
-
-    public List<DataSetSearchField> getAllRealFields()
-    {
-        List<DataSetSearchField> list = new ArrayList<DataSetSearchField>();
-        for (DataSetSearchFieldComboModel model : getStore().getModels())
-        {
-            if (model.equals(ANY) == false)
-            {
-                list.add((DataSetSearchField) model.get(ModelDataPropertyNames.OBJECT));
-            }
-        }
-        return list;
-    }
-
-    public boolean isAny()
-    {
-        return ANY.equals(getValue());
-    }
-
 }
