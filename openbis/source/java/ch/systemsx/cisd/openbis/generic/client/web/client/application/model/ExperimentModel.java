@@ -30,7 +30,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
  * {@link ModelData} for {@link Experiment}
@@ -40,13 +39,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 public final class ExperimentModel extends BaseEntityModel<Experiment>
 {
     private static final long serialVersionUID = 1L;
-
-    private static final String PROPERTY_PREFIX = "property";
-
-    public static String createID(final PropertyType propertyType)
-    {
-        return PROPERTY_PREFIX + propertyType.isInternalNamespace() + propertyType.getCode();
-    }
 
     public ExperimentModel(final Experiment entity)
     {
