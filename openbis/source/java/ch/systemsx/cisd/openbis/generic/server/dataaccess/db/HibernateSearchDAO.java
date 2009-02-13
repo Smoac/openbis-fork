@@ -61,7 +61,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetSearchHitDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IMatchingEntity;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * Implementation of {@link IHibernateSearchDAO} for databases.
@@ -345,7 +347,28 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
 
         List<ExternalDataPE> datasets = AbstractDAO.cast(hibernateQuery.list());
         datasets = filterNulls(datasets);
+        // NOTE: there is a limit on the number of JOINs, so we have to initialize sample properties
+        // manually
+        initSamplesWithProperties(datasets);
         return asDataSetHits(datasets);
+    }
+
+    private void initSamplesWithProperties(List<ExternalDataPE> datasets)
+    {
+        for (ExternalDataPE dataset : datasets)
+        {
+            initSamplesWithProperties(dataset.getSampleAcquiredFrom());
+            initSamplesWithProperties(dataset.getSampleDerivedFrom());
+        }
+    }
+
+    private void initSamplesWithProperties(SamplePE sampleOrNull)
+    {
+        if (sampleOrNull != null)
+        {
+            HibernateUtils.initialize(sampleOrNull);
+            HibernateUtils.initialize(sampleOrNull.getProperties());
+        }
     }
 
     private static List<DataSetSearchHitDTO> asDataSetHits(List<ExternalDataPE> datasets)

@@ -34,7 +34,7 @@ public class PropertyExperimentColDef extends AbstractPropertyColDef<Experiment>
     // GWT only
     public PropertyExperimentColDef()
     {
-        super(null, false, false, null);
+        super(null, false, 0, false, null);
     }
 
     public PropertyExperimentColDef(PropertyType propertyType)

@@ -47,7 +47,7 @@ public class DataSetSearchHitTranslator
     public static DataSetSearchHit translate(DataSetSearchHitDTO hit)
     {
         DataSetSearchHit result = new DataSetSearchHit();
-        result.setDataSet(ExternalDataTranslator.translate(hit.getDataSet(),
+        result.setDataSet(ExternalDataTranslator.translate(hit.getDataSet(), true,
                 LoadableFields.PROPERTIES));
         return result;
     }

@@ -29,6 +29,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 
 /**
  * @author Tomasz Pylak
@@ -37,7 +39,11 @@ public class DataSetSearchHitModel extends BaseEntityModel<DataSetSearchHit>
 {
     private static final long serialVersionUID = 1L;
 
+    private static final int PROPERTY_COLUMN_WIDTH = 150;
+
     private static final String LABEL_EXPERIMENT_PROPERTY_PREFIX = "Exp. ";
+
+    private static final String LABEL_SAMPLE_PROPERTY_PREFIX = "Sample ";
 
     public DataSetSearchHitModel(final DataSetSearchHit entity)
     {
@@ -55,21 +61,31 @@ public class DataSetSearchHitModel extends BaseEntityModel<DataSetSearchHit>
             ExperimentTypePropertyType etpt = prop.getEntityTypePropertyType();
             list.add(createExperimentPropertyTypeColDef(etpt.getPropertyType()));
         }
+        for (SampleProperty prop : getSampleProperties(entity))
+        {
+            SampleTypePropertyType etpt = prop.getEntityTypePropertyType();
+            list.add(createSamplePropertyTypeColDef(etpt.getPropertyType()));
+        }
         return list;
+    }
+
+    private static IColumnDefinitionUI<DataSetSearchHit> createSamplePropertyTypeColDef(
+            PropertyType propertyType)
+    {
+        String label = LABEL_SAMPLE_PROPERTY_PREFIX + propertyType.getLabel();
+        return new DataSetSamplePropertyColDef(propertyType, true, PROPERTY_COLUMN_WIDTH, label);
     }
 
     private static IColumnDefinitionUI<DataSetSearchHit> createExperimentPropertyTypeColDef(
             PropertyType propertyType)
     {
         String label = LABEL_EXPERIMENT_PROPERTY_PREFIX + propertyType.getLabel();
-        return new AbstractPropertyColDef<DataSetSearchHit>(propertyType, true, label)
-            {
-                @Override
-                protected List<? extends EntityProperty<?, ?>> getProperties(DataSetSearchHit entity)
-                {
-                    return getExperimentProperties(entity);
-                }
-            };
+        return new DataSetExperimentPropertyColDef(propertyType, true, PROPERTY_COLUMN_WIDTH, label);
+    }
+
+    private static List<SampleProperty> getSampleProperties(DataSetSearchHit entity)
+    {
+        return entity.getDataSet().getSampleProperties();
     }
 
     private static List<ExperimentProperty> getExperimentProperties(DataSetSearchHit entity)
@@ -85,11 +101,22 @@ public class DataSetSearchHitModel extends BaseEntityModel<DataSetSearchHit>
         ColumnDefsAndConfigs<DataSetSearchHit> columns =
                 ColumnDefsAndConfigs.create(commonColumnsSchema);
 
-        List<IColumnDefinitionUI<DataSetSearchHit>> experimentPropertyColumnsSchema =
-                createExperimentsPropertyColumnsSchema(propertyTypes);
-        columns.addColumns(experimentPropertyColumnsSchema);
+        columns.addColumns(createExperimentsPropertyColumnsSchema(propertyTypes));
+        columns.addColumns(createSamplesPropertyColumnsSchema(propertyTypes));
 
         return columns;
+    }
+
+    private static List<IColumnDefinitionUI<DataSetSearchHit>> createSamplesPropertyColumnsSchema(
+            List<PropertyType> propertyTypes)
+    {
+        List<PropertyType> experimentPropertyTypes = filterSamplePropertyTypes(propertyTypes);
+        List<IColumnDefinitionUI<DataSetSearchHit>> list = createEmptyColDefList();
+        for (PropertyType prop : experimentPropertyTypes)
+        {
+            list.add(createSamplePropertyTypeColDef(prop));
+        }
+        return list;
     }
 
     private static List<IColumnDefinitionUI<DataSetSearchHit>> createExperimentsPropertyColumnsSchema(
@@ -141,5 +168,47 @@ public class DataSetSearchHitModel extends BaseEntityModel<DataSetSearchHit>
             }
         }
         return result;
+    }
+
+    public static final class DataSetSamplePropertyColDef extends
+            AbstractPropertyColDef<DataSetSearchHit>
+    {
+        // GWT only
+        public DataSetSamplePropertyColDef()
+        {
+        }
+
+        private DataSetSamplePropertyColDef(PropertyType propertyType,
+                boolean isDisplayedByDefault, int width, String propertyTypeLabel)
+        {
+            super(propertyType, isDisplayedByDefault, width, propertyTypeLabel);
+        }
+
+        @Override
+        protected List<? extends EntityProperty<?, ?>> getProperties(DataSetSearchHit entity)
+        {
+            return getSampleProperties(entity);
+        }
+    }
+
+    public static final class DataSetExperimentPropertyColDef extends
+            AbstractPropertyColDef<DataSetSearchHit>
+    {
+        // GWT only
+        public DataSetExperimentPropertyColDef()
+        {
+        }
+
+        public DataSetExperimentPropertyColDef(PropertyType propertyType,
+                boolean isDisplayedByDefault, int width, String propertyTypeLabel)
+        {
+            super(propertyType, isDisplayedByDefault, width, propertyTypeLabel);
+        }
+
+        @Override
+        protected List<? extends EntityProperty<?, ?>> getProperties(DataSetSearchHit entity)
+        {
+            return getExperimentProperties(entity);
+        }
     }
 }

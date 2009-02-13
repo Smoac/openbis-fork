@@ -17,8 +17,10 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import java.util.Date;
+import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 
@@ -31,10 +33,6 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
         IInvalidationProvider
 {
     private ProcedureType procedureType;
-
-    private String sampleIdentifier;
-
-    private SampleType sampleType;
 
     private boolean derived;
 
@@ -58,7 +56,13 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
 
     private Procedure procedure;
 
+    private String sampleIdentifier;
+
     private String sampleCode;
+
+    private SampleType sampleType;
+
+    private List<SampleProperty> sampleProperties;
 
     public final ProcedureType getProcedureType()
     {
@@ -210,4 +214,13 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
         this.sampleCode = sampleCode;
     }
 
+    public List<SampleProperty> getSampleProperties()
+    {
+        return sampleProperties;
+    }
+
+    public void setSampleProperties(List<SampleProperty> sampleProperties)
+    {
+        this.sampleProperties = sampleProperties;
+    }
 }

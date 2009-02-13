@@ -62,6 +62,12 @@ public class ExternalDataTranslator
     public static ExternalData translate(ExternalDataPE externalDataPE,
             final LoadableFields... withExperimentFields)
     {
+        return translate(externalDataPE, false, withExperimentFields);
+    }
+
+    public static ExternalData translate(ExternalDataPE externalDataPE,
+            boolean loadSampleProperties, final LoadableFields... withExperimentFields)
+    {
         SamplePE sample = tryToGetSample(externalDataPE);
         ExternalData externalData = new ExternalData();
         externalData.setCode(externalDataPE.getCode());
@@ -83,6 +89,11 @@ public class ExternalDataTranslator
         externalData.setSampleType(sample == null ? null : fill(new SampleType(), sample
                 .getSampleType()));
         externalData.setSampleCode(sample == null ? null : sample.getCode());
+        if (loadSampleProperties && sample != null)
+        {
+            externalData.setSampleProperties(SamplePropertyTranslator.translate(sample
+                    .getProperties()));
+        }
         externalData.setProcedure(getProcedure(externalDataPE, withExperimentFields));
         return externalData;
     }

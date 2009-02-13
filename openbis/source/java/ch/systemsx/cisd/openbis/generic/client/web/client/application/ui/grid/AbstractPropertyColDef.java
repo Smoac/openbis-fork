@@ -46,20 +46,20 @@ public abstract class AbstractPropertyColDef<T> extends AbstractColumnDefinition
 
     public AbstractPropertyColDef(PropertyType propertyType, boolean isDisplayedByDefault)
     {
-        this(propertyType, isDisplayedByDefault, propertyType.getLabel());
+        this(propertyType, isDisplayedByDefault, PROPERTY_COLUMN_WIDTH, propertyType.getLabel());
     }
 
     public AbstractPropertyColDef(PropertyType propertyType, boolean isDisplayedByDefault,
-            String propertyTypeLabel)
+            int width, String propertyTypeLabel)
     {
-        this(propertyType.getSimpleCode(), isDisplayedByDefault,
-                propertyType.isInternalNamespace(), propertyTypeLabel);
+        this(propertyType.getSimpleCode(), isDisplayedByDefault, width, propertyType
+                .isInternalNamespace(), propertyTypeLabel);
     }
 
     protected AbstractPropertyColDef(String propertyTypeCode, boolean isDisplayedByDefault,
-            boolean isInternalNamespace, String propertyTypeLabel)
+            int width, boolean isInternalNamespace, String propertyTypeLabel)
     {
-        super(propertyTypeLabel, PROPERTY_COLUMN_WIDTH, isDisplayedByDefault);
+        super(propertyTypeLabel, width, isDisplayedByDefault);
         this.isInternalNamespace = isInternalNamespace;
         this.simpleCode = propertyTypeCode;
     }
