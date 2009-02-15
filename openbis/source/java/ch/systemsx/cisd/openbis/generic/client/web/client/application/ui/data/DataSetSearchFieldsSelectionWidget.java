@@ -109,7 +109,7 @@ public final class DataSetSearchFieldsSelectionWidget extends
             final String idSuffix)
     {
         this(source.viewContext, idSuffix);
-        this.setEmptyText(source.getEmptyText());
+        this.setValue(findAnyFieldItem(source.getStore().getModels()));
         setWidth(WIDTH);
         setStore(source.getStore());
         dataLoaded = true;
@@ -130,7 +130,8 @@ public final class DataSetSearchFieldsSelectionWidget extends
 
             final ListStore<DataSetSearchFieldComboModel> propertyTypeStore = getStore();
             propertyTypeStore.removeAll();
-            propertyTypeStore.add(convertItems(propertyTypes));
+            List<DataSetSearchFieldComboModel> items = convertItems(propertyTypes);
+            propertyTypeStore.add(items);
             if (propertyTypeStore.getCount() > 0)
             {
                 setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, CHOOSE_SUFFIX));
@@ -140,10 +141,31 @@ public final class DataSetSearchFieldsSelectionWidget extends
                 setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_EMPTY, EMPTY_RESULT_SUFFIX));
                 setReadOnly(true);
             }
-            applyEmptyText();
+            setValue(findAnyFieldItem(items));
 
             dataLoaded = true;
         }
+    }
+
+    private static DataSetSearchFieldComboModel findAnyFieldItem(
+            List<DataSetSearchFieldComboModel> items)
+    {
+        return findFieldItem(items, DataSetSearchFieldKind.ANY_FIELD);
+    }
+
+    private static DataSetSearchFieldComboModel findFieldItem(
+            List<DataSetSearchFieldComboModel> items, DataSetSearchFieldKind fieldKind)
+    {
+        for (DataSetSearchFieldComboModel item : items)
+        {
+            DataSetSearchField field = item.getField();
+            if (field.getKind() == fieldKind)
+            {
+                return item;
+            }
+
+        }
+        throw new IllegalStateException("field not found: " + fieldKind);
     }
 
     @Override

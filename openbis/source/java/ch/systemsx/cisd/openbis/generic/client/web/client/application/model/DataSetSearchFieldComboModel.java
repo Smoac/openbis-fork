@@ -29,4 +29,9 @@ public class DataSetSearchFieldComboModel extends BaseModelData
         set(ModelDataPropertyNames.CODE, code);
         set(ModelDataPropertyNames.OBJECT, field);
     }
+
+    public DataSetSearchField getField()
+    {
+        return get(ModelDataPropertyNames.OBJECT);
+    }
 }
