@@ -208,7 +208,7 @@ var common = {
  location: "Location",
  match_all: "Match all criteria",
  match_any: "Match any criteria",
- button_change_query : "Search Criteria",
+ button_change_query : "Change Search Criteria",
  data_set_type: "Data Set Type",
  parent_code: "Parent Code",
  file_format_type: "File Type",
