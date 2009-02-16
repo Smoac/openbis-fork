@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.upload.client;
 
 import java.awt.BorderLayout;
+import java.awt.FileDialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -39,7 +40,6 @@ import javax.swing.AbstractListModel;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -150,7 +150,7 @@ public class FileUploadClient implements IUploadListener
 
     private final Uploader uploader;
     
-    private final JFileChooser fileChooser = new JFileChooser();
+    private final FileDialog fileDialog;
 
     private JFrame frame;
 
@@ -175,6 +175,11 @@ public class FileUploadClient implements IUploadListener
         frame.add(createGUI(), BorderLayout.CENTER);
         frame.setBounds(200, 200, 600, 200);
         frame.setVisible(true);
+        fileDialog = new FileDialog(frame);
+        fileDialog.setDirectory(".");
+        fileDialog.setModal(true);
+        fileDialog.setMode(FileDialog.LOAD);
+        fileDialog.setTitle("Select file to upload");
     }
     
     void show()
@@ -300,11 +305,11 @@ public class FileUploadClient implements IUploadListener
             {
                 public void actionPerformed(ActionEvent e)
                 {
-                    int answer = fileChooser.showOpenDialog(frame);
-                    if (answer == JFileChooser.APPROVE_OPTION)
+                    fileDialog.setVisible(true);
+                    String fileName = fileDialog.getFile();
+                    if (fileName != null)
                     {
-                        File file = fileChooser.getSelectedFile();
-                        fileListModel.addFile(file);
+                        fileListModel.addFile(new File(new File(fileDialog.getDirectory()), fileName));
                     }
                 }
             });
