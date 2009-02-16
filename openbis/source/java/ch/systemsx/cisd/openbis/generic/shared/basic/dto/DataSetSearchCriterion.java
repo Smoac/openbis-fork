@@ -212,6 +212,12 @@ public class DataSetSearchCriterion implements IsSerializable
     {
     }
 
+    public DataSetSearchCriterion(DataSetSearchField field, String value)
+    {
+        this.field = field;
+        this.value = value;
+    }
+
     public DataSetSearchField getField()
     {
         return field;

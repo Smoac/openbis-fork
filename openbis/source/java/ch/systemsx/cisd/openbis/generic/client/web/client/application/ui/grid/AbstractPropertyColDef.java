@@ -35,6 +35,8 @@ public abstract class AbstractPropertyColDef<T> extends AbstractColumnDefinition
 
     private static final String PROPERTY_PREFIX = "property";
 
+    private String identifierPrefix;
+
     private boolean isInternalNamespace;
 
     private String simpleCode;
@@ -46,22 +48,24 @@ public abstract class AbstractPropertyColDef<T> extends AbstractColumnDefinition
 
     public AbstractPropertyColDef(PropertyType propertyType, boolean isDisplayedByDefault)
     {
-        this(propertyType, isDisplayedByDefault, PROPERTY_COLUMN_WIDTH, propertyType.getLabel());
+        this(propertyType, isDisplayedByDefault, PROPERTY_COLUMN_WIDTH, propertyType.getLabel(), "");
     }
 
     public AbstractPropertyColDef(PropertyType propertyType, boolean isDisplayedByDefault,
-            int width, String propertyTypeLabel)
+            int width, String propertyTypeLabel, String identifierPrefix)
     {
         this(propertyType.getSimpleCode(), isDisplayedByDefault, width, propertyType
-                .isInternalNamespace(), propertyTypeLabel);
+                .isInternalNamespace(), propertyTypeLabel, identifierPrefix + PROPERTY_PREFIX);
     }
 
     protected AbstractPropertyColDef(String propertyTypeCode, boolean isDisplayedByDefault,
-            int width, boolean isInternalNamespace, String propertyTypeLabel)
+            int width, boolean isInternalNamespace, String propertyTypeLabel,
+            String identifierPrefix)
     {
         super(propertyTypeLabel, width, isDisplayedByDefault);
         this.isInternalNamespace = isInternalNamespace;
         this.simpleCode = propertyTypeCode;
+        this.identifierPrefix = identifierPrefix;
     }
 
     @Override
@@ -91,6 +95,6 @@ public abstract class AbstractPropertyColDef<T> extends AbstractColumnDefinition
 
     public String getIdentifier()
     {
-        return PROPERTY_PREFIX + isInternalNamespace + simpleCode;
+        return identifierPrefix + isInternalNamespace + simpleCode;
     }
 }

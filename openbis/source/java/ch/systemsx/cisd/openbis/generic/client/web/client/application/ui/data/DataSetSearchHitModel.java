@@ -173,6 +173,8 @@ public class DataSetSearchHitModel extends BaseEntityModel<DataSetSearchHit>
     public static final class DataSetSamplePropertyColDef extends
             AbstractPropertyColDef<DataSetSearchHit>
     {
+        private static final String ID_PREFIX = "sample";
+
         // GWT only
         public DataSetSamplePropertyColDef()
         {
@@ -181,7 +183,7 @@ public class DataSetSearchHitModel extends BaseEntityModel<DataSetSearchHit>
         private DataSetSamplePropertyColDef(PropertyType propertyType,
                 boolean isDisplayedByDefault, int width, String propertyTypeLabel)
         {
-            super(propertyType, isDisplayedByDefault, width, propertyTypeLabel);
+            super(propertyType, isDisplayedByDefault, width, propertyTypeLabel, ID_PREFIX);
         }
 
         @Override
@@ -194,6 +196,8 @@ public class DataSetSearchHitModel extends BaseEntityModel<DataSetSearchHit>
     public static final class DataSetExperimentPropertyColDef extends
             AbstractPropertyColDef<DataSetSearchHit>
     {
+        private static final String ID_PREFIX = "exp";
+
         // GWT only
         public DataSetExperimentPropertyColDef()
         {
@@ -202,7 +206,7 @@ public class DataSetSearchHitModel extends BaseEntityModel<DataSetSearchHit>
         public DataSetExperimentPropertyColDef(PropertyType propertyType,
                 boolean isDisplayedByDefault, int width, String propertyTypeLabel)
         {
-            super(propertyType, isDisplayedByDefault, width, propertyTypeLabel);
+            super(propertyType, isDisplayedByDefault, width, propertyTypeLabel, ID_PREFIX);
         }
 
         @Override

@@ -213,7 +213,7 @@ public final class DataSetSearchFieldsSelectionWidget extends
     {
         List<PropertyType> relevantPropertyTypes =
                 DataSetSearchHitModel.filterSamplePropertyTypes(propertyTypes);
-        return addPropertyTypes(result, relevantPropertyTypes);
+        return addPropertyTypes(result, relevantPropertyTypes, false);
     }
 
     private static List<String> addExperimentPropertyTypes(
@@ -221,19 +221,26 @@ public final class DataSetSearchFieldsSelectionWidget extends
     {
         List<PropertyType> relevantPropertyTypes =
                 DataSetSearchHitModel.filterExperimentPropertyTypes(propertyTypes);
-        return addPropertyTypes(result, relevantPropertyTypes);
+        return addPropertyTypes(result, relevantPropertyTypes, true);
     }
 
     // returns codes of added properties
     private static List<String> addPropertyTypes(final List<DataSetSearchFieldComboModel> result,
-            List<PropertyType> types)
+            List<PropertyType> types, boolean isExperimentProperty)
     {
         List<String> allProps = new ArrayList<String>();
         for (final PropertyType st : types)
         {
             String code = st.getCode();
             allProps.add(code);
-            DataSetSearchField field = DataSetSearchField.createSampleProperty(code);
+            DataSetSearchField field;
+            if (isExperimentProperty)
+            {
+                field = DataSetSearchField.createSampleProperty(code);
+            } else
+            {
+                field = DataSetSearchField.createExperimentProperty(code);
+            }
             DataSetSearchFieldComboModel comboModel =
                     createPropertyComboModel(st, field, isLabelDuplicated(st, types));
             result.add(comboModel);

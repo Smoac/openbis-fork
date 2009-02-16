@@ -170,10 +170,7 @@ public class CriterionWidget extends HorizontalPanel
         final DataSetSearchField selectedFieldName = nameField.tryGetSelectedField();
         if (selectedFieldName != null && StringUtils.isBlank(selectedValue) == false)
         {
-            final DataSetSearchCriterion result = new DataSetSearchCriterion();
-            result.setField(selectedFieldName);
-            result.setValue(selectedValue);
-            return result;
+            return new DataSetSearchCriterion(selectedFieldName, selectedValue);
         }
         return null;
 
