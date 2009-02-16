@@ -521,8 +521,9 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
     @Test
     public final void testByteCountToDisplaySize()
     {
-        assertEquals("0.00 bytes", FileUtilities.byteCountToDisplaySize(0));
-        assertEquals("1.00 bytes", FileUtilities.byteCountToDisplaySize(1));
+        assertEquals("0 bytes", FileUtilities.byteCountToDisplaySize(0));
+        assertEquals("1 byte", FileUtilities.byteCountToDisplaySize(1));
+        assertEquals("2 bytes", FileUtilities.byteCountToDisplaySize(2));
         assertEquals("1.00 KB", FileUtilities.byteCountToDisplaySize(1024));
         assertEquals("1.01 KB", FileUtilities.byteCountToDisplaySize(1034));
         assertEquals("1.00 MB", FileUtilities.byteCountToDisplaySize(1024 * 1024));

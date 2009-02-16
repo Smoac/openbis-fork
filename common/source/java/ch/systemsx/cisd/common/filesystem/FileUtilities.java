@@ -1589,9 +1589,12 @@ public final class FileUtilities
         } else if (size / FileUtils.ONE_KB > 0)
         {
             displaySize = SIZE_FORMAT.format(size / (float) FileUtils.ONE_KB) + " KB";
+        } else if (size != 1)
+        {
+            displaySize = size + " bytes";
         } else
         {
-            displaySize = SIZE_FORMAT.format(size) + " bytes";
+            displaySize = "1 byte";
         }
         return displaySize;
     }
