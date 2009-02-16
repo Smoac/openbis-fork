@@ -232,22 +232,17 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         final ISampleBO sampleBO = boFactory.createSampleBO(session);
         sampleBO.loadBySampleIdentifier(sampleIdentifier);
         SamplePE sample = sampleBO.getSample();
-        throwExceptionIfSampleEqualsNull(sample, sampleIdentifier);
-        SamplePE top = sample.getTop();
-        if (top == sample)
+        if (sample == null)
         {
-            throw new UserFailureException("Missing top of sample " + sampleIdentifier);
+            return null;
+        }
+        SamplePE top = sample.getTop();
+        if (top == null)
+        {
+            return new SamplePropertyPE[0];
         }
         HibernateUtils.initialize(top.getProperties());
         return top.getProperties().toArray(new SamplePropertyPE[0]);
-    }
-
-    private void throwExceptionIfSampleEqualsNull(SamplePE sample, SampleIdentifier sampleIdentifier)
-    {
-        if (sample == null)
-        {
-            throw new UserFailureException("Couldn't find sample " + sampleIdentifier);
-        }
     }
 
     public DataStorePE getDataStore(String sessionToken, ExperimentIdentifier experimentIdentifier,
