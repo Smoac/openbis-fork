@@ -721,7 +721,7 @@ public interface IMessageResources extends Messages
      * @gwt.key uploadedfiles.part.title
      */
     public String getUploadedFilesPartTitle();
-
+    
     /**
      * Returns the help text for uploading files section upload.
      * 
@@ -778,6 +778,20 @@ public interface IMessageResources extends Messages
      */
     public String getUploadFilesPartTitle();
 
+    /**
+     * Returns the upload files part title section &lt; 2GB.
+     * 
+     * @gwt.key uploadfiles.part.title.less2GB
+     */
+    public String getUploadFilesPartTitleLess2GB();
+
+    /**
+     * Returns the upload files part title section &gt; 2GB.
+     * 
+     * @gwt.key uploadfiles.part.title.greater2GB
+     */
+    public String getUploadFilesPartTitleGreater2GB();
+    
     /**
      * Returns label for the User Code field.
      * 

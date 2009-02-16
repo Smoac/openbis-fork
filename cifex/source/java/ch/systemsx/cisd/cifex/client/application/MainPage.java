@@ -70,15 +70,6 @@ final class MainPage extends AbstractMainPage
                 getMaxRequestUploadSizeText(maxUploadRequestSizeInMB);
         StringBuffer notesText = new StringBuffer();
         notesText.append(messageResources.getUploadFilesHelpUpload(maxRequestUploadSize));
-        if (maxUploadRequestSizeInMB > 2048)
-        {
-            String link = messageResources.getUploadFilesHelpJavaUploaderLink();
-            String title = messageResources.getUploadFilesHelpJavaUploaderTitle();
-            String anchor =
-                    DOMUtils.createAnchor(title, link, Constants.FILE2GB_UPLOAD_SERVLET_NAME, null,
-                            null, false);
-            notesText.append(' ').append(messageResources.getUploadFilesHelpJavaUpload(anchor));
-        }
         if (isPermanent)
         {
             notesText.append(messageResources.getUploadFilesHelpPermanentUser());
@@ -87,8 +78,7 @@ final class MainPage extends AbstractMainPage
             notesText.append(messageResources.getUploadFilesHelpTemporaryUser());
         }
         notesText.append(messageResources.getUploadFilesHelpSecurity());
-        HTML notes = new HTML(notesText.toString());
-        return notes;
+        return new HTML(notesText.toString());
     }
 
     //
@@ -98,16 +88,11 @@ final class MainPage extends AbstractMainPage
     protected final ContentPanel createMainPanel()
     {
         final ContentPanel contentPanel = new ContentPanel("Main-Page");
-        createUserPanel(context.getModel().getUser().isAdmin());
+        Model model = context.getModel();
+        final User user = model.getUser();
+        createUserPanel(user.isAdmin());
         createListCreatedUserPanel();
-
-        final User user = context.getModel().getUser();
-        final VerticalPanel verticalPanel = createVerticalPanelPart();
-        verticalPanel.add(createPartTitle(context.getMessageResources().getUploadFilesPartTitle()));
-        verticalPanel.add(createExplanationPanel());
-        verticalPanel.add(new FileUploadWidget(context));
-        contentPanel.add(verticalPanel);
-
+        contentPanel.add(createUploadPart());
         createListFilesGrid(contentPanel, DOWNLOAD);
         if (user.isPermanent() && user.isAdmin() == false)
         {
@@ -116,6 +101,31 @@ final class MainPage extends AbstractMainPage
         createListFilesGrid(contentPanel, UPLOAD);
         contentPanel.add(listCreatedUserPanel);
         return contentPanel;
+    }
+
+    private VerticalPanel createUploadPart()
+    {
+        final VerticalPanel verticalPanel = createVerticalPanelPart();
+        verticalPanel.add(createPartTitle(context.getMessageResources().getUploadFilesPartTitle()));
+        verticalPanel.add(createExplanationPanel());
+        int maxUploadRequestSizeInMB = context.getModel().getConfiguration().getMaxUploadRequestSizeInMB();
+        boolean maxUploadSizeExceeds2GB = maxUploadRequestSizeInMB > 2048;
+        if (maxUploadSizeExceeds2GB)
+        {
+            verticalPanel.add(createPartTitle(messageResources.getUploadFilesPartTitleLess2GB()));
+        }
+        verticalPanel.add(new FileUploadWidget(context));
+        if (maxUploadSizeExceeds2GB)
+        {
+            verticalPanel.add(createPartTitle(messageResources.getUploadFilesPartTitleGreater2GB()));
+            String link = messageResources.getUploadFilesHelpJavaUploaderLink();
+            String title = messageResources.getUploadFilesHelpJavaUploaderTitle();
+            String anchor =
+                DOMUtils.createAnchor(title, link, Constants.FILE2GB_UPLOAD_SERVLET_NAME, null,
+                        null, false);
+            verticalPanel.add(new HTML(messageResources.getUploadFilesHelpJavaUpload(anchor)));
+        }
+        return verticalPanel;
     }
 
     private void createListCreatedUserPanel()
