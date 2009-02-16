@@ -142,6 +142,9 @@ public class File2GBUploadServletTest extends AssertJUnit
                 {
                     one(uploadService).createSession(USER, BASE_URL);
                     will(returnValue(UPLOAD_SESSION_ID));
+                    
+                    one(businessContext).getMaxUploadRequestSizeInMB();
+                    will(returnValue(42));
                 }
             });
 
@@ -152,6 +155,7 @@ public class File2GBUploadServletTest extends AssertJUnit
         template.bind("main-class", "ch.systemsx.cisd.cifex.upload.client.FileUploadClient");
         template.bind("service-URL", BASE_URL + "/cifex/file-upload-service");
         template.bind("upload-session-id", UPLOAD_SESSION_ID);
+        template.attemptToBind("maxUploadSizeInMB", "42");
         assertEquals(template.createText(false), outputStream.toString());
 
         context.assertIsSatisfied();
