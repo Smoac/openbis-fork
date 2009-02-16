@@ -34,7 +34,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractRegistrationHol
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
 /**
+ * The generic model which can be created automatically using the array of
+ * {@link IColumnDefinitionKind} or {@link IColumnDefinition}.
+ * 
  * @author Franz-Josef Elmer
+ * @author Tomasz Pylak
  */
 public class BaseEntityModel<T> extends BaseModelData
 {
