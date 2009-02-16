@@ -26,6 +26,7 @@ var generic = {
   // ExternalData Viewer
   //
   
+  parent_code: "Parent Code",
   location: "Location",
   file_format_type: "File Format",
   procedure_type: "Procedure Type",

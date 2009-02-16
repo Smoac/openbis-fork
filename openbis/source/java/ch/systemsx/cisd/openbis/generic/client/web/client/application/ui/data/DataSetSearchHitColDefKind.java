@@ -40,12 +40,12 @@ public enum DataSetSearchHitColDefKind implements IColumnDefinitionKind<DataSetS
             }
         }),
 
-    DATA_SET_TYPE(new AbstractColumnDefinitionKind<DataSetSearchHit>(Dict.DATA_SET_TYPE, 120)
+    PARENT_CODE(new AbstractColumnDefinitionKind<DataSetSearchHit>(Dict.PARENT_CODE, 200, true)
         {
             @Override
             public String tryGetValue(DataSetSearchHit entity)
             {
-                return entity.getDataSet().getDataSetType().getCode();
+                return entity.getDataSet().getParentCode();
             }
         }),
 
@@ -55,6 +55,15 @@ public enum DataSetSearchHitColDefKind implements IColumnDefinitionKind<DataSetS
             public String tryGetValue(DataSetSearchHit entity)
             {
                 return entity.getDataSet().getLocation();
+            }
+        }),
+
+    DATA_SET_TYPE(new AbstractColumnDefinitionKind<DataSetSearchHit>(Dict.DATA_SET_TYPE, 120)
+        {
+            @Override
+            public String tryGetValue(DataSetSearchHit entity)
+            {
+                return entity.getDataSet().getDataSetType().getCode();
             }
         }),
 

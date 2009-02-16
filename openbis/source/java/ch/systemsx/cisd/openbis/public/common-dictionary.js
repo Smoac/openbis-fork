@@ -185,34 +185,35 @@ var common = {
   samples: "Samples",
   samples_list: "List of samples (codes or identifiers) separated by commas (\",\") or one sample per line.",
 
- //
- // Vocabulary Browser
- //
- vocabulary_browser: "Vocabulary Browser",
- is_managed_internally: "Managed Internally?",
+  //
+  // Vocabulary Browser
+	//
+  vocabulary_browser: "Vocabulary Browser",
+  is_managed_internally: "Managed Internally?",
  
- //
- // Project Browser
- //
- project_browser: "Project Browser",
+  //
+  // Project Browser
+  //
+  project_browser: "Project Browser",
 
- //
- // Project Registration
- //
- project_registration: "Project Registration",
+  //
+  // Project Registration
+  //
+  project_registration: "Project Registration",
   
- //
- // Data Set Search
- //
- data_set_search: "Data Set Search",
- location: "Location",
- match_all: "Match all criteria",
- match_any: "Match any criteria",
- button_change_query : "Search",
- data_set_type: "Data Set Type",
- file_format_type: "File Type",
- production_date: "Production Date",
- data_producer_code: "Producer",
+  //
+  // Data Set Search
+  //
+  data_set_search: "Data Set Search",
+  location: "Location",
+  match_all: "Match all criteria",
+  match_any: "Match any criteria",
+  button_change_query : "Search",
+  data_set_type: "Data Set Type",
+  parent_code: "Parent Code",
+  file_format_type: "File Type",
+  production_date: "Production Date",
+  data_producer_code: "Producer",
  
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

@@ -282,9 +282,13 @@ public abstract class Dict
     // ExternalData Viewer
     //
 
+    public static final String PARENT_CODE = "parent_code";
+    
     public static final String LOCATION = "location";
 
     public static final String FILE_FORMAT_TYPE = "file_format_type";
+
+    public static final String DATA_SET_TYPE = "data_set_type";
 
     public static final String PROCEDURE_TYPE = "procedure_type";
 
@@ -384,8 +388,6 @@ public abstract class Dict
     public static final String MATCH_ANY = "match_any";
 
     public static final String BUTTON_CHANGE_QUERY = "button_change_query";
-
-    public static final String DATA_SET_TYPE = "data_set_type";
 
     //
     // Unclassified

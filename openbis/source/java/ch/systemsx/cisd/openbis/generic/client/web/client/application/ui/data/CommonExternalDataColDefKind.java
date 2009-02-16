@@ -45,6 +45,15 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
             }
         }),
 
+    PARENT_CODE(new AbstractColumnDefinitionKind<ExternalData>(Dict.PARENT_CODE, true)
+        {
+            @Override
+            public String tryGetValue(ExternalData entity)
+            {
+                return entity.getParentCode();
+            }
+        }),
+
     PRODECUDRE_TYPE(new AbstractColumnDefinitionKind<ExternalData>(Dict.PROCEDURE_TYPE)
         {
             @Override
@@ -126,6 +135,15 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
             public String tryGetValue(ExternalData entity)
             {
                 return entity.getFileFormatType().getCode();
+            }
+        }),
+
+    DATA_SET_TYPE(new AbstractColumnDefinitionKind<ExternalData>(Dict.DATA_SET_TYPE, true)
+        {
+            @Override
+            public String tryGetValue(ExternalData entity)
+            {
+                return entity.getDataSetType().getCode();
             }
         }),
 
