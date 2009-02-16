@@ -18,6 +18,8 @@ package ch.systemsx.cisd.cifex.upload.server;
 
 import java.io.File;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
+import java.util.List;
 
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.upload.UploadStatus;
@@ -38,6 +40,8 @@ class UploadSession
     private String url;
     
     private File file;
+    
+    private List<File> temporaryFiles = new ArrayList<File>();
     
     private RandomAccessFile randomAccessFile;
     
@@ -81,6 +85,16 @@ class UploadSession
     final void setFile(File file)
     {
         this.file = file;
+    }
+    
+    final void addTempFile(File tempFile)
+    {
+        temporaryFiles.add(tempFile);
+    }
+    
+    final List<File> getTempFiles()
+    {
+        return temporaryFiles;
     }
 
     public final RandomAccessFile getRandomAccessFile()

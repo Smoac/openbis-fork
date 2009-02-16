@@ -50,6 +50,8 @@ import ch.systemsx.cisd.common.utilities.StringUtilities;
  */
 public class UploadService implements IExtendedUploadService
 {
+    private static final String PREFIX = "$";
+    
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, UploadService.class);
 
@@ -96,7 +98,21 @@ public class UploadService implements IExtendedUploadService
         logInvocation(uploadSessionID, "Cancel.");
         UploadSession session = sessionManager.getSession(uploadSessionID);
         UploadStatus status = session.getUploadStatus();
-        // TODO 2009-01-29, Franz-Josef Elmer: Remove already uploaded files.
+        try
+        {
+            session.getRandomAccessFile().close();
+        } catch (IOException ex)
+        {
+            operationLog.warn("Cannot close random access file", ex);
+        }
+        List<File> tempFiles = session.getTempFiles();
+        for (File file : tempFiles)
+        {
+            if (file.exists() && file.delete() == false)
+            {
+                operationLog.warn("Cannot delete temporary file " + file);
+            }
+        }
         status.setUploadState(UploadState.ABORTED);
         sessionManager.removeSession(uploadSessionID);
         return status;
@@ -120,7 +136,9 @@ public class UploadService implements IExtendedUploadService
                         MAX_FILENAME_LENGTH);
         File file = fileManager.createFile(session.getUser(), fileName);
         session.setFile(file);
-        RandomAccessFile randomAccessFile = createRandomAccessFile(file);
+        File tempFile = createTempFile(file);
+        session.addTempFile(tempFile);
+        RandomAccessFile randomAccessFile = createRandomAccessFile(tempFile);
         session.setRandomAccessFile(randomAccessFile);
         status.setUploadState(UPLOADING);
         return status;
@@ -144,6 +162,7 @@ public class UploadService implements IExtendedUploadService
             {
                 randomAccessFile.close();
                 File file = session.getFile();
+                createTempFile(file).renameTo(file);
                 String contentType = FilenameUtilities.getMimeType(status.getNameOfCurrentFile());
                 String comment = session.getComment();
                 UserDTO user = session.getUser();
@@ -204,6 +223,11 @@ public class UploadService implements IExtendedUploadService
         {
             throw new WrappedIOException(ex);
         }
+    }
+
+    private File createTempFile(File file)
+    {
+        return new File(file.getParent(), PREFIX + file.getName());
     }
 
 }
