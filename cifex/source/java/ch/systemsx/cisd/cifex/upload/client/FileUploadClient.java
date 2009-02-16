@@ -145,7 +145,7 @@ public class FileUploadClient implements IUploadListener
     
     public static void main(String[] args)
     {
-        new FileUploadClient(args[0], args[1]).show();
+        new FileUploadClient(args[0], args[1], Integer.parseInt(args[2])).show();
     }
 
     private final Uploader uploader;
@@ -157,8 +157,8 @@ public class FileUploadClient implements IUploadListener
     private JPanel progressPanel;
 
     private JProgressBar progressBar;
-    
-    FileUploadClient(String serviceURL, String uploadSessionID)
+
+    FileUploadClient(String serviceURL, String uploadSessionID, int maxUploadSizeInMB)
     {
         uploader = new Uploader(createServiceStub(serviceURL), uploadSessionID);
         uploader.addUploadListener(this);
