@@ -19,10 +19,14 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import org.testng.AssertJUnit;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -30,9 +34,16 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.LuceneQueryBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriterion;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriterion.DataSetSearchField;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriterion.DataSetSearchFieldKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria.CriteriaConnection;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetSearchHitDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
 
@@ -158,5 +169,139 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     private static boolean containsInsensitve(String text, String substring)
     {
         return text.toUpperCase().contains(substring.toUpperCase());
+    }
+
+    // ----------------- test serach for datasets
+
+    private static SearchCriteria createOrDatasetQuery(DataSetSearchCriterion... criteria)
+    {
+        return createDatasetQuery(CriteriaConnection.OR, criteria);
+    }
+
+    private static SearchCriteria createAndDatasetQuery(DataSetSearchCriterion... criteria)
+    {
+        return createDatasetQuery(CriteriaConnection.AND, criteria);
+    }
+
+    private static SearchCriteria createDatasetQuery(CriteriaConnection connection,
+            DataSetSearchCriterion[] criteria)
+    {
+        SearchCriteria result = new SearchCriteria();
+        result.setConnection(connection);
+        result.setCriteria(Arrays.asList(criteria));
+        return result;
+    }
+
+    private static DataSetSearchCriterion mkCriterion(DataSetSearchField field, String value)
+    {
+        return new DataSetSearchCriterion(field, value);
+    }
+
+    private List<String> fetchPropertyTypeCodes()
+    {
+        List<PropertyTypePE> propertyTypes = daoFactory.getPropertyTypeDAO().listAllPropertyTypes();
+        List<String> codes = new ArrayList<String>();
+        for (PropertyTypePE prop : propertyTypes)
+        {
+            codes.add(prop.getCode());
+        }
+        return codes;
+    }
+
+    private List<DataSetSearchHitDTO> searchForDatasets(SearchCriteria criteria)
+    {
+        final IHibernateSearchDAO hibernateSearchDAO = daoFactory.getHibernateSearchDAO();
+        return hibernateSearchDAO.searchForDataSets(criteria);
+    }
+
+    // NOTE: such a check depends strongly on the test database content. Use it only when the better
+    // way to check the results is much harder.
+    private void assertCorrectDatasetsFound(SearchCriteria criteria, DSLoc... expectedLocations)
+    {
+        List<DataSetSearchHitDTO> dataSets = searchForDatasets(criteria);
+        AssertJUnit.assertEquals(expectedLocations.length, dataSets.size());
+        for (DataSetSearchHitDTO dataSet : dataSets)
+        {
+            assertContains(expectedLocations, dataSet.getDataSet().getLocation());
+        }
+    }
+
+    private static void assertContains(DSLoc[] expectedLocations, String location)
+    {
+        for (DSLoc loc : expectedLocations)
+        {
+            if (loc.getLocation().equals(location))
+            {
+                return;
+            }
+        }
+        fail("Dataset location " + location + " not found in the search result");
+    }
+
+    // enumerates existing dataset locations in the database
+    private static enum DSLoc
+    {
+        LOC1("a/3"), LOC2("a/2"), LOC3("a/1"), LOC4("xxx/yyy/zzz"), LOC5("analysis/result");
+
+        private final String location;
+
+        private DSLoc(String location)
+        {
+            this.location = location;
+        }
+
+        public String getLocation()
+        {
+            return location;
+        }
+    }
+
+    private static DataSetSearchField createAnySearchField(List<String> propertyTypes)
+    {
+        return DataSetSearchField.createAnyField(propertyTypes, propertyTypes);
+    }
+
+    @Test
+    public final void testSearchForDataSetsAnyField()
+    {
+        List<String> propertyTypes = fetchPropertyTypeCodes();
+        DataSetSearchCriterion criterion1 =
+                mkCriterion(createAnySearchField(propertyTypes), "stuff");
+        SearchCriteria criteria = createAndDatasetQuery(criterion1);
+        assertCorrectDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC2, DSLoc.LOC3);
+    }
+
+    @Test
+    public final void testSearchForDataSetsAnyProperty()
+    {
+        List<String> propertyTypes = fetchPropertyTypeCodes();
+        DataSetSearchCriterion criterion1 =
+                mkCriterion(DataSetSearchField.createAnyExperimentProperty(propertyTypes), "male");
+        DataSetSearchCriterion criterion2 =
+                mkCriterion(DataSetSearchField.createAnySampleProperty(propertyTypes), "fly");
+
+        SearchCriteria criteria = createOrDatasetQuery(criterion1, criterion2);
+        assertCorrectDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC4, DSLoc.LOC5);
+    }
+
+    @Test
+    public final void testSearchForDataSetsComplexGeneric()
+    {
+        List<String> propertyTypes = fetchPropertyTypeCodes();
+        DataSetSearchCriterion criterion1 =
+                mkCriterion(createAnySearchField(propertyTypes), "3VCP1");
+        String propertyValue = "\"simple experiment\"";
+        DataSetSearchCriterion criterion2 =
+                mkCriterion(DataSetSearchField.createAnyExperimentProperty(propertyTypes),
+                        propertyValue);
+        DataSetSearchCriterion criterion3 =
+                mkCriterion(DataSetSearchField.createSimpleField(DataSetSearchFieldKind.PROJECT),
+                        "NEMO");
+        DataSetSearchCriterion criterion4 =
+                mkCriterion(DataSetSearchField.createExperimentProperty("USER.GENDER"), "MALE");
+
+        SearchCriteria criteria =
+                createAndDatasetQuery(criterion1, criterion2, criterion3, criterion4);
+        assertCorrectDatasetsFound(criteria, DSLoc.LOC4, DSLoc.LOC5);
     }
 }
