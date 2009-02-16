@@ -57,9 +57,39 @@ public final class DateTimeUtils
         zoneString.append(prependZeroIfNeeded(num));
         return "GMT" + zoneString.toString();
     }
-
+    
     private final static String prependZeroIfNeeded(final int num)
     {
         return num < 10 ? "0" + num : "" + num;
     }
+    
+    /**
+     * Renders the specified duration.
+     */
+    public static String renderDuration(long durationInMilliseconds)
+    {
+        if (durationInMilliseconds < 1000)
+        {
+            return render(durationInMilliseconds, "millisecond");
+        }
+        long durationInSeconds = (durationInMilliseconds + 500) / 1000;
+        if (durationInSeconds < 100)
+        {
+            return render(durationInSeconds, "second");
+        }
+        long durationInMinutes = (durationInSeconds + 30) / 60;
+        if (durationInMinutes < 60)
+        {
+            return render(durationInMinutes, "minute");
+        }
+        long minutes = durationInMinutes % 60;
+        long hours = durationInMinutes / 60;
+        return render(hours, "hour") + " and " + render(minutes, "minute");
+    }
+    
+    private static String render(long value, String unit)
+    {
+        return value == 1 ? value + " " + unit : value + " " + unit + "s"; 
+    }
+
 }
