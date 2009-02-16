@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.upload.client;
 
+import static ch.systemsx.cisd.common.utilities.SystemTimeProvider.SYSTEM_TIME_PROVIDER;
+
 import java.awt.BorderLayout;
 import java.awt.FileDialog;
 import java.awt.event.ActionEvent;
@@ -29,28 +31,26 @@ import java.io.IOException;
 import java.net.URL;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
-import javax.swing.AbstractListModel;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.border.Border;
-import javax.swing.event.ListDataEvent;
-import javax.swing.event.ListDataListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableColumnModel;
+import javax.swing.table.TableColumn;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.remoting.httpinvoker.CommonsHttpInvokerRequestExecutor;
@@ -59,6 +59,7 @@ import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean;
 import ch.systemsx.cisd.cifex.upload.IUploadService;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
 
 
 /**
@@ -66,86 +67,16 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
  *
  * @author Franz-Josef Elmer
  */
-public class FileUploadClient implements IUploadListener
+public class FileUploadClient
 {
-    private static final class FileItem 
-    {
-        private final File file;
-        private long length;
-        
-        FileItem(File file)
-        {
-            this.file = file;
-            length = file.length();
-        }
-        
-        public final File getFile()
-        {
-            return file;
-        }
-        
-        public final long getLength()
-        {
-            return length;
-        }
-
-        public final void setLength(long length)
-        {
-            this.length = length;
-        }
-        
-        public String render()
-        {
-            return file.getAbsolutePath() + " (" + FileUtilities.byteCountToDisplaySize(length) + ")";
-        }
-
-        @Override
-        public String toString()
-        {
-            return file.getName();
-        }
-    }
-    
-    private static final class FileListModel extends AbstractListModel
-    {
-        private static final long serialVersionUID = 1L;
-        private List<FileItem> fileItems = new ArrayList<FileItem>();
-        
-        void addFile(File file)
-        {
-            int size = fileItems.size();
-            fileItems.add(new FileItem(file));
-            fireIntervalAdded(this, size, size);
-        }
-        
-        List<File> getFileItems()
-        {
-            List<File> files = new ArrayList<File>();
-            for (FileItem fileItem : fileItems)
-            {
-                files.add(fileItem.getFile());
-            }
-            return files;
-        }
-        
-        public Object getElementAt(int index)
-        {
-            return fileItems.get(index);
-        }
-
-        public int getSize()
-        {
-            return fileItems.size();
-        }
-    }
-    
     private static final String TITLE = "CIFEX Uploader";
 
     private static final int SERVER_TIMEOUT_MIN = 5;
     
     public static void main(String[] args)
     {
-        new FileUploadClient(args[0], args[1], Integer.parseInt(args[2])).show();
+        int maxUloadSizeInMB = Integer.parseInt(args[2]);
+        new FileUploadClient(args[0], args[1], maxUloadSizeInMB, SYSTEM_TIME_PROVIDER).show();
     }
 
     private final Uploader uploader;
@@ -154,14 +85,10 @@ public class FileUploadClient implements IUploadListener
 
     private JFrame frame;
 
-    private JPanel progressPanel;
-
-    private JProgressBar progressBar;
-
-    FileUploadClient(String serviceURL, String uploadSessionID, int maxUploadSizeInMB)
+    FileUploadClient(String serviceURL, String uploadSessionID, int maxUploadSizeInMB,
+            ITimeProvider timeProvider)
     {
         uploader = new Uploader(createServiceStub(serviceURL), uploadSessionID);
-        uploader.addUploadListener(this);
         frame = new JFrame(TITLE);
         frame.addWindowListener(new WindowAdapter()
             {
@@ -172,14 +99,41 @@ public class FileUploadClient implements IUploadListener
                 }
             });
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        frame.add(createGUI(), BorderLayout.CENTER);
-        frame.setBounds(200, 200, 600, 200);
+        UploadTableModel model = new UploadTableModel(uploader, maxUploadSizeInMB, timeProvider);
+        frame.add(createGUI(model), BorderLayout.CENTER);
+        frame.setBounds(200, 200, 500, 400);
         frame.setVisible(true);
         fileDialog = new FileDialog(frame);
         fileDialog.setDirectory(".");
         fileDialog.setModal(true);
         fileDialog.setMode(FileDialog.LOAD);
         fileDialog.setTitle("Select file to upload");
+        uploader.addUploadListener(new IUploadListener()
+            {
+                public void uploadingStarted(File file, long fileSize)
+                {
+                }
+        
+                public void uploadingProgress(int percentage, long numberOfBytes)
+                {
+                }
+        
+                public void uploadingFinished(boolean successful)
+                {
+                    if (successful)
+                    {
+                        JOptionPane.showMessageDialog(frame, "Uploading finish. Please update CIFEX in your Web browser");
+                        System.exit(0);
+                    } else
+                    {
+                        JOptionPane.showMessageDialog(frame, "Uploading aborted.");
+                    }
+                }
+        
+                public void fileUploaded()
+                {
+                }
+            });
     }
     
     void show()
@@ -187,23 +141,20 @@ public class FileUploadClient implements IUploadListener
         frame.setVisible(true);
     }
     
-    private JPanel createGUI()
+    private JPanel createGUI(UploadTableModel tableModel)
     {
         JPanel panel = new JPanel(new BorderLayout());
-        progressPanel = new JPanel();
-        panel.add(progressPanel, BorderLayout.NORTH);
         JPanel centerPanel = new JPanel();
         panel.add(centerPanel, BorderLayout.CENTER);
-        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.X_AXIS));
-        final FileListModel fileListModel = new FileListModel();
-        centerPanel.add(createFilePanel(fileListModel));
+        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+        centerPanel.add(createFilePanel(tableModel));
         final JTextArea recipientsTextArea = createAndAddTextArea(centerPanel, "Recipients");
         final JTextArea commentTextArea = createAndAddTextArea(centerPanel, "Comment");
         JPanel buttonPanel = new JPanel(new BorderLayout());
         panel.add(buttonPanel, BorderLayout.SOUTH);
         JPanel centerButtonPanel = new JPanel();
         buttonPanel.add(centerButtonPanel, BorderLayout.CENTER);
-        centerButtonPanel.add(createUploadButton(fileListModel, recipientsTextArea, commentTextArea));
+        centerButtonPanel.add(createUploadButton(tableModel, recipientsTextArea, commentTextArea));
         JButton cancelButton = new JButton("Cancel");
         cancelButton.addActionListener(new ActionListener()
             {
@@ -228,7 +179,7 @@ public class FileUploadClient implements IUploadListener
         return panel;
     }
 
-    private JButton createUploadButton(final FileListModel fileListModel,
+    private JButton createUploadButton(final UploadTableModel fileListModel,
             final JTextArea recipientsTextArea, final JTextArea commentTextArea)
     {
         final JButton uploadButton = new JButton("Upload");
@@ -240,7 +191,7 @@ public class FileUploadClient implements IUploadListener
                         {
                             public void run()
                             {
-                                List<File> files = fileListModel.getFileItems();
+                                List<File> files = fileListModel.getFiles();
                                 String recipients = recipientsTextArea.getText();
                                 String comment = commentTextArea.getText();
                                 uploader.upload(files, recipients, comment);
@@ -249,19 +200,11 @@ public class FileUploadClient implements IUploadListener
                 }
             });
         uploadButton.setEnabled(false);
-        fileListModel.addListDataListener(new ListDataListener()
+        fileListModel.addTableModelListener(new TableModelListener()
             {
-                public void intervalRemoved(ListDataEvent e)
+                public void tableChanged(TableModelEvent e)
                 {
-                }
-        
-                public void intervalAdded(ListDataEvent e)
-                {
-                    uploadButton.setEnabled(fileListModel.getFileItems().size() > 0);
-                }
-        
-                public void contentsChanged(ListDataEvent e)
-                {
+                    uploadButton.setEnabled(fileListModel.getFiles().size() > 0);
                 }
             });
         return uploadButton;
@@ -269,7 +212,7 @@ public class FileUploadClient implements IUploadListener
 
     private JTextArea createAndAddTextArea(JPanel centerPanel, String title)
     {
-        JTextArea textArea = new JTextArea();
+        JTextArea textArea = new JTextArea(5, 20);
         JPanel panel = new JPanel(new BorderLayout());
         Border border = BorderFactory.createEtchedBorder();
         panel.setBorder(BorderFactory.createTitledBorder(border, title));
@@ -278,45 +221,86 @@ public class FileUploadClient implements IUploadListener
         return textArea;
     }
 
-    private JPanel createFilePanel(final FileListModel fileListModel)
+    private JPanel createFilePanel(final UploadTableModel tableModel)
     {
         JPanel filePanel = new JPanel(new BorderLayout());
         Border border = BorderFactory.createEtchedBorder();
         filePanel.setBorder(BorderFactory.createTitledBorder(border, "Files to upload"));
-        JList fileList = new JList(fileListModel)
+        JTable table = new JTable(tableModel)
             {
                 private static final long serialVersionUID = 1L;
 
                 public String getToolTipText(MouseEvent evt)
                 {
-                    int index = locationToIndex(evt.getPoint());
-                    Object item = getModel().getElementAt(index);
-                    if (item instanceof FileItem)
-                    {
-                        return ((FileItem) item).render();
-                    }
-                    return item.toString();
+                    int index = rowAtPoint(evt.getPoint());
+                    File file = tableModel.getFileItem(index).getFile();
+                    String size = FileUtilities.byteCountToDisplaySize(file.length());
+                    return file.getAbsolutePath() + " (" + size + ")";
                 }
             };
-        fileList.setFixedCellWidth(200);
-        filePanel.add(fileList, BorderLayout.CENTER);
+        table.setColumnModel(creatTableColumnModel());
+        filePanel.add(new JScrollPane(table), BorderLayout.CENTER);
         JButton addButton = new JButton("Add File");
         addButton.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent e)
                 {
-                    fileDialog.setVisible(true);
-                    String fileName = fileDialog.getFile();
-                    if (fileName != null)
-                    {
-                        fileListModel.addFile(new File(new File(fileDialog.getDirectory()), fileName));
-                    }
+                    chooseAndAddFile(tableModel);
                 }
             });
         filePanel.add(addButton, BorderLayout.SOUTH);
         return filePanel;
     }
+
+    private DefaultTableColumnModel creatTableColumnModel()
+    {
+        DefaultTableColumnModel columnModel = new DefaultTableColumnModel();
+        TableColumn column = new TableColumn(0, 150);
+        column.setHeaderValue("File");
+        columnModel.addColumn(column);
+        column = new TableColumn(1, 50);
+        column.setHeaderValue("Status");
+        column.setCellRenderer(new UploadTableCellRenderer());
+        columnModel.addColumn(column);
+        return columnModel;
+    }
     
+    private void chooseAndAddFile(final UploadTableModel tableModel)
+    {
+        fileDialog.setVisible(true);
+        String fileName = fileDialog.getFile();
+        if (fileName != null)
+        {
+            File file = new File(new File(fileDialog.getDirectory()), fileName);
+            if (file.exists() == false)
+            {
+                JOptionPane.showMessageDialog(frame, "File does not exists:\n" + file.getAbsolutePath());
+                return;
+            }
+            if (file.isDirectory())
+            {
+                JOptionPane.showMessageDialog(frame, "Can't upload whole directories.");
+                return;
+            }
+            if (tableModel.alreadyAdded(file))
+            {
+                JOptionPane.showMessageDialog(frame, "File already added:\n" + file.getAbsolutePath());
+                return;
+            }
+            long freeUploadSpace = tableModel.calculateFreeUploadSpace();
+            long length = file.length();
+            if (length > freeUploadSpace)
+            {
+                JOptionPane.showMessageDialog(frame, "File size of "
+                        + FileUtilities.byteCountToDisplaySize(length)
+                        + " exceeds the limit for uploads. File size has to be less than "
+                        + FileUtilities.byteCountToDisplaySize(freeUploadSpace) + ".");
+                return;
+            }
+            tableModel.addFile(file);
+        }
+    }
+
     private IUploadService createServiceStub(String serviceURL)
     {
         setUpKeyStore(serviceURL);
@@ -429,20 +413,6 @@ public class FileUploadClient implements IUploadListener
         }
     }
     
-    public void uploadingStarted(File file, long fileSize)
-    {
-        String path = file.getAbsolutePath();
-        frame.setTitle(TITLE + ": " + path);
-        progressPanel.removeAll();
-        String humanReadableFileSize = FileUtilities.byteCountToDisplaySize(fileSize);
-        progressPanel.add(new JLabel(file.getName() + " (" + humanReadableFileSize + ")"));
-        progressBar = new JProgressBar();
-        progressBar.setStringPainted(true);
-        progressPanel.add(progressBar);
-        progressPanel.invalidate();
-        progressPanel.getParent().validate();
-    }
-    
     private void close()
     {
         if (cancel())
@@ -464,29 +434,6 @@ public class FileUploadClient implements IUploadListener
             return true;
         }
         return false;
-    }
-
-    public void uploadingProgress(int percentage, long numberOfBytes)
-    {
-        progressBar.setValue(percentage);
-    }
-    
-    public void fileUploaded()
-    {
-        System.out.println("FileUploadClient.fileUploaded()");
-    }
-
-    public void uploadingFinished(boolean successful)
-    {
-        if (successful)
-        {
-            JOptionPane.showMessageDialog(frame, "Uploading finish. Please update CIFEX in your Web browser");
-            System.exit(0);
-        } else
-        {
-            JOptionPane.showMessageDialog(frame, "Uploading aborted.");
-        }
-        
     }
 
 }
