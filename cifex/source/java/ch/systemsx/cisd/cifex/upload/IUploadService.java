@@ -29,12 +29,15 @@ public interface IUploadService
     public void cancel(String uploadSessionID);
 
     /**
-     * Defines the upload parameters for the specified upload session.
+     * Defines the upload parameters for the specified upload session. The upload status state after
+     * invocation will be {@link UploadState#READY_FOR_NEXT_FILE} or {@link UploadState#FINISHED} if
+     * <code>files</code> is an empty array.
      * 
      * @param files Absolute file path of files to be uploaded.
      * @param recipients Whitespace of comma separated list of recipients (e-mail address or
-     *        <code>id:<em>userID</em></code>).
+     *            <code>id:<em>userID</em></code>).
      * @param comment Comment to be added in recipient notification.
+     * @throws IllegalStateException if upload status state isn't {@link UploadState#INITIALIZED}.
      */
     public void defineUploadParameters(String uploadSessionID, String[] files,
             String recipients, String comment);
@@ -45,29 +48,44 @@ public interface IUploadService
     public UploadStatus getUploadStatus(String uploadSessionID);
     
     /**
-     * Starts uploading of the specified upload session.
+     * Starts uploading of the specified upload session. The upload status state after
+     * invocation will be {@link UploadState#UPLOADING}.
+     * 
+     * @throws IllegalStateException if upload status state isn't {@link UploadState#READY_FOR_NEXT_FILE}. 
      */
     public void startUploading(String uploadSessionID);
     
     /**
-     * Uploads a data block for the specified upload session.
+     * Uploads a data block for the specified upload session. The upload status state after
+     * invocation will be
+     * <ul>
+     * <li>{@link UploadState#UPLOADING} if <code>lastBlock == false</code>
+     * <li>{@link UploadState#READY_FOR_NEXT_FILE} if <code>lastBlock == true</code> and another
+     * file should be uploaded.
+     * <li>{@link UploadState#FINISHED} if <code>lastBlock == true</code> and there are no more
+     * files to be uploaded.
+     * <li>{@link UploadState#ABORTED} if it was already in this state.
+     * </ul>
      * 
      * @param block Block of data bytes.
      * @param blockSize Number of bytes of <code>block</code> which are to be taken.
-     * @param lastBlock <code>true</code> if <code>block</code> is the last block of a file to be
-     *      uploaded. 
+     * @param lastBlock <code>true</code> if <code>block</code> is the last block of a file to
+     *            be uploaded.
+     * @throws IllegalStateException if upload status state isn't {@link UploadState#UPLOADING} or
+     *             {@link UploadState#ABORTED}.
      */
     public void uploadBlock(String uploadSessionID, byte[] block, int blockSize, boolean lastBlock);
 
     /**
-     * Finishes the specified upload session.
+     * Finishes the specified upload session. The upload status state after
+     * invocation will be {@link UploadState#INITIALIZED} if <code>successful == false</code>.
      * 
      * @param successful Flag indicating whether the uploading was successful or not.
      */
     public void finish(String uploadSessionID, boolean successful);
     
     /**
-     * Closes the specified upload session.
+     * Closes and removes the specified upload session. 
      */
     public void close(String uploadSessionID);
 }
