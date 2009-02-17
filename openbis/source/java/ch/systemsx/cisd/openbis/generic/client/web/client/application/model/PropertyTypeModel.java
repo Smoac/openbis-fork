@@ -20,7 +20,7 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.columns.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeColDefKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 

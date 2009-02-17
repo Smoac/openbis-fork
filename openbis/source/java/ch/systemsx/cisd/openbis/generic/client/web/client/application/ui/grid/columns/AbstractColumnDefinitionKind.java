@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.columns;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.renderer.SimpleDateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.renderer.SimplePersonRenderer;
@@ -26,6 +26,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 /**
  * Abstract superclass which holds meta data. Subclasses must implement
  * {@link AbstractColumnDefinitionKind#tryGetValue(Object)}.
+ * <p>
+ * Usually this class is extended anonymously in {@link IColumnDefinitionKind} implementation and
+ * used as a data holder. It is usefull because all {@link IColumnDefinitionKind} implementations
+ * are similar, but cannot extend a class directly (they are enums, not classes).
+ * </p>
  * 
  * @author Franz-Josef Elmer
  */

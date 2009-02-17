@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.columns;
 
 import java.util.List;
 

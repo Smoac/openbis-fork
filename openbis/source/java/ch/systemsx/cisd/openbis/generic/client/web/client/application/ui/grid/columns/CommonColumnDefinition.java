@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.columns;
+
 
 /**
  * Definition of table columns for entities of type <code>T</code> together with the instructions

@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.columns;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
+
 
 /**
  * Column rendering data provider and cell rendering for tables with rows of type <code>T</code>.

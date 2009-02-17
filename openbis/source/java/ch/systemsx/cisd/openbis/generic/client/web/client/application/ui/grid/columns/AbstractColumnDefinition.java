@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.columns;
+
 
 /**
  * @author Tomasz Pylak
@@ -32,9 +33,7 @@ public abstract class AbstractColumnDefinition<T> implements IColumnDefinitionUI
     // GWT only
     public AbstractColumnDefinition()
     {
-        this.headerText = null;
-        this.width = 0;
-        this.isHidden = false;
+        this(null, 0, false);
     }
 
     /**

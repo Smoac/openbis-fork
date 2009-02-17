@@ -1,4 +1,4 @@
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.columns;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 
