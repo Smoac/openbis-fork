@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.GroupVali
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.MatchingEntityValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ProjectValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetSearchHitDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
@@ -283,6 +283,6 @@ public interface ICommonServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<DataSetSearchHitDTO> searchForDataSets(String sessionToken, SearchCriteria criteria);
+    public List<DataSetSearchHitDTO> searchForDataSets(String sessionToken, DataSetSearchCriteria criteria);
 
 }
