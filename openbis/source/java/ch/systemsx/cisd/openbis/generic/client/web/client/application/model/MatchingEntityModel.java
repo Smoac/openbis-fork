@@ -22,9 +22,9 @@ import com.extjs.gxt.ui.client.data.ModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.columns.AbstractColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.columns.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.columns.IColumnDefinitionUI;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
 

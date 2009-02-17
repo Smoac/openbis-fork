@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2009 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,19 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.renderer;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework;
+
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 
 /**
- * @author Tomasz Pylak
+ * Column rendering data provider and cell rendering for tables with rows of type <code>T</code>.
+ * 
+ * @author Franz-Josef Elmer
  */
-public class SimpleYesNoRenderer
+public interface IColumnDefinitionKind<T> extends IsSerializable
 {
-    public static String render(boolean value)
-    {
-        return value ? "yes" : "no";
-    }
+    public AbstractColumnDefinitionKind<T> getDescriptor();
+
+    public String id();
 }

@@ -16,9 +16,17 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 
-import com.extjs.gxt.ui.client.data.ModelData;
+import java.util.ArrayList;
+import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.CommonExternalDataColDefKind;
+import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.CommonExternalDataColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 
 /**
@@ -36,4 +44,23 @@ public final class ExternalDataModel extends BaseEntityModel<ExternalData>
         super(externalData, CommonExternalDataColDefKind.values());
     }
 
+    /**
+     * Creates column model from all definitions.
+     */
+    public static ColumnModel createColumnModel(IMessageProvider messageProvider)
+    {
+        CommonExternalDataColDefKind[] values = CommonExternalDataColDefKind.values();
+        List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
+        for (CommonExternalDataColDefKind colDefKind : values)
+        {
+            AbstractColumnDefinitionKind<?> colDesc = colDefKind.getDescriptor();
+            String header = messageProvider.getMessage(colDesc.getHeaderMsgKey());
+            String id = colDefKind.id();
+            ColumnConfig columnConfig = ColumnConfigFactory.createDefaultColumnConfig(header, id);
+            columnConfig.setHidden(colDesc.isHidden());
+            columnConfig.setWidth(colDesc.getWidth());
+            configs.add(columnConfig);
+        }
+        return new ColumnModel(configs);
+    }
 }

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.columns;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.renderer.SimpleDateRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.renderer.SimplePersonRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.renderer.SimpleYesNoRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleDateRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimplePersonRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IInvalidationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractRegistrationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;

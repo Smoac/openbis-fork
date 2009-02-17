@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,10 +22,12 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.ParentContainerSampleColDef;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.ParentGeneratedFromSampleColDef;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.PropertySampleColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.columns.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;

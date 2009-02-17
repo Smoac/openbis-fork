@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchHitColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.DataSetSearchHitColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchHitGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.FillSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;

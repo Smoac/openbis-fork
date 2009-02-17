@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.columns.CommonExperimentColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.renderer.SimpleYesNoRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleYesNoRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.experiment.CommonExperimentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.RendererTestUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 

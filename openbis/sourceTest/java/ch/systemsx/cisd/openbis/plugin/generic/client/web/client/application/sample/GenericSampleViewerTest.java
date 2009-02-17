@@ -19,9 +19,9 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sa
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns.DataSetRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ListSamples;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ShowSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.RendererTestUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;

@@ -23,7 +23,7 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExperimentModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.columns.CommonExperimentColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.experiment.CommonExperimentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 

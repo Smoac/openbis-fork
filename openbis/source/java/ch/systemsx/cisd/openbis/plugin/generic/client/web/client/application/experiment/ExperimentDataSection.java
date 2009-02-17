@@ -25,7 +25,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExternalDataModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.CommonExternalDataColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
@@ -50,7 +49,7 @@ public class ExperimentDataSection extends AbstractExperimentTableSection<Extern
     @Override
     protected ColumnModel createColumnModel()
     {
-        return CommonExternalDataColDefKind.createColumnModel(viewContext);
+        return ExternalDataModel.createColumnModel(viewContext);
     }
 
     @Override

@@ -52,13 +52,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExternalDataModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.CommonExternalDataColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.CommonSampleColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
@@ -136,7 +135,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
                 createListLoader(createRpcProxyForExternalData());
         final ListStore<ExternalDataModel> externalDataListStore =
                 createListStore(externalDataLoader);
-        ColumnModel columnModel = CommonExternalDataColDefKind.createColumnModel(viewContext);
+        ColumnModel columnModel = ExternalDataModel.createColumnModel(viewContext);
         externalDataGrid = new Grid<ExternalDataModel>(externalDataListStore, columnModel);
         externalDataGrid.setId(getId() + DATA_POSTFIX);
         externalDataGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);

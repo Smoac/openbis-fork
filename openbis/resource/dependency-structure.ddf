@@ -47,6 +47,13 @@ check [sample-browser]  independentOf [experiment-browser]
 check [experiment-browser] independentOf [admin-console]
 check [admin-console]  independentOf [experiment-browser]
 
+# Check that grid column definitions are GUI independent - export on the server side is using it
+[grid-columns] = ${generic.web}.client.application.ui.columns.**
+[gwt] = com.google.gwt.** excluding com.google.gwt.user.client.rpc.IsSerializable
+[extjs] = com.extjs.**
+check [grid-columns] independentOf [gwt]
+check [grid-columns] independentOf [extjs]
+
 #-------- Server -------------------------
 {generic.server} = ${generic}.server
 

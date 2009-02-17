@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.renderer;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers;
 
 import java.util.Date;
 
