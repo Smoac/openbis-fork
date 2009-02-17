@@ -109,9 +109,11 @@ public final class DataSetSearchFieldsSelectionWidget extends
             final String idSuffix)
     {
         this(source.viewContext, idSuffix);
-        this.setValue(findAnyFieldItem(source.getStore().getModels()));
+        ListStore<DataSetSearchFieldComboModel> sourceStore = source.getStore();
+        sourceStore.clearFilters();
+        this.setValue(findAnyFieldItem(sourceStore.getModels()));
         setWidth(WIDTH);
-        setStore(source.getStore());
+        setStore(sourceStore);
         dataLoaded = true;
     }
 
