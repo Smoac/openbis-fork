@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 
 /**
  * Grid with data set search results.
@@ -62,7 +62,7 @@ public class DataSetSearchHitGrid extends
         return grid.asDisposableWithToolbar(toolbar);
     }
 
-    private SearchCriteria criteria;
+    private DataSetSearchCriteria criteria;
 
     private List<PropertyType> availablePropertyTypes;
 
@@ -95,7 +95,7 @@ public class DataSetSearchHitGrid extends
         viewContext.getService().prepareExportDataSetSearchHits(exportCriteria, callback);
     }
 
-    public void refresh(SearchCriteria newCriteria, List<PropertyType> propertyTypes)
+    public void refresh(DataSetSearchCriteria newCriteria, List<PropertyType> propertyTypes)
     {
         criteria = newCriteria;
         availablePropertyTypes = propertyTypes;

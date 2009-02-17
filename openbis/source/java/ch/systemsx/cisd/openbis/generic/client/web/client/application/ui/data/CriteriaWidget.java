@@ -26,10 +26,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 
 /**
- * Widget for {@link SearchCriteria} management.
+ * Widget for {@link DataSetSearchCriteria} management.
  * 
  * @author Izabela Adamczyk
  */
@@ -98,7 +98,7 @@ public class CriteriaWidget extends VerticalPanel
      * @return <b>search criteria</b> extracted from criteria widgets and "match" radio buttons<br>
      *         <b>null</b> if no criteria were selected
      */
-    public SearchCriteria tryGetCriteria()
+    public DataSetSearchCriteria tryGetCriteria()
     {
 
         List<DataSetSearchCriterion> criteria = new ArrayList<DataSetSearchCriterion>();
@@ -112,7 +112,7 @@ public class CriteriaWidget extends VerticalPanel
         }
         if (criteria.size() > 0)
         {
-            final SearchCriteria result = new SearchCriteria();
+            final DataSetSearchCriteria result = new DataSetSearchCriteria();
             result.setConnection(matchRadios.getSelected());
             result.setCriteria(criteria);
             return result;

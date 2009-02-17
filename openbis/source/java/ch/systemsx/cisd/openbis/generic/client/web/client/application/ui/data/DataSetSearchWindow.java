@@ -15,7 +15,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 
 /**
  * Shows {@link CriteriaWidget}, allowing to specify search criteria.
@@ -72,7 +72,7 @@ public class DataSetSearchWindow extends Dialog
                                 {
                                     List<PropertyType> availablePropertyTypes =
                                             criteriaWidget.getAvailablePropertyTypes();
-                                    SearchCriteria criteria = criteriaWidget.tryGetCriteria();
+                                    DataSetSearchCriteria criteria = criteriaWidget.tryGetCriteria();
                                     String criteriaDescription =
                                             criteriaWidget.getCriteriaDescription();
                                     updateListener.updateSearchResults(criteria,

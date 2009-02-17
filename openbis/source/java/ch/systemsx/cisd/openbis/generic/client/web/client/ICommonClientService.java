@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 /**
@@ -262,9 +262,9 @@ public interface ICommonClientService extends IClientService
     public void registerProject(final Project project) throws UserFailureException;
 
     /**
-     * Returns {@link DataSetSearchHit} fulfilling given {@link SearchCriteria}.
+     * Returns {@link DataSetSearchHit} fulfilling given {@link DataSetSearchCriteria}.
      */
-    public ResultSet<DataSetSearchHit> searchForDataSets(SearchCriteria criteria,
+    public ResultSet<DataSetSearchHit> searchForDataSets(DataSetSearchCriteria criteria,
             final IResultSetConfig<String, DataSetSearchHit> resultSetConfig)
             throws UserFailureException;
 

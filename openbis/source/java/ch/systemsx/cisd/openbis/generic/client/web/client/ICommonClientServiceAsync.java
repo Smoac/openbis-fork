@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 /**
@@ -221,9 +221,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             final AsyncCallback<Void> projectRegistrationCallback);
 
     /**
-     * @see ICommonClientService#searchForDataSets(SearchCriteria, IResultSetConfig)
+     * @see ICommonClientService#searchForDataSets(DataSetSearchCriteria, IResultSetConfig)
      */
-    public void searchForDataSets(SearchCriteria criteria,
+    public void searchForDataSets(DataSetSearchCriteria criteria,
             final IResultSetConfig<String, DataSetSearchHit> resultSetConfig,
             final AsyncCallback<ResultSet<DataSetSearchHit>> callback);
 

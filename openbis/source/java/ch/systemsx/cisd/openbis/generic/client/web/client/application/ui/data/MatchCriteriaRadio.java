@@ -24,11 +24,10 @@ import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria.CriteriaConnection;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
 
 /**
- * Widget which enables to select {@link CriteriaConnection} type.
+ * Widget which enables to select {@link SearchCriteriaConnection} type.
  * 
  * @author Izabela Adamczyk
  */
@@ -77,14 +76,14 @@ public class MatchCriteriaRadio extends HorizontalPanel
         return isAndSelected() ? andRadio.getBoxLabel() : orRadio.getBoxLabel();
     }
 
-    SearchCriteria.CriteriaConnection getSelected()
+    SearchCriteriaConnection getSelected()
     {
         if (isAndSelected())
         {
-            return SearchCriteria.CriteriaConnection.AND;
+            return SearchCriteriaConnection.MATCH_ALL;
         } else
         {
-            return SearchCriteria.CriteriaConnection.OR;
+            return SearchCriteriaConnection.MATCH_ANY;
         }
     }
 

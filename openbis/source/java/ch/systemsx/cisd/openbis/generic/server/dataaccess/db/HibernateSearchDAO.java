@@ -57,7 +57,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.LuceneQueryBuilder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetSearchHitDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IMatchingEntity;
@@ -310,7 +310,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         }
     }
 
-    public List<DataSetSearchHitDTO> searchForDataSets(final SearchCriteria criteria)
+    public List<DataSetSearchHitDTO> searchForDataSets(final DataSetSearchCriteria criteria)
     {
         final List<DataSetSearchHitDTO> list =
                 AbstractDAO.cast((List<?>) getHibernateTemplate().execute(new HibernateCallback()
@@ -331,7 +331,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
     }
 
     private List<DataSetSearchHitDTO> searchForDataSets(Session session,
-            SearchCriteria datasetSearchCriteria)
+            DataSetSearchCriteria datasetSearchCriteria)
     {
         Query query = LuceneQueryBuilder.createQuery(datasetSearchCriteria);
         final FullTextSession fullTextSession = Search.getFullTextSession(session);

@@ -25,19 +25,13 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Izabela Adamczyk
  */
-// TODO 2009-02-10, Tomasz Pylak: rename to DataSetSearchCriteria
-public class SearchCriteria implements IsSerializable
+public class DataSetSearchCriteria implements IsSerializable
 {
     private List<DataSetSearchCriterion> criteria;
 
-    private CriteriaConnection connection;
+    private SearchCriteriaConnection connection;
 
-    public enum CriteriaConnection implements IsSerializable
-    {
-        AND, OR
-    }
-
-    public SearchCriteria()
+    public DataSetSearchCriteria()
     {
     }
 
@@ -51,12 +45,12 @@ public class SearchCriteria implements IsSerializable
         this.criteria = criteria;
     }
 
-    public CriteriaConnection getConnection()
+    public SearchCriteriaConnection getConnection()
     {
         return connection;
     }
 
-    public void setConnection(CriteriaConnection connection)
+    public void setConnection(SearchCriteriaConnection connection)
     {
         this.connection = connection;
     }

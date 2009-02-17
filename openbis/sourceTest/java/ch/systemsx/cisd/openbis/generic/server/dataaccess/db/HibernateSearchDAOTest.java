@@ -37,8 +37,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.LuceneQueryB
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchFieldKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria.CriteriaConnection;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetSearchHitDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
@@ -173,20 +173,20 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
 
     // ----------------- test serach for datasets
 
-    private static SearchCriteria createOrDatasetQuery(DataSetSearchCriterion... criteria)
+    private static DataSetSearchCriteria createOrDatasetQuery(DataSetSearchCriterion... criteria)
     {
-        return createDatasetQuery(CriteriaConnection.OR, criteria);
+        return createDatasetQuery(SearchCriteriaConnection.MATCH_ANY, criteria);
     }
 
-    private static SearchCriteria createAndDatasetQuery(DataSetSearchCriterion... criteria)
+    private static DataSetSearchCriteria createAndDatasetQuery(DataSetSearchCriterion... criteria)
     {
-        return createDatasetQuery(CriteriaConnection.AND, criteria);
+        return createDatasetQuery(SearchCriteriaConnection.MATCH_ALL, criteria);
     }
 
-    private static SearchCriteria createDatasetQuery(CriteriaConnection connection,
+    private static DataSetSearchCriteria createDatasetQuery(SearchCriteriaConnection connection,
             DataSetSearchCriterion[] criteria)
     {
-        SearchCriteria result = new SearchCriteria();
+        DataSetSearchCriteria result = new DataSetSearchCriteria();
         result.setConnection(connection);
         result.setCriteria(Arrays.asList(criteria));
         return result;
@@ -208,7 +208,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         return codes;
     }
 
-    private List<DataSetSearchHitDTO> searchForDatasets(SearchCriteria criteria)
+    private List<DataSetSearchHitDTO> searchForDatasets(DataSetSearchCriteria criteria)
     {
         final IHibernateSearchDAO hibernateSearchDAO = daoFactory.getHibernateSearchDAO();
         return hibernateSearchDAO.searchForDataSets(criteria);
@@ -216,7 +216,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
 
     // NOTE: such a check depends strongly on the test database content. Use it only when the better
     // way to check the results is much harder.
-    private void assertCorrectDatasetsFound(SearchCriteria criteria, DSLoc... expectedLocations)
+    private void assertCorrectDatasetsFound(DataSetSearchCriteria criteria, DSLoc... expectedLocations)
     {
         List<DataSetSearchHitDTO> dataSets = searchForDatasets(criteria);
         AssertJUnit.assertEquals(expectedLocations.length, dataSets.size());
@@ -267,7 +267,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         List<String> propertyTypes = fetchPropertyTypeCodes();
         DataSetSearchCriterion criterion1 =
                 mkCriterion(createAnySearchField(propertyTypes), "stuff");
-        SearchCriteria criteria = createAndDatasetQuery(criterion1);
+        DataSetSearchCriteria criteria = createAndDatasetQuery(criterion1);
         assertCorrectDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC2, DSLoc.LOC3);
     }
 
@@ -280,7 +280,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         DataSetSearchCriterion criterion2 =
                 mkCriterion(DataSetSearchField.createAnySampleProperty(propertyTypes), "fly");
 
-        SearchCriteria criteria = createOrDatasetQuery(criterion1, criterion2);
+        DataSetSearchCriteria criteria = createOrDatasetQuery(criterion1, criterion2);
         assertCorrectDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC4, DSLoc.LOC5);
     }
 
@@ -300,7 +300,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         DataSetSearchCriterion criterion4 =
                 mkCriterion(DataSetSearchField.createExperimentProperty("USER.GENDER"), "MALE");
 
-        SearchCriteria criteria =
+        DataSetSearchCriteria criteria =
                 createAndDatasetQuery(criterion1, criterion2, criterion3, criterion4);
         assertCorrectDatasetsFound(criteria, DSLoc.LOC4, DSLoc.LOC5);
     }

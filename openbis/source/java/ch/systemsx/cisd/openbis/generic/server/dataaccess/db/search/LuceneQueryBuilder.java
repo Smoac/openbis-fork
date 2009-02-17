@@ -43,8 +43,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchFieldKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria.CriteriaConnection;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 
 /**
@@ -56,7 +56,7 @@ public class LuceneQueryBuilder
             LogFactory.getLogger(LogCategory.OPERATION, LuceneQueryBuilder.class);
 
     /** @throws UserFailureException when some search patterns are incorrect */
-    public static Query createQuery(SearchCriteria dataSetCriteria) throws UserFailureException
+    public static Query createQuery(DataSetSearchCriteria dataSetCriteria) throws UserFailureException
     {
         List<DataSetSearchCriterion> criteria = dataSetCriteria.getCriteria();
         Occur occureCondition = createOccureCondition(dataSetCriteria.getConnection());
@@ -75,13 +75,13 @@ public class LuceneQueryBuilder
         return resultQuery;
     }
 
-    private static Occur createOccureCondition(CriteriaConnection connection)
+    private static Occur createOccureCondition(SearchCriteriaConnection connection)
     {
         switch (connection)
         {
-            case AND:
+            case MATCH_ALL:
                 return Occur.MUST;
-            case OR:
+            case MATCH_ANY:
                 return Occur.SHOULD;
             default:
                 throw InternalErr.error("unknown enum " + connection);

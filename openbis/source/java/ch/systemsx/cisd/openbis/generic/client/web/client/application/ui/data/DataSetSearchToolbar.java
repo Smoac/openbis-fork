@@ -12,7 +12,7 @@ import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 
 /**
  * Contains a button opening {@link DataSetSearchWindow}.
@@ -44,7 +44,7 @@ class DataSetSearchToolbar extends ToolBar
             }));
     }
 
-    public void updateSearchResults(SearchCriteria searchCriteria, String searchDescription,
+    public void updateSearchResults(DataSetSearchCriteria searchCriteria, String searchDescription,
             List<PropertyType> availablePropertyTypes)
     {
         grid.refresh(searchCriteria, availablePropertyTypes);

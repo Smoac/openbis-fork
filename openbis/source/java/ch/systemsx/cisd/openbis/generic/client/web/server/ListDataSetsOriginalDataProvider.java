@@ -7,7 +7,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetSearchHit;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.DataSetSearchHitTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetSearchHitDTO;
 
 /**
@@ -18,10 +18,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetSearchHitDTO;
 final class ListDataSetsOriginalDataProvider extends AbstractOriginalDataProvider<DataSetSearchHit>
 {
 
-    private final SearchCriteria criteria;
+    private final DataSetSearchCriteria criteria;
 
     ListDataSetsOriginalDataProvider(final ICommonServer commonServer, final String sessionToken,
-            final SearchCriteria criteria)
+            final DataSetSearchCriteria criteria)
     {
         super(commonServer, sessionToken);
         this.criteria = criteria;
