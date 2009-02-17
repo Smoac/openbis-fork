@@ -182,8 +182,6 @@ public enum DataSetSearchHitColDefKind implements IColumnDefinitionKind<DataSetS
 
     ;
 
-    // TODO 2009-02-09 Tomasz Pylak: show EXPERIMENT_PROPERTY, SAMPLE_PROPERTY
-
     private final AbstractColumnDefinitionKind<DataSetSearchHit> columnDefinitionKind;
 
     private DataSetSearchHitColDefKind(

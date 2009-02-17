@@ -20,12 +20,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractPropertyColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetSearchHit;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -56,12 +54,13 @@ public class DataSetSearchHitModel extends BaseEntityModel<DataSetSearchHit>
             DataSetSearchHit entity)
     {
         List<IColumnDefinitionUI<DataSetSearchHit>> list = createCommonColumnsSchema(null);
-        for (ExperimentProperty prop : getExperimentProperties(entity))
+        for (ExperimentProperty prop : DataSetExperimentPropertyColDef
+                .getExperimentProperties(entity))
         {
             ExperimentTypePropertyType etpt = prop.getEntityTypePropertyType();
             list.add(createExperimentPropertyTypeColDef(etpt.getPropertyType()));
         }
-        for (SampleProperty prop : getSampleProperties(entity))
+        for (SampleProperty prop : DataSetSamplePropertyColDef.getSampleProperties(entity))
         {
             SampleTypePropertyType etpt = prop.getEntityTypePropertyType();
             list.add(createSamplePropertyTypeColDef(etpt.getPropertyType()));
@@ -81,16 +80,6 @@ public class DataSetSearchHitModel extends BaseEntityModel<DataSetSearchHit>
     {
         String label = LABEL_EXPERIMENT_PROPERTY_PREFIX + propertyType.getLabel();
         return new DataSetExperimentPropertyColDef(propertyType, true, PROPERTY_COLUMN_WIDTH, label);
-    }
-
-    private static List<SampleProperty> getSampleProperties(DataSetSearchHit entity)
-    {
-        return entity.getDataSet().getSampleProperties();
-    }
-
-    private static List<ExperimentProperty> getExperimentProperties(DataSetSearchHit entity)
-    {
-        return entity.getDataSet().getProcedure().getExperiment().getProperties();
     }
 
     public static ColumnDefsAndConfigs<DataSetSearchHit> createColumnsSchema(
@@ -168,51 +157,5 @@ public class DataSetSearchHitModel extends BaseEntityModel<DataSetSearchHit>
             }
         }
         return result;
-    }
-
-    public static final class DataSetSamplePropertyColDef extends
-            AbstractPropertyColDef<DataSetSearchHit>
-    {
-        private static final String ID_PREFIX = "sample";
-
-        // GWT only
-        public DataSetSamplePropertyColDef()
-        {
-        }
-
-        private DataSetSamplePropertyColDef(PropertyType propertyType,
-                boolean isDisplayedByDefault, int width, String propertyTypeLabel)
-        {
-            super(propertyType, isDisplayedByDefault, width, propertyTypeLabel, ID_PREFIX);
-        }
-
-        @Override
-        protected List<? extends EntityProperty<?, ?>> getProperties(DataSetSearchHit entity)
-        {
-            return getSampleProperties(entity);
-        }
-    }
-
-    public static final class DataSetExperimentPropertyColDef extends
-            AbstractPropertyColDef<DataSetSearchHit>
-    {
-        private static final String ID_PREFIX = "exp";
-
-        // GWT only
-        public DataSetExperimentPropertyColDef()
-        {
-        }
-
-        public DataSetExperimentPropertyColDef(PropertyType propertyType,
-                boolean isDisplayedByDefault, int width, String propertyTypeLabel)
-        {
-            super(propertyType, isDisplayedByDefault, width, propertyTypeLabel, ID_PREFIX);
-        }
-
-        @Override
-        protected List<? extends EntityProperty<?, ?>> getProperties(DataSetSearchHit entity)
-        {
-            return getExperimentProperties(entity);
-        }
     }
 }
