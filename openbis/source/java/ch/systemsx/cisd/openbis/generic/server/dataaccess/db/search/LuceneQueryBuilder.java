@@ -41,9 +41,9 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriterion;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchField;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriterion.DataSetSearchField;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriterion.DataSetSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteria.CriteriaConnection;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 

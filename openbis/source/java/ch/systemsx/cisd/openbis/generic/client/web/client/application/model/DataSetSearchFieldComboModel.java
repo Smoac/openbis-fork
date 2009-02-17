@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriterion.DataSetSearchField;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchField;
 
 public class DataSetSearchFieldComboModel extends BaseModelData
 {

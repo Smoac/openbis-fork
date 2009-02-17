@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.Fi
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriterion.DataSetSearchFieldKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchFieldKind;
 
 /**
  * A {@link AbstractGWTTestCase} extension to test <i>Data Set Search</i>.
