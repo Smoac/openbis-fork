@@ -56,6 +56,14 @@ class UploadSession
         this.url = url;
         uploadStatus = new UploadStatus();
     }
+    
+    void reset()
+    {
+        temporaryFiles.clear();
+        setFile(null);
+        setRandomAccessFile(null);
+        uploadStatus.reset();
+    }
 
     final String getSessionID()
     {

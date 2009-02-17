@@ -107,8 +107,15 @@ public interface IFileManager
     public FileDTO saveFile(final UserDTO user, final String fileName, String comment,
             final String contentType, final InputStream inputStream);
     
+    /**
+     * Registers specified file for the specified user and sends an e-mail to all specified
+     * recipients.
+     * 
+     * @return a list of invalid (non-existent) email addresses. Can only be non-empty for temporary
+     *         users.
+     */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
-    public void registerFileLinkAndInformRecipients(final UserDTO user, final String fileName,
+    public List<String> registerFileLinkAndInformRecipients(final UserDTO user, final String fileName,
             final String comment, final String contentType, final File file, String[] recipients,
             String url);
 

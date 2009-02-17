@@ -18,18 +18,38 @@ package ch.systemsx.cisd.cifex.upload.client;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.net.URL;
+import java.security.KeyStore;
+import java.security.cert.Certificate;
 import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+
+import org.apache.commons.lang.time.DateUtils;
+import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.remoting.httpinvoker.CommonsHttpInvokerRequestExecutor;
+import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean;
 
 import ch.systemsx.cisd.cifex.upload.IUploadService;
 import ch.systemsx.cisd.cifex.upload.UploadState;
 import ch.systemsx.cisd.cifex.upload.UploadStatus;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.WrappedIOException;
+import ch.systemsx.cisd.common.logging.LogInitializer;
 
 /**
  * 
@@ -38,11 +58,36 @@ import ch.systemsx.cisd.common.exceptions.WrappedIOException;
  */
 public class Uploader
 {
-    private static final EnumSet<UploadState> FINAL_STATES =
-            EnumSet.of(UploadState.FINISHED, UploadState.ABORTED);
-
+    private static final String SPRING_BEAN_URL_PROTOCOL = "spring-bean://";
+    
+    private static final int SERVER_TIMEOUT_MIN = 5;
+    
     private static final EnumSet<UploadState> RUNNING_STATES =
             EnumSet.of(UploadState.READY_FOR_NEXT_FILE, UploadState.UPLOADING);
+
+    private static final class ServiceInvocationHandler implements InvocationHandler
+    {
+        private final IUploadService service;
+
+        private ServiceInvocationHandler(IUploadService service)
+        {
+            this.service = service;
+        }
+
+        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
+        {
+            synchronized (service)
+            {
+                try
+                {
+                    return method.invoke(service, args);
+                } catch (InvocationTargetException ex)
+                {
+                    throw ex.getCause();
+                }
+            }
+        }
+    }
 
     private static final class RandomAccessFileProvider
     {
@@ -90,6 +135,39 @@ public class Uploader
     private final IUploadService uploadService;
     private final String uploadSessionID;
     
+    public Uploader(String serviceURL, String uploadSessionID)
+    {
+        this.uploadSessionID = uploadSessionID;
+        ClassLoader classLoader = getClass().getClassLoader();
+        IUploadService service = createService(serviceURL);
+        ServiceInvocationHandler invocationHandler = new ServiceInvocationHandler(service);
+        uploadService = (IUploadService) Proxy.newProxyInstance(classLoader, new Class[]
+            { IUploadService.class }, invocationHandler);
+    }
+    
+    private IUploadService createService(String serviceURL)
+    {
+        if (serviceURL.startsWith(SPRING_BEAN_URL_PROTOCOL))
+        {
+            AbstractApplicationContext applicationContext =
+                    new ClassPathXmlApplicationContext(new String[]
+                        { "applicationContext.xml" }, true);
+            LogInitializer.init();
+            return ((IUploadService) applicationContext.getBean("file-upload-service"));
+        }
+        setUpKeyStore(serviceURL);
+        final HttpInvokerProxyFactoryBean httpInvokerProxy = new HttpInvokerProxyFactoryBean();
+        httpInvokerProxy.setServiceUrl(serviceURL);
+        httpInvokerProxy.setServiceInterface(IUploadService.class);
+        final CommonsHttpInvokerRequestExecutor httpInvokerRequestExecutor =
+            new CommonsHttpInvokerRequestExecutor();
+        httpInvokerRequestExecutor.setReadTimeout((int) DateUtils.MILLIS_PER_MINUTE
+                * SERVER_TIMEOUT_MIN);
+        httpInvokerProxy.setHttpInvokerRequestExecutor(httpInvokerRequestExecutor);
+        httpInvokerProxy.afterPropertiesSet();
+        return (IUploadService) httpInvokerProxy.getObject();
+    }
+    
     public Uploader(IUploadService uploadService, String uploadSessionID)
     {
         this.uploadService = uploadService;
@@ -109,7 +187,7 @@ public class Uploader
             return RUNNING_STATES.contains(status.getUploadState());
         } catch (RuntimeException ex)
         {
-            ex.printStackTrace();
+            fireExceptionEvent(ex);
             return false;
         }
     }
@@ -119,6 +197,17 @@ public class Uploader
         try
         {
             uploadService.cancel(uploadSessionID);
+        } catch (RuntimeException ex)
+        {
+            fireExceptionEvent(ex);
+        }
+    }
+    
+    public void close()
+    {
+        try
+        {
+            uploadService.close(uploadSessionID);
         } catch (RuntimeException ex)
         {
             ex.printStackTrace();
@@ -136,65 +225,85 @@ public class Uploader
             }
         } catch (IOException ex)
         {
+            fireExceptionEvent(ex);
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
         
-        UploadStatus status = uploadService.getUploadStatus(uploadSessionID);
-        byte[] bytes = new byte[BLOCK_SIZE];
-        RandomAccessFileProvider fileProvider = null;
-        long fileSize = 0;
-        while (FINAL_STATES.contains(status.getUploadState()) == false)
-        {
-            switch (status.getUploadState())
-            {
-                case INITIALIZED:
-                    status = uploadService.defineUploadParameters(uploadSessionID, paths, recipients, comment);
-                    break;
-                case READY_FOR_NEXT_FILE:
-                    if (fileProvider != null)
-                    {
-                        fileProvider.closeFile();
-                        fireUploadedEvent();
-                    }
-                    File file = new File(status.getCurrentFile());
-                    fileSize = file.length();
-                    fileProvider = new RandomAccessFileProvider(file);
-                    fireStartedEvent(file, fileSize);
-                    status = uploadService.startUploading(uploadSessionID);
-                    break;
-                case UPLOADING:
-                    status = uploadNextBlock(fileProvider, status.getFilePointer(), bytes);
-                    fireProgressEvent(status.getFilePointer(), fileSize);
-                    break;
-                case FINISHED:
-                case ABORTED:
-                    break;
-            }
-        }
-        boolean successful = status.getUploadState() == UploadState.FINISHED;
-        uploadService.finish(uploadSessionID, successful);
-        fireFinishedEvent(successful);
-    }
-
-    private UploadStatus uploadNextBlock(RandomAccessFileProvider fileProvider, long filePointer, byte[] bytes)
-    {
         try
         {
-            RandomAccessFile randomAccessFile = fileProvider.getRandomAccessFile();
-            int blockSize = bytes.length;
-            long fileSize = randomAccessFile.length();
-            boolean lastBlock = filePointer + blockSize >= fileSize;
-            if (lastBlock)
+            byte[] bytes = new byte[BLOCK_SIZE];
+            RandomAccessFileProvider fileProvider = null;
+            long fileSize = 0;
+            boolean running = true;
+            while (running)
             {
-                blockSize = (int) (fileSize - filePointer);
+                UploadStatus status = uploadService.getUploadStatus(uploadSessionID);
+                switch (status.getUploadState())
+                {
+                    case INITIALIZED:
+                        uploadService.defineUploadParameters(uploadSessionID, paths, recipients, comment);
+                        break;
+                    case READY_FOR_NEXT_FILE:
+                        if (fileProvider != null)
+                        {
+                            fileProvider.closeFile();
+                            fireUploadedEvent();
+                        }
+                        File file = new File(status.getCurrentFile());
+                        fileSize = file.length();
+                        fileProvider = new RandomAccessFileProvider(file);
+                        fireStartedEvent(file, fileSize);
+                        uploadService.startUploading(uploadSessionID);
+                        break;
+                    case UPLOADING:
+                        uploadNextBlock(fileProvider, status.getFilePointer(), bytes);
+                        fireProgressEvent(status.getFilePointer(), fileSize);
+                        break;
+                    case FINISHED:
+                        uploadService.finish(uploadSessionID, true);
+                        uploadService.close(uploadSessionID);
+                        fireFinishedEvent(true);
+                        running = false;
+                        break;
+                    case ABORTED:
+                        System.out.println(status);
+                        uploadService.finish(uploadSessionID, false);
+                        fireFinishedEvent(false);
+                        running = false;
+                        break;
+                }
             }
-            randomAccessFile.seek(filePointer);
-            randomAccessFile.readFully(bytes, 0, blockSize);
-            return uploadService.uploadBlock(uploadSessionID, bytes, blockSize, lastBlock);
-        } catch (IOException ex)
+        } catch (Throwable throwable)
         {
-            throw new WrappedIOException(ex);
+            fireExceptionEvent(throwable);
+            throwable.printStackTrace();
+            try
+            {
+                uploadService.finish(uploadSessionID, false);
+            } catch (Throwable throwable2)
+            {
+                throwable2.printStackTrace();
+                fireExceptionEvent(throwable2);
+            }
+            fireFinishedEvent(false);
         }
+        fireResetEvent();
+    }
+
+    private void uploadNextBlock(RandomAccessFileProvider fileProvider, long filePointer,
+            byte[] bytes) throws IOException
+    {
+        RandomAccessFile randomAccessFile = fileProvider.getRandomAccessFile();
+        int blockSize = bytes.length;
+        long fileSize = randomAccessFile.length();
+        boolean lastBlock = filePointer + blockSize >= fileSize;
+        if (lastBlock)
+        {
+            blockSize = (int) (fileSize - filePointer);
+        }
+        randomAccessFile.seek(filePointer);
+        randomAccessFile.readFully(bytes, 0, blockSize);
+        uploadService.uploadBlock(uploadSessionID, bytes, blockSize, lastBlock);
     }
 
     private void fireStartedEvent(File file, long fileSize)
@@ -229,5 +338,119 @@ public class Uploader
             listener.fileUploaded();
         }
     }
+    
+    private void fireExceptionEvent(Throwable throwable)
+    {
+        for (IUploadListener listener : listeners)
+        {
+            listener.exceptionOccured(throwable);
+        }
+    }
+    
+    private void fireResetEvent()
+    {
+        for (IUploadListener listener : listeners)
+        {
+            listener.reset();
+        }
+    }
+    
+    private void setUpKeyStore(String serviceURL)
+    {
+        if (serviceURL.startsWith("https"))
+        {
+            Certificate[] certificates = getServerCertificate(serviceURL);
+            KeyStore keyStore;
+            try
+            {
+                keyStore = KeyStore.getInstance("JKS");
+                keyStore.load(null, null);
+                for (int i = 0; i < certificates.length; i++)
+                {
+                    keyStore.setCertificateEntry("cifex" + i, certificates[i]);
+                }
+            } catch (Exception ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
+            FileOutputStream fileOutputStream = null;
+            try
+            {
+                String homeDir = System.getProperty("user.home");
+                File cifexDir = new File(homeDir, ".cifex");
+                cifexDir.mkdirs();
+                File keyStoreFile = new File(cifexDir, "keystore");
+                fileOutputStream = new FileOutputStream(keyStoreFile);
+                keyStore.store(fileOutputStream, "changeit".toCharArray());
+                fileOutputStream.close();
+                System.setProperty("javax.net.ssl.trustStore", keyStoreFile.getAbsolutePath());
+            } catch (Exception ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            } finally
+            {
+                // IOUtils.closeQuietly() isn't used because it is not in the client classpath
+                if (fileOutputStream != null)
+                {
+                    try
+                    {
+                        fileOutputStream.close();
+                    } catch (IOException ex)
+                    {
+                        // ignored
+                    }
+                }
+            }
+        }
+    }
+    
+    private Certificate[] getServerCertificate(String serviceURL)
+    {
+        workAroundABugInJava6();
+        
+        SSLSocket socket = null;
+        try
+        {
+            URL url = new URL(serviceURL);
+            int port = url.getPort();
+            String hostname = url.getHost();
+            System.out.println("host:" + hostname + " port:" + port);
+            SSLSocketFactory factory = HttpsURLConnection.getDefaultSSLSocketFactory();
+            socket = (SSLSocket) factory.createSocket(hostname, port);
+            socket.startHandshake();
+            return socket.getSession().getPeerCertificates();
+        } catch (Exception e)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(e);
+        } finally
+        {
+            // IOUtils.closeQuietly() isn't used because it is not in the client classpath
+            if (socket != null)
+            {
+                try
+                {
+                    socket.close();
+                } catch (IOException ex)
+                {
+                    // ignored
+                }
+            }
+        }
+        
+    }
+
+    // see comment submitted on 31-JAN-2008 for 
+    // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6514454
+    private void workAroundABugInJava6()
+    {
+        try
+        {
+            SSLContext.getInstance("SSL").createSSLEngine();
+        } catch (Exception ex)
+        {
+            System.out.println(ex);
+        }
+    }
+    
 
 }

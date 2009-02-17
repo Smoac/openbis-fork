@@ -32,7 +32,7 @@ public class UploadSessionManagerTest extends AssertJUnit
     @Test
     public void testDifferentSessionIDs()
     {
-        UploadSessionManager manager = new UploadSessionManager();
+        UploadSessionManager manager = new UploadSessionManager(false);
         UserDTO user = new UserDTO();
         user.setUserCode("user");
         UploadSession session1 = manager.createSession(user, "url");
@@ -49,7 +49,7 @@ public class UploadSessionManagerTest extends AssertJUnit
     @Test
     public void testGetSession()
     {
-        UploadSessionManager manager = new UploadSessionManager();
+        UploadSessionManager manager = new UploadSessionManager(false);
         UserDTO user = new UserDTO();
         user.setUserCode("user");
         UploadSession session = manager.createSession(user, "url");
@@ -60,7 +60,7 @@ public class UploadSessionManagerTest extends AssertJUnit
     @Test
     public void testGetNonExistingSession()
     {
-        UploadSessionManager manager = new UploadSessionManager();
+        UploadSessionManager manager = new UploadSessionManager(false);
         try
         {
             manager.getSession("session-id");
@@ -74,7 +74,7 @@ public class UploadSessionManagerTest extends AssertJUnit
     @Test
     public void testRemoveSession()
     {
-        UploadSessionManager manager = new UploadSessionManager();
+        UploadSessionManager manager = new UploadSessionManager(false);
         UserDTO user = new UserDTO();
         user.setUserCode("user");
         UploadSession session = manager.createSession(user, "url");

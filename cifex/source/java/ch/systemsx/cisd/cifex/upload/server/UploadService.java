@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.upload.server;
 
 import static ch.systemsx.cisd.cifex.server.AbstractFileUploadServlet.MAX_FILENAME_LENGTH;
+import static ch.systemsx.cisd.cifex.upload.UploadState.ABORTED;
 import static ch.systemsx.cisd.cifex.upload.UploadState.FINISHED;
 import static ch.systemsx.cisd.cifex.upload.UploadState.INITIALIZED;
 import static ch.systemsx.cisd.cifex.upload.UploadState.READY_FOR_NEXT_FILE;
@@ -27,6 +28,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
@@ -38,6 +40,8 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.server.util.FilenameUtilities;
 import ch.systemsx.cisd.cifex.upload.UploadState;
 import ch.systemsx.cisd.cifex.upload.UploadStatus;
+import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.exceptions.WrappedIOException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -55,19 +59,32 @@ public class UploadService implements IExtendedUploadService
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, UploadService.class);
 
-    private final UploadSessionManager sessionManager = new UploadSessionManager();
+    private final UploadSessionManager sessionManager;
     private final IFileManager fileManager;
     
-    public UploadService(IDomainModel domainModel)
+    public UploadService(IDomainModel domainModel, String testingFlag)
     {
-        this(domainModel.getFileManager());
+        this(domainModel.getFileManager(), new UploadSessionManager("true".equals(testingFlag)));
+        if ("true".equals(testingFlag))
+        {
+            UserDTO userDTO = new UserDTO();
+            userDTO.setID(Long.parseLong(System.getProperty("test-user.id")));
+            userDTO.setUserCode(System.getProperty("test-user.code"));
+            sessionManager.createSession(userDTO, "test-url");
+        }
     }
     
     public UploadService(IFileManager fileManager)
     {
-        this.fileManager = fileManager;
+        this(fileManager, new UploadSessionManager(false));
     }
 
+    public UploadService(IFileManager fileManager, UploadSessionManager sessionManager)
+    {
+        this.fileManager = fileManager;
+        this.sessionManager = sessionManager;
+    }
+    
     public String createSession(UserDTO user, String url)
     {
         return sessionManager.createSession(user, url).getSessionID();
@@ -79,21 +96,19 @@ public class UploadService implements IExtendedUploadService
         return sessionManager.getSession(uploadSessionID).getUploadStatus();
     }
     
-    public UploadStatus defineUploadParameters(String uploadSessionID, String[] files, String recipients, String comment)
+    public void defineUploadParameters(String uploadSessionID, String[] files, String recipients, String comment)
     {
         List<String> fileNames = extractFileNames(files);
         logInvocation(uploadSessionID, "Upload files " + fileNames);
         UploadSession session = sessionManager.getSession(uploadSessionID);
         UploadStatus status = getStatusAndCheckState(session, INITIALIZED);
-        
         status.setFiles(files);
         status.setUploadState(fileNames.isEmpty() ? FINISHED : READY_FOR_NEXT_FILE);
         session.setRecipients(StringUtilities.tokenize(recipients).toArray(new String[0]));
         session.setComment(comment);
-        return status;
     }
 
-    public UploadStatus cancel(String uploadSessionID)
+    public void cancel(String uploadSessionID)
     {
         logInvocation(uploadSessionID, "Cancel.");
         UploadSession session = sessionManager.getSession(uploadSessionID);
@@ -113,27 +128,34 @@ public class UploadService implements IExtendedUploadService
                 operationLog.warn("Cannot delete temporary file " + file);
             }
         }
-        status.setUploadState(UploadState.ABORTED);
-        sessionManager.removeSession(uploadSessionID);
-        return status;
+        session.reset();
+        status.setUploadState(ABORTED);
     }
 
     public void finish(String uploadSessionID, boolean successful)
     {
         logInvocation(uploadSessionID, successful ? "Successfully finished." : "Aborted.");
-        sessionManager.getSession(uploadSessionID);
+        UploadSession session = sessionManager.getSession(uploadSessionID);
+        if (successful == false)
+        {
+            session.getUploadStatus().setUploadState(UploadState.INITIALIZED);
+        }
+    }
+
+    public void close(String uploadSessionID)
+    {
         sessionManager.removeSession(uploadSessionID);
     }
 
-    public UploadStatus startUploading(String uploadSessionID)
+    public void startUploading(String uploadSessionID)
     {
         UploadSession session = sessionManager.getSession(uploadSessionID);
         UploadStatus status = getStatusAndCheckState(session, READY_FOR_NEXT_FILE);
         String nameOfCurrentFile = status.getNameOfCurrentFile();
         logInvocation(uploadSessionID, "Start uploading " + nameOfCurrentFile);
         String fileName =
-                FilenameUtilities.ensureMaximumSize(nameOfCurrentFile,
-                        MAX_FILENAME_LENGTH);
+            FilenameUtilities.ensureMaximumSize(nameOfCurrentFile,
+                    MAX_FILENAME_LENGTH);
         File file = fileManager.createFile(session.getUser(), fileName);
         session.setFile(file);
         File tempFile = createTempFile(file);
@@ -141,12 +163,15 @@ public class UploadService implements IExtendedUploadService
         RandomAccessFile randomAccessFile = createRandomAccessFile(tempFile);
         session.setRandomAccessFile(randomAccessFile);
         status.setUploadState(UPLOADING);
-        return status;
     }
 
-    public UploadStatus uploadBlock(String uploadSessionID, byte[] block, int blockSize, boolean lastBlock)
+    public void uploadBlock(String uploadSessionID, byte[] block, int blockSize, boolean lastBlock)
     {
         UploadSession session = sessionManager.getSession(uploadSessionID);
+        if (session.getUploadStatus().getUploadState() == UploadState.ABORTED)
+        {
+            return;
+        }
         UploadStatus status = getStatusAndCheckState(session, UPLOADING);
         if (operationLog.isTraceEnabled())
         {
@@ -169,15 +194,20 @@ public class UploadService implements IExtendedUploadService
                 String nameOfCurrentFile = status.getNameOfCurrentFile();
                 String[] recipients = session.getRecipients();
                 String url = session.getUrl();
-                fileManager.registerFileLinkAndInformRecipients(user, nameOfCurrentFile, comment,
-                        contentType, file, recipients, url);
+                List<String> invalidUserIdentifiers =
+                        fileManager.registerFileLinkAndInformRecipients(user, nameOfCurrentFile,
+                                comment, contentType, file, recipients, url);
+                if (invalidUserIdentifiers.isEmpty() == false)
+                {
+                    throw new UserFailureException("Some user identifiers are invalid: "
+                            + CollectionUtils.abbreviate(invalidUserIdentifiers, 10));
+                }
                 status.next();
             } else
             {
                 status.setUploadState(UploadState.UPLOADING);
                 status.setFilePointer(filePointer + blockSize);
             }
-            return status;
         } catch (IOException ex)
         {
             throw new WrappedIOException(ex);
@@ -190,7 +220,6 @@ public class UploadService implements IExtendedUploadService
         {
             operationLog.info("[" + uploadSessionID + "]: " + message);
         }
-
     }
 
     private List<String> extractFileNames(String[] files)
@@ -203,13 +232,14 @@ public class UploadService implements IExtendedUploadService
         return fileNames;
     }
 
-    private UploadStatus getStatusAndCheckState(UploadSession session, UploadState expectedState)
+    private UploadStatus getStatusAndCheckState(UploadSession session, UploadState... expectedStates)
     {
         UploadStatus status = session.getUploadStatus();
         UploadState state = status.getUploadState();
-        if (state != expectedState)
+        List<UploadState> states = Arrays.asList(expectedStates);
+        if (states.contains(state) == false)
         {
-            throw new IllegalStateException("Expected state " + expectedState + " but was " + state);
+            throw new IllegalStateException("Expected one of " + states + " but was " + state);
         }
         return status;
     }

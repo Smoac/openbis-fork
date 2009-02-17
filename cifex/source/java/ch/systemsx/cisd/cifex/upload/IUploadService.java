@@ -26,7 +26,7 @@ public interface IUploadService
     /**
      * Cancels the specified upload session.
      */
-    public UploadStatus cancel(String uploadSessionID);
+    public void cancel(String uploadSessionID);
 
     /**
      * Defines the upload parameters for the specified upload session.
@@ -36,7 +36,7 @@ public interface IUploadService
      *        <code>id:<em>userID</em></code>).
      * @param comment Comment to be added in recipient notification.
      */
-    public UploadStatus defineUploadParameters(String uploadSessionID, String[] files,
+    public void defineUploadParameters(String uploadSessionID, String[] files,
             String recipients, String comment);
     
     /**
@@ -47,7 +47,7 @@ public interface IUploadService
     /**
      * Starts uploading of the specified upload session.
      */
-    public UploadStatus startUploading(String uploadSessionID);
+    public void startUploading(String uploadSessionID);
     
     /**
      * Uploads a data block for the specified upload session.
@@ -57,7 +57,7 @@ public interface IUploadService
      * @param lastBlock <code>true</code> if <code>block</code> is the last block of a file to be
      *      uploaded. 
      */
-    public UploadStatus uploadBlock(String uploadSessionID, byte[] block, int blockSize, boolean lastBlock);
+    public void uploadBlock(String uploadSessionID, byte[] block, int blockSize, boolean lastBlock);
 
     /**
      * Finishes the specified upload session.
@@ -65,4 +65,9 @@ public interface IUploadService
      * @param successful Flag indicating whether the uploading was successful or not.
      */
     public void finish(String uploadSessionID, boolean successful);
+    
+    /**
+     * Closes the specified upload session.
+     */
+    public void close(String uploadSessionID);
 }

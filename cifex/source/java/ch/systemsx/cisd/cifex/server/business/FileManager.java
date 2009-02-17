@@ -345,11 +345,11 @@ final class FileManager extends AbstractManager implements IFileManager
     }
 
     @Transactional
-    public void registerFileLinkAndInformRecipients(UserDTO user, String fileName, String comment,
-            String contentType, File file, String[] recipients, String url)
+    public List<String> registerFileLinkAndInformRecipients(UserDTO user, String fileName,
+            String comment, String contentType, File file, String[] recipients, String url)
     {
         FileDTO fileDTO = registerFile(user, fileName, comment, contentType, file, file.length());
-        shareFilesWith(url, user, Arrays.asList(recipients), Collections.singleton(fileDTO),
+        return shareFilesWith(url, user, Arrays.asList(recipients), Collections.singleton(fileDTO),
                 comment);
     }
 

@@ -21,9 +21,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Random;
 
 import org.apache.commons.io.IOUtils;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.AssertJUnit;
@@ -134,6 +137,7 @@ public class UploadingIntegrationTest extends AssertJUnit
             {
                 {
                     one(listener).uploadingFinished(true);
+                    one(listener).reset();
                 }
             });
 
@@ -149,20 +153,31 @@ public class UploadingIntegrationTest extends AssertJUnit
             {
                 {
                     one(listener).uploadingFinished(true);
+                    one(listener).reset();
+                    exactly(2).of(listener).exceptionOccured(with(new BaseMatcher<EnvironmentFailureException>()
+                        {
+                            public void describeTo(Description description)
+                            {
+                            }
+
+                            public boolean matches(Object item)
+                            {
+                                if (item instanceof EnvironmentFailureException)
+                                {
+                                    EnvironmentFailureException e = (EnvironmentFailureException) item;
+                                    return e.getMessage().startsWith("No upload session found");
+                                }
+                                return false;
+                            }
+                    
+                        }));
+                    one(listener).uploadingFinished(false);
+                    one(listener).reset();
                 }
             });
 
         uploader.upload(Arrays.<File> asList(), "Albert\nGalileo", "no comment");
-        try
-        {
-            uploader.upload(Arrays.<File> asList(), "Albert\nGalileo", "no comment");
-            fail("EnvironmentFailureException expected");
-        } catch (EnvironmentFailureException e)
-        {
-            String message = e.getMessage();
-            assertTrue("Unexpected message: " + message, message
-                    .startsWith("No upload session found"));
-        }
+        uploader.upload(Arrays.<File> asList(), "Albert\nGalileo", "no comment");
 
         context.assertIsSatisfied();
     }
@@ -183,9 +198,11 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(fileManager).registerFileLinkAndInformRecipients(user, SMALL_FILE,
                             "no comment", "application/octet-stream", fileInFileStore, new String[]
                                 { "Albert", "Galileo" }, TEST_URL);
+                    will(returnValue(Collections.emptyList()));
 
                     one(listener).uploadingProgress(0, 0);
                     one(listener).uploadingFinished(true);
+                    one(listener).reset();
                 }
             });
 
@@ -211,12 +228,14 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(fileManager).registerFileLinkAndInformRecipients(user, LARGE_FILE,
                             "no comment", "application/octet-stream", fileInFileStore, new String[]
                                 { "Albert", "Galileo" }, TEST_URL);
+                    will(returnValue(Collections.emptyList()));
 
                     one(listener).uploadingProgress(0, 0);
                     one(listener).uploadingProgress(32, BLOCK_SIZE);
                     one(listener).uploadingProgress(64, 2 * BLOCK_SIZE);
                     one(listener).uploadingProgress(96, 3 * BLOCK_SIZE);
                     one(listener).uploadingFinished(true);
+                    one(listener).reset();
                 }
             });
 

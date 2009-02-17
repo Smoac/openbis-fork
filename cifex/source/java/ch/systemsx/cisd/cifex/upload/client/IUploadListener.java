@@ -32,4 +32,8 @@ public interface IUploadListener
     public void fileUploaded();
     
     public void uploadingFinished(boolean successful);
+    
+    public void exceptionOccured(Throwable throwable);
+
+    public void reset();
 }

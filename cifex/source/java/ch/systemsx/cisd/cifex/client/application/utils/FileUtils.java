@@ -82,9 +82,12 @@ public final class FileUtils
         } else if (size >= ONE_KB)
         {
             displaySize = FORMATTER.format(sizeAsDouble / ONE_KB) + " KB";
+        } else if (size != 1)
+        {
+            displaySize = size + " bytes";
         } else
         {
-            displaySize = FORMATTER.format(size) + " bytes";
+            displaySize = "1 byte";
         }
         return displaySize;
     }

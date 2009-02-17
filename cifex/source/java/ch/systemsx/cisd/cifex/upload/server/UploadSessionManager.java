@@ -30,15 +30,25 @@ import ch.systemsx.cisd.common.utilities.TokenGenerator;
  */
 public class UploadSessionManager
 {
+    private final boolean testMode;
     private final TokenGenerator tokenGenerator = new TokenGenerator();
     private final Map<String, UploadSession> sessions = new HashMap<String, UploadSession>();
+    
+    private int nextID;
+    
+    public UploadSessionManager(boolean testMode)
+    {
+        this.testMode = testMode;
+    }
     
     /**
      * Creates a new session for the specified user and URL.
      */
     public UploadSession createSession(UserDTO user, String url)
     {
-        String uploadSessionID = tokenGenerator.getNewToken(System.currentTimeMillis());
+        String uploadSessionID =
+                testMode ? Integer.toString(nextID++) : tokenGenerator.getNewToken(System
+                        .currentTimeMillis());
         UploadSession uploadSession = new UploadSession(uploadSessionID, user, url);
         sessions.put(uploadSessionID, uploadSession);
         return uploadSession;

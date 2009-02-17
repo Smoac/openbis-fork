@@ -63,6 +63,7 @@
 
     <bean id="user-action-log" class="ch.systemsx.cisd.cifex.server.UserActionLog">
         <constructor-arg ref="request-context-provider" />
+        <constructor-arg value="${testing}" />
     </bean>
     
     <!-- 
@@ -76,6 +77,7 @@
 
     <bean id="file-upload-service" class="ch.systemsx.cisd.cifex.upload.server.UploadService">
         <constructor-arg ref="domain-model"/>
+        <constructor-arg value="${testing}" />
     </bean>
     
 

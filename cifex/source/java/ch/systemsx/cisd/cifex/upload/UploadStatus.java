@@ -33,6 +33,13 @@ public class UploadStatus implements Serializable
     private int indexOfCurrentFile;
     private long filePointer;
     private UploadState uploadState = UploadState.INITIALIZED;
+    
+    public void reset()
+    {
+        files = null;
+        filePointer = 0;
+        indexOfCurrentFile = 0;
+    }
 
     /**
      * Sets the absolute paths of all files to be uploaded.

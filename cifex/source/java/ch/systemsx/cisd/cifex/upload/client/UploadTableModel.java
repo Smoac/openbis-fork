@@ -71,11 +71,24 @@ final class UploadTableModel extends AbstractTableModel
                     }
                 }
                 
+                public void reset()
+                {
+                    if (currentFileToBeUploaded != null)
+                    {
+                        currentFileToBeUploaded.setStatus(FileItemStatus.NOT_STARTED);
+                        fireChanged();
+                    }
+                }
+
                 public void fileUploaded()
                 {
                     uploadingFinished(true);
                 }
                 
+                public void exceptionOccured(Throwable throwable)
+                {
+                }
+
                 private FileItem tryToFind(File file)
                 {
                     for (FileItem fileItem : fileItems)

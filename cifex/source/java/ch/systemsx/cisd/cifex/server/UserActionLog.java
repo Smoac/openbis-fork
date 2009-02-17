@@ -20,9 +20,11 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
+import org.springframework.mock.web.MockHttpServletRequest;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.cifex.server.business.IUserActionLog;
@@ -55,9 +57,17 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
     private static final SimpleDateFormat dateTimeFormat =
             new SimpleDateFormat(DEFAULT_DATE_TIME_FORMAT);
 
-    public UserActionLog(final IRequestContextProvider requestContextProvider)
+    public UserActionLog(final IRequestContextProvider requestContextProvider, String testingFlag)
     {
-        super(requestContextProvider);
+        super("true".equals(testingFlag) ? new IRequestContextProvider()
+            {
+        
+                public HttpServletRequest getHttpServletRequest()
+                {
+                    return new MockHttpServletRequest();
+                }
+        
+            } : requestContextProvider);
     }
 
     //
