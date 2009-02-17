@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.upload;
 
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+
 /**
  * Service interface for file uploading.
  *
@@ -25,6 +27,8 @@ public interface IUploadService
 {
     /**
      * Cancels the specified upload session.
+     * 
+     * @throws EnvironmentFailureException if there is no session with specified session ID.
      */
     public void cancel(String uploadSessionID);
 
@@ -38,12 +42,15 @@ public interface IUploadService
      *            <code>id:<em>userID</em></code>).
      * @param comment Comment to be added in recipient notification.
      * @throws IllegalStateException if upload status state isn't {@link UploadState#INITIALIZED}.
+     * @throws EnvironmentFailureException if there is no session with specified session ID.
      */
     public void defineUploadParameters(String uploadSessionID, String[] files,
             String recipients, String comment);
     
     /**
      * Returns the status of the specified upload session.
+     * 
+     * @throws EnvironmentFailureException if there is no session with specified session ID.
      */
     public UploadStatus getUploadStatus(String uploadSessionID);
     
@@ -52,6 +59,7 @@ public interface IUploadService
      * invocation will be {@link UploadState#UPLOADING}.
      * 
      * @throws IllegalStateException if upload status state isn't {@link UploadState#READY_FOR_NEXT_FILE}. 
+     * @throws EnvironmentFailureException if there is no session with specified session ID.
      */
     public void startUploading(String uploadSessionID);
     
@@ -73,6 +81,7 @@ public interface IUploadService
      *            be uploaded.
      * @throws IllegalStateException if upload status state isn't {@link UploadState#UPLOADING} or
      *             {@link UploadState#ABORTED}.
+     * @throws EnvironmentFailureException if there is no session with specified session ID.
      */
     public void uploadBlock(String uploadSessionID, byte[] block, int blockSize, boolean lastBlock);
 
@@ -81,6 +90,7 @@ public interface IUploadService
      * invocation will be {@link UploadState#INITIALIZED} if <code>successful == false</code>.
      * 
      * @param successful Flag indicating whether the uploading was successful or not.
+     * @throws EnvironmentFailureException if there is no session with specified session ID.
      */
     public void finish(String uploadSessionID, boolean successful);
     
