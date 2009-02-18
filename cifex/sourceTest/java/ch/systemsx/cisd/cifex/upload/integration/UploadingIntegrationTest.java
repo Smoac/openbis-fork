@@ -498,14 +498,11 @@ public class UploadingIntegrationTest extends AssertJUnit
         uploader.upload(Arrays.asList(fileOnClient1, fileOnClient2), "Albert\nGalileo", "no comment");
         
         assertEqualContent(fileOnClient1, fileInFileStore1);
-        long lastModified = fileInFileStore1.lastModified();
         assertEquals(false, fileInFileStore2.exists());
         
         uploader.upload(Arrays.asList(fileOnClient1, fileOnClient2), "", "2. try");
         
         assertEqualContent(fileOnClient2, fileInFileStore2);
-        long difference = fileInFileStore2.lastModified() - lastModified;
-        assertFalse("Difference in last modified timestamps: " + difference, difference == 0);
         context.assertIsSatisfied();
     }
 
