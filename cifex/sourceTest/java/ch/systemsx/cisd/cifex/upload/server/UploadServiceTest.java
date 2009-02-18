@@ -29,15 +29,16 @@ import ch.systemsx.cisd.cifex.upload.UploadStatus;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class UploadServiceTest extends AssertJUnit
 {
     private Mockery context;
+
     private IFileManager fileManager;
+
     private UploadService uploadService;
+
     private String sessionID;
 
     @BeforeMethod
@@ -48,7 +49,7 @@ public class UploadServiceTest extends AssertJUnit
         uploadService = new UploadService(fileManager);
         sessionID = uploadService.createSession(new UserDTO(), "exmaple-url");
     }
-    
+
     @AfterMethod
     public void tearDown()
     {
@@ -56,18 +57,18 @@ public class UploadServiceTest extends AssertJUnit
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testInitialStatus()
     {
         UploadStatus status = uploadService.getUploadStatus(sessionID);
-        
+
         assertEquals(0, status.getFilePointer());
         assertEquals(UploadState.INITIALIZED, status.getUploadState());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testGetUploadStatusWithInvalidSessionID()
     {
@@ -76,42 +77,47 @@ public class UploadServiceTest extends AssertJUnit
             uploadService.getUploadStatus("invalid");
             fail("EnvironmentFailureException expected");
         } catch (EnvironmentFailureException e)
-        {   
+        {
             assertEquals("No upload session found for ID invalid", e.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testDefineUploadParameters()
     {
-        uploadService.defineUploadParameters(sessionID, new String[] {"path/a", "b"}, "", "");
-        
+        uploadService.defineUploadParameters(sessionID, new String[]
+            { "path/a", "b" }, "", "");
+
         UploadStatus status = uploadService.getUploadStatus(sessionID);
         assertEquals("path/a", status.getCurrentFile());
         assertEquals("a", status.getNameOfCurrentFile());
         assertEquals(0, status.getFilePointer());
         assertEquals(UploadState.READY_FOR_NEXT_FILE, status.getUploadState());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testDefineUploadParametersInIllegalState()
     {
-        uploadService.defineUploadParameters(sessionID, new String[] {"path/a", "b"}, "", "");
+        uploadService.defineUploadParameters(sessionID, new String[]
+            { "path/a", "b" }, "", "");
         try
         {
-            uploadService.defineUploadParameters(sessionID, new String[] {"path/a", "b"}, "", "");
+            uploadService.defineUploadParameters(sessionID, new String[]
+                { "path/a", "b" }, "", "");
             fail("IllegalStateException expected");
-        } catch (IllegalStateException e) {
-            assertEquals("Expected one of [INITIALIZED] but was READY_FOR_NEXT_FILE", e.getMessage());
+        } catch (IllegalStateException e)
+        {
+            assertEquals("Expected one of [INITIALIZED] but was READY_FOR_NEXT_FILE", e
+                    .getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testDefineUploadParametersWithInvalidSessionID()
     {
@@ -120,11 +126,11 @@ public class UploadServiceTest extends AssertJUnit
             uploadService.defineUploadParameters("invalid", new String[0], "", "");
             fail("EnvironmentFailureException expected");
         } catch (EnvironmentFailureException e)
-        {   
+        {
             assertEquals("No upload session found for ID invalid", e.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
 }
