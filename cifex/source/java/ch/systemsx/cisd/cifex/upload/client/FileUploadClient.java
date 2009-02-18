@@ -69,6 +69,10 @@ public class FileUploadClient
 
     private JFrame frame;
 
+    private JButton uploadButton;
+
+    private JButton addButton;
+
     FileUploadClient(String serviceURL, String uploadSessionID, int maxUploadSizeInMB,
             ITimeProvider timeProvider)
     {
@@ -104,6 +108,7 @@ public class FileUploadClient
         
                 public void uploadingFinished(boolean successful)
                 {
+                    setEnableStateOfButtons(true);
                     if (successful)
                     {
                         JOptionPane.showMessageDialog(frame,
@@ -157,7 +162,8 @@ public class FileUploadClient
         panel.add(buttonPanel, BorderLayout.SOUTH);
         JPanel centerButtonPanel = new JPanel();
         buttonPanel.add(centerButtonPanel, BorderLayout.CENTER);
-        centerButtonPanel.add(createUploadButton(tableModel, recipientsTextArea, commentTextArea));
+        uploadButton = createUploadButton(tableModel, recipientsTextArea, commentTextArea);
+        centerButtonPanel.add(uploadButton);
         JButton cancelButton = new JButton("Cancel");
         cancelButton.addActionListener(new ActionListener()
             {
@@ -185,11 +191,12 @@ public class FileUploadClient
     private JButton createUploadButton(final UploadTableModel fileListModel,
             final JTextArea recipientsTextArea, final JTextArea commentTextArea)
     {
-        final JButton uploadButton = new JButton("Upload");
-        uploadButton.addActionListener(new ActionListener()
+        final JButton button = new JButton("Upload");
+        button.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent e)
                 {
+                    setEnableStateOfButtons(false);
                     new Thread(new Runnable()
                         {
                             public void run()
@@ -202,15 +209,18 @@ public class FileUploadClient
                         }).start();
                 }
             });
-        uploadButton.setEnabled(false);
+        button.setEnabled(false);
         fileListModel.addTableModelListener(new TableModelListener()
             {
                 public void tableChanged(TableModelEvent e)
                 {
-                    uploadButton.setEnabled(fileListModel.getFiles().size() > 0);
+                    if (e.getType() != TableModelEvent.UPDATE)
+                    {
+                        button.setEnabled(fileListModel.getFiles().size() > 0);
+                    }
                 }
             });
-        return uploadButton;
+        return button;
     }
 
     private JTextArea createAndAddTextArea(JPanel centerPanel, String title)
@@ -243,7 +253,7 @@ public class FileUploadClient
             };
         table.setColumnModel(creatTableColumnModel());
         filePanel.add(new JScrollPane(table), BorderLayout.CENTER);
-        JButton addButton = new JButton("Add File");
+        addButton = new JButton("Add File");
         addButton.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent e)
@@ -301,6 +311,18 @@ public class FileUploadClient
                 return;
             }
             tableModel.addFile(file);
+        }
+    }
+    
+    private void setEnableStateOfButtons(boolean enable)
+    {
+        if (addButton != null)
+        {
+            addButton.setEnabled(enable);
+        }
+        if (uploadButton != null)
+        {
+            uploadButton.setEnabled(enable);
         }
     }
 
