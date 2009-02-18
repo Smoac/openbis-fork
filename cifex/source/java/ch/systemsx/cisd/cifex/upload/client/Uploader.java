@@ -52,7 +52,9 @@ import ch.systemsx.cisd.common.exceptions.WrappedIOException;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 
 /**
- * 
+ * Class which uploads file via an implementation of {@link IUploadService}. It handles the
+ * protocol of the contract of <code>IUploadService</code>. Registered {@link IUploadListener}
+ * instances will be informed what's going on during uploading.
  *
  * @author Franz-Josef Elmer
  */
@@ -135,6 +137,9 @@ public class Uploader
     private final IUploadService uploadService;
     private final String uploadSessionID;
     
+    /**
+     * Creates an instance for the specified service URL and session ID. 
+     */
     public Uploader(String serviceURL, String uploadSessionID)
     {
         this.uploadSessionID = uploadSessionID;
@@ -168,17 +173,26 @@ public class Uploader
         return (IUploadService) httpInvokerProxy.getObject();
     }
     
+    /**
+     * Creates an instance for the specified service and session ID. 
+     */
     public Uploader(IUploadService uploadService, String uploadSessionID)
     {
         this.uploadService = uploadService;
         this.uploadSessionID = uploadSessionID;
     }
     
+    /**
+     * Adds a listener for upload events.
+     */
     public void addUploadListener(IUploadListener uploadListener)
     {
         listeners.add(uploadListener);
     }
     
+    /**
+     * Returns <code>true</code> if this uploader is still working. 
+     */
     public boolean isUploading()
     {
         try
@@ -192,6 +206,9 @@ public class Uploader
         }
     }
     
+    /**
+     * Cancels uploading.
+     */
     public void cancel()
     {
         try
@@ -203,6 +220,9 @@ public class Uploader
         }
     }
     
+    /**
+     * Closes uploading.
+     */
     public void close()
     {
         try
@@ -214,6 +234,13 @@ public class Uploader
         }
     }
     
+    /**
+     * Uploads the specified files for the specified recipients.
+     * 
+     * @param recipients Comma or space-separated list of e-mail addresses or user ID's in the form
+     *       <code>id:<i>user ID</i></code>. Can be an empty string.
+     * @param comment Optional comment added to the outgoing e-mails. Can be an empty string.
+     */
     public void upload(List<File> files, String recipients, String comment)
     {
         String[] paths = new String[files.size()];
@@ -276,18 +303,20 @@ public class Uploader
         } catch (Throwable throwable)
         {
             fireExceptionEvent(throwable);
-            throwable.printStackTrace();
             try
             {
                 uploadService.finish(uploadSessionID, false);
             } catch (Throwable throwable2)
             {
-                throwable2.printStackTrace();
                 fireExceptionEvent(throwable2);
+                throwable = throwable2;
             }
             fireFinishedEvent(false);
+            throw CheckedExceptionTunnel.wrapIfNecessary(throwable);
+        } finally
+        {
+            fireResetEvent();
         }
-        fireResetEvent();
     }
 
     private void uploadNextBlock(RandomAccessFileProvider fileProvider, long filePointer,

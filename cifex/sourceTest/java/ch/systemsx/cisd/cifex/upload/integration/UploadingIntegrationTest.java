@@ -178,7 +178,15 @@ public class UploadingIntegrationTest extends AssertJUnit
             });
 
         uploader.upload(Arrays.<File> asList(), "Albert\nGalileo", "no comment");
-        uploader.upload(Arrays.<File> asList(), "Albert\nGalileo", "no comment");
+        try
+        {
+            uploader.upload(Arrays.<File> asList(), "Albert\nGalileo", "no comment");
+            fail("EnvironmentFailureException expected");
+        } catch (EnvironmentFailureException e)
+        {
+            assertTrue("Expected message: " + e.getMessage(), e.getMessage().indexOf(
+                    "No upload session found") == 0);
+        }
 
         context.assertIsSatisfied();
     }
@@ -336,7 +344,13 @@ public class UploadingIntegrationTest extends AssertJUnit
                 }
             });
 
-        uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", "no comment");
+        try
+        {
+            uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", "no comment");
+            fail("UserFailureException expected");
+        } catch (UserFailureException e) {
+            assertEquals("Some user identifiers are invalid: [id:unknown]", e.getMessage());
+        }
 
         assertEqualContent(fileOnClient, fileInFileStore);
         context.assertIsSatisfied();
@@ -347,6 +361,7 @@ public class UploadingIntegrationTest extends AssertJUnit
     {
         final File fileOnClient = new File(CLIENT_FOLDER, SMALL_FILE);
         final File fileInFileStore = new File(FILE_STORE, SMALL_FILE);
+        final RuntimeException exception = new RuntimeException("Oops!");
         context.checking(new Expectations()
             {
                 {
@@ -358,7 +373,6 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(fileManager).registerFileLinkAndInformRecipients(user, SMALL_FILE,
                             "no comment", "application/octet-stream", fileInFileStore, new String[]
                                 { "Albert", "Galileo" }, TEST_URL);
-                    RuntimeException exception = new RuntimeException("Oops!");
                     will(throwException(exception));
 
                     one(listener).exceptionOccured(exception);
@@ -368,7 +382,14 @@ public class UploadingIntegrationTest extends AssertJUnit
                 }
             });
         
-        uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", "no comment");
+        try
+        {
+            uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", "no comment");
+            fail("RuntimeException expected");
+        } catch (RuntimeException e)
+        {
+            assertSame(exception, e);
+        }
         
         assertEqualContent(fileOnClient, fileInFileStore);
         context.assertIsSatisfied();
