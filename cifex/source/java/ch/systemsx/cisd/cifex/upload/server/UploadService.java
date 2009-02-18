@@ -92,7 +92,6 @@ public class UploadService implements IExtendedUploadService
 
     public UploadStatus getUploadStatus(String uploadSessionID)
     {
-        logInvocation(uploadSessionID, "Obtain upload status.");
         return sessionManager.getSession(uploadSessionID).getUploadStatus();
     }
     
@@ -112,30 +111,15 @@ public class UploadService implements IExtendedUploadService
     {
         logInvocation(uploadSessionID, "Cancel.");
         UploadSession session = sessionManager.getSession(uploadSessionID);
-        UploadStatus status = session.getUploadStatus();
-        try
-        {
-            session.getRandomAccessFile().close();
-        } catch (IOException ex)
-        {
-            operationLog.warn("Cannot close random access file", ex);
-        }
-        List<File> tempFiles = session.getTempFiles();
-        for (File file : tempFiles)
-        {
-            if (file.exists() && file.delete() == false)
-            {
-                operationLog.warn("Cannot delete temporary file " + file);
-            }
-        }
-        session.reset();
-        status.setUploadState(ABORTED);
+        cleanUpSession(session);
+        session.getUploadStatus().setUploadState(ABORTED);
     }
 
     public void finish(String uploadSessionID, boolean successful)
     {
         logInvocation(uploadSessionID, successful ? "Successfully finished." : "Aborted.");
         UploadSession session = sessionManager.getSession(uploadSessionID);
+        cleanUpSession(session);
         if (successful == false)
         {
             session.getUploadStatus().setUploadState(UploadState.INITIALIZED);
@@ -242,6 +226,30 @@ public class UploadService implements IExtendedUploadService
             throw new IllegalStateException("Expected one of " + states + " but was " + state);
         }
         return status;
+    }
+
+    private void cleanUpSession(UploadSession session)
+    {
+        RandomAccessFile randomAccessFile = session.getRandomAccessFile();
+        if (randomAccessFile != null)
+        {
+            try
+            {
+                randomAccessFile.close();
+            } catch (IOException ex)
+            {
+                operationLog.warn("Cannot close random access file", ex);
+            }
+        }
+        List<File> tempFiles = session.getTempFiles();
+        for (File file : tempFiles)
+        {
+            if (file.exists() && file.delete() == false)
+            {
+                operationLog.warn("Cannot delete temporary file " + file);
+            }
+        }
+        session.reset();
     }
 
     private RandomAccessFile createRandomAccessFile(File file)
