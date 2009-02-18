@@ -41,6 +41,7 @@ import ch.systemsx.cisd.cifex.upload.client.Uploader;
 import ch.systemsx.cisd.cifex.upload.server.UploadService;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**
@@ -225,16 +226,112 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(fileManager).createFile(user, LARGE_FILE);
                     will(returnValue(fileInFileStore));
 
-                    one(fileManager).registerFileLinkAndInformRecipients(user, LARGE_FILE,
-                            "no comment", "application/octet-stream", fileInFileStore, new String[]
-                                { "Albert", "Galileo" }, TEST_URL);
-                    will(returnValue(Collections.emptyList()));
-
                     one(listener).uploadingProgress(0, 0);
                     one(listener).uploadingProgress(32, BLOCK_SIZE);
                     one(listener).uploadingProgress(64, 2 * BLOCK_SIZE);
                     one(listener).uploadingProgress(96, 3 * BLOCK_SIZE);
                     one(listener).uploadingFinished(true);
+                    one(listener).reset();
+                    
+                    one(fileManager).registerFileLinkAndInformRecipients(user, LARGE_FILE,
+                            "no comment", "application/octet-stream", fileInFileStore, new String[]
+                                { "Albert", "Galileo" }, TEST_URL);
+                    will(returnValue(Collections.emptyList()));
+                }
+            });
+
+        uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", "no comment");
+
+        assertEqualContent(fileOnClient, fileInFileStore);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testTwoFiles() throws IOException
+    {
+        final File fileOnClient1 = new File(CLIENT_FOLDER, SMALL_FILE);
+        final File fileInFileStore1 = new File(FILE_STORE, SMALL_FILE);
+        final File fileOnClient2 = new File(CLIENT_FOLDER, LARGE_FILE);
+        final File fileInFileStore2 = new File(FILE_STORE, LARGE_FILE);
+        context.checking(new Expectations()
+            {
+                {
+                    one(listener).uploadingStarted(fileOnClient1, SMALL_FILE_SIZE * 1024L);
+                    one(fileManager).createFile(user, SMALL_FILE);
+                    will(returnValue(fileInFileStore1));
+                    
+                    one(listener).uploadingProgress(0, 0);
+                    one(listener).fileUploaded();
+
+                    one(fileManager).registerFileLinkAndInformRecipients(user, SMALL_FILE,
+                            "no comment", "application/octet-stream", fileInFileStore1,
+                            new String[]
+                                { "Albert", "Galileo" }, TEST_URL);
+                    will(returnValue(Collections.emptyList()));
+
+                    one(listener).uploadingStarted(fileOnClient2, LARGE_FILE_SIZE * 1024L);
+
+                    one(fileManager).createFile(user, LARGE_FILE);
+                    will(returnValue(fileInFileStore2));
+                    
+                    one(listener).uploadingProgress(0, 0);
+                    one(listener).uploadingProgress(32, BLOCK_SIZE);
+                    one(listener).uploadingProgress(64, 2 * BLOCK_SIZE);
+                    one(listener).uploadingProgress(96, 3 * BLOCK_SIZE);
+                    one(listener).uploadingFinished(true);
+                    one(listener).reset();
+
+                    one(fileManager).registerFileLinkAndInformRecipients(user, LARGE_FILE,
+                            "no comment", "application/octet-stream", fileInFileStore2,
+                            new String[]
+                                { "Albert", "Galileo" }, TEST_URL);
+                    will(returnValue(Collections.emptyList()));
+                }
+            });
+        
+        uploader.upload(Arrays.asList(fileOnClient1, fileOnClient2), "Albert\nGalileo", "no comment");
+        
+        assertEqualContent(fileOnClient1, fileInFileStore1);
+        assertEqualContent(fileOnClient2, fileInFileStore2);
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testUploadingForUnknownUser() throws IOException
+    {
+        final File fileOnClient = new File(CLIENT_FOLDER, SMALL_FILE);
+        final File fileInFileStore = new File(FILE_STORE, SMALL_FILE);
+        context.checking(new Expectations()
+            {
+                {
+                    one(listener).uploadingStarted(fileOnClient, SMALL_FILE_SIZE * 1024L);
+
+                    one(fileManager).createFile(user, SMALL_FILE);
+                    will(returnValue(fileInFileStore));
+
+                    one(fileManager).registerFileLinkAndInformRecipients(user, SMALL_FILE,
+                            "no comment", "application/octet-stream", fileInFileStore, new String[]
+                                { "Albert", "Galileo" }, TEST_URL);
+                    will(returnValue(Arrays.asList("id:unknown")));
+                    
+                    one(listener).exceptionOccured(with(new BaseMatcher<UserFailureException>()
+                        {
+                            public void describeTo(Description description)
+                            {
+                            }
+                            
+                            public boolean matches(Object item)
+                            {
+                                if (item instanceof UserFailureException)
+                                {
+                                    UserFailureException e = (UserFailureException) item;
+                                    return e.getMessage().contains("unknown");
+                                }
+                                return false;
+                            }
+                        }));
+
+                    one(listener).uploadingFinished(false);
                     one(listener).reset();
                 }
             });
@@ -242,6 +339,173 @@ public class UploadingIntegrationTest extends AssertJUnit
         uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", "no comment");
 
         assertEqualContent(fileOnClient, fileInFileStore);
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testUploadingThrowingExceptionInFileManager() throws IOException
+    {
+        final File fileOnClient = new File(CLIENT_FOLDER, SMALL_FILE);
+        final File fileInFileStore = new File(FILE_STORE, SMALL_FILE);
+        context.checking(new Expectations()
+            {
+                {
+                    one(listener).uploadingStarted(fileOnClient, SMALL_FILE_SIZE * 1024L);
+
+                    one(fileManager).createFile(user, SMALL_FILE);
+                    will(returnValue(fileInFileStore));
+
+                    one(fileManager).registerFileLinkAndInformRecipients(user, SMALL_FILE,
+                            "no comment", "application/octet-stream", fileInFileStore, new String[]
+                                { "Albert", "Galileo" }, TEST_URL);
+                    RuntimeException exception = new RuntimeException("Oops!");
+                    will(throwException(exception));
+
+                    one(listener).exceptionOccured(exception);
+
+                    one(listener).uploadingFinished(false);
+                    one(listener).reset();
+                }
+            });
+        
+        uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", "no comment");
+        
+        assertEqualContent(fileOnClient, fileInFileStore);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testCanceling() throws IOException
+    {
+        final File fileOnClient = new File(CLIENT_FOLDER, LARGE_FILE);
+        final File fileInFileStore = new File(FILE_STORE, LARGE_FILE);
+        final File tempFileInStore = new File(FILE_STORE, UploadService.PREFIX + LARGE_FILE);
+        context.checking(new Expectations()
+            {
+                {
+                    one(listener).uploadingStarted(fileOnClient, LARGE_FILE_SIZE * 1024L);
+
+                    one(fileManager).createFile(user, LARGE_FILE);
+                    will(returnValue(fileInFileStore));
+
+                    one(listener).uploadingProgress(32, BLOCK_SIZE);
+                    one(listener).uploadingProgress(with(equal(64)), with(new BaseMatcher<Long>()
+                        {
+                            public void describeTo(Description description)
+                            {
+                            }
+                    
+                            public boolean matches(Object item)
+                            {
+                                if (item instanceof Long)
+                                {
+                                    long numberOfBytes = (Long) item;
+                                    if (numberOfBytes == 2 * BLOCK_SIZE)
+                                    {
+                                        assertEquals(true, tempFileInStore.exists());
+                                        assertEquals(numberOfBytes, tempFileInStore.length());
+                                        uploader.cancel();
+                                        return true;
+                                    }
+                                }
+                                return false;
+                            }
+                        }));
+                    one(listener).uploadingFinished(false);
+                    one(listener).reset();
+                }
+            });
+
+        uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", "no comment");
+
+        assertEquals(false, fileInFileStore.exists());
+        assertEquals(false, tempFileInStore.exists());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testUploading2FilesWhereSecondIsCanceledAndSecondUpload() throws IOException
+    {
+        final File fileOnClient1 = new File(CLIENT_FOLDER, SMALL_FILE);
+        final File fileInFileStore1 = new File(FILE_STORE, SMALL_FILE);
+        final File fileOnClient2 = new File(CLIENT_FOLDER, LARGE_FILE);
+        final File fileInFileStore2 = new File(FILE_STORE, LARGE_FILE);
+        context.checking(new Expectations()
+            {
+                {
+                    one(listener).uploadingStarted(fileOnClient1, SMALL_FILE_SIZE * 1024L);
+                    one(fileManager).createFile(user, SMALL_FILE);
+                    will(returnValue(fileInFileStore1));
+
+                    one(listener).uploadingProgress(0, 0);
+                    one(listener).fileUploaded();
+                    
+                    one(fileManager).registerFileLinkAndInformRecipients(user, SMALL_FILE,
+                            "no comment", "application/octet-stream", fileInFileStore1,
+                            new String[]
+                                { "Albert", "Galileo" }, TEST_URL);
+                    will(returnValue(Collections.emptyList()));
+
+                    one(listener).uploadingStarted(fileOnClient2, LARGE_FILE_SIZE * 1024L);
+
+                    one(fileManager).createFile(user, LARGE_FILE);
+                    will(returnValue(fileInFileStore2));
+
+                    one(listener).uploadingProgress(32, BLOCK_SIZE);
+                    one(listener).uploadingProgress(with(equal(64)), with(new BaseMatcher<Long>()
+                            {
+                                public void describeTo(Description description)
+                                {
+                                }
+                        
+                                public boolean matches(Object item)
+                                {
+                                    if (item instanceof Long)
+                                    {
+                                        long numberOfBytes = (Long) item;
+                                        if (numberOfBytes == 2 * BLOCK_SIZE)
+                                        {
+                                            uploader.cancel();
+                                            return true;
+                                        }
+                                    }
+                                    return false;
+                                }
+                            }));
+                    one(listener).uploadingFinished(false);
+                    one(listener).reset();
+
+
+                    one(listener).uploadingStarted(fileOnClient2, LARGE_FILE_SIZE * 1024L);
+
+                    one(fileManager).createFile(user, LARGE_FILE);
+                    will(returnValue(fileInFileStore2));
+
+                    one(listener).uploadingProgress(0, 0);
+                    one(listener).uploadingProgress(32, BLOCK_SIZE);
+                    one(listener).uploadingProgress(64, 2 * BLOCK_SIZE);
+                    one(listener).uploadingProgress(96, 3 * BLOCK_SIZE);
+                    one(listener).uploadingFinished(true);
+                    one(listener).reset();
+                    
+                    one(fileManager).registerFileLinkAndInformRecipients(user, LARGE_FILE,
+                            "2. try", "application/octet-stream", fileInFileStore2, new String[0],
+                            TEST_URL);
+                    will(returnValue(Collections.emptyList()));
+                }
+            });
+        
+        uploader.upload(Arrays.asList(fileOnClient1, fileOnClient2), "Albert\nGalileo", "no comment");
+        
+        assertEqualContent(fileOnClient1, fileInFileStore1);
+        long lastModified = fileInFileStore1.lastModified();
+        assertEquals(false, fileInFileStore2.exists());
+        
+        uploader.upload(Arrays.asList(fileOnClient1, fileOnClient2), "", "2. try");
+        
+        assertEqualContent(fileOnClient2, fileInFileStore2);
+        long difference = fileInFileStore2.lastModified() - lastModified;
+        assertFalse("Difference in last modified timestamps: " + difference, difference == 0);
         context.assertIsSatisfied();
     }
 

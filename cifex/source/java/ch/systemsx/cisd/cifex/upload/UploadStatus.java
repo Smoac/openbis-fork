@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.cifex.upload;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -28,6 +30,8 @@ import org.apache.commons.io.FilenameUtils;
 public class UploadStatus implements Serializable
 {
     private static final long serialVersionUID = 1L;
+    
+    private final Set<String> uploadedFiles = new HashSet<String>();
     
     private String[] files;
     private int indexOfCurrentFile;
@@ -47,6 +51,22 @@ public class UploadStatus implements Serializable
     public final void setFiles(String[] files)
     {
         this.files = files;
+        if (files != null)
+        {
+            indexOfCurrentFile = findNextIndex(0);
+        }
+    }
+    
+    private int findNextIndex(int startIndex)
+    {
+        for (int i = startIndex; i < files.length; i++)
+        {
+            if (uploadedFiles.contains(files[i]) == false)
+            {
+                return i;
+            }
+        }
+        return files.length;
     }
     
     /**
@@ -55,7 +75,8 @@ public class UploadStatus implements Serializable
      */
     public void next()
     {
-        indexOfCurrentFile++;
+        uploadedFiles.add(getCurrentFile());
+        indexOfCurrentFile = findNextIndex(indexOfCurrentFile);
         filePointer = 0;
         uploadState = indexOfCurrentFile < files.length ? UploadState.READY_FOR_NEXT_FILE : UploadState.FINISHED;
     }

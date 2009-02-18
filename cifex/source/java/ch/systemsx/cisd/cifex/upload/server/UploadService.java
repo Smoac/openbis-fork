@@ -54,7 +54,7 @@ import ch.systemsx.cisd.common.utilities.StringUtilities;
  */
 public class UploadService implements IExtendedUploadService
 {
-    private static final String PREFIX = "$";
+    public static final String PREFIX = "$";
     
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, UploadService.class);
