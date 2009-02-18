@@ -47,10 +47,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class FileUploadClient
@@ -64,7 +61,7 @@ public class FileUploadClient
     }
 
     private final Uploader uploader;
-    
+
     private final FileDialog fileDialog;
 
     private JFrame frame;
@@ -101,25 +98,25 @@ public class FileUploadClient
                 public void uploadingStarted(File file, long fileSize)
                 {
                 }
-        
+
                 public void uploadingProgress(int percentage, long numberOfBytes)
                 {
                 }
-        
+
                 public void uploadingFinished(boolean successful)
                 {
                     setEnableStateOfButtons(true);
                     if (successful)
                     {
                         JOptionPane.showMessageDialog(frame,
-                                "Uploading finish. Please update CIFEX in your Web browser");
+                                "Uploading finished. Please refresh CIFEX in your Web browser.");
                         System.exit(0);
                     } else
                     {
                         JOptionPane.showMessageDialog(frame, "Uploading aborted.");
                     }
                 }
-        
+
                 public void fileUploaded()
                 {
                 }
@@ -143,12 +140,12 @@ public class FileUploadClient
                 }
             });
     }
-    
+
     void show()
     {
         frame.setVisible(true);
     }
-    
+
     private JPanel createGUI(UploadTableModel tableModel)
     {
         JPanel panel = new JPanel(new BorderLayout());
@@ -184,7 +181,7 @@ public class FileUploadClient
                 }
             });
         closeButtonPanel.add(closeButton);
-        
+
         return panel;
     }
 
@@ -277,7 +274,7 @@ public class FileUploadClient
         columnModel.addColumn(column);
         return columnModel;
     }
-    
+
     private void chooseAndAddFile(final UploadTableModel tableModel)
     {
         fileDialog.setVisible(true);
@@ -287,7 +284,8 @@ public class FileUploadClient
             File file = new File(new File(fileDialog.getDirectory()), fileName);
             if (file.exists() == false)
             {
-                JOptionPane.showMessageDialog(frame, "File does not exists:\n" + file.getAbsolutePath());
+                JOptionPane.showMessageDialog(frame, "File does not exists:\n"
+                        + file.getAbsolutePath());
                 return;
             }
             if (file.isDirectory())
@@ -297,7 +295,8 @@ public class FileUploadClient
             }
             if (tableModel.alreadyAdded(file))
             {
-                JOptionPane.showMessageDialog(frame, "File already added:\n" + file.getAbsolutePath());
+                JOptionPane.showMessageDialog(frame, "File already added:\n"
+                        + file.getAbsolutePath());
                 return;
             }
             long freeUploadSpace = tableModel.calculateFreeUploadSpace();
@@ -313,7 +312,7 @@ public class FileUploadClient
             tableModel.addFile(file);
         }
     }
-    
+
     private void setEnableStateOfButtons(boolean enable)
     {
         if (addButton != null)
@@ -334,14 +333,15 @@ public class FileUploadClient
             System.exit(0);
         }
     }
-    
+
     private boolean cancel()
     {
         if (uploader.isUploading() == false)
         {
             return true;
         }
-        int answer = JOptionPane.showConfirmDialog(frame, "Do you really want to cancel uploading?");
+        int answer =
+                JOptionPane.showConfirmDialog(frame, "Do you really want to cancel uploading?");
         if (answer == JOptionPane.YES_OPTION)
         {
             uploader.cancel();
