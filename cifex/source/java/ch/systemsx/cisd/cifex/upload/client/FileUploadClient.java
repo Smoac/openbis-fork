@@ -58,11 +58,25 @@ public class FileUploadClient
     public static void main(String[] args)
             throws ch.systemsx.cisd.cifex.client.UserFailureException, EnvironmentFailureException
     {
-        String userName = args[1];
-        String passwd = args[2];
-        int maxUloadSizeInMB = Integer.parseInt(args[3]);
-        new FileUploadClient(args[0], userName, passwd, maxUloadSizeInMB, SYSTEM_TIME_PROVIDER)
-                .show();
+        final int maxUloadSizeInMB;
+        final String serviceURL = args[0];
+        if (args.length == 3)
+        {
+            final String sessionId = args[1];
+            maxUloadSizeInMB = Integer.parseInt(args[2]);
+            new FileUploadClient(serviceURL, sessionId, maxUloadSizeInMB, SYSTEM_TIME_PROVIDER)
+            .show();
+        } else if (args.length == 4)
+        {
+            final String userName = args[1];
+            final String passwd = args[2];
+            maxUloadSizeInMB = Integer.parseInt(args[3]);
+            new FileUploadClient(serviceURL, userName, passwd, maxUloadSizeInMB, SYSTEM_TIME_PROVIDER)
+            .show();
+        } else
+        {
+            System.err.println("Wrong number of arguments.");
+        }
     }
 
     private final Uploader uploader;
@@ -75,11 +89,25 @@ public class FileUploadClient
 
     private JButton addButton;
 
+    FileUploadClient(String serviceURL, String sessionId, int maxUploadSizeInMB,
+            ITimeProvider timeProvider) throws ch.systemsx.cisd.cifex.client.UserFailureException,
+            EnvironmentFailureException
+    {
+        this(new Uploader(serviceURL, sessionId), maxUploadSizeInMB, timeProvider);
+    }
+    
     FileUploadClient(String serviceURL, String userName, String passwd, int maxUploadSizeInMB,
             ITimeProvider timeProvider) throws ch.systemsx.cisd.cifex.client.UserFailureException,
             EnvironmentFailureException
     {
-        uploader = new Uploader(serviceURL, userName, passwd);
+        this(new Uploader(serviceURL, userName, passwd), maxUploadSizeInMB, timeProvider);
+    }
+    
+    FileUploadClient(Uploader uploader, int maxUploadSizeInMB,
+            ITimeProvider timeProvider) throws ch.systemsx.cisd.cifex.client.UserFailureException,
+            EnvironmentFailureException
+    {
+        this.uploader = uploader;
         frame = new JFrame(TITLE);
         frame.addWindowListener(new WindowAdapter()
             {

@@ -145,6 +145,16 @@ public class Uploader
     /**
      * Creates an instance for the specified service URL and session ID.
      */
+    public Uploader(String serviceURL, String sessionID) throws UserFailureException,
+            EnvironmentFailureException
+    {
+        this.uploadService = createServiceProxy(serviceURL);
+        this.uploadSessionID = sessionID;
+    }
+
+    /**
+     * Creates an instance for the specified service URL and session ID.
+     */
     public Uploader(String serviceURL, String username, String passwd) throws UserFailureException,
             EnvironmentFailureException
     {
