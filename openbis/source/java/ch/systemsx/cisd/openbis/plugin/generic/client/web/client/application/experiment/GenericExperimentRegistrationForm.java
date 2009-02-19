@@ -99,7 +99,7 @@ public final class GenericExperimentRegistrationForm
         String text = samplesArea.getValue();
         if (StringUtils.isBlank(text) == false)
         {
-            return text.split("\n|\r\n|,");
+            return text.split("\n|\r\n|, *");
         } else
         {
             return new String[0];
