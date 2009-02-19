@@ -72,10 +72,10 @@
 
     <bean id="file-upload-service-exporter" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter">
         <property name="service" ref="file-upload-service" />
-        <property name="serviceInterface" value="ch.systemsx.cisd.cifex.upload.IUploadService" />
+        <property name="serviceInterface" value="ch.systemsx.cisd.cifex.upload.ICIFEXRPCService" />
     </bean>
 
-    <bean id="file-upload-service" class="ch.systemsx.cisd.cifex.upload.server.UploadService">
+    <bean id="file-upload-service" class="ch.systemsx.cisd.cifex.upload.server.CIFEXRPCService">
         <constructor-arg ref="domain-model" />
         <constructor-arg ref="request-context-provider" />
         <constructor-arg ref="user-action-log" />

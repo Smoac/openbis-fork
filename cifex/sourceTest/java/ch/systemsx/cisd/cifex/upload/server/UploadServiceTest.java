@@ -37,7 +37,7 @@ public class UploadServiceTest extends AssertJUnit
 
     private IFileManager fileManager;
 
-    private UploadService uploadService;
+    private CIFEXRPCService uploadService;
 
     private String sessionID;
 
@@ -46,7 +46,7 @@ public class UploadServiceTest extends AssertJUnit
     {
         context = new Mockery();
         fileManager = context.mock(IFileManager.class);
-        uploadService = new UploadService(fileManager, null, null, null, null, "false");
+        uploadService = new CIFEXRPCService(fileManager, null, null, null, null, "false");
         sessionID = uploadService.createSession(new UserDTO(), "exmaple-url");
     }
 

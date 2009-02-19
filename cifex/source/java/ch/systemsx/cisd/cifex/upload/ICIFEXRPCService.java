@@ -24,15 +24,15 @@ import ch.systemsx.cisd.cifex.client.UserFailureException;
  * 
  * @author Franz-Josef Elmer
  */
-public interface IUploadService
+public interface ICIFEXRPCService
 {
     /**
      * Authenticates given <code>user</code> with given <code>password</code>.
      * <p>
      * If <code>requestAdmin==true</code>, then request an admin login.
      * 
-     * @return if the login was successful, a <code>uploadSessionID</code> which can be used in
-     *         other methods to upload files, <code>null</code> otherwise.
+     * @return if the login was successful, a <code>sessionID</code> which can be used in
+     *         other methods to upload or download files, <code>null</code> otherwise.
      */
     public String login(final String user, final String password) throws UserFailureException,
             EnvironmentFailureException;
@@ -43,11 +43,11 @@ public interface IUploadService
     public void logout();
 
     /**
-     * Cancels the specified upload session.
+     * Cancels the specified session.
      * 
      * @throws EnvironmentFailureException if there is no session with specified session ID.
      */
-    public void cancel(String uploadSessionID) throws EnvironmentFailureException;
+    public void cancel(String sessionID) throws EnvironmentFailureException;
 
     /**
      * Defines the upload parameters for the specified upload session. The upload status state after
@@ -61,7 +61,7 @@ public interface IUploadService
      * @throws IllegalStateException if upload status state isn't {@link UploadState#INITIALIZED}.
      * @throws EnvironmentFailureException if there is no session with specified session ID.
      */
-    public void defineUploadParameters(String uploadSessionID, String[] files, String recipients,
+    public void defineUploadParameters(String sessionID, String[] files, String recipients,
             String comment) throws EnvironmentFailureException;
 
     /**
@@ -69,7 +69,7 @@ public interface IUploadService
      * 
      * @throws EnvironmentFailureException if there is no session with specified session ID.
      */
-    public UploadStatus getUploadStatus(String uploadSessionID) throws EnvironmentFailureException;
+    public UploadStatus getUploadStatus(String sessionID) throws EnvironmentFailureException;
 
     /**
      * Starts uploading of the specified upload session. The upload status state after invocation
@@ -79,7 +79,7 @@ public interface IUploadService
      *             {@link UploadState#READY_FOR_NEXT_FILE}.
      * @throws EnvironmentFailureException if there is no session with specified session ID.
      */
-    public void startUploading(String uploadSessionID) throws EnvironmentFailureException;
+    public void startUploading(String sessionID) throws EnvironmentFailureException;
 
     /**
      * Uploads a data block for the specified upload session. The upload status state after
@@ -101,21 +101,21 @@ public interface IUploadService
      *             {@link UploadState#ABORTED}.
      * @throws EnvironmentFailureException if there is no session with specified session ID.
      */
-    public void uploadBlock(String uploadSessionID, byte[] block, int blockSize, boolean lastBlock)
+    public void uploadBlock(String sessionID, byte[] block, int blockSize, boolean lastBlock)
             throws EnvironmentFailureException;
 
     /**
-     * Finishes the specified upload session. The upload status state after invocation will be
+     * Finishes the specified session. The status state after invocation will be
      * {@link UploadState#INITIALIZED} if <code>successful == false</code>.
      * 
      * @param successful Flag indicating whether the uploading was successful or not.
      * @throws EnvironmentFailureException if there is no session with specified session ID.
      */
-    public void finish(String uploadSessionID, boolean successful)
+    public void finish(String sessionID, boolean successful)
             throws EnvironmentFailureException;
 
     /**
-     * Closes and removes the specified upload session.
+     * Closes and removes the specified session.
      */
-    public void close(String uploadSessionID);
+    public void close(String sessionID);
 }

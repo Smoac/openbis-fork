@@ -35,8 +35,8 @@ public class UploadSessionManagerTest extends AssertJUnit
         UploadSessionManager manager = new UploadSessionManager(false);
         UserDTO user = new UserDTO();
         user.setUserCode("user");
-        UploadSession session1 = manager.createSession(user, "url");
-        UploadSession session2 = manager.createSession(user, "url");
+        Session session1 = manager.createSession(user, "url");
+        Session session2 = manager.createSession(user, "url");
         
         assertSame(user, session1.getUser());
         assertEquals("url", session1.getUrl());
@@ -52,7 +52,7 @@ public class UploadSessionManagerTest extends AssertJUnit
         UploadSessionManager manager = new UploadSessionManager(false);
         UserDTO user = new UserDTO();
         user.setUserCode("user");
-        UploadSession session = manager.createSession(user, "url");
+        Session session = manager.createSession(user, "url");
         
         assertSame(session, manager.getSession(session.getSessionID()));
     }
@@ -77,7 +77,7 @@ public class UploadSessionManagerTest extends AssertJUnit
         UploadSessionManager manager = new UploadSessionManager(false);
         UserDTO user = new UserDTO();
         user.setUserCode("user");
-        UploadSession session = manager.createSession(user, "url");
+        Session session = manager.createSession(user, "url");
         String sessionID = session.getSessionID();
         assertSame(session, manager.getSession(sessionID));
         

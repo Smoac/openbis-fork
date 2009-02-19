@@ -38,7 +38,7 @@ import ch.systemsx.cisd.cifex.server.business.IFileManager;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.upload.client.IUploadListener;
 import ch.systemsx.cisd.cifex.upload.client.Uploader;
-import ch.systemsx.cisd.cifex.upload.server.UploadService;
+import ch.systemsx.cisd.cifex.upload.server.CIFEXRPCService;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -108,8 +108,8 @@ public class UploadingIntegrationTest extends AssertJUnit
     {
         context = new Mockery();
         fileManager = context.mock(IFileManager.class);
-        UploadService uploadService =
-                new UploadService(fileManager, null, null, null, null, "false");
+        CIFEXRPCService uploadService =
+                new CIFEXRPCService(fileManager, null, null, null, null, "false");
         user = new UserDTO();
         user.setUserCode("Isaac");
         String sessionID = uploadService.createSession(user, TEST_URL);
@@ -405,7 +405,7 @@ public class UploadingIntegrationTest extends AssertJUnit
     {
         final File fileOnClient = new File(CLIENT_FOLDER, LARGE_FILE);
         final File fileInFileStore = new File(FILE_STORE, LARGE_FILE);
-        final File tempFileInStore = new File(FILE_STORE, UploadService.PREFIX + LARGE_FILE);
+        final File tempFileInStore = new File(FILE_STORE, CIFEXRPCService.PREFIX + LARGE_FILE);
         context.checking(new Expectations()
             {
                 {

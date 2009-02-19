@@ -76,13 +76,13 @@ public class File2GBUploadServlet extends AbstractFileUploadServlet
             "  </application-desc>\n" +
             "</jnlp>\n");
 
-    private IExtendedUploadService uploadService;
+    private IExtendedCIFEXRPCService uploadService;
     
     public File2GBUploadServlet()
     {
     }
     
-    @Private File2GBUploadServlet(IExtendedUploadService uploadService, IDomainModel domainModel)
+    @Private File2GBUploadServlet(IExtendedCIFEXRPCService uploadService, IDomainModel domainModel)
     {
         this.uploadService = uploadService;
         this.domainModel = domainModel;
@@ -97,7 +97,7 @@ public class File2GBUploadServlet extends AbstractFileUploadServlet
             ServletContext servletContext = getServletContext();
             final BeanFactory context =
                     WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
-            uploadService = (IExtendedUploadService) context.getBean("file-upload-service");
+            uploadService = (IExtendedCIFEXRPCService) context.getBean("file-upload-service");
         } catch (final Exception ex)
         {
             notificationLog.fatal("Failure during file upload service servlet initialization.", ex);

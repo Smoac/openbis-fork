@@ -24,7 +24,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.utilities.TokenGenerator;
 
 /**
- * Manager of {@link UploadSession} instances.
+ * Manager of {@link Session} instances.
  *
  * @author Franz-Josef Elmer
  */
@@ -32,7 +32,7 @@ public class UploadSessionManager
 {
     private final boolean testMode;
     private final TokenGenerator tokenGenerator = new TokenGenerator();
-    private final Map<String, UploadSession> sessions = new HashMap<String, UploadSession>();
+    private final Map<String, Session> sessions = new HashMap<String, Session>();
     
     private int nextID;
     
@@ -44,12 +44,12 @@ public class UploadSessionManager
     /**
      * Creates a new session for the specified user and URL.
      */
-    public UploadSession createSession(UserDTO user, String url)
+    public Session createSession(UserDTO user, String url)
     {
         String uploadSessionID =
                 testMode ? Integer.toString(nextID++) : tokenGenerator.getNewToken(System
                         .currentTimeMillis());
-        UploadSession uploadSession = new UploadSession(uploadSessionID, user, url);
+        Session uploadSession = new Session(uploadSessionID, user, url);
         sessions.put(uploadSessionID, uploadSession);
         return uploadSession;
     }
@@ -59,9 +59,9 @@ public class UploadSessionManager
      * 
      * @throws EnvironmentFailureException if no session could be found.
      */
-    public UploadSession getSession(String uploadSessionID)
+    public Session getSession(String uploadSessionID)
     {
-        UploadSession uploadSession = sessions.get(uploadSessionID);
+        Session uploadSession = sessions.get(uploadSessionID);
         if (uploadSession == null)
         {
             throw new EnvironmentFailureException("No upload session found for ID " + uploadSessionID);

@@ -46,7 +46,7 @@ import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean;
 
 import ch.systemsx.cisd.cifex.client.EnvironmentFailureException;
 import ch.systemsx.cisd.cifex.client.UserFailureException;
-import ch.systemsx.cisd.cifex.upload.IUploadService;
+import ch.systemsx.cisd.cifex.upload.ICIFEXRPCService;
 import ch.systemsx.cisd.cifex.upload.UploadState;
 import ch.systemsx.cisd.cifex.upload.UploadStatus;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
@@ -54,7 +54,7 @@ import ch.systemsx.cisd.common.exceptions.WrappedIOException;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 
 /**
- * Class which uploads file via an implementation of {@link IUploadService}. It handles the
+ * Class which uploads file via an implementation of {@link ICIFEXRPCService}. It handles the
  * protocol of the contract of <code>IUploadService</code>. Registered {@link IUploadListener}
  * instances will be informed what's going on during uploading.
  * 
@@ -71,9 +71,9 @@ public class Uploader
 
     private static final class ServiceInvocationHandler implements InvocationHandler
     {
-        private final IUploadService service;
+        private final ICIFEXRPCService service;
 
-        private ServiceInvocationHandler(IUploadService service)
+        private ServiceInvocationHandler(ICIFEXRPCService service)
         {
             this.service = service;
         }
@@ -138,7 +138,7 @@ public class Uploader
 
     private final Set<IUploadListener> listeners = new LinkedHashSet<IUploadListener>();
 
-    private final IUploadService uploadService;
+    private final ICIFEXRPCService uploadService;
 
     private final String uploadSessionID;
 
@@ -162,16 +162,16 @@ public class Uploader
         this.uploadSessionID = uploadService.login(username, passwd);
     }
 
-    private IUploadService createServiceProxy(String serviceURL)
+    private ICIFEXRPCService createServiceProxy(String serviceURL)
     {
         ClassLoader classLoader = getClass().getClassLoader();
-        IUploadService service = createService(serviceURL);
+        ICIFEXRPCService service = createService(serviceURL);
         ServiceInvocationHandler invocationHandler = new ServiceInvocationHandler(service);
-        return (IUploadService) Proxy.newProxyInstance(classLoader, new Class[]
-            { IUploadService.class }, invocationHandler);
+        return (ICIFEXRPCService) Proxy.newProxyInstance(classLoader, new Class[]
+            { ICIFEXRPCService.class }, invocationHandler);
     }
 
-    private IUploadService createService(String serviceURL)
+    private ICIFEXRPCService createService(String serviceURL)
     {
         if (serviceURL.startsWith(SPRING_BEAN_URL_PROTOCOL))
         {
@@ -179,25 +179,25 @@ public class Uploader
                     new ClassPathXmlApplicationContext(new String[]
                         { "applicationContext.xml" }, true);
             LogInitializer.init();
-            return ((IUploadService) applicationContext.getBean("file-upload-service"));
+            return ((ICIFEXRPCService) applicationContext.getBean("file-upload-service"));
         }
         setUpKeyStore(serviceURL);
         final HttpInvokerProxyFactoryBean httpInvokerProxy = new HttpInvokerProxyFactoryBean();
         httpInvokerProxy.setServiceUrl(serviceURL);
-        httpInvokerProxy.setServiceInterface(IUploadService.class);
+        httpInvokerProxy.setServiceInterface(ICIFEXRPCService.class);
         final CommonsHttpInvokerRequestExecutor httpInvokerRequestExecutor =
                 new CommonsHttpInvokerRequestExecutor();
         httpInvokerRequestExecutor.setReadTimeout((int) DateUtils.MILLIS_PER_MINUTE
                 * SERVER_TIMEOUT_MIN);
         httpInvokerProxy.setHttpInvokerRequestExecutor(httpInvokerRequestExecutor);
         httpInvokerProxy.afterPropertiesSet();
-        return (IUploadService) httpInvokerProxy.getObject();
+        return (ICIFEXRPCService) httpInvokerProxy.getObject();
     }
 
     /**
      * Creates an instance for the specified service and session ID.
      */
-    public Uploader(IUploadService uploadService, String uploadSessionID)
+    public Uploader(ICIFEXRPCService uploadService, String uploadSessionID)
     {
         this.uploadService = uploadService;
         this.uploadSessionID = uploadSessionID;

@@ -29,7 +29,7 @@ import ch.systemsx.cisd.cifex.upload.UploadStatus;
  *
  * @author Franz-Josef Elmer
  */
-class UploadSession
+class Session
 {
     private final String sessionID;
     
@@ -49,7 +49,7 @@ class UploadSession
     
     private String comment;
 
-    UploadSession(String sessionID, UserDTO user, String url)
+    Session(String sessionID, UserDTO user, String url)
     {
         this.sessionID = sessionID;
         this.user = user;

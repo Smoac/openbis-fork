@@ -92,7 +92,7 @@ public class File2GBUploadServletTest extends AssertJUnit
 
     private HttpSession httpSession;
 
-    private IExtendedUploadService uploadService;
+    private IExtendedCIFEXRPCService uploadService;
 
     private IDomainModel domainModel;
 
@@ -108,7 +108,7 @@ public class File2GBUploadServletTest extends AssertJUnit
         response = context.mock(HttpServletResponse.class);
         httpSession = context.mock(HttpSession.class);
 
-        uploadService = context.mock(IExtendedUploadService.class);
+        uploadService = context.mock(IExtendedCIFEXRPCService.class);
         domainModel = context.mock(IDomainModel.class);
         businessContext = context.mock(IBusinessContext.class);
         context.checking(new Expectations()

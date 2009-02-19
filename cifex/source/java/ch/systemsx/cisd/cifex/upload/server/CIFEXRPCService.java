@@ -59,19 +59,19 @@ import ch.systemsx.cisd.common.utilities.StringUtilities;
 /**
  * @author Franz-Josef Elmer
  */
-public class UploadService extends AbstractCIFEXService implements IExtendedUploadService
+public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCIFEXRPCService
 {
     public static final String PREFIX = "$";
 
     private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, UploadService.class);
+            LogFactory.getLogger(LogCategory.OPERATION, CIFEXRPCService.class);
 
     private final UploadSessionManager sessionManager;
 
     private final IFileManager fileManager;
 
     // used externally by spring
-    public UploadService(final IDomainModel domainModel,
+    public CIFEXRPCService(final IDomainModel domainModel,
             final IRequestContextProvider requestContextProvider,
             final IUserActionLog userBehaviorLog,
             final IAuthenticationService externalAuthenticationService, final String testingFlag)
@@ -80,7 +80,7 @@ public class UploadService extends AbstractCIFEXService implements IExtendedUplo
                 externalAuthenticationService, testingFlag);
     }
 
-    public UploadService(final IFileManager fileManager, final IDomainModel domainModel,
+    public CIFEXRPCService(final IFileManager fileManager, final IDomainModel domainModel,
             final IRequestContextProvider requestContextProvider,
             final IUserActionLog userBehaviorLog,
             final IAuthenticationService externalAuthenticationService, final String testingFlag)
@@ -97,7 +97,7 @@ public class UploadService extends AbstractCIFEXService implements IExtendedUplo
         }
     }
 
-    private UploadService(IFileManager fileManager, UploadSessionManager sessionManager,
+    private CIFEXRPCService(IFileManager fileManager, UploadSessionManager sessionManager,
             IDomainModel domainModel, IRequestContextProvider requestContextProvider,
             IUserActionLog userBehaviorLog, IAuthenticationService externalAuthenticationService,
             LoggingContextHandler loggingContextHandler)
@@ -142,7 +142,7 @@ public class UploadService extends AbstractCIFEXService implements IExtendedUplo
     {
         List<String> fileNames = extractFileNames(files);
         logInvocation(uploadSessionID, "Upload files " + fileNames);
-        UploadSession session = sessionManager.getSession(uploadSessionID);
+        Session session = sessionManager.getSession(uploadSessionID);
         UploadStatus status = getStatusAndCheckState(session, INITIALIZED);
         status.setFiles(files);
         status.setUploadState(fileNames.isEmpty() ? FINISHED : READY_FOR_NEXT_FILE);
@@ -153,7 +153,7 @@ public class UploadService extends AbstractCIFEXService implements IExtendedUplo
     public void cancel(String uploadSessionID)
     {
         logInvocation(uploadSessionID, "Cancel.");
-        UploadSession session = sessionManager.getSession(uploadSessionID);
+        Session session = sessionManager.getSession(uploadSessionID);
         cleanUpSession(session);
         session.getUploadStatus().setUploadState(ABORTED);
     }
@@ -161,7 +161,7 @@ public class UploadService extends AbstractCIFEXService implements IExtendedUplo
     public void finish(String uploadSessionID, boolean successful)
     {
         logInvocation(uploadSessionID, successful ? "Successfully finished." : "Aborted.");
-        UploadSession session = sessionManager.getSession(uploadSessionID);
+        Session session = sessionManager.getSession(uploadSessionID);
         cleanUpSession(session);
         if (successful == false)
         {
@@ -176,7 +176,7 @@ public class UploadService extends AbstractCIFEXService implements IExtendedUplo
 
     public void startUploading(String uploadSessionID)
     {
-        UploadSession session = sessionManager.getSession(uploadSessionID);
+        Session session = sessionManager.getSession(uploadSessionID);
         UploadStatus status = getStatusAndCheckState(session, READY_FOR_NEXT_FILE);
         String nameOfCurrentFile = status.getNameOfCurrentFile();
         logInvocation(uploadSessionID, "Start uploading " + nameOfCurrentFile);
@@ -193,7 +193,7 @@ public class UploadService extends AbstractCIFEXService implements IExtendedUplo
 
     public void uploadBlock(String uploadSessionID, byte[] block, int blockSize, boolean lastBlock)
     {
-        UploadSession session = sessionManager.getSession(uploadSessionID);
+        Session session = sessionManager.getSession(uploadSessionID);
         if (session.getUploadStatus().getUploadState() == UploadState.ABORTED)
         {
             return;
@@ -258,7 +258,7 @@ public class UploadService extends AbstractCIFEXService implements IExtendedUplo
         return fileNames;
     }
 
-    private UploadStatus getStatusAndCheckState(UploadSession session,
+    private UploadStatus getStatusAndCheckState(Session session,
             UploadState... expectedStates)
     {
         UploadStatus status = session.getUploadStatus();
@@ -271,7 +271,7 @@ public class UploadService extends AbstractCIFEXService implements IExtendedUplo
         return status;
     }
 
-    private void cleanUpSession(UploadSession session)
+    private void cleanUpSession(Session session)
     {
         RandomAccessFile randomAccessFile = session.getRandomAccessFile();
         if (randomAccessFile != null)

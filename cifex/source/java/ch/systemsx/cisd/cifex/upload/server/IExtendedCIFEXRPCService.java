@@ -17,14 +17,14 @@
 package ch.systemsx.cisd.cifex.upload.server;
 
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
-import ch.systemsx.cisd.cifex.upload.IUploadService;
+import ch.systemsx.cisd.cifex.upload.ICIFEXRPCService;
 
 /**
- * Extends {@link IUploadService} by methods not visible for client code.
+ * Extends {@link ICIFEXRPCService} by methods not visible for client code.
  *
  * @author Franz-Josef Elmer
  */
-public interface IExtendedUploadService extends IUploadService
+public interface IExtendedCIFEXRPCService extends ICIFEXRPCService
 {
     /**
      * Creates a new upload session for the specified user and server URL to be appear in e-mails.
