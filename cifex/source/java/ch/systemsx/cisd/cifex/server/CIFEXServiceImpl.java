@@ -25,15 +25,11 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
-import org.springframework.dao.DataIntegrityViolationException;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
-import ch.systemsx.cisd.authentication.NullAuthenticationService;
-import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.cifex.client.EnvironmentFailureException;
 import ch.systemsx.cisd.cifex.client.FileNotFoundException;
 import ch.systemsx.cisd.cifex.client.ICIFEXService;
@@ -58,13 +54,10 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.server.common.Password;
 import ch.systemsx.cisd.cifex.server.util.FileUploadFeedbackProvider;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
-import ch.systemsx.cisd.common.exceptions.HighLevelException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.logging.LoggingContextHandler;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
-import ch.systemsx.cisd.common.servlet.RequestContextProviderAdapter;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 
 /**
@@ -72,138 +65,33 @@ import ch.systemsx.cisd.common.utilities.BeanUtils;
  * 
  * @author Christian Ribeaud
  */
-public final class CIFEXServiceImpl implements ICIFEXService
+public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIFEXService
 {
-    /**
-     * The Crowd property for the display name.
-     */
-    private static final String DISPLAY_NAME_PROPERTY = "displayName";
-
-    /** The attribute name under which the session could be found. */
-    public static final String SESSION_NAME = "cifex-user";
-
     /**
      * The attribute name that holds the absolute paths of the files that should be uploaded in the
      * next request.
      */
     static final String FILES_TO_UPLOAD = "files-to-upload";
 
-    /** The attribute name that holds the queue that has the feedbacks of the upload. */
-    static final String UPLOAD_FEEDBACK_QUEUE = "upload-feedback-queue";
-
-    private static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss";
-
-    private static final Logger notificationLog =
-            LogFactory.getLogger(LogCategory.NOTIFY, CIFEXServiceImpl.class);
-
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, CIFEXServiceImpl.class);
-
-    private final IDomainModel domainModel;
-
-    private final IRequestContextProvider requestContextProvider;
-
-    private final LoggingContextHandler loggingContextHandler;
-
-    private final IAuthenticationService externalAuthenticationService;
-
-    private final IUserActionLog userBehaviorLog;
 
     private final static boolean DOWNLOAD = true;
 
     private final static boolean UPLOAD = false;
-
-    /** Session timeout in seconds. */
-    private int sessionExpirationPeriod;
 
     public CIFEXServiceImpl(final IDomainModel domainModel,
             final IRequestContextProvider requestContextProvider,
             final IUserActionLog userBehaviorLog,
             final IAuthenticationService externalAuthenticationService)
     {
-        this.domainModel = domainModel;
-        this.requestContextProvider = requestContextProvider;
-        this.userBehaviorLog = userBehaviorLog;
-        this.externalAuthenticationService = externalAuthenticationService;
-        loggingContextHandler =
-                new LoggingContextHandler(new RequestContextProviderAdapter(requestContextProvider));
-        checkAuthentication();
-    }
-
-    private void checkAuthentication() throws HighLevelException
-    {
-        if (hasExternalAuthenticationService())
-        {
-            try
-            {
-                this.externalAuthenticationService.check();
-            } catch (HighLevelException ex)
-            {
-                if (externalAuthenticationService.isRemote()
-                        && ex instanceof ch.systemsx.cisd.common.exceptions.EnvironmentFailureException)
-                {
-                    notificationLog
-                            .error(
-                                    "Self-test failed for external authentication service '"
-                                            + externalAuthenticationService.getClass()
-                                                    .getSimpleName()
-                                            + "'. This authentication service is remote and the resource may become "
-                                            + "available later, thus continuing anyway.", ex);
-                } else
-                {
-                    notificationLog.error("Self-test failed for external authentication service '"
-                            + externalAuthenticationService.getClass().getSimpleName() + "'.", ex);
-                    throw ex;
-                }
-            }
-        }
-    }
-
-    public final void setSessionExpirationPeriodInMinutes(final int sessionExpirationPeriodInMinutes)
-    {
-        sessionExpirationPeriod = sessionExpirationPeriodInMinutes * 60;
+        super(domainModel, requestContextProvider, userBehaviorLog, externalAuthenticationService,
+                createLoggingContextHandler(requestContextProvider));
     }
 
     public final boolean showSwitchToExternalOption(final User user)
     {
         return hasExternalAuthenticationService() && user.isExternallyAuthenticated() == false;
-    }
-
-    private final boolean hasExternalAuthenticationService()
-    {
-        return externalAuthenticationService != null
-                && externalAuthenticationService instanceof NullAuthenticationService == false;
-    }
-
-    private final String createSession(final UserDTO user)
-    {
-        final HttpSession httpSession = getSession(true);
-        // A negative time (in seconds) indicates the session should never timeout.
-        httpSession.setMaxInactiveInterval(sessionExpirationPeriod);
-        httpSession.setAttribute(SESSION_NAME, user);
-        httpSession.setAttribute(UPLOAD_FEEDBACK_QUEUE, new FileUploadFeedbackProvider());
-        return httpSession.getId();
-    }
-
-    private final HttpSession getSession(final boolean create)
-    {
-        return requestContextProvider.getHttpServletRequest().getSession(create);
-    }
-
-    private User finishLogin(final UserDTO userDTO)
-    {
-        // Do not transfer the password or its hash value to the client (security).
-        userDTO.setPassword(null);
-        userDTO.setPasswordHash(null);
-        final String sessionToken = createSession(userDTO);
-        loggingContextHandler.addContext(sessionToken, "user (email):" + userDTO.getEmail()
-                + ", session start:" + DateFormatUtils.format(new Date(), DATE_FORMAT_PATTERN));
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug("Successfully created session for user " + userDTO);
-        }
-        userBehaviorLog.logSuccessfulLogin();
-        return BeanUtils.createBean(User.class, userDTO);
     }
 
     private final UserDTO privGetCurrentUser() throws InvalidSessionException
@@ -245,6 +133,13 @@ public final class CIFEXServiceImpl implements ICIFEXService
     //
     // ICifexService
     //
+
+    public final User tryLogin(final String userCode, final String plainPassword)
+            throws EnvironmentFailureException
+    {
+        UserDTO userDTO = super.tryLoginUser(userCode, plainPassword);
+        return BeanUtils.createBean(User.class, userDTO);
+    }
 
     public final Configuration getConfiguration() throws InvalidSessionException
     {
@@ -336,148 +231,6 @@ public final class CIFEXServiceImpl implements ICIFEXService
         to.setRegistrationDate(from.getRegistrationDate());
         to.setRegistrator(from.getRegistrator());
         to.setUserFullName(from.getUserFullName());
-    }
-
-    public final User tryLogin(final String userCode, final String plainPassword)
-            throws EnvironmentFailureException
-    {
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug("Try to login user '" + userCode + "'.");
-        }
-        final IUserManager userManager = domainModel.getUserManager();
-        if (userManager.isDatabaseEmpty())
-        {
-            final UserDTO userDTO = new UserDTO();
-            userDTO.setUserCode(userCode);
-            userDTO.setEmail(userCode);
-            userDTO.setPassword(new Password(plainPassword));
-            userDTO.setAdmin(true);
-            userDTO.setPermanent(true);
-            userManager.createUser(userDTO);
-            return finishLogin(userDTO);
-        }
-        UserDTO userDTOOrNull = userManager.tryFindUserByCode(userCode);
-        if (userDTOOrNull == null || userDTOOrNull.isExternallyAuthenticated())
-        {
-            userDTOOrNull = tryExternalAuthenticationServiceLogin(userCode, plainPassword);
-            if (userDTOOrNull != null)
-            {
-                return finishLogin(userDTOOrNull);
-            }
-        } else
-        {
-            final Password password = new Password(plainPassword);
-            if (password.matches(userDTOOrNull.getPasswordHash()))
-            {
-                return finishLogin(userDTOOrNull);
-            }
-
-        }
-        userBehaviorLog.logFailedLoginAttempt(userCode);
-        return null;
-    }
-
-    private UserDTO tryExternalAuthenticationServiceLogin(final String userOrEmail,
-            final String password) throws EnvironmentFailureException
-    {
-        if (hasExternalAuthenticationService())
-        {
-            final String applicationToken = externalAuthenticationService.authenticateApplication();
-            if (applicationToken == null)
-            {
-                userBehaviorLog.logFailedLoginAttempt(userOrEmail);
-                final String msg =
-                        "User '" + userOrEmail
-                                + "' couldn't be authenticated because authentication of "
-                                + "the application at the external authentication service failed.";
-                operationLog.error(msg);
-                throw new EnvironmentFailureException(msg);
-            }
-            final boolean authenticated =
-                    externalAuthenticationService.authenticateUser(applicationToken, userOrEmail,
-                            password);
-            if (authenticated == false)
-            {
-                return null;
-            }
-            final Principal principal;
-            try
-            {
-                principal =
-                        externalAuthenticationService.getPrincipal(applicationToken, userOrEmail);
-            } catch (final IllegalArgumentException ex)
-            {
-                operationLog.error(ex.getMessage());
-                throw new EnvironmentFailureException(ex.getMessage());
-            }
-            final String code = principal.getUserId();
-            final String email = principal.getEmail();
-            final String firstName = principal.getFirstName();
-            final String lastName = principal.getLastName();
-            final String displayName;
-            if (principal.getProperty(DISPLAY_NAME_PROPERTY) != null)
-            {
-                displayName = principal.getProperty(DISPLAY_NAME_PROPERTY);
-            } else
-            {
-                displayName = firstName + " " + lastName;
-            }
-            final IUserManager userManager = domainModel.getUserManager();
-            UserDTO userDTO = userManager.tryFindUserByCode(code);
-            if (userDTO == null)
-            {
-                userDTO = new UserDTO();
-                userDTO.setUserCode(code);
-                userDTO.setUserFullName(displayName);
-                userDTO.setEmail(email);
-                userDTO.setPassword(null);
-                userDTO.setExternallyAuthenticated(true);
-                userDTO.setAdmin(false);
-                userDTO.setPermanent(true);
-                try
-                {
-                    userManager.createUser(userDTO);
-                } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException ex)
-                {
-                    operationLog.error(ex.getMessage(), ex);
-                    // This is actually an environment failure since the user couldn't have done
-                    // anything different.
-                    throw new EnvironmentFailureException(ex.getMessage());
-                }
-            } else
-            { // check whether name or email of the principal have changed, and update, if
-                // necessary
-                boolean changed = false;
-                if (StringUtils.equals(displayName, userDTO.getUserFullName()) == false)
-                {
-                    userDTO.setUserFullName(displayName);
-                    changed = true;
-                }
-                if (StringUtils.equals(email, userDTO.getEmail()) == false)
-                {
-                    userDTO.setEmail(email);
-                    changed = true;
-                }
-                if (changed)
-                {
-                    try
-                    {
-                        userManager.updateUser(userDTO, null);
-                    } catch (final DataIntegrityViolationException ex)
-                    {
-                        final String msg =
-                                "User '" + code + "' with email '" + email + "' cannot be updated.";
-                        operationLog.error(msg, ex);
-                        throw new EnvironmentFailureException(msg);
-                    }
-                }
-            }
-            return userDTO;
-        } else
-        {
-            return null;
-        }
     }
 
     public final User[] listUsers() throws InvalidSessionException, InsufficientPrivilegesException
@@ -577,17 +330,6 @@ public final class CIFEXServiceImpl implements ICIFEXService
             throw new InsufficientPrivilegesException(
                     "Method 'tryToCreateUser': insufficient privileges for "
                             + describeUser(currentUser) + ".");
-        }
-    }
-
-    public final void logout()
-    {
-        final HttpSession httpSession = getSession(false);
-        if (httpSession != null)
-        {
-            loggingContextHandler.destroyContext(httpSession.getId());
-            // This unbinds all the attributes as well. So do not do clever cleaning here.
-            httpSession.invalidate();
         }
     }
 

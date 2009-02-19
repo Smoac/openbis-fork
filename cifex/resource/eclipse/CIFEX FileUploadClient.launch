@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
 <listEntry value="/cifex/source/java/ch/systemsx/cisd/cifex/upload/client/FileUploadClient.java"/>
@@ -8,7 +8,7 @@
 </listAttribute>
 <booleanAttribute key="org.eclipse.debug.core.appendEnvironmentVariables" value="true"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="ch.systemsx.cisd.cifex.upload.client.FileUploadClient"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="spring-bean://&#13;&#10;0&#13;&#10;3000"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="spring-bean://&#13;&#10;a&#13;a&#10;3000"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="cifex"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dtesting=true&#13;&#10;-Dtest-user.id=1&#13;&#10;-Dtest-user.code=a"/>
 </launchConfiguration>

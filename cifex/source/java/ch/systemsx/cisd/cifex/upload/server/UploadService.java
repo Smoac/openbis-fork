@@ -31,11 +31,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.authentication.IAuthenticationService;
+import ch.systemsx.cisd.cifex.client.EnvironmentFailureException;
+import ch.systemsx.cisd.cifex.server.AbstractCIFEXService;
+import ch.systemsx.cisd.cifex.server.HttpUtils;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
 import ch.systemsx.cisd.cifex.server.business.IFileManager;
+import ch.systemsx.cisd.cifex.server.business.IUserActionLog;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.server.util.FilenameUtilities;
 import ch.systemsx.cisd.cifex.upload.UploadState;
@@ -45,26 +52,42 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.exceptions.WrappedIOException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.logging.LoggingContextHandler;
+import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.utilities.StringUtilities;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public class UploadService implements IExtendedUploadService
+public class UploadService extends AbstractCIFEXService implements IExtendedUploadService
 {
     public static final String PREFIX = "$";
-    
+
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, UploadService.class);
 
     private final UploadSessionManager sessionManager;
+
     private final IFileManager fileManager;
-    
-    public UploadService(IDomainModel domainModel, String testingFlag)
+
+    // used externally by spring
+    public UploadService(final IDomainModel domainModel,
+            final IRequestContextProvider requestContextProvider,
+            final IUserActionLog userBehaviorLog,
+            final IAuthenticationService externalAuthenticationService, final String testingFlag)
     {
-        this(domainModel.getFileManager(), new UploadSessionManager("true".equals(testingFlag)));
+        this(domainModel.getFileManager(), domainModel, requestContextProvider, userBehaviorLog,
+                externalAuthenticationService, testingFlag);
+    }
+
+    public UploadService(final IFileManager fileManager, final IDomainModel domainModel,
+            final IRequestContextProvider requestContextProvider,
+            final IUserActionLog userBehaviorLog,
+            final IAuthenticationService externalAuthenticationService, final String testingFlag)
+    {
+        this(fileManager, new UploadSessionManager("true".equals(testingFlag)), domainModel,
+                requestContextProvider, userBehaviorLog, externalAuthenticationService,
+                createLoggingContextHandler(requestContextProvider));
         if ("true".equals(testingFlag))
         {
             UserDTO userDTO = new UserDTO();
@@ -73,18 +96,37 @@ public class UploadService implements IExtendedUploadService
             sessionManager.createSession(userDTO, "test-url");
         }
     }
-    
-    public UploadService(IFileManager fileManager)
-    {
-        this(fileManager, new UploadSessionManager(false));
-    }
 
-    public UploadService(IFileManager fileManager, UploadSessionManager sessionManager)
+    private UploadService(IFileManager fileManager, UploadSessionManager sessionManager,
+            IDomainModel domainModel, IRequestContextProvider requestContextProvider,
+            IUserActionLog userBehaviorLog, IAuthenticationService externalAuthenticationService,
+            LoggingContextHandler loggingContextHandler)
     {
+        super(domainModel, requestContextProvider, userBehaviorLog, externalAuthenticationService,
+                loggingContextHandler);
         this.fileManager = fileManager;
         this.sessionManager = sessionManager;
     }
-    
+
+    public String login(final String userCode, final String plainPassword)
+            throws EnvironmentFailureException, ch.systemsx.cisd.cifex.client.UserFailureException
+    {
+        logInvocation("session initialization", "Try to login user '" + userCode + "'.");
+        UserDTO user = tryLoginUser(userCode, plainPassword);
+        if (user == null)
+        {
+            throw new ch.systemsx.cisd.cifex.client.UserFailureException(
+                    "Login failed: invalid user or password");
+        }
+        return createSession(user, getURLForEmail());
+    }
+
+    private String getURLForEmail()
+    {
+        HttpServletRequest request = requestContextProvider.getHttpServletRequest();
+        return HttpUtils.getURLForEmail(request, domainModel.getBusinessContext());
+    }
+
     public String createSession(UserDTO user, String url)
     {
         return sessionManager.createSession(user, url).getSessionID();
@@ -94,8 +136,9 @@ public class UploadService implements IExtendedUploadService
     {
         return sessionManager.getSession(uploadSessionID).getUploadStatus();
     }
-    
-    public void defineUploadParameters(String uploadSessionID, String[] files, String recipients, String comment)
+
+    public void defineUploadParameters(String uploadSessionID, String[] files, String recipients,
+            String comment)
     {
         List<String> fileNames = extractFileNames(files);
         logInvocation(uploadSessionID, "Upload files " + fileNames);
@@ -138,8 +181,7 @@ public class UploadService implements IExtendedUploadService
         String nameOfCurrentFile = status.getNameOfCurrentFile();
         logInvocation(uploadSessionID, "Start uploading " + nameOfCurrentFile);
         String fileName =
-            FilenameUtilities.ensureMaximumSize(nameOfCurrentFile,
-                    MAX_FILENAME_LENGTH);
+                FilenameUtilities.ensureMaximumSize(nameOfCurrentFile, MAX_FILENAME_LENGTH);
         File file = fileManager.createFile(session.getUser(), fileName);
         session.setFile(file);
         File tempFile = createTempFile(file);
@@ -197,7 +239,7 @@ public class UploadService implements IExtendedUploadService
             throw new WrappedIOException(ex);
         }
     }
-    
+
     private void logInvocation(String uploadSessionID, String message)
     {
         if (operationLog.isInfoEnabled())
@@ -216,7 +258,8 @@ public class UploadService implements IExtendedUploadService
         return fileNames;
     }
 
-    private UploadStatus getStatusAndCheckState(UploadSession session, UploadState... expectedStates)
+    private UploadStatus getStatusAndCheckState(UploadSession session,
+            UploadState... expectedStates)
     {
         UploadStatus status = session.getUploadStatus();
         UploadState state = status.getUploadState();
@@ -267,5 +310,4 @@ public class UploadService implements IExtendedUploadService
     {
         return new File(file.getParent(), PREFIX + file.getName());
     }
-
 }

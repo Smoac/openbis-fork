@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 
+import ch.systemsx.cisd.cifex.server.business.IBusinessContext;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 
 /**
@@ -55,6 +56,19 @@ public final class HttpUtils
         } catch (final MalformedURLException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+    }
+
+    public final static String getURLForEmail(final HttpServletRequest request,
+            IBusinessContext businessContext)
+    {
+        final String overrideURL = businessContext.getOverrideURL();
+        if (StringUtils.isBlank(overrideURL))
+        {
+            return HttpUtils.getBasicURL(request);
+        } else
+        {
+            return overrideURL;
         }
     }
 

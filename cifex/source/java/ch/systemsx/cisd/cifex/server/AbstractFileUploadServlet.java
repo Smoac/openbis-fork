@@ -22,8 +22,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public abstract class AbstractFileUploadServlet extends AbstractCIFEXServiceServlet
@@ -36,7 +34,7 @@ public abstract class AbstractFileUploadServlet extends AbstractCIFEXServiceServ
      * the widget.
      */
     public static final int MAX_FILENAME_LENGTH = 250;
-    
+
     protected final static String RECIPIENTS_FIELD_NAME = "email-addresses";
 
     protected final static String COMMENT_FIELD_NAME = "upload-comment";
@@ -77,15 +75,6 @@ public abstract class AbstractFileUploadServlet extends AbstractCIFEXServiceServ
 
     protected String getURLForEmail(final HttpServletRequest request)
     {
-        final String overrideURL = domainModel.getBusinessContext().getOverrideURL();
-        if (StringUtils.isBlank(overrideURL))
-        {
-            return HttpUtils.getBasicURL(request);
-        } else
-        {
-            return overrideURL;
-        }
+        return HttpUtils.getURLForEmail(request, domainModel.getBusinessContext());
     }
-
-
 }

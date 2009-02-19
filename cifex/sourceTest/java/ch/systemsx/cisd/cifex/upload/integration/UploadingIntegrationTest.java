@@ -108,7 +108,8 @@ public class UploadingIntegrationTest extends AssertJUnit
     {
         context = new Mockery();
         fileManager = context.mock(IFileManager.class);
-        UploadService uploadService = new UploadService(fileManager);
+        UploadService uploadService =
+                new UploadService(fileManager, null, null, null, null, "false");
         user = new UserDTO();
         user.setUserCode("Isaac");
         String sessionID = uploadService.createSession(user, TEST_URL);
@@ -155,23 +156,26 @@ public class UploadingIntegrationTest extends AssertJUnit
                 {
                     one(listener).uploadingFinished(true);
                     one(listener).reset();
-                    exactly(2).of(listener).exceptionOccured(with(new BaseMatcher<EnvironmentFailureException>()
-                        {
-                            public void describeTo(Description description)
-                            {
-                            }
-
-                            public boolean matches(Object item)
-                            {
-                                if (item instanceof EnvironmentFailureException)
+                    exactly(2).of(listener).exceptionOccured(
+                            with(new BaseMatcher<EnvironmentFailureException>()
                                 {
-                                    EnvironmentFailureException e = (EnvironmentFailureException) item;
-                                    return e.getMessage().startsWith("No upload session found");
-                                }
-                                return false;
-                            }
-                    
-                        }));
+                                    public void describeTo(Description description)
+                                    {
+                                    }
+
+                                    public boolean matches(Object item)
+                                    {
+                                        if (item instanceof EnvironmentFailureException)
+                                        {
+                                            EnvironmentFailureException e =
+                                                    (EnvironmentFailureException) item;
+                                            return e.getMessage().startsWith(
+                                                    "No upload session found");
+                                        }
+                                        return false;
+                                    }
+
+                                }));
                     one(listener).uploadingFinished(false);
                     one(listener).reset();
                 }
@@ -240,7 +244,7 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(listener).uploadingProgress(96, 3 * BLOCK_SIZE);
                     one(listener).uploadingFinished(true);
                     one(listener).reset();
-                    
+
                     one(fileManager).registerFileLinkAndInformRecipients(user, LARGE_FILE,
                             "no comment", "application/octet-stream", fileInFileStore, new String[]
                                 { "Albert", "Galileo" }, TEST_URL);
@@ -267,7 +271,7 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(listener).uploadingStarted(fileOnClient1, SMALL_FILE_SIZE * 1024L);
                     one(fileManager).createFile(user, SMALL_FILE);
                     will(returnValue(fileInFileStore1));
-                    
+
                     one(listener).uploadingProgress(0, 0);
                     one(listener).fileUploaded();
 
@@ -281,7 +285,7 @@ public class UploadingIntegrationTest extends AssertJUnit
 
                     one(fileManager).createFile(user, LARGE_FILE);
                     will(returnValue(fileInFileStore2));
-                    
+
                     one(listener).uploadingProgress(0, 0);
                     one(listener).uploadingProgress(32, BLOCK_SIZE);
                     one(listener).uploadingProgress(64, 2 * BLOCK_SIZE);
@@ -296,14 +300,15 @@ public class UploadingIntegrationTest extends AssertJUnit
                     will(returnValue(Collections.emptyList()));
                 }
             });
-        
-        uploader.upload(Arrays.asList(fileOnClient1, fileOnClient2), "Albert\nGalileo", "no comment");
-        
+
+        uploader.upload(Arrays.asList(fileOnClient1, fileOnClient2), "Albert\nGalileo",
+                "no comment");
+
         assertEqualContent(fileOnClient1, fileInFileStore1);
         assertEqualContent(fileOnClient2, fileInFileStore2);
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testUploadingForUnknownUser() throws IOException
     {
@@ -321,13 +326,13 @@ public class UploadingIntegrationTest extends AssertJUnit
                             "no comment", "application/octet-stream", fileInFileStore, new String[]
                                 { "Albert", "Galileo" }, TEST_URL);
                     will(returnValue(Arrays.asList("id:unknown")));
-                    
+
                     one(listener).exceptionOccured(with(new BaseMatcher<UserFailureException>()
                         {
                             public void describeTo(Description description)
                             {
                             }
-                            
+
                             public boolean matches(Object item)
                             {
                                 if (item instanceof UserFailureException)
@@ -355,7 +360,7 @@ public class UploadingIntegrationTest extends AssertJUnit
         assertEqualContent(fileOnClient, fileInFileStore);
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testUploadingThrowingExceptionInFileManager() throws IOException
     {
@@ -381,7 +386,7 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(listener).reset();
                 }
             });
-        
+
         try
         {
             uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", "no comment");
@@ -390,7 +395,7 @@ public class UploadingIntegrationTest extends AssertJUnit
         {
             assertSame(exception, e);
         }
-        
+
         assertEqualContent(fileOnClient, fileInFileStore);
         context.assertIsSatisfied();
     }
@@ -415,7 +420,7 @@ public class UploadingIntegrationTest extends AssertJUnit
                             public void describeTo(Description description)
                             {
                             }
-                    
+
                             public boolean matches(Object item)
                             {
                                 if (item instanceof Long)
@@ -443,7 +448,7 @@ public class UploadingIntegrationTest extends AssertJUnit
         assertEquals(false, tempFileInStore.exists());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testUploading2FilesWhereSecondIsCanceledAndSecondUpload() throws IOException
     {
@@ -460,7 +465,7 @@ public class UploadingIntegrationTest extends AssertJUnit
 
                     one(listener).uploadingProgress(0, 0);
                     one(listener).fileUploaded();
-                    
+
                     one(fileManager).registerFileLinkAndInformRecipients(user, SMALL_FILE,
                             "no comment", "application/octet-stream", fileInFileStore1,
                             new String[]
@@ -474,28 +479,27 @@ public class UploadingIntegrationTest extends AssertJUnit
 
                     one(listener).uploadingProgress(32, BLOCK_SIZE);
                     one(listener).uploadingProgress(with(equal(64)), with(new BaseMatcher<Long>()
+                        {
+                            public void describeTo(Description description)
                             {
-                                public void describeTo(Description description)
+                            }
+
+                            public boolean matches(Object item)
+                            {
+                                if (item instanceof Long)
                                 {
-                                }
-                        
-                                public boolean matches(Object item)
-                                {
-                                    if (item instanceof Long)
+                                    long numberOfBytes = (Long) item;
+                                    if (numberOfBytes == 2 * BLOCK_SIZE)
                                     {
-                                        long numberOfBytes = (Long) item;
-                                        if (numberOfBytes == 2 * BLOCK_SIZE)
-                                        {
-                                            uploader.cancel();
-                                            return true;
-                                        }
+                                        uploader.cancel();
+                                        return true;
                                     }
-                                    return false;
                                 }
-                            }));
+                                return false;
+                            }
+                        }));
                     one(listener).uploadingFinished(false);
                     one(listener).reset();
-
 
                     one(listener).uploadingStarted(fileOnClient2, LARGE_FILE_SIZE * 1024L);
 
@@ -508,21 +512,22 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(listener).uploadingProgress(96, 3 * BLOCK_SIZE);
                     one(listener).uploadingFinished(true);
                     one(listener).reset();
-                    
+
                     one(fileManager).registerFileLinkAndInformRecipients(user, LARGE_FILE,
                             "2. try", "application/octet-stream", fileInFileStore2, new String[0],
                             TEST_URL);
                     will(returnValue(Collections.emptyList()));
                 }
             });
-        
-        uploader.upload(Arrays.asList(fileOnClient1, fileOnClient2), "Albert\nGalileo", "no comment");
-        
+
+        uploader.upload(Arrays.asList(fileOnClient1, fileOnClient2), "Albert\nGalileo",
+                "no comment");
+
         assertEqualContent(fileOnClient1, fileInFileStore1);
         assertEquals(false, fileInFileStore2.exists());
-        
+
         uploader.upload(Arrays.asList(fileOnClient1, fileOnClient2), "", "2. try");
-        
+
         assertEqualContent(fileOnClient2, fileInFileStore2);
         context.assertIsSatisfied();
     }

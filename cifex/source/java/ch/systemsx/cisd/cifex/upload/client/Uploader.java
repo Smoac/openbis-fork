@@ -44,6 +44,8 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.remoting.httpinvoker.CommonsHttpInvokerRequestExecutor;
 import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean;
 
+import ch.systemsx.cisd.cifex.client.EnvironmentFailureException;
+import ch.systemsx.cisd.cifex.client.UserFailureException;
 import ch.systemsx.cisd.cifex.upload.IUploadService;
 import ch.systemsx.cisd.cifex.upload.UploadState;
 import ch.systemsx.cisd.cifex.upload.UploadStatus;
@@ -55,15 +57,15 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
  * Class which uploads file via an implementation of {@link IUploadService}. It handles the
  * protocol of the contract of <code>IUploadService</code>. Registered {@link IUploadListener}
  * instances will be informed what's going on during uploading.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class Uploader
 {
     private static final String SPRING_BEAN_URL_PROTOCOL = "spring-bean://";
-    
+
     private static final int SERVER_TIMEOUT_MIN = 5;
-    
+
     private static final EnumSet<UploadState> RUNNING_STATES =
             EnumSet.of(UploadState.READY_FOR_NEXT_FILE, UploadState.UPLOADING);
 
@@ -94,13 +96,14 @@ public class Uploader
     private static final class RandomAccessFileProvider
     {
         private final File file;
+
         private RandomAccessFile randomAccessFile;
 
         RandomAccessFileProvider(File file)
         {
             this.file = file;
         }
-        
+
         RandomAccessFile getRandomAccessFile()
         {
             if (randomAccessFile == null)
@@ -115,7 +118,7 @@ public class Uploader
             }
             return randomAccessFile;
         }
-        
+
         void closeFile()
         {
             if (randomAccessFile != null)
@@ -130,26 +133,34 @@ public class Uploader
             }
         }
     }
-    
+
     private static final int BLOCK_SIZE = 64 * 1024;
-    
+
     private final Set<IUploadListener> listeners = new LinkedHashSet<IUploadListener>();
+
     private final IUploadService uploadService;
+
     private final String uploadSessionID;
-    
+
     /**
-     * Creates an instance for the specified service URL and session ID. 
+     * Creates an instance for the specified service URL and session ID.
      */
-    public Uploader(String serviceURL, String uploadSessionID)
+    public Uploader(String serviceURL, String username, String passwd) throws UserFailureException,
+            EnvironmentFailureException
     {
-        this.uploadSessionID = uploadSessionID;
+        this.uploadService = createServiceProxy(serviceURL);
+        this.uploadSessionID = uploadService.login(username, passwd);
+    }
+
+    private IUploadService createServiceProxy(String serviceURL)
+    {
         ClassLoader classLoader = getClass().getClassLoader();
         IUploadService service = createService(serviceURL);
         ServiceInvocationHandler invocationHandler = new ServiceInvocationHandler(service);
-        uploadService = (IUploadService) Proxy.newProxyInstance(classLoader, new Class[]
+        return (IUploadService) Proxy.newProxyInstance(classLoader, new Class[]
             { IUploadService.class }, invocationHandler);
     }
-    
+
     private IUploadService createService(String serviceURL)
     {
         if (serviceURL.startsWith(SPRING_BEAN_URL_PROTOCOL))
@@ -165,23 +176,23 @@ public class Uploader
         httpInvokerProxy.setServiceUrl(serviceURL);
         httpInvokerProxy.setServiceInterface(IUploadService.class);
         final CommonsHttpInvokerRequestExecutor httpInvokerRequestExecutor =
-            new CommonsHttpInvokerRequestExecutor();
+                new CommonsHttpInvokerRequestExecutor();
         httpInvokerRequestExecutor.setReadTimeout((int) DateUtils.MILLIS_PER_MINUTE
                 * SERVER_TIMEOUT_MIN);
         httpInvokerProxy.setHttpInvokerRequestExecutor(httpInvokerRequestExecutor);
         httpInvokerProxy.afterPropertiesSet();
         return (IUploadService) httpInvokerProxy.getObject();
     }
-    
+
     /**
-     * Creates an instance for the specified service and session ID. 
+     * Creates an instance for the specified service and session ID.
      */
     public Uploader(IUploadService uploadService, String uploadSessionID)
     {
         this.uploadService = uploadService;
         this.uploadSessionID = uploadSessionID;
     }
-    
+
     /**
      * Adds a listener for upload events.
      */
@@ -189,9 +200,9 @@ public class Uploader
     {
         listeners.add(uploadListener);
     }
-    
+
     /**
-     * Returns <code>true</code> if this uploader is still working. 
+     * Returns <code>true</code> if this uploader is still working.
      */
     public boolean isUploading()
     {
@@ -203,9 +214,13 @@ public class Uploader
         {
             fireExceptionEvent(ex);
             return false;
+        } catch (EnvironmentFailureException ex)
+        {
+            fireExceptionEvent(ex);
+            return false;
         }
     }
-    
+
     /**
      * Cancels uploading.
      */
@@ -217,9 +232,12 @@ public class Uploader
         } catch (RuntimeException ex)
         {
             fireExceptionEvent(ex);
+        } catch (EnvironmentFailureException ex)
+        {
+            fireExceptionEvent(ex);
         }
     }
-    
+
     /**
      * Closes uploading.
      */
@@ -233,12 +251,12 @@ public class Uploader
             ex.printStackTrace();
         }
     }
-    
+
     /**
      * Uploads the specified files for the specified recipients.
      * 
      * @param recipients Comma or space-separated list of e-mail addresses or user ID's in the form
-     *       <code>id:<i>user ID</i></code>. Can be an empty string.
+     *            <code>id:<i>user ID</i></code>. Can be an empty string.
      * @param comment Optional comment added to the outgoing e-mails. Can be an empty string.
      */
     public void upload(List<File> files, String recipients, String comment)
@@ -255,7 +273,7 @@ public class Uploader
             fireExceptionEvent(ex);
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
-        
+
         try
         {
             byte[] bytes = new byte[BLOCK_SIZE];
@@ -268,7 +286,8 @@ public class Uploader
                 switch (status.getUploadState())
                 {
                     case INITIALIZED:
-                        uploadService.defineUploadParameters(uploadSessionID, paths, recipients, comment);
+                        uploadService.defineUploadParameters(uploadSessionID, paths, recipients,
+                                comment);
                         break;
                     case READY_FOR_NEXT_FILE:
                         if (fileProvider != null)
@@ -320,7 +339,7 @@ public class Uploader
     }
 
     private void uploadNextBlock(RandomAccessFileProvider fileProvider, long filePointer,
-            byte[] bytes) throws IOException
+            byte[] bytes) throws IOException, EnvironmentFailureException
     {
         RandomAccessFile randomAccessFile = fileProvider.getRandomAccessFile();
         int blockSize = bytes.length;
@@ -342,7 +361,7 @@ public class Uploader
             listener.uploadingStarted(file, fileSize);
         }
     }
-    
+
     private void fireProgressEvent(long numberOfBytes, long fileSize)
     {
         int percentage = (int) ((numberOfBytes * 100) / Math.max(1, fileSize));
@@ -359,7 +378,7 @@ public class Uploader
             listener.uploadingFinished(successful);
         }
     }
-    
+
     private void fireUploadedEvent()
     {
         for (IUploadListener listener : listeners)
@@ -367,7 +386,7 @@ public class Uploader
             listener.fileUploaded();
         }
     }
-    
+
     private void fireExceptionEvent(Throwable throwable)
     {
         for (IUploadListener listener : listeners)
@@ -375,7 +394,7 @@ public class Uploader
             listener.exceptionOccured(throwable);
         }
     }
-    
+
     private void fireResetEvent()
     {
         for (IUploadListener listener : listeners)
@@ -383,7 +402,7 @@ public class Uploader
             listener.reset();
         }
     }
-    
+
     private void setUpKeyStore(String serviceURL)
     {
         if (serviceURL.startsWith("https"))
@@ -432,11 +451,11 @@ public class Uploader
             }
         }
     }
-    
+
     private Certificate[] getServerCertificate(String serviceURL)
     {
         workAroundABugInJava6();
-        
+
         SSLSocket socket = null;
         try
         {
@@ -465,10 +484,10 @@ public class Uploader
                 }
             }
         }
-        
+
     }
 
-    // see comment submitted on 31-JAN-2008 for 
+    // see comment submitted on 31-JAN-2008 for
     // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6514454
     private void workAroundABugInJava6()
     {
@@ -480,6 +499,5 @@ public class Uploader
             System.out.println(ex);
         }
     }
-    
 
 }

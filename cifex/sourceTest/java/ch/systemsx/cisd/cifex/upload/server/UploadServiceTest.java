@@ -46,7 +46,7 @@ public class UploadServiceTest extends AssertJUnit
     {
         context = new Mockery();
         fileManager = context.mock(IFileManager.class);
-        uploadService = new UploadService(fileManager);
+        uploadService = new UploadService(fileManager, null, null, null, null, "false");
         sessionID = uploadService.createSession(new UserDTO(), "exmaple-url");
     }
 

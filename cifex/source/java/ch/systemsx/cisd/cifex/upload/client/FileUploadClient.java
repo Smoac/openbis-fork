@@ -43,6 +43,7 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableColumn;
 
+import ch.systemsx.cisd.cifex.client.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
@@ -55,9 +56,13 @@ public class FileUploadClient
     private static final String TITLE = "CIFEX Uploader";
 
     public static void main(String[] args)
+            throws ch.systemsx.cisd.cifex.client.UserFailureException, EnvironmentFailureException
     {
-        int maxUloadSizeInMB = Integer.parseInt(args[2]);
-        new FileUploadClient(args[0], args[1], maxUloadSizeInMB, SYSTEM_TIME_PROVIDER).show();
+        String userName = args[1];
+        String passwd = args[2];
+        int maxUloadSizeInMB = Integer.parseInt(args[3]);
+        new FileUploadClient(args[0], userName, passwd, maxUloadSizeInMB, SYSTEM_TIME_PROVIDER)
+                .show();
     }
 
     private final Uploader uploader;
@@ -70,10 +75,11 @@ public class FileUploadClient
 
     private JButton addButton;
 
-    FileUploadClient(String serviceURL, String uploadSessionID, int maxUploadSizeInMB,
-            ITimeProvider timeProvider)
+    FileUploadClient(String serviceURL, String userName, String passwd, int maxUploadSizeInMB,
+            ITimeProvider timeProvider) throws ch.systemsx.cisd.cifex.client.UserFailureException,
+            EnvironmentFailureException
     {
-        uploader = new Uploader(serviceURL, uploadSessionID);
+        uploader = new Uploader(serviceURL, userName, passwd);
         frame = new JFrame(TITLE);
         frame.addWindowListener(new WindowAdapter()
             {
