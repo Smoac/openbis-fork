@@ -107,7 +107,7 @@ public abstract class AbstractClientServiceTest extends AssertJUnit
     @AfterMethod
     public void tearDown()
     {
-        // To following line of code should also be called at the end of each test method.
+        // The following line of code should also be called at the end of each test method.
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
     }
