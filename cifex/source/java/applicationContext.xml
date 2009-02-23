@@ -78,7 +78,7 @@
     <bean id="rpc-service" class="org.springframework.aop.framework.ProxyFactoryBean">
         <property name="proxyInterfaces">
             <list>
-                <value>ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService</value>
+                <value>ch.systemsx.cisd.cifex.rpc.server.IExtendedCIFEXRPCService</value>
             </list>
         </property>
         <property name="target">
