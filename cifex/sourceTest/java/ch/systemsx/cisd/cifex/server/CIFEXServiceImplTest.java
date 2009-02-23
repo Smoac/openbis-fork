@@ -529,7 +529,7 @@ public class CIFEXServiceImplTest
 
         final long fileID = Long.parseLong(DEFAULT_FILE_ID);
         final FileDTO fileDTO = new FileDTO(fileID);
-        final FileInformation fileInformation = new FileInformation(fileID, fileDTO);
+        final FileInformation fileInformation = new FileInformation(fileID, fileDTO, null);
 
         context.checking(new Expectations()
             {
