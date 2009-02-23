@@ -23,6 +23,7 @@ import java.awt.FileDialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -32,8 +33,10 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
@@ -55,6 +58,8 @@ import ch.systemsx.cisd.common.utilities.ITimeProvider;
 public class FileUploadClient
 {
     private static final String TITLE = "CIFEX Uploader";
+
+    private static final String REMOVE_FROM_TABLE_MENU_ITEM = "Remove from table";
 
     public static void main(String[] args)
             throws ch.systemsx.cisd.cifex.shared.basic.UserFailureException, EnvironmentFailureException
@@ -100,6 +105,40 @@ public class FileUploadClient
     private JButton uploadButton;
 
     private JButton addButton;
+
+    static class PopupListener implements MouseListener {
+        
+        private final JPopupMenu popupMenu;
+        
+        PopupListener(JPopupMenu popupMenu, JTable table)
+        {
+            this.popupMenu = popupMenu;
+            table.addMouseListener(this);
+        }
+        
+        public void mousePressed(MouseEvent e) {
+            showPopup(e);
+        }
+
+        public void mouseReleased(MouseEvent e) {
+            showPopup(e);
+        }
+
+        private void showPopup(MouseEvent e) {
+            if (e.isPopupTrigger()) {
+                popupMenu.show(e.getComponent(), e.getX(), e.getY());
+            }
+        }
+
+        public void mouseClicked(MouseEvent e) {
+        }
+
+        public void mouseEntered(MouseEvent e) {
+        }
+
+        public void mouseExited(MouseEvent e) {
+        }
+    }
 
     FileUploadClient(String serviceURL, String sessionId, int maxUploadSizeInMB,
             ITimeProvider timeProvider) throws ch.systemsx.cisd.cifex.shared.basic.UserFailureException,
@@ -294,7 +333,7 @@ public class FileUploadClient
         JPanel filePanel = new JPanel(new BorderLayout());
         Border border = BorderFactory.createEtchedBorder();
         filePanel.setBorder(BorderFactory.createTitledBorder(border, "Files to upload"));
-        JTable table = new JTable(tableModel)
+        final JTable table = new JTable(tableModel)
             {
                 private static final long serialVersionUID = 1L;
 
@@ -306,7 +345,24 @@ public class FileUploadClient
                     return file.getAbsolutePath() + " (" + size + ")";
                 }
             };
-        table.setColumnModel(creatTableColumnModel());
+        table.setColumnModel(createTableColumnModel());
+        final JPopupMenu popupMenu = new JPopupMenu();
+        final JMenuItem menuItem = new JMenuItem(REMOVE_FROM_TABLE_MENU_ITEM);
+        menuItem.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                final JMenuItem item = (JMenuItem) e.getSource();
+                if (REMOVE_FROM_TABLE_MENU_ITEM.equals(item.getText())) 
+                {
+                    final int oldRowCount = tableModel.getRowCount();
+                    tableModel.removeRows(table.getSelectedRows());
+                    tableModel.fireTableRowsDeleted(0, oldRowCount);
+                }
+            }
+        });
+        popupMenu.add(menuItem);
+        new PopupListener(popupMenu, table);
         filePanel.add(new JScrollPane(table), BorderLayout.CENTER);
         addButton = new JButton("Add File");
         addButton.addActionListener(new ActionListener()
@@ -320,7 +376,7 @@ public class FileUploadClient
         return filePanel;
     }
 
-    private DefaultTableColumnModel creatTableColumnModel()
+    private DefaultTableColumnModel createTableColumnModel()
     {
         DefaultTableColumnModel columnModel = new DefaultTableColumnModel();
         TableColumn column = new TableColumn(0, 150);

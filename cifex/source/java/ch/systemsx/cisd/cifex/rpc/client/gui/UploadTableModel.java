@@ -22,23 +22,27 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import ch.systemsx.cisd.cifex.rpc.client.FileItem;
 import ch.systemsx.cisd.cifex.rpc.client.FileItemStatus;
 import ch.systemsx.cisd.cifex.rpc.client.Uploader;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 
-
 final class UploadTableModel extends AbstractTableModel
 {
     private static final long serialVersionUID = 1L;
+
     private static final long MB = 1024L * 1024L;
 
     private final int maxUploadSizeInMB;
+
     private final ITimeProvider timeProvider;
-    
+
     private List<FileItem> fileItems = new ArrayList<FileItem>();
+
     private FileItem currentFileToBeUploaded;
-    
+
     UploadTableModel(Uploader uploader, int maxUploadSizeInMB, ITimeProvider timeProvider)
     {
         this.maxUploadSizeInMB = maxUploadSizeInMB;
@@ -51,13 +55,13 @@ final class UploadTableModel extends AbstractTableModel
                     setNumberOfBytes(0);
                     fireChanged();
                 }
-                
+
                 public void reportProgress(int percentage, long numberOfBytes)
                 {
                     setNumberOfBytes(numberOfBytes);
                     fireChanged();
                 }
-                
+
                 public void finished(boolean successful)
                 {
                     if (currentFileToBeUploaded != null)
@@ -73,7 +77,7 @@ final class UploadTableModel extends AbstractTableModel
                         fireChanged();
                     }
                 }
-                
+
                 public void reset()
                 {
                     if (currentFileToBeUploaded != null)
@@ -87,7 +91,7 @@ final class UploadTableModel extends AbstractTableModel
                 {
                     finished(true);
                 }
-                
+
                 public void exceptionOccured(Throwable throwable)
                 {
                 }
@@ -107,7 +111,7 @@ final class UploadTableModel extends AbstractTableModel
                     }
                     return null;
                 }
-        
+
                 private void setNumberOfBytes(long numberOfBytes)
                 {
                     if (currentFileToBeUploaded != null)
@@ -128,14 +132,14 @@ final class UploadTableModel extends AbstractTableModel
 
             });
     }
-    
+
     void addFile(File file)
     {
         int size = fileItems.size();
         fileItems.add(new FileItem(file, timeProvider));
         fireTableRowsInserted(size, size);
     }
-    
+
     long calculateFreeUploadSpace()
     {
         long result = maxUploadSizeInMB * MB;
@@ -145,7 +149,7 @@ final class UploadTableModel extends AbstractTableModel
         }
         return result;
     }
-    
+
     List<File> getFiles()
     {
         List<File> files = new ArrayList<File>();
@@ -155,12 +159,12 @@ final class UploadTableModel extends AbstractTableModel
         }
         return files;
     }
-    
+
     FileItem getFileItem(int index)
     {
         return fileItems.get(index);
     }
-    
+
     boolean alreadyAdded(File file)
     {
         for (FileItem fileItem : fileItems)
@@ -172,7 +176,7 @@ final class UploadTableModel extends AbstractTableModel
         }
         return false;
     }
-    
+
     public int getRowCount()
     {
         return fileItems.size();
@@ -194,6 +198,15 @@ final class UploadTableModel extends AbstractTableModel
                 return fileItem;
         }
         return null;
+    }
+
+    public void removeRows(int[] rows)
+    {
+        ArrayUtils.reverse(rows);
+        for (int rowIndex : rows)
+        {
+            fileItems.remove(rowIndex);
+        }
     }
 
 }
