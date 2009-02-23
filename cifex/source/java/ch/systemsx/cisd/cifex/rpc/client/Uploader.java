@@ -146,7 +146,7 @@ public final class Uploader extends AbstractUploadDownload
                         }
                         File file = new File(status.getCurrentFile());
                         fileSize = file.length();
-                        fileProvider = new RandomAccessFileProvider(file);
+                        fileProvider = new RandomAccessFileProvider(file, "r");
                         fireStartedEvent(file, fileSize);
                         service.startUploading(sessionID);
                         break;

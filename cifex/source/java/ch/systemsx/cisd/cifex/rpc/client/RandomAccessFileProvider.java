@@ -33,11 +33,14 @@ final class RandomAccessFileProvider
 {
     private final File file;
 
+    private final String mode;
+    
     private RandomAccessFile randomAccessFile;
 
-    RandomAccessFileProvider(File file)
+    RandomAccessFileProvider(File file, String mode)
     {
         this.file = file;
+        this.mode = mode;
     }
 
     RandomAccessFile getRandomAccessFile()
@@ -46,7 +49,7 @@ final class RandomAccessFileProvider
         {
             try
             {
-                randomAccessFile = new RandomAccessFile(file, "r");
+                randomAccessFile = new RandomAccessFile(file, mode);
             } catch (FileNotFoundException ex)
             {
                 throw new WrappedIOException(ex);
