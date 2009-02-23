@@ -16,29 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.util.List;
-
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
+import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * The <i>GWT</i> equivalent to {@link MaterialTypePE}.
+ * The {@link EntityProperty} extension for <i>Material</i>.
  * 
  * @author Izabela Adamczyk
  */
-public class MaterialType extends EntityType
+public final class MaterialProperty extends EntityProperty<MaterialType, MaterialTypePropertyType>
+        implements IsSerializable
 {
-
-    private List<MaterialTypePropertyType> materialTypePropertyTypes;
-
-    public List<MaterialTypePropertyType> getMaterialTypePropertyTypes()
-    {
-        return materialTypePropertyTypes;
-    }
-
-    public void setMaterialTypePropertyTypes(
-            List<MaterialTypePropertyType> materialTypePropertyTypes)
-    {
-        this.materialTypePropertyTypes = materialTypePropertyTypes;
-    }
-
+    public static final MaterialProperty[] EMPTY_ARRAY = new MaterialProperty[0];
 }

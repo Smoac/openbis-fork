@@ -25,8 +25,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Material;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
@@ -34,15 +36,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 /**
@@ -93,12 +96,14 @@ public interface ICommonClientService extends IClientService
     /**
      * Registers a new role from given role set code and person code
      */
-    public void registerInstanceRole(RoleSetCode roleSetCode, String person) throws UserFailureException;
+    public void registerInstanceRole(RoleSetCode roleSetCode, String person)
+            throws UserFailureException;
 
     /**
      * Deletes the role described by given role set code and person code
      */
-    public void deleteInstanceRole(RoleSetCode roleSetCode, String person) throws UserFailureException;
+    public void deleteInstanceRole(RoleSetCode roleSetCode, String person)
+            throws UserFailureException;
 
     /**
      * Returns a list of sample types.
@@ -122,6 +127,12 @@ public interface ICommonClientService extends IClientService
      * Returns a list of experiments.
      */
     public ResultSet<Experiment> listExperiments(final ListExperimentsCriteria criteria)
+            throws UserFailureException;
+
+    /**
+     * Returns a list of materials.
+     */
+    public ResultSet<Material> listMaterials(final ListMaterialCriteria criteria)
             throws UserFailureException;
 
     /**
@@ -266,6 +277,17 @@ public interface ICommonClientService extends IClientService
      */
     public ResultSet<DataSetSearchHit> searchForDataSets(DataSetSearchCriteria criteria,
             final IResultSetConfig<String, DataSetSearchHit> resultSetConfig)
+            throws UserFailureException;
+
+    /**
+     * Returns a list of all material types.
+     */
+    public List<MaterialType> listMaterialTypes() throws UserFailureException;
+
+    /**
+     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for materials.
+     */
+    public String prepareExportMaterials(final TableExportCriteria<Material> criteria)
             throws UserFailureException;
 
 }

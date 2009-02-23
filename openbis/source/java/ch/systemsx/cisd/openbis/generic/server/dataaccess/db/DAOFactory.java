@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProcedureDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProcedureTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
@@ -84,6 +85,8 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
 
     private final LocatorTypeDAO locatorTypeDAO;
 
+    private final IMaterialDAO materialDAO;
+
     public DAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory)
     {
@@ -103,6 +106,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         dataSetTypeDAO = new DataSetTypeDAO(sessionFactory, databaseInstance);
         fileFormatTypeDAO = new FileFormatTypeDAO(sessionFactory, databaseInstance);
         locatorTypeDAO = new LocatorTypeDAO(sessionFactory, databaseInstance);
+        materialDAO = new MaterialDAO(sessionFactory, databaseInstance);
         final EntityKind[] entityKinds = EntityKind.values();
         for (final EntityKind entityKind : entityKinds)
         {
@@ -196,5 +200,10 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     public ILocatorTypeDAO getLocatorTypeDAO()
     {
         return locatorTypeDAO;
+    }
+
+    public IMaterialDAO getMaterialDAO()
+    {
+        return materialDAO;
     }
 }

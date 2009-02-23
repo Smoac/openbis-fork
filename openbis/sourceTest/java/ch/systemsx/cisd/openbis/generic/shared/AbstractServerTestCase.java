@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProcedureBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeTable;
@@ -98,7 +99,9 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected IExperimentTable experimentTable;
 
-    protected IEntityTypeDAO experimentTypeDAO;
+    protected IMaterialTable materialTable;
+
+    protected IEntityTypeDAO entityTypeDAO;
 
     protected IProjectDAO projectDAO;
 
@@ -136,7 +139,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         sampleDAO = context.mock(ISampleDAO.class);
         roleAssignmentDAO = context.mock(IRoleAssignmentDAO.class);
         externalDataDAO = context.mock(IExternalDataDAO.class);
-        experimentTypeDAO = context.mock(IEntityTypeDAO.class);
+        entityTypeDAO = context.mock(IEntityTypeDAO.class);
         projectDAO = context.mock(IProjectDAO.class);
         sampleTypeDAO = context.mock(ISampleTypeDAO.class);
         propertyTypeDAO = context.mock(IPropertyTypeDAO.class);
@@ -153,6 +156,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         experimentTable = context.mock(IExperimentTable.class);
         propertyTypeTable = context.mock(IPropertyTypeTable.class);
         procedureBO = context.mock(IProcedureBO.class);
+        materialTable = context.mock(IMaterialTable.class);
 
         homeDatabaseInstance =
                 CommonTestUtils.createDatabaseInstance(CommonTestUtils.HOME_DATABASE_INSTANCE_CODE);

@@ -16,12 +16,18 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.util.Set;
+
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
@@ -40,6 +46,8 @@ public final class MaterialTypePE extends EntityTypePE
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
+    private Set<MaterialTypePropertyTypePE> materialTypePropertyTypes;
+
     //
     // EntityTypePE
     //
@@ -50,5 +58,47 @@ public final class MaterialTypePE extends EntityTypePE
     public final Long getId()
     {
         return id;
+    }
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "entityTypeInternal")
+    @JoinColumn(name = ColumnNames.MATERIAL_TYPE_COLUMN, updatable = false)
+    private Set<MaterialTypePropertyTypePE> getMaterialTypePropertyTypesInternal()
+    {
+        return materialTypePropertyTypes;
+    }
+
+    // Required by Hibernate.
+    @SuppressWarnings("unused")
+    private void setMaterialTypePropertyTypesInternal(
+            final Set<MaterialTypePropertyTypePE> materialTypePropertyTypes)
+    {
+        this.materialTypePropertyTypes = materialTypePropertyTypes;
+    }
+
+    @Transient
+    public Set<MaterialTypePropertyTypePE> getMaterialTypePropertyTypes()
+    {
+        return getMaterialTypePropertyTypesInternal();
+    }
+
+    public final void setMaterialTypePropertyTypes(
+            final Set<MaterialTypePropertyTypePE> materialTypePropertyTypes)
+    {
+        getMaterialTypePropertyTypesInternal().clear();
+        for (final MaterialTypePropertyTypePE child : materialTypePropertyTypes)
+        {
+            addMaterialTypePropertyType(child);
+        }
+    }
+
+    public void addMaterialTypePropertyType(final MaterialTypePropertyTypePE child)
+    {
+        final MaterialTypePE parent = (MaterialTypePE) child.getEntityType();
+        if (parent != null)
+        {
+            parent.getMaterialTypePropertyTypesInternal().remove(child);
+        }
+        child.setEntityTypeInternal(this);
+        getMaterialTypePropertyTypesInternal().add(child);
     }
 }

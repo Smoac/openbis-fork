@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProcedureDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProcedureTypeDAO;
@@ -185,5 +186,10 @@ abstract class AbstractBusinessObject implements IDAOFactory
     public ILocatorTypeDAO getLocatorTypeDAO()
     {
         return daoFactory.getLocatorTypeDAO();
+    }
+
+    public IMaterialDAO getMaterialDAO()
+    {
+        return daoFactory.getMaterialDAO();
     }
 }

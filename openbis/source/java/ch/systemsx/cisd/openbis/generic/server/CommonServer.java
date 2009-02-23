@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTy
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeTable;
@@ -43,8 +44,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetSearchHitDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
@@ -54,6 +55,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -93,7 +96,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         this.authenticationService = authenticationService;
         this.businessObjectFactory = businessObjectFactory;
     }
-    
+
     ICommonBusinessObjectFactory getBusinessObjectFactory()
     {
         return businessObjectFactory;
@@ -475,7 +478,8 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     }
 
-    public List<DataSetSearchHitDTO> searchForDataSets(String sessionToken, DataSetSearchCriteria criteria)
+    public List<DataSetSearchHitDTO> searchForDataSets(String sessionToken,
+            DataSetSearchCriteria criteria)
     {
         // Not needed but just to refresh/check the session.
         getSessionManager().getSession(sessionToken);
@@ -487,5 +491,26 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         {
             throw new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
         }
+    }
+
+    public List<MaterialTypePE> listMaterialTypes(String sessionToken)
+    {
+        // Not needed but just to refresh/check the session.
+        getSessionManager().getSession(sessionToken);
+        final List<MaterialTypePE> types =
+                getDAOFactory().getEntityTypeDAO(EntityKind.MATERIAL).listEntityTypes();
+        Collections.sort(types);
+        return types;
+    }
+
+    public List<MaterialPE> listMaterials(String sessionToken, MaterialTypePE materialType)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IMaterialTable materialTable = businessObjectFactory.createMaterialTable(session);
+        materialTable.load(materialType.getCode());
+        materialTable.enrichWithProperties();
+        final List<MaterialPE> materials = materialTable.getMaterials();
+        Collections.sort(materials);
+        return materials;
     }
 }

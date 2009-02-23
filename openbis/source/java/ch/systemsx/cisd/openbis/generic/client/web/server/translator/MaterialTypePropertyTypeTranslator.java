@@ -27,8 +27,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePropertyTypePE;
 
 /**
- * Translates {@link MaterialTypePropertyTypePE} to  {@link MaterialTypePropertyType}.
- *
+ * Translates {@link MaterialTypePropertyTypePE} to {@link MaterialTypePropertyType}.
+ * 
  * @author Izabela Adamczyk
  */
 public class MaterialTypePropertyTypeTranslator
@@ -58,6 +58,19 @@ public class MaterialTypePropertyTypeTranslator
 
     public static List<MaterialTypePropertyType> translate(
             Set<MaterialTypePropertyTypePE> materialTypePropertyTypes, PropertyType result)
+    {
+        return new MaterialTypePropertyTypeTranslatorHelper().translate(materialTypePropertyTypes,
+                result);
+    }
+
+    public static MaterialTypePropertyType translate(
+            MaterialTypePropertyTypePE entityTypePropertyType)
+    {
+        return new MaterialTypePropertyTypeTranslatorHelper().translate(entityTypePropertyType);
+    }
+
+    public static List<MaterialTypePropertyType> translate(
+            Set<MaterialTypePropertyTypePE> materialTypePropertyTypes, MaterialType result)
     {
         return new MaterialTypePropertyTypeTranslatorHelper().translate(materialTypePropertyTypes,
                 result);

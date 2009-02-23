@@ -215,6 +215,12 @@ var common = {
  production_date: "Production Date",
  data_producer_code: "Producer",
  
+ //
+ // Material Browser
+ //
+ material_type: "Material Type",
+ material_browser: "Material Browser", 
+ 
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma
 };

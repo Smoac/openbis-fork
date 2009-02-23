@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Authorizat
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.DataSetSearchTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.EntityTypePropertyTypeAssignmentTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ExperimentBrowserTest;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.MaterialBrowserTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ProjectRegistrationTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.PropertyTypeAssignmentBrowserTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.PropertyTypeBrowserTest;
@@ -54,6 +55,7 @@ public class SystemTestSuite extends GWTTestSuite
         testSuite.addTestSuite(SearchTest.class);
         testSuite.addTestSuite(GenericSampleRegistrationTest.class);
         testSuite.addTestSuite(ExperimentBrowserTest.class);
+        testSuite.addTestSuite(MaterialBrowserTest.class);
         // TODO 2009-01-21, IA: Uncomment after it's clear how to deal with
         // (NS_ERROR_DOM_SECURITY_ERR): Security error on CC
         // testSuite.addTestSuite(GenericExperimentRegistrationTest.class);

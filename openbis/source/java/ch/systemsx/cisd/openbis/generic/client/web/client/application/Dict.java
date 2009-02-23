@@ -283,7 +283,7 @@ public abstract class Dict
     //
 
     public static final String PARENT_CODE = "parent_code";
-    
+
     public static final String LOCATION = "location";
 
     public static final String FILE_FORMAT_TYPE = "file_format_type";
@@ -388,6 +388,13 @@ public abstract class Dict
     public static final String MATCH_ANY = "match_any";
 
     public static final String BUTTON_CHANGE_QUERY = "button_change_query";
+
+    //
+    // Material Browser
+    //
+    public static final String MATERIAL_TYPE = "material_type";
+
+    public static final String MATERIAL_BROWSER = "material_browser";
 
     //
     // Unclassified

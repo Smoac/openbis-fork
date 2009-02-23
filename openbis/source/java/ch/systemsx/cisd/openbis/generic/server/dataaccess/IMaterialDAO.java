@@ -14,31 +14,24 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
+package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 
 /**
- * The <i>GWT</i> equivalent to {@link MaterialTypePE}.
+ * <i>Data Access Object</i> for {@link MaterialPE}.
  * 
  * @author Izabela Adamczyk
  */
-public class MaterialType extends EntityType
+public interface IMaterialDAO
 {
 
-    private List<MaterialTypePropertyType> materialTypePropertyTypes;
-
-    public List<MaterialTypePropertyType> getMaterialTypePropertyTypes()
-    {
-        return materialTypePropertyTypes;
-    }
-
-    public void setMaterialTypePropertyTypes(
-            List<MaterialTypePropertyType> materialTypePropertyTypes)
-    {
-        this.materialTypePropertyTypes = materialTypePropertyTypes;
-    }
+    /**
+     * Lists materials of given type.
+     */
+    public List<MaterialPE> listMaterials(MaterialTypePE type);
 
 }

@@ -184,8 +184,8 @@ public class CategoriesBuilder
     private MenuCategory createMaterialCategory()
     {
         final List<MenuElement> elements = new ArrayList<MenuElement>();
-        elements
-                .add(new MenuElement(MENU_ELEMENTS.LIST, LABEL_BROWSE, provider.getDummyComponent()));
+        elements.add(new MenuElement(MENU_ELEMENTS.LIST, LABEL_BROWSE, provider
+                .getMaterialBrowser()));
         elements.add(new MenuElement(MENU_ELEMENTS.REGISTER, LABEL_REGISTER, provider
                 .getDummyComponent()));
         return new MenuCategory(CATEGORIES.MATERIALS, "Materials", elements);

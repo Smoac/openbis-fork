@@ -54,6 +54,5 @@ public class SampleTypeTranslator
         final SampleTypePE result = new SampleTypePE();
         result.setCode(sampleType.getCode());
         return result;
-
     }
 }

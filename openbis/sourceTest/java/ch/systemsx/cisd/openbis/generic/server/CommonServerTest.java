@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
@@ -495,9 +496,9 @@ public final class CommonServerTest extends AbstractServerTestCase
             {
                 {
                     one(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
-                    will(returnValue(experimentTypeDAO));
+                    will(returnValue(entityTypeDAO));
 
-                    one(experimentTypeDAO).listEntityTypes();
+                    one(entityTypeDAO).listEntityTypes();
                     will(returnValue(types));
                 }
             });
@@ -644,6 +645,49 @@ public final class CommonServerTest extends AbstractServerTestCase
                 "Mandatory property type 'USER.DISTANCE' successfully assigned to experiment type 'ARCHERY'",
                 createServer().assignPropertyType(SESSION_TOKEN, entityKind, propertyTypeCode,
                         entityTypeCode, mandatory, value));
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testListMaterials()
+    {
+        final Session session = prepareGetSession();
+        final MaterialTypePE materialType = CommonTestUtils.createMaterialType();
+        context.checking(new Expectations()
+            {
+                {
+                    one(commonBusinessObjectFactory).createMaterialTable(session);
+                    will(returnValue(materialTable));
+
+                    one(materialTable).load(materialType.getCode());
+
+                    one(materialTable).enrichWithProperties();
+
+                    one(materialTable).getMaterials();
+                    will(returnValue(new ArrayList<MaterialTypePE>()));
+                }
+            });
+        createServer().listMaterials(session.getSessionToken(), materialType);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testListMaterialTypes()
+    {
+        final Session session = prepareGetSession();
+        final List<EntityTypePE> types = new ArrayList<EntityTypePE>();
+        types.add(CommonTestUtils.createMaterialType());
+        context.checking(new Expectations()
+            {
+                {
+                    one(daoFactory).getEntityTypeDAO(EntityKind.MATERIAL);
+                    will(returnValue(entityTypeDAO));
+
+                    one(entityTypeDAO).listEntityTypes();
+                    will(returnValue(types));
+                }
+            });
+        assertEquals(types, createServer().listMaterialTypes(session.getSessionToken()));
         context.assertIsSatisfied();
     }
 

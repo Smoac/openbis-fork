@@ -88,13 +88,18 @@ public interface IDAOFactory extends IAuthorizationDAOFactory
 
     /** Returns an implementation of {@link IExperimentAttachmentDAO}. */
     public IExperimentAttachmentDAO getExperimentAttachmentDAO();
-    
+
     /** Returns an implementation of {@link IDataSetTypeDAO}. */
     public IDataSetTypeDAO getDataSetTypeDAO();
-    
+
     /** Returns an implementation of {@link IFileFormatTypeDAO}. */
     public IFileFormatTypeDAO getFileFormatTypeDAO();
-    
+
     /** Returns an implementation of {@link ILocatorTypeDAO}. */
     public ILocatorTypeDAO getLocatorTypeDAO();
+
+    /**
+     * Returns the {@link IMaterialDAO} implementation.
+     */
+    public IMaterialDAO getMaterialDAO();
 }

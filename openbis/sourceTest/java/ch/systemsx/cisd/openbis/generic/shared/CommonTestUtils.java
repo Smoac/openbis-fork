@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -137,6 +138,8 @@ public class CommonTestUtils
 
     public static final String USER_ID = "test";
 
+    private static final String MATERIAL_TYPE_VIRUS = "MATERIAL_TYPE_VIRUS";
+
     public static final ExperimentIdentifier createExperimentIdentifier()
     {
         final ExperimentIdentifier identifier =
@@ -167,6 +170,15 @@ public class CommonTestUtils
         final AttachmentContentPE attachmentContentPE = new AttachmentContentPE();
         attachmentContentPE.setValue(content.getBytes());
         return attachmentContentPE;
+    }
+
+    public static MaterialTypePE createMaterialType()
+    {
+
+        final MaterialTypePE type = new MaterialTypePE();
+        type.setCode(MATERIAL_TYPE_VIRUS);
+        type.setDatabaseInstance(createDatabaseInstance(HOME_DATABASE_INSTANCE_CODE));
+        return type;
     }
 
 }

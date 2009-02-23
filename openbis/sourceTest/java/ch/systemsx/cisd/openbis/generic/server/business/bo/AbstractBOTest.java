@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProcedureDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProcedureTypeDAO;
@@ -55,6 +56,8 @@ public abstract class AbstractBOTest extends AssertJUnit
     IProjectDAO projectDAO;
 
     IEntityTypeDAO entityTypeDAO;
+
+    IMaterialDAO materialDAO;
 
     IExternalDataDAO externalDataDAO;
 
@@ -98,6 +101,7 @@ public abstract class AbstractBOTest extends AssertJUnit
         vocabularyDAO = context.mock(IVocabularyDAO.class);
         procedureDAO = context.mock(IProcedureDAO.class);
         procedureTypeDAO = context.mock(IProcedureTypeDAO.class);
+        materialDAO = context.mock(IMaterialDAO.class);
     }
 
     @AfterMethod

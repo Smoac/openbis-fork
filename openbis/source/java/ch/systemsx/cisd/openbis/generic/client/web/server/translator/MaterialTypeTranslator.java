@@ -40,6 +40,15 @@ public class MaterialTypeTranslator
         result.setDescription(StringEscapeUtils.escapeHtml(entityTypePE.getDescription()));
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(entityTypePE
                 .getDatabaseInstance()));
+        result.setMaterialTypePropertyTypes(MaterialTypePropertyTypeTranslator.translate(
+                entityTypePE.getMaterialTypePropertyTypes(), result));
+        return result;
+    }
+
+    public static MaterialTypePE translate(MaterialType type)
+    {
+        final MaterialTypePE result = new MaterialTypePE();
+        result.setCode(type.getCode());
         return result;
     }
 

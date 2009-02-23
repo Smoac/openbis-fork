@@ -21,9 +21,9 @@ import java.util.List;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetSearchHitDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
@@ -32,6 +32,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
@@ -266,9 +268,22 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         logTracking(sessionToken, "register_project", "PROJECT(%s)", projectIdentifier);
     }
 
-    public List<DataSetSearchHitDTO> searchForDataSets(String sessionToken, DataSetSearchCriteria criteria)
+    public List<DataSetSearchHitDTO> searchForDataSets(String sessionToken,
+            DataSetSearchCriteria criteria)
     {
         logAccess(sessionToken, "search_for_datasets");
+        return null;
+    }
+
+    public List<MaterialTypePE> listMaterialTypes(String sessionToken)
+    {
+        logAccess(sessionToken, "list_material_types");
+        return null;
+    }
+
+    public List<MaterialPE> listMaterials(String sessionToken, MaterialTypePE materialType)
+    {
+        logAccess(sessionToken, "list_materials", "TYPE(%s)", materialType);
         return null;
     }
 }

@@ -14,31 +14,30 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
+package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import java.util.List;
+import com.google.gwt.user.client.rpc.IsSerializable;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 
 /**
- * The <i>GWT</i> equivalent to {@link MaterialTypePE}.
+ * Criteria for listing <i>materials</i>.
  * 
  * @author Izabela Adamczyk
  */
-public class MaterialType extends EntityType
+public final class ListMaterialCriteria extends DefaultResultSetConfig<String, Material> implements
+        IsSerializable
 {
+    private MaterialType materialType;
 
-    private List<MaterialTypePropertyType> materialTypePropertyTypes;
-
-    public List<MaterialTypePropertyType> getMaterialTypePropertyTypes()
+    public MaterialType getMaterialType()
     {
-        return materialTypePropertyTypes;
+        return materialType;
     }
 
-    public void setMaterialTypePropertyTypes(
-            List<MaterialTypePropertyType> materialTypePropertyTypes)
+    public void setMaterialType(MaterialType materialType)
     {
-        this.materialTypePropertyTypes = materialTypePropertyTypes;
+        this.materialType = materialType;
     }
 
 }

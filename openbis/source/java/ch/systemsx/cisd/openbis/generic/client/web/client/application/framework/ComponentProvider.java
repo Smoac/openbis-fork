@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.Da
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project.ProjectGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project.ProjectRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeAssignmentForm;
@@ -75,6 +76,23 @@ final class ComponentProvider
                 public String getId()
                 {
                     return SampleBrowserGrid.BROWSER_ID;
+                }
+            };
+    }
+
+    public final ITabItemFactory getMaterialBrowser()
+    {
+        return new ITabItemFactory()
+            {
+                public ITabItem create()
+                {
+                    DisposableComponent browser = MaterialBrowserGrid.create(viewContext);
+                    return DefaultTabItem.create(getMessage(Dict.MATERIAL_BROWSER), browser, false);
+                }
+
+                public String getId()
+                {
+                    return MaterialBrowserGrid.BROWSER_ID;
                 }
             };
     }
