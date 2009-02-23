@@ -29,7 +29,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
+import ch.systemsx.cisd.cifex.rpc.client.IProgressListenerHolder;
 import ch.systemsx.cisd.cifex.rpc.client.RPCServiceFactory;
+import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
@@ -135,6 +137,44 @@ abstract class AbstractCommand implements ICommand
             }
         }
         return baseURL;
+    }
+
+    protected void addConsoleProgressListener(final IProgressListenerHolder downloader)
+    {
+        downloader.addProgressListener(new IProgressListener() {
+
+            long size;
+            
+            public void start(File file, long fileSize)
+            {
+                size = fileSize; 
+                System.out.print("0% (0/" + size + ")");
+            }
+
+            public void reportProgress(int percentage, long numberOfBytes)
+            {
+                System.out.print("\r" + percentage + "% (" + numberOfBytes + "/" + size + ")");
+            }
+
+            public void finished(boolean successful)
+            {
+                System.out.println("\r100% (" + size + "/" + size + ")");
+                size = 0L;
+            }
+
+            public void warningOccured(String warningMessage)
+            {
+                System.out.println();
+                System.err.println(warningMessage);
+            }
+            
+            public void exceptionOccured(Throwable throwable)
+            {
+                System.out.println();
+                throwable.printStackTrace();
+            }
+
+        });
     }
 
     //

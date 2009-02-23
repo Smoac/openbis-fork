@@ -124,7 +124,7 @@ public class UploadingIntegrationTest extends AssertJUnit
         String sessionID = uploadService.createSession(user, TEST_URL);
         uploader = new Uploader(uploadService, sessionID);
         listener = context.mock(IUploadProgressListener.class);
-        uploader.addUploadListener(listener);
+        uploader.addProgressListener(listener);
 
         FileUtilities.deleteRecursively(PLAYGROUND);
         CLIENT_FOLDER.mkdirs();

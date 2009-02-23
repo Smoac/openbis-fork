@@ -66,7 +66,7 @@ public final class Downloader extends AbstractUploadDownload
     /**
      * Adds a listener for progress events.
      */
-    public void addUploadListener(IProgressListener listener)
+    public void addProgressListener(IProgressListener listener)
     {
         listeners.add(listener);
     }

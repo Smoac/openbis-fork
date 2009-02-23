@@ -43,7 +43,7 @@ final class UploadTableModel extends AbstractTableModel
     {
         this.maxUploadSizeInMB = maxUploadSizeInMB;
         this.timeProvider = timeProvider;
-        uploader.addUploadListener(new IUploadProgressListener()
+        uploader.addProgressListener(new IUploadProgressListener()
             {
                 public void start(File file, long fileSize)
                 {

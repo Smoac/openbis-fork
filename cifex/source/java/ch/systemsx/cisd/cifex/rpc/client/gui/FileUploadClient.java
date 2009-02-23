@@ -138,7 +138,7 @@ public class FileUploadClient
         fileDialog.setModal(true);
         fileDialog.setMode(FileDialog.LOAD);
         fileDialog.setTitle("Select file to upload");
-        uploader.addUploadListener(new IUploadProgressListener()
+        uploader.addProgressListener(new IUploadProgressListener()
             {
                 public void start(File file, long fileSize)
                 {

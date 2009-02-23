@@ -74,9 +74,53 @@ public final class Uploader extends AbstractUploadDownload
     /**
      * Adds a listener for upload events.
      */
-    public void addUploadListener(IUploadProgressListener uploadListener)
+    public void addProgressListener(final IUploadProgressListener uploadListener)
     {
         listeners.add(uploadListener);
+    }
+
+    /**
+     * Adds a listener for progress events.
+     */
+    public void addProgressListener(final IProgressListener listener)
+    {
+        listeners.add(new IUploadProgressListener()
+        {
+
+            public void exceptionOccured(Throwable throwable)
+            {
+                listener.exceptionOccured(throwable);
+            }
+
+            public void finished(boolean successful)
+            {
+                listener.finished(successful);
+            }
+
+            public void reportProgress(int percentage, long numberOfBytes)
+            {
+                listener.reportProgress(percentage, numberOfBytes);
+            }
+
+            public void start(File file, long fileSize)
+            {
+                listener.start(file, fileSize);
+            }
+
+            public void warningOccured(String warningMessage)
+            {
+                listener.warningOccured(warningMessage);
+            }
+            
+            public void fileUploaded()
+            {
+            }
+
+            public void reset()
+            {
+            }
+
+        });
     }
 
     /**
