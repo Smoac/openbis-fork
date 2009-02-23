@@ -18,6 +18,8 @@ package ch.systemsx.cisd.cifex.client.dto;
 
 import java.util.Date;
 
+import ch.systemsx.cisd.cifex.shared.basic.dto.BasicUser;
+
 /**
  * A small class that describes an user.
  * 

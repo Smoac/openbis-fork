@@ -27,8 +27,8 @@ import com.gwtext.client.widgets.grid.Grid;
 import com.gwtext.client.widgets.grid.event.GridCellListenerAdapter;
 
 import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
-import ch.systemsx.cisd.cifex.client.dto.File;
 import ch.systemsx.cisd.cifex.client.dto.User;
+import ch.systemsx.cisd.cifex.shared.basic.dto.File;
 
 /**
  * A <code>GridCellListenerAdapter</code> extension for deleting, renewing or sharing with other

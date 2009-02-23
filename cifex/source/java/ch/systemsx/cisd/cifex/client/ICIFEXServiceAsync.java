@@ -21,8 +21,8 @@ import java.util.Date;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.RemoteService;
 
-import ch.systemsx.cisd.cifex.client.dto.FileUploadFeedback;
 import ch.systemsx.cisd.cifex.client.dto.User;
+import ch.systemsx.cisd.cifex.shared.basic.dto.FileUploadFeedback;
 
 /**
  * The asynchronous <i>GWT</i> <i>LIMS</i> service.

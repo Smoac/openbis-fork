@@ -26,7 +26,7 @@ import com.gwtext.client.data.StringFieldDef;
 import ch.systemsx.cisd.cifex.client.application.ui.CommentRenderer;
 import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
 import ch.systemsx.cisd.cifex.client.application.utils.FileUtils;
-import ch.systemsx.cisd.cifex.client.dto.File;
+import ch.systemsx.cisd.cifex.shared.basic.dto.File;
 
 /**
  * A <code>AbstractFileGridModel</code> extension for downloaded files.

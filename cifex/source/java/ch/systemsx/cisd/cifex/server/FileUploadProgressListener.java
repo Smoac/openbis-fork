@@ -21,9 +21,9 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
-import ch.systemsx.cisd.cifex.client.dto.FileUploadFeedback;
 import ch.systemsx.cisd.cifex.server.util.FileUploadFeedbackProvider;
 import ch.systemsx.cisd.cifex.server.util.ThresholdProgressListener;
+import ch.systemsx.cisd.cifex.shared.basic.dto.FileUploadFeedback;
 
 /**
  * A <code>ProgressListener</code> implementation which sets a <code>FileUploadFeedback</code>

@@ -22,7 +22,7 @@ import ch.systemsx.cisd.cifex.client.application.model.AbstractDataGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.DateRenderer;
 import ch.systemsx.cisd.cifex.client.application.ui.FileSizeRenderer;
 import ch.systemsx.cisd.cifex.client.application.ui.LinkRenderer;
-import ch.systemsx.cisd.cifex.client.dto.File;
+import ch.systemsx.cisd.cifex.shared.basic.dto.File;
 
 /**
  * A <code>AbstractDataGridModel</code> extension suitable for {@link File}.

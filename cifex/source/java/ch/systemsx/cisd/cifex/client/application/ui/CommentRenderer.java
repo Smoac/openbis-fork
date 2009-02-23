@@ -19,7 +19,7 @@ package ch.systemsx.cisd.cifex.client.application.ui;
 import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
-import ch.systemsx.cisd.cifex.client.dto.File;
+import ch.systemsx.cisd.cifex.shared.basic.dto.File;
 
 /**
  * Takes care of rendering a comment field.

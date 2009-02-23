@@ -26,7 +26,7 @@ import com.gwtext.client.widgets.grid.event.GridCellListenerAdapter;
 import ch.systemsx.cisd.cifex.client.application.ui.FileDownloadHelper;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.WindowUtils;
-import ch.systemsx.cisd.cifex.client.dto.File;
+import ch.systemsx.cisd.cifex.shared.basic.dto.File;
 
 /**
  * A <code>GridCellListener</code> implementation for the {@link File} table.

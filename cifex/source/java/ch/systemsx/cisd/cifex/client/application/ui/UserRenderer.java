@@ -24,7 +24,7 @@ import com.gwtext.client.widgets.grid.Renderer;
 import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
-import ch.systemsx.cisd.cifex.client.dto.BasicUser;
+import ch.systemsx.cisd.cifex.shared.basic.dto.BasicUser;
 
 /**
  * A <code>Renderer</code> implementation that create an email anchor element with inner text

@@ -18,8 +18,8 @@ package ch.systemsx.cisd.cifex.server.util;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.cifex.client.dto.FileUploadFeedback;
-import ch.systemsx.cisd.cifex.client.dto.Message;
+import ch.systemsx.cisd.cifex.shared.basic.dto.FileUploadFeedback;
+import ch.systemsx.cisd.cifex.shared.basic.dto.Message;
 
 import static org.testng.AssertJUnit.*;
 

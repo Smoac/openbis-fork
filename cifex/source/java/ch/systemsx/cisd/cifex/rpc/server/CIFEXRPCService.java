@@ -171,13 +171,13 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
     // Info
     //
 
-    public ch.systemsx.cisd.cifex.client.dto.File[] listDownloadFiles(String sessionID)
+    public ch.systemsx.cisd.cifex.shared.basic.dto.File[] listDownloadFiles(String sessionID)
             throws InvalidSessionException
     {
         final Session session = sessionManager.getSession(sessionID);
         final List<FileDTO> files =
                 domainModel.getFileManager().listDownloadFiles(session.getUser().getID());
-        return BeanUtils.createBeanArray(ch.systemsx.cisd.cifex.client.dto.File.class, files);
+        return BeanUtils.createBeanArray(ch.systemsx.cisd.cifex.shared.basic.dto.File.class, files);
     }
 
     //
@@ -293,7 +293,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         }
     }
 
-    public ch.systemsx.cisd.cifex.client.dto.File startDownloading(String sessionID, long fileID)
+    public ch.systemsx.cisd.cifex.shared.basic.dto.File startDownloading(String sessionID, long fileID)
             throws InvalidSessionException, WrappedIOException
     {
         final Session session = sessionManager.getSession(sessionID);
@@ -309,7 +309,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
-        return BeanUtils.createBean(ch.systemsx.cisd.cifex.client.dto.File.class, fileInfo
+        return BeanUtils.createBean(ch.systemsx.cisd.cifex.shared.basic.dto.File.class, fileInfo
                 .getFileDTO());
     }
 

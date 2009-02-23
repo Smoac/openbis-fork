@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.client.dto;
+package ch.systemsx.cisd.cifex.shared.basic.dto;
 
 import java.io.Serializable;
 
@@ -95,7 +95,7 @@ public class BasicUser implements IsSerializable, Serializable
         {
             return true;
         }
-        if (obj instanceof User == false)
+        if (obj instanceof BasicUser == false)
         {
             return false;
         }

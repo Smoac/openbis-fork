@@ -43,8 +43,8 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableColumn;
 
-import ch.systemsx.cisd.cifex.client.EnvironmentFailureException;
 import ch.systemsx.cisd.cifex.rpc.client.Uploader;
+import ch.systemsx.cisd.cifex.shared.basic.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
@@ -57,7 +57,7 @@ public class FileUploadClient
     private static final String TITLE = "CIFEX Uploader";
 
     public static void main(String[] args)
-            throws ch.systemsx.cisd.cifex.client.UserFailureException, EnvironmentFailureException
+            throws ch.systemsx.cisd.cifex.shared.basic.UserFailureException, EnvironmentFailureException
     {
         try
         {
@@ -102,21 +102,21 @@ public class FileUploadClient
     private JButton addButton;
 
     FileUploadClient(String serviceURL, String sessionId, int maxUploadSizeInMB,
-            ITimeProvider timeProvider) throws ch.systemsx.cisd.cifex.client.UserFailureException,
+            ITimeProvider timeProvider) throws ch.systemsx.cisd.cifex.shared.basic.UserFailureException,
             EnvironmentFailureException
     {
         this(new Uploader(serviceURL, sessionId), maxUploadSizeInMB, timeProvider);
     }
 
     FileUploadClient(String serviceURL, String userName, String passwd, int maxUploadSizeInMB,
-            ITimeProvider timeProvider) throws ch.systemsx.cisd.cifex.client.UserFailureException,
+            ITimeProvider timeProvider) throws ch.systemsx.cisd.cifex.shared.basic.UserFailureException,
             EnvironmentFailureException
     {
         this(new Uploader(serviceURL, userName, passwd), maxUploadSizeInMB, timeProvider);
     }
 
     FileUploadClient(Uploader uploader, int maxUploadSizeInMB, ITimeProvider timeProvider)
-            throws ch.systemsx.cisd.cifex.client.UserFailureException, EnvironmentFailureException
+            throws ch.systemsx.cisd.cifex.shared.basic.UserFailureException, EnvironmentFailureException
     {
         this.uploader = uploader;
         frame = new JFrame(TITLE);

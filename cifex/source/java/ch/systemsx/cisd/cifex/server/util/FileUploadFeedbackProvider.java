@@ -18,8 +18,8 @@ package ch.systemsx.cisd.cifex.server.util;
 
 import java.io.Serializable;
 
-import ch.systemsx.cisd.cifex.client.dto.FileUploadFeedback;
-import ch.systemsx.cisd.cifex.client.dto.Message;
+import ch.systemsx.cisd.cifex.shared.basic.dto.FileUploadFeedback;
+import ch.systemsx.cisd.cifex.shared.basic.dto.Message;
 
 /**
  * A class that provides feedback for {@link FileUploadFeedback} to a client.

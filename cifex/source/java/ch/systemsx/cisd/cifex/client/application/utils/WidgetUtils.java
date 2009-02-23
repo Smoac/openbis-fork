@@ -19,7 +19,7 @@ package ch.systemsx.cisd.cifex.client.application.utils;
 import com.gwtext.client.widgets.MessageBox;
 
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
-import ch.systemsx.cisd.cifex.client.dto.Message;
+import ch.systemsx.cisd.cifex.shared.basic.dto.Message;
 
 /**
  * Useful utility functions concerning widgets.

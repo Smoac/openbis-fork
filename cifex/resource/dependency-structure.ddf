@@ -1,9 +1,29 @@
 #show allResults
 
 {package} = ch.systemsx.cisd.cifex
+{shared} = ${package}.shared
 {client} = ${package}.client
+{rpc} = ${package}.rpc
 {server} = ${package}.server
 {business} = ${server}.business
+
+######################################################################
+# Check dependencies between main packages
+
+[shared] = ${shared}.*
+[client] = ${client}.*
+[server] = ${server}.*
+[server+client] = [server] [client]
+[rpc] = ${rpc}.*
+check sets [shared] [server+client] [client] [rpc]
+
+layer main0 = [shared]
+layer main1 = [server+client]
+layer main2 = [rpc]
+check layeringOf main0 main1
+
+check [rpc] independentOf [client]
+check [client] independentOf [server]
 
 ######################################################################
 # Check dependencies between server and client package
@@ -42,14 +62,11 @@ check layeringOf business-layer1 business-layer2 business-layer3
 ######################################################################
 # Check dependencies package rpc
 
-{rpc} = ${package}.rpc
-[rpc] = ${rpc}.*
 [rpc.common] = [rpc] excluding ${rpc}.*.*
 [rpc.client] = ${rpc}.client.*
 [rpc.server] = ${rpc}.server.*
-check sets [rpc] [rpc.common] [rpc.client] [rpc.server]
+check sets [rpc.common] [rpc.client] [rpc.server]
 
-check [rpc] independentOf ${client}.*
 check [rpc.common] [rpc.client] independentOf ${server}.*
 
 layer rpc-common = [rpc.common]

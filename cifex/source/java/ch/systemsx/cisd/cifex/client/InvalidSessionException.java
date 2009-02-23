@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client;
 
+import ch.systemsx.cisd.cifex.shared.basic.UserFailureException;
+
 /**
  * This <code>UserFailureException</code> extension signals that a <code>Session</code> has
  * expired.

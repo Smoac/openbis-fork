@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.cifex.rpc;
 
-import ch.systemsx.cisd.cifex.client.dto.File;
+import ch.systemsx.cisd.cifex.shared.basic.dto.File;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;

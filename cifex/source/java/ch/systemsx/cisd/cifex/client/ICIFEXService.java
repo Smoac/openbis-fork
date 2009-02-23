@@ -21,9 +21,11 @@ import java.util.Date;
 import com.google.gwt.user.client.rpc.RemoteService;
 
 import ch.systemsx.cisd.cifex.client.dto.Configuration;
-import ch.systemsx.cisd.cifex.client.dto.File;
-import ch.systemsx.cisd.cifex.client.dto.FileUploadFeedback;
 import ch.systemsx.cisd.cifex.client.dto.User;
+import ch.systemsx.cisd.cifex.shared.basic.EnvironmentFailureException;
+import ch.systemsx.cisd.cifex.shared.basic.UserFailureException;
+import ch.systemsx.cisd.cifex.shared.basic.dto.File;
+import ch.systemsx.cisd.cifex.shared.basic.dto.FileUploadFeedback;
 
 /**
  * The <i>GWT</i> <i>CIFEX</i> service.

@@ -14,29 +14,29 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.client;
+package ch.systemsx.cisd.cifex.shared.basic;
 
 import com.google.gwt.user.client.rpc.SerializableException;
 
 /**
- * The <code>UserFailureException</code> is the super class of all exceptions that have their
- * cause in an inappropriate usage of the system. This implies that the user himself (without help
- * of an administrator) can fix the problem.
+ * The <code>EnvironmentFailureException</code> is the super class of all exceptions that have
+ * their cause in a failure condition in the environment of the system. This implies that the user
+ * himself cannot fix the problem
  * 
- * @author Christian Ribeaud
+ * @author Bernd Rinn
  */
-public class UserFailureException extends SerializableException
+public class EnvironmentFailureException extends SerializableException
 {
 
     private static final long serialVersionUID = 1L;
 
     // An non-empty constructor is mandatory in GWT for serializable objects
-    public UserFailureException()
+    public EnvironmentFailureException()
     {
         super();
     }
 
-    public UserFailureException(final String message)
+    public EnvironmentFailureException(final String message)
     {
         super(message);
     }

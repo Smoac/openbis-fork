@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client;
 
+import ch.systemsx.cisd.cifex.shared.basic.UserFailureException;
+
 /**
  * This <code>UserFailureException</code> extension signals that an operation is not allowed due
  * to insufficient privileges.

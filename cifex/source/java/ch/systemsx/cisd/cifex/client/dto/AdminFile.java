@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.cifex.client.dto;
 
+import ch.systemsx.cisd.cifex.shared.basic.dto.BasicUser;
+import ch.systemsx.cisd.cifex.shared.basic.dto.File;
+
 /**
  * A client <i>DTO</i> which describes a file with additional admin information.
  *

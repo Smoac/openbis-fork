@@ -18,7 +18,7 @@ package ch.systemsx.cisd.cifex.client.application.utils;
 
 import com.google.gwt.i18n.client.NumberFormat;
 
-import ch.systemsx.cisd.cifex.client.dto.File;
+import ch.systemsx.cisd.cifex.shared.basic.dto.File;
 
 /**
  * General file manipulation utilities.

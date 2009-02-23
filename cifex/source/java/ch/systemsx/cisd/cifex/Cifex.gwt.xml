@@ -11,6 +11,9 @@
         // Specify the app entry point class.
     -->
     <entry-point class='ch.systemsx.cisd.cifex.client.application.CIFEXEntryPoint' />
-   
+    
+    <source path="client"/>
+    <source path="shared/basic"/>
+    
     <!-- Do not define servlets here, use web.xml -->
 </module>
