@@ -20,16 +20,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.EnumSet;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.remoting.RemoteAccessException;
 
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.cifex.rpc.UploadState;
 import ch.systemsx.cisd.cifex.rpc.UploadStatus;
-import ch.systemsx.cisd.cifex.rpc.client.gui.IUploadListener;
+import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
+import ch.systemsx.cisd.cifex.rpc.client.gui.IUploadProgressListener;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
@@ -37,17 +36,15 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
  * Class which uploads file via an implementation of {@link ICIFEXRPCService}, handling the
- * low-level protocol. Registered {@link IUploadListener} instances will be informed what's going on
- * during uploading.
+ * low-level protocol. Registered {@link IProgressListener} instances will be informed what's going
+ * on during uploading.
  * 
  * @author Franz-Josef Elmer
  */
 public final class Uploader extends AbstractUploadDownload
 {
     private static final EnumSet<UploadState> RUNNING_STATES =
-        EnumSet.of(UploadState.READY_FOR_NEXT_FILE, UploadState.UPLOADING);
-
-    private final Set<IUploadListener> listeners = new LinkedHashSet<IUploadListener>();
+            EnumSet.of(UploadState.READY_FOR_NEXT_FILE, UploadState.UPLOADING);
 
     /**
      * Creates an instance for the specified service URL and credentials.
@@ -74,15 +71,10 @@ public final class Uploader extends AbstractUploadDownload
         super(service, sessionID);
     }
 
-    protected void logException(RuntimeException ex)
-    {
-        fireExceptionEvent(ex);
-    }
-
     /**
      * Adds a listener for upload events.
      */
-    public void addUploadListener(IUploadListener uploadListener)
+    public void addUploadListener(IUploadProgressListener uploadListener)
     {
         listeners.add(uploadListener);
     }
@@ -202,68 +194,41 @@ public final class Uploader extends AbstractUploadDownload
         final byte[] bytes = new byte[blockSize];
         randomAccessFile.seek(filePointer);
         randomAccessFile.readFully(bytes, 0, blockSize);
+        RemoteAccessException lastExceptionOrNull = null;
         for (int i = 0; i < MAX_RETRIES; ++i)
         {
             try
             {
                 service.uploadBlock(sessionID, filePointer, bytes, lastBlock);
+                lastExceptionOrNull = null;
                 break;
             } catch (RemoteAccessException ex)
             {
-                ex.printStackTrace();
-                System.err.println("Waiting for " + WAIT_AFTER_FAILURE_MILLIS
-                        + "ms before retrying...");
+                lastExceptionOrNull = ex;
+                fireWarningEvent("Error during upload: " + ex.getClass().getSimpleName() + ": "
+                        + ex.getMessage() + ", will retry download soon...");
                 ConcurrencyUtilities.sleep(WAIT_AFTER_FAILURE_MILLIS);
             }
         }
-    }
-
-    private void fireStartedEvent(File file, long fileSize)
-    {
-        for (IUploadListener listener : listeners)
+        if (lastExceptionOrNull != null)
         {
-            listener.uploadingStarted(file, fileSize);
-        }
-    }
-
-    private void fireProgressEvent(long numberOfBytes, long fileSize)
-    {
-        int percentage = (int) ((numberOfBytes * 100) / Math.max(1, fileSize));
-        for (IUploadListener listener : listeners)
-        {
-            listener.uploadingProgress(percentage, numberOfBytes);
-        }
-    }
-
-    private void fireFinishedEvent(boolean successful)
-    {
-        for (IUploadListener listener : listeners)
-        {
-            listener.uploadingFinished(successful);
+            throw lastExceptionOrNull;
         }
     }
 
     private void fireUploadedEvent()
     {
-        for (IUploadListener listener : listeners)
+        for (IProgressListener listener : listeners)
         {
-            listener.fileUploaded();
-        }
-    }
-
-    void fireExceptionEvent(Throwable throwable)
-    {
-        for (IUploadListener listener : listeners)
-        {
-            listener.exceptionOccured(throwable);
+            ((IUploadProgressListener) listener).fileUploaded();
         }
     }
 
     private void fireResetEvent()
     {
-        for (IUploadListener listener : listeners)
+        for (IProgressListener listener : listeners)
         {
-            listener.reset();
+            ((IUploadProgressListener) listener).reset();
         }
     }
 

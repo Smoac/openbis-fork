@@ -16,28 +16,35 @@
 
 package ch.systemsx.cisd.cifex.rpc.client;
 
+import java.io.File;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
+import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 
 /**
  * A common subclass for file upload and download.
- *
+ * 
  * @author Bernd Rinn
  */
 public abstract class AbstractUploadDownload
 {
 
     protected static final int BLOCK_SIZE = 1 * 1024 * 1024;
-    
+
     protected static final int MAX_RETRIES = 30;
-    
+
     protected static final long WAIT_AFTER_FAILURE_MILLIS = 10 * 1000L;
-    
+
     protected final ICIFEXRPCService service;
-    
+
     protected final String sessionID;
+
+    protected final Set<IProgressListener> listeners = new LinkedHashSet<IProgressListener>();
 
     /**
      * Creates an instance for the specified service URL and credentials.
@@ -81,14 +88,6 @@ public abstract class AbstractUploadDownload
     }
 
     /**
-     * Override this when you need to react on exceptions during upload / download.
-     */
-    protected void logException(RuntimeException ex)
-    {
-        // Do nothing.
-    }
-    
-    /**
      * Cancels uploading.
      */
     public void cancel()
@@ -98,7 +97,7 @@ public abstract class AbstractUploadDownload
             service.cancel(sessionID);
         } catch (RuntimeException ex)
         {
-            logException(ex);
+            fireExceptionEvent(ex);
         }
     }
 
@@ -113,6 +112,47 @@ public abstract class AbstractUploadDownload
         } catch (RuntimeException ex)
         {
             ex.printStackTrace();
+        }
+    }
+
+    protected void fireStartedEvent(File file, long fileSize)
+    {
+        for (IProgressListener listener : listeners)
+        {
+            listener.start(file, fileSize);
+        }
+    }
+
+    protected void fireProgressEvent(long numberOfBytes, long fileSize)
+    {
+        int percentage = (int) ((numberOfBytes * 100) / Math.max(1, fileSize));
+        for (IProgressListener listener : listeners)
+        {
+            listener.reportProgress(percentage, numberOfBytes);
+        }
+    }
+
+    protected void fireFinishedEvent(boolean successful)
+    {
+        for (IProgressListener listener : listeners)
+        {
+            listener.finished(successful);
+        }
+    }
+
+    protected void fireExceptionEvent(Throwable throwable)
+    {
+        for (IProgressListener listener : listeners)
+        {
+            listener.exceptionOccured(throwable);
+        }
+    }
+
+    protected void fireWarningEvent(String warningMessage)
+    {
+        for (IProgressListener listener : listeners)
+        {
+            listener.warningOccured(warningMessage);
         }
     }
 

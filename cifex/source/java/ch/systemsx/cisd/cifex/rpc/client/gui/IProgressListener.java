@@ -19,21 +19,19 @@ package ch.systemsx.cisd.cifex.rpc.client.gui;
 import java.io.File;
 
 /**
- * 
+ * A listener for progress in file upload / download.
  *
  * @author Franz-Josef Elmer
  */
-public interface IUploadListener
+public interface IProgressListener
 {
-    public void uploadingStarted(File file, long fileSize);
+    public void start(File file, long fileSize);
     
-    public void uploadingProgress(int percentage, long numberOfBytes);
+    public void reportProgress(int percentage, long numberOfBytes);
     
-    public void fileUploaded();
-    
-    public void uploadingFinished(boolean successful);
+    public void finished(boolean successful);
+ 
+    public void warningOccured(String warningMessage);
     
     public void exceptionOccured(Throwable throwable);
-
-    public void reset();
 }

@@ -138,17 +138,17 @@ public class FileUploadClient
         fileDialog.setModal(true);
         fileDialog.setMode(FileDialog.LOAD);
         fileDialog.setTitle("Select file to upload");
-        uploader.addUploadListener(new IUploadListener()
+        uploader.addUploadListener(new IUploadProgressListener()
             {
-                public void uploadingStarted(File file, long fileSize)
+                public void start(File file, long fileSize)
                 {
                 }
 
-                public void uploadingProgress(int percentage, long numberOfBytes)
+                public void reportProgress(int percentage, long numberOfBytes)
                 {
                 }
 
-                public void uploadingFinished(boolean successful)
+                public void finished(boolean successful)
                 {
                     setEnableStateOfButtons(true);
                     if (successful)
@@ -180,9 +180,22 @@ public class FileUploadClient
                             JOptionPane.ERROR_MESSAGE);
                 }
 
+                private String lastWarningMessage;
+                
+                public void warningOccured(String warningMessage)
+                {
+                    if (warningMessage.equals(lastWarningMessage) == false)
+                    {
+                        lastWarningMessage = warningMessage;
+                        JOptionPane.showMessageDialog(frame, warningMessage, "Warning",
+                                JOptionPane.WARNING_MESSAGE);
+                    }
+                }
+
                 public void reset()
                 {
                 }
+
             });
     }
 

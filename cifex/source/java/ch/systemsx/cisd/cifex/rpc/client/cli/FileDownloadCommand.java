@@ -16,13 +16,20 @@
 
 package ch.systemsx.cisd.cifex.rpc.client.cli;
 
+import java.io.File;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import ch.systemsx.cisd.args4j.Option;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
+import ch.systemsx.cisd.cifex.rpc.client.Downloader;
+import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * A command to perform file downloads from CIFEX.
- *
+ * 
  * @author Bernd Rinn
  */
 public class FileDownloadCommand extends AbstractCommandWithSessionToken
@@ -32,9 +39,75 @@ public class FileDownloadCommand extends AbstractCommandWithSessionToken
 
     private static FileDownloadCommand instance;
 
+    private Parameters parameters;
+    
+    private static final Pattern FILE_ID_LINK_PATTERN = Pattern.compile("fileId=([0-9]+)"); 
+
+    private static class Parameters extends MinimalParameters
+    {
+
+        @Option(name = "d", longName = "directory", metaVar = "DIR", usage = "Directory to download the file to.")
+        private File directory;
+
+        @Option(name = "n", longName = "name", metaVar = "FILE", usage = "File name to use for the downloaded file (instead of the one stored in CIFEX).")
+        private String name;
+
+        private long fileID;
+
+        public Parameters(String[] args)
+        {
+            super(args, NAME, "<cifex_file_id or cifex_link>");
+            if (getArgs().size() != 1)
+            {
+                printHelp(true);
+            }
+            final String fileIdStr = getArgs().get(0);
+            try
+            {
+                fileID = Long.parseLong(fileIdStr);
+            } catch (NumberFormatException ex)
+            {
+                final Matcher fileIdLinkMatcher = FILE_ID_LINK_PATTERN.matcher(fileIdStr); 
+                if (fileIdLinkMatcher.find())
+                {
+                    fileID = Long.parseLong(fileIdLinkMatcher.group(1));
+                } else
+                {
+                    printHelp(true);
+                }
+            }
+        }
+
+        public File getDirectory()
+        {
+            return directory;
+        }
+
+        public String getName()
+        {
+            return name;
+        }
+
+        public long getFileID()
+        {
+            return fileID;
+        }
+
+    }
+
     FileDownloadCommand()
     {
         super(NAME);
+    }
+
+    @Override
+    protected Parameters getParameters()
+    {
+        if (parameters == null)
+        {
+            parameters = new Parameters(arguments);
+        }
+        return parameters;
     }
 
     /** Returns the unique instance of this class. */
@@ -51,9 +124,48 @@ public class FileDownloadCommand extends AbstractCommandWithSessionToken
     protected int execute(String sessionToken, ICIFEXRPCService service, String[] args)
             throws UserFailureException, EnvironmentFailureException
     {
-        
-        // TODO Auto-generated method stub
+        final Downloader downloader = new Downloader(service, sessionToken);
+        addConsoleProgressListener(downloader);
+        downloader.download(getParameters().getFileID(), getParameters().getDirectory(),
+                getParameters().getName());
         return 0;
     }
 
+    private void addConsoleProgressListener(final Downloader downloader)
+    {
+        downloader.addUploadListener(new IProgressListener() {
+
+            long size;
+            
+            public void start(File file, long fileSize)
+            {
+                size = fileSize; 
+                System.out.print("0% (0/" + size + ")");
+            }
+
+            public void reportProgress(int percentage, long numberOfBytes)
+            {
+                System.out.print("\r" + percentage + "% (" + numberOfBytes + "/" + size + ")");
+            }
+
+            public void finished(boolean successful)
+            {
+                System.out.println();
+                size = 0L;
+            }
+
+            public void warningOccured(String warningMessage)
+            {
+                System.out.println();
+                System.err.println(warningMessage);
+            }
+            
+            public void exceptionOccured(Throwable throwable)
+            {
+                System.out.println();
+                throwable.printStackTrace();
+            }
+
+        });
+    }
 }

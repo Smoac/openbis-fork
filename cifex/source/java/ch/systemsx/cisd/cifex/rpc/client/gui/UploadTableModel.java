@@ -43,22 +43,22 @@ final class UploadTableModel extends AbstractTableModel
     {
         this.maxUploadSizeInMB = maxUploadSizeInMB;
         this.timeProvider = timeProvider;
-        uploader.addUploadListener(new IUploadListener()
+        uploader.addUploadListener(new IUploadProgressListener()
             {
-                public void uploadingStarted(File file, long fileSize)
+                public void start(File file, long fileSize)
                 {
                     currentFileToBeUploaded = tryToFind(file);
                     setNumberOfBytes(0);
                     fireChanged();
                 }
                 
-                public void uploadingProgress(int percentage, long numberOfBytes)
+                public void reportProgress(int percentage, long numberOfBytes)
                 {
                     setNumberOfBytes(numberOfBytes);
                     fireChanged();
                 }
                 
-                public void uploadingFinished(boolean successful)
+                public void finished(boolean successful)
                 {
                     if (currentFileToBeUploaded != null)
                     {
@@ -85,10 +85,14 @@ final class UploadTableModel extends AbstractTableModel
 
                 public void fileUploaded()
                 {
-                    uploadingFinished(true);
+                    finished(true);
                 }
                 
                 public void exceptionOccured(Throwable throwable)
+                {
+                }
+
+                public void warningOccured(String warningMessage)
                 {
                 }
 
@@ -121,6 +125,7 @@ final class UploadTableModel extends AbstractTableModel
                         fireTableRowsUpdated(index, index);
                     }
                 }
+
             });
     }
     

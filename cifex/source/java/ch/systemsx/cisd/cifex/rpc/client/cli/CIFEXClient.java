@@ -169,7 +169,7 @@ public class CIFEXClient
         registerCommand(map, LoginCommand.getInstance());
         registerCommand(map, LogoutCommand.getInstance());
         registerCommand(map, ListDownloadFilesCommand.getInstance());
-        //registerCommand(map, FileDownloadCommand.getInstance());
+        registerCommand(map, FileDownloadCommand.getInstance());
         return map;
     }
 
