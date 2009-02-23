@@ -132,7 +132,7 @@
     <!--
 	// Creates 'cifex.jar'. Note that this will not contain any '*.sql' resp. '*.csv' file.
 	-->
-    <target name="jar" depends="compile, build-info" description="Creates project jar file.">
+    <target name="jar"  description="Creates project jar file.">
         <delete file="${jar.file}" />
         <!--
 		// 'applicationContext.xml' and imported files.
@@ -154,6 +154,10 @@
                 <include name="${build.info.filename}" />
             </fileset>
         </recursive-jar>
+    	<jar update="true" destfile="${jar.file}">
+    	   <zipfileset src="${lib}/gwt/gwt-user.jar" 
+    	   	includes="com/google/gwt/user/client/rpc/IsSerializable.class"/>
+    	</jar>
 
     	<delete dir="${targets.www}"/>
     	<mkdir dir="${targets.www}"/>
