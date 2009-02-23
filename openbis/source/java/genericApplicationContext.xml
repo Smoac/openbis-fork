@@ -108,7 +108,13 @@
     </bean>
 
     <bean id="exception-translator"
-        class="ch.systemsx.cisd.openbis.generic.server.util.ServiceExceptionTranslator" />
+        class="ch.systemsx.cisd.common.spring.ServiceExceptionTranslator">
+        <property name="packagesNotMasqueraded">
+            <list>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto</value>
+            </list>
+        </property>
+    </bean>
 
     <bean id="hibernate-transformer" class="ch.systemsx.cisd.openbis.generic.server.util.HibernateTransformer" />
     
