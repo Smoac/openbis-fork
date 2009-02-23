@@ -18,30 +18,14 @@ package ch.systemsx.cisd.cifex.client.dto;
 
 import java.util.Date;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
 /**
  * A small class that describes an user.
  * 
  * @author Christian Ribeaud
  */
-public final class User implements IsSerializable
+public final class User extends BasicUser
 {
-    /**
-     * User name.
-     * <p>
-     * Could be <code>null</code> if not defined.
-     * </p>
-     */
-    private String userFullName;
-
-    /**
-     * Email Adress of the user.
-     * <p>
-     * We are sure that this key is never <code>null</code>.
-     * </p>
-     */
-    private String email;
+    private static final long serialVersionUID = 1L;
 
     /**
      * Whether this user is an administrator or not.
@@ -59,15 +43,6 @@ public final class User implements IsSerializable
      */
     private boolean permanent;
 
-    /**
-     * Unique identifier of the user.
-     * <p>
-     * We are sure that this key is unique and never <code>null</code>. If no
-     * <code>userCode</code> is specified, the email address is used as userCode.
-     * </p>
-     */
-    private String userCode;
-
     private Date expirationDate;
 
     private User registrator;
@@ -84,16 +59,6 @@ public final class User implements IsSerializable
         this.admin = admin;
     }
 
-    public final String getEmail()
-    {
-        return email;
-    }
-
-    public final void setEmail(final String email)
-    {
-        this.email = email;
-    }
-
     public final boolean isPermanent()
     {
         return permanent;
@@ -102,16 +67,6 @@ public final class User implements IsSerializable
     public final void setPermanent(final boolean permanent)
     {
         this.permanent = permanent;
-    }
-
-    public final String getUserFullName()
-    {
-        return userFullName;
-    }
-
-    public final void setUserFullName(final String userFullName)
-    {
-        this.userFullName = userFullName;
     }
 
     public final Date getExpirationDate()
@@ -145,41 +100,4 @@ public final class User implements IsSerializable
         this.externallyAuthenticated = externallyAuthenticated;
     }
 
-    public String getUserCode()
-    {
-        return userCode;
-    }
-
-    public void setUserCode(String userCode)
-    {
-        this.userCode = userCode;
-    }
-
-    //
-    // Object
-    //
-
-    public final boolean equals(final Object obj)
-    {
-        if (obj == this)
-        {
-            return true;
-        }
-        if (obj instanceof User == false)
-        {
-            return false;
-        }
-        final User that = (User) obj;
-        return that.userCode.equals(userCode);
-    }
-
-    public final int hashCode()
-    {
-        return userCode.hashCode();
-    }
-
-    public final String toString()
-    {
-        return userCode;
-    }
 }

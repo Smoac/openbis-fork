@@ -337,6 +337,13 @@ public interface IMessageResources extends Messages
     public String getFileRegistratorLabel();
 
     /**
+     * Returns the label of the file "shared with" column.
+     * 
+     * @gwt.key file.shared_with.label
+     */
+    public String getFileSharedWithLabel();
+
+    /**
      * Returns the label of the button for adding a new user for file sharing..
      * 
      * @gwt.key filesharing.addButton.label

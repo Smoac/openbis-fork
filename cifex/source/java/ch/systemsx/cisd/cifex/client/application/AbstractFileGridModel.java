@@ -48,6 +48,8 @@ abstract class AbstractFileGridModel extends AbstractDataGridModel
 
     protected static final String REGISTERER = "registerer";
 
+    protected static final String SHARED_WITH = "sharedWith";
+
     protected static final String ACTION = "action";
 
     AbstractFileGridModel(final IMessageResources messageResources)
@@ -102,6 +104,16 @@ abstract class AbstractFileGridModel extends AbstractDataGridModel
     {
         final ColumnConfig registererConfig =
                 createColumnConfig(REGISTERER, messageResources.getFileRegistratorLabel(), 120);
+        return registererConfig;
+    }
+
+    /**
+     * Note that this column is not sortable.
+     */
+    protected final ColumnConfig createSharedWithColumnConfig()
+    {
+        final ColumnConfig registererConfig =
+                createColumnConfig(SHARED_WITH, messageResources.getFileSharedWithLabel(), 120);
         return registererConfig;
     }
 

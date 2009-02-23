@@ -58,9 +58,8 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         /**
          * Requires <code>id</code>, <code>email</code>, <code>user_name</code>,
          * <code>password_hash</code>, <code>is_externally_authenticated</code>,
-         * <code>is_admin</code>, <code>is_permanent</code>,
-         * <code>registration_timestamp</code>, <code>expiration_timestamp</code> to be present
-         * in the {@link ResultSet} <var>rs</var>.
+         * <code>is_admin</code>, <code>is_permanent</code>, <code>registration_timestamp</code>,
+         * <code>expiration_timestamp</code> to be present in the {@link ResultSet} <var>rs</var>.
          */
         final public static UserDTO fillUserFromResultSet(final ResultSet rs) throws SQLException
         {
@@ -253,6 +252,21 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         }
     }
 
+    public String tryFindUserCodeById(final long id) throws DataAccessException
+    {
+        final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
+        try
+        {
+            final String userCode =
+                    template.queryForObject("select user_id from users where id = ?", String.class,
+                            id);
+            return userCode;
+        } catch (final EmptyResultDataAccessException e)
+        {
+            return null;
+        }
+    }
+
     public List<UserDTO> tryFindUserByEmail(final String email) throws DataAccessException
     {
         assert StringUtils.isNotBlank(email) : "No email specified!";
@@ -332,4 +346,5 @@ final class UserDAO extends AbstractDAO implements IUserDAO
                 before);
 
     }
+
 }

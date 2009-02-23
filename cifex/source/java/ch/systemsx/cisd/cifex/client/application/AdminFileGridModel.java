@@ -27,7 +27,7 @@ import ch.systemsx.cisd.cifex.client.application.ui.CommentRenderer;
 import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.FileUtils;
-import ch.systemsx.cisd.cifex.client.dto.File;
+import ch.systemsx.cisd.cifex.client.dto.AdminFile;
 
 /**
  * A <code>AbstractFileGridModel</code> extension for files in the administration.
@@ -49,6 +49,7 @@ public class AdminFileGridModel extends AbstractFileGridModel
         configs.add(createNameColumnConfig());
         configs.add(createCommentColumnConfig());
         configs.add(createRegistererColumnConfig());
+        configs.add(createSharedWithColumnConfig());
         configs.add(createContentTypeColumnConfig());
         configs.add(createSizeColumnConfig());
         configs.add(createRegistrationDateColumnConfig());
@@ -62,7 +63,7 @@ public class AdminFileGridModel extends AbstractFileGridModel
         final List list = new ArrayList();
         for (int i = 0; i < data.length; i++)
         {
-            final File file = (File) data[i];
+            final AdminFile file = (AdminFile) data[i];
             final Object[] objects =
                     new Object[]
                         {
@@ -70,6 +71,7 @@ public class AdminFileGridModel extends AbstractFileGridModel
                                 file.getName(),
                                 CommentRenderer.createCommentAnchor(file),
                                 UserRenderer.createUserAnchor(file.getRegisterer()),
+                                UserRenderer.createUserAnchor(file.getSharingUsers()),
                                 file.getContentType(),
                                 FileUtils.tryToGetFileSize(file),
                                 file.getRegistrationDate(),
@@ -91,6 +93,7 @@ public class AdminFileGridModel extends AbstractFileGridModel
         fieldDefs.add(new StringFieldDef(NAME));
         fieldDefs.add(new StringFieldDef(COMMENT));
         fieldDefs.add(new StringFieldDef(REGISTERER));
+        fieldDefs.add(new StringFieldDef(SHARED_WITH));
         fieldDefs.add(new StringFieldDef(CONTENT_TYPE));
         fieldDefs.add(new IntegerFieldDef(SIZE));
         fieldDefs.add(new DateFieldDef(REGISTRATION_DATE));

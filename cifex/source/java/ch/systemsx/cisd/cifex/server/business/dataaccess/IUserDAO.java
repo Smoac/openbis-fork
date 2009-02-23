@@ -39,6 +39,13 @@ public interface IUserDAO
     public UserDTO tryFindUserByCode(String userCode) throws DataAccessException;
 
     /**
+     * Returns the user code for the given <var>id</var>.
+     * 
+     * @return <code>null</code>, if no user with that <var>id</var> exists.
+     */
+    public String tryFindUserCodeById(long id) throws DataAccessException;
+    
+    /**
      * Returns a list with all users, which have the given email address.
      */
     public List<UserDTO> tryFindUserByEmail(final String email) throws DataAccessException;

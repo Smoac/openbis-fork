@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.cifex.client.dto;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
@@ -25,8 +26,10 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Christian Ribeaud
  */
-public final class File implements IsSerializable
+public class File implements IsSerializable, Serializable
 {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * Unique identifier of the file as a string.
@@ -50,7 +53,7 @@ public final class File implements IsSerializable
     /**
      * Person who registered the file.
      */
-    private User registerer;
+    private BasicUser registerer;
 
     /**
      * Date at which file has been registered.
@@ -91,12 +94,12 @@ public final class File implements IsSerializable
         this.name = name;
     }
 
-    public final User getRegisterer()
+    public final BasicUser getRegisterer()
     {
         return registerer;
     }
 
-    public final void setRegisterer(final User registerer)
+    public final void setRegisterer(final BasicUser registerer)
     {
         this.registerer = registerer;
     }

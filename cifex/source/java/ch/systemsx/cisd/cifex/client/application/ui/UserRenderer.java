@@ -24,7 +24,7 @@ import com.gwtext.client.widgets.grid.Renderer;
 import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
-import ch.systemsx.cisd.cifex.client.dto.User;
+import ch.systemsx.cisd.cifex.client.dto.BasicUser;
 
 /**
  * A <code>Renderer</code> implementation that create an email anchor element with inner text
@@ -49,7 +49,36 @@ public final class UserRenderer implements Renderer
      * where this method is used.
      * </p>
      */
-    public final static String createUserAnchor(final User user)
+    public final static String createUserAnchor(final BasicUser[] users)
+    {
+        assert users != null : "Unspecified user.";
+        
+        if (users.length == 0)
+        {
+            return Constants.TABLE_NULL_VALUE;
+        }
+        String anchor = "";
+        for (int i = 0; i < users.length; ++i)
+        {
+            if (i < users.length - 1)
+            {
+                anchor += users[i].getUserCode() + ", ";
+            } else
+            {
+                anchor += users[i].getUserCode();
+            }
+        }
+        return anchor;
+    }
+    
+    /**
+     * Nicely renders given <code>user</code>.
+     * <p>
+     * You can not use this method in a {@link Renderer} and you should not make sortable the column
+     * where this method is used.
+     * </p>
+     */
+    public final static String createUserAnchor(final BasicUser user)
     {
         assert user != null : "Unspecified user.";
 

@@ -149,6 +149,15 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
                 getSimpleJdbcTemplate().query(
                         SELECT + ", u.* from files f, users u " + "where f.user_id = u.id",
                         FILE_WITH_REGISTERER_ROW_MAPPER);
+        for (FileDTO file : list)
+        {
+            final List<UserDTO> sharingUsers = listSharingUsers(file.getID());
+            if (sharingUsers.size() > 0)
+            {
+                file.setSharingUsers(sharingUsers);
+            }
+            
+        }
         return list;
     }
 
