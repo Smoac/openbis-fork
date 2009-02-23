@@ -54,7 +54,8 @@ public final class LogoutCommand extends AbstractCommand
         if (SESSION_TOKEN_FILE.exists())
         {
             String sessionToken = FileUtilities.loadToString(SESSION_TOKEN_FILE).trim();
-            final MinimalParameters parameters = new EmptyParameters(arguments, NAME);
+            final MinimalParameters parameters = new MinimalParameters(arguments, NAME);
+            parameters.assertArgsEmpty();
             final ICIFEXRPCService service = getService(parameters);
             service.logout(sessionToken);
             SESSION_TOKEN_FILE.delete();
