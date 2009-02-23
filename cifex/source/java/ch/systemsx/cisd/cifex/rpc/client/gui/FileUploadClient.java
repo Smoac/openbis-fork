@@ -104,6 +104,8 @@ public class FileUploadClient
 
     private JButton uploadButton;
 
+    private JButton cancelButton;
+    
     private JButton addButton;
 
     static class PopupListener implements MouseListener {
@@ -258,7 +260,8 @@ public class FileUploadClient
         buttonPanel.add(centerButtonPanel, BorderLayout.CENTER);
         uploadButton = createUploadButton(tableModel, recipientsTextArea, commentTextArea);
         centerButtonPanel.add(uploadButton);
-        JButton cancelButton = new JButton("Cancel");
+        cancelButton = new JButton("Cancel");
+        cancelButton.setEnabled(false);
         cancelButton.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent e)
@@ -436,6 +439,10 @@ public class FileUploadClient
         if (uploadButton != null)
         {
             uploadButton.setEnabled(enable);
+        }
+        if (cancelButton != null)
+        {
+            cancelButton.setEnabled(enable == false);
         }
     }
 
