@@ -19,7 +19,7 @@ package ch.systemsx.cisd.cifex.client.application.ui;
 import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
-import ch.systemsx.cisd.cifex.shared.basic.dto.File;
+import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 
 /**
  * Takes care of rendering a comment field.
@@ -39,7 +39,7 @@ public final class CommentRenderer
     /**
      * Nicely renders given <code>comment</code>.
      */
-    public final static String createCommentAnchor(final File file)
+    public final static String createCommentAnchor(final FileInfoDTO file)
     {
         String fileComment = file.getComment();
         if (StringUtils.isBlank(fileComment))

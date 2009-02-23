@@ -20,7 +20,7 @@ import ch.systemsx.cisd.cifex.client.ICIFEXServiceAsync;
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
-import ch.systemsx.cisd.cifex.client.dto.User;
+import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
 
 /**
  * A <code>UserWidget</code> extension suitable for user creation.
@@ -55,7 +55,7 @@ public class CreateUserWidget extends UserWidget
             {
                 buttonOrNull.disable();
             }
-            final User user = new User();
+            final UserInfoDTO user = new UserInfoDTO();
             user.setEmail(emailField.getText());
             user.setUserFullName(usernameField.getText());
             user.setUserCode(userCodeField.getText());

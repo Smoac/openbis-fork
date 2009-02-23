@@ -25,7 +25,7 @@ import com.gwtext.client.widgets.event.ButtonListenerAdapter;
 
 import ch.systemsx.cisd.cifex.client.application.model.FileShareUserGridModel;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
-import ch.systemsx.cisd.cifex.client.dto.User;
+import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
 
 /**
  * @author Basil Neff
@@ -49,14 +49,14 @@ public class FileShareUpdateUserDialog extends AbstractFileShareUserDialog
         this.fileId = fileId;
     }
 
-    public FileShareUpdateUserDialog(final ViewContext context, User[] existingUsers, String name,
+    public FileShareUpdateUserDialog(final ViewContext context, UserInfoDTO[] existingUsers, String name,
             String fileId)
     {
         this(context, existingUsers, null, name, fileId);
     }
 
-    public FileShareUpdateUserDialog(final ViewContext context, final User[] existingUsers,
-            final User[] newUsers, final String name, final String fileId)
+    public FileShareUpdateUserDialog(final ViewContext context, final UserInfoDTO[] existingUsers,
+            final UserInfoDTO[] newUsers, final String name, final String fileId)
     {
         super(context, existingUsers, newUsers, name);
         initialSharingUsers = getArrayList(existingUsers);
@@ -70,9 +70,9 @@ public class FileShareUpdateUserDialog extends AbstractFileShareUserDialog
         for (int i = 0; i < existingUsers.size(); i++)
         {
             // User in the loop
-            User tmpUser = ((User) existingUsers.get(i));
+            UserInfoDTO tmpUser = ((UserInfoDTO) existingUsers.get(i));
             String userIdentifierWithPrefix = StringUtils.USER_ID_PREFIX + tmpUser.getUserCode();
-            String userIdentifier = ((User) existingUsers.get(i)).getUserCode();
+            String userIdentifier = ((UserInfoDTO) existingUsers.get(i)).getUserCode();
             // Checkbox is unchecked
             if (existingUserGrid.getStore().getAt(i)
                     .getAsBoolean(FileShareUserGridModel.SHARE_FILE) == false)
@@ -109,7 +109,7 @@ public class FileShareUpdateUserDialog extends AbstractFileShareUserDialog
         // Loop for new generated users
         for (int i = 0; i < newUsers.size(); i++)
         {
-            String userIdentifier = ((User) newUsers.get(i)).getEmail();
+            String userIdentifier = ((UserInfoDTO) newUsers.get(i)).getEmail();
             // If checkbox of the user is checked
             if (newUserGrid.getStore().getAt(i).getAsBoolean(FileShareUserGridModel.SHARE_FILE) == false)
             {
@@ -127,7 +127,7 @@ public class FileShareUpdateUserDialog extends AbstractFileShareUserDialog
         }
     }
 
-    protected void addUserToFileShare(User user)
+    protected void addUserToFileShare(UserInfoDTO user)
     {
         if (StringUtils.isBlank(user.getUserCode()) == false)
         {

@@ -30,7 +30,7 @@ import ch.systemsx.cisd.cifex.client.application.ui.FileDownloadHelper;
 import ch.systemsx.cisd.cifex.client.application.utils.GWTUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.cifex.client.dto.Configuration;
-import ch.systemsx.cisd.cifex.client.dto.User;
+import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
 
 /**
  * Entry point of <i>GWT</i> <i>CIFEX</i>.
@@ -108,7 +108,7 @@ public final class CIFEXEntryPoint implements EntryPoint
                                 if (res != null)
                                 {
                                     final Model model = viewContext.getModel();
-                                    model.setUser((User) res);
+                                    model.setUser((UserInfoDTO) res);
                                     FileDownloadHelper.startFileDownload(model);
                                     pageController.createMainPage();
                                 } else

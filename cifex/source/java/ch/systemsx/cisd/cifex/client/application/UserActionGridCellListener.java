@@ -29,7 +29,7 @@ import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
 import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
-import ch.systemsx.cisd.cifex.client.dto.User;
+import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
 
 /**
  * The <code>GridCellListenerAdapter</code> for users grid.
@@ -244,7 +244,7 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
 
         public final void onSuccess(final Object result)
         {
-            final LayoutDialog dialog = new EditUserDialog(viewContext, (User) result, grid);
+            final LayoutDialog dialog = new EditUserDialog(viewContext, (UserInfoDTO) result, grid);
             dialog.show(grid.getEl());
         }
     }
@@ -265,7 +265,7 @@ final class UserActionGridCellListener extends GridCellListenerAdapter
 
         public final void onSuccess(final Object result)
         {
-            final User user = (User) result;
+            final UserInfoDTO user = (UserInfoDTO) result;
             assert user.isPermanent() == false : "Regular user can not be renewed.";
             user.setExpirationDate(null);
             viewContext.getCifexService().updateUser(user, null, false,

@@ -26,7 +26,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Christian Ribeaud
  */
-public class File implements IsSerializable, Serializable
+public class FileInfoDTO implements IsSerializable, Serializable
 {
 
     private static final long serialVersionUID = 1L;
@@ -53,7 +53,7 @@ public class File implements IsSerializable, Serializable
     /**
      * Person who registered the file.
      */
-    private BasicUser registerer;
+    private BasicUserInfoDTO registerer;
 
     /**
      * Date at which file has been registered.
@@ -94,12 +94,12 @@ public class File implements IsSerializable, Serializable
         this.name = name;
     }
 
-    public final BasicUser getRegisterer()
+    public final BasicUserInfoDTO getRegisterer()
     {
         return registerer;
     }
 
-    public final void setRegisterer(final BasicUser registerer)
+    public final void setRegisterer(final BasicUserInfoDTO registerer)
     {
         this.registerer = registerer;
     }

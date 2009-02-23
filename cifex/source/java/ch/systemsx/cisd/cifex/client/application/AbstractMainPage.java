@@ -34,7 +34,7 @@ import com.gwtext.client.widgets.layout.LayoutRegionConfig;
 
 import ch.systemsx.cisd.cifex.client.application.ui.CreateUserWidget;
 import ch.systemsx.cisd.cifex.client.application.utils.DateTimeUtils;
-import ch.systemsx.cisd.cifex.client.dto.User;
+import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
 
 /**
  * @author Franz-Josef Elmer
@@ -132,7 +132,7 @@ abstract class AbstractMainPage extends BorderLayout
 
     private ContentPanel createToolbarPanel()
     {
-        final User user = context.getModel().getUser();
+        final UserInfoDTO user = context.getModel().getUser();
         final ContentPanel contentPanel = new ContentPanel("cifex-toolbar-panel");
         final Toolbar toolbar = new Toolbar(Ext.generateId());
         toolbar.addItem(createUserDescription(user));
@@ -162,7 +162,7 @@ abstract class AbstractMainPage extends BorderLayout
         return contentPanel;
     }
 
-    private ToolbarTextItem createUserDescription(final User user)
+    private ToolbarTextItem createUserDescription(final UserInfoDTO user)
     {
         final StringBuffer buffer = new StringBuffer();
         final String fullUserName = user.getUserFullName();

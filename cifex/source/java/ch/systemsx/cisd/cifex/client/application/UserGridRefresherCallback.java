@@ -18,7 +18,7 @@ package ch.systemsx.cisd.cifex.client.application;
 
 import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
 import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
-import ch.systemsx.cisd.cifex.client.dto.User;
+import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
 
 /**
  * A <code>AbstractAsyncCallback</code> extension to refresh the list of users.
@@ -73,7 +73,7 @@ final class UserGridRefresherCallback extends AbstractAsyncCallback
 
         public final void onSuccess(final Object res)
         {
-            userGrid.reloadStore((User[]) res);
+            userGrid.reloadStore((UserInfoDTO[]) res);
         }
     }
 }

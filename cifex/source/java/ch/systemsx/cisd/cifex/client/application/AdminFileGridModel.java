@@ -27,7 +27,7 @@ import ch.systemsx.cisd.cifex.client.application.ui.CommentRenderer;
 import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.FileUtils;
-import ch.systemsx.cisd.cifex.client.dto.AdminFile;
+import ch.systemsx.cisd.cifex.client.dto.AdminFileInfoDTO;
 
 /**
  * A <code>AbstractFileGridModel</code> extension for files in the administration.
@@ -63,7 +63,7 @@ public class AdminFileGridModel extends AbstractFileGridModel
         final List list = new ArrayList();
         for (int i = 0; i < data.length; i++)
         {
-            final AdminFile file = (AdminFile) data[i];
+            final AdminFileInfoDTO file = (AdminFileInfoDTO) data[i];
             final Object[] objects =
                     new Object[]
                         {

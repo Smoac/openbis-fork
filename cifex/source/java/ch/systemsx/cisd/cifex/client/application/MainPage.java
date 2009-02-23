@@ -28,8 +28,8 @@ import ch.systemsx.cisd.cifex.client.application.ui.FileUploadWidget;
 import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.client.dto.Configuration;
-import ch.systemsx.cisd.cifex.client.dto.User;
-import ch.systemsx.cisd.cifex.shared.basic.dto.File;
+import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
+import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 
 /**
  * The main page for non-administrators (permanent and temporary users).
@@ -89,7 +89,7 @@ final class MainPage extends AbstractMainPage
     {
         final ContentPanel contentPanel = new ContentPanel("Main-Page");
         Model model = context.getModel();
-        final User user = model.getUser();
+        final UserInfoDTO user = model.getUser();
         createUserPanel(user.isAdmin());
         createListCreatedUserPanel();
         contentPanel.add(createUploadPart());
@@ -185,7 +185,7 @@ final class MainPage extends AbstractMainPage
 
         public final void onSuccess(final Object result)
         {
-            final File[] files = (File[]) result;
+            final FileInfoDTO[] files = (FileInfoDTO[]) result;
             final Widget widget;
             if (files.length > 0)
             {
@@ -227,7 +227,7 @@ final class MainPage extends AbstractMainPage
             super(context);
         }
 
-        private Widget createUserTable(final User[] users)
+        private Widget createUserTable(final UserInfoDTO[] users)
         {
             final IDataGridModel gridModel = new UserGridModel(context);
             final Grid userGrid =
@@ -243,11 +243,11 @@ final class MainPage extends AbstractMainPage
 
         public final void onSuccess(final Object result)
         {
-            if (((User[]) result).length > 0)
+            if (((UserInfoDTO[]) result).length > 0)
             {
                 listCreatedUserPanel.add(createPartTitle(context.getMessageResources()
                         .getOwnUserTitle()));
-                listCreatedUserPanel.add(createUserTable((User[]) result));
+                listCreatedUserPanel.add(createUserTable((UserInfoDTO[]) result));
             }
         }
     }

@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.cifex.rpc.client;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.EnumSet;
@@ -35,73 +34,20 @@ import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
-import ch.systemsx.cisd.common.exceptions.WrappedIOException;
 
 /**
- * Class which uploads file via an implementation of {@link ICIFEXRPCService}. It handles the
- * protocol of the contract of <code>IUploadService</code>. Registered {@link IUploadListener}
- * instances will be informed what's going on during uploading.
+ * Class which uploads file via an implementation of {@link ICIFEXRPCService}, handling the
+ * low-level protocol. Registered {@link IUploadListener} instances will be informed what's going on
+ * during uploading.
  * 
  * @author Franz-Josef Elmer
  */
-public final class Uploader
+public final class Uploader extends AbstractUploadDownload
 {
     private static final EnumSet<UploadState> RUNNING_STATES =
-            EnumSet.of(UploadState.READY_FOR_NEXT_FILE, UploadState.UPLOADING);
-
-    private static final class RandomAccessFileProvider
-    {
-        private final File file;
-
-        private RandomAccessFile randomAccessFile;
-
-        RandomAccessFileProvider(File file)
-        {
-            this.file = file;
-        }
-
-        RandomAccessFile getRandomAccessFile()
-        {
-            if (randomAccessFile == null)
-            {
-                try
-                {
-                    randomAccessFile = new RandomAccessFile(file, "r");
-                } catch (FileNotFoundException ex)
-                {
-                    throw new WrappedIOException(ex);
-                }
-            }
-            return randomAccessFile;
-        }
-
-        void closeFile()
-        {
-            if (randomAccessFile != null)
-            {
-                try
-                {
-                    randomAccessFile.close();
-                } catch (IOException ex)
-                {
-                    throw new WrappedIOException(ex);
-                }
-            }
-        }
-    }
-
-    private static final int BLOCK_SIZE = 1 * 1024 * 1024; // 1MB
-
-    private static final int MAX_RETRIES = 30; // Retry for 5 minutes in total.
-
-    private static final long WAIT_AFTER_FAILURE_MILLIS = 10 * 1000L; // 10s
+        EnumSet.of(UploadState.READY_FOR_NEXT_FILE, UploadState.UPLOADING);
 
     private final Set<IUploadListener> listeners = new LinkedHashSet<IUploadListener>();
-
-    private final ICIFEXRPCService uploadService;
-
-    private final String sessionID;
 
     /**
      * Creates an instance for the specified service URL and credentials.
@@ -109,9 +55,7 @@ public final class Uploader
     public Uploader(String serviceURL, String username, String passwd)
             throws AuthorizationFailureException, EnvironmentFailureException
     {
-        this.uploadService = RPCServiceFactory.createServiceProxy(serviceURL);
-        this.sessionID = uploadService.login(username, passwd);
-        checkService();
+        super(serviceURL, username, passwd);
     }
 
     /**
@@ -119,29 +63,20 @@ public final class Uploader
      */
     public Uploader(String serviceURL, String sessionID)
     {
-        this(RPCServiceFactory.createServiceProxy(serviceURL), sessionID);
+        super(serviceURL, sessionID);
     }
 
     /**
      * Creates an instance for the specified service and session ID.
      */
-    public Uploader(ICIFEXRPCService uploadService, String uploadSessionID)
+    public Uploader(ICIFEXRPCService service, String sessionID)
     {
-        this.uploadService = uploadService;
-        this.sessionID = uploadSessionID;
-        checkService();
+        super(service, sessionID);
     }
 
-    private void checkService() throws InvalidSessionException, EnvironmentFailureException
+    protected void logException(RuntimeException ex)
     {
-        final int serverVersion = uploadService.getVersion();
-        if (ICIFEXRPCService.VERSION != serverVersion)
-        {
-            throw new EnvironmentFailureException(
-                    "This client has the wrong service version for the server (client: "
-                            + ICIFEXRPCService.VERSION + ", server: " + serverVersion + ").");
-        }
-        uploadService.checkSession(sessionID);
+        fireExceptionEvent(ex);
     }
 
     /**
@@ -159,40 +94,12 @@ public final class Uploader
     {
         try
         {
-            UploadStatus status = uploadService.getUploadStatus(sessionID);
+            UploadStatus status = service.getUploadStatus(sessionID);
             return RUNNING_STATES.contains(status.getUploadState());
         } catch (RuntimeException ex)
         {
             fireExceptionEvent(ex);
             return false;
-        }
-    }
-
-    /**
-     * Cancels uploading.
-     */
-    public void cancel()
-    {
-        try
-        {
-            uploadService.cancel(sessionID);
-        } catch (RuntimeException ex)
-        {
-            fireExceptionEvent(ex);
-        }
-    }
-
-    /**
-     * Logout from session.
-     */
-    public void logout()
-    {
-        try
-        {
-            uploadService.logout(sessionID);
-        } catch (RuntimeException ex)
-        {
-            ex.printStackTrace();
         }
     }
 
@@ -225,11 +132,11 @@ public final class Uploader
             boolean running = true;
             while (running)
             {
-                UploadStatus status = uploadService.getUploadStatus(sessionID);
+                UploadStatus status = service.getUploadStatus(sessionID);
                 switch (status.getUploadState())
                 {
                     case INITIALIZED:
-                        uploadService.defineUploadParameters(sessionID, paths, recipients, comment);
+                        service.defineUploadParameters(sessionID, paths, recipients, comment);
                         break;
                     case READY_FOR_NEXT_FILE:
                         if (fileProvider != null)
@@ -241,21 +148,21 @@ public final class Uploader
                         fileSize = file.length();
                         fileProvider = new RandomAccessFileProvider(file);
                         fireStartedEvent(file, fileSize);
-                        uploadService.startUploading(sessionID);
+                        service.startUploading(sessionID);
                         break;
                     case UPLOADING:
                         uploadNextBlock(fileProvider, status);
                         fireProgressEvent(status.getFilePointer(), fileSize);
                         break;
                     case FINISHED:
-                        uploadService.finish(sessionID, true);
-                        uploadService.logout(sessionID);
+                        service.finish(sessionID, true);
+                        service.logout(sessionID);
                         fireFinishedEvent(true);
                         running = false;
                         break;
                     case ABORTED:
                         System.out.println(status);
-                        uploadService.finish(sessionID, false);
+                        service.finish(sessionID, false);
                         fireFinishedEvent(false);
                         running = false;
                         break;
@@ -266,7 +173,7 @@ public final class Uploader
             fireExceptionEvent(throwable);
             try
             {
-                uploadService.finish(sessionID, false);
+                service.finish(sessionID, false);
             } catch (Throwable throwable2)
             {
                 fireExceptionEvent(throwable2);
@@ -283,7 +190,7 @@ public final class Uploader
     private void uploadNextBlock(RandomAccessFileProvider fileProvider, UploadStatus status)
             throws IOException, EnvironmentFailureException
     {
-        RandomAccessFile randomAccessFile = fileProvider.getRandomAccessFile();
+        final RandomAccessFile randomAccessFile = fileProvider.getRandomAccessFile();
         int blockSize = BLOCK_SIZE;
         final long fileSize = randomAccessFile.length();
         final long filePointer = status.getFilePointer();
@@ -299,7 +206,7 @@ public final class Uploader
         {
             try
             {
-                uploadService.uploadBlock(sessionID, filePointer, bytes, lastBlock);
+                service.uploadBlock(sessionID, filePointer, bytes, lastBlock);
                 break;
             } catch (RemoteAccessException ex)
             {
@@ -344,7 +251,7 @@ public final class Uploader
         }
     }
 
-    private void fireExceptionEvent(Throwable throwable)
+    void fireExceptionEvent(Throwable throwable)
     {
         for (IUploadListener listener : listeners)
         {

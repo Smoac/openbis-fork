@@ -21,7 +21,7 @@ import java.util.Date;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.RemoteService;
 
-import ch.systemsx.cisd.cifex.client.dto.User;
+import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileUploadFeedback;
 
 /**
@@ -71,7 +71,7 @@ public interface ICIFEXServiceAsync extends RemoteService
      * <var>registratorOrNull</var> is not <code>null</code>, it will be interpreted as the user
      * who creates the new user.
      */
-    public void createUser(final User user, final String password, final User registratorOrNull,
+    public void createUser(final UserInfoDTO user, final String password, final UserInfoDTO registratorOrNull,
             final String comment, final AsyncCallback callback);
 
     /**
@@ -79,7 +79,7 @@ public interface ICIFEXServiceAsync extends RemoteService
      * 
      * @param sendUserNotification Should the user receive a mail with the new information?
      */
-    public void updateUser(final User user, final String password,
+    public void updateUser(final UserInfoDTO user, final String password,
             final boolean sendUserNotification, final AsyncCallback callback);
 
     /**
@@ -164,5 +164,5 @@ public interface ICIFEXServiceAsync extends RemoteService
      * Checks if 'switch to external authentication' option should be available for given
      * <code>User<code>.
      */
-    public void showSwitchToExternalOption(User user, AsyncCallback callback);
+    public void showSwitchToExternalOption(UserInfoDTO user, AsyncCallback callback);
 }

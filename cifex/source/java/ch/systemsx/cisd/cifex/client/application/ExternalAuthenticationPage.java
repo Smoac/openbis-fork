@@ -31,7 +31,7 @@ import com.gwtext.client.widgets.form.TextFieldConfig;
 import com.gwtext.client.widgets.layout.ContentPanel;
 
 import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
-import ch.systemsx.cisd.cifex.client.dto.User;
+import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
 
 /**
  * An <code>AbstractMainPage</code> allowing to change authentication method to external service.
@@ -164,7 +164,7 @@ final class ExternalAuthenticationPage extends AbstractMainPage
             super(context);
         }
 
-        private final void updateUserInViewContext(final User user)
+        private final void updateUserInViewContext(final UserInfoDTO user)
         {
             context.getModel().getUser().setEmail(user.getEmail());
             context.getModel().getUser().setUserFullName(user.getUserFullName());
@@ -181,7 +181,7 @@ final class ExternalAuthenticationPage extends AbstractMainPage
 
         public final void onSuccess(final Object result)
         {
-            final User user = (User) result;
+            final UserInfoDTO user = (UserInfoDTO) result;
             updateUserInViewContext(user);
             MessageBox.alert(messageResources.getMessageBoxInfoTitle(), messageResources
                     .getExternalAuthenticationSuccessful());

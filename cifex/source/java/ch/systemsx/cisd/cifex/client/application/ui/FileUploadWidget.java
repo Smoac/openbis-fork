@@ -40,7 +40,7 @@ import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.utils.CifexValidator;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
-import ch.systemsx.cisd.cifex.client.dto.User;
+import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
 
 /**
  * <code>Form</code> extension to upload files and to send emails to specified recipients.
@@ -175,7 +175,7 @@ public final class FileUploadWidget extends Form
             {
                 public void onSuccess(Object result)
                 {
-                    User[] users = (User[]) result;
+                    UserInfoDTO[] users = (UserInfoDTO[]) result;
                     if (users.length > 0)
                     {
                         for (int j = 0; j < users.length; j++)
@@ -185,7 +185,7 @@ public final class FileUploadWidget extends Form
                         }
                     } else
                     {
-                        final User user = new User();
+                        final UserInfoDTO user = new UserInfoDTO();
                         user.setEmail(email);
                         newUsers.add(user);
                         dialog.refresh();
@@ -204,7 +204,7 @@ public final class FileUploadWidget extends Form
                     {
                         public void onSuccess(Object result)
                         {
-                            User existingUser = (User) result;
+                            UserInfoDTO existingUser = (UserInfoDTO) result;
                             if (existingUser != null)
                             {
                                 existingUsers.add(existingUser);

@@ -33,7 +33,7 @@ import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.Model;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
-import ch.systemsx.cisd.cifex.client.dto.User;
+import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
 
 /**
  * A <code>Form</code> extension that is the login panel we use to login to the <i>openBIS</i>
@@ -159,7 +159,7 @@ public class LoginWidget extends Form
      * By default this method does nothing.
      * </p>
      */
-    protected void loginSuccessful(final User user)
+    protected void loginSuccessful(final UserInfoDTO user)
     {
         final Model model = context.getModel();
         model.setUser(user);
@@ -203,7 +203,7 @@ public class LoginWidget extends Form
         {
             if (result != null)
             {
-                loginSuccessful((User) result);
+                loginSuccessful((UserInfoDTO) result);
             } else
             {
                 final IMessageResources messageResources = context.getMessageResources();

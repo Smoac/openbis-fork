@@ -27,8 +27,8 @@ import com.gwtext.client.widgets.grid.Grid;
 import com.gwtext.client.widgets.grid.event.GridCellListenerAdapter;
 
 import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
-import ch.systemsx.cisd.cifex.client.dto.User;
-import ch.systemsx.cisd.cifex.shared.basic.dto.File;
+import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
+import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 
 /**
  * A <code>GridCellListenerAdapter</code> extension for deleting, renewing or sharing with other
@@ -139,7 +139,7 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
 
                     public final void onSuccess(final Object res)
                     {
-                        modelBasedGrid.reloadStore((File[]) res);
+                        modelBasedGrid.reloadStore((FileInfoDTO[]) res);
                     }
                 };
             if (adminView)
@@ -175,7 +175,7 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
 
         public final void onSuccess(final Object result)
         {
-            final User[] users = (User[]) result;
+            final UserInfoDTO[] users = (UserInfoDTO[]) result;
             final FileShareUpdateUserDialog dialog =
                     new FileShareUpdateUserDialog(viewContext, users, fileName, fileId);
             dialog.show(modelBasedGrid.getEl());

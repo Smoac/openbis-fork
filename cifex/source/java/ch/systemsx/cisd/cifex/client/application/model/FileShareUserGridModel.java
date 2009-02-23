@@ -29,7 +29,7 @@ import com.gwtext.client.widgets.grid.Renderer;
 
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
-import ch.systemsx.cisd.cifex.client.dto.User;
+import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
 
 /**
  * The model for the file sharing user grid.
@@ -41,7 +41,7 @@ public final class FileShareUserGridModel extends AbstractUserGridModel
 
     public static final String SHARE_FILE = "shareFile";
 
-    public FileShareUserGridModel(final IMessageResources messageResources, final User currentUser)
+    public FileShareUserGridModel(final IMessageResources messageResources, final UserInfoDTO currentUser)
     {
         super(messageResources, currentUser);
     }
@@ -65,7 +65,7 @@ public final class FileShareUserGridModel extends AbstractUserGridModel
         {
             for (int i = 0; i < data.length; i++)
             {
-                final User user = (User) data[i];
+                final UserInfoDTO user = (UserInfoDTO) data[i];
                 boolean checkedUser = true;
                 String registratorAnchor = null;
                 if (user.getRegistrator() != null)

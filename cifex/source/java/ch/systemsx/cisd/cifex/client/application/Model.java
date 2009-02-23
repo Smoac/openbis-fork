@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ch.systemsx.cisd.cifex.client.dto.Configuration;
-import ch.systemsx.cisd.cifex.client.dto.User;
+import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
 
 /**
  * Some <code>static</code> data that are available in the whole application context.
@@ -29,7 +29,7 @@ import ch.systemsx.cisd.cifex.client.dto.User;
  */
 public final class Model
 {
-    private User user;
+    private UserInfoDTO user;
 
     /**
      * The URL parameters.
@@ -52,13 +52,13 @@ public final class Model
         this.urlParams = urlParams;
     }
 
-    public final void setUser(final User user)
+    public final void setUser(final UserInfoDTO user)
     {
         assert user != null : "User must not be null.";
         this.user = user;
     }
 
-    public final User getUser()
+    public final UserInfoDTO getUser()
     {
         return user;
     }

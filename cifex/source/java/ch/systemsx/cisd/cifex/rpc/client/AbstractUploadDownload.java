@@ -1,0 +1,119 @@
+/*
+ * Copyright 2009 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.cifex.rpc.client;
+
+import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
+
+/**
+ * A common subclass for file upload and download.
+ *
+ * @author Bernd Rinn
+ */
+public abstract class AbstractUploadDownload
+{
+
+    protected static final int BLOCK_SIZE = 1 * 1024 * 1024;
+    
+    protected static final int MAX_RETRIES = 30;
+    
+    protected static final long WAIT_AFTER_FAILURE_MILLIS = 10 * 1000L;
+    
+    protected final ICIFEXRPCService service;
+    
+    protected final String sessionID;
+
+    /**
+     * Creates an instance for the specified service URL and credentials.
+     */
+    public AbstractUploadDownload(String serviceURL, String username, String passwd)
+            throws AuthorizationFailureException, EnvironmentFailureException
+    {
+        this.service = RPCServiceFactory.createServiceProxy(serviceURL);
+        this.sessionID = service.login(username, passwd);
+        checkService();
+    }
+
+    /**
+     * Creates an instance for the specified service URL and session ID.
+     */
+    public AbstractUploadDownload(String serviceURL, String sessionID)
+    {
+        this(RPCServiceFactory.createServiceProxy(serviceURL), sessionID);
+    }
+
+    /**
+     * Creates an instance for the specified service and session ID.
+     */
+    public AbstractUploadDownload(ICIFEXRPCService service, String sessionID)
+    {
+        this.service = service;
+        this.sessionID = sessionID;
+        checkService();
+    }
+
+    protected void checkService() throws InvalidSessionException, EnvironmentFailureException
+    {
+        final int serverVersion = service.getVersion();
+        if (ICIFEXRPCService.VERSION != serverVersion)
+        {
+            throw new EnvironmentFailureException(
+                    "This client has the wrong service version for the server (client: "
+                            + ICIFEXRPCService.VERSION + ", server: " + serverVersion + ").");
+        }
+        service.checkSession(sessionID);
+    }
+
+    /**
+     * Override this when you need to react on exceptions during upload / download.
+     */
+    protected void logException(RuntimeException ex)
+    {
+        // Do nothing.
+    }
+    
+    /**
+     * Cancels uploading.
+     */
+    public void cancel()
+    {
+        try
+        {
+            service.cancel(sessionID);
+        } catch (RuntimeException ex)
+        {
+            logException(ex);
+        }
+    }
+
+    /**
+     * Logout from session.
+     */
+    public void logout()
+    {
+        try
+        {
+            service.logout(sessionID);
+        } catch (RuntimeException ex)
+        {
+            ex.printStackTrace();
+        }
+    }
+
+}

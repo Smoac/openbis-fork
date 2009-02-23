@@ -26,7 +26,7 @@ import ch.systemsx.cisd.cifex.client.application.ui.DefaultLayoutDialog;
 import ch.systemsx.cisd.cifex.client.application.ui.EditUserWidget;
 import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
 import ch.systemsx.cisd.cifex.client.application.ui.UserWidget;
-import ch.systemsx.cisd.cifex.client.dto.User;
+import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
 
 /**
  * A <code>AbstractLayoutDialog</code> to edit an user.
@@ -40,7 +40,7 @@ public final class EditUserDialog extends DefaultLayoutDialog
 {
     private final EditUserWidget editUserWidget;
 
-    public EditUserDialog(final ViewContext context, final User user, final ModelBasedGrid userGrid)
+    public EditUserDialog(final ViewContext context, final UserInfoDTO user, final ModelBasedGrid userGrid)
     {
         super(context.getMessageResources(), context.getMessageResources().getEditUserDialogTitle(
                 user.getUserCode()), UserWidget.TOTAL_WIDTH + 30, 220);

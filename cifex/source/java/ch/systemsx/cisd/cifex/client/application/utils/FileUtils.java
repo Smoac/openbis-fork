@@ -18,7 +18,7 @@ package ch.systemsx.cisd.cifex.client.application.utils;
 
 import com.google.gwt.i18n.client.NumberFormat;
 
-import ch.systemsx.cisd.cifex.shared.basic.dto.File;
+import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 
 /**
  * General file manipulation utilities.
@@ -56,7 +56,7 @@ public final class FileUtils
      * 
      * @return <code>null</code> if <code>file == null</code>
      */
-    public final static Double tryToGetFileSize(File fileOrNull)
+    public final static Double tryToGetFileSize(FileInfoDTO fileOrNull)
     {
         return fileOrNull == null ? null : new Double(fileOrNull.getSize().doubleValue());
     }

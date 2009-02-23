@@ -26,7 +26,7 @@ import com.gwtext.client.data.StringFieldDef;
 import ch.systemsx.cisd.cifex.client.application.ui.CommentRenderer;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.FileUtils;
-import ch.systemsx.cisd.cifex.shared.basic.dto.File;
+import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 
 /**
  * A <code>AbstractFileGridModel</code> extension for uploaded files.
@@ -60,7 +60,7 @@ public class UploadedFileGridModel extends AbstractFileGridModel
         final List list = new ArrayList();
         for (int i = 0; i < data.length; i++)
         {
-            final File file = (File) data[i];
+            final FileInfoDTO file = (FileInfoDTO) data[i];
             final Object[] objects =
                     new Object[]
                         {

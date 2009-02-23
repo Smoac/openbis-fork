@@ -25,8 +25,8 @@ import com.gwtext.client.widgets.layout.ContentPanel;
 import ch.systemsx.cisd.cifex.client.application.model.IDataGridModel;
 import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
-import ch.systemsx.cisd.cifex.client.dto.User;
-import ch.systemsx.cisd.cifex.shared.basic.dto.File;
+import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
+import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 
 /**
  * An <code>AbstractMainPage</code> extension for administrators.
@@ -67,7 +67,7 @@ final class AdminMainPage extends AbstractMainPage
         createUserPanel(true);
 
         listFilesPanel = createVerticalPanelPart();
-        filesGrid = createFileTable(new File[0]);
+        filesGrid = createFileTable(new FileInfoDTO[0]);
         listFilesPanel.add(createPartTitle(context.getMessageResources().getFilesPartTitle()));
         listFilesPanel.add(filesGrid);
 
@@ -82,7 +82,7 @@ final class AdminMainPage extends AbstractMainPage
         return mainPanel;
     }
 
-    private final ModelBasedGrid createFileTable(final File[] files)
+    private final ModelBasedGrid createFileTable(final FileInfoDTO[] files)
     {
         final IDataGridModel gridModel = new AdminFileGridModel(context.getMessageResources());
         final ModelBasedGrid fileGrid =
@@ -105,7 +105,7 @@ final class AdminMainPage extends AbstractMainPage
             super(context);
         }
 
-        private Widget createUserTable(final User[] users)
+        private Widget createUserTable(final UserInfoDTO[] users)
         {
             final IDataGridModel gridModel = new UserGridModel(context);
             final Grid userGrid =
@@ -118,7 +118,7 @@ final class AdminMainPage extends AbstractMainPage
         public final void onSuccess(final Object result)
         {
             listUserPanel.add(createPartTitle(messageResources.getUsersPartTitle()));
-            listUserPanel.add(createUserTable((User[]) result));
+            listUserPanel.add(createUserTable((UserInfoDTO[]) result));
         }
     }
 
@@ -136,7 +136,7 @@ final class AdminMainPage extends AbstractMainPage
 
         public final void onSuccess(final Object result)
         {
-            filesGrid.reloadStore((File[]) result);
+            filesGrid.reloadStore((FileInfoDTO[]) result);
         }
     }
 

@@ -36,9 +36,9 @@ import ch.systemsx.cisd.cifex.client.InsufficientPrivilegesException;
 import ch.systemsx.cisd.cifex.client.InvalidSessionException;
 import ch.systemsx.cisd.cifex.client.UserNotFoundException;
 import ch.systemsx.cisd.cifex.client.application.Constants;
-import ch.systemsx.cisd.cifex.client.dto.AdminFile;
+import ch.systemsx.cisd.cifex.client.dto.AdminFileInfoDTO;
 import ch.systemsx.cisd.cifex.client.dto.Configuration;
-import ch.systemsx.cisd.cifex.client.dto.User;
+import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
 import ch.systemsx.cisd.cifex.server.business.EMailBuilderForUpdateUser;
 import ch.systemsx.cisd.cifex.server.business.FileInformation;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
@@ -51,7 +51,7 @@ import ch.systemsx.cisd.cifex.server.common.Password;
 import ch.systemsx.cisd.cifex.server.util.FileUploadFeedbackProvider;
 import ch.systemsx.cisd.cifex.shared.basic.EnvironmentFailureException;
 import ch.systemsx.cisd.cifex.shared.basic.UserFailureException;
-import ch.systemsx.cisd.cifex.shared.basic.dto.File;
+import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileUploadFeedback;
 import ch.systemsx.cisd.cifex.shared.basic.dto.Message;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
@@ -90,7 +90,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
                 createLoggingContextHandler(requestContextProvider));
     }
 
-    public final boolean showSwitchToExternalOption(final User user)
+    public final boolean showSwitchToExternalOption(final UserInfoDTO user)
     {
         return hasExternalAuthenticationService() && user.isExternallyAuthenticated() == false;
     }
@@ -135,13 +135,13 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
     // ICifexService
     //
 
-    public final User tryLogin(final String userCode, final String plainPassword)
+    public final UserInfoDTO tryLogin(final String userCode, final String plainPassword)
             throws EnvironmentFailureException
     {
         try
         {
             final UserDTO userDTO = super.tryLoginUser(userCode, plainPassword);
-            return BeanUtils.createBean(User.class, userDTO);
+            return BeanUtils.createBean(UserInfoDTO.class, userDTO);
         } catch (ch.systemsx.cisd.common.exceptions.EnvironmentFailureException ex)
         {
             throw new EnvironmentFailureException(ex.getMessage());
@@ -153,12 +153,12 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         return BeanUtils.createBean(Configuration.class, domainModel.getBusinessContext());
     }
 
-    public final User getCurrentUser() throws InvalidSessionException
+    public final UserInfoDTO getCurrentUser() throws InvalidSessionException
     {
-        return BeanUtils.createBean(User.class, privGetCurrentUser());
+        return BeanUtils.createBean(UserInfoDTO.class, privGetCurrentUser());
     }
 
-    public final User trySwitchToExternalAuthentication(final String userCode,
+    public final UserInfoDTO trySwitchToExternalAuthentication(final String userCode,
             final String plainPassword) throws EnvironmentFailureException,
             InvalidSessionException, InsufficientPrivilegesException
     {
@@ -193,7 +193,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
             copyUserDetailsExceptCode(privGetCurrentUser(), userDTOOrNull); // updating session
 
             userBehaviorLog.logSwitchToExternalAuthentication(userCode, true);
-            return BeanUtils.createBean(User.class, userDTOOrNull);
+            return BeanUtils.createBean(UserInfoDTO.class, userDTOOrNull);
         } else
         {
             userBehaviorLog.logSwitchToExternalAuthentication(userCode, false);
@@ -246,14 +246,14 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         to.setUserFullName(from.getUserFullName());
     }
 
-    public final User[] listUsers() throws InvalidSessionException, InsufficientPrivilegesException
+    public final UserInfoDTO[] listUsers() throws InvalidSessionException, InsufficientPrivilegesException
     {
         checkAdmin("listUsers");
         final List<UserDTO> users = domainModel.getUserManager().listUsers();
-        return BeanUtils.createBeanArray(User.class, users, null);
+        return BeanUtils.createBeanArray(UserInfoDTO.class, users, null);
     }
 
-    public void createUser(final User user, final String password, final User registratorOrNull,
+    public void createUser(final UserInfoDTO user, final String password, final UserInfoDTO registratorOrNull,
             final String comment) throws EnvironmentFailureException, InvalidSessionException,
             InsufficientPrivilegesException, UserFailureException
     {
@@ -288,7 +288,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         }
     }
 
-    private void ensureUserCodeNotReservedByExternalAuthenticationService(final User user)
+    private void ensureUserCodeNotReservedByExternalAuthenticationService(final UserInfoDTO user)
             throws EnvironmentFailureException
     {
         if (hasExternalAuthenticationService())
@@ -329,7 +329,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         return HttpUtils.getBasicURL(requestContextProvider.getHttpServletRequest());
     }
 
-    private void checkCreateUserAllowed(final User user) throws InvalidSessionException,
+    private void checkCreateUserAllowed(final UserInfoDTO user) throws InvalidSessionException,
             InsufficientPrivilegesException
     {
         final UserDTO currentUser = privGetCurrentUser();
@@ -346,24 +346,24 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         }
     }
 
-    public AdminFile[] listFiles() throws InvalidSessionException, InsufficientPrivilegesException
+    public AdminFileInfoDTO[] listFiles() throws InvalidSessionException, InsufficientPrivilegesException
     {
         checkAdmin("listFiles");
         final List<FileDTO> files = domainModel.getFileManager().listFiles();
-        return BeanUtils.createBeanArray(AdminFile.class, files, null);
+        return BeanUtils.createBeanArray(AdminFileInfoDTO.class, files, null);
     }
 
-    public final File[] listDownloadFiles() throws InvalidSessionException
+    public final FileInfoDTO[] listDownloadFiles() throws InvalidSessionException
     {
         return listFiles(DOWNLOAD);
     }
 
-    public final File[] listUploadedFiles() throws InvalidSessionException
+    public final FileInfoDTO[] listUploadedFiles() throws InvalidSessionException
     {
         return listFiles(UPLOAD);
     }
 
-    private final File[] listFiles(final boolean showDownload) throws InvalidSessionException
+    private final FileInfoDTO[] listFiles(final boolean showDownload) throws InvalidSessionException
     {
         final UserDTO user = privGetCurrentUser();
         final List<FileDTO> files;
@@ -374,7 +374,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         {
             files = domainModel.getFileManager().listUploadedFiles(user.getID());
         }
-        return BeanUtils.createBeanArray(File.class, files, null);
+        return BeanUtils.createBeanArray(FileInfoDTO.class, files, null);
     }
 
     public void deleteUser(final String code) throws InvalidSessionException,
@@ -443,7 +443,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
     /**
      * Update the fields of the user in the database.
      */
-    public void updateUser(final User user, final String plainPassword,
+    public void updateUser(final UserInfoDTO user, final String plainPassword,
             final boolean sendUpdateInformationToUser) throws InvalidSessionException,
             InsufficientPrivilegesException, EnvironmentFailureException
     {
@@ -592,30 +592,30 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
                 + describeUser(requestUser) + ".");
     }
 
-    public User tryFindUserByUserCode(final String userCode) throws InvalidSessionException
+    public UserInfoDTO tryFindUserByUserCode(final String userCode) throws InvalidSessionException
     {
         privGetCurrentUser();
         final IUserManager userManager = domainModel.getUserManager();
         final UserDTO userDTO = userManager.tryFindUserByCode(userCode);
-        return BeanUtils.createBean(User.class, userDTO);
+        return BeanUtils.createBean(UserInfoDTO.class, userDTO);
     }
 
-    public User[] tryFindUserByEmail(final String email) throws InvalidSessionException
+    public UserInfoDTO[] tryFindUserByEmail(final String email) throws InvalidSessionException
     {
         privGetCurrentUser();
         final IUserManager userManager = domainModel.getUserManager();
         final List<UserDTO> users = userManager.tryFindUserByEmail(email);
-        return BeanUtils.createBeanArray(User.class, users);
+        return BeanUtils.createBeanArray(UserInfoDTO.class, users);
     }
 
-    public User[] listUsersRegisteredBy(final String userCode) throws InvalidSessionException
+    public UserInfoDTO[] listUsersRegisteredBy(final String userCode) throws InvalidSessionException
     {
         privGetCurrentUser();
         final IUserManager userManager = domainModel.getUserManager();
 
         final List<UserDTO> users = userManager.listUsersRegisteredBy(userCode);
 
-        return BeanUtils.createBeanArray(User.class, users, null);
+        return BeanUtils.createBeanArray(UserInfoDTO.class, users, null);
     }
 
     public void updateFileExpiration(final String idStr, final Date newExpirationDate)
@@ -641,14 +641,14 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         fileManager.updateFileExpiration(fileId, expirationDate);
     }
 
-    public User[] listUsersFileSharedWith(final String idStr) throws InvalidSessionException
+    public UserInfoDTO[] listUsersFileSharedWith(final String idStr) throws InvalidSessionException
     {
         privGetCurrentUser();
         final IUserManager userManager = domainModel.getUserManager();
 
         final List<UserDTO> users = userManager.listUsersFileSharedWith(Long.parseLong(idStr));
 
-        return BeanUtils.createBeanArray(User.class, users, null);
+        return BeanUtils.createBeanArray(UserInfoDTO.class, users, null);
     }
 
     public void deleteSharingLink(final String idStr, final String userCode)

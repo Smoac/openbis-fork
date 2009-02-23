@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.cifex.rpc;
 
-import ch.systemsx.cisd.cifex.shared.basic.dto.File;
+import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
@@ -62,7 +62,7 @@ public interface ICIFEXRPCService
     /**
      * Provides the list of files available for download to the user of this session.
      */
-    public File[] listDownloadFiles(String sessionID) throws InvalidSessionException,
+    public FileInfoDTO[] listDownloadFiles(String sessionID) throws InvalidSessionException,
             EnvironmentFailureException;
 
     /**
@@ -125,11 +125,11 @@ public interface ICIFEXRPCService
     /**
      * Start downloading the file with <var>fileID</var>.
      * 
-     * @return The {@link File} containing the information about the file to download. 
+     * @return The {@link FileInfoDTO} containing the information about the file to download. 
      * @throws InvalidSessionException if there is no session with specified session ID.
      * @throws WrappedIOException if the file with that <var>fileID</var> cannot be found.
      */
-    public File startDownloading(String sessionID, long fileID) throws InvalidSessionException,
+    public FileInfoDTO startDownloading(String sessionID, long fileID) throws InvalidSessionException,
             WrappedIOException;
 
     /**

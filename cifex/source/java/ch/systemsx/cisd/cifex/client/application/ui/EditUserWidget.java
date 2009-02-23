@@ -20,7 +20,7 @@ import ch.systemsx.cisd.cifex.client.ICIFEXServiceAsync;
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
-import ch.systemsx.cisd.cifex.client.dto.User;
+import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
 
 /**
  * A <code>UserWidget</code> extension suitable for user editing.
@@ -33,7 +33,7 @@ import ch.systemsx.cisd.cifex.client.dto.User;
  */
 public class EditUserWidget extends UserWidget
 {
-    public EditUserWidget(final ViewContext context, final boolean addStatusField, final User user,
+    public EditUserWidget(final ViewContext context, final boolean addStatusField, final UserInfoDTO user,
             final boolean withButton)
     {
         super(context, addStatusField, user, withButton);
@@ -68,7 +68,7 @@ public class EditUserWidget extends UserWidget
             {
                 buttonOrNull.disable();
             }
-            final User user = new User();
+            final UserInfoDTO user = new UserInfoDTO();
             user.setEmail(emailField.getText());
             user.setUserFullName(usernameField.getText());
             user.setUserCode(userCodeField.getText());
@@ -127,7 +127,7 @@ public class EditUserWidget extends UserWidget
             {
                 buttonOrNull.enable();
             }
-            final User user = context.getModel().getUser();
+            final UserInfoDTO user = context.getModel().getUser();
             // Update current user, if it was the one who has been changed.
             if (user.getUserCode().equals(userCodeField.getText())
                     && user.isExternallyAuthenticated() == false)

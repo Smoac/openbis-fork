@@ -23,7 +23,7 @@ import com.gwtext.client.widgets.form.TextArea;
 import com.gwtext.client.widgets.form.TextAreaConfig;
 
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
-import ch.systemsx.cisd.cifex.client.dto.User;
+import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
 
 /**
  * @author Basil Neff
@@ -94,7 +94,7 @@ public class UserTextArea extends TextArea
     /**
      * Adds the given user to the text area.
      */
-    public final void addUser(final User user)
+    public final void addUser(final UserInfoDTO user)
     {
         if (user != null)
         {

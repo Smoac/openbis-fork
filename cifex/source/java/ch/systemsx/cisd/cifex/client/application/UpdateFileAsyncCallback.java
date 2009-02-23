@@ -19,7 +19,7 @@ package ch.systemsx.cisd.cifex.client.application;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
-import ch.systemsx.cisd.cifex.shared.basic.dto.File;
+import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 
 /**
  * An {@link AsyncCallback} that updates the list of files after a file has been updated.
@@ -48,7 +48,7 @@ class UpdateFileAsyncCallback extends AbstractAsyncCallback
             {
                 public final void onSuccess(final Object res)
                 {
-                    modelBasedGrid.reloadStore((File[]) res);
+                    modelBasedGrid.reloadStore((FileInfoDTO[]) res);
                 }
             };
         if (adminView)

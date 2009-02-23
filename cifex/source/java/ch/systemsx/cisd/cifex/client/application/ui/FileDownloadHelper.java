@@ -21,7 +21,7 @@ import java.util.Map;
 import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.client.application.Model;
 import ch.systemsx.cisd.cifex.client.application.utils.WindowUtils;
-import ch.systemsx.cisd.cifex.client.dto.User;
+import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
 
 /**
  * A static class offering some helper methods regarding file download.
@@ -46,7 +46,7 @@ public final class FileDownloadHelper
     public final static void startFileDownload(final Model model)
     {
         assert model != null : "Given model can not be null.";
-        final User user = model.getUser();
+        final UserInfoDTO user = model.getUser();
         assert user != null : "Undefined user.";
         final Map urlParams = model.getUrlParams();
         final String fileId = (String) urlParams.get(Constants.FILE_ID_PARAMETER);

@@ -24,7 +24,7 @@ import com.gwtext.client.widgets.grid.Renderer;
 import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
-import ch.systemsx.cisd.cifex.shared.basic.dto.BasicUser;
+import ch.systemsx.cisd.cifex.shared.basic.dto.BasicUserInfoDTO;
 
 /**
  * A <code>Renderer</code> implementation that create an email anchor element with inner text
@@ -49,7 +49,7 @@ public final class UserRenderer implements Renderer
      * where this method is used.
      * </p>
      */
-    public final static String createUserAnchor(final BasicUser[] users)
+    public final static String createUserAnchor(final BasicUserInfoDTO[] users)
     {
         assert users != null : "Unspecified user.";
         
@@ -78,7 +78,7 @@ public final class UserRenderer implements Renderer
      * where this method is used.
      * </p>
      */
-    public final static String createUserAnchor(final BasicUser user)
+    public final static String createUserAnchor(final BasicUserInfoDTO user)
     {
         assert user != null : "Unspecified user.";
 

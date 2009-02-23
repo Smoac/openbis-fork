@@ -40,7 +40,7 @@ import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.utils.CifexValidator;
-import ch.systemsx.cisd.cifex.client.dto.User;
+import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
 
 /**
  * A <code>Form</code> extension as base class to edit or create an user.
@@ -64,7 +64,7 @@ public abstract class UserWidget extends Form
     protected final ViewContext context;
 
     /** If the <code>User</code> is set, the values from the user are used in the fields. */
-    protected final User editUser;
+    protected final UserInfoDTO editUser;
 
     protected final boolean addStatusField;
 
@@ -116,7 +116,7 @@ public abstract class UserWidget extends Form
      * The fields to the user are already filled out, which the user can change.
      * </p>
      */
-    public UserWidget(final ViewContext context, final boolean addStatusField, final User user,
+    public UserWidget(final ViewContext context, final boolean addStatusField, final UserInfoDTO user,
             final boolean withButton)
     {
         super(Ext.generateId(ID_PREFIX), createFormConfig());

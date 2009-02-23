@@ -26,7 +26,7 @@ import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
 import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
-import ch.systemsx.cisd.cifex.client.dto.User;
+import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
 
 /**
  * An <code>AbstractUserGridModel</code> extension for user grid.
@@ -61,7 +61,7 @@ public final class UserGridModel extends AbstractUserGridModel
         final List list = new ArrayList();
         for (int i = 0; i < data.length; i++)
         {
-            final User user = (User) data[i];
+            final UserInfoDTO user = (UserInfoDTO) data[i];
             final String stateField = getUserRoleDescription(user);
             final String actions = listActionsForUser(user);
             final Object[] objects =
@@ -85,7 +85,7 @@ public final class UserGridModel extends AbstractUserGridModel
         return fieldDefs;
     }
 
-    protected String listActionsForUser(final User user)
+    protected String listActionsForUser(final UserInfoDTO user)
     {
         final String sep = " | ";
         String actionLabel =

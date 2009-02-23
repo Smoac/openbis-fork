@@ -21,10 +21,10 @@ import java.util.Date;
 import com.google.gwt.user.client.rpc.RemoteService;
 
 import ch.systemsx.cisd.cifex.client.dto.Configuration;
-import ch.systemsx.cisd.cifex.client.dto.User;
+import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.EnvironmentFailureException;
 import ch.systemsx.cisd.cifex.shared.basic.UserFailureException;
-import ch.systemsx.cisd.cifex.shared.basic.dto.File;
+import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileUploadFeedback;
 
 /**
@@ -42,7 +42,7 @@ public interface ICIFEXService extends RemoteService
      * 
      * @return a <code>User</code> if the login was successful, <code>null</code> otherwise.
      */
-    public User tryLogin(final String user, final String password) throws UserFailureException,
+    public UserInfoDTO tryLogin(final String user, final String password) throws UserFailureException,
             EnvironmentFailureException;
 
     /**
@@ -64,12 +64,12 @@ public interface ICIFEXService extends RemoteService
      * @return the currently logged user.
      * @throws InvalidSessionException if user not logged in.
      */
-    public User getCurrentUser() throws InvalidSessionException;
+    public UserInfoDTO getCurrentUser() throws InvalidSessionException;
 
     /**
      * Returns a list of <code>User</code>s.
      */
-    public User[] listUsers() throws InvalidSessionException, InsufficientPrivilegesException;
+    public UserInfoDTO[] listUsers() throws InvalidSessionException, InsufficientPrivilegesException;
 
     // TODO 2008-06-06, Christian Ribeaud: tryFindUserByUserCode and tryFindUserByEmail should be
     // extended to accept an array of parameters (more than one parameter). They will return an
@@ -80,26 +80,26 @@ public interface ICIFEXService extends RemoteService
      * 
      * @throws InvalidSessionException
      */
-    public User tryFindUserByUserCode(final String userCode) throws InvalidSessionException;
+    public UserInfoDTO tryFindUserByUserCode(final String userCode) throws InvalidSessionException;
 
     /**
      * Returns a list with all users, which have the given email address.
      */
-    public User[] tryFindUserByEmail(final String email) throws InvalidSessionException;
+    public UserInfoDTO[] tryFindUserByEmail(final String email) throws InvalidSessionException;
 
     /**
      * Returns a list of users, which where registered by the given user.
      * 
      * @throws InvalidSessionException
      */
-    public User[] listUsersRegisteredBy(final String userCode) throws InvalidSessionException;
+    public UserInfoDTO[] listUsersRegisteredBy(final String userCode) throws InvalidSessionException;
 
     /**
      * Returns users the file with given <var>fileId</var> has been shared with.
      * 
      * @throws InvalidSessionException
      */
-    public User[] listUsersFileSharedWith(final String fileId) throws InvalidSessionException;
+    public UserInfoDTO[] listUsersFileSharedWith(final String fileId) throws InvalidSessionException;
 
     /**
      * Creates a new <code>User</code> in Cifex with the given <var>password</var>. If
@@ -109,7 +109,7 @@ public interface ICIFEXService extends RemoteService
      * This method sends an email to the new user, to inform him about the new user account.
      * </p>
      */
-    public void createUser(final User user, final String password, final User registratorOrNull,
+    public void createUser(final UserInfoDTO user, final String password, final UserInfoDTO registratorOrNull,
             final String comment) throws EnvironmentFailureException, UserFailureException,
             InvalidSessionException, InsufficientPrivilegesException;
 
@@ -118,7 +118,7 @@ public interface ICIFEXService extends RemoteService
      * 
      * @param sendUpdateInformationToUser Inform to user about the changes?
      */
-    public void updateUser(final User user, final String password,
+    public void updateUser(final UserInfoDTO user, final String password,
             final boolean sendUpdateInformationToUser) throws InvalidSessionException,
             InsufficientPrivilegesException, EnvironmentFailureException;
 
@@ -154,7 +154,7 @@ public interface ICIFEXService extends RemoteService
      * Never returns <code>null</code> but could return an empty array.
      * </p>
      */
-    public File[] listDownloadFiles() throws InvalidSessionException;
+    public FileInfoDTO[] listDownloadFiles() throws InvalidSessionException;
 
     /**
      * List the files uploaded by the currently logged user.
@@ -162,12 +162,12 @@ public interface ICIFEXService extends RemoteService
      * Never returns <code>null</code> but could return an empty array.
      * </p>
      */
-    public File[] listUploadedFiles() throws InvalidSessionException;
+    public FileInfoDTO[] listUploadedFiles() throws InvalidSessionException;
 
     /**
      * List all files (only for admins).
      */
-    public File[] listFiles() throws InvalidSessionException, InsufficientPrivilegesException;
+    public FileInfoDTO[] listFiles() throws InvalidSessionException, InsufficientPrivilegesException;
 
     /**
      * Deletes file given by its <var>idStr</var>.
@@ -219,7 +219,7 @@ public interface ICIFEXService extends RemoteService
      * @throws EnvironmentFailureException if user is already externally authenticated or user with
      *             given code does not exist
      */
-    public User trySwitchToExternalAuthentication(final String userCode, final String plainPassword)
+    public UserInfoDTO trySwitchToExternalAuthentication(final String userCode, final String plainPassword)
             throws EnvironmentFailureException, InvalidSessionException,
             InsufficientPrivilegesException;
 
@@ -227,6 +227,6 @@ public interface ICIFEXService extends RemoteService
      * Checks if 'switch to external authentication' option should be available for given
      * <code>User<code>.
      */
-    public boolean showSwitchToExternalOption(User user);
+    public boolean showSwitchToExternalOption(UserInfoDTO user);
 
 }

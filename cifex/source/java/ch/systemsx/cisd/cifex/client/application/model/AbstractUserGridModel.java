@@ -24,7 +24,7 @@ import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.Model;
 import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
 import ch.systemsx.cisd.cifex.client.application.utils.DateTimeUtils;
-import ch.systemsx.cisd.cifex.client.dto.User;
+import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
 
 /**
  * An <code>AbstractDataGridModel</code> extension for user grid.
@@ -55,9 +55,9 @@ public abstract class AbstractUserGridModel extends AbstractDataGridModel
      * You typically call {@link Model#getUser()} to get him.
      * </p>
      */
-    protected final User currentUser;
+    protected final UserInfoDTO currentUser;
 
-    public AbstractUserGridModel(final IMessageResources messageResources, final User currentUser)
+    public AbstractUserGridModel(final IMessageResources messageResources, final UserInfoDTO currentUser)
     {
         super(messageResources);
         this.currentUser = currentUser;
@@ -105,7 +105,7 @@ public abstract class AbstractUserGridModel extends AbstractDataGridModel
         return createSortableColumnConfig(FULL_NAME, messageResources.getUserFullNameLabel(), 180);
     }
 
-    protected final String getUserRoleDescription(final User user)
+    protected final String getUserRoleDescription(final UserInfoDTO user)
     {
         String stateField = "";
         if (user.isAdmin())

@@ -18,7 +18,7 @@ package ch.systemsx.cisd.cifex.client.application;
 
 import com.google.gwt.user.client.ui.RootPanel;
 
-import ch.systemsx.cisd.cifex.client.dto.User;
+import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
 
 /**
  * Controller for creating pages.
@@ -75,7 +75,7 @@ final class PageController implements IPageController, IHistoryController
     public final void createAdminPage()
     {
         clearRootPanel();
-        final User user = viewContext.getModel().getUser();
+        final UserInfoDTO user = viewContext.getModel().getUser();
         final AbstractMainPage mainPage;
         if (user.isAdmin())
         {

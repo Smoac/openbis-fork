@@ -22,7 +22,7 @@ import java.util.List;
 import ch.systemsx.cisd.cifex.client.application.model.FileShareUserGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.UserTextArea;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
-import ch.systemsx.cisd.cifex.client.dto.User;
+import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
 
 /**
  * @author Basil Neff
@@ -50,20 +50,20 @@ public class FileShareUploadDialog extends AbstractFileShareUserDialog
                     .getAsBoolean(FileShareUserGridModel.SHARE_FILE))
             {
                 userEntries.add(StringUtils.USER_ID_PREFIX
-                        + ((User) existingUsers.get(i)).getUserCode());
+                        + ((UserInfoDTO) existingUsers.get(i)).getUserCode());
             }
         }
         for (int i = 0; i < newUsers.size(); i++)
         {
             if (newUserGrid.getStore().getAt(i).getAsBoolean(FileShareUserGridModel.SHARE_FILE))
             {
-                userEntries.add(((User) newUsers.get(i)).getEmail());
+                userEntries.add(((UserInfoDTO) newUsers.get(i)).getEmail());
             }
         }
         userTextArea.setUserEntries((String[]) userEntries.toArray(new String[userEntries.size()]));
     }
 
-    protected void addUserToFileShare(User user)
+    protected void addUserToFileShare(UserInfoDTO user)
     {
         userTextArea.addUser(user);
     }

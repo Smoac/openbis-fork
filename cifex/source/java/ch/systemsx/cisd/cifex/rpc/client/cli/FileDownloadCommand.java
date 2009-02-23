@@ -17,33 +17,32 @@
 package ch.systemsx.cisd.cifex.rpc.client.cli;
 
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
-import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * A command for listing files that are available for download.
- * 
+ * A command to perform file downloads from CIFEX.
+ *
  * @author Bernd Rinn
  */
-public class ListDownloadFilesCommand extends AbstractCommandWithSessionToken
+public class FileDownloadCommand extends AbstractCommandWithSessionToken
 {
 
-    private static final String NAME = "list-files";
+    private static final String NAME = "download";
 
-    private static ListDownloadFilesCommand instance;
+    private static FileDownloadCommand instance;
 
-    ListDownloadFilesCommand()
+    FileDownloadCommand()
     {
         super(NAME);
     }
 
     /** Returns the unique instance of this class. */
-    public final static synchronized ListDownloadFilesCommand getInstance()
+    public final static synchronized FileDownloadCommand getInstance()
     {
         if (instance == null)
         {
-            instance = new ListDownloadFilesCommand();
+            instance = new FileDownloadCommand();
         }
         return instance;
     }
@@ -52,21 +51,8 @@ public class ListDownloadFilesCommand extends AbstractCommandWithSessionToken
     protected int execute(String sessionToken, ICIFEXRPCService service, String[] args)
             throws UserFailureException, EnvironmentFailureException
     {
-        getParameters().assertArgsEmpty();
-        final FileInfoDTO[] files = service.listDownloadFiles(sessionToken);
-        if (files.length == 0)
-        {
-            System.out.println("No files available for you to download.");
-        } else
-        {
-            System.out.println("Id\tName\tSize\tContent Type\tUploader\tExpiration\tComment");
-            for (FileInfoDTO file : files)
-            {
-                System.out.println(file.getIDStr() + "\t" + file.getName() + "\t" + file.getSize()
-                        + "\t" + file.getContentType() + "\t" + file.getRegisterer() + "\t"
-                        + file.getExpirationDate() + "\t" + file.getComment());
-            }
-        }
+        
+        // TODO Auto-generated method stub
         return 0;
     }
 

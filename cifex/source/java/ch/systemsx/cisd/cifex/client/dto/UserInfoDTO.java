@@ -18,14 +18,14 @@ package ch.systemsx.cisd.cifex.client.dto;
 
 import java.util.Date;
 
-import ch.systemsx.cisd.cifex.shared.basic.dto.BasicUser;
+import ch.systemsx.cisd.cifex.shared.basic.dto.BasicUserInfoDTO;
 
 /**
  * A small class that describes an user.
  * 
  * @author Christian Ribeaud
  */
-public final class User extends BasicUser
+public final class UserInfoDTO extends BasicUserInfoDTO
 {
     private static final long serialVersionUID = 1L;
 
@@ -47,7 +47,7 @@ public final class User extends BasicUser
 
     private Date expirationDate;
 
-    private User registrator;
+    private UserInfoDTO registrator;
 
     private boolean externallyAuthenticated;
 
@@ -81,12 +81,12 @@ public final class User extends BasicUser
         this.expirationDate = expirationDate;
     }
 
-    public final User getRegistrator()
+    public final UserInfoDTO getRegistrator()
     {
         return registrator;
     }
 
-    public final void setRegistrator(User registrator)
+    public final void setRegistrator(UserInfoDTO registrator)
     {
         this.registrator = registrator;
     }

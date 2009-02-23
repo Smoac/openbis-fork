@@ -25,7 +25,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  *
  * @author Bernd Rinn
  */
-public class BasicUser implements IsSerializable, Serializable
+public class BasicUserInfoDTO implements IsSerializable, Serializable
 {
 
     private static final long serialVersionUID = 1L;
@@ -95,11 +95,11 @@ public class BasicUser implements IsSerializable, Serializable
         {
             return true;
         }
-        if (obj instanceof BasicUser == false)
+        if (obj instanceof BasicUserInfoDTO == false)
         {
             return false;
         }
-        final BasicUser that = (BasicUser) obj;
+        final BasicUserInfoDTO that = (BasicUserInfoDTO) obj;
         return that.userCode.equals(userCode);
     }
 

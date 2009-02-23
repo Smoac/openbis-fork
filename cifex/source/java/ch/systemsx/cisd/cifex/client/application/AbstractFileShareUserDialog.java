@@ -37,7 +37,7 @@ import ch.systemsx.cisd.cifex.client.application.model.IDataGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.DefaultLayoutDialog;
 import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
 import ch.systemsx.cisd.cifex.client.application.utils.CifexValidator;
-import ch.systemsx.cisd.cifex.client.dto.User;
+import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
 
 /**
  * A dialog to edit file sharing.
@@ -59,8 +59,8 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
 
     final ModelBasedGrid newUserGrid;
 
-    public AbstractFileShareUserDialog(final ViewContext context, final User[] existingUsers,
-            final User[] newUsers, final String name)
+    public AbstractFileShareUserDialog(final ViewContext context, final UserInfoDTO[] existingUsers,
+            final UserInfoDTO[] newUsers, final String name)
     {
         this(context, getArrayList(existingUsers), getArrayList(newUsers), name);
     }
@@ -79,7 +79,7 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
 
     }
 
-    public AbstractFileShareUserDialog(final ViewContext context, User[] existingUsers, String name)
+    public AbstractFileShareUserDialog(final ViewContext context, UserInfoDTO[] existingUsers, String name)
     {
         this(context, existingUsers, null, name);
     }
@@ -94,7 +94,7 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
         existingUserGrid.reloadStore(existingUsers.toArray());
     }
 
-    static ArrayList getArrayList(User[] users)
+    static ArrayList getArrayList(UserInfoDTO[] users)
     {
         ArrayList list = new ArrayList();
         if (users != null)
@@ -118,7 +118,7 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
      * Method to add a user to the File Share. If you want to add a new user, just specify the email
      * address and leave the rest empty. Existing users have the usercode specified.
      */
-    abstract void addUserToFileShare(User user);
+    abstract void addUserToFileShare(UserInfoDTO user);
 
     protected final Widget createContentWidget()
     {
@@ -143,10 +143,10 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
         final IDataGridModel gridModel =
                 new FileShareUserGridModel(viewContext.getMessageResources(), viewContext
                         .getModel().getUser());
-        User[] userArray = null;
+        UserInfoDTO[] userArray = null;
         if (users != null && users.size() != 0)
         {
-            userArray = (User[]) users.toArray(new User[users.size()]);
+            userArray = (UserInfoDTO[]) users.toArray(new UserInfoDTO[users.size()]);
         }
         final ModelBasedGrid userGrid =
                 new ModelBasedGrid(viewContext.getMessageResources(), userArray, gridModel);
@@ -208,7 +208,7 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                                 {
                                     public void onSuccess(Object result)
                                     {
-                                        User[] users = (User[]) result;
+                                        UserInfoDTO[] users = (UserInfoDTO[]) result;
                                         if (users.length > 0)
                                         {
                                             for (int i = 0; i < users.length; i++)
@@ -223,7 +223,7 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                                         } else
                                         {
 
-                                            User user = new User();
+                                            UserInfoDTO user = new UserInfoDTO();
                                             user.setEmail(email);
                                             user.setRegistrator(viewContext.getModel().getUser());
                                             newUsers.add(user);

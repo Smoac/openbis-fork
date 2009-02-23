@@ -16,27 +16,27 @@
 
 package ch.systemsx.cisd.cifex.client.dto;
 
-import ch.systemsx.cisd.cifex.shared.basic.dto.BasicUser;
-import ch.systemsx.cisd.cifex.shared.basic.dto.File;
+import ch.systemsx.cisd.cifex.shared.basic.dto.BasicUserInfoDTO;
+import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 
 /**
  * A client <i>DTO</i> which describes a file with additional admin information.
  *
  * @author Bernd Rinn
  */
-public final class AdminFile extends File
+public final class AdminFileInfoDTO extends FileInfoDTO
 {
 
     private static final long serialVersionUID = 1L;
-    private BasicUser[] sharingUsers;
+    private BasicUserInfoDTO[] sharingUsers;
 
     
-    public BasicUser[] getSharingUsers()
+    public BasicUserInfoDTO[] getSharingUsers()
     {
         return sharingUsers;
     }
 
-    public void setSharingUsers(final BasicUser[] sharingUsers)
+    public void setSharingUsers(final BasicUserInfoDTO[] sharingUsers)
     {
         this.sharingUsers = sharingUsers;
     }
