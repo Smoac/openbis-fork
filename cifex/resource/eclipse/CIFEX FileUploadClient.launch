@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
 <listEntry value="/cifex/source/java/ch/systemsx/cisd/cifex/rpc/client/gui/FileUploadClient.java"/>
@@ -8,7 +8,6 @@
 </listAttribute>
 <booleanAttribute key="org.eclipse.debug.core.appendEnvironmentVariables" value="true"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="ch.systemsx.cisd.cifex.rpc.client.gui.FileUploadClient"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="http://localhost:8888/cifex/rpc-service&#13;&#10;090222210418090-142B6A170B89E33FBC06AB2138231618&#13;5000"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="http://localhost:8888/cifex/rpc-service&#13;&#10;a&#13;&#10;a&#13;&#10;5000"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="cifex"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dtesting=true&#13;&#10;-Dtest-user.id=1&#13;&#10;-Dtest-user.code=a"/>
 </launchConfiguration>
