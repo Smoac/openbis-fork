@@ -16,6 +16,11 @@
 
 package ch.systemsx.cisd.common.utilities;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.MasqueradingException;
 
@@ -27,15 +32,10 @@ import ch.systemsx.cisd.common.exceptions.MasqueradingException;
 public final class ExceptionUtils
 {
     /**
-     * Accepted packages for dependencies.
-     * <p>
-     * So these packages are accepted and are not going to be masquerading.
-     * </p>
+     * Default packages (and subpackages) for not been masqueraded.
      */
-    // TODO 2008-09-18, Tomasz Pylak: those packages should not be listed in common package!
     private final static String[] ACCEPTED_PACKAGE_NAME_DEPENDENCIES =
-                { "java.lang", "ch.systemsx.cisd.common", "ch.systemsx.cisd.lims.base",
-                        "ch.systemsx.cisd.openbis.generic.shared.dto" };
+                { "java.lang", "ch.systemsx.cisd.common"};
 
     ExceptionUtils()
     {
@@ -43,14 +43,16 @@ public final class ExceptionUtils
     }
 
     /**
-     * Creates a new {@link MasqueradingException} from given <var>exception</var> only if it is
-     * needed ({@link #isCandidateForMasquerading(Exception)} returns <code>true</code>).
+     * Creates a new {@link MasqueradingException} from given <var>exception</var> and collection
+     * of packages which are not masqueraded (in addition to the default packages) only if it is
+     * needed ({@link #isCandidateForMasquerading(Exception, Collection)} returns <code>true</code>).
      * Otherwise returns given <var>exception</var>.
      */
-    private final static Exception createMasqueradingException(final Exception exception)
+    private final static Exception createMasqueradingException(final Exception exception,
+            final Collection<String> acceptedPackages)
     {
         final Exception rootException = CheckedExceptionTunnel.unwrapIfNecessary(exception);
-        if (isCandidateForMasquerading(rootException))
+        if (isCandidateForMasquerading(rootException, acceptedPackages))
         {
             return new MasqueradingException(rootException);
         } else
@@ -61,7 +63,7 @@ public final class ExceptionUtils
 
     /** Recursively copies cause exception from <var>fromException</var> to <var>toException</var>. */
     private final static void copyCauseException(final Exception fromException,
-            final Exception toException)
+            final Exception toException, final Collection<String> acceptedPackages)
     {
         assert fromException != null : "Unspecified 'from' Exception.";
         assert toException != null : "Unspecified 'to' Exception.";
@@ -70,7 +72,8 @@ public final class ExceptionUtils
                         .getCause(fromException);
         if (fromCauseException != null && fromCauseException != fromException)
         {
-            final Exception toCauseException = createMasqueradingException(fromCauseException);
+            final Exception toCauseException =
+                    createMasqueradingException(fromCauseException, acceptedPackages);
             if (toException.getCause() != toCauseException)
             {
                 if (ClassUtils.setFieldValue(toException, "cause", toCauseException) == false)
@@ -79,18 +82,23 @@ public final class ExceptionUtils
                             toCauseException);
                 }
             }
-            copyCauseException(fromCauseException, toCauseException);
+            copyCauseException(fromCauseException, toCauseException, acceptedPackages);
         }
     }
 
     /**
      * Whether given <var>exception</var> is a candidate for masquerading or not.
+     * 
+     * @return <code>true</code> if the fully qualified class name of <code>exception</code>
+     *         doesn't start with a package name from <code>acceptedPackages</code> or
+     *         <code>java.lang, ch.systemsx.cisd.common</code>.
      */
-    final static boolean isCandidateForMasquerading(final Exception exception)
+    final static boolean isCandidateForMasquerading(final Exception exception,
+            final Collection<String> acceptedPackages)
     {
         assert exception != null : "Unspecified exception.";
         final String className = exception.getClass().getName();
-        for (final String packageName : ACCEPTED_PACKAGE_NAME_DEPENDENCIES)
+        for (final String packageName : createSetOfAcceptedPackages(acceptedPackages))
         {
             if (className.startsWith(packageName))
             {
@@ -99,16 +107,26 @@ public final class ExceptionUtils
         }
         return true;
     }
+    
+    private static Set<String> createSetOfAcceptedPackages(Collection<String> acceptedPackages)
+    {
+        final LinkedHashSet<String> set = new LinkedHashSet<String>();
+        set.addAll(Arrays.asList(ACCEPTED_PACKAGE_NAME_DEPENDENCIES));
+        set.addAll(acceptedPackages);
+        return set;
+    }
 
     /**
-     * Analyzes given <var>exception</var> and makes it independent to packages outside the ones
-     * specified in an internal list, <code>ACCEPTED_PACKAGE_NAME_DEPENDENCIES</code>.
+     * Analyzes given <var>exception</var> and makes it independent to packages outside the
+     * specified collection or <code>java.lang, ch.systemsx.cisd.common</code>.
      */
-    public final static Exception createMasqueradingExceptionIfNeeded(final Exception exception)
+    public final static Exception createMasqueradingExceptionIfNeeded(final Exception exception,
+            final Collection<String> acceptedPackages)
     {
         assert exception != null : "Unspecified SQL Exception.";
-        final Exception clientSafeException = createMasqueradingException(exception);
-        copyCauseException(exception, clientSafeException);
+        final Exception clientSafeException =
+                createMasqueradingException(exception, acceptedPackages);
+        copyCauseException(exception, clientSafeException, acceptedPackages);
         return clientSafeException;
     }
 

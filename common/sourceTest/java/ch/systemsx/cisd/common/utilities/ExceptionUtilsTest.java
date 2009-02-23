@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.security.DigestException;
 import java.text.ParseException;
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.testng.annotations.Test;
 import org.xml.sax.SAXException;
@@ -70,7 +71,7 @@ public final class ExceptionUtilsTest
     {
         try
         {
-            ExceptionUtils.createMasqueradingExceptionIfNeeded(null);
+            ExceptionUtils.createMasqueradingExceptionIfNeeded(null, Collections.<String>emptyList());
             fail("Null exception not allowed.");
         } catch (final AssertionError ex)
         {
@@ -84,7 +85,18 @@ public final class ExceptionUtilsTest
         final String message = "Oooops!";
         final UserFailureException exception = new UserFailureException(message);
         final Exception clientSafeException =
-                ExceptionUtils.createMasqueradingExceptionIfNeeded(exception);
+                ExceptionUtils.createMasqueradingExceptionIfNeeded(exception, Collections
+                        .<String> emptyList());
+        checkReturnedClientSafeException(message, exception, clientSafeException, true);
+    }
+
+    @Test
+    public final void testWithClientSafeExceptionOneLevelFromSpecifiedPackage()
+    {
+        final String message = "Oooops!";
+        final Exception exception = new SAXException(message);
+        final Exception clientSafeException =
+                ExceptionUtils.createMasqueradingExceptionIfNeeded(exception, Arrays.asList("org.xml"));
         checkReturnedClientSafeException(message, exception, clientSafeException, true);
     }
 
@@ -94,10 +106,11 @@ public final class ExceptionUtilsTest
         final String message = "Oooops!";
         final Exception exception = new SAXException(message);
         final Exception clientSafeException =
-                ExceptionUtils.createMasqueradingExceptionIfNeeded(exception);
+            ExceptionUtils.createMasqueradingExceptionIfNeeded(exception, Collections
+                    .<String> emptyList());
         checkReturnedClientSafeException(message, exception, clientSafeException, false);
     }
-
+    
     @Test
     public final void testWithClientSafeExceptionMultipleLevel()
     {
@@ -110,7 +123,8 @@ public final class ExceptionUtilsTest
         final UnsupportedOperationException unsupportedOperationException =
                 new UnsupportedOperationException(unsupportedOperationText, runtimeException);
         final Exception clientSafeException =
-                ExceptionUtils.createMasqueradingExceptionIfNeeded(unsupportedOperationException);
+                ExceptionUtils.createMasqueradingExceptionIfNeeded(unsupportedOperationException,
+                        Collections.<String> emptyList());
         checkReturnedClientSafeException(unsupportedOperationText, unsupportedOperationException,
                 clientSafeException, true);
         checkReturnedClientSafeException(runtimeText, runtimeException,
@@ -130,7 +144,8 @@ public final class ExceptionUtilsTest
         final DigestException digestException =
                 new DigestException(digestExceptionText, runtimeException);
         final Exception clientSafeException =
-                ExceptionUtils.createMasqueradingExceptionIfNeeded(digestException);
+                ExceptionUtils.createMasqueradingExceptionIfNeeded(digestException, Collections
+                        .<String> emptyList());
         checkReturnedClientSafeException(digestExceptionText, digestException, clientSafeException,
                 false);
         checkReturnedClientSafeException(runtimeText, runtimeException,
@@ -147,7 +162,8 @@ public final class ExceptionUtilsTest
         final RuntimeException checkedExceptionTunnel =
                 CheckedExceptionTunnel.wrapIfNecessary(ioException);
         final Exception clientSafeException =
-                ExceptionUtils.createMasqueradingExceptionIfNeeded(checkedExceptionTunnel);
+                ExceptionUtils.createMasqueradingExceptionIfNeeded(checkedExceptionTunnel,
+                        Collections.<String> emptyList());
         assertNotSame(clientSafeException, checkedExceptionTunnel);
         assertNotSame(clientSafeException, ioException);
         assertTrue(clientSafeException instanceof MasqueradingException);
