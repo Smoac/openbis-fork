@@ -7,7 +7,7 @@
     <property name="original.dist.server" value="${original.dist}/server" />
 
     <property name="gwt.lib" value="${lib}/gwt" />
-    <property name="gwt.dev.lib" value="${gwt.lib}/mac/gwt-dev-mac.jar" />
+    <property name="gwt.dev.lib" value="${gwt.lib}/windows/gwt-dev-windows.jar" />
     <property name="gwt.user.lib" value="${gwt.lib}/gwt-user.jar" />
     <property name="gwt.ext.lib" value="${lib}/gwt-ext/gwtext.jar" />
     <property name="gwt.tomcat.web-inf" value="../${ant.project.name}/tomcat/webapps/ROOT/WEB-INF" />
