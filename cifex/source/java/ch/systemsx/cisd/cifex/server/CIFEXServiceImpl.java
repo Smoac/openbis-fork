@@ -38,6 +38,7 @@ import ch.systemsx.cisd.cifex.client.InvalidSessionException;
 import ch.systemsx.cisd.cifex.client.UserFailureException;
 import ch.systemsx.cisd.cifex.client.UserNotFoundException;
 import ch.systemsx.cisd.cifex.client.application.Constants;
+import ch.systemsx.cisd.cifex.client.dto.AdminFile;
 import ch.systemsx.cisd.cifex.client.dto.Configuration;
 import ch.systemsx.cisd.cifex.client.dto.File;
 import ch.systemsx.cisd.cifex.client.dto.FileUploadFeedback;
@@ -137,8 +138,14 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
     public final User tryLogin(final String userCode, final String plainPassword)
             throws EnvironmentFailureException
     {
-        UserDTO userDTO = super.tryLoginUser(userCode, plainPassword);
-        return BeanUtils.createBean(User.class, userDTO);
+        try
+        {
+            final UserDTO userDTO = super.tryLoginUser(userCode, plainPassword);
+            return BeanUtils.createBean(User.class, userDTO);
+        } catch (ch.systemsx.cisd.common.exceptions.EnvironmentFailureException ex)
+        {
+            throw new EnvironmentFailureException(ex.getMessage());
+        }
     }
 
     public final Configuration getConfiguration() throws InvalidSessionException
@@ -166,7 +173,13 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         ensureUserExistsInDatabase(userCode, userDTOOrNull);
         ensureUserIsNotExternallyAuthenticated(userCode, userDTOOrNull);
 
-        userDTOOrNull = tryExternalAuthenticationServiceLogin(userCode, plainPassword);
+        try
+        {
+            userDTOOrNull = tryExternalAuthenticationServiceLogin(userCode, plainPassword);
+        } catch (ch.systemsx.cisd.common.exceptions.EnvironmentFailureException ex)
+        {
+            throw new EnvironmentFailureException(ex.getMessage());
+        }
 
         if (userDTOOrNull != null)
         {
@@ -333,11 +346,11 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         }
     }
 
-    public File[] listFiles() throws InvalidSessionException, InsufficientPrivilegesException
+    public AdminFile[] listFiles() throws InvalidSessionException, InsufficientPrivilegesException
     {
         checkAdmin("listFiles");
         final List<FileDTO> files = domainModel.getFileManager().listFiles();
-        return BeanUtils.createBeanArray(File.class, files, null);
+        return BeanUtils.createBeanArray(AdminFile.class, files, null);
     }
 
     public final File[] listDownloadFiles() throws InvalidSessionException

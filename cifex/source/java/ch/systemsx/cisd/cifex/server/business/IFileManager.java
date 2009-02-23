@@ -77,11 +77,11 @@ public interface IFileManager
 
     /** Lists files for given <var>userId</var>. */
     @LogAnnotation(logCategory = LogCategory.OPERATION, logLevel = LogLevel.TRACE)
-    public List<FileDTO> listDownloadFiles(final long userId) throws UserFailureException;
+    public List<FileDTO> listDownloadFiles(final long userId);
 
     /** Lists files uploaded by user with given <var>userId</var>. */
     @LogAnnotation(logCategory = LogCategory.OPERATION, logLevel = LogLevel.TRACE)
-    public List<FileDTO> listUploadedFiles(final long userId) throws UserFailureException;
+    public List<FileDTO> listUploadedFiles(final long userId);
 
     /**
      * Returns the content for the given <var>fileDTO</var>.
@@ -175,6 +175,6 @@ public interface IFileManager
      * Removes sharing link between file with given fileId and user with given userCode
      */
     @LogAnnotation(logCategory = LogCategory.TRACKING)
-    public void deleteSharingLink(long fileId, String userCode) throws UserFailureException;
+    public void deleteSharingLink(long fileId, String userCode);
 
 }

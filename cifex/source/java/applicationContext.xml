@@ -67,15 +67,15 @@
     </bean>
     
     <!-- 
-        // Upload Service
+        // RPC Service
     -->
 
-    <bean id="file-upload-service-exporter" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter">
-        <property name="service" ref="file-upload-service" />
-        <property name="serviceInterface" value="ch.systemsx.cisd.cifex.upload.ICIFEXRPCService" />
+    <bean id="rpc-service-exporter" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter">
+        <property name="service" ref="rpc-service" />
+        <property name="serviceInterface" value="ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService" />
     </bean>
 
-    <bean id="file-upload-service" class="ch.systemsx.cisd.cifex.upload.server.CIFEXRPCService">
+    <bean id="rpc-service" class="ch.systemsx.cisd.cifex.rpc.server.CIFEXRPCService">
         <constructor-arg ref="domain-model" />
         <constructor-arg ref="request-context-provider" />
         <constructor-arg ref="user-action-log" />

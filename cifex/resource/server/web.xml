@@ -42,7 +42,7 @@
 
     <servlet>
         <servlet-name>file2GB-upload</servlet-name>
-        <servlet-class>ch.systemsx.cisd.cifex.upload.server.File2GBUploadServlet</servlet-class>
+        <servlet-class>ch.systemsx.cisd.cifex.rpc.server.File2GBUploadServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
 

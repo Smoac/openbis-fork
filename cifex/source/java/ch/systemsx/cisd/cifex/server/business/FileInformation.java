@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.server.business;
 
+import java.io.File;
+
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 
 /**
@@ -28,16 +30,19 @@ public class FileInformation
 {
 
     private final FileDTO fileDTOOrNull;
+    
+    private final File fileOrNull;
 
     private final long fileId;
 
     private final String errorMessageOrNull;
 
-    public FileInformation(final long fileId, final FileDTO fileDTO)
+    public FileInformation(final long fileId, final FileDTO fileDTO, final File file)
     {
         assert fileId > 0;
         this.fileId = fileId;
         this.fileDTOOrNull = fileDTO;
+        this.fileOrNull = file;
         this.errorMessageOrNull = null;
     }
 
@@ -47,6 +52,7 @@ public class FileInformation
         this.fileId = fileId;
         this.errorMessageOrNull = errorMessage;
         this.fileDTOOrNull = null;
+        this.fileOrNull = null;
     }
 
     /**
@@ -77,6 +83,20 @@ public class FileInformation
             throw new IllegalStateException(errorMessageOrNull);
         }
         return fileDTOOrNull;
+    }
+
+    /**
+     * Returns the file object, pointing to the file store.
+     * 
+     * @throws IllegalStateException If the file is not available (see {@link #isFileAvailable()})
+     */
+    public File getFile() throws IllegalStateException
+    {
+        if (isFileAvailable() == false)
+        {
+            throw new IllegalStateException(errorMessageOrNull);
+        }
+        return fileOrNull;
     }
 
     /**

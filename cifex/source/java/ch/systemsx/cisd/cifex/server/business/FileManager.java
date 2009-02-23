@@ -28,9 +28,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
@@ -142,13 +144,13 @@ final class FileManager extends AbstractManager implements IFileManager
     //
 
     @Transactional
-    public final List<FileDTO> listDownloadFiles(final long userId) throws UserFailureException
+    public final List<FileDTO> listDownloadFiles(final long userId)
     {
         return daoFactory.getFileDAO().listDownloadFiles(userId);
     }
 
     @Transactional
-    public final List<FileDTO> listUploadedFiles(final long userId) throws UserFailureException
+    public final List<FileDTO> listUploadedFiles(final long userId)
     {
         return daoFactory.getFileDAO().listUploadedFiles(userId);
     }
@@ -215,14 +217,14 @@ final class FileManager extends AbstractManager implements IFileManager
             final boolean fileStoreImportant)
     {
         final FileDTO fileDTOOrNull = daoFactory.getFileDAO().tryGetFile(fileId);
+        File realFile = null;
         if (fileDTOOrNull == null)
         {
             return new FileInformation(fileId, "File [id=" + fileId
                     + "] not found in the database. Try to refresh the page.");
         } else if (fileStoreImportant)
         {
-            final File realFile =
-                    new java.io.File(businessContext.getFileStore(), fileDTOOrNull.getPath());
+            realFile = new java.io.File(businessContext.getFileStore(), fileDTOOrNull.getPath());
             if (realFile.exists() == false)
             {
                 return new FileInformation(fileId, String.format(
@@ -230,7 +232,7 @@ final class FileManager extends AbstractManager implements IFileManager
                         fileId));
             }
         }
-        return new FileInformation(fileId, fileDTOOrNull);
+        return new FileInformation(fileId, fileDTOOrNull, realFile);
     }
 
     @Transactional
@@ -359,8 +361,7 @@ final class FileManager extends AbstractManager implements IFileManager
         final FileDTO fileDTO = new FileDTO(user.getID());
         fileDTO.setName(fileName);
         fileDTO.setContentType(contentType);
-        fileDTO.setPath(FileUtilities.getRelativeFile(businessContext.getFileStore(),
-                file));
+        fileDTO.setPath(FileUtilities.getRelativeFile(businessContext.getFileStore(), file));
         fileDTO.setComment(comment);
         fileDTO.setExpirationDate(DateUtils.addMinutes(new Date(), businessContext
                 .getFileRetention()));
@@ -463,8 +464,7 @@ final class FileManager extends AbstractManager implements IFileManager
             if (existingUsersOrNull == null)
             {
                 password = businessContext.getPasswordGenerator().generatePassword(10);
-                final UserDTO user =
-                        tryCreateUser(requestUser, lowerCaseIdentifier, password);
+                final UserDTO user = tryCreateUser(requestUser, lowerCaseIdentifier, password);
                 if (user != null)
                 {
                     existingUsers.add(user);
@@ -483,9 +483,8 @@ final class FileManager extends AbstractManager implements IFileManager
         return password;
     }
 
-    private void createLinksAndSendEmails(Set<UserDTO> users,
-            final Collection<FileDTO> files, final String url, final String comment,
-            final UserDTO requestUser, String password)
+    private void createLinksAndSendEmails(Set<UserDTO> users, final Collection<FileDTO> files,
+            final String url, final String comment, final UserDTO requestUser, String password)
     {
         final IFileDAO fileDAO = daoFactory.getFileDAO();
         final IMailClient mailClient = businessContext.getMailClient();
@@ -504,8 +503,8 @@ final class FileManager extends AbstractManager implements IFileManager
                 {
                     alreadyExistingSharingLinks.add(user.getUserCode());
                     operationLog.error(String.format(
-                            "Sharing file %s with user %s for the second time.", file
-                                    .getPath(), user.getUserCode()), ex);
+                            "Sharing file %s with user %s for the second time.", file.getPath(),
+                            user.getUserCode()), ex);
                 }
             }
         }
@@ -542,8 +541,7 @@ final class FileManager extends AbstractManager implements IFileManager
                     // As we are sure that we get correct email addresses, this
                     // exception can only be related to the configuration and/or
                     // environment. So inform the administrator about the problem.
-                    notificationLog.error(
-                            "A problem has occurred while sending email.", ex);
+                    notificationLog.error("A problem has occurred while sending email.", ex);
                     notified = true;
                 }
             }
@@ -600,7 +598,27 @@ final class FileManager extends AbstractManager implements IFileManager
     @Transactional
     public final List<FileDTO> listFiles() throws UserFailureException
     {
-        return daoFactory.getFileDAO().listFiles();
+        final List<FileDTO> list = daoFactory.getFileDAO().listFiles();
+        final Map<Long, String> idToCodeMap = new HashMap<Long, String>();
+        for (FileDTO file : list)
+        {
+            for (UserDTO user : file.getSharingUsers())
+            {
+                user.setUserCode(getUserCodeForId(idToCodeMap, user.getID()));
+            }
+        }
+        return list;
+    }
+
+    private String getUserCodeForId(Map<Long, String> idToCodeMap, long id)
+    {
+        String code = idToCodeMap.get(id);
+        if (code == null)
+        {
+            code = daoFactory.getUserDAO().tryFindUserCodeById(id);
+            idToCodeMap.put(id, code);
+        }
+        return code;
     }
 
     @Transactional
