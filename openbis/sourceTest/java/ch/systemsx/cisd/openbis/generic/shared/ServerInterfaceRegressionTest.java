@@ -37,4 +37,11 @@ public class ServerInterfaceRegressionTest extends RegressionTestCase
         assertMandatoryMethodAnnotations(IPluginCommonServer.class);
         assertNormalizedSourceFilesAreEqual(IPluginCommonServer.class);
     }
+    
+    @Test
+    public void testIETLLIMSService()
+    {
+        assertMandatoryMethodAnnotations(IETLLIMSService.class);
+        assertNormalizedSourceFilesAreEqual(IETLLIMSService.class);
+    }
 }

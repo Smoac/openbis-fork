@@ -20,8 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.ISessionProvider;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
@@ -40,6 +42,7 @@ public interface IETLLIMSService extends IWebService, IDataStoreInfoProvider, IS
      * Returns the home database instance.
      */
     @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.ETL_SERVER)
     public DatabaseInstancePE getHomeDatabaseInstance();
 
     /**
@@ -52,6 +55,7 @@ public interface IETLLIMSService extends IWebService, IDataStoreInfoProvider, IS
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.ETL_SERVER)
     public ExperimentPE tryToGetBaseExperiment(final String sessionToken,
+            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
             final SampleIdentifier sampleIdentifier) throws UserFailureException;
 
     /**
@@ -66,6 +70,7 @@ public interface IETLLIMSService extends IWebService, IDataStoreInfoProvider, IS
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.ETL_SERVER)
     public SamplePropertyPE[] tryToGetPropertiesOfTopSampleRegisteredFor(final String sessionToken,
+            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
             final SampleIdentifier sampleIdentifier) throws UserFailureException;
 
     /**
@@ -82,9 +87,10 @@ public interface IETLLIMSService extends IWebService, IDataStoreInfoProvider, IS
      */
     @Transactional
     @RolesAllowed(RoleSet.ETL_SERVER)
-    public void registerDataSet(final String sessionToken, final SampleIdentifier sampleIdentifier,
-            final String procedureTypeCode, final ExternalData externalData)
-            throws UserFailureException;
+    public void registerDataSet(final String sessionToken,
+            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
+            final SampleIdentifier sampleIdentifier, final String procedureTypeCode,
+            final ExternalData externalData) throws UserFailureException;
 
     /**
      * Creates and returns a unique code for a new data set.
