@@ -29,7 +29,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 public class ListDownloadFilesCommand extends AbstractCommandWithSessionToken
 {
 
-    private static final String NAME = "list-files";
+    private static final String NAME = "list";
 
     private static ListDownloadFilesCommand instance;
 
