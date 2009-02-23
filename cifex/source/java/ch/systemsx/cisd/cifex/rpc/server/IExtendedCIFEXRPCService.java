@@ -14,9 +14,22 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.upload.client;
+package ch.systemsx.cisd.cifex.rpc.server;
 
-enum FileItemStatus
+import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
+import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+
+/**
+ * Extends {@link ICIFEXRPCService} by methods not visible for client code.
+ *
+ * @author Franz-Josef Elmer
+ */
+public interface IExtendedCIFEXRPCService extends ICIFEXRPCService
 {
-    NOT_STARTED, UPLOADING, FINISHED, ABORTED
+    /**
+     * Creates a new upload session for the specified user and server URL to be appear in e-mails.
+     * 
+     * @return unique upload session ID.
+     */
+    public String createSession(UserDTO user, String url);
 }

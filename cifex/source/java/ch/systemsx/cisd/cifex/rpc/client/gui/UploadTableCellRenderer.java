@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.upload.client;
+package ch.systemsx.cisd.cifex.rpc.client.gui;
 
 import java.awt.Component;
 
@@ -23,6 +23,8 @@ import javax.swing.JProgressBar;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
+import ch.systemsx.cisd.cifex.rpc.client.FileItem;
+import ch.systemsx.cisd.cifex.rpc.client.FileItemStatus;
 import ch.systemsx.cisd.common.utilities.DateTimeUtils;
 
 /**

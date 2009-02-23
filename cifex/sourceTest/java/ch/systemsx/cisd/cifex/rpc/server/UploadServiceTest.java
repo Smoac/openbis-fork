@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.upload.server;
+package ch.systemsx.cisd.cifex.rpc.server;
 
 import org.jmock.Mockery;
 import org.testng.AssertJUnit;
@@ -22,11 +22,11 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.cifex.rpc.UploadState;
+import ch.systemsx.cisd.cifex.rpc.UploadStatus;
 import ch.systemsx.cisd.cifex.server.business.IFileManager;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
-import ch.systemsx.cisd.cifex.upload.UploadState;
-import ch.systemsx.cisd.cifex.upload.UploadStatus;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 
 /**
  * @author Franz-Josef Elmer
@@ -76,9 +76,9 @@ public class UploadServiceTest extends AssertJUnit
         {
             uploadService.getUploadStatus("invalid");
             fail("EnvironmentFailureException expected");
-        } catch (EnvironmentFailureException e)
+        } catch (InvalidSessionException e)
         {
-            assertEquals("No upload session found for ID invalid", e.getMessage());
+            assertEquals("No session found for ID invalid", e.getMessage());
         }
 
         context.assertIsSatisfied();
@@ -125,9 +125,9 @@ public class UploadServiceTest extends AssertJUnit
         {
             uploadService.defineUploadParameters("invalid", new String[0], "", "");
             fail("EnvironmentFailureException expected");
-        } catch (EnvironmentFailureException e)
+        } catch (InvalidSessionException e)
         {
-            assertEquals("No upload session found for ID invalid", e.getMessage());
+            assertEquals("No session found for ID invalid", e.getMessage());
         }
 
         context.assertIsSatisfied();

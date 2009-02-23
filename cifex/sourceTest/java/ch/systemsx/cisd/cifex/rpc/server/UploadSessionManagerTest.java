@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.upload.server;
+package ch.systemsx.cisd.cifex.rpc.server;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 
 /**
  * 
@@ -32,7 +32,7 @@ public class UploadSessionManagerTest extends AssertJUnit
     @Test
     public void testDifferentSessionIDs()
     {
-        UploadSessionManager manager = new UploadSessionManager(false);
+        SessionManager manager = new SessionManager(false);
         UserDTO user = new UserDTO();
         user.setUserCode("user");
         Session session1 = manager.createSession(user, "url");
@@ -49,7 +49,7 @@ public class UploadSessionManagerTest extends AssertJUnit
     @Test
     public void testGetSession()
     {
-        UploadSessionManager manager = new UploadSessionManager(false);
+        SessionManager manager = new SessionManager(false);
         UserDTO user = new UserDTO();
         user.setUserCode("user");
         Session session = manager.createSession(user, "url");
@@ -60,21 +60,21 @@ public class UploadSessionManagerTest extends AssertJUnit
     @Test
     public void testGetNonExistingSession()
     {
-        UploadSessionManager manager = new UploadSessionManager(false);
+        SessionManager manager = new SessionManager(false);
         try
         {
             manager.getSession("session-id");
             fail("EnvironmentFailureException expected");
-        } catch (EnvironmentFailureException ex)
+        } catch (InvalidSessionException ex)
         {
-            assertEquals("No upload session found for ID session-id", ex.getMessage());
+            assertEquals("No session found for ID session-id", ex.getMessage());
         }
     }
     
     @Test
     public void testRemoveSession()
     {
-        UploadSessionManager manager = new UploadSessionManager(false);
+        SessionManager manager = new SessionManager(false);
         UserDTO user = new UserDTO();
         user.setUserCode("user");
         Session session = manager.createSession(user, "url");
@@ -87,9 +87,9 @@ public class UploadSessionManagerTest extends AssertJUnit
         {
             manager.getSession(sessionID);
             fail("EnvironmentFailureException expected");
-        } catch (EnvironmentFailureException ex)
+        } catch (InvalidSessionException ex)
         {
-            assertEquals("No upload session found for ID " + sessionID, ex.getMessage());
+            assertEquals("No session found for ID " + sessionID, ex.getMessage());
         }
         
         

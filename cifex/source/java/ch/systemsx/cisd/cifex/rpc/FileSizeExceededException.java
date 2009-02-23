@@ -14,26 +14,21 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.upload.client;
-
-import java.io.File;
+package ch.systemsx.cisd.cifex.rpc;
 
 /**
- * 
+ * An exception to indicate that the maximal file size is exceeded in an upload.
  *
- * @author Franz-Josef Elmer
+ * @author Bernd Rinn
  */
-public interface IUploadListener
+public class FileSizeExceededException extends RuntimeException
 {
-    public void uploadingStarted(File file, long fileSize);
-    
-    public void uploadingProgress(int percentage, long numberOfBytes);
-    
-    public void fileUploaded();
-    
-    public void uploadingFinished(boolean successful);
-    
-    public void exceptionOccured(Throwable throwable);
 
-    public void reset();
+    private static final long serialVersionUID = 1L;
+    
+    public FileSizeExceededException(final int maxFileSizeInMB)
+    {
+        super("The upload has exceeded the maximal file size of " + maxFileSizeInMB + "MB.");
+    }
+
 }

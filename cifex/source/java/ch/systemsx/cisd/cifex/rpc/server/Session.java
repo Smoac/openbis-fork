@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.upload.server;
+package ch.systemsx.cisd.cifex.rpc.server;
 
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.cifex.rpc.UploadStatus;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
-import ch.systemsx.cisd.cifex.upload.UploadStatus;
 
 /**
- * 
+ * A session for rpc based calls.
  *
  * @author Franz-Josef Elmer
  */

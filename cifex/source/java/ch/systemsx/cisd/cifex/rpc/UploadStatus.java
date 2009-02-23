@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.upload;
+package ch.systemsx.cisd.cifex.rpc;
 
 import java.io.Serializable;
 import java.util.HashSet;

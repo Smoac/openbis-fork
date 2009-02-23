@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.upload.integration;
+package ch.systemsx.cisd.cifex.rpc.integration;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,13 +34,16 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.cifex.rpc.client.Uploader;
+import ch.systemsx.cisd.cifex.rpc.client.gui.IUploadListener;
+import ch.systemsx.cisd.cifex.rpc.server.CIFEXRPCService;
+import ch.systemsx.cisd.cifex.server.business.IBusinessContext;
+import ch.systemsx.cisd.cifex.server.business.IDomainModel;
 import ch.systemsx.cisd.cifex.server.business.IFileManager;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
-import ch.systemsx.cisd.cifex.upload.client.IUploadListener;
-import ch.systemsx.cisd.cifex.upload.client.Uploader;
-import ch.systemsx.cisd.cifex.upload.server.CIFEXRPCService;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
@@ -49,7 +52,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
  */
 public class UploadingIntegrationTest extends AssertJUnit
 {
-    private static final int BLOCK_SIZE = 64 * 1024;
+    private static final int BLOCK_SIZE = 1024 * 1024;
 
     private static final String TEST_URL = "test-url";
 
@@ -66,7 +69,7 @@ public class UploadingIntegrationTest extends AssertJUnit
 
     private static final String LARGE_FILE = "large-file";
 
-    private static final long LARGE_FILE_SIZE = 200;
+    private static final long LARGE_FILE_SIZE = 4000;
 
     private static void createRandomData(File file, long sizeInKB)
     {
@@ -100,6 +103,10 @@ public class UploadingIntegrationTest extends AssertJUnit
     private Uploader uploader;
 
     private IUploadListener listener;
+    
+    private IDomainModel domainModel;
+    
+    private IBusinessContext businessContext;
 
     private UserDTO user;
 
@@ -108,8 +115,10 @@ public class UploadingIntegrationTest extends AssertJUnit
     {
         context = new Mockery();
         fileManager = context.mock(IFileManager.class);
+        domainModel = context.mock(IDomainModel.class);
+        businessContext = context.mock(IBusinessContext.class);
         CIFEXRPCService uploadService =
-                new CIFEXRPCService(fileManager, null, null, null, null, "false");
+                new CIFEXRPCService(fileManager, domainModel, null, null, null, "false");
         user = new UserDTO();
         user.setUserCode("Isaac");
         String sessionID = uploadService.createSession(user, TEST_URL);
@@ -165,12 +174,12 @@ public class UploadingIntegrationTest extends AssertJUnit
 
                                     public boolean matches(Object item)
                                     {
-                                        if (item instanceof EnvironmentFailureException)
+                                        if (item instanceof InvalidSessionException)
                                         {
-                                            EnvironmentFailureException e =
-                                                    (EnvironmentFailureException) item;
+                                            InvalidSessionException e =
+                                                    (InvalidSessionException) item;
                                             return e.getMessage().startsWith(
-                                                    "No upload session found");
+                                                    "No session found");
                                         }
                                         return false;
                                     }
@@ -185,11 +194,11 @@ public class UploadingIntegrationTest extends AssertJUnit
         try
         {
             uploader.upload(Arrays.<File> asList(), "Albert\nGalileo", "no comment");
-            fail("EnvironmentFailureException expected");
-        } catch (EnvironmentFailureException e)
+            fail("InvalidSessionException expected");
+        } catch (InvalidSessionException e)
         {
             assertTrue("Expected message: " + e.getMessage(), e.getMessage().indexOf(
-                    "No upload session found") == 0);
+                    "No session found") == 0);
         }
 
         context.assertIsSatisfied();
@@ -203,6 +212,10 @@ public class UploadingIntegrationTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
+                    allowing(domainModel).getBusinessContext();
+                    will(returnValue(businessContext));
+                    allowing(businessContext).getMaxUploadRequestSizeInMB();
+                    will(returnValue((int) (LARGE_FILE_SIZE * 2)));
                     one(listener).uploadingStarted(fileOnClient, SMALL_FILE_SIZE * 1024L);
 
                     one(fileManager).createFile(user, SMALL_FILE);
@@ -233,15 +246,19 @@ public class UploadingIntegrationTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
+                    allowing(domainModel).getBusinessContext();
+                    will(returnValue(businessContext));
+                    allowing(businessContext).getMaxUploadRequestSizeInMB();
+                    will(returnValue((int) (LARGE_FILE_SIZE * 2)));
                     one(listener).uploadingStarted(fileOnClient, LARGE_FILE_SIZE * 1024L);
 
                     one(fileManager).createFile(user, LARGE_FILE);
                     will(returnValue(fileInFileStore));
 
                     one(listener).uploadingProgress(0, 0);
-                    one(listener).uploadingProgress(32, BLOCK_SIZE);
-                    one(listener).uploadingProgress(64, 2 * BLOCK_SIZE);
-                    one(listener).uploadingProgress(96, 3 * BLOCK_SIZE);
+                    one(listener).uploadingProgress(25, BLOCK_SIZE);
+                    one(listener).uploadingProgress(51, 2 * BLOCK_SIZE);
+                    one(listener).uploadingProgress(76, 3 * BLOCK_SIZE);
                     one(listener).uploadingFinished(true);
                     one(listener).reset();
 
@@ -268,6 +285,10 @@ public class UploadingIntegrationTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
+                    allowing(domainModel).getBusinessContext();
+                    will(returnValue(businessContext));
+                    allowing(businessContext).getMaxUploadRequestSizeInMB();
+                    will(returnValue((int) (LARGE_FILE_SIZE * 2)));
                     one(listener).uploadingStarted(fileOnClient1, SMALL_FILE_SIZE * 1024L);
                     one(fileManager).createFile(user, SMALL_FILE);
                     will(returnValue(fileInFileStore1));
@@ -287,9 +308,9 @@ public class UploadingIntegrationTest extends AssertJUnit
                     will(returnValue(fileInFileStore2));
 
                     one(listener).uploadingProgress(0, 0);
-                    one(listener).uploadingProgress(32, BLOCK_SIZE);
-                    one(listener).uploadingProgress(64, 2 * BLOCK_SIZE);
-                    one(listener).uploadingProgress(96, 3 * BLOCK_SIZE);
+                    one(listener).uploadingProgress(25, BLOCK_SIZE);
+                    one(listener).uploadingProgress(51, 2 * BLOCK_SIZE);
+                    one(listener).uploadingProgress(76, 3 * BLOCK_SIZE);
                     one(listener).uploadingFinished(true);
                     one(listener).reset();
 
@@ -317,6 +338,10 @@ public class UploadingIntegrationTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
+                    allowing(domainModel).getBusinessContext();
+                    will(returnValue(businessContext));
+                    allowing(businessContext).getMaxUploadRequestSizeInMB();
+                    will(returnValue((int) (LARGE_FILE_SIZE * 2)));
                     one(listener).uploadingStarted(fileOnClient, SMALL_FILE_SIZE * 1024L);
 
                     one(fileManager).createFile(user, SMALL_FILE);
@@ -370,6 +395,10 @@ public class UploadingIntegrationTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
+                    allowing(domainModel).getBusinessContext();
+                    will(returnValue(businessContext));
+                    allowing(businessContext).getMaxUploadRequestSizeInMB();
+                    will(returnValue((int) (LARGE_FILE_SIZE * 2)));
                     one(listener).uploadingStarted(fileOnClient, SMALL_FILE_SIZE * 1024L);
 
                     one(fileManager).createFile(user, SMALL_FILE);
@@ -409,13 +438,17 @@ public class UploadingIntegrationTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
+                    allowing(domainModel).getBusinessContext();
+                    will(returnValue(businessContext));
+                    allowing(businessContext).getMaxUploadRequestSizeInMB();
+                    will(returnValue((int) (LARGE_FILE_SIZE * 2)));
                     one(listener).uploadingStarted(fileOnClient, LARGE_FILE_SIZE * 1024L);
 
                     one(fileManager).createFile(user, LARGE_FILE);
                     will(returnValue(fileInFileStore));
 
-                    one(listener).uploadingProgress(32, BLOCK_SIZE);
-                    one(listener).uploadingProgress(with(equal(64)), with(new BaseMatcher<Long>()
+                    one(listener).uploadingProgress(25, BLOCK_SIZE);
+                    one(listener).uploadingProgress(with(equal(51)), with(new BaseMatcher<Long>()
                         {
                             public void describeTo(Description description)
                             {
@@ -459,6 +492,10 @@ public class UploadingIntegrationTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
+                    allowing(domainModel).getBusinessContext();
+                    will(returnValue(businessContext));
+                    allowing(businessContext).getMaxUploadRequestSizeInMB();
+                    will(returnValue((int) (LARGE_FILE_SIZE * 2)));
                     one(listener).uploadingStarted(fileOnClient1, SMALL_FILE_SIZE * 1024L);
                     one(fileManager).createFile(user, SMALL_FILE);
                     will(returnValue(fileInFileStore1));
@@ -477,8 +514,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(fileManager).createFile(user, LARGE_FILE);
                     will(returnValue(fileInFileStore2));
 
-                    one(listener).uploadingProgress(32, BLOCK_SIZE);
-                    one(listener).uploadingProgress(with(equal(64)), with(new BaseMatcher<Long>()
+                    one(listener).uploadingProgress(25, BLOCK_SIZE);
+                    one(listener).uploadingProgress(with(equal(51)), with(new BaseMatcher<Long>()
                         {
                             public void describeTo(Description description)
                             {
@@ -507,9 +544,9 @@ public class UploadingIntegrationTest extends AssertJUnit
                     will(returnValue(fileInFileStore2));
 
                     one(listener).uploadingProgress(0, 0);
-                    one(listener).uploadingProgress(32, BLOCK_SIZE);
-                    one(listener).uploadingProgress(64, 2 * BLOCK_SIZE);
-                    one(listener).uploadingProgress(96, 3 * BLOCK_SIZE);
+                    one(listener).uploadingProgress(25, BLOCK_SIZE);
+                    one(listener).uploadingProgress(51, 2 * BLOCK_SIZE);
+                    one(listener).uploadingProgress(76, 3 * BLOCK_SIZE);
                     one(listener).uploadingFinished(true);
                     one(listener).reset();
 

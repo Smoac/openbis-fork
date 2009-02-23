@@ -14,22 +14,26 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.upload.server;
+package ch.systemsx.cisd.cifex.rpc.client.gui;
 
-import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
-import ch.systemsx.cisd.cifex.upload.ICIFEXRPCService;
+import java.io.File;
 
 /**
- * Extends {@link ICIFEXRPCService} by methods not visible for client code.
+ * 
  *
  * @author Franz-Josef Elmer
  */
-public interface IExtendedCIFEXRPCService extends ICIFEXRPCService
+public interface IUploadListener
 {
-    /**
-     * Creates a new upload session for the specified user and server URL to be appear in e-mails.
-     * 
-     * @return unique upload session ID.
-     */
-    public String createSession(UserDTO user, String url);
+    public void uploadingStarted(File file, long fileSize);
+    
+    public void uploadingProgress(int percentage, long numberOfBytes);
+    
+    public void fileUploaded();
+    
+    public void uploadingFinished(boolean successful);
+    
+    public void exceptionOccured(Throwable throwable);
+
+    public void reset();
 }

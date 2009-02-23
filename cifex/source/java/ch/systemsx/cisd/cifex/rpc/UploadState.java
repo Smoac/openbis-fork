@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.upload;
+package ch.systemsx.cisd.cifex.rpc;
 
 /**
  * State of the upload session life cycle

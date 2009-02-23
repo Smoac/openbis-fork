@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.upload.client;
+package ch.systemsx.cisd.cifex.rpc.client.gui;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -22,6 +22,9 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
+import ch.systemsx.cisd.cifex.rpc.client.FileItem;
+import ch.systemsx.cisd.cifex.rpc.client.FileItemStatus;
+import ch.systemsx.cisd.cifex.rpc.client.Uploader;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 
 

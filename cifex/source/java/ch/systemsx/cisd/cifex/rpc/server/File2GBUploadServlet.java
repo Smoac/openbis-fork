@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.upload.server;
+package ch.systemsx.cisd.cifex.rpc.server;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -97,7 +97,7 @@ public class File2GBUploadServlet extends AbstractFileUploadServlet
             ServletContext servletContext = getServletContext();
             final BeanFactory context =
                     WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
-            uploadService = (IExtendedCIFEXRPCService) context.getBean("file-upload-service");
+            uploadService = (IExtendedCIFEXRPCService) context.getBean("rpc-service");
         } catch (final Exception ex)
         {
             notificationLog.fatal("Failure during file upload service servlet initialization.", ex);
@@ -146,7 +146,7 @@ public class File2GBUploadServlet extends AbstractFileUploadServlet
     private String createServiceURL(final HttpServletRequest request)
     {
         String baseURL = HttpUtils.getBasicURL(request);
-        return baseURL + "/cifex/file-upload-service";
+        return baseURL + "/cifex/rpc-service";
     }
     
 }

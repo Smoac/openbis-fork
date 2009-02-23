@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.upload.server;
+package ch.systemsx.cisd.cifex.rpc.server;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.utilities.TokenGenerator;
 
 /**
@@ -28,7 +29,7 @@ import ch.systemsx.cisd.common.utilities.TokenGenerator;
  *
  * @author Franz-Josef Elmer
  */
-public class UploadSessionManager
+public class SessionManager
 {
     private final boolean testMode;
     private final TokenGenerator tokenGenerator = new TokenGenerator();
@@ -36,7 +37,7 @@ public class UploadSessionManager
     
     private int nextID;
     
-    public UploadSessionManager(boolean testMode)
+    public SessionManager(boolean testMode)
     {
         this.testMode = testMode;
     }
@@ -59,12 +60,12 @@ public class UploadSessionManager
      * 
      * @throws EnvironmentFailureException if no session could be found.
      */
-    public Session getSession(String uploadSessionID)
+    public Session getSession(String uploadSessionID) throws InvalidSessionException
     {
         Session uploadSession = sessions.get(uploadSessionID);
         if (uploadSession == null)
         {
-            throw new EnvironmentFailureException("No upload session found for ID " + uploadSessionID);
+            throw new InvalidSessionException("No session found for ID " + uploadSessionID);
         }
         return uploadSession;
     }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.upload.client;
+package ch.systemsx.cisd.cifex.rpc.client;
 
 import java.io.File;
 
@@ -25,7 +25,7 @@ import ch.systemsx.cisd.common.utilities.ITimeProvider;
  *
  * @author Franz-Josef Elmer
  */
-final class FileItem 
+public final class FileItem 
 {
     private final ITimeProvider timeProvider;
     private final File file;
@@ -35,7 +35,7 @@ final class FileItem
     private long uploadStartTime;
     private long numberOfBytesUploaded;
     
-    FileItem(File file, ITimeProvider timeProvider)
+    public FileItem(File file, ITimeProvider timeProvider)
     {
         this.file = file;
         this.timeProvider = timeProvider;
@@ -43,32 +43,32 @@ final class FileItem
         status = FileItemStatus.NOT_STARTED;
     }
     
-    File getFile()
+    public File getFile()
     {
         return file;
     }
     
-    long getLength()
+    public long getLength()
     {
         return length;
     }
 
-    FileItemStatus getStatus()
+    public FileItemStatus getStatus()
     {
         return status;
     }
 
-    void setStatus(FileItemStatus status)
+    public void setStatus(FileItemStatus status)
     {
         this.status = status;
     }
 
-    long getNumberOfBytesUploaded()
+    public long getNumberOfBytesUploaded()
     {
         return numberOfBytesUploaded;
     }
 
-    void setNumberOfBytesUploaded(long numberOfBytesUploaded)
+    public void setNumberOfBytesUploaded(long numberOfBytesUploaded)
     {
         if (numberOfBytesUploaded <= 0)
         {
@@ -77,7 +77,7 @@ final class FileItem
         this.numberOfBytesUploaded = numberOfBytesUploaded;
     }
     
-    long getEstimatedTimeOfArrival()
+    public long getEstimatedTimeOfArrival()
     {
         long duration = timeProvider.getTimeInMilliseconds() - uploadStartTime;
         return (long) (duration * (((double) length - numberOfBytesUploaded) / Math.max(
