@@ -220,6 +220,7 @@ var common = {
  //
  material_type: "Material Type",
  material_browser: "Material Browser", 
+ infibitor_of: "Inhibitor of",
  
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

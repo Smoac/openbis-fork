@@ -47,6 +47,10 @@ public final class MaterialTranslator
 
     private final static Material translate(final MaterialPE materialPE, final boolean withDetails)
     {
+        if (materialPE == null)
+        {
+            return null;
+        }
         final Material result = new Material();
         result.setCode(materialPE.getCode());
         if (withDetails)
@@ -57,6 +61,7 @@ public final class MaterialTranslator
             result.setRegistrator(PersonTranslator.translate(materialPE.getRegistrator()));
             result.setRegistrationDate(materialPE.getRegistrationDate());
             result.setProperties(MaterialPropertyTranslator.translate(materialPE.getProperties()));
+            result.setInhibitorOf(MaterialTranslator.translate(materialPE.getInhibitorOf(), false));
         }
         return result;
     }

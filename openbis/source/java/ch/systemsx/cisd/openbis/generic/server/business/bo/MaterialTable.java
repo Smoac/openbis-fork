@@ -77,6 +77,17 @@ public final class MaterialTable extends AbstractBusinessObject implements IMate
         }
     }
 
+    public final void enrichWithInhibitors()
+    {
+        if (materials != null)
+        {
+            for (final MaterialPE material : materials)
+            {
+                HibernateUtils.initialize(material.getInhibitorOf());
+            }
+        }
+    }
+
     public final List<MaterialPE> getMaterials()
     {
         assert materials != null : "Materials have not been loaded.";

@@ -42,4 +42,9 @@ public interface IMaterialTable
     /** Returns the loaded {@link MaterialPE}. */
     public List<MaterialPE> getMaterials();
 
+    /**
+     * Enriches the materials with inhibitors.
+     */
+    public void enrichWithInhibitors();
+
 }

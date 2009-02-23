@@ -396,6 +396,8 @@ public abstract class Dict
 
     public static final String MATERIAL_BROWSER = "material_browser";
 
+    public static final String INHIBITOR_OF = "infibitor_of";
+
     //
     // Unclassified
     //
