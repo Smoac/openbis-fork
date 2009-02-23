@@ -40,7 +40,7 @@ layer business-layer1 = [dto]
 check layeringOf business-layer1 business-layer2 business-layer3
 
 ######################################################################
-# Check dependencies package upload
+# Check dependencies package rpc
 
 {rpc} = ${package}.rpc
 [rpc] = ${rpc}.*
@@ -50,7 +50,7 @@ check layeringOf business-layer1 business-layer2 business-layer3
 check sets [rpc] [rpc.common] [rpc.client] [rpc.server]
 
 check [rpc] independentOf ${client}.*
-check [rpc.common] [upload.client] independentOf ${server}.*
+check [rpc.common] [rpc.client] independentOf ${server}.*
 
 layer rpc-common = [rpc.common]
 layer rpc-client-server = [rpc.client] [rpc.server]
