@@ -34,13 +34,14 @@ import com.gwtext.client.widgets.form.TextField;
 import com.gwtext.client.widgets.form.TextFieldConfig;
 
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.client.application.FileShareUploadDialog;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
+import ch.systemsx.cisd.cifex.client.application.ServletPathConstants;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.utils.CifexValidator;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
+import ch.systemsx.cisd.cifex.shared.basic.Constants;
 
 /**
  * <code>Form</code> extension to upload files and to send emails to specified recipients.
@@ -88,7 +89,7 @@ public final class FileUploadWidget extends Form
         formConfig.setButtonAlign(Position.LEFT);
         formConfig.setLabelWidth(LABEL_WIDTH);
         formConfig.setFileUpload(true);
-        formConfig.setUrl(Constants.FILE_UPLOAD_SERVLET_NAME);
+        formConfig.setUrl(ServletPathConstants.FILE_UPLOAD_SERVLET_NAME);
         formConfig.setMethod(Connection.POST);
         return formConfig;
     }
@@ -151,10 +152,10 @@ public final class FileUploadWidget extends Form
                                     "Upload New Files", userTextArea);
                     for (int i = 0; i < userEntries.length; i++)
                     {
-                        if (userEntries[i].startsWith(StringUtils.USER_ID_PREFIX))
+                        if (userEntries[i].startsWith(Constants.USER_ID_PREFIX))
                         {
                             String userCode =
-                                    userEntries[i].substring(StringUtils.USER_ID_PREFIX.length());
+                                    userEntries[i].substring(Constants.USER_ID_PREFIX.length());
                             tryFindUserByUserCode(userCode, dialog, existingUsers);
                         } else
                         {

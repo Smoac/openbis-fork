@@ -19,8 +19,8 @@ package ch.systemsx.cisd.cifex.server.business;
 import java.text.MessageFormat;
 import java.util.Date;
 
-import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.common.mail.IMailClient;
 
 /**

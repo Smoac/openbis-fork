@@ -23,9 +23,9 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
-import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.common.mail.IMailClient;
 
 /**

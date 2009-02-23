@@ -24,6 +24,7 @@ import com.gwtext.client.widgets.grid.Grid;
 import com.gwtext.client.widgets.grid.event.GridCellListenerAdapter;
 
 import ch.systemsx.cisd.cifex.client.application.ui.DefaultLayoutDialog;
+import ch.systemsx.cisd.cifex.shared.basic.Constants;
 
 /**
  * A <code>GridCellListenerAdapter</code> extension which opens a {@link DefaultLayoutDialog} for

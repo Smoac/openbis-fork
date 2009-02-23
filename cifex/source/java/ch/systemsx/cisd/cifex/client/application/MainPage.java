@@ -29,6 +29,7 @@ import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.client.dto.Configuration;
 import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
+import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 
 /**
@@ -121,7 +122,7 @@ final class MainPage extends AbstractMainPage
             String link = messageResources.getUploadFilesHelpJavaUploaderLink();
             String title = messageResources.getUploadFilesHelpJavaUploaderTitle();
             String anchor =
-                DOMUtils.createAnchor(title, link, Constants.FILE2GB_UPLOAD_SERVLET_NAME, null,
+                DOMUtils.createAnchor(title, link, ServletPathConstants.FILE2GB_UPLOAD_SERVLET_NAME, null,
                         null, false);
             verticalPanel.add(new HTML(messageResources.getUploadFilesHelpJavaUpload(anchor)));
         }

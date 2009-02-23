@@ -21,8 +21,8 @@ import java.util.List;
 
 import ch.systemsx.cisd.cifex.client.application.model.FileShareUserGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.UserTextArea;
-import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
+import ch.systemsx.cisd.cifex.shared.basic.Constants;
 
 /**
  * @author Basil Neff
@@ -49,7 +49,7 @@ public class FileShareUploadDialog extends AbstractFileShareUserDialog
             if (existingUserGrid.getStore().getAt(i)
                     .getAsBoolean(FileShareUserGridModel.SHARE_FILE))
             {
-                userEntries.add(StringUtils.USER_ID_PREFIX
+                userEntries.add(Constants.USER_ID_PREFIX
                         + ((UserInfoDTO) existingUsers.get(i)).getUserCode());
             }
         }

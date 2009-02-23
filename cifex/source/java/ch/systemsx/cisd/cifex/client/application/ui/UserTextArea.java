@@ -24,6 +24,7 @@ import com.gwtext.client.widgets.form.TextAreaConfig;
 
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
+import ch.systemsx.cisd.cifex.shared.basic.Constants;
 
 /**
  * @author Basil Neff
@@ -100,7 +101,7 @@ public class UserTextArea extends TextArea
         {
             if (StringUtils.isBlank(user.getUserCode()) == false)
             {
-                addUser(StringUtils.USER_ID_PREFIX + user.getUserCode());
+                addUser(Constants.USER_ID_PREFIX + user.getUserCode());
             } else if (StringUtils.isBlank(user.getEmail()) == false)
             {
                 addUser(user.getEmail());

@@ -34,6 +34,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.CountingInputStream;
@@ -43,7 +44,6 @@ import org.apache.log4j.Logger;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 
-import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.server.business.bo.IBusinessObjectFactory;
 import ch.systemsx.cisd.cifex.server.business.bo.IUserBO;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
@@ -54,6 +54,7 @@ import ch.systemsx.cisd.cifex.server.business.dto.FileContent;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.server.common.Password;
+import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.collections.TableMapNonUniqueKey;
@@ -73,6 +74,11 @@ import ch.systemsx.cisd.common.utilities.BeanUtils;
  */
 final class FileManager extends AbstractManager implements IFileManager
 {
+    private static final Pattern USER_CODE_WITH_ID_PREFIX_PATTERN =
+            Pattern.compile(Constants.USER_CODE_WITH_ID_PREFIX_REGEX);
+
+    private static final Pattern EMAIL_PATTERN = Pattern.compile(Constants.EMAIL_REGEX);
+    
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, FileManager.class);
 
@@ -437,7 +443,7 @@ final class FileManager extends AbstractManager implements IFileManager
                     invalidEmailAdresses, success);
         }
     }
-
+    
     private String handlIdentifer(final String identifier, final UserDTO requestUser,
             final TableMapNonUniqueKey<String, UserDTO> existingUsers,
             final TableMap<String, UserDTO> existingUniqueUsers,
@@ -446,7 +452,7 @@ final class FileManager extends AbstractManager implements IFileManager
         String password = null;
         final String lowerCaseIdentifier = identifier.toLowerCase();
         // If the Identifier start with "id:", it is not a email
-        if (lowerCaseIdentifier.startsWith(USER_ID_PREFIX))
+        if (USER_CODE_WITH_ID_PREFIX_PATTERN.matcher(lowerCaseIdentifier).matches())
         {
             final UserDTO userOrNull =
                     existingUniqueUsers.tryGet(lowerCaseIdentifier.substring(USER_ID_PREFIX
@@ -458,7 +464,7 @@ final class FileManager extends AbstractManager implements IFileManager
             {
                 invalidEmailAdresses.add(lowerCaseIdentifier);
             }
-        } else
+        } else if (EMAIL_PATTERN.matcher(lowerCaseIdentifier).matches())
         {
             Set<UserDTO> existingUsersOrNull = existingUsers.tryGet(lowerCaseIdentifier);
             if (existingUsersOrNull == null)
@@ -479,6 +485,9 @@ final class FileManager extends AbstractManager implements IFileManager
             {
                 users.addAll(existingUsersOrNull);
             }
+        } else
+        {
+            invalidEmailAdresses.add(lowerCaseIdentifier);
         }
         return password;
     }

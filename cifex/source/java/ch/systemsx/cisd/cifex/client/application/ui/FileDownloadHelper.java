@@ -18,10 +18,11 @@ package ch.systemsx.cisd.cifex.client.application.ui;
 
 import java.util.Map;
 
-import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.client.application.Model;
+import ch.systemsx.cisd.cifex.client.application.ServletPathConstants;
 import ch.systemsx.cisd.cifex.client.application.utils.WindowUtils;
 import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
+import ch.systemsx.cisd.cifex.shared.basic.Constants;
 
 /**
  * A static class offering some helper methods regarding file download.
@@ -68,7 +69,7 @@ public final class FileDownloadHelper
     /** Creates a download link for given <var>fileId</var>. */
     public final static String createDownloadUrl(final long fileId)
     {
-        return Constants.FILE_DOWNLOAD_SERVLET_NAME + "?" + Constants.FILE_ID_PARAMETER + "="
+        return ServletPathConstants.FILE_DOWNLOAD_SERVLET_NAME + "?" + Constants.FILE_ID_PARAMETER + "="
                 + fileId;
     }
 

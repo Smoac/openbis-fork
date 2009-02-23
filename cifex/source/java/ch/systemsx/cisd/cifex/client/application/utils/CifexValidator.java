@@ -19,6 +19,8 @@ package ch.systemsx.cisd.cifex.client.application.utils;
 import com.gwtext.client.widgets.form.ValidationException;
 import com.gwtext.client.widgets.form.Validator;
 
+import ch.systemsx.cisd.cifex.shared.basic.Constants;
+
 /**
  * @author Basil Neff
  */
@@ -46,8 +48,8 @@ public class CifexValidator
                         assert result[i] != null : "Must not be null.";
                         final String item = result[i].trim();
                         if (item.length() > 0
-                                && StringUtils.matches(StringUtils.EMAIL_REGEX, item) == false
-                                && StringUtils.matches(StringUtils.USER_CODE_WITH_ID_PREFIX_REGEX, item) == false)
+                                && StringUtils.matches(Constants.EMAIL_REGEX, item) == false
+                                && StringUtils.matches(Constants.USER_CODE_WITH_ID_PREFIX_REGEX, item) == false)
                         {
                             return false;
                         }
@@ -73,7 +75,7 @@ public class CifexValidator
                     {
                         return false;
                     }
-                    if (StringUtils.matches(StringUtils.EMAIL_REGEX, item) == false)
+                    if (StringUtils.matches(Constants.EMAIL_REGEX, item) == false)
                     {
                         return false;
                     }
@@ -97,7 +99,7 @@ public class CifexValidator
                     {
                         return false;
                     }
-                    if (StringUtils.matches(StringUtils.USER_CODE_REGEX, value) == false)
+                    if (StringUtils.matches(Constants.USER_CODE_REGEX, value) == false)
                     {
                         return false;
                     }

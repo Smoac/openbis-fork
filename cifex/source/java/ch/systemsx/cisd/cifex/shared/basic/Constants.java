@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.client.application;
+package ch.systemsx.cisd.cifex.shared.basic;
 
-import com.google.gwt.core.client.GWT;
 
 /**
  * Some constants used through the whole web application.
@@ -25,7 +24,6 @@ import com.google.gwt.core.client.GWT;
  */
 public final class Constants
 {
-    private static final String CONTEXT_PATH = isDeployed() ? "" : "/cifex";
 
     /** The <code>id</code> attribute value for renew action. */
     public static final String RENEW_ID = "renew";
@@ -57,32 +55,11 @@ public final class Constants
     public static final String VALID_USER_CODE_DESCRIPTION =
             "User code must not be empty and must contain only allowed characters: [a-zA-Z0-9_.-@]. Whitespaces are not allowed.";
 
-    private Constants()
-    {
-        // Can not be instantiated.
-    }
-
-    /**
-     * Name of the <code>RemoteServiceServlet</code> extension (The <i>GWT</i> server side).
-     */
-    // Do not use 'getPrepend()' here as this URL does not change, nor in Web/Hosted Mode neither in
-    // Deployed Mode.
-    public static final String CIFEX_SERVLET_NAME = CONTEXT_PATH + "/cifex";
-
     /** The HTTP URL parameter used to specify the file id. */
     public static final String FILE_ID_PARAMETER = "fileId";
 
     /** The HTTP URL parameter used to specify the email. */
     public static final String USERCODE_PARAMETER = "user";
-
-    /** Name of the <code>HttpServlet</code> extension to upload a file. */
-    public static final String FILE_UPLOAD_SERVLET_NAME = getPrepend() + "file-upload";
-
-    /** Name of the <code>HttpServlet</code> extension to upload files > 2GB. */
-    public static final String FILE2GB_UPLOAD_SERVLET_NAME = getPrepend() + "file2GB-upload";
-    
-    /** Name of the <code>HttpServlet</code> extension to download a file. */
-    public static final String FILE_DOWNLOAD_SERVLET_NAME = getPrepend() + "file-download";
 
     /** The table <code>null</code> value representation (<code>-</code>). */
     public static final String TABLE_NULL_VALUE = "-";
@@ -90,20 +67,17 @@ public final class Constants
     /** The table <i>empty</i> value representation. */
     public static final String TABLE_EMPTY_VALUE = "";
 
-    private final static String getPrepend()
+    /** A regular expression that match email addresses. */
+    public static final String EMAIL_REGEX =
+            "^([a-zA-Z0-9_\\.\\-])+\\@(([a-zA-Z0-9\\-])+\\.)+([a-zA-Z0-9]{2,4})+$";
+
+    /** A regular expression that match user code with prefix {@link #USER_ID_PREFIX}. */
+    public static final String USER_CODE_WITH_ID_PREFIX_REGEX =
+            "^" + USER_ID_PREFIX + USER_CODE_REGEX.substring(1);
+
+    private Constants()
     {
-        return CONTEXT_PATH + "/" + (isDeployed() ? "cifex/" : "");
+        // Can not be instantiated.
     }
 
-    /**
-     * Whether this application is deployed.
-     * <p>
-     * Deployed means that module name (<code>ch.systemsx.cisd.cifex.Cifex</code>) not present
-     * in module base URL (<code>http://localhost:8080/cifex/</code>).
-     * </p>
-     */
-    private final static boolean isDeployed()
-    {
-        return GWT.getModuleBaseURL().indexOf(GWT.getModuleName()) < 0;
-    }
 }

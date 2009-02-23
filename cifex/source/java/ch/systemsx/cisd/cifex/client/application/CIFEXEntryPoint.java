@@ -53,7 +53,7 @@ public final class CIFEXEntryPoint implements EntryPoint
         // 'http://localhost:8080/cifex/' when deployed.
         // 'GWT.getModuleName()' always returns 'ch.systemsx.cisd.cifex.Cifex'.
         // Do not prepend 'GWT.getModuleBaseURL()' here as we want '/cifex/cifex' in Hosted Mode.
-        endpoint.setServiceEntryPoint(Constants.CIFEX_SERVLET_NAME);
+        endpoint.setServiceEntryPoint(ServletPathConstants.CIFEX_SERVLET_NAME);
         return service;
     }
 

@@ -43,7 +43,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.cifex.client.application.Constants;
 import ch.systemsx.cisd.cifex.server.business.bo.IBusinessObjectFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IFileDAO;
@@ -51,6 +50,7 @@ import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.FileContent;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.common.filesystem.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.mail.IMailClient;
@@ -578,6 +578,38 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
+    @Test
+    public final void testShareFileWithInvalidRecipient()
+    {
+        final long requestUserId = 42;
+        final UserDTO requestUser = new UserDTO();
+        requestUser.setID(requestUserId);
+        requestUser.setPermanent(true);
+        requestUser.setUserCode("hello");
+        requestUser.setEmail("hello@a.bc");
+        final FileDTO file = new FileDTO(requestUserId);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+
+                    allowing(userDAO).listUsers();
+                    will(returnValue(Arrays.asList(requestUser)));
+
+                    allowing(daoFactory).getFileDAO();
+                    will(returnValue(fileDAO));
+                }
+            });
+        
+        final List<String> invalidUsers =
+            fileManager.shareFilesWith("", requestUser, Collections
+                    .singleton("hello"), Collections.singleton(file), "");
+        
+        assertEquals("[hello]", invalidUsers.toString());
+        context.assertIsSatisfied();
+    }
+    
     @Test
     public final void testGetFile()
     {

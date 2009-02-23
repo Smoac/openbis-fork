@@ -26,6 +26,7 @@ import com.gwtext.client.widgets.event.ButtonListenerAdapter;
 import ch.systemsx.cisd.cifex.client.application.model.FileShareUserGridModel;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
+import ch.systemsx.cisd.cifex.shared.basic.Constants;
 
 /**
  * @author Basil Neff
@@ -71,7 +72,7 @@ public class FileShareUpdateUserDialog extends AbstractFileShareUserDialog
         {
             // User in the loop
             UserInfoDTO tmpUser = ((UserInfoDTO) existingUsers.get(i));
-            String userIdentifierWithPrefix = StringUtils.USER_ID_PREFIX + tmpUser.getUserCode();
+            String userIdentifierWithPrefix = Constants.USER_ID_PREFIX + tmpUser.getUserCode();
             String userIdentifier = ((UserInfoDTO) existingUsers.get(i)).getUserCode();
             // Checkbox is unchecked
             if (existingUserGrid.getStore().getAt(i)
@@ -131,7 +132,7 @@ public class FileShareUpdateUserDialog extends AbstractFileShareUserDialog
     {
         if (StringUtils.isBlank(user.getUserCode()) == false)
         {
-            usersToAdd.add(StringUtils.USER_ID_PREFIX + user.getUserCode());
+            usersToAdd.add(Constants.USER_ID_PREFIX + user.getUserCode());
         } else if (StringUtils.isBlank(user.getEmail()) == false)
         {
             usersToAdd.add(user.getEmail());
