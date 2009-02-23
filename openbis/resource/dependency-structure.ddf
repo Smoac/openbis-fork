@@ -37,15 +37,24 @@ check layeringOf generic.web.shared generic.web.client-server
 
 {generic.web.ui} = ${generic.web}.client.application.ui
 
-[sample-browser] = ${generic.web.ui}.sample_browser
-[experiment-browser] = ${generic.web.ui}.experiment_browser
+[sample-browser] = ${generic.web.ui}.sample
+[experiment-browser] = ${generic.web.ui}.experiment
+[material-browser] = ${generic.web.ui}.material
 [admin-console] = ${generic.web.ui}.amc
 check [sample-browser] independentOf [admin-console]
-check [admin-console]  independentOf [sample-browser]
-check [experiment-browser]  independentOf [sample-browser]
 check [sample-browser]  independentOf [experiment-browser]
+check [sample-browser]  independentOf [material-browser]
+check [experiment-browser]  independentOf [sample-browser]
 check [experiment-browser] independentOf [admin-console]
+check [experiment-browser] independentOf [material-browser]
+check [admin-console]  independentOf [sample-browser]
 check [admin-console]  independentOf [experiment-browser]
+check [admin-console]  independentOf [material-browser]
+check [material-browser]  independentOf [experiment-browser]
+check [material-browser]  independentOf [sample-browser]
+check [material-browser]  independentOf [admin-console]
+
+
 
 # Check that grid column definitions are GUI independent - export on the server side is using it
 [grid-columns] = ${generic.web}.client.application.ui.columns.**
