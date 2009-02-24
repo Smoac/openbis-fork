@@ -403,24 +403,27 @@ public class ETLServiceTest extends AbstractServerTestCase
     public void testRegisterDataSetForExistingProcedure()
     {
         final SampleIdentifier sampleIdentifier =
-            new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
+                new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
         final ExperimentPE experiment = createExperiment("TYPE", "EXP1", "G1");
         String procedureTypeCode = DATA_ACQUISITION.getCode();
-        prepareTryToLoadSample(sampleIdentifier, createSampleWithExperiment(procedureTypeCode, experiment));
-        final ProcedurePE procedure = new ProcedurePE();
+        SamplePE sample = createSampleWithExperiment(procedureTypeCode, experiment);
+        prepareTryToLoadSample(sampleIdentifier, sample);
         final ExternalData externalData = new ExternalData();
         externalData.setCode("dc");
-        prepareRegisterDataSet(sampleIdentifier, procedure, SourceType.MEASUREMENT, externalData);
-        
-        createService().registerDataSet(SESSION_TOKEN, sampleIdentifier, procedureTypeCode, externalData);
-        
+        prepareRegisterDataSet(sampleIdentifier, sample.getValidProcedure(),
+                SourceType.MEASUREMENT, externalData);
+
+        createService().registerDataSet(SESSION_TOKEN, sampleIdentifier, procedureTypeCode,
+                externalData);
+
         context.assertIsSatisfied();
     }
-    
+
+    @Test
     public void testRegisterDataSetAndCreatingProcedureOnTheFly()
     {
         final SampleIdentifier sampleIdentifier =
-            new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
+                new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
         final ExperimentPE experiment = createExperiment("TYPE", "EXP1", "G1");
         prepareTryToLoadSample(sampleIdentifier, createSampleWithExperiment("PTYPE", experiment));
         final String newProcedureType = "unknown";
