@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.server;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Properties;
 
 import javax.servlet.ServletConfig;
@@ -34,10 +35,12 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPaceholderConfigurer;
+import ch.systemsx.cisd.common.utilities.Template;
 
 /**
  * An abstract <code>HttpServlet</code> extension.
@@ -53,7 +56,13 @@ abstract class AbstractCIFEXServiceServlet extends HttpServlet
     private static final long serialVersionUID = 1L;
 
     private static final String DOMAIN_MODEL_BEAN_NAME = "domain-model";
+    
+    private static final Template ERROR_MESSAGE = new Template("<html><meta><title>CIFEX Error</title></meta>" +
+    		"<body><h1>CIFEX Error</h1>${error-message}</body></html>");
 
+    private static final Template FATAL_ERROR_MESSAGE = new Template("<html><meta><title>CIFEX Fatal Error</title></meta>" +
+    "<body><h1>CIFEX Fatal Error</h1>A fatal error occured:<br>${error-message}</body></html>");
+    
     protected final Logger operationLog;
 
     protected final Logger notificationLog;
@@ -135,23 +144,46 @@ abstract class AbstractCIFEXServiceServlet extends HttpServlet
         {
             operationLog.error(
                     "Error processing request for method '" + request.getMethod() + "'.", th);
-            if (th instanceof Error)
+            try
             {
-                throw (Error) th;
-            } else if (th instanceof RuntimeException)
+                PrintWriter writer = response.getWriter();
+                printPretty(writer, th);
+            } catch (IllegalStateException e)
             {
-                throw (RuntimeException) th;
-            } else if (th instanceof ServletException)
-            {
-                throw (ServletException) th;
-            } else if (th instanceof IOException)
-            {
-                throw (IOException) th;
-            } else
-            {
-                throw new Error("Unexpected error: " + th.getMessage());
+                if (th instanceof Error)
+                {
+                    throw (Error) th;
+                } else if (th instanceof RuntimeException)
+                {
+                    throw (RuntimeException) th;
+                } else if (th instanceof ServletException)
+                {
+                    throw (ServletException) th;
+                } else if (th instanceof IOException)
+                {
+                    throw (IOException) th;
+                } else
+                {
+                    throw new Error("Unexpected error: " + th.getMessage());
+                }
             }
         }
+    }
+
+    private void printPretty(PrintWriter writer, Throwable throwable)
+    {
+        if (throwable instanceof UserFailureException)
+        {
+            Template template = ERROR_MESSAGE.createFreshCopy();
+            template.bind("error-message", ((UserFailureException) throwable).getMessage());
+            writer.write(template.createText());
+        } else
+        {
+            Template template = FATAL_ERROR_MESSAGE.createFreshCopy();
+            template.bind("error-message", throwable.toString());
+        }
+        writer.flush();
+        writer.close();
     }
 
     @Override
