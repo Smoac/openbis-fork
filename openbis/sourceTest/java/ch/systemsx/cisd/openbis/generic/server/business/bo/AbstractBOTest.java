@@ -23,12 +23,15 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProcedureDAO;
@@ -82,6 +85,12 @@ public abstract class AbstractBOTest extends AssertJUnit
 
     IProcedureTypeDAO procedureTypeDAO;
 
+    IDataSetTypeDAO dataSetTypeDAO;
+
+    IFileFormatTypeDAO fileFormatTypeDAO;
+
+    ILocatorTypeDAO locatorTypeDAO;
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -103,7 +112,9 @@ public abstract class AbstractBOTest extends AssertJUnit
         procedureDAO = context.mock(IProcedureDAO.class);
         procedureTypeDAO = context.mock(IProcedureTypeDAO.class);
         materialDAO = context.mock(IMaterialDAO.class);
-        
+        dataSetTypeDAO = context.mock(IDataSetTypeDAO.class);
+        fileFormatTypeDAO = context.mock(IFileFormatTypeDAO.class);
+        locatorTypeDAO = context.mock(ILocatorTypeDAO.class);
         context.checking(new Expectations()
             {
                 {
@@ -111,10 +122,24 @@ public abstract class AbstractBOTest extends AssertJUnit
                     will(returnValue(databaseInstanceDAO));
                     allowing(daoFactory).getGroupDAO();
                     will(returnValue(groupDAO));
+                    allowing(daoFactory).getVocabularyDAO();
+                    will(returnValue(vocabularyDAO));
                     allowing(daoFactory).getSampleDAO();
                     will(returnValue(sampleDAO));
                     allowing(daoFactory).getSampleTypeDAO();
                     will(returnValue(sampleTypeDAO));
+                    allowing(daoFactory).getDataSetTypeDAO();
+                    will(returnValue(dataSetTypeDAO));
+                    allowing(daoFactory).getFileFormatTypeDAO();
+                    will(returnValue(fileFormatTypeDAO));
+                    allowing(daoFactory).getLocatorTypeDAO();
+                    will(returnValue(locatorTypeDAO));
+                    allowing(daoFactory).getExternalDataDAO();
+                    will(returnValue(externalDataDAO));
+                    allowing(daoFactory).getProcedureTypeDAO();
+                    will(returnValue(procedureTypeDAO));
+                    allowing(daoFactory).getProcedureDAO();
+                    will(returnValue(procedureDAO));
                 }
             });
     }

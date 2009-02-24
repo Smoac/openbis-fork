@@ -48,9 +48,6 @@ public final class ProcedureBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getProcedureTypeDAO();
-                    will(returnValue(procedureTypeDAO));
-
                     one(procedureTypeDAO).tryFindProcedureTypeByCode(procedureTypeCode);
                     will(returnValue(procedureType));
                 }
@@ -105,9 +102,6 @@ public final class ProcedureBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getProcedureDAO();
-                    will(returnValue(procedureDAO));
-
                     one(procedureDAO).createProcedure(procedure);
                 }
             });
@@ -129,9 +123,6 @@ public final class ProcedureBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getProcedureDAO();
-                    will(returnValue(procedureDAO));
-
                     one(procedureDAO).createProcedure(procedure);
                     will(throwException(new DataIntegrityViolationException("data access problem")));
                 }
@@ -159,9 +150,6 @@ public final class ProcedureBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getProcedureTypeDAO();
-                    will(returnValue(procedureTypeDAO));
-
                     one(procedureTypeDAO).tryFindProcedureTypeByCode(procedureTypeCode);
                     will(returnValue(procedureTypeDTO));
                 }

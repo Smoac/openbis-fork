@@ -189,9 +189,6 @@ public final class PropertyTypeBOTest extends AbstractBOTest
                     one(propertyTypeDAO).getDataTypeByCode(EntityDataType.CONTROLLEDVOCABULARY);
                     will(returnValue(dataTypePE));
 
-                    allowing(daoFactory).getVocabularyDAO();
-                    will(returnValue(vocabularyDAO));
-
                     one(vocabularyDAO).tryFindVocabularyByCode(vocabulary.getCode());
                     will(returnValue(new VocabularyPE()));
                 }

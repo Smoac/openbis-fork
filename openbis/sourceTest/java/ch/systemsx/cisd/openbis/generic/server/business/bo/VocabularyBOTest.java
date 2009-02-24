@@ -141,15 +141,13 @@ public final class VocabularyBOTest extends AbstractBOTest
                     one(daoFactory).getHomeDatabaseInstance();
                     will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
 
-                    one(daoFactory).getVocabularyDAO();
-                    will(returnValue(vocabularyDAO));
-
                     one(vocabularyDAO).createVocabulary(with(aNonNull(VocabularyPE.class)));
                 }
             });
         final Vocabulary vocabulary = createVocabulary();
         vocabularyBO.define(vocabulary);
         vocabularyBO.save();
+        context.assertIsSatisfied();
     }
 
     @Test
@@ -161,9 +159,6 @@ public final class VocabularyBOTest extends AbstractBOTest
                 {
                     one(daoFactory).getHomeDatabaseInstance();
                     will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
-
-                    one(daoFactory).getVocabularyDAO();
-                    will(returnValue(vocabularyDAO));
 
                     one(vocabularyDAO).createVocabulary(with(aNonNull(VocabularyPE.class)));
                     will(throwException(new DataIntegrityViolationException(null)));
@@ -179,5 +174,6 @@ public final class VocabularyBOTest extends AbstractBOTest
         {
             // Nothing to do here.
         }
+        context.assertIsSatisfied();
     }
 }
