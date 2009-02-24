@@ -71,14 +71,9 @@ public final class RoleAssignmentTableTest extends AbstractBOTest
                     one(personDAO).listPersons();
                     will(returnValue(Arrays.asList(new PersonPE[]
                         { personPE })));
-                    one(daoFactory).getDatabaseInstanceDAO();
-                    will(returnValue(databaseInstanceDAO));
 
                     one(databaseInstanceDAO).tryFindDatabaseInstanceByCode(databaseInstanceCode);
                     will(returnValue(databaseInstancePE));
-
-                    one(daoFactory).getGroupDAO();
-                    will(returnValue(groupDAO));
 
                     one(groupDAO).tryFindGroupByCodeAndDatabaseInstance(groupCode.toUpperCase(),
                             databaseInstancePE);

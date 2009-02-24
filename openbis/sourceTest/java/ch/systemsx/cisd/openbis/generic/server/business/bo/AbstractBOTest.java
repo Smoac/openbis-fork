@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.AssertJUnit;
 import org.testng.annotations.AfterMethod;
@@ -102,6 +103,20 @@ public abstract class AbstractBOTest extends AssertJUnit
         procedureDAO = context.mock(IProcedureDAO.class);
         procedureTypeDAO = context.mock(IProcedureTypeDAO.class);
         materialDAO = context.mock(IMaterialDAO.class);
+        
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getDatabaseInstanceDAO();
+                    will(returnValue(databaseInstanceDAO));
+                    allowing(daoFactory).getGroupDAO();
+                    will(returnValue(groupDAO));
+                    allowing(daoFactory).getSampleDAO();
+                    will(returnValue(sampleDAO));
+                    allowing(daoFactory).getSampleTypeDAO();
+                    will(returnValue(sampleTypeDAO));
+                }
+            });
     }
 
     @AfterMethod

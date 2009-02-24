@@ -79,9 +79,6 @@ public final class GroupBOTest extends AbstractBOTest
                     one(daoFactory).getHomeDatabaseInstance();
                     will(returnValue(instance));
 
-                    one(daoFactory).getGroupDAO();
-                    will(returnValue(groupDAO));
-
                     one(groupDAO).createGroup(groupDTO);
                 }
             });

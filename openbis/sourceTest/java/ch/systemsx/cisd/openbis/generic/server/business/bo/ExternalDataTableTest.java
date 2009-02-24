@@ -91,14 +91,8 @@ public final class ExternalDataTableTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    allowing(daoFactory).getSampleDAO();
-                    will(returnValue(sampleDAO));
-
                     allowing(daoFactory).getExternalDataDAO();
                     will(returnValue(externalDataDAO));
-
-                    allowing(daoFactory).getDatabaseInstanceDAO();
-                    will(returnValue(databaseInstanceDAO));
 
                     one(databaseInstanceDAO).tryFindDatabaseInstanceByCode(dbCode);
                     will(returnValue(databaseInstancePE));

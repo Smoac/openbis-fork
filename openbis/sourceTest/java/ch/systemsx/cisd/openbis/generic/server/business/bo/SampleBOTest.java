@@ -21,6 +21,7 @@ import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.E
 import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.EXAMPLE_SESSION;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -39,7 +40,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
@@ -111,11 +117,113 @@ public final class SampleBOTest extends AbstractBOTest
         return new SampleIdentifier(IdentifierHelper.createGroupIdentifier(EXAMPLE_GROUP), code);
     }
 
+    
+    private void prepareTryToLoadOfInstanceSample(final SampleIdentifier sampleIdentifier,
+            final SamplePE sample)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(databaseInstanceDAO).tryFindDatabaseInstanceByCode(DB);
+                    DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
+                    databaseInstance.setCode(DB);
+                    will(returnValue(databaseInstance));
+
+                    String sampleCode = sampleIdentifier.getSampleCode();
+                    one(sampleDAO).tryFindByCodeAndDatabaseInstance(sampleCode, databaseInstance,
+                            HierarchyType.CHILD);
+                    will(returnValue(sample));
+                }
+            });
+    }
+
+    private void prepareTryToLoadOfGroupSample(final SampleIdentifier sampleIdentifier,
+            final SamplePE sample)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(databaseInstanceDAO).tryFindDatabaseInstanceByCode("MY_DATABASE_INSTANCE");
+                    DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
+                    databaseInstance.setCode("MY_DATABASE_INSTANCE");
+                    will(returnValue(databaseInstance));
+
+                    one(groupDAO).tryFindGroupByCodeAndDatabaseInstance(
+                            sampleIdentifier.getGroupLevel().getGroupCode(), databaseInstance);
+                    GroupPE group = new GroupPE();
+                    will(returnValue(group));
+
+                    String sampleCode = sampleIdentifier.getSampleCode();
+                    one(sampleDAO).tryFindByCodeAndGroup(sampleCode, group, HierarchyType.CHILD);
+                    will(returnValue(sample));
+                }
+            });
+    }
+
+    private ProcedurePE createProcedure(boolean invalidExperiment)
+    {
+        ProcedurePE procedure = new ProcedurePE();
+        ExperimentPE experiment = new ExperimentPE();
+        experiment.setInvalidation(invalidExperiment ? new InvalidationPE() : null);
+        procedure.setExperiment(experiment);
+        return procedure;
+    }
+
     private final SampleBO createSampleBO()
     {
         return new SampleBO(daoFactory, EXAMPLE_SESSION, propertiesConverter);
     }
 
+    @Test
+    public void testTryToLoadByUnkownSampleIdentifier()
+    {
+        SampleIdentifier sampleIdentifier = getSharedSampleIdentifier("s1");
+        prepareTryToLoadOfInstanceSample(sampleIdentifier, null);
+        
+        SampleBO sampleBO = createSampleBO();
+        sampleBO.tryToLoadBySampleIdentifier(sampleIdentifier);
+        sampleBO.enrichWithValidProcedure();
+        try
+        {
+            sampleBO.getSample();
+            fail("IllegalStateException expected.");
+        } catch (IllegalStateException e)
+        {
+            assertEquals("Unloaded sample.", e.getMessage());
+        }
+
+        assertSame(null, sampleBO.tryToGetSample());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testTryToLoadBySampleIdentifier()
+    {
+        SampleIdentifier sampleIdentifier = getSharedSampleIdentifier("s1");
+        SamplePE sample = new SamplePE();
+        prepareTryToLoadOfInstanceSample(sampleIdentifier, sample);
+        
+        SampleBO sampleBO = createSampleBO();
+        sampleBO.tryToLoadBySampleIdentifier(sampleIdentifier);
+        
+        assertSame(sample, sampleBO.tryToGetSample());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testLoadByGroupSampleIdentifier()
+    {
+        SampleIdentifier sampleIdentifier = getGroupSampleIdentifier("s1");
+        SamplePE sample = new SamplePE();
+        prepareTryToLoadOfGroupSample(sampleIdentifier, sample);
+        
+        SampleBO sampleBO = createSampleBO();
+        sampleBO.loadBySampleIdentifier(sampleIdentifier);
+        
+        assertSame(sample, sampleBO.tryToGetSample());
+        context.assertIsSatisfied();
+    }
+    
     @Test
     public void testGetUndefinedSample()
     {
@@ -128,7 +236,48 @@ public final class SampleBOTest extends AbstractBOTest
             assertEquals("Unloaded sample.", e.getMessage());
         }
     }
-
+    
+    @Test
+    public void testEnrichWithValidProcedure()
+    {
+        SampleIdentifier sampleIdentifier = getSharedSampleIdentifier("s1");
+        SamplePE sample = new SamplePE();
+        sample.setProcedures(Arrays.asList(createProcedure(false), createProcedure(true)));
+        prepareTryToLoadOfInstanceSample(sampleIdentifier, sample);
+        
+        SampleBO sampleBO = createSampleBO();
+        sampleBO.tryToLoadBySampleIdentifier(sampleIdentifier);
+        sampleBO.enrichWithValidProcedure();
+        
+        assertSame(sample, sampleBO.tryToGetSample());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testEnrichWithTwoValidProcedures()
+    {
+        SampleIdentifier sampleIdentifier = getSharedSampleIdentifier("s1");
+        SamplePE sample = new SamplePE();
+        sample.setProcedures(Arrays.asList(createProcedure(false), createProcedure(false)));
+        prepareTryToLoadOfInstanceSample(sampleIdentifier, sample);
+        
+        SampleBO sampleBO = createSampleBO();
+        sampleBO.tryToLoadBySampleIdentifier(sampleIdentifier);
+        try
+        {
+            sampleBO.enrichWithValidProcedure();
+            fail("UserFailureException expected");
+        } catch (UserFailureException e)
+        {
+            String message = e.getMessage();
+            assertTrue("Unexpected message: " + message, message
+                    .startsWith("Expected exactly one valid procedure, but found 2"));
+        }
+        
+        assertSame(sample, sampleBO.tryToGetSample());
+        context.assertIsSatisfied();
+    }
+    
     @Test(expectedExceptions = UserFailureException.class)
     public final void testFailToDefineSharedSampleWithParentInAGroup()
     {
@@ -164,8 +313,6 @@ public final class SampleBOTest extends AbstractBOTest
                             EXAMPLE_GROUP, HierarchyType.CHILD);
                     will(returnValue(groupParent));
 
-                    one(daoFactory).getSampleTypeDAO();
-                    will(returnValue(sampleTypeDAO));
                     one(sampleTypeDAO).tryFindSampleTypeByCode(DILUTION_PLATE);
                     will(returnValue(BeanUtils.createBean(SampleTypePE.class, sampleType)));
 
@@ -239,8 +386,6 @@ public final class SampleBOTest extends AbstractBOTest
                             EXAMPLE_GROUP, HierarchyType.CHILD);
                     will(returnValue(container));
 
-                    one(daoFactory).getSampleTypeDAO();
-                    will(returnValue(sampleTypeDAO));
                     one(sampleTypeDAO).tryFindSampleTypeByCode(DILUTION_PLATE);
                     will(returnValue(sampleType));
 
@@ -288,9 +433,6 @@ public final class SampleBOTest extends AbstractBOTest
                     ManagerTestTool.prepareFindGroup(this, daoFactory, groupDAO,
                             databaseInstanceDAO);
 
-                    one(daoFactory).getSampleTypeDAO();
-                    will(returnValue(sampleTypeDAO));
-
                     one(sampleTypeDAO).tryFindSampleTypeByCode(MASTER_PLATE);
                     will(returnValue(sampleType));
 
@@ -299,9 +441,6 @@ public final class SampleBOTest extends AbstractBOTest
                     final List<SamplePropertyPE> set = new ArrayList<SamplePropertyPE>();
                     set.add(samplePropertyPE);
                     will(returnValue(set));
-
-                    one(daoFactory).getSampleDAO();
-                    will(returnValue(sampleDAO));
 
                     one(sampleDAO).createSample(with(new BaseMatcher<SamplePE>()
                         {
@@ -355,18 +494,12 @@ public final class SampleBOTest extends AbstractBOTest
                     ManagerTestTool.prepareFindGroup(this, daoFactory, groupDAO,
                             databaseInstanceDAO);
 
-                    one(daoFactory).getSampleTypeDAO();
-                    will(returnValue(sampleTypeDAO));
-
                     one(sampleTypeDAO).tryFindSampleTypeByCode(
                             SampleTypeCode.DILUTION_PLATE.getCode());
                     will(returnValue(new SampleTypePE()));
 
                     one(propertiesConverter).convertProperties(SampleProperty.EMPTY_ARRAY, null,
                             EXAMPLE_PERSON);
-
-                    one(daoFactory).getSampleDAO();
-                    will(returnValue(sampleDAO));
 
                     one(sampleDAO).tryFindByCodeAndGroup("DOES_NOT_EXIST",
                             EXAMPLE_SESSION.tryGetHomeGroup(), HierarchyType.CHILD);
@@ -398,18 +531,12 @@ public final class SampleBOTest extends AbstractBOTest
                     ManagerTestTool.prepareFindGroup(this, daoFactory, groupDAO,
                             databaseInstanceDAO);
 
-                    one(daoFactory).getSampleTypeDAO();
-                    will(returnValue(sampleTypeDAO));
-
                     one(sampleTypeDAO).tryFindSampleTypeByCode(
                             SampleTypeCode.DILUTION_PLATE.getCode());
                     will(returnValue(new SampleTypePE()));
 
                     one(propertiesConverter).convertProperties(SampleProperty.EMPTY_ARRAY, null,
                             EXAMPLE_PERSON);
-
-                    one(daoFactory).getSampleDAO();
-                    will(returnValue(sampleDAO));
 
                     one(sampleDAO).tryFindByCodeAndGroup("DOES_NOT_EXIST",
                             EXAMPLE_SESSION.tryGetHomeGroup(), HierarchyType.CHILD);
