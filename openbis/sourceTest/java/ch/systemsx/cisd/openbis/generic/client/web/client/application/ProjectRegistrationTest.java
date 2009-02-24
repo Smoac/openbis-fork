@@ -46,7 +46,7 @@ public class ProjectRegistrationTest extends AbstractGWTTestCase
                 DESCRIPTION_PROJECT_007));
 
         remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.PROJECTS,
-                CategoriesBuilder.MENU_ELEMENTS.LIST,
+                CategoriesBuilder.MENU_ELEMENTS.BROWSE,
                 ProjectRegistrationForm.ProjectRegistrationCallback.class));
         final CheckProjectTable table = new CheckProjectTable();
         table.expectedRow(new Row().withCell(ProjectColDefKind.CODE.id(), PROJECT_CODE_HER_MAJESTY)

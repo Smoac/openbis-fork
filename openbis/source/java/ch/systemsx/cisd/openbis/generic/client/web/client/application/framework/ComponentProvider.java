@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.Da
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialBatchRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project.ProjectGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project.ProjectRegistrationForm;
@@ -211,6 +212,23 @@ final class ComponentProvider
                 public String getId()
                 {
                     return SampleBatchRegistrationPanel.ID;
+                }
+            };
+    }
+
+    public final ITabItemFactory getMaterialBatchRegistration()
+    {
+        return new ITabItemFactory()
+            {
+                public ITabItem create()
+                {
+                    Component component = new MaterialBatchRegistrationPanel(viewContext);
+                    return new DefaultTabItem(getMessage(Dict.MATERIAL_IMPORT), component, true);
+                }
+
+                public String getId()
+                {
+                    return MaterialBatchRegistrationPanel.ID;
                 }
             };
     }

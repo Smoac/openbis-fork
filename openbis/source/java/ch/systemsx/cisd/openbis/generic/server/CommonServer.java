@@ -508,10 +508,9 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         final Session session = getSessionManager().getSession(sessionToken);
         final IMaterialTable materialTable = businessObjectFactory.createMaterialTable(session);
         materialTable.load(materialType.getCode());
-        materialTable.enrichWithProperties();
-        materialTable.enrichWithInhibitors();
         final List<MaterialPE> materials = materialTable.getMaterials();
         Collections.sort(materials);
         return materials;
     }
+
 }

@@ -48,6 +48,6 @@ public class ExperimentBrowserTest extends AbstractGWTTestCase
     {
         remoteConsole.prepare(new Login("test", "a"));
         remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.EXPERIMENTS,
-                CategoriesBuilder.MENU_ELEMENTS.LIST));
+                CategoriesBuilder.MENU_ELEMENTS.BROWSE));
     }   
 }

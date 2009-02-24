@@ -398,6 +398,11 @@ public abstract class Dict
 
     public static final String INHIBITOR_OF = "infibitor_of";
 
+    // 
+    // Material Import
+    //
+    public static final String MATERIAL_IMPORT = "material_import";
+
     //
     // Unclassified
     //

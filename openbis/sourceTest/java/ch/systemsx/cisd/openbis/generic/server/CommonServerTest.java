@@ -661,9 +661,6 @@ public final class CommonServerTest extends AbstractServerTestCase
 
                     one(materialTable).load(materialType.getCode());
 
-                    one(materialTable).enrichWithProperties();
-                    one(materialTable).enrichWithInhibitors();
-
                     one(materialTable).getMaterials();
                     will(returnValue(new ArrayList<MaterialTypePE>()));
                 }

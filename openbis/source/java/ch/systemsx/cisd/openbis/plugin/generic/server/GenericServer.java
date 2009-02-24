@@ -28,14 +28,17 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProcedureBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -44,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.ProcedureTypeCode;
 import ch.systemsx.cisd.openbis.plugin.AbstractPluginServer;
 import ch.systemsx.cisd.openbis.plugin.ISampleTypeSlaveServerPlugin;
@@ -217,5 +221,39 @@ public final class GenericServer extends AbstractPluginServer<IGenericServer> im
                 sampleBO.addProcedure(procedure);
             }
         }
+    }
+
+    public void registerMaterials(String sessionToken, String materialTypeCode,
+            List<NewMaterial> newMaterials)
+    {
+        assert sessionToken != null : "Unspecified session token.";
+        assert materialTypeCode != null : "Unspecified material type.";
+        assert newMaterials != null : "Unspecified new materials.";
+
+        final Session session = getSessionManager().getSession(sessionToken);
+        // Does nothing if material list is empty.
+        if (newMaterials.size() == 0)
+        {
+            return;
+        }
+        // Check uniqueness of given list based on material code.
+        final HashSet<NewMaterial> materialSet = new HashSet<NewMaterial>(newMaterials);
+        if (materialSet.size() != newMaterials.size())
+        {
+            newMaterials.removeAll(materialSet);
+            throw UserFailureException.fromTemplate("Following materials '%s' are duplicated.",
+                    CollectionUtils.abbreviate(newMaterials, 20));
+        }
+        final MaterialTypePE materialTypePE =
+                (MaterialTypePE) getDAOFactory().getEntityTypeDAO(EntityKind.MATERIAL)
+                        .tryToFindEntityTypeByCode(materialTypeCode);
+        if (materialTypePE == null)
+        {
+            throw UserFailureException.fromTemplate("Material type with code '%s' does not exist.",
+                    materialTypeCode);
+        }
+        final IMaterialTable materialTable = businessObjectFactory.createMaterialTable(session);
+        materialTable.add(newMaterials, materialTypePE);
+        materialTable.save();
     }
 }

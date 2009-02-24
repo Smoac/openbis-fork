@@ -29,6 +29,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.MenuElemen
  */
 public class CategoriesBuilder
 {
+    private static final String IMPORT_LABEL = "Import";
+
     private static final String LABEL_REGISTER = "Register";
 
     private static final String LABEL_BROWSE = "Browse";
@@ -69,9 +71,9 @@ public class CategoriesBuilder
 
         public static final String REGISTER = "REGISTER";
 
-        public static final String REGISTER_FROM_FILE = "REGISTER_FROM_FILE";
+        public static final String IMPORT = "REGISTER_FROM_FILE";
 
-        public static final String LIST = "LIST";
+        public static final String BROWSE = "LIST";
 
         public static final String MANAGE = "MANAGE";
 
@@ -108,34 +110,34 @@ public class CategoriesBuilder
     private MenuCategory createSampleCategory()
     {
         final List<MenuElement> elements = new ArrayList<MenuElement>();
-        elements
-                .add(new MenuElement(MENU_ELEMENTS.LIST, LABEL_BROWSE, provider.getSampleBrowser()));
+        elements.add(new MenuElement(MENU_ELEMENTS.BROWSE, LABEL_BROWSE, provider
+                .getSampleBrowser()));
         elements.add(new MenuElement(MENU_ELEMENTS.REGISTER, LABEL_REGISTER, provider
                 .getSampleRegistration()));
-        elements.add(new MenuElement(MENU_ELEMENTS.REGISTER_FROM_FILE, "Register from File",
-                provider.getSampleBatchRegistration()));
+        elements.add(new MenuElement(MENU_ELEMENTS.IMPORT, IMPORT_LABEL, provider
+                .getSampleBatchRegistration()));
         return new MenuCategory(CATEGORIES.SAMPLES, "Samples", elements);
     }
 
     private MenuCategory createRolesCategory()
     {
         final List<MenuElement> elements = new ArrayList<MenuElement>();
-        elements.add(new MenuElement(MENU_ELEMENTS.LIST, LABEL_BROWSE, provider.getRolesView()));
+        elements.add(new MenuElement(MENU_ELEMENTS.BROWSE, LABEL_BROWSE, provider.getRolesView()));
         return new MenuCategory(CATEGORIES.ROLES, "Roles", elements);
     }
 
     private MenuCategory createGroupsCategory()
     {
         final List<MenuElement> elements = new ArrayList<MenuElement>();
-        elements.add(new MenuElement(MENU_ELEMENTS.LIST, LABEL_BROWSE, provider.getGroupsView()));
+        elements.add(new MenuElement(MENU_ELEMENTS.BROWSE, LABEL_BROWSE, provider.getGroupsView()));
         return new MenuCategory(CATEGORIES.GROUPS, "Groups", elements);
     }
 
     private MenuCategory createProjectsTypesCategory()
     {
         final List<MenuElement> elements = new ArrayList<MenuElement>();
-        elements
-                .add(new MenuElement(MENU_ELEMENTS.LIST, LABEL_BROWSE, provider.getProjectBrowser()));
+        elements.add(new MenuElement(MENU_ELEMENTS.BROWSE, LABEL_BROWSE, provider
+                .getProjectBrowser()));
         elements.add(new MenuElement(MENU_ELEMENTS.REGISTER, LABEL_REGISTER, provider
                 .getProjectRegistration()));
         return new MenuCategory(CATEGORIES.PROJECTS, "Projects", elements);
@@ -144,14 +146,15 @@ public class CategoriesBuilder
     private MenuCategory createPersonsCategory()
     {
         final List<MenuElement> elements = new ArrayList<MenuElement>();
-        elements.add(new MenuElement(MENU_ELEMENTS.LIST, LABEL_BROWSE, provider.getPersonsView()));
+        elements
+                .add(new MenuElement(MENU_ELEMENTS.BROWSE, LABEL_BROWSE, provider.getPersonsView()));
         return new MenuCategory(CATEGORIES.PERSONS, "Persons", elements);
     }
 
     private MenuCategory createPropertyTypesCategory()
     {
         final List<MenuElement> elements = new ArrayList<MenuElement>();
-        elements.add(new MenuElement(MENU_ELEMENTS.LIST, LABEL_BROWSE, provider
+        elements.add(new MenuElement(MENU_ELEMENTS.BROWSE, LABEL_BROWSE, provider
                 .getPropertyTypeBrowser()));
         elements.add(new MenuElement(MENU_ELEMENTS.LIST_ASSIGNMENTS, "Browse Assignments", provider
                 .getPropertyTypeAssignmentBrowser()));
@@ -174,7 +177,7 @@ public class CategoriesBuilder
     private MenuCategory createVocabulariesCategory()
     {
         final List<MenuElement> elements = new ArrayList<MenuElement>();
-        elements.add(new MenuElement(MENU_ELEMENTS.LIST, LABEL_BROWSE, provider
+        elements.add(new MenuElement(MENU_ELEMENTS.BROWSE, LABEL_BROWSE, provider
                 .getVocabularyBrowser()));
         elements.add(new MenuElement(MENU_ELEMENTS.REGISTER, LABEL_REGISTER, provider
                 .getVocabularyRegistration()));
@@ -184,17 +187,17 @@ public class CategoriesBuilder
     private MenuCategory createMaterialCategory()
     {
         final List<MenuElement> elements = new ArrayList<MenuElement>();
-        elements.add(new MenuElement(MENU_ELEMENTS.LIST, LABEL_BROWSE, provider
+        elements.add(new MenuElement(MENU_ELEMENTS.BROWSE, LABEL_BROWSE, provider
                 .getMaterialBrowser()));
-        elements.add(new MenuElement(MENU_ELEMENTS.REGISTER, LABEL_REGISTER, provider
-                .getDummyComponent()));
+        elements.add(new MenuElement(MENU_ELEMENTS.IMPORT, IMPORT_LABEL, provider
+                .getMaterialBatchRegistration()));
         return new MenuCategory(CATEGORIES.MATERIALS, "Materials", elements);
     }
 
     private MenuCategory createExperimentCategory()
     {
         final List<MenuElement> elements = new ArrayList<MenuElement>();
-        elements.add(new MenuElement(MENU_ELEMENTS.LIST, LABEL_BROWSE, provider
+        elements.add(new MenuElement(MENU_ELEMENTS.BROWSE, LABEL_BROWSE, provider
                 .getExperimentBrowser()));
         elements.add(new MenuElement(MENU_ELEMENTS.REGISTER, LABEL_REGISTER, provider
                 .getExperimentRegistration()));

@@ -681,7 +681,8 @@ public final class CommonClientService extends AbstractClientService implements
         {
             final String sessionToken = getSessionToken();
             final List<ExperimentType> result = new ArrayList<ExperimentType>();
-            final List<ExperimentTypePE> experiments = commonServer.listExperimentTypes(sessionToken);
+            final List<ExperimentTypePE> experiments =
+                    commonServer.listExperimentTypes(sessionToken);
             for (final ExperimentTypePE expType : experiments)
             {
                 result.add(ExperimentTranslator.translate(expType));

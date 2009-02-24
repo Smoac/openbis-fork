@@ -18,7 +18,9 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 
 /**
  * Read-only table for materials. Holds a collection of instances of {@link MaterialPE}.
@@ -34,17 +36,17 @@ public interface IMaterialTable
      */
     public void load(String materialTypeCodeOrNull);
 
-    /**
-     * Enriches the materials with their property type values.
-     */
-    public void enrichWithProperties();
-
     /** Returns the loaded {@link MaterialPE}. */
     public List<MaterialPE> getMaterials();
 
     /**
-     * Enriches the materials with inhibitors.
+     * Defines new materials of specified type.
      */
-    public void enrichWithInhibitors();
+    public void add(List<NewMaterial> newMaterials, MaterialTypePE materialTypePE);
+
+    /**
+     * Saves new materials in the database.
+     */
+    public void save();
 
 }

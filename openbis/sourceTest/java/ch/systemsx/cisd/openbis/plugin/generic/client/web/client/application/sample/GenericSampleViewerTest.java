@@ -47,7 +47,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
     {
         remoteConsole.prepare(new Login("test", "a"));
         remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.SAMPLES,
-                CategoriesBuilder.MENU_ELEMENTS.LIST));
+                CategoriesBuilder.MENU_ELEMENTS.BROWSE));
         remoteConsole.prepare(new ListSamples("CISD", "CONTROL_LAYOUT"));
         remoteConsole.prepare(new ShowSample(CONTROL_LAYOUT_EXAMPLE));
         final CheckSample checkSample = new CheckSample(GROUP_IDENTIFIER, CONTROL_LAYOUT_EXAMPLE);
@@ -72,7 +72,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
     {
         remoteConsole.prepare(new Login("test", "a"));
         remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.SAMPLES,
-                CategoriesBuilder.MENU_ELEMENTS.LIST));
+                CategoriesBuilder.MENU_ELEMENTS.BROWSE));
         remoteConsole.prepare(new ListSamples("CISD", "CELL_PLATE"));
         remoteConsole.prepare(new ShowSample(RendererTestUtil.invalidCode(CELL_PLATE_EXAMPLE)));
         final CheckSample checkSample = new CheckSample(GROUP_IDENTIFIER, CELL_PLATE_EXAMPLE);

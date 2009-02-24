@@ -92,7 +92,7 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
         remoteConsole.prepare(new FillPropertyTypeAssignmentForm(false, USER_COMMENT,
                 CONTROL_LAYOUT, NO_COMMENT, SAMPLE));
         remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.SAMPLES,
-                CategoriesBuilder.MENU_ELEMENTS.LIST,
+                CategoriesBuilder.MENU_ELEMENTS.BROWSE,
                 PropertyTypeAssignmentForm.AssignPropertyTypeCallback.class));
         remoteConsole.prepare(new ListSamples(CISD, CONTROL_LAYOUT));
         CheckSampleTable table = new CheckSampleTable();

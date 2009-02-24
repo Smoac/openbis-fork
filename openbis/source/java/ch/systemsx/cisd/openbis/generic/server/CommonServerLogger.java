@@ -286,4 +286,5 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         logAccess(sessionToken, "list_materials", "TYPE(%s)", materialType);
         return null;
     }
+
 }

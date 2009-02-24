@@ -21,6 +21,7 @@ import java.util.Comparator;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.common.annotation.BeanProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeProvider;
 
 /**
@@ -35,6 +36,7 @@ public class Code<T extends Code<T>> implements IsSerializable, ICodeProvider, C
 
     private String code;
 
+    @BeanProperty(label = "code")
     public final void setCode(final String code)
     {
         this.code = code;

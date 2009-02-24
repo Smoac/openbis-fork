@@ -43,7 +43,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.translator.DtoConverte
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentContentPE;
@@ -252,6 +254,65 @@ public final class GenericClientService extends AbstractClientService implements
         attachmentContent.setValue(content);
         attachment.setAttachmentContent(attachmentContent);
         return attachment;
+    }
+
+    public final List<BatchRegistrationResult> registerMaterials(final MaterialType materialType,
+            final String sessionKey)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        HttpSession session = null;
+        UploadedFilesBean uploadedFiles = null;
+        try
+        {
+            final String sessionToken = getSessionToken();
+            session = getHttpSession();
+            assert session.getAttribute(sessionKey) != null
+                    && session.getAttribute(sessionKey) instanceof UploadedFilesBean : String
+                    .format("No UploadedFilesBean object as session attribute '%s' found.",
+                            sessionKey);
+            uploadedFiles = (UploadedFilesBean) session.getAttribute(sessionKey);
+            final BisTabFileLoader<NewMaterial> tabFileLoader =
+                    new BisTabFileLoader<NewMaterial>(
+                            new IParserObjectFactoryFactory<NewMaterial>()
+                                {
+                                    public final IParserObjectFactory<NewMaterial> createFactory(
+                                            final IPropertyMapper propertyMapper)
+                                            throws ParserException
+                                    {
+                                        return new NewMaterialParserObjectFactory(materialType,
+                                                propertyMapper);
+                                    }
+                                });
+            final List<NewMaterial> newMaterials = new ArrayList<NewMaterial>();
+            final List<BatchRegistrationResult> results =
+                    new ArrayList<BatchRegistrationResult>(uploadedFiles.size());
+            for (final IUncheckedMultipartFile multipartFile : uploadedFiles.iterable())
+            {
+                final StringReader stringReader =
+                        new StringReader(new String(multipartFile.getBytes()));
+                final List<NewMaterial> loadedMaterials =
+                        tabFileLoader.load(new DelegatedReader(stringReader, multipartFile
+                                .getOriginalFilename()));
+                newMaterials.addAll(loadedMaterials);
+                results.add(new BatchRegistrationResult(multipartFile.getOriginalFilename(), String
+                        .format("%d material(s) found and registered.", loadedMaterials.size())));
+            }
+            genericServer.registerMaterials(sessionToken, materialType.getCode(), newMaterials);
+            return results;
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        } finally
+        {
+            if (uploadedFiles != null)
+            {
+                uploadedFiles.deleteTransferredFiles();
+            }
+            if (session != null)
+            {
+                session.removeAttribute(sessionKey);
+            }
+        }
     }
 
 }

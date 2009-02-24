@@ -43,7 +43,7 @@ public final class MaterialDAOTest extends AbstractDAOTest
         MaterialTypePE type =
                 (MaterialTypePE) daoFactory.getEntityTypeDAO(EntityKind.MATERIAL)
                         .tryToFindEntityTypeByCode("BACTERIUM");
-        List<MaterialPE> list = daoFactory.getMaterialDAO().listMaterials(type);
+        List<MaterialPE> list = daoFactory.getMaterialDAO().listMaterialsWithPropertiesAndInhibitor(type);
         Assert.assertEquals(4, list.size());
         Collections.sort(list);
         Assert.assertEquals(list.get(0).getCode(), "BACTERIUM-X");

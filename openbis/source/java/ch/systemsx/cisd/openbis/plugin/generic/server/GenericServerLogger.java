@@ -23,6 +23,7 @@ import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
@@ -96,6 +97,12 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         logTracking(sessionToken, "register_experiment",
                 "EXPERIMENT_TYPE(%s) EXPERIMENT(%S) ATTACHMENTS(%S)", experiment
                         .getExperimentTypeCode(), experiment.getIdentifier(), attachments.size());
+    }
 
+    public void registerMaterials(String sessionToken, String materialTypeCode,
+            List<NewMaterial> newMaterials)
+    {
+        logAccess(sessionToken, "register_materials", "MATERIAL_TYPE(%s) MATERIALS(%s)",
+                materialTypeCode, CollectionUtils.abbreviate(newMaterials, 20));
     }
 }

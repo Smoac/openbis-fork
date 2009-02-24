@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIden
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewExperimentPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSamplePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
@@ -81,4 +82,13 @@ public interface IGenericServer extends IPluginCommonServer
     public void registerExperiment(String sessionToken,
             @AuthorizationGuard(guardClass = NewExperimentPredicate.class)
             final NewExperiment experiment, List<AttachmentPE> attachments);
+
+    /**
+     * Registers materials in batch.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.USER)
+    public void registerMaterials(String sessionToken, String materialTypeCode,
+            List<NewMaterial> newMaterials);
+
 }

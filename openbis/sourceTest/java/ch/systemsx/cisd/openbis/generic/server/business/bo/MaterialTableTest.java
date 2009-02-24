@@ -55,7 +55,7 @@ public final class MaterialTableTest extends AbstractBOTest
                     one(entityTypeDAO).tryToFindEntityTypeByCode(materialType.getCode());
                     will(returnValue(materialType));
 
-                    one(materialDAO).listMaterials(materialType);
+                    one(materialDAO).listMaterialsWithPropertiesAndInhibitor(materialType);
                     will(returnValue(new ArrayList<MaterialPE>()));
                 }
             });

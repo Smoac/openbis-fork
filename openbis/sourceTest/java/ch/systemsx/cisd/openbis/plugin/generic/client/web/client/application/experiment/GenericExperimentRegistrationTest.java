@@ -59,7 +59,7 @@ public class GenericExperimentRegistrationTest extends AbstractGWTTestCase
                         new PropertyField(GenericExperimentRegistrationForm.ID
                                 + "user-purchase-date", "2008-12-17")));
         remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.EXPERIMENTS,
-                CategoriesBuilder.MENU_ELEMENTS.LIST,
+                CategoriesBuilder.MENU_ELEMENTS.BROWSE,
                 GenericExperimentRegistrationForm.RegisterExperimentCallback.class));
         remoteConsole.prepare(new ListExperiments("DEFAULT", experimentTypeCode));
         remoteConsole.prepare(new CheckExperimentTable()
@@ -83,7 +83,7 @@ public class GenericExperimentRegistrationTest extends AbstractGWTTestCase
                         new PropertyField(GenericExperimentRegistrationForm.ID
                                 + "user-purchase-date", "2008-12-18")));
         remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.SAMPLES,
-                CategoriesBuilder.MENU_ELEMENTS.LIST,
+                CategoriesBuilder.MENU_ELEMENTS.BROWSE,
                 GenericExperimentRegistrationForm.RegisterExperimentCallback.class));
         remoteConsole.prepare(new ListSamples("CISD", "CELL_PLATE"));
         CheckSampleTable table = new CheckSampleTable();

@@ -30,8 +30,11 @@ public interface IMaterialDAO
 {
 
     /**
-     * Lists materials of given type.
+     * Lists materials of given type. Fetches also properties and inhibitor.
      */
-    public List<MaterialPE> listMaterials(MaterialTypePE type);
+    public List<MaterialPE> listMaterialsWithPropertiesAndInhibitor(MaterialTypePE type);
+
+    /** Inserts given {@link MaterialPE}s into the database. */
+    public void createMaterials(List<MaterialPE> materials);
 
 }

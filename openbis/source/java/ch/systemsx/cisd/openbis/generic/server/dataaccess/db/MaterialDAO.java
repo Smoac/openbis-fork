@@ -19,14 +19,17 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
@@ -50,14 +53,17 @@ public class MaterialDAO extends AbstractDAO implements IMaterialDAO
         super(sessionFactory, databaseInstance);
     }
 
-    public List<MaterialPE> listMaterials(final MaterialTypePE materialType)
-            throws DataAccessException
+    public List<MaterialPE> listMaterialsWithPropertiesAndInhibitor(
+            final MaterialTypePE materialType) throws DataAccessException
     {
         assert materialType != null : "Unspecified material type.";
 
-        final DetachedCriteria criteria = DetachedCriteria.forClass(ENTITY_CLASS);
+        final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
         criteria.add(Restrictions.eq("materialType", materialType));
-        final List<MaterialPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
+        criteria.setFetchMode("inhibitorOf", FetchMode.JOIN);
+        criteria.setFetchMode("materialProperties", FetchMode.JOIN);
+        criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+        final List<MaterialPE> list = cast(criteria.list());
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format(
@@ -65,6 +71,30 @@ public class MaterialDAO extends AbstractDAO implements IMaterialDAO
                     materialType));
         }
         return list;
+    }
+
+    public void createMaterials(List<MaterialPE> materials)
+    {
+        assert materials != null && materials.size() > 0 : "Unspecified or empty materials.";
+
+        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+        for (final MaterialPE materialPE : materials)
+        {
+            internalCreateMaterial(materialPE, hibernateTemplate);
+        }
+        hibernateTemplate.flush();
+    }
+
+    private void internalCreateMaterial(MaterialPE material, HibernateTemplate hibernateTemplate)
+    {
+        assert material.getDatabaseInstance().isOriginalSource() : "Registration on a non-home database is not allowed";
+        validatePE(material);
+        material.setCode(CodeConverter.tryToDatabase(material.getCode()));
+        hibernateTemplate.save(material);
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("ADD: material '%s'.", material));
+        }
     }
 
 }

@@ -53,7 +53,7 @@ public class GenericExperimentAttachmentDownloadTest extends AbstractGWTTestCase
     {
         remoteConsole.prepare(new Login("test", "a"));
         remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.EXPERIMENTS,
-                CategoriesBuilder.MENU_ELEMENTS.LIST));
+                CategoriesBuilder.MENU_ELEMENTS.BROWSE));
         remoteConsole.prepare(new ListExperiments(projectName, experimentTypeName));
         remoteConsole.prepare(new ShowExperiment(experimentCode));
     }

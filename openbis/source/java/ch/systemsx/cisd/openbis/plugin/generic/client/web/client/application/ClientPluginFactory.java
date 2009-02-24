@@ -33,10 +33,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentViewer;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.material.GenericMaterialBatchRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleBatchRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer;
@@ -80,6 +82,10 @@ public final class ClientPluginFactory extends
         if (EntityKind.SAMPLE.equals(entityKind))
         {
             return (IClientPlugin<T, I>) new SampleClientPlugin();
+        }
+        if (EntityKind.MATERIAL.equals(entityKind))
+        {
+            return (IClientPlugin<T, I>) new MaterialClientPlugin();
         }
         throw new UnsupportedOperationException("IClientPlugin for entity kind '" + entityKind
                 + "' not implemented yet.");
@@ -129,6 +135,17 @@ public final class ClientPluginFactory extends
         public final Widget createBatchRegistrationForEntityType(final SampleType sampleType)
         {
             return new GenericSampleBatchRegistrationForm(getViewContext(), sampleType);
+        }
+    }
+
+    private final class MaterialClientPlugin extends
+            ClientPluginAdapter<MaterialType, IIdentifierHolder>
+    {
+
+        @Override
+        public final Widget createBatchRegistrationForEntityType(final MaterialType materialType)
+        {
+            return new GenericMaterialBatchRegistrationForm(getViewContext(), materialType);
         }
     }
 

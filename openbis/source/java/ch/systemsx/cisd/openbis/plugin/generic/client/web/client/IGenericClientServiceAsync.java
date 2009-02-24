@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationR
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -67,5 +68,11 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
      */
     public void registerExperiment(final String sessionKey, NewExperiment newExp,
             AsyncCallback<Void> assyncCallback) throws UserFailureException;
+
+    /**
+     * @see IGenericClientService#registerMaterials(MaterialType, String)
+     */
+    public void registerMaterials(MaterialType materialType, String sessionKey,
+            final AsyncCallback<List<BatchRegistrationResult>> asyncCallback);
 
 }
