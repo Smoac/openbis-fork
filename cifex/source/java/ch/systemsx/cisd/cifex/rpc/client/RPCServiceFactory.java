@@ -32,6 +32,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -152,17 +153,7 @@ public final class RPCServiceFactory
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
             } finally
             {
-                // IOUtils.closeQuietly() isn't used because it is not in the client classpath
-                if (fileOutputStream != null)
-                {
-                    try
-                    {
-                        fileOutputStream.close();
-                    } catch (IOException ex)
-                    {
-                        // ignored
-                    }
-                }
+                IOUtils.closeQuietly(fileOutputStream);
             }
         }
     }
@@ -187,7 +178,6 @@ public final class RPCServiceFactory
             throw CheckedExceptionTunnel.wrapIfNecessary(e);
         } finally
         {
-            // IOUtils.closeQuietly() isn't used because it is not in the client classpath
             if (socket != null)
             {
                 try

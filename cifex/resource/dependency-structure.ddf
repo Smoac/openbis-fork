@@ -63,7 +63,7 @@ check layeringOf business-layer1 business-layer2 business-layer3
 # Check dependencies package rpc
 
 [rpc.common] = [rpc] excluding ${rpc}.*.*
-[rpc.client] = ${rpc}.client.*
+[rpc.client] = ${rpc}.client.* excluding ${rpc}.client.gui.FileUploadClient
 [rpc.server] = ${rpc}.server.*
 check sets [rpc.common] [rpc.client] [rpc.server]
 

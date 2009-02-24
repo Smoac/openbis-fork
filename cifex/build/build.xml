@@ -160,7 +160,7 @@
         </recursive-jar>
     	<jar update="true" destfile="${jar.file}">
     	   <zipfileset src="${lib}/gwt/gwt-user.jar" 
-    	   	includes="com/google/gwt/user/client/rpc/IsSerializable.class"/>
+    	   	includes="com/google/gwt/user/client/rpc/IsSerializable.class, com/google/gwt/user/client/rpc/SerializableException.class"/>
     	</jar>
 
     	<delete dir="${targets.www}"/>
@@ -200,6 +200,14 @@
     	<antcall target="copy-and-sign-jar">
             <param name="dir" value="${lib}/commons-codec"/>
             <param name="jar" value="commons-codec.jar"/>
+        </antcall>
+    	<antcall target="copy-and-sign-jar">
+            <param name="dir" value="${lib}/commons-io"/>
+            <param name="jar" value="commons-io.jar"/>
+        </antcall>
+    	<antcall target="copy-and-sign-jar">
+            <param name="dir" value="${lib}/commons-lang"/>
+            <param name="jar" value="commons-lang.jar"/>
         </antcall>
     	<antcall target="copy-and-sign-jar">
             <param name="dir" value="${lib}/commons-logging"/>

@@ -22,8 +22,8 @@ import java.awt.BorderLayout;
 import java.awt.FileDialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -59,7 +59,7 @@ public class FileUploadClient
 {
     private static final String TITLE = "CIFEX Uploader";
 
-    private static final String REMOVE_FROM_TABLE_MENU_ITEM = "Remove from table";
+    private static final String REMOVE_FROM_TABLE_MENU_ITEM = "Remove selected files from table";
 
     public static void main(String[] args)
             throws ch.systemsx.cisd.cifex.shared.basic.UserFailureException, EnvironmentFailureException
@@ -108,39 +108,7 @@ public class FileUploadClient
     
     private JButton addButton;
 
-    static class PopupListener implements MouseListener {
-        
-        private final JPopupMenu popupMenu;
-        
-        PopupListener(JPopupMenu popupMenu, JTable table)
-        {
-            this.popupMenu = popupMenu;
-            table.addMouseListener(this);
-        }
-        
-        public void mousePressed(MouseEvent e) {
-            showPopup(e);
-        }
-
-        public void mouseReleased(MouseEvent e) {
-            showPopup(e);
-        }
-
-        private void showPopup(MouseEvent e) {
-            if (e.isPopupTrigger()) {
-                popupMenu.show(e.getComponent(), e.getX(), e.getY());
-            }
-        }
-
-        public void mouseClicked(MouseEvent e) {
-        }
-
-        public void mouseEntered(MouseEvent e) {
-        }
-
-        public void mouseExited(MouseEvent e) {
-        }
-    }
+    private JPopupMenu popupMenu;
 
     FileUploadClient(String serviceURL, String sessionId, int maxUploadSizeInMB,
             ITimeProvider timeProvider) throws ch.systemsx.cisd.cifex.shared.basic.UserFailureException,
@@ -349,23 +317,7 @@ public class FileUploadClient
                 }
             };
         table.setColumnModel(createTableColumnModel());
-        final JPopupMenu popupMenu = new JPopupMenu();
-        final JMenuItem menuItem = new JMenuItem(REMOVE_FROM_TABLE_MENU_ITEM);
-        menuItem.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                final JMenuItem item = (JMenuItem) e.getSource();
-                if (REMOVE_FROM_TABLE_MENU_ITEM.equals(item.getText())) 
-                {
-                    final int oldRowCount = tableModel.getRowCount();
-                    tableModel.removeRows(table.getSelectedRows());
-                    tableModel.fireTableRowsDeleted(0, oldRowCount);
-                }
-            }
-        });
-        popupMenu.add(menuItem);
-        new PopupListener(popupMenu, table);
+        popupMenu = createPopupMenu(table, tableModel);
         filePanel.add(new JScrollPane(table), BorderLayout.CENTER);
         addButton = new JButton("Add File");
         addButton.addActionListener(new ActionListener()
@@ -377,6 +329,47 @@ public class FileUploadClient
             });
         filePanel.add(addButton, BorderLayout.SOUTH);
         return filePanel;
+    }
+
+    private JPopupMenu createPopupMenu(final JTable table, final UploadTableModel tableModel)
+    {
+        final JPopupMenu menu = new JPopupMenu();
+        final JMenuItem menuItem = new JMenuItem(REMOVE_FROM_TABLE_MENU_ITEM);
+        menuItem.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    final JMenuItem item = (JMenuItem) e.getSource();
+                    if (REMOVE_FROM_TABLE_MENU_ITEM.equals(item.getText()))
+                    {
+                        final int oldRowCount = tableModel.getRowCount();
+                        tableModel.removeRows(table.getSelectedRows());
+                        tableModel.fireTableRowsDeleted(0, oldRowCount);
+                    }
+                }
+            });
+        menu.add(menuItem);
+        table.addMouseListener(new MouseAdapter()
+            {
+                public void mousePressed(MouseEvent e)
+                {
+                    showPopup(e);
+                }
+
+                public void mouseReleased(MouseEvent e)
+                {
+                    showPopup(e);
+                }
+
+                private void showPopup(MouseEvent e)
+                {
+                    if (table.getSelectedRows().length > 0 && menu.isEnabled() && e.isPopupTrigger())
+                    {
+                        menu.show(e.getComponent(), e.getX(), e.getY());
+                    }
+                }
+            });
+        return menu;
     }
 
     private DefaultTableColumnModel createTableColumnModel()
@@ -443,6 +436,10 @@ public class FileUploadClient
         if (cancelButton != null)
         {
             cancelButton.setEnabled(enable == false);
+        }
+        if (popupMenu != null)
+        {
+            popupMenu.setEnabled(enable);
         }
     }
 

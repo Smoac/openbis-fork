@@ -29,6 +29,7 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.cifex.rpc.client.gui.FileUploadClient;
 import ch.systemsx.cisd.cifex.server.AbstractFileUploadServlet;
 import ch.systemsx.cisd.cifex.server.HttpUtils;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
@@ -67,6 +68,8 @@ public class File2GBUploadServlet extends AbstractFileUploadServlet
             "    <jar href='aopalliance.jar'/>\n" + 
             "    <jar href='commons-codec.jar'/>\n" + 
             "    <jar href='commons-httpclient.jar'/>\n" + 
+            "    <jar href='commons-io.jar'/>\n" + 
+            "    <jar href='commons-lang.jar'/>\n" + 
             "    <jar href='commons-logging.jar'/>\n" + 
             "  </resources>\n" + 
             "  <application-desc main-class='${main-class}'>\n" +
@@ -121,7 +124,7 @@ public class File2GBUploadServlet extends AbstractFileUploadServlet
         PrintWriter writer = new PrintWriter(new OutputStreamWriter(response.getOutputStream()));
         Template template = JNLP_TEMPLATE.createFreshCopy();
         template.attemptToBind("base-URL", createBaseURL(request));
-        template.attemptToBind("main-class", "ch.systemsx.cisd.cifex.upload.client.FileUploadClient");
+        template.attemptToBind("main-class", FileUploadClient.class.getName());
         template.attemptToBind("service-URL", createServiceURL(request));
         template.attemptToBind("upload-session-id", uploadSessionID);
         int maxUploadSizeInMB = domainModel.getBusinessContext().getMaxUploadRequestSizeInMB();

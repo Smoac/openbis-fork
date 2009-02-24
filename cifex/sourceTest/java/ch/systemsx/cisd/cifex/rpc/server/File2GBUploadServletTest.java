@@ -32,6 +32,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.cifex.rpc.client.gui.FileUploadClient;
 import ch.systemsx.cisd.cifex.rpc.server.File2GBUploadServlet;
 import ch.systemsx.cisd.cifex.rpc.server.IExtendedCIFEXRPCService;
 import ch.systemsx.cisd.cifex.server.CIFEXServiceImpl;
@@ -154,7 +155,7 @@ public class File2GBUploadServletTest extends AssertJUnit
 
         Template template = File2GBUploadServlet.JNLP_TEMPLATE.createFreshCopy();
         template.bind("base-URL", BASE_URL + "/");
-        template.bind("main-class", "ch.systemsx.cisd.cifex.upload.client.FileUploadClient");
+        template.bind("main-class", FileUploadClient.class.getName());
         template.bind("service-URL", BASE_URL + "/cifex/rpc-service");
         template.bind("upload-session-id", UPLOAD_SESSION_ID);
         template.attemptToBind("maxUploadSizeInMB", "42");
