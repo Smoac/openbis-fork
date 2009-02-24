@@ -31,6 +31,7 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
@@ -133,6 +134,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected IExperimentAttachmentDAO experimentAttachmentDAO;
 
+    protected IExternalDataBO externalDataBO;
+
     @BeforeMethod
     @SuppressWarnings("unchecked")
     public void setUp()
@@ -163,6 +166,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         propertyTypeBO = context.mock(IPropertyTypeBO.class);
         vocabularyBO = context.mock(IVocabularyBO.class);
         entityTypePropertyTypeBO = context.mock(IEntityTypePropertyTypeBO.class);
+        externalDataBO = context.mock(IExternalDataBO.class);
         // Table
         externalDataTable = context.mock(IExternalDataTable.class);
         experimentTable = context.mock(IExperimentTable.class);
@@ -225,19 +229,31 @@ public abstract class AbstractServerTestCase extends AssertJUnit
     {
         final ExperimentPE experimentPE = new ExperimentPE();
         experimentPE.setCode(experimentCode);
-        final ProjectPE projectPE = new ProjectPE();
-        final GroupPE groupPE = new GroupPE();
-        groupPE.setCode(groupCode);
-        DatabaseInstancePE databaseInstancePE = new DatabaseInstancePE();
-        databaseInstancePE.setCode("DB");
-        groupPE.setDatabaseInstance(databaseInstancePE);
-        projectPE.setGroup(groupPE);
-        projectPE.setCode("P");
+        final ProjectPE projectPE = createProject(groupCode);
         experimentPE.setProject(projectPE);
         final ExperimentTypePE experimentTypePE = new ExperimentTypePE();
         experimentTypePE.setCode(experimentTypeCode);
         experimentPE.setExperimentType(experimentTypePE);
         return experimentPE;
+    }
+
+    protected static ProjectPE createProject(final String groupCode)
+    {
+        final ProjectPE projectPE = new ProjectPE();
+        final GroupPE groupPE = createGroup(groupCode);
+        projectPE.setGroup(groupPE);
+        projectPE.setCode("P");
+        return projectPE;
+    }
+
+    protected static GroupPE createGroup(final String groupCode)
+    {
+        final GroupPE groupPE = new GroupPE();
+        groupPE.setCode(groupCode);
+        DatabaseInstancePE databaseInstancePE = new DatabaseInstancePE();
+        databaseInstancePE.setCode("DB");
+        groupPE.setDatabaseInstance(databaseInstancePE);
+        return groupPE;
     }
 
     static protected String createSampleIdentifier(final String groupCode, String sample1Code)
