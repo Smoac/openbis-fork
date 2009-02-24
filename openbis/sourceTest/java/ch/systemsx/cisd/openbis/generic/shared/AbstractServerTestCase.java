@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared;
 
+import org.apache.log4j.Level;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.AssertJUnit;
@@ -25,6 +26,7 @@ import org.testng.annotations.BeforeMethod;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
+import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
@@ -40,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
@@ -66,8 +69,13 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 {
     protected static final Principal PRINCIPAL =
             new Principal(CommonTestUtils.USER_ID, "john", "doe", "j@d");
-
+    
     protected static final String SESSION_TOKEN = "session-token";
+    
+    protected static final Session SESSION =
+            new Session(CommonTestUtils.USER_ID, SESSION_TOKEN, PRINCIPAL, "remote-host", 1);
+
+    protected BufferedAppender logRecorder;
 
     protected Mockery context;
 
@@ -123,11 +131,14 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected IEntityTypePropertyTypeBO entityTypePropertyTypeBO;
 
+    protected IExperimentAttachmentDAO experimentAttachmentDAO;
+
     @BeforeMethod
     @SuppressWarnings("unchecked")
     public void setUp()
     {
         LogInitializer.init();
+        logRecorder = new BufferedAppender("%m%n", Level.DEBUG);
         context = new Mockery();
         authenticationService = context.mock(IAuthenticationService.class);
         sessionManager = context.mock(ISessionManager.class);
@@ -140,6 +151,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         roleAssignmentDAO = context.mock(IRoleAssignmentDAO.class);
         externalDataDAO = context.mock(IExternalDataDAO.class);
         entityTypeDAO = context.mock(IEntityTypeDAO.class);
+        experimentAttachmentDAO = context.mock(IExperimentAttachmentDAO.class);
         projectDAO = context.mock(IProjectDAO.class);
         sampleTypeDAO = context.mock(ISampleTypeDAO.class);
         propertyTypeDAO = context.mock(IPropertyTypeDAO.class);
@@ -175,6 +187,10 @@ public abstract class AbstractServerTestCase extends AssertJUnit
                     will(returnValue(roleAssignmentDAO));
                     allowing(daoFactory).getSampleTypeDAO();
                     will(returnValue(sampleTypeDAO));
+                    allowing(daoFactory).getExternalDataDAO();
+                    will(returnValue(externalDataDAO));
+                    allowing(daoFactory).getExperimentAttachmentDAO();
+                    will(returnValue(experimentAttachmentDAO));
                 }
             });
     }
@@ -182,27 +198,26 @@ public abstract class AbstractServerTestCase extends AssertJUnit
     @AfterMethod
     public void tearDown()
     {
+        logRecorder.reset();
         // To following line of code should also be called at the end of each test method.
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
     }
-
-    protected Session createExampleSession()
+    
+    protected Session createSession()
     {
-        return new Session(CommonTestUtils.USER_ID, SESSION_TOKEN, PRINCIPAL, "remote-host", 1);
+        return new Session(CommonTestUtils.USER_ID, SESSION_TOKEN, PRINCIPAL, "remote-host", 2);
     }
 
-    protected Session prepareGetSession()
+    protected void prepareGetSession()
     {
-        final Session session = createExampleSession();
         context.checking(new Expectations()
             {
                 {
                     one(sessionManager).getSession(SESSION_TOKEN);
-                    will(returnValue(session));
+                    will(returnValue(SESSION));
                 }
             });
-        return session;
     }
 
     static final protected ExperimentPE createExperiment(final String experimentTypeCode,
@@ -213,10 +228,14 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         final ProjectPE projectPE = new ProjectPE();
         final GroupPE groupPE = new GroupPE();
         groupPE.setCode(groupCode);
+        DatabaseInstancePE databaseInstancePE = new DatabaseInstancePE();
+        databaseInstancePE.setCode("DB");
+        groupPE.setDatabaseInstance(databaseInstancePE);
         projectPE.setGroup(groupPE);
+        projectPE.setCode("P");
         experimentPE.setProject(projectPE);
         final ExperimentTypePE experimentTypePE = new ExperimentTypePE();
-        experimentPE.setCode(experimentTypeCode);
+        experimentTypePE.setCode(experimentTypeCode);
         experimentPE.setExperimentType(experimentTypePE);
         return experimentPE;
     }

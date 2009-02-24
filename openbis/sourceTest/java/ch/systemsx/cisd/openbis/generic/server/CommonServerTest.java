@@ -123,7 +123,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     {
         final String user = "user";
         final String password = "password";
-        final Session session = createExampleSession();
+        final Session session = createSession();
         final PersonPE systemPerson = createSystemUser();
         final PersonPE person = CommonTestUtils.createPersonFromPrincipal(PRINCIPAL);
         final RoleAssignmentPE roleAssignment = new RoleAssignmentPE();
@@ -164,7 +164,6 @@ public final class CommonServerTest extends AbstractServerTestCase
     {
         final String user = "user";
         final String password = "password";
-        final Session session = createExampleSession();
         final PersonPE systemPerson = createSystemUser();
         final PersonPE person = CommonTestUtils.createPersonFromPrincipal(PRINCIPAL);
         context.checking(new Expectations()
@@ -174,7 +173,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(SESSION_TOKEN));
 
                     one(sessionManager).getSession(SESSION_TOKEN);
-                    will(returnValue(session));
+                    will(returnValue(SESSION));
 
                     one(personDAO).listPersons();
                     will(returnValue(Arrays.asList(systemPerson, person)));
@@ -198,7 +197,6 @@ public final class CommonServerTest extends AbstractServerTestCase
     {
         final String user = "user";
         final String password = "password";
-        final Session session = createExampleSession();
         final PersonPE systemPerson = createSystemUser();
         final PersonPE person = CommonTestUtils.createPersonFromPrincipal(PRINCIPAL);
         context.checking(new Expectations()
@@ -208,7 +206,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(SESSION_TOKEN));
 
                     one(sessionManager).getSession(SESSION_TOKEN);
-                    will(returnValue(session));
+                    will(returnValue(SESSION));
 
                     one(personDAO).listPersons();
                     will(returnValue(Arrays.asList(systemPerson, person)));
@@ -217,11 +215,11 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(person));
                 }
             });
-        assertEquals(null, session.tryGetPerson());
+        assertEquals(null, SESSION.tryGetPerson());
 
         final Session s = createServer().tryToAuthenticate(user, password);
 
-        assertSame(session, s);
+        assertSame(SESSION, s);
         assertEquals(person, s.tryGetPerson());
 
         context.assertIsSatisfied();
@@ -234,13 +232,15 @@ public final class CommonServerTest extends AbstractServerTestCase
         final DatabaseInstanceIdentifier identifier = DatabaseInstanceIdentifier.createHome();
         final GroupPE g1 = CommonTestUtils.createGroup("g1", homeDatabaseInstance);
         final GroupPE g2 = CommonTestUtils.createGroup("g2", homeDatabaseInstance);
-        final Session session = prepareGetSession();
+        final Session session = createSession();
         session.setPerson(person);
         person.setHomeGroup(g1);
         g1.setId(42L);
         context.checking(new Expectations()
             {
                 {
+                    one(sessionManager).getSession(SESSION_TOKEN);
+                    will(returnValue(session));
                     one(groupDAO).listGroups(homeDatabaseInstance);
                     will(returnValue(Arrays.asList(g1, g2)));
                 }
@@ -260,14 +260,14 @@ public final class CommonServerTest extends AbstractServerTestCase
     @Test
     public void testRegisterGroup()
     {
-        final Session session = prepareGetSession();
+        prepareGetSession();
         final String groupCode = "group";
         final String description = "description";
         final String leader = "leader";
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createGroupBO(session);
+                    one(commonBusinessObjectFactory).createGroupBO(SESSION);
                     will(returnValue(groupBO));
 
                     one(groupBO).define(groupCode, description, leader);
@@ -410,13 +410,13 @@ public final class CommonServerTest extends AbstractServerTestCase
     @Test
     public final void testListExternalData()
     {
-        final Session session = prepareGetSession();
         final SampleIdentifier sampleIdentifier = CommonTestUtils.createSampleIdentifier();
         final ExternalDataPE externalDataPE = new ExternalDataPE();
+        prepareGetSession();
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createExternalDataTable(session);
+                    one(commonBusinessObjectFactory).createExternalDataTable(SESSION);
                     will(returnValue(externalDataTable));
 
                     one(externalDataTable).loadBySampleIdentifier(sampleIdentifier);
@@ -438,13 +438,13 @@ public final class CommonServerTest extends AbstractServerTestCase
     @Test
     public void testListExternalDataOfAnExperiment()
     {
-        final Session session = prepareGetSession();
         final ExperimentIdentifier identifier = CommonTestUtils.createExperimentIdentifier();
         final ExternalDataPE externalDataPE = new ExternalDataPE();
+        prepareGetSession();
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createExternalDataTable(session);
+                    one(commonBusinessObjectFactory).createExternalDataTable(SESSION);
                     will(returnValue(externalDataTable));
 
                     one(externalDataTable).loadByExperimentIdentifier(identifier);
@@ -464,13 +464,13 @@ public final class CommonServerTest extends AbstractServerTestCase
     @Test
     public void testListExperiments()
     {
-        final Session session = prepareGetSession();
         final ProjectIdentifier projectIdentifier = CommonTestUtils.createProjectIdentifier();
         final ExperimentTypePE experimentType = CommonTestUtils.createExperimentType();
+        prepareGetSession();
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createExperimentTable(session);
+                    one(commonBusinessObjectFactory).createExperimentTable(SESSION);
                     will(returnValue(experimentTable));
 
                     one(experimentTable).load(experimentType.getCode(), projectIdentifier);
@@ -482,14 +482,14 @@ public final class CommonServerTest extends AbstractServerTestCase
                 }
             });
         createServer()
-                .listExperiments(session.getSessionToken(), experimentType, projectIdentifier);
+                .listExperiments(SESSION_TOKEN, experimentType, projectIdentifier);
         context.assertIsSatisfied();
     }
 
     @Test
     public void testListExperimentTypes()
     {
-        final Session session = prepareGetSession();
+        prepareGetSession();
         final List<EntityTypePE> types = new ArrayList<EntityTypePE>();
         types.add(CommonTestUtils.createExperimentType());
         context.checking(new Expectations()
@@ -502,14 +502,14 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(types));
                 }
             });
-        assertEquals(types, createServer().listExperimentTypes(session.getSessionToken()));
+        assertEquals(types, createServer().listExperimentTypes(SESSION_TOKEN));
         context.assertIsSatisfied();
     }
 
     @Test
     public void testListProjects()
     {
-        final Session session = prepareGetSession();
+        prepareGetSession();
         context.checking(new Expectations()
             {
                 {
@@ -520,18 +520,18 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(new ArrayList<ProjectPE>()));
                 }
             });
-        createServer().listProjects(session.getSessionToken());
+        createServer().listProjects(SESSION_TOKEN);
         context.assertIsSatisfied();
     }
 
     @Test
     public void testListPropertyTypes()
     {
-        final Session session = prepareGetSession();
+        prepareGetSession();
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createPropertyTypeTable(session);
+                    one(commonBusinessObjectFactory).createPropertyTypeTable(SESSION);
                     will(returnValue(propertyTypeTable));
 
                     one(propertyTypeTable).load();
@@ -541,14 +541,14 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(new ArrayList<PropertyTypePE>()));
                 }
             });
-        createServer().listPropertyTypes(session.getSessionToken());
+        createServer().listPropertyTypes(SESSION_TOKEN);
         context.assertIsSatisfied();
     }
 
     @Test
     public final void testListDataTypes()
     {
-        final Session session = prepareGetSession();
+        prepareGetSession();
         context.checking(new Expectations()
             {
                 {
@@ -559,7 +559,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(Collections.emptyList()));
                 }
             });
-        final List<DataTypePE> dataTypes = createServer().listDataTypes(session.getSessionToken());
+        final List<DataTypePE> dataTypes = createServer().listDataTypes(SESSION_TOKEN);
         assertEquals(0, dataTypes.size());
         context.assertIsSatisfied();
     }
@@ -567,7 +567,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     @Test
     public final void testListVocabularies()
     {
-        final Session session = prepareGetSession();
+        prepareGetSession();
         final boolean excludeInternal = true;
         context.checking(new Expectations()
             {
@@ -580,7 +580,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                 }
             });
         final List<VocabularyPE> vocabularies =
-                createServer().listVocabularies(session.getSessionToken(), true, excludeInternal);
+                createServer().listVocabularies(SESSION_TOKEN, true, excludeInternal);
         assertEquals(0, vocabularies.size());
         context.assertIsSatisfied();
     }
@@ -588,11 +588,11 @@ public final class CommonServerTest extends AbstractServerTestCase
     @Test
     public final void testRegisterPropertyType()
     {
-        final Session session = prepareGetSession();
+        prepareGetSession();
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createPropertyTypeBO(session);
+                    one(commonBusinessObjectFactory).createPropertyTypeBO(SESSION);
                     will(returnValue(propertyTypeBO));
 
                     one(propertyTypeBO).define(with(aNonNull(PropertyType.class)));
@@ -606,11 +606,11 @@ public final class CommonServerTest extends AbstractServerTestCase
     @Test
     public final void testRegisterVocabulary()
     {
-        final Session session = prepareGetSession();
+        prepareGetSession();
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createVocabularyBO(session);
+                    one(commonBusinessObjectFactory).createVocabularyBO(SESSION);
                     will(returnValue(vocabularyBO));
 
                     one(vocabularyBO).define(with(aNonNull(Vocabulary.class)));
@@ -624,7 +624,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     @Test
     public final void testAssignPropertyType()
     {
-        final Session session = prepareGetSession();
+        prepareGetSession();
         final EntityKind entityKind = EntityKind.EXPERIMENT;
         final String propertyTypeCode = "USER.DISTANCE";
         final String entityTypeCode = "ARCHERY";
@@ -633,7 +633,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createEntityTypePropertyTypeBO(session,
+                    one(commonBusinessObjectFactory).createEntityTypePropertyTypeBO(SESSION,
                             entityKind);
                     will(returnValue(entityTypePropertyTypeBO));
 
@@ -651,12 +651,12 @@ public final class CommonServerTest extends AbstractServerTestCase
     @Test
     public void testListMaterials()
     {
-        final Session session = prepareGetSession();
+        prepareGetSession();
         final MaterialTypePE materialType = CommonTestUtils.createMaterialType();
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createMaterialTable(session);
+                    one(commonBusinessObjectFactory).createMaterialTable(SESSION);
                     will(returnValue(materialTable));
 
                     one(materialTable).load(materialType.getCode());
@@ -668,14 +668,14 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(new ArrayList<MaterialTypePE>()));
                 }
             });
-        createServer().listMaterials(session.getSessionToken(), materialType);
+        createServer().listMaterials(SESSION_TOKEN, materialType);
         context.assertIsSatisfied();
     }
 
     @Test
     public void testListMaterialTypes()
     {
-        final Session session = prepareGetSession();
+        prepareGetSession();
         final List<EntityTypePE> types = new ArrayList<EntityTypePE>();
         types.add(CommonTestUtils.createMaterialType());
         context.checking(new Expectations()
@@ -688,7 +688,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(types));
                 }
             });
-        assertEquals(types, createServer().listMaterialTypes(session.getSessionToken()));
+        assertEquals(types, createServer().listMaterialTypes(SESSION_TOKEN));
         context.assertIsSatisfied();
     }
 

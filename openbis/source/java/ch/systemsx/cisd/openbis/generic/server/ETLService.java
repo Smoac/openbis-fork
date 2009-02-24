@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -59,10 +60,10 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  */
 public class ETLService extends AbstractServer<IETLService> implements IETLService
 {
-    private static final String PROCESSING_PATH = "$processing-path-for-";
-    private static final String PROCESSING_PATH_TEMPLATE = PROCESSING_PATH + "%s";
-    private static final String PROCESSING_PARAMETERS_TEMPLATE = "$processing-parameters-for-%s";
-    private static final String PROCESSING_DESCRIPTION_TEMPLATE = "$processing-description-for-%s";
+    @Private static final String PROCESSING_PATH = "$processing-path-for-";
+    @Private static final String PROCESSING_PATH_TEMPLATE = PROCESSING_PATH + "%s";
+    @Private static final String PROCESSING_PARAMETERS_TEMPLATE = "$processing-parameters-for-%s";
+    @Private static final String PROCESSING_DESCRIPTION_TEMPLATE = "$processing-description-for-%s";
     private static final String ENCODING = "utf-8";
     
     private ISessionManager<Session> sessionManager;
@@ -115,6 +116,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
     
     public String createDataSetCode(String sessionToken) throws UserFailureException
     {
+        sessionManager.getSession(sessionToken); // throws exception if invalid sessionToken
         return daoFactory.getExternalDataDAO().createDataSetCode();
     }
 
@@ -315,7 +317,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         if (experiment.getInvalidation() != null)
         {
             throw new UserFailureException("Data set can not be registered because experiment '"
-                    + experiment.getCode() + "' is invalid.");
+                    + experiment.getIdentifier() + "' is invalid.");
         }
         List<ProcedurePE> procedures = experiment.getProcedures();
         ProcedurePE procedure = tryToFindProcedureByType(procedures, procedureTypeCode);

@@ -37,7 +37,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
@@ -85,7 +84,7 @@ public final class GenericServerTest extends AbstractServerTestCase
     @Test
     public final void testGetSampleInfo()
     {
-        final Session session = prepareGetSession();
+        prepareGetSession();
         final SampleIdentifier sampleIdentifier = CommonTestUtils.createSampleIdentifier();
         final SamplePE samplePE = CommonTestUtils.createSample();
         final SampleGenerationDTO sampleGenerationDTO = new SampleGenerationDTO();
@@ -93,7 +92,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(genericBusinessObjectFactory).createSampleBO(session);
+                    one(genericBusinessObjectFactory).createSampleBO(SESSION);
                     will(returnValue(sampleBO));
 
                     one(sampleBO).loadBySampleIdentifier(sampleIdentifier);
@@ -101,7 +100,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                     one(sampleBO).getSample();
                     will(returnValue(samplePE));
 
-                    one(sampleTypeSlaveServerPlugin).getSampleInfo(session, samplePE);
+                    one(sampleTypeSlaveServerPlugin).getSampleInfo(SESSION, samplePE);
                     will(returnValue(sampleGenerationDTO));
                 }
             });
@@ -116,12 +115,12 @@ public final class GenericServerTest extends AbstractServerTestCase
     @Test
     public final void testRegisterSample()
     {
-        final Session session = prepareGetSession();
+        prepareGetSession();
         final NewSample newSample = new NewSample();
         context.checking(new Expectations()
             {
                 {
-                    one(genericBusinessObjectFactory).createSampleBO(session);
+                    one(genericBusinessObjectFactory).createSampleBO(SESSION);
                     will(returnValue(sampleBO));
 
                     one(sampleBO).define(newSample);
@@ -136,14 +135,14 @@ public final class GenericServerTest extends AbstractServerTestCase
     @Test
     public void testGetExperimentInfo() throws Exception
     {
-        final Session session = prepareGetSession();
+        prepareGetSession();
         final ExperimentIdentifier experimentIdentifier =
                 CommonTestUtils.createExperimentIdentifier();
         final ExperimentPE experimentPE = CommonTestUtils.createExperiment(experimentIdentifier);
         context.checking(new Expectations()
             {
                 {
-                    one(genericBusinessObjectFactory).createExperimentBO(session);
+                    one(genericBusinessObjectFactory).createExperimentBO(SESSION);
                     will(returnValue(experimentBO));
 
                     one(experimentBO).loadByExperimentIdentifier(experimentIdentifier);
@@ -162,14 +161,14 @@ public final class GenericServerTest extends AbstractServerTestCase
     @Test
     public void testGetExperimentFileAttachment() throws Exception
     {
-        final Session session = prepareGetSession();
+        prepareGetSession();
         final ExperimentIdentifier experimentIdentifier =
                 CommonTestUtils.createExperimentIdentifier();
         final AttachmentPE attachmentPE = CommonTestUtils.createAttachment();
         context.checking(new Expectations()
             {
                 {
-                    one(genericBusinessObjectFactory).createExperimentBO(session);
+                    one(genericBusinessObjectFactory).createExperimentBO(SESSION);
                     will(returnValue(experimentBO));
 
                     one(experimentBO).loadByExperimentIdentifier(experimentIdentifier);
@@ -181,7 +180,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                 }
             });
         assertEquals(attachmentPE, createServer().getExperimentFileAttachment(
-                session.getSessionToken(), experimentIdentifier, attachmentPE.getFileName(),
+                SESSION_TOKEN, experimentIdentifier, attachmentPE.getFileName(),
                 attachmentPE.getVersion()));
         context.assertIsSatisfied();
     }
@@ -230,7 +229,7 @@ public final class GenericServerTest extends AbstractServerTestCase
     @Test
     public final void testRegisterSamples()
     {
-        final Session session = prepareGetSession();
+        prepareGetSession();
         final SampleTypePE sampleTypePE = CommonTestUtils.createSampleType();
         final SampleType sampleType = new SampleType();
         sampleType.setCode(sampleTypePE.getCode());
@@ -243,22 +242,22 @@ public final class GenericServerTest extends AbstractServerTestCase
                     one(sampleTypeDAO).tryFindSampleTypeByCode(sampleTypePE.getCode());
                     will(returnValue(sampleTypePE));
 
-                    one(sampleTypeSlaveServerPlugin).registerSamples(session, newSamples);
+                    one(sampleTypeSlaveServerPlugin).registerSamples(SESSION, newSamples);
                 }
             });
-        createServer().registerSamples(session.getSessionToken(), sampleType, newSamples);
+        createServer().registerSamples(SESSION_TOKEN, sampleType, newSamples);
         context.assertIsSatisfied();
     }
 
     @Test
     public final void testRegisterExperimentWithoutSamples()
     {
-        final Session session = prepareGetSession();
+        prepareGetSession();
         final NewExperiment newExperiment = new NewExperiment();
         context.checking(new Expectations()
             {
                 {
-                    one(genericBusinessObjectFactory).createExperimentBO(session);
+                    one(genericBusinessObjectFactory).createExperimentBO(SESSION);
                     will(returnValue(experimentBO));
 
                     one(experimentBO).define(newExperiment);
@@ -273,7 +272,7 @@ public final class GenericServerTest extends AbstractServerTestCase
     @Test
     public final void testRegisterExperimentWithSamples()
     {
-        final Session session = prepareGetSession();
+        prepareGetSession();
         final String experimentTypeCode = "EXP-TYPE1";
         final String experimentCode = "EXP1";
         final String groupCode = "CISD";
@@ -295,7 +294,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(genericBusinessObjectFactory).createExperimentBO(session);
+                    one(genericBusinessObjectFactory).createExperimentBO(SESSION);
                     will(returnValue(experimentBO));
 
                     one(experimentBO).define(newExperiment);
@@ -303,20 +302,20 @@ public final class GenericServerTest extends AbstractServerTestCase
                     one(experimentBO).getExperiment();
                     will(returnValue(experimentPE));
 
-                    one(genericBusinessObjectFactory).createProcedureBO(session);
+                    one(genericBusinessObjectFactory).createProcedureBO(SESSION);
                     will(returnValue(procedureBO));
                     one(procedureBO).define(experimentPE, procedureTypeCode);
                     one(procedureBO).save();
                     one(procedureBO).getProcedure();
                     will(returnValue(procedurePE));
 
-                    one(genericBusinessObjectFactory).createSampleBO(session);
+                    one(genericBusinessObjectFactory).createSampleBO(SESSION);
                     will(returnValue(sampleBO));
                     one(sampleBO).loadBySampleIdentifier(sampleIdentifier1);
                     one(sampleBO).enrichWithValidProcedure();
                     one(sampleBO).addProcedure(procedurePE);
 
-                    one(genericBusinessObjectFactory).createSampleBO(session);
+                    one(genericBusinessObjectFactory).createSampleBO(SESSION);
                     will(returnValue(sampleBO));
                     one(sampleBO).loadBySampleIdentifier(sampleIdentifier2WithGroup);
                     one(sampleBO).enrichWithValidProcedure();
@@ -331,7 +330,7 @@ public final class GenericServerTest extends AbstractServerTestCase
     @Test
     public final void testRegisterExperimentWithSampleFromWronGroup()
     {
-        final Session session = prepareGetSession();
+        prepareGetSession();
         final String experimentTypeCode = "EXP-TYPE1";
         final String experimentCode = "EXP1";
         final String groupCode = "CISD";
@@ -348,7 +347,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(genericBusinessObjectFactory).createExperimentBO(session);
+                    one(genericBusinessObjectFactory).createExperimentBO(SESSION);
                     will(returnValue(experimentBO));
 
                     one(experimentBO).define(newExperiment);
@@ -356,7 +355,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                     one(experimentBO).getExperiment();
                     will(returnValue(experimentPE));
 
-                    one(genericBusinessObjectFactory).createProcedureBO(session);
+                    one(genericBusinessObjectFactory).createProcedureBO(SESSION);
                     will(returnValue(procedureBO));
                     one(procedureBO).define(experimentPE, procedureTypeCode);
                     one(procedureBO).save();

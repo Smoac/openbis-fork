@@ -25,7 +25,6 @@ import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
@@ -64,7 +63,7 @@ public final class ScreeningServerTest extends AbstractServerTestCase
     @Test
     public final void testGetSampleInfo()
     {
-        final Session session = prepareGetSession();
+        prepareGetSession();
         final SampleIdentifier sampleIdentifier = CommonTestUtils.createSampleIdentifier();
         final SamplePE samplePE = CommonTestUtils.createSample();
         final SampleGenerationDTO sampleGenerationDTO = new SampleGenerationDTO();
@@ -72,7 +71,7 @@ public final class ScreeningServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(screeningBusinessObjectFactory).createSampleBO(session);
+                    one(screeningBusinessObjectFactory).createSampleBO(SESSION);
                     will(returnValue(sampleBO));
 
                     one(sampleBO).loadBySampleIdentifier(sampleIdentifier);
@@ -80,7 +79,7 @@ public final class ScreeningServerTest extends AbstractServerTestCase
                     one(sampleBO).getSample();
                     will(returnValue(samplePE));
 
-                    one(sampleTypeSlaveServerPlugin).getSampleInfo(session, samplePE);
+                    one(sampleTypeSlaveServerPlugin).getSampleInfo(SESSION, samplePE);
                     will(returnValue(sampleGenerationDTO));
                 }
             });
