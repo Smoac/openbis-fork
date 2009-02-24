@@ -65,6 +65,12 @@ public class UnmodifiableCollectionDecorator<E> implements Collection<E>
         return collection.hashCode();
     }
 
+    @Override
+    public String toString()
+    {
+        return collection.toString();
+    }
+
     public boolean isEmpty()
     {
         return collection.isEmpty();
