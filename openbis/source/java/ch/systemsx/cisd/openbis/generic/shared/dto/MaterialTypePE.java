@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Entity;
@@ -46,7 +47,8 @@ public final class MaterialTypePE extends EntityTypePE
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
-    private Set<MaterialTypePropertyTypePE> materialTypePropertyTypes;
+    private Set<MaterialTypePropertyTypePE> materialTypePropertyTypes =
+            new HashSet<MaterialTypePropertyTypePE>();
 
     //
     // EntityTypePE
