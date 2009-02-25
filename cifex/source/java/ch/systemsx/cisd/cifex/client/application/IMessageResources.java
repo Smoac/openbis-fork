@@ -688,6 +688,13 @@ public interface IMessageResources extends Messages
     public String getShareLabel();
 
     /**
+     * Returns the error message when a user who should be added to the sharing users is not found.
+     * 
+     * @gwt.key share.submit.user.not.found
+     */
+    public String getShareSubmitUserNotFound(String userCode);
+    
+    /**
      * Returns the label of the submit button of the Dialog
      * 
      * @gwt.key share.submit.button.label

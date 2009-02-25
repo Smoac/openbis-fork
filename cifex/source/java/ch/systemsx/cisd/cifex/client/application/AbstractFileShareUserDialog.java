@@ -26,6 +26,7 @@ import com.gwtext.client.core.EventObject;
 import com.gwtext.client.core.Ext;
 import com.gwtext.client.core.Position;
 import com.gwtext.client.widgets.Button;
+import com.gwtext.client.widgets.MessageBox;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
 import com.gwtext.client.widgets.form.Form;
 import com.gwtext.client.widgets.form.FormConfig;
@@ -38,6 +39,7 @@ import ch.systemsx.cisd.cifex.client.application.ui.DefaultLayoutDialog;
 import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
 import ch.systemsx.cisd.cifex.client.application.utils.CifexValidator;
 import ch.systemsx.cisd.cifex.client.dto.UserInfoDTO;
+import ch.systemsx.cisd.cifex.shared.basic.Constants;
 
 /**
  * A dialog to edit file sharing.
@@ -59,8 +61,8 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
 
     final ModelBasedGrid newUserGrid;
 
-    public AbstractFileShareUserDialog(final ViewContext context, final UserInfoDTO[] existingUsers,
-            final UserInfoDTO[] newUsers, final String name)
+    public AbstractFileShareUserDialog(final ViewContext context,
+            final UserInfoDTO[] existingUsers, final UserInfoDTO[] newUsers, final String name)
     {
         this(context, getArrayList(existingUsers), getArrayList(newUsers), name);
     }
@@ -79,7 +81,8 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
 
     }
 
-    public AbstractFileShareUserDialog(final ViewContext context, UserInfoDTO[] existingUsers, String name)
+    public AbstractFileShareUserDialog(final ViewContext context, UserInfoDTO[] existingUsers,
+            String name)
     {
         this(context, existingUsers, null, name);
     }
@@ -109,8 +112,8 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
     }
 
     /**
-     * This method is called, everytime the user selects a checkbox in the usergrid. This is used,
-     * that a subclass can specify an action for every change of the checkboxes.
+     * This method is called whenever the user selects a checkbox in the usergrid. This is so that a
+     * subclass can specify an action for every change of the checkboxes.
      */
     abstract void checkboxChangeAction();
 
@@ -175,7 +178,7 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
         fileFieldConfig.setValidateOnBlur(true);
         fileFieldConfig.setName(EMAIL_FIELD_CONFIG);
         fileFieldConfig.setValidateOnBlur(true);
-        fileFieldConfig.setValidator(CifexValidator.getEmailFieldValidator());
+        fileFieldConfig.setValidator(CifexValidator.getUserFieldValidator());
         TextField addUserField = new TextField(fileFieldConfig);
 
         form.add(addUserField);
@@ -202,42 +205,84 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                         return;
                     }
                     button.disable();
-                    final String email = userTextField.getText();
-                    viewContext.getCifexService().tryFindUserByEmail(email,
-                            new AbstractAsyncCallback(viewContext)
-                                {
-                                    public void onSuccess(Object result)
+                    final String emailOrCode = userTextField.getText();
+                    if (emailOrCode.startsWith(Constants.USER_ID_PREFIX))
+                    {
+                        final String userCode =
+                                emailOrCode.substring(Constants.USER_ID_PREFIX.length());
+                        viewContext.getCifexService().tryFindUserByUserCode(userCode,
+                                new AbstractAsyncCallback(viewContext)
                                     {
-                                        UserInfoDTO[] users = (UserInfoDTO[]) result;
-                                        if (users.length > 0)
+                                        public void onSuccess(Object result)
                                         {
-                                            for (int i = 0; i < users.length; i++)
+                                            UserInfoDTO user = (UserInfoDTO) result;
+                                            if (user != null)
                                             {
-                                                if (existingUsers.contains(users[i]) == false)
+                                                if (existingUsers.contains(user) == false)
                                                 {
-                                                    existingUsers.add(users[i]);
-                                                    addUserToFileShare(users[i]);
+                                                    existingUsers.add(user);
+                                                    addUserToFileShare(user);
                                                 }
+                                                existingUserGrid.reloadStore(existingUsers
+                                                        .toArray());
+                                                // TODO 2008-06-03, Basil Neff: Bug CFX-103: If you
+                                                // add
+                                                // a user to
+                                                // the list,
+                                                // all checkboxes are back to checked.
+                                                // This needs to cleared the removePersonArray
+                                                checkboxChangeAction();
+                                            } else
+                                            {
+                                                MessageBox.alert(viewContext.getMessageResources()
+                                                        .getMessageBoxErrorTitle(), viewContext
+                                                        .getMessageResources()
+                                                        .getShareSubmitUserNotFound(userCode));
                                             }
-                                            existingUserGrid.reloadStore(existingUsers.toArray());
-                                        } else
-                                        {
-
-                                            UserInfoDTO user = new UserInfoDTO();
-                                            user.setEmail(email);
-                                            user.setRegistrator(viewContext.getModel().getUser());
-                                            newUsers.add(user);
-                                            addUserToFileShare(user);
-                                            newUserGrid.reloadStore(newUsers.toArray());
                                         }
-                                        // TODO 2008-06-03, Basil Neff: Bug CFX-103: If you add a user to
-                                        // the list,
-                                        // all checkboxes are back to checked.
-                                        // This needs to cleared the removePersonArray
-                                        checkboxChangeAction();
-                                    }
 
-                                });
+                                    });
+                    } else
+                    {
+                        viewContext.getCifexService().tryFindUserByEmail(emailOrCode,
+                                new AbstractAsyncCallback(viewContext)
+                                    {
+                                        public void onSuccess(Object result)
+                                        {
+                                            UserInfoDTO[] users = (UserInfoDTO[]) result;
+                                            if (users.length > 0)
+                                            {
+                                                for (int i = 0; i < users.length; i++)
+                                                {
+                                                    if (existingUsers.contains(users[i]) == false)
+                                                    {
+                                                        existingUsers.add(users[i]);
+                                                        addUserToFileShare(users[i]);
+                                                    }
+                                                }
+                                                existingUserGrid.reloadStore(existingUsers
+                                                        .toArray());
+                                            } else
+                                            {
+
+                                                UserInfoDTO user = new UserInfoDTO();
+                                                user.setEmail(emailOrCode);
+                                                user.setRegistrator(viewContext.getModel()
+                                                        .getUser());
+                                                newUsers.add(user);
+                                                addUserToFileShare(user);
+                                                newUserGrid.reloadStore(newUsers.toArray());
+                                            }
+                                            // TODO 2008-06-03, Basil Neff: Bug CFX-103: If you add
+                                            // a user to
+                                            // the list,
+                                            // all checkboxes are back to checked.
+                                            // This needs to cleared the removePersonArray
+                                            checkboxChangeAction();
+                                        }
+
+                                    });
+                    }
                     userTextField.setValue("");
                     button.enable();
                 }
