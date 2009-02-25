@@ -50,9 +50,9 @@ public final class Downloader extends AbstractUploadDownload
     /**
      * Creates an instance for the specified service URL and session ID.
      */
-    public Downloader(String serviceURL, String sessionID)
+    public Downloader(String serviceURL, String sessionID, boolean getCertiticateFromServer)
     {
-        super(serviceURL, sessionID);
+        super(serviceURL, sessionID, getCertiticateFromServer);
     }
 
     /**

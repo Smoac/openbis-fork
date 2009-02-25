@@ -52,9 +52,6 @@ public class MinimalParameters
 
     private static final String ARGS_NOT_EMPTY = "No arguments allowed.";
 
-    @Option(name = "s", longName = "server-base-url", metaVar = "URL", usage = "Base URL of the server")
-    private String baseURL;
-
     @Argument()
     private final List<String> args = new ArrayList<String>();
 
@@ -111,11 +108,6 @@ public class MinimalParameters
         {
             exitHandler.exit(0);
         }
-    }
-
-    public final String getBaseURL()
-    {
-        return baseURL;
     }
 
     public final List<String> getArgs()

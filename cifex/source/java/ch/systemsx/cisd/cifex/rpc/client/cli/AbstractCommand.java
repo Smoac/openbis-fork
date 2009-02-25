@@ -18,13 +18,10 @@ package ch.systemsx.cisd.cifex.rpc.client.cli;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
 
 import jline.ConsoleReader;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 
@@ -32,9 +29,9 @@ import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.cifex.rpc.client.IProgressListenerHolder;
 import ch.systemsx.cisd.cifex.rpc.client.RPCServiceFactory;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
+import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
 
 /**
  * Abstract super class of all commands.
@@ -44,8 +41,6 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 abstract class AbstractCommand implements ICommand
 {
 
-    private static final String BASE_URL = "base-url";
-
     private static final String APPLICATION_NAME = "cifex";
 
     private static final File HOME_DIRECTORY = SystemUtils.getUserHome();
@@ -54,37 +49,28 @@ abstract class AbstractCommand implements ICommand
 
     protected static final File SESSION_TOKEN_FILE =
             new File(HOME_DIRECTORY, SESSION_TOKEN_FILE_NAME);
-    
-    /**
-     * A hidden properties file which contains default property values that do not need to be typed
-     * in.
-     */
-    private static final String CIFEX_DEFAULT_PROPERTIES_FILE_NAME = ".cifex-default";
 
-    private static final File CIFEX_DEFAULT_PROPERTIES_FILE =
-            new File(HOME_DIRECTORY, CIFEX_DEFAULT_PROPERTIES_FILE_NAME);
-
-    final static Properties cifexDefaultProperties = new Properties();
+    static String configuredBaseURL;
 
     static
     {
-        if (CIFEX_DEFAULT_PROPERTIES_FILE.exists())
+        final File baseURLFile = getBaseURLFile();
+        if (baseURLFile.exists())
         {
-            InputStream stream = null;
             try
             {
-                stream = FileUtils.openInputStream(CIFEX_DEFAULT_PROPERTIES_FILE);
-                cifexDefaultProperties.load(stream);
-                PropertyUtils.trimProperties(cifexDefaultProperties);
+                configuredBaseURL = FileUtils.readFileToString(baseURLFile);
             } catch (final IOException ex)
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-            } finally
-            {
-                IOUtils.closeQuietly(stream);
             }
         }
+    }
 
+    static File getBaseURLFile()
+    {
+        final File baseURLFile = new File(RPCServiceFactory.getCIFEXConfigDir(), "server");
+        return baseURLFile;
     }
 
     private final String name;
@@ -117,64 +103,72 @@ abstract class AbstractCommand implements ICommand
     /**
      * Returns the service interface for accessing the server.
      */
-    protected final ICIFEXRPCService getService(final MinimalParameters parameters)
+    protected final ICIFEXRPCService tryGetService()
     {
-        return RPCServiceFactory.createServiceProxy(getServiceURL(parameters));
+        return tryGetService(configuredBaseURL, false);
     }
 
-    protected final String getServiceURL(final MinimalParameters parameters)
+    /**
+     * Returns the service interface for accessing the server.
+     */
+    protected final ICIFEXRPCService tryGetService(String baseURL, boolean initializeTrustStore)
     {
-        String baseURL = parameters.getBaseURL();
-        if (baseURL == null)
+        if (StringUtils.isBlank(baseURL))
         {
-
-            baseURL = cifexDefaultProperties.getProperty(BASE_URL);
-            if (baseURL == null)
-            {
-                throw new EnvironmentFailureException(
-                        "Service URL is neither defined as a command-line option nor in the file '"
-                                + CIFEX_DEFAULT_PROPERTIES_FILE_NAME + "'.");
-            }
+            System.err
+                    .println("This CIFEX client has not been initialized. Call the command 'init' first.");
+            return null;
         }
-        return baseURL;
+        final String serviceURL = baseURL + Constants.CIFEX_RPC_PATH;
+        final ICIFEXRPCService service =
+                RPCServiceFactory.createServiceProxy(serviceURL, initializeTrustStore);
+        final int serverVersion = service.getVersion();
+        if (ICIFEXRPCService.VERSION != serverVersion)
+        {
+            System.err.println("This client has the wrong service version for the server (client: "
+                    + ICIFEXRPCService.VERSION + ", server: " + serverVersion + ").");
+            return null;
+        }
+        return service;
     }
 
     protected void addConsoleProgressListener(final IProgressListenerHolder downloader)
     {
-        downloader.addProgressListener(new IProgressListener() {
-
-            long size;
-            
-            public void start(File file, long fileSize)
+        downloader.addProgressListener(new IProgressListener()
             {
-                size = fileSize; 
-                System.out.print("0% (0/" + size + ")");
-            }
 
-            public void reportProgress(int percentage, long numberOfBytes)
-            {
-                System.out.print("\r" + percentage + "% (" + numberOfBytes + "/" + size + ")");
-            }
+                long size;
 
-            public void finished(boolean successful)
-            {
-                System.out.println("\r100% (" + size + "/" + size + ")");
-                size = 0L;
-            }
+                public void start(File file, long fileSize)
+                {
+                    size = fileSize;
+                    System.out.print("0% (0/" + size + ")");
+                }
 
-            public void warningOccured(String warningMessage)
-            {
-                System.out.println();
-                System.err.println(warningMessage);
-            }
-            
-            public void exceptionOccured(Throwable throwable)
-            {
-                System.out.println();
-                throwable.printStackTrace();
-            }
+                public void reportProgress(int percentage, long numberOfBytes)
+                {
+                    System.out.print("\r" + percentage + "% (" + numberOfBytes + "/" + size + ")");
+                }
 
-        });
+                public void finished(boolean successful)
+                {
+                    System.out.println("\r100% (" + size + "/" + size + ")");
+                    size = 0L;
+                }
+
+                public void warningOccured(String warningMessage)
+                {
+                    System.out.println();
+                    System.err.println(warningMessage);
+                }
+
+                public void exceptionOccured(Throwable throwable)
+                {
+                    System.out.println();
+                    throwable.printStackTrace();
+                }
+
+            });
     }
 
     //

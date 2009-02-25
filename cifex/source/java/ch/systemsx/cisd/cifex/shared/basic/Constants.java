@@ -74,6 +74,11 @@ public final class Constants
     /** A regular expression that match user code with prefix {@link #USER_ID_PREFIX}. */
     public static final String USER_CODE_WITH_ID_PREFIX_REGEX =
             "^" + USER_ID_PREFIX + USER_CODE_REGEX.substring(1);
+    
+    /**
+     * The path to add to the end of the server to get the rpc service.
+     */
+    public static final String CIFEX_RPC_PATH = "/cifex/rpc-service";
 
     private Constants()
     {

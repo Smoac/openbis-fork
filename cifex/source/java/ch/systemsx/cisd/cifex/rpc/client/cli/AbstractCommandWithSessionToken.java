@@ -80,8 +80,8 @@ public abstract class AbstractCommandWithSessionToken extends AbstractCommand
         {
             return 1;
         }
-        final ICIFEXRPCService service = getService(getParameters());
-        return execute(sessionToken, service, args);
+        final ICIFEXRPCService serviceOrNull = tryGetService();
+        return execute(sessionToken, serviceOrNull, args);
     }
 
 }

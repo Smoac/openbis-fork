@@ -31,6 +31,8 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -45,7 +47,7 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
 
 /**
  * The factory for the CIFEX RPC service.
- *
+ * 
  * @author Bernd Rinn
  */
 public final class RPCServiceFactory
@@ -78,25 +80,46 @@ public final class RPCServiceFactory
             }
         }
     }
-    
+
     private RPCServiceFactory()
     {
         // Can not be instantiated.
     }
 
     /**
+     * Returns the directory of CIFEX configuration data.
+     */
+    public static File getCIFEXConfigDir()
+    {
+        String homeDir = System.getProperty("cifex.root");
+        File cifexDir;
+        if (homeDir != null)
+        {
+            cifexDir = new File(homeDir, "etc");
+        } else
+        {
+            homeDir = System.getProperty("user.home");
+            cifexDir = new File(homeDir, ".cifex");
+        }
+        cifexDir.mkdirs();
+        return cifexDir;
+    }
+
+    /**
      * Creates the CIFEX RPC service.
      */
-    public static ICIFEXRPCService createServiceProxy(String serviceURL)
+    public static ICIFEXRPCService createServiceProxy(String serviceURL,
+            boolean getServerCertificateFromServer)
     {
         ClassLoader classLoader = RPCServiceFactory.class.getClassLoader();
-        ICIFEXRPCService service = createService(serviceURL);
+        ICIFEXRPCService service = createService(serviceURL, getServerCertificateFromServer);
         ServiceInvocationHandler invocationHandler = new ServiceInvocationHandler(service);
         return (ICIFEXRPCService) Proxy.newProxyInstance(classLoader, new Class[]
             { ICIFEXRPCService.class }, invocationHandler);
     }
 
-    private static ICIFEXRPCService createService(String serviceURL)
+    private static ICIFEXRPCService createService(String serviceURL,
+            boolean getServerCertificateFromServer)
     {
         if (serviceURL.startsWith(SPRING_BEAN_URL_PROTOCOL))
         {
@@ -106,7 +129,10 @@ public final class RPCServiceFactory
             LogInitializer.init();
             return ((ICIFEXRPCService) applicationContext.getBean("rpc-service"));
         }
-        setUpKeyStore(serviceURL);
+        if (getServerCertificateFromServer)
+        {
+            setUpKeyStore(serviceURL);
+        }
         final HttpInvokerProxyFactoryBean httpInvokerProxy = new HttpInvokerProxyFactoryBean();
         httpInvokerProxy.setServiceUrl(serviceURL);
         httpInvokerProxy.setServiceInterface(ICIFEXRPCService.class);
@@ -140,9 +166,7 @@ public final class RPCServiceFactory
             FileOutputStream fileOutputStream = null;
             try
             {
-                String homeDir = System.getProperty("user.home");
-                File cifexDir = new File(homeDir, ".cifex");
-                cifexDir.mkdirs();
+                File cifexDir = getCIFEXConfigDir();
                 File keyStoreFile = new File(cifexDir, "keystore");
                 fileOutputStream = new FileOutputStream(keyStoreFile);
                 keyStore.store(fileOutputStream, "changeit".toCharArray());
@@ -162,13 +186,14 @@ public final class RPCServiceFactory
     {
         workAroundABugInJava6();
 
+        // Create a trust manager that does not validate certificate chains
+        setUpAllAcceptingTrustManager();
         SSLSocket socket = null;
         try
         {
             URL url = new URL(serviceURL);
             int port = url.getPort();
             String hostname = url.getHost();
-            System.out.println("host:" + hostname + " port:" + port);
             SSLSocketFactory factory = HttpsURLConnection.getDefaultSSLSocketFactory();
             socket = (SSLSocket) factory.createSocket(hostname, port);
             socket.startHandshake();
@@ -189,7 +214,38 @@ public final class RPCServiceFactory
                 }
             }
         }
+    }
 
+    private static void setUpAllAcceptingTrustManager()
+    {
+        TrustManager[] trustAllCerts = new TrustManager[]
+            { 
+                new X509TrustManager()
+                {
+                    public java.security.cert.X509Certificate[] getAcceptedIssuers()
+                    {
+                        return null;
+                    }
+
+                    public void checkClientTrusted(java.security.cert.X509Certificate[] certs,
+                            String authType)
+                    {
+                    }
+
+                    public void checkServerTrusted(java.security.cert.X509Certificate[] certs,
+                            String authType)
+                    {
+                    }
+                } };
+        // Install the all-trusting trust manager
+        try
+        {
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+        } catch (Exception e)
+        {
+        }
     }
 
     // see comment submitted on 31-JAN-2008 for
@@ -201,7 +257,7 @@ public final class RPCServiceFactory
             SSLContext.getInstance("SSL").createSSLEngine();
         } catch (Exception ex)
         {
-            System.out.println(ex);
+            // Ignore this one.
         }
     }
 

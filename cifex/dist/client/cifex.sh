@@ -1,3 +1,5 @@
 #! /bin/sh
 
-java -Xmx256m -Djavax.net.ssl.trustStore=etc/cifex-client.keystore -jar lib/cifex.jar "$@"
+CIFEX_ROOT=`dirname $0`
+
+java -Xmx256m -Djavax.net.ssl.trustStore=etc/keystore -Dcifex.root=$CIFEX_ROOT -jar lib/cifex.jar "$@"

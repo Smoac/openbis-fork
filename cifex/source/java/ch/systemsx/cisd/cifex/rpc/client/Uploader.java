@@ -58,9 +58,9 @@ public final class Uploader extends AbstractUploadDownload
     /**
      * Creates an instance for the specified service URL and session ID.
      */
-    public Uploader(String serviceURL, String sessionID)
+    public Uploader(String serviceURL, String sessionID, boolean getCertificateFromServer)
     {
-        super(serviceURL, sessionID);
+        super(serviceURL, sessionID, getCertificateFromServer);
     }
 
     /**

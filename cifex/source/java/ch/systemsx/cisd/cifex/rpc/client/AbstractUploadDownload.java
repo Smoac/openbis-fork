@@ -52,7 +52,7 @@ public abstract class AbstractUploadDownload implements IProgressListenerHolder
     public AbstractUploadDownload(String serviceURL, String username, String passwd)
             throws AuthorizationFailureException, EnvironmentFailureException
     {
-        this.service = RPCServiceFactory.createServiceProxy(serviceURL);
+        this.service = RPCServiceFactory.createServiceProxy(serviceURL, false);
         this.sessionID = service.login(username, passwd);
         checkService();
     }
@@ -60,9 +60,10 @@ public abstract class AbstractUploadDownload implements IProgressListenerHolder
     /**
      * Creates an instance for the specified service URL and session ID.
      */
-    public AbstractUploadDownload(String serviceURL, String sessionID)
+    public AbstractUploadDownload(String serviceURL, String sessionID,
+            boolean getCertificateFromServer)
     {
-        this(RPCServiceFactory.createServiceProxy(serviceURL), sessionID);
+        this(RPCServiceFactory.createServiceProxy(serviceURL, getCertificateFromServer), sessionID);
     }
 
     /**

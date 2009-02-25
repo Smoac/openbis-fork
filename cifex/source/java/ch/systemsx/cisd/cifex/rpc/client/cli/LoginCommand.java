@@ -80,12 +80,9 @@ public final class LoginCommand extends AbstractCommand
             EnvironmentFailureException
     {
         final Parameters parameters = new Parameters(arguments);
-        final ICIFEXRPCService service = getService(parameters);
-        final int serverVersion = service.getVersion();
-        if (ICIFEXRPCService.VERSION != serverVersion)
+        final ICIFEXRPCService serviceOrNull = tryGetService();
+        if (serviceOrNull == null)
         {
-            System.err.println("This client has the wrong service version for the server (client: "
-                    + ICIFEXRPCService.VERSION + ", server: " + serverVersion + ").");
             return 2;
         }
         Credentials credentials = parameters.getCredentials();
@@ -103,7 +100,7 @@ public final class LoginCommand extends AbstractCommand
             return 1;
         }
         final String sessionToken =
-                service.login(credentials.getUserName(), credentials.getPassword());
+                serviceOrNull.login(credentials.getUserName(), credentials.getPassword());
         return processSessionToken(sessionToken, credentials.getUserName());
     }
 

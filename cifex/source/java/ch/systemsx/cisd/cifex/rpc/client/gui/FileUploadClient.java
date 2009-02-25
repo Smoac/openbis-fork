@@ -114,7 +114,7 @@ public class FileUploadClient
             ITimeProvider timeProvider) throws ch.systemsx.cisd.cifex.shared.basic.UserFailureException,
             EnvironmentFailureException
     {
-        this(new Uploader(serviceURL, sessionId), maxUploadSizeInMB, timeProvider);
+        this(new Uploader(serviceURL, sessionId, true), maxUploadSizeInMB, timeProvider);
     }
 
     FileUploadClient(String serviceURL, String userName, String passwd, int maxUploadSizeInMB,

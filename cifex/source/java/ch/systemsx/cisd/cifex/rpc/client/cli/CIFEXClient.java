@@ -166,6 +166,7 @@ public class CIFEXClient
     private final static Map<String, ICommand> createCommands()
     {
         final Map<String, ICommand> map = new TreeMap<String, ICommand>();
+        registerCommand(map, InitializeCommand.getInstance());
         registerCommand(map, LoginCommand.getInstance());
         registerCommand(map, LogoutCommand.getInstance());
         registerCommand(map, ListDownloadFilesCommand.getInstance());
