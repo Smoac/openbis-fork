@@ -269,7 +269,7 @@
     </modificationset>
   </project>
   
-  <project name="etlserver">
+  <project name="datastore_server">
     <modificationset quietperiod="${quiet-period}">
       <buildstatus logdir="logs/build_resources"/>
       <buildstatus logdir="logs/libraries"/>
