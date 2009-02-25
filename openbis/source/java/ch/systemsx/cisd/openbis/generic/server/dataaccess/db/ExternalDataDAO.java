@@ -23,7 +23,11 @@ import net.sf.beanlib.hibernate3.Hibernate3SequenceGenerator;
 
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.log4j.Logger;
+import org.hibernate.FetchMode;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
@@ -103,6 +107,27 @@ final class ExternalDataDAO extends AbstractDAO implements IExternalDataDAO
         {
             String methodName = MethodUtils.getCurrentMethod().getName();
             operationLog.debug(String.format("%s(%s): '%s'.", methodName, dataSetCode, entity));
+        }
+        return entity;
+    }
+
+    public ExternalDataPE tryToFindFullDataSetByCode(String dataSetCode)
+    {
+        assert dataSetCode != null : "Unspecified data set code";
+
+        final String mangledCode = CodeConverter.tryToDatabase(dataSetCode);
+        final Criterion codeEq = Restrictions.eq("code", mangledCode);
+
+        final DetachedCriteria criteria = DetachedCriteria.forClass(ENTITY_CLASS);
+        criteria.setResultTransformer(DetachedCriteria.DISTINCT_ROOT_ENTITY);
+        criteria.setFetchMode("procedure", FetchMode.JOIN);
+        criteria.add(codeEq);
+        final List<ExternalDataPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
+        final ExternalDataPE entity = tryFindEntity(list, "data set");
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("External data '%s' found for data set code '%s'.",
+                    entity, dataSetCode));
         }
         return entity;
     }

@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwn
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
@@ -91,6 +92,14 @@ public interface IETLLIMSService extends IWebService, IDataStoreInfoProvider, IS
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
             final SampleIdentifier sampleIdentifier, final String procedureTypeCode,
             final ExternalData externalData) throws UserFailureException;
+    
+    /**
+     * Tries to return the data set specified by its code.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.ETL_SERVER)
+    public ExternalDataPE tryGetDataSet(String sessionToken, String dataSetCode)
+            throws UserFailureException;
 
     /**
      * Creates and returns a unique code for a new data set.

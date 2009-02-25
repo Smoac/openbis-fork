@@ -22,6 +22,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -86,6 +87,13 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
     {
         logAccess(sessionToken, "get_data_store", "EXPERIMENT(%s) DATA_SET(%s)",
                 experimentIdentifier, dataSetTypeCode);
+        return null;
+    }
+
+    public ExternalDataPE tryGetDataSet(String sessionToken, String dataSetCode)
+            throws UserFailureException
+    {
+        logAccess(sessionToken, "try_get_data_set", "DATA_SET(%s)", dataSetCode);
         return null;
     }
 

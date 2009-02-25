@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcessingInstructionDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -353,4 +354,17 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         }
         return null;
     }
+
+    public ExternalDataPE tryGetDataSet(String sessionToken, String dataSetCode)
+            throws UserFailureException
+    {
+        assert sessionToken != null : "Unspecified session token.";
+        assert dataSetCode != null : "Unspecified data set code.";
+        
+        sessionManager.getSession(sessionToken); // assert authenticated
+        
+        return daoFactory.getExternalDataDAO().tryToFindFullDataSetByCode(dataSetCode);
+    }
+    
+    
 }
