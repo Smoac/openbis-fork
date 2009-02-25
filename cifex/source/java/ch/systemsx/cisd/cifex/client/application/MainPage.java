@@ -119,12 +119,17 @@ final class MainPage extends AbstractMainPage
         if (maxUploadSizeExceeds2GB)
         {
             verticalPanel.add(createPartTitle(messageResources.getUploadFilesPartTitleGreater2GB()));
-            String link = messageResources.getUploadFilesHelpJavaUploaderLink();
-            String title = messageResources.getUploadFilesHelpJavaUploaderTitle();
-            String anchor =
-                DOMUtils.createAnchor(title, link, ServletPathConstants.FILE2GB_UPLOAD_SERVLET_NAME, null,
+            String webStartLink = messageResources.getUploadFilesHelpJavaUploaderLink();
+            String webStartTitle = messageResources.getUploadFilesHelpJavaUploaderTitle();
+            String anchorWebstart =
+                DOMUtils.createAnchor(webStartTitle, webStartLink, ServletPathConstants.FILE2GB_UPLOAD_SERVLET_NAME, null,
                         null, false);
-            verticalPanel.add(new HTML(messageResources.getUploadFilesHelpJavaUpload(anchor)));
+            String cliLink = messageResources.getUploadFilesHelpCLILink();
+            String cliTitle = messageResources.getUploadFilesHelpCLITitle();
+            String anchorCLI =
+                DOMUtils.createAnchor(cliTitle, cliLink, ServletPathConstants.COMMAND_LINE_CLIENT_DISTRIBUTION, null,
+                        null, false);
+            verticalPanel.add(new HTML(messageResources.getUploadFilesHelpJavaUpload(anchorWebstart, anchorCLI)));
         }
         return verticalPanel;
     }

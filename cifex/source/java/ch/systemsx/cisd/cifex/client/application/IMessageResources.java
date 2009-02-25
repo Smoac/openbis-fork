@@ -741,7 +741,7 @@ public interface IMessageResources extends Messages
      * 
      * @gwt.key uploadfiles.help.javaUpload
      */
-    public String getUploadFilesHelpJavaUpload(Object link);
+    public String getUploadFilesHelpJavaUpload(Object linkWebstart, Object linkCliDist);
     
     /**
      * Returns the name of Java uploader link.
@@ -756,6 +756,20 @@ public interface IMessageResources extends Messages
      * @gwt.key uploadfiles.help.javaUploaderTitle
      */
     public String getUploadFilesHelpJavaUploaderTitle();
+    
+    /**
+     * Returns the name of the Command Line Client ZIP file.
+     * 
+     * @gwt.key uploadfiles.help.cliLink
+     */
+    public String getUploadFilesHelpCLILink();
+    
+    /**
+     * Returns the title of Command Line Client link.
+     * 
+     * @gwt.key uploadfiles.help.cliTitle
+     */
+    public String getUploadFilesHelpCLITitle();
     
     /**
      * Returns the help text for uploading files section security.
