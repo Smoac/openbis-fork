@@ -116,7 +116,7 @@ abstract class AbstractCommand implements ICommand
         if (StringUtils.isBlank(baseURL))
         {
             System.err
-                    .println("This CIFEX client has not been initialized. Call the command 'init' first.");
+                    .println("This CIFEX client has not been initialized. Run the command 'init' first.");
             return null;
         }
         final String serviceURL = baseURL + Constants.CIFEX_RPC_PATH;
