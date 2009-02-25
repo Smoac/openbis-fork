@@ -48,8 +48,8 @@ public final class MaterialTable extends AbstractBusinessObject implements IMate
 
     public MaterialTable(final IDAOFactory daoFactory, final Session session)
     {
-        this(daoFactory, session, new EntityPropertiesConverter(EntityKind.MATERIAL, daoFactory,
-                null), null, false);
+        this(daoFactory, session, new EntityPropertiesConverter(EntityKind.MATERIAL, daoFactory),
+                null, false);
     }
 
     @Private
