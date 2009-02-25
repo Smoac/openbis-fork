@@ -69,17 +69,11 @@ final class FooterPanel extends HorizontalPanel
         final String version = createVersionDiv(configuration);
         disclaimerLink = createDisclaimerLink(messageResources);
         documentationLink = createDocumentationLink(messageResources);
-        String cliLink = messageResources.getUploadFilesHelpCLILink();
-        String cliTitle = messageResources.getUploadFilesHelpCLITitle();
-        String anchorCLIDownload =
-                DOMUtils.createAnchor(cliTitle, cliLink,
-                        ServletPathConstants.COMMAND_LINE_CLIENT_DISTRIBUTION, null, null, false);
         final HTML html =
                 new HTML(poweredBy + SEPARATOR + applicationDescription + SEPARATOR + version
                         + SEPARATOR + contactAdministrator + SEPARATOR
                         + DOM.toString(disclaimerLink) + SEPARATOR
-                        + DOM.toString(documentationLink) + SEPARATOR + "Download "
-                        + anchorCLIDownload)
+                        + DOM.toString(documentationLink))
                     {
 
                         //
@@ -93,8 +87,7 @@ final class FooterPanel extends HorizontalPanel
                             {
                                 final Element target = DOM.eventGetTarget(event);
                                 // 'Element.equals' or 'DOM.compare' does not work here...
-                                if (target.toString().indexOf(
-                                        messageResources.getFooterDisclaimerLinkLabel()) > -1)
+                                if (target.toString().indexOf(messageResources.getFooterDisclaimerLinkLabel()) > -1)
                                 {
                                     try
                                     {
@@ -106,17 +99,14 @@ final class FooterPanel extends HorizontalPanel
                                     {
                                         showErrorMessage(ex);
                                     }
-                                } else if (target.toString().indexOf(
-                                        messageResources.getFooterDocumentationLinkLabel()) > -1)
+                                } else if (target.toString().indexOf(messageResources.getFooterDocumentationLinkLabel()) > -1)
                                 {
                                     try
                                     {
                                         new RequestBuilder(RequestBuilder.GET, "documentation.html")
-                                                .sendRequest(
-                                                        null,
-                                                        new HTMLRequestCallback(
-                                                                messageResources
-                                                                        .getFooterDocumentationDialogTitle()));
+                                                .sendRequest(null, new HTMLRequestCallback(
+                                                        messageResources
+                                                                .getFooterDocumentationDialogTitle()));
                                     } catch (final RequestException ex)
                                     {
                                         showErrorMessage(ex);

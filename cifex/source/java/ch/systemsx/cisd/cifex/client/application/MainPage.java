@@ -109,23 +109,20 @@ final class MainPage extends AbstractMainPage
         final VerticalPanel verticalPanel = createVerticalPanelPart();
         verticalPanel.add(createPartTitle(context.getMessageResources().getUploadFilesPartTitle()));
         verticalPanel.add(createExplanationPanel());
-        int maxUploadRequestSizeInMB = context.getModel().getConfiguration().getMaxUploadRequestSizeInMB();
-        boolean maxUploadSizeExceeds2GB = maxUploadRequestSizeInMB > 2048;
-        if (maxUploadSizeExceeds2GB)
-        {
-            verticalPanel.add(createPartTitle(messageResources.getUploadFilesPartTitleLess2GB()));
-        }
+        verticalPanel.add(createPartTitle(messageResources.getUploadFilesPartTitleLess2GB()));
         verticalPanel.add(new FileUploadWidget(context));
-        if (maxUploadSizeExceeds2GB)
-        {
-            verticalPanel.add(createPartTitle(messageResources.getUploadFilesPartTitleGreater2GB()));
-            String webStartLink = messageResources.getUploadFilesHelpJavaUploaderLink();
-            String webStartTitle = messageResources.getUploadFilesHelpJavaUploaderTitle();
-            String anchorWebstart =
-                DOMUtils.createAnchor(webStartTitle, webStartLink, ServletPathConstants.FILE2GB_UPLOAD_SERVLET_NAME, null,
-                        null, false);
-            verticalPanel.add(new HTML(messageResources.getUploadFilesHelpJavaUpload(anchorWebstart)));
-        }
+        verticalPanel.add(createPartTitle(messageResources.getUploadFilesPartTitleGreater2GB()));
+        String webStartLink = messageResources.getUploadFilesHelpJavaUploaderLink();
+        String webStartTitle = messageResources.getUploadFilesHelpJavaUploaderTitle();
+        String anchorWebstart =
+            DOMUtils.createAnchor(webStartTitle, webStartLink, ServletPathConstants.FILE2GB_UPLOAD_SERVLET_NAME, null,
+                    null, false);
+        String cliLink = messageResources.getUploadFilesHelpCLILink();
+        String cliTitle = messageResources.getUploadFilesHelpCLITitle();
+        String anchorCLI =
+            DOMUtils.createAnchor(cliTitle, cliLink, ServletPathConstants.COMMAND_LINE_CLIENT_DISTRIBUTION, null,
+                    null, false);
+        verticalPanel.add(new HTML(messageResources.getUploadFilesHelpJavaUpload(anchorWebstart, anchorCLI)));
         return verticalPanel;
     }
 
