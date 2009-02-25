@@ -78,7 +78,7 @@ final class FileManager extends AbstractManager implements IFileManager
             Pattern.compile(Constants.USER_CODE_WITH_ID_PREFIX_REGEX);
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile(Constants.EMAIL_REGEX);
-    
+
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, FileManager.class);
 
@@ -226,15 +226,14 @@ final class FileManager extends AbstractManager implements IFileManager
         File realFile = null;
         if (fileDTOOrNull == null)
         {
-            return new FileInformation(fileId, "File [id=" + fileId
-                    + "] not found in the database. Try to refresh the page.");
+            return new FileInformation(fileId, Constants.getErrorMessageForFileNotFound(fileId));
         } else if (fileStoreImportant)
         {
             realFile = new java.io.File(businessContext.getFileStore(), fileDTOOrNull.getPath());
             if (realFile.exists() == false)
             {
                 return new FileInformation(fileId, String.format(
-                        "File '%s' [id=%d] not found in the file store.", realFile.getPath(),
+                        "Unexpected: File '%s' [id=%d] is missing in CIFEX file store.", realFile.getPath(),
                         fileId));
             }
         }
@@ -443,7 +442,7 @@ final class FileManager extends AbstractManager implements IFileManager
                     invalidEmailAdresses, success);
         }
     }
-    
+
     private String handlIdentifer(final String identifier, final UserDTO requestUser,
             final TableMapNonUniqueKey<String, UserDTO> existingUsers,
             final TableMap<String, UserDTO> existingUniqueUsers,

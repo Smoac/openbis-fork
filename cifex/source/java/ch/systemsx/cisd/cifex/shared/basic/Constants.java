@@ -80,6 +80,14 @@ public final class Constants
      */
     public static final String CIFEX_RPC_PATH = "/cifex/rpc-service";
 
+    /**
+     * Returns an error message for a file that is not found in CIFEX.
+     */
+    public static String getErrorMessageForFileNotFound(final long fileId)
+    {
+        return "File [id=" + fileId + "] not found in CIFEX database.";
+    }
+
     private Constants()
     {
         // Can not be instantiated.
