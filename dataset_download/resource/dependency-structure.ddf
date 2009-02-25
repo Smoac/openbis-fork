@@ -12,7 +12,7 @@
 
 
 [datasetdownload] = ${package}.*
-[private_openbis] = ${openbis}.* excluding ${openbis}.generic.shared.dto.* [datasetdownload]
+[private_openbis] = ${openbis}.* excluding ${openbis}.generic.shared.dto.* ${openbis}.generic.shared.I*Service [datasetdownload]
 
 check sets [datasetdownload]
 
