@@ -17,28 +17,35 @@
 package ch.systemsx.cisd.openbis.datasetdownload;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.lims.base.IDataSetService;
-import ch.systemsx.cisd.lims.base.ILIMSServiceFactory;
-import ch.systemsx.cisd.lims.base.ServiceRegistry;
+import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
+import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
  * A <code>IDataSetService</code> implementation.
  * 
  * @author Franz-Josef Elmer
  */
-final class DataSetService implements IDataSetService
+final class DataSetService implements IETLLIMSService
 {
-    private IDataSetService service;
+    private IETLLIMSService service;
 
     DataSetService(final ConfigParameters configParameters)
     {
-        final ILIMSServiceFactory factory = ServiceRegistry.getLIMSServiceFactory();
-        service = factory.createDataSetService(configParameters.getServerURL());
+        String url = configParameters.getServerURL() + "/rmi-etl";
+        service = HttpInvokerUtils.createServiceStub(IETLLIMSService.class, url, 5);
     }
 
     //
-    // IDataSetService
+    // IETLLIMSService
     //
 
     public final ExternalDataPE tryGetDataSet(final String sessionToken, final String dataSetCode)
@@ -61,6 +68,44 @@ final class DataSetService implements IDataSetService
     public final int getVersion()
     {
         return service.getVersion();
+    }
+
+    public String createDataSetCode(String sessionToken) throws UserFailureException
+    {
+        return null;
+    }
+
+    public DatabaseInstancePE getHomeDatabaseInstance(String sessionToken)
+    {
+        return null;
+    }
+
+    public void registerDataSet(String sessionToken, SampleIdentifier sampleIdentifier,
+            String procedureTypeCode, ExternalData externalData) throws UserFailureException
+    {
+    }
+
+    public ExperimentPE tryToGetBaseExperiment(String sessionToken,
+            SampleIdentifier sampleIdentifier) throws UserFailureException
+    {
+        return null;
+    }
+
+    public SamplePropertyPE[] tryToGetPropertiesOfTopSampleRegisteredFor(String sessionToken,
+            SampleIdentifier sampleIdentifier) throws UserFailureException
+    {
+        return null;
+    }
+
+    public DataStorePE getDataStore(String sessionToken, ExperimentIdentifier experimentIdentifier,
+            String dataSetTypeCode) throws UserFailureException
+    {
+        return null;
+    }
+
+    public IAuthSession getSession(String sessionToken) throws UserFailureException
+    {
+        return null;
     }
 
 }

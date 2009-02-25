@@ -45,7 +45,7 @@ import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
-import ch.systemsx.cisd.lims.base.IDataSetService;
+import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -126,7 +126,7 @@ public class DatasetDownloadServletTest
 
     private HttpServletResponse response;
 
-    private IDataSetService dataSetService;
+    private IETLLIMSService dataSetService;
 
     private HttpSession httpSession;
 
@@ -137,7 +137,7 @@ public class DatasetDownloadServletTest
         context = new Mockery();
         request = context.mock(HttpServletRequest.class);
         response = context.mock(HttpServletResponse.class);
-        dataSetService = context.mock(IDataSetService.class);
+        dataSetService = context.mock(IETLLIMSService.class);
         httpSession = context.mock(HttpSession.class);
         TEST_FOLDER.mkdirs();
         EXAMPLE_DATA_SET_FOLDER.mkdir();

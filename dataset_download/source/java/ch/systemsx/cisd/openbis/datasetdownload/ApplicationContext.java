@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.datasetdownload;
 
-import ch.systemsx.cisd.lims.base.IDataSetService;
+import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 
 /**
  *  Application context. It contains the object accessing the openBIS for retrieving the data set,
@@ -26,13 +26,13 @@ import ch.systemsx.cisd.lims.base.IDataSetService;
  */
 class ApplicationContext
 {
-    private final IDataSetService dataSetService;
+    private final IETLLIMSService dataSetService;
     
     private final ConfigParameters configParameters;
 
     private final String applicationName;
     
-    ApplicationContext(IDataSetService service, ConfigParameters configParameters,
+    ApplicationContext(IETLLIMSService service, ConfigParameters configParameters,
             String applicationName)
     {
         this.dataSetService = service;
@@ -40,7 +40,7 @@ class ApplicationContext
         this.applicationName = applicationName;
     }
 
-    public final IDataSetService getDataSetService()
+    public final IETLLIMSService getDataSetService()
     {
         return dataSetService;
     }

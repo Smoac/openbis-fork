@@ -30,9 +30,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.lims.base.IDataSetService;
-import ch.systemsx.cisd.lims.base.RMIBasedLIMSServiceFactory;
-import ch.systemsx.cisd.lims.base.ServiceRegistry;
+import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.IWebService;
 
 /**
@@ -58,7 +56,6 @@ public class DatasetDownloadService
     public static final void start()
     {
         assert server == null : "Server already started";
-        ServiceRegistry.setLIMSServiceFactory(RMIBasedLIMSServiceFactory.INSTANCE);
         final ApplicationContext applicationContext = createApplicationContext();
         server = createServer(applicationContext);
         try
@@ -135,7 +132,7 @@ public class DatasetDownloadService
     private final static ApplicationContext createApplicationContext()
     {
         final ConfigParameters configParameters = getConfigParameters();
-        final IDataSetService dataSetService = new DataSetService(configParameters);
+        final IETLLIMSService dataSetService = new DataSetService(configParameters);
         final ApplicationContext applicationContext =
                 new ApplicationContext(dataSetService, configParameters, "dataset-download");
         return applicationContext;
