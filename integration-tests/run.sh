@@ -91,7 +91,7 @@ function build_zips {
 		echo "Build process skipped."
     fi
     assert_file_exists_or_die "$INSTALL/openbis*.zip"
-    assert_file_exists_or_die "$INSTALL/etlserver*.zip"
+    assert_file_exists_or_die "$INSTALL/datastore_server*.zip"
     assert_file_exists_or_die "$INSTALL/datamover*.zip"
 
 }
@@ -117,8 +117,8 @@ function build_components {
     build_openbis=$4
 
     if [ $build_etl == "true" ]; then
-	rm -f $INSTALL/etlserver*.zip
-        $build_cmd etlserver
+	rm -f $INSTALL/datastore_server*.zip
+        $build_cmd datastore_server
     fi
     if [ $build_dmv == "true" ]; then
 	rm -f $INSTALL/datamover*.zip
@@ -240,11 +240,11 @@ function shutdown_openbis_server {
 function install_etls {
     local install_etl=$1
     if [ $install_etl == "true" ]; then
-        unpack etlserver
-	prepare etlserver etlserver-all
-	remove_unpacked etlserver
+        unpack datastore_server
+	prepare datastore_server datastore_server-all
+	remove_unpacked datastore_server
     else
-	copy_templates etlserver-all    
+	copy_templates datastore_server-all    
     fi
 }
 
@@ -528,7 +528,7 @@ function switch_sth {
 
 
 function switch_etl {
-    switch_sth $1 $2 etlserver.sh shutdown.sh $FALSE
+    switch_sth $1 $2 datastore_server.sh shutdown.sh $FALSE
 }
 
 function switch_dmv {
@@ -537,7 +537,7 @@ function switch_dmv {
 
 function switch_processing_pipeline {
     new_state=$1
-    switch_etl $new_state etlserver-all
+    switch_etl $new_state datastore_server-all
     switch_dmv $new_state datamover-analysis
     switch_sth $new_state dummy-img-analyser start.sh stop.sh $TRUE
     switch_dmv $new_state datamover-raw
@@ -749,7 +749,7 @@ function assert_correct_content {
 }
 
 function integration_tests {
-    install_etl=$1
+    install_dss=$1
     install_dmv=$2
     install_openbis=$3
     use_local_source=$4
@@ -757,7 +757,7 @@ function integration_tests {
     
     init_log
     #ÊNOTE: Comment this line if you want to use different libraries.
-    build_zips $install_etl $install_dmv $install_openbis $use_local_source
+    build_zips $install_dss $install_dmv $install_openbis $use_local_source
     
     # Prepare empty incoming data
     rm -fr $DATA
@@ -765,7 +765,7 @@ function integration_tests {
     cp -R $TEMPLATE/data $WORK
     clean_svn $DATA
 
-    install $install_etl $install_dmv $install_openbis $reinstall_all
+    install $install_dss $install_dmv $install_openbis $reinstall_all
     launch_tests
     
     assert_correct_content
@@ -782,8 +782,8 @@ function clean_after_tests {
 }
 
 function print_help {
-    echo "Usage: $0 [ (--etl | --openbis | --dmv)* | --all [ --local-source ]]"
-    echo "	--etl, --openbis, --dmv	build chosen components only"
+    echo "Usage: $0 [ (--dss | --openbis | --dmv)* | --all [ --local-source ]]"
+    echo "	--dss, --openbis, --dmv	build chosen components only"
     echo "	--all 			build all components"
     echo "	--local-source		use local source code during building process instead of downloading it from svn"
     echo "	--reinstall-all		reinstalls all packeges new from the zip file which is in the installation direcory (also reinstall the packages which are not build)"  
@@ -794,25 +794,25 @@ function print_help {
     echo "Examples:"
     echo "- Rebuild everything, fetch sources from svn:"
     echo "	$0 --all"
-    echo "- Use openbis server and client installation from previous tests, rebuild etl server and datamover using local source:"
-    echo "	$0 --etl --dmv --local-source"
-    echo "- Rebuild etl server only fetching sources from svn:"
-    echo "	$0 --etl"
+    echo "- Use openbis server and client installation from previous tests, rebuild data store server and datamover using local source:"
+    echo "	$0 --dss --dmv --local-source"
+    echo "- Rebuild data store server only fetching sources from svn:"
+    echo "	$0 --dss"
 }
 
 # -- MAIN ------------
 if [ "$1" = "--clean" ]; then
     clean_after_tests
 else
-    install_etl=false
+    install_dss=false
     install_dmv=false
     install_openbis=false
     use_local_source=false
     reinstall_all=false
     while [ ! "$1" = "" ]; do
 	case "$1" in
-	    '-e'|'--etl')
-	        install_etl=true
+	    '-e'|'--dss')
+	        install_dss=true
 		;;
 	    '-d'|'--dmv')
 		install_dmv=true
@@ -821,7 +821,7 @@ else
 		install_openbis=true
 		;;
 	    '-a'|'--all')
-	        install_etl=true
+	        install_dss=true
 		install_dmv=true
 		install_openbis=true
 		;;
@@ -847,5 +847,5 @@ else
          esac
 	 shift
     done
-    integration_tests $install_etl $install_dmv $install_openbis $use_local_source $reinstall_all
+    integration_tests $install_dss $install_dmv $install_openbis $use_local_source $reinstall_all
 fi
