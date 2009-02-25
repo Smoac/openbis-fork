@@ -66,7 +66,6 @@ public final class MasqueradingException extends RuntimeException
     @Override
     public final String toString()
     {
-        System.err.println("Prefix is " + prefix);
         final String s = prefix + " [" + rootExceptionClassName + "]";
         final String message = getMessage();
         return (message != null) ? (s + ": " + message) : s;
