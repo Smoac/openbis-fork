@@ -1,0 +1,18 @@
+#
+#
+#
+#show allResults
+
+{root} = ch.systemsx.cisd
+{etlserver} = ${root}.etlserver
+
+######################################################################
+# Check dependencies to openbis
+
+{openbis} = ${root}.openbis
+[etlserver] = ${etlserver}.*
+[private_openbis] = ${openbis}.* excluding ${openbis}.generic.shared.dto.* ${openbis}.generic.shared.IETLLIMSService
+
+check sets [etlserver]
+
+check [etlserver] independentOf [private_openbis]

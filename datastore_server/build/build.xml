@@ -1,0 +1,82 @@
+<project name="etlserver" default="dist" basedir="..">
+    <import file="../../build_resources/ant/build-common.xml" />
+    <project-classpath name="ecp" classes="${classes}" />
+
+    <property name="original.dist" value="dist" />
+    <property name="mainfolder" value="etlserver" />
+    <property name="dist.etlserver" value="${dist}/${mainfolder}" />
+    <property name="dist.etlserver.lib" value="${dist.etlserver}/lib" />
+    <property name="jar.file" value="${dist.etlserver.lib}/etlserver.jar" />
+    <property name="dist.file.prefix" value="${dist}/etlserver" />
+    <property name="nativesrc" value="${lib}/unix/native" />
+    <property name="nativeroot" value="${targets}/ant" />
+    <property name="native" value="${nativeroot}/native" />
+
+    <target name="clean">
+        <delete dir="${dist}" />
+    </target>
+
+    <target name="compile" depends="build-common.compile, clean" />
+
+    <target name="run-tests">
+        <antcall target="build-common.run-tests">
+            <param name="test.suite" value="tests_fast.xml" />
+        </antcall>
+    </target>
+
+    <target name="jar" depends="compile">
+        <mkdir dir="${dist.etlserver.lib}" />
+        <build-info revision="revision.number" version="version.number" clean="clean.flag" />
+        <echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
+        <copy todir="${native}">
+            <fileset dir="${nativesrc}">
+                <include name="**/unix.so" />
+            </fileset>
+        </copy>
+        <recursive-jar destfile="${jar.file}">
+            <fileset dir="${classes}">
+                <include name="**/*.class" />
+                <include name="${build.info.filename}" />
+            </fileset>
+            <fileset dir="${nativeroot}">
+	  					  <include name="**/unix.so"/>
+		  			</fileset>
+            <manifest>
+                <attribute name="Main-Class" value="ch.systemsx.cisd.etlserver.Main" />
+                <attribute name="Class-Path"
+                           value="etlserver-plugins.jar log4j.jar activation.jar mail.jar spring.jar fast-md5.jar
+                           commons-codec.jar commons-lang.jar commons-io.jar commons-logging.jar commons-httpclient.jar" />
+                <attribute name="Version" value="${version.number}" />
+                <attribute name="Build-Number"
+                           value="${version.number} (r${revision.number},${clean.flag})" />
+            </manifest>
+        </recursive-jar>
+    </target>
+
+    <target name="dist" depends="jar">
+        <copy file="${lib}/activation/activation.jar" todir="${dist.etlserver.lib}" />
+        <copy file="${lib}/mail/mail.jar" todir="${dist.etlserver.lib}" />
+        <copy file="${lib}/log4j/log4j.jar" todir="${dist.etlserver.lib}" />
+        <copy file="${lib}/commons-codec/commons-codec.jar" todir="${dist.etlserver.lib}" />
+        <copy file="${lib}/commons-io/commons-io.jar" todir="${dist.etlserver.lib}" />
+        <copy file="${lib}/commons-lang/commons-lang.jar" todir="${dist.etlserver.lib}" />
+        <copy file="${lib}/commons-logging/commons-logging.jar" todir="${dist.etlserver.lib}" />
+        <copy file="${lib}/commons-httpclient/commons-httpclient.jar"
+              todir="${dist.etlserver.lib}" />
+        <copy file="${lib}/spring/spring.jar" todir="${dist.etlserver.lib}" />
+        <copy file="${lib}/fast-md5/fast-md5.jar" todir="${dist.etlserver.lib}" />
+        <property name="dist.file"
+                  value="${dist.file.prefix}-${version.number}-r${revision.number}.zip" />
+        <zip basedir="${dist}" destfile="${dist.file}">
+            <zipfileset dir="${original.dist}" excludes="**/etlserver.sh" prefix="${mainfolder}" />
+            <zipfileset file="${original.dist}/etlserver.sh"
+                        filemode="755"
+                        prefix="${mainfolder}" />
+        </zip>
+        <delete dir="${dist.etlserver}" />
+    </target>
+
+    <target name="ci" depends="run-tests, check-dependencies, dist">
+    </target>
+
+</project>
