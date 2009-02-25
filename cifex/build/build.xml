@@ -16,7 +16,7 @@
 	<property name="cifex.server.resource" value="../${ant.project.name}/${server-resource}" />
 
 	<property name="cifex.client.jarfiles"
-	          value="cifex.jar log4j.jar commons-lang.jar commons-io.jar commons-logging.jar commons-codec.jar commons-httpclient.jar spring-core.jar spring-web.jar spring-context.jar spring-beans.jar spring-aop.jar aopalliance.jar" />
+	          value="cifex.jar log4j.jar jline.jar commons-lang.jar commons-io.jar commons-logging.jar commons-codec.jar commons-httpclient.jar spring-core.jar spring-web.jar spring-context.jar spring-beans.jar spring-aop.jar aopalliance.jar" />
 
 	<property name="webapp.dist" value="${dist}/webapp" />
 	<property name="webapp.dist.web-inf" value="${webapp.dist}/WEB-INF" />
@@ -152,7 +152,7 @@
 		<recursive-jar destfile="${jar.file}">
 			<manifest>
 				<attribute name="Main-Class" value="ch.systemsx.cisd.cifex.rpc.client.cli.CIFEXClient" />
-				<attribute name="Class-Path" value="${cifex.client.jarfiles}}" />
+				<attribute name="Class-Path" value="${cifex.client.jarfiles}" />
 			</manifest>
 			<fileset dir="${classes}">
 				<include name="**/*.class" />
@@ -225,6 +225,8 @@
 		<copy todir="${dist}/cifex/lib">
 				<fileset dir="${targets.www}"/>
 		</copy>
+		<copy file="${lib}/log4j/log4j.jar" todir="${dist}/cifex/lib" />
+		<copy file="${lib}/jline/jline.jar" todir="${dist}/cifex/lib" />
 		<zip destfile="${dist}/cifex_cli.zip" basedir="${dist}" includes="cifex/**" />
 		<delete dir="${dist}/cifex" />
 	</target>
