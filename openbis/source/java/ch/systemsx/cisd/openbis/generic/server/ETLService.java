@@ -98,7 +98,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         return IWebService.VERSION;
     }
     
-    public DatabaseInstancePE getHomeDatabaseInstance()
+    public DatabaseInstancePE getHomeDatabaseInstance(String sessionToken)
     {
         return daoFactory.getHomeDatabaseInstance();
     }

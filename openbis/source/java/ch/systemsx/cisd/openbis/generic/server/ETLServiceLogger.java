@@ -46,7 +46,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         return null;
     }
 
-    public DatabaseInstancePE getHomeDatabaseInstance()
+    public DatabaseInstancePE getHomeDatabaseInstance(String sessionToken)
     {
         return null;
     }

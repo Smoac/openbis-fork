@@ -43,7 +43,7 @@ public interface IETLLIMSService extends IWebService, IDataStoreInfoProvider, IS
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.ETL_SERVER)
-    public DatabaseInstancePE getHomeDatabaseInstance();
+    public DatabaseInstancePE getHomeDatabaseInstance(final String sessionToken);
 
     /**
      * Gets an {@link ExperimentPE} object specified by experiment ID and sample code.
