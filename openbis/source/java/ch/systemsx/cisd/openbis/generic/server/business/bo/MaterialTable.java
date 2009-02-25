@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.springframework.dao.DataAccessException;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
@@ -47,14 +48,19 @@ public final class MaterialTable extends AbstractBusinessObject implements IMate
 
     public MaterialTable(final IDAOFactory daoFactory, final Session session)
     {
-        this(daoFactory, session, new EntityPropertiesConverter(EntityKind.MATERIAL, daoFactory));
+        this(daoFactory, session, new EntityPropertiesConverter(EntityKind.MATERIAL, daoFactory,
+                null), null, false);
     }
 
+    @Private
     MaterialTable(final IDAOFactory daoFactory, final Session session,
-            final IEntityPropertiesConverter entityPropertiesConverter)
+            final IEntityPropertiesConverter entityPropertiesConverter, List<MaterialPE> materials,
+            boolean dataChanged)
     {
         super(daoFactory, session);
         this.entityPropertiesConverter = entityPropertiesConverter;
+        this.materials = materials;
+        this.dataChanged = dataChanged;
     }
 
     public final void load(final String materialTypeCode)
@@ -126,7 +132,10 @@ public final class MaterialTable extends AbstractBusinessObject implements IMate
         material.setRegistrator(findRegistrator());
         material.setMaterialType(materialTypePE);
         material.setDatabaseInstance(getHomeDatabaseInstance());
-        defineMaterialProperties(material, newMaterial.getProperties());
+        if (newMaterial.getProperties().length > 0)
+        {
+            defineMaterialProperties(material, newMaterial.getProperties());
+        }
         return material;
     }
 

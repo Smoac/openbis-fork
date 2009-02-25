@@ -16,13 +16,18 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.EXAMPLE_SESSION;
+
 import java.util.ArrayList;
+import java.util.List;
 
 import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -32,11 +37,18 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * 
  * @author Izabela Adamczyk
  */
+@Friend(toClasses = MaterialTable.class)
 public final class MaterialTableTest extends AbstractBOTest
 {
+    private final MaterialTable createMaterialTable(List<MaterialPE> materials, boolean dataChanged)
+    {
+        return new MaterialTable(daoFactory, ManagerTestTool.EXAMPLE_SESSION, propertiesConverter,
+                materials, dataChanged);
+    }
+
     private final MaterialTable createMaterialTable()
     {
-        return new MaterialTable(daoFactory, ManagerTestTool.EXAMPLE_SESSION);
+        return createMaterialTable(null, false);
     }
 
     @Test
@@ -61,5 +73,60 @@ public final class MaterialTableTest extends AbstractBOTest
             });
         createMaterialTable().load(materialType.getCode());
         context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testAddMaterials() throws Exception
+    {
+        final MaterialTypePE materialType = CommonTestUtils.createMaterialType();
+        List<NewMaterial> newMaterials = new ArrayList<NewMaterial>();
+        newMaterials.add(createNewMaterial("BRAND_NEW_MATERIAL"));
+        context.checking(new Expectations()
+            {
+                {
+                    one(daoFactory).getHomeDatabaseInstance();
+                    will(returnValue(CommonTestUtils
+                            .createDatabaseInstance(CommonTestUtils.HOME_DATABASE_INSTANCE_CODE)));
+                }
+            });
+        createMaterialTable().add(newMaterials, materialType);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testSave() throws Exception
+    {
+        final MaterialTypePE materialType = CommonTestUtils.createMaterialType();
+        final ArrayList<MaterialPE> materials = new ArrayList<MaterialPE>();
+        materials.add(createMaterial(materialType, "BRAND_NEW_MATERIAL"));
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getMaterialDAO();
+                    will(returnValue(materialDAO));
+
+                    one(materialDAO).createMaterials(materials);
+                }
+            });
+        createMaterialTable(materials, true).save();
+        context.assertIsSatisfied();
+    }
+
+    private MaterialPE createMaterial(MaterialTypePE materialType, String code)
+    {
+        final MaterialPE material = new MaterialPE();
+        material.setCode(code);
+        material.setMaterialType(materialType);
+        material.setDatabaseInstance(CommonTestUtils
+                .createDatabaseInstance(CommonTestUtils.HOME_DATABASE_INSTANCE_CODE));
+        material.setRegistrator(EXAMPLE_SESSION.tryGetPerson());
+        return material;
+    }
+
+    private NewMaterial createNewMaterial(String code)
+    {
+        final NewMaterial material = new NewMaterial();
+        material.setCode(code);
+        return material;
     }
 }

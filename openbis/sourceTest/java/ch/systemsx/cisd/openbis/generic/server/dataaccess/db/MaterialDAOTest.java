@@ -16,11 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import junit.framework.Assert;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
@@ -36,17 +39,83 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
     { "db", "material" })
 public final class MaterialDAOTest extends AbstractDAOTest
 {
+    private static final String BACTERIUM = "BACTERIUM";
+    private static final String BRAND_NEW_BACTERIUM = "BRAND_NEW_BACTERIUM";
+    final int NUMBER_OF_BACTERIA = 4;
 
     @Test
     public void testListMaterials() throws Exception
     {
         MaterialTypePE type =
                 (MaterialTypePE) daoFactory.getEntityTypeDAO(EntityKind.MATERIAL)
-                        .tryToFindEntityTypeByCode("BACTERIUM");
-        List<MaterialPE> list = daoFactory.getMaterialDAO().listMaterialsWithPropertiesAndInhibitor(type);
-        Assert.assertEquals(4, list.size());
+                        .tryToFindEntityTypeByCode(BACTERIUM);
+        List<MaterialPE> list =
+                daoFactory.getMaterialDAO().listMaterialsWithPropertiesAndInhibitor(type);
+        Assert.assertEquals(NUMBER_OF_BACTERIA, list.size());
         Collections.sort(list);
         Assert.assertEquals(list.get(0).getCode(), "BACTERIUM-X");
+    }
+
+    @Test
+    public void testCreateMaterials() throws Exception
+    {
+        MaterialTypePE type =
+                (MaterialTypePE) daoFactory.getEntityTypeDAO(EntityKind.MATERIAL)
+                        .tryToFindEntityTypeByCode(BACTERIUM);
+        List<MaterialPE> bacteria_before =
+                daoFactory.getMaterialDAO().listMaterialsWithPropertiesAndInhibitor(type);
+        Assert.assertEquals(NUMBER_OF_BACTERIA, bacteria_before.size());
+        List<MaterialPE> newMaterials = new ArrayList<MaterialPE>();
+        newMaterials.add(createMaterial(type, "BRAND_NEW_BACTERIUM_1"));
+        newMaterials.add(createMaterial(type, "BRAND_NEW_BACTERIUM_2"));
+        Collections.sort(newMaterials);
+        daoFactory.getMaterialDAO().createMaterials(newMaterials);
+        List<MaterialPE> bacteria_after =
+                daoFactory.getMaterialDAO().listMaterialsWithPropertiesAndInhibitor(type);
+        Assert.assertEquals(NUMBER_OF_BACTERIA + newMaterials.size(), bacteria_after.size());
+        bacteria_after.removeAll(bacteria_before);
+        Collections.sort(bacteria_after);
+        for (int i = 0; i < newMaterials.size(); i++)
+        {
+            Assert.assertEquals(newMaterials.get(i), bacteria_after.get(i));
+        }
+    }
+
+    @Test(expectedExceptions = DataIntegrityViolationException.class)
+    public void testFailCreateMaterialsWithTheSameCode() throws Exception
+    {
+        MaterialTypePE type =
+                (MaterialTypePE) daoFactory.getEntityTypeDAO(EntityKind.MATERIAL)
+                        .tryToFindEntityTypeByCode(BACTERIUM);
+        List<MaterialPE> newMaterials = new ArrayList<MaterialPE>();
+        newMaterials.add(createMaterial(type, BRAND_NEW_BACTERIUM));
+        newMaterials.add(createMaterial(type, BRAND_NEW_BACTERIUM));
+        daoFactory.getMaterialDAO().createMaterials(newMaterials);
+    }
+
+    @Test(expectedExceptions = DataIntegrityViolationException.class)
+    public void testFailCreateMaterialsWithExistingCode() throws Exception
+    {
+        MaterialTypePE type =
+                (MaterialTypePE) daoFactory.getEntityTypeDAO(EntityKind.MATERIAL)
+                        .tryToFindEntityTypeByCode(BACTERIUM);
+        List<MaterialPE> bacteria_before =
+                daoFactory.getMaterialDAO().listMaterialsWithPropertiesAndInhibitor(type);
+        String existingBacteriumCode = bacteria_before.get(0).getCode();
+        List<MaterialPE> newMaterials = new ArrayList<MaterialPE>();
+        newMaterials.add(createMaterial(type, existingBacteriumCode));
+        daoFactory.getMaterialDAO().createMaterials(newMaterials);
+    }
+
+    private MaterialPE createMaterial(MaterialTypePE type, String code)
+    {
+        final MaterialPE material = new MaterialPE();
+        material.setCode(code);
+        material.setMaterialType(type);
+        material.setRegistrationDate(new Date());
+        material.setRegistrator(getSystemPerson());
+        material.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
+        return material;
     }
 
 }

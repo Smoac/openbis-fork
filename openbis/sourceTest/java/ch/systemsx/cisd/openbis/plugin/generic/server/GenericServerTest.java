@@ -29,10 +29,12 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -40,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
@@ -66,6 +69,13 @@ public final class GenericServerTest extends AbstractServerTestCase
         final NewSample newSample = new NewSample();
         newSample.setIdentifier(identifier);
         return newSample;
+    }
+
+    private final NewMaterial createNewMaterial(final String code)
+    {
+        final NewMaterial material = new NewMaterial();
+        material.setCode(code);
+        return material;
     }
 
     //
@@ -179,9 +189,8 @@ public final class GenericServerTest extends AbstractServerTestCase
 
                 }
             });
-        assertEquals(attachmentPE, createServer().getExperimentFileAttachment(
-                SESSION_TOKEN, experimentIdentifier, attachmentPE.getFileName(),
-                attachmentPE.getVersion()));
+        assertEquals(attachmentPE, createServer().getExperimentFileAttachment(SESSION_TOKEN,
+                experimentIdentifier, attachmentPE.getFileName(), attachmentPE.getVersion()));
         context.assertIsSatisfied();
     }
 
@@ -375,6 +384,35 @@ public final class GenericServerTest extends AbstractServerTestCase
                     "Sample '/NOT_CISD/SAMPLE1' does not belong to the group 'CISD'"));
         }
         assertTrue(exceptionThrown);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testRegisterMaterials()
+    {
+        prepareGetSession();
+        final MaterialTypePE materialTypePE = CommonTestUtils.createMaterialType();
+        final List<NewMaterial> newMaterials = new ArrayList<NewMaterial>();
+        newMaterials.add(createNewMaterial("one"));
+        newMaterials.add(createNewMaterial("two"));
+        final String typeCode = materialTypePE.getCode();
+        context.checking(new Expectations()
+            {
+                {
+                    one(daoFactory).getEntityTypeDAO(EntityKind.MATERIAL);
+                    will(returnValue(entityTypeDAO));
+
+                    one(entityTypeDAO).tryToFindEntityTypeByCode(typeCode);
+                    will(returnValue(materialTypePE));
+
+                    one(genericBusinessObjectFactory).createMaterialTable(SESSION);
+                    will(returnValue(materialTable));
+
+                    one(materialTable).add(newMaterials, materialTypePE);
+                    one(materialTable).save();
+                }
+            });
+        createServer().registerMaterials(SESSION_TOKEN, typeCode, newMaterials);
         context.assertIsSatisfied();
     }
 
