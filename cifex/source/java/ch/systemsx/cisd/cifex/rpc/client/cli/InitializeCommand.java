@@ -19,7 +19,8 @@ package ch.systemsx.cisd.cifex.rpc.client.cli;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
-import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
+import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
