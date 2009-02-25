@@ -164,6 +164,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     {
         final String user = "user";
         final String password = "password";
+        final Session session = createSession();
         final PersonPE systemPerson = createSystemUser();
         final PersonPE person = CommonTestUtils.createPersonFromPrincipal(PRINCIPAL);
         context.checking(new Expectations()
@@ -173,7 +174,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(SESSION_TOKEN));
 
                     one(sessionManager).getSession(SESSION_TOKEN);
-                    will(returnValue(SESSION));
+                    will(returnValue(session));
 
                     one(personDAO).listPersons();
                     will(returnValue(Arrays.asList(systemPerson, person)));
@@ -197,6 +198,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     {
         final String user = "user";
         final String password = "password";
+        final Session session = createSession();
         final PersonPE systemPerson = createSystemUser();
         final PersonPE person = CommonTestUtils.createPersonFromPrincipal(PRINCIPAL);
         context.checking(new Expectations()
@@ -206,7 +208,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(SESSION_TOKEN));
 
                     one(sessionManager).getSession(SESSION_TOKEN);
-                    will(returnValue(SESSION));
+                    will(returnValue(session));
 
                     one(personDAO).listPersons();
                     will(returnValue(Arrays.asList(systemPerson, person)));
@@ -215,7 +217,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(person));
                 }
             });
-        assertEquals(null, SESSION.tryGetPerson());
+        assertEquals(null, session.tryGetPerson());
 
         final Session s = createServer().tryToAuthenticate(user, password);
 
