@@ -136,7 +136,7 @@ public class File2GBUploadServlet extends AbstractFileUploadServlet
     private String createBaseURL(final HttpServletRequest request)
     {
         String url = HttpUtils.getBasicURL(request);
-        if (url.indexOf("localhost") > 0)
+        if (url.indexOf("localhost:8888") > 0)
         {
             url = url + "/ch.systemsx.cisd.cifex.Cifex/";
         } else
