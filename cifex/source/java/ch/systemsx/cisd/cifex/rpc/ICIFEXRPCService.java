@@ -118,28 +118,32 @@ public interface ICIFEXRPCService
      * @throws InvalidSessionException if there is no session with specified session ID.
      * @throws WrappedIOException if an I/O error occurred during the upload.
      * @throws FileSizeExceededException if the upload exceed the maximally allowed file size.
+     * @throws IllegalStateException if {@link #startUploading(String)} hasn't been called before.
      */
     public void uploadBlock(String sessionID, long filePointer, byte[] block, boolean lastBlock)
-            throws InvalidSessionException, WrappedIOException, FileSizeExceededException;
+            throws InvalidSessionException, WrappedIOException, FileSizeExceededException,
+            IllegalStateException;
 
     /**
      * Start downloading the file with <var>fileID</var>.
      * 
-     * @return The {@link FileInfoDTO} containing the information about the file to download. 
+     * @return The {@link FileInfoDTO} containing the information about the file to download.
      * @throws InvalidSessionException if there is no session with specified session ID.
      * @throws WrappedIOException if the file with that <var>fileID</var> cannot be found.
      */
-    public FileInfoDTO startDownloading(String sessionID, long fileID) throws InvalidSessionException,
-            WrappedIOException;
+    public FileInfoDTO startDownloading(String sessionID, long fileID)
+            throws InvalidSessionException, WrappedIOException;
 
     /**
      * Start downloading the file with <var>fileID</var>.
      * 
      * @throws InvalidSessionException if there is no session with specified session ID.
      * @throws WrappedIOException if an I/O error occurred during the download.
+     * @throws IllegalStateException if {@link #startDownloading(String, long)} hasn't been called
+     *             before.
      */
     public byte[] downloadBlock(String sessionID, long filePointer, int blockSize)
-            throws InvalidSessionException, WrappedIOException;
+            throws InvalidSessionException, WrappedIOException, IllegalStateException;
 
     /**
      * Cancels the specified session.

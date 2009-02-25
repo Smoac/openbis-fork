@@ -50,6 +50,8 @@ import ch.systemsx.cisd.cifex.server.business.IUserActionLog;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.server.util.FilenameUtilities;
+import ch.systemsx.cisd.cifex.shared.basic.Constants;
+import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
@@ -177,7 +179,8 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         final Session session = sessionManager.getSession(sessionID);
         final List<FileDTO> files =
                 domainModel.getFileManager().listDownloadFiles(session.getUser().getID());
-        return BeanUtils.createBeanArray(ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO.class, files);
+        return BeanUtils.createBeanArray(ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO.class,
+                files);
     }
 
     //
@@ -239,9 +242,16 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
     }
 
     public void uploadBlock(String sessionID, long filePointer, byte[] block, boolean lastBlock)
-            throws InvalidSessionException, WrappedIOException, FileSizeExceededException
+            throws InvalidSessionException, WrappedIOException, FileSizeExceededException,
+            IllegalStateException
     {
         final Session session = sessionManager.getSession(sessionID);
+        final RandomAccessFile randomAccessFileOrNull = session.getRandomAccessFile();
+        if (randomAccessFileOrNull == null)
+        {
+            throw new IllegalStateException(
+                    "uploadBlock() called without previous startUploading()");
+        }
         if (session.getUploadStatus().getUploadState() == UploadState.ABORTED)
         {
             return;
@@ -251,7 +261,6 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         {
             operationLog.trace("Upload " + (lastBlock ? "last block" : "block"));
         }
-        RandomAccessFile randomAccessFile = session.getRandomAccessFile();
         final long newFilePointer = filePointer + block.length;
         if (newFilePointer > domainModel.getBusinessContext().getMaxUploadRequestSizeInMB() * MB)
         {
@@ -260,11 +269,11 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         }
         try
         {
-            randomAccessFile.seek(filePointer);
-            randomAccessFile.write(block, 0, block.length);
+            randomAccessFileOrNull.seek(filePointer);
+            randomAccessFileOrNull.write(block, 0, block.length);
             if (lastBlock)
             {
-                randomAccessFile.close();
+                randomAccessFileOrNull.close();
                 File file = session.getFile();
                 createTempFile(file).renameTo(file);
                 String contentType = FilenameUtilities.getMimeType(status.getNameOfCurrentFile());
@@ -293,11 +302,18 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         }
     }
 
-    public ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO startDownloading(String sessionID, long fileID)
+    public FileInfoDTO startDownloading(String sessionID, long fileID)
             throws InvalidSessionException, WrappedIOException
     {
         final Session session = sessionManager.getSession(sessionID);
         final FileInformation fileInfo = fileManager.getFileInformation(fileID);
+        if (fileManager.isAllowedAccess(session.getUser(), fileInfo.getFileDTO()) == false)
+        {
+            // Note: we send back the exact same error message as for a file that cannot be found.
+            // We do not want to give information out on whether the file exists or not.
+            throw new WrappedIOException(new IOException(Constants
+                    .getErrorMessageForFileNotFound(fileID)));
+        }
         if (fileInfo.isFileAvailable() == false)
         {
             throw new WrappedIOException(new IOException(fileInfo.getErrorMessage()));
@@ -309,18 +325,24 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
-        return BeanUtils.createBean(ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO.class, fileInfo
-                .getFileDTO());
+        return BeanUtils.createBean(ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO.class,
+                fileInfo.getFileDTO());
     }
 
     public byte[] downloadBlock(String sessionID, long filePointer, int blockSize)
-            throws InvalidSessionException, WrappedIOException
+            throws InvalidSessionException, WrappedIOException, IllegalStateException
     {
         final Session session = sessionManager.getSession(sessionID);
         final byte[] buf;
         try
         {
-            final long fileSize = session.getRandomAccessFile().length();
+            final RandomAccessFile randomAccessFileOrNull = session.getRandomAccessFile();
+            if (randomAccessFileOrNull == null)
+            {
+                throw new IllegalStateException(
+                        "downloadBlock() called without previous startDownloading()");
+            }
+            final long fileSize = randomAccessFileOrNull.length();
             final int bytesLeft = (int) (fileSize - filePointer);
             if (bytesLeft < 0)
             {
