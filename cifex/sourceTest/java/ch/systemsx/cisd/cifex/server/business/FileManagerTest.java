@@ -258,7 +258,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         final FileInformation fileInformation = fileManager.getFileInformation(DEFAULT_FILE_ID);
         assertEquals(fileInformation.isFileAvailable(), false);
         assertEquals(fileInformation.getErrorMessage(), "File [id=" + DEFAULT_FILE_ID
-                + "] not found in the database. Try to refresh the page.");
+                + "] not found in CIFEX database.");
 
         context.assertIsSatisfied();
     }
@@ -284,9 +284,9 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         final FileInformation fileInformation = fileManager.getFileInformation(DEFAULT_FILE_ID);
         assertEquals(fileInformation.isFileAvailable(), false);
         assertEquals(fileInformation.getErrorMessage(),
-                "File 'targets/unit-test-wd/ch.systemsx.cisd.cifex.server.business.FileManagerTest/"
+                "Unexpected: File 'targets/unit-test-wd/ch.systemsx.cisd.cifex.server.business.FileManagerTest/"
                         + NONEXISTENT_PATH + "' [id=" + DEFAULT_FILE_ID
-                        + "] not found in the file store.");
+                        + "] is missing in CIFEX file store.");
         context.assertIsSatisfied();
     }
 
@@ -335,7 +335,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                 fileManager.getFileInformationFilestoreUnimportant(DEFAULT_FILE_ID);
         assertEquals(fileInformation.isFileAvailable(), false);
         assertEquals(fileInformation.getErrorMessage(), "File [id=" + DEFAULT_FILE_ID
-                + "] not found in the database. Try to refresh the page.");
+                + "] not found in CIFEX database.");
         context.assertIsSatisfied();
     }
 
