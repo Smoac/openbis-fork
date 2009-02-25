@@ -227,7 +227,11 @@
 		</copy>
 		<copy file="${lib}/log4j/log4j.jar" todir="${dist}/cifex/lib" />
 		<copy file="${lib}/jline/jline.jar" todir="${dist}/cifex/lib" />
-		<zip destfile="${dist}/cifex_cli.zip" basedir="${dist}" includes="cifex/**" />
+		<zip destfile="${dist}/cifex_cli.zip" basedir="${dist}" includes="cifex/**" excludes="**/*.sh" />
+		<zip update="true" destfile="${dist}/cifex_cli.zip">
+			<zipfileset dir="${dist}/cifex" includes="*.sh" filemode="755" prefix="cifex" />
+		</zip>
+
 		<delete dir="${dist}/cifex" />
 	</target>
 
