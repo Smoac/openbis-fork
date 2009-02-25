@@ -741,7 +741,7 @@ public interface IMessageResources extends Messages
      * 
      * @gwt.key uploadfiles.help.javaUpload
      */
-    public String getUploadFilesHelpJavaUpload(Object linkWebstart, Object linkCliDist);
+    public String getUploadFilesHelpJavaUpload(Object linkWebstart);
     
     /**
      * Returns the name of Java uploader link.
