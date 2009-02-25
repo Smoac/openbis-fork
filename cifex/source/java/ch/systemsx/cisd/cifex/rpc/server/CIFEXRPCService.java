@@ -226,19 +226,27 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
 
     public void startUploading(String sessionID) throws InvalidSessionException
     {
-        final Session session = sessionManager.getSession(sessionID);
-        UploadStatus status = getStatusAndCheckState(session, READY_FOR_NEXT_FILE);
-        String nameOfCurrentFile = status.getNameOfCurrentFile();
-        logInvocation(sessionID, "Start uploading " + nameOfCurrentFile);
-        String fileName =
-                FilenameUtilities.ensureMaximumSize(nameOfCurrentFile, MAX_FILENAME_LENGTH);
-        File file = fileManager.createFile(session.getUser(), fileName);
-        session.setFile(file);
-        File tempFile = createTempFile(file);
-        session.addTempFile(tempFile);
-        RandomAccessFile randomAccessFile = createRandomAccessFile(tempFile);
-        session.setRandomAccessFile(randomAccessFile);
-        status.setUploadState(UPLOADING);
+        boolean success = false;
+        String fileName = "UNKNOWN";
+        try
+        {
+            final Session session = sessionManager.getSession(sessionID);
+            UploadStatus status = getStatusAndCheckState(session, READY_FOR_NEXT_FILE);
+            String nameOfCurrentFile = status.getNameOfCurrentFile();
+            logInvocation(sessionID, "Start uploading " + nameOfCurrentFile);
+            fileName =
+                    FilenameUtilities.ensureMaximumSize(nameOfCurrentFile, MAX_FILENAME_LENGTH);
+            File file = fileManager.createFile(session.getUser(), fileName);
+            session.setFile(file);
+            File tempFile = createTempFile(file);
+            session.addTempFile(tempFile);
+            RandomAccessFile randomAccessFile = createRandomAccessFile(tempFile);
+            session.setRandomAccessFile(randomAccessFile);
+            status.setUploadState(UPLOADING);
+        } finally
+        {
+            domainModel.getBusinessContext().getUserActionLog().logUploadFile(fileName, success);
+        }
     }
 
     public void uploadBlock(String sessionID, long filePointer, byte[] block, boolean lastBlock)
@@ -305,28 +313,40 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
     public FileInfoDTO startDownloading(String sessionID, long fileID)
             throws InvalidSessionException, WrappedIOException
     {
-        final Session session = sessionManager.getSession(sessionID);
-        final FileInformation fileInfo = fileManager.getFileInformation(fileID);
-        if (fileInfo.isFileAvailable() == false)
-        {
-            throw new WrappedIOException(new IOException(fileInfo.getErrorMessage()));
-        }
-        if (fileManager.isAllowedAccess(session.getUser(), fileInfo.getFileDTO()) == false)
-        {
-            // Note: we send back the exact same error message as for a file that cannot be found.
-            // We do not want to give information out on whether the file exists or not.
-            throw new WrappedIOException(new IOException(Constants
-                    .getErrorMessageForFileNotFound(fileID)));
-        }
+        logInvocation(sessionID, "Start downloading file id=" + fileID);
+        boolean success = false;
+        FileDTO file = new FileDTO(null);
+        file.setName("id:" + fileID);
         try
         {
-            session.setRandomAccessFile(new RandomAccessFile(fileInfo.getFile(), "r"));
-        } catch (FileNotFoundException ex)
+            final Session session = sessionManager.getSession(sessionID);
+            final FileInformation fileInfo = fileManager.getFileInformation(fileID);
+            if (fileInfo.isFileAvailable() == false)
+            {
+                throw new WrappedIOException(new IOException(fileInfo.getErrorMessage()));
+            }
+            file = fileInfo.getFileDTO();
+            if (fileManager.isAllowedAccess(session.getUser(), file) == false)
+            {
+                // Note: we send back the exact same error message as for a file that cannot be found.
+                // We do not want to give information out on whether the file exists or not.
+                throw new WrappedIOException(new IOException(Constants
+                        .getErrorMessageForFileNotFound(fileID)));
+            }
+            try
+            {
+                session.setRandomAccessFile(new RandomAccessFile(fileInfo.getFile(), "r"));
+            } catch (FileNotFoundException ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
+            success = true;
+            return BeanUtils.createBean(ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO.class,
+                    fileInfo.getFileDTO());
+        } finally
         {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            domainModel.getBusinessContext().getUserActionLog().logDownloadFile(file, success);
         }
-        return BeanUtils.createBean(ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO.class,
-                fileInfo.getFileDTO());
     }
 
     public byte[] downloadBlock(String sessionID, long filePointer, int blockSize)
