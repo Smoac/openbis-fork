@@ -238,10 +238,10 @@ public final class DataSetSearchFieldsSelectionWidget extends
             DataSetSearchField field;
             if (isExperimentProperty)
             {
-                field = DataSetSearchField.createSampleProperty(code);
+                field = DataSetSearchField.createExperimentProperty(code);
             } else
             {
-                field = DataSetSearchField.createExperimentProperty(code);
+                field = DataSetSearchField.createSampleProperty(code);
             }
             DataSetSearchFieldComboModel comboModel =
                     createPropertyComboModel(st, field, isLabelDuplicated(st, types));
