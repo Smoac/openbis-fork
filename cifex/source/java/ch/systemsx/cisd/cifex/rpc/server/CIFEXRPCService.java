@@ -307,16 +307,16 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
     {
         final Session session = sessionManager.getSession(sessionID);
         final FileInformation fileInfo = fileManager.getFileInformation(fileID);
+        if (fileInfo.isFileAvailable() == false)
+        {
+            throw new WrappedIOException(new IOException(fileInfo.getErrorMessage()));
+        }
         if (fileManager.isAllowedAccess(session.getUser(), fileInfo.getFileDTO()) == false)
         {
             // Note: we send back the exact same error message as for a file that cannot be found.
             // We do not want to give information out on whether the file exists or not.
             throw new WrappedIOException(new IOException(Constants
                     .getErrorMessageForFileNotFound(fileID)));
-        }
-        if (fileInfo.isFileAvailable() == false)
-        {
-            throw new WrappedIOException(new IOException(fileInfo.getErrorMessage()));
         }
         try
         {
