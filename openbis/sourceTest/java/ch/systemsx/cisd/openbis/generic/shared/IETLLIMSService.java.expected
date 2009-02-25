@@ -35,7 +35,7 @@ public interface IETLLIMSService extends IWebService, IDataStoreInfoProvider, IS
     
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.ETL_SERVER)
-    public DatabaseInstancePE getHomeDatabaseInstance();
+    public DatabaseInstancePE getHomeDatabaseInstance(final String sessionToken);
 
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.ETL_SERVER)
