@@ -7,10 +7,10 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/dataset_download"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/dbmigration"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/etlserver"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/lims"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/lims_base"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/args4j"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/openbis"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/datastore_server"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
