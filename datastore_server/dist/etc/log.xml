@@ -5,7 +5,7 @@
 
   <appender name="DEFAULT" class="org.apache.log4j.DailyRollingFileAppender">
 
-    <param name="File" value="log/etlserver_log.txt"/>
+    <param name="File" value="log/datastore_server_log.txt"/>
     <param name="DatePattern" value="'.'yyyy-MM-dd"/>
 
     <layout class="org.apache.log4j.PatternLayout">
@@ -26,7 +26,7 @@
 
     <param name="BufferSize" value="512" />
     <param name="SMTPHost" value="localhost" />
-    <param name="From" value="etlserver@localhost" />
+    <param name="From" value="datastore_server@localhost" />
     <param name="To" value="root@localhost" />
     <param name="Subject" value="ATTENTION: etl server" />
     <param name="EvaluatorClass" value="ch.systemsx.cisd.common.logging.AlwaysTrueTriggeringEventEvaluator" />

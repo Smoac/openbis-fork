@@ -108,7 +108,7 @@ public final class Main
 
     private static void printInitialLogMessage(final Parameters parameters)
     {
-        operationLog.info("Etlserver is starting up.");
+        operationLog.info("Data Store Server is starting up.");
         for (final String line : BuildAndEnvironmentInfo.INSTANCE.getEnvironmentInfo())
         {
             operationLog.info(line);
@@ -143,7 +143,7 @@ public final class Main
     private static void selfTest(final File incomingDirectory,
             final IEncapsulatedLimsService service, final ISelfTestable... selfTestables)
     {
-        final String msgStart = "Etlserver self test failed:";
+        final String msgStart = "Data Store Server self test failed:";
         ISelfTestable currentSelfTestableOrNull = null;
         try
         {
@@ -491,7 +491,7 @@ public final class Main
         QueueingPathRemoverService.start(shredderQueueFile);
         printInitialLogMessage(parameters);
         startupServer(parameters);
-        operationLog.info("etlserver ready and waiting for data.");
+        operationLog.info("Data Store Server ready and waiting for data.");
     }
 
 }

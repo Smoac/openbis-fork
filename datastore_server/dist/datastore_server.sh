@@ -101,12 +101,12 @@ printStatus()
 # definitions
 #
 
-PIDFILE=${ETLSERVER_PID:-etlserver.pid}
-CONFFILE=etc/etlserver.conf
-LOGFILE=log/etlserver_log.txt
+PIDFILE=${DATASTORE_SERVER_PID:-datastore_server.pid}
+CONFFILE=etc/datastore_server.conf
+LOGFILE=log/datastore_server_log.txt
 STARTUPLOG=log/startup_log.txt
-SUCCESS_MSG="etlserver ready and waiting for data"
-JAR_FILE=lib/etlserver.jar
+SUCCESS_MSG="Data Store Server ready and waiting for data"
+JAR_FILE=lib/datastore_server.jar
 MAX_LOOPS=10
 
 #

@@ -1,13 +1,13 @@
-<project name="etlserver" default="dist" basedir="..">
+<project name="datastore_server" default="dist" basedir="..">
     <import file="../../build_resources/ant/build-common.xml" />
     <project-classpath name="ecp" classes="${classes}" />
 
     <property name="original.dist" value="dist" />
-    <property name="mainfolder" value="etlserver" />
-    <property name="dist.etlserver" value="${dist}/${mainfolder}" />
-    <property name="dist.etlserver.lib" value="${dist.etlserver}/lib" />
-    <property name="jar.file" value="${dist.etlserver.lib}/etlserver.jar" />
-    <property name="dist.file.prefix" value="${dist}/etlserver" />
+    <property name="mainfolder" value="datastore_server" />
+    <property name="dist.datastore_server" value="${dist}/${mainfolder}" />
+    <property name="dist.datastore_server.lib" value="${dist.datastore_server}/lib" />
+    <property name="jar.file" value="${dist.datastore_server.lib}/datastore_server.jar" />
+    <property name="dist.file.prefix" value="${dist}/datastore_server" />
     <property name="nativesrc" value="${lib}/unix/native" />
     <property name="nativeroot" value="${targets}/ant" />
     <property name="native" value="${nativeroot}/native" />
@@ -25,7 +25,7 @@
     </target>
 
     <target name="jar" depends="compile">
-        <mkdir dir="${dist.etlserver.lib}" />
+        <mkdir dir="${dist.datastore_server.lib}" />
         <build-info revision="revision.number" version="version.number" clean="clean.flag" />
         <echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
         <copy todir="${native}">
@@ -44,7 +44,7 @@
             <manifest>
                 <attribute name="Main-Class" value="ch.systemsx.cisd.etlserver.Main" />
                 <attribute name="Class-Path"
-                           value="etlserver-plugins.jar log4j.jar activation.jar mail.jar spring.jar fast-md5.jar
+                           value="datastore_server-plugins.jar log4j.jar activation.jar mail.jar spring.jar fast-md5.jar
                            commons-codec.jar commons-lang.jar commons-io.jar commons-logging.jar commons-httpclient.jar" />
                 <attribute name="Version" value="${version.number}" />
                 <attribute name="Build-Number"
@@ -54,26 +54,26 @@
     </target>
 
     <target name="dist" depends="jar">
-        <copy file="${lib}/activation/activation.jar" todir="${dist.etlserver.lib}" />
-        <copy file="${lib}/mail/mail.jar" todir="${dist.etlserver.lib}" />
-        <copy file="${lib}/log4j/log4j.jar" todir="${dist.etlserver.lib}" />
-        <copy file="${lib}/commons-codec/commons-codec.jar" todir="${dist.etlserver.lib}" />
-        <copy file="${lib}/commons-io/commons-io.jar" todir="${dist.etlserver.lib}" />
-        <copy file="${lib}/commons-lang/commons-lang.jar" todir="${dist.etlserver.lib}" />
-        <copy file="${lib}/commons-logging/commons-logging.jar" todir="${dist.etlserver.lib}" />
+        <copy file="${lib}/activation/activation.jar" todir="${dist.datastore_server.lib}" />
+        <copy file="${lib}/mail/mail.jar" todir="${dist.datastore_server.lib}" />
+        <copy file="${lib}/log4j/log4j.jar" todir="${dist.datastore_server.lib}" />
+        <copy file="${lib}/commons-codec/commons-codec.jar" todir="${dist.datastore_server.lib}" />
+        <copy file="${lib}/commons-io/commons-io.jar" todir="${dist.datastore_server.lib}" />
+        <copy file="${lib}/commons-lang/commons-lang.jar" todir="${dist.datastore_server.lib}" />
+        <copy file="${lib}/commons-logging/commons-logging.jar" todir="${dist.datastore_server.lib}" />
         <copy file="${lib}/commons-httpclient/commons-httpclient.jar"
-              todir="${dist.etlserver.lib}" />
-        <copy file="${lib}/spring/spring.jar" todir="${dist.etlserver.lib}" />
-        <copy file="${lib}/fast-md5/fast-md5.jar" todir="${dist.etlserver.lib}" />
+              todir="${dist.datastore_server.lib}" />
+        <copy file="${lib}/spring/spring.jar" todir="${dist.datastore_server.lib}" />
+        <copy file="${lib}/fast-md5/fast-md5.jar" todir="${dist.datastore_server.lib}" />
         <property name="dist.file"
                   value="${dist.file.prefix}-${version.number}-r${revision.number}.zip" />
         <zip basedir="${dist}" destfile="${dist.file}">
-            <zipfileset dir="${original.dist}" excludes="**/etlserver.sh" prefix="${mainfolder}" />
-            <zipfileset file="${original.dist}/etlserver.sh"
+            <zipfileset dir="${original.dist}" excludes="**/datastore_server.sh" prefix="${mainfolder}" />
+            <zipfileset file="${original.dist}/datastore_server.sh"
                         filemode="755"
                         prefix="${mainfolder}" />
         </zip>
-        <delete dir="${dist.etlserver}" />
+        <delete dir="${dist.datastore_server}" />
     </target>
 
     <target name="ci" depends="run-tests, check-dependencies, dist">
