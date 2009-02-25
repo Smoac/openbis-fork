@@ -243,6 +243,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
             RandomAccessFile randomAccessFile = createRandomAccessFile(tempFile);
             session.setRandomAccessFile(randomAccessFile);
             status.setUploadState(UPLOADING);
+            success = true;
         } finally
         {
             domainModel.getBusinessContext().getUserActionLog().logUploadFile(fileName, success);
