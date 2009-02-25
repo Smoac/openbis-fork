@@ -74,17 +74,17 @@ function run_psql {
 }
 
 function build_zips {
-    build_etl=$1
+    build_dss=$1
     build_dmv=$2
     build_openbis=$3
     use_local_source=$4
 
-    if [ $build_etl == "true" -o $build_dmv == "true" -o $build_openbis == "true" ]; then
+    if [ $build_dss == "true" -o $build_dmv == "true" -o $build_openbis == "true" ]; then
         mkdir -p $INSTALL
 		if [ "$use_local_source" = "true" ]; then
-    		build_zips_from_local $build_etl $build_dmv $build_openbis
+    		build_zips_from_local $build_dss $build_dmv $build_openbis
     	else
-	    	build_zips_from_svn $build_etl $build_dmv $build_openbis
+	    	build_zips_from_svn $build_dss $build_dmv $build_openbis
 		fi
     else
 		echo "No components to build were specified (--help explains how to do this)."
@@ -97,11 +97,11 @@ function build_zips {
 }
 
 function build_zips_from_local {
-    build_etl=$1
+    build_dss=$1
     build_dmv=$2
     build_openbis=$3
 
-    build_components build_local $build_etl $build_dmv $build_openbis
+    build_components build_local $build_dss $build_dmv $build_openbis
 }
 
 function build_local {
@@ -112,11 +112,11 @@ function build_local {
 
 function build_components {
     build_cmd=$1
-    build_etl=$2
+    build_dss=$2
     build_dmv=$3
     build_openbis=$4
 
-    if [ $build_etl == "true" ]; then
+    if [ $build_dss == "true" ]; then
 	rm -f $INSTALL/datastore_server*.zip
         $build_cmd datastore_server
     fi
@@ -140,14 +140,14 @@ function build_remote {
 }
 
 function build_zips_from_svn {
-    build_etl=$1
+    build_dss=$1
     build_dmv=$2
     build_openbis=$3
 
     RSC=build_resources
     rm -fr $RSC
     run_svn checkout svn+ssh://source.systemsx.ch/repos/cisd/build_resources/trunk $RSC
-    build_components "build_remote $RSC" $build_etl $build_dmv $build_openbis
+    build_components "build_remote $RSC" $build_dss $build_dmv $build_openbis
     mv $RSC/*.zip $INSTALL
     rm -fr $RSC 
 }
@@ -237,9 +237,9 @@ function shutdown_openbis_server {
 }
 
 # unpack everything, override default configuration with test configuation	
-function install_etls {
-    local install_etl=$1
-    if [ $install_etl == "true" ]; then
+function install_dsss {
+    local install_dss=$1
+    if [ $install_dss == "true" ]; then
         unpack datastore_server
 	prepare datastore_server datastore_server-all
 	remove_unpacked datastore_server
@@ -273,18 +273,18 @@ function restart_openbis {
 }
 
 function install {
-    local install_etl=$1
+    local install_dss=$1
     local install_dmv=$2
     local install_openbis=$3
     local reinstall_all=$4
 
     mkdir -p $WORK
     if [ $reinstall_all == "true" ];then
-	    install_etls "true"
+	    install_dsss "true"
 	    install_datamovers "true"
 	    install_openbis_server	"true"
     else
-	    install_etls $install_etl
+	    install_dsss $install_dss
 	    install_datamovers $install_dmv
 	    install_openbis_server	$install_openbis
     fi
@@ -527,7 +527,7 @@ function switch_sth {
 }
 
 
-function switch_etl {
+function switch_dss {
     switch_sth $1 $2 datastore_server.sh shutdown.sh $FALSE
 }
 
@@ -537,7 +537,7 @@ function switch_dmv {
 
 function switch_processing_pipeline {
     new_state=$1
-    switch_etl $new_state datastore_server-all
+    switch_dss $new_state datastore_server-all
     switch_dmv $new_state datamover-analysis
     switch_sth $new_state dummy-img-analyser start.sh stop.sh $TRUE
     switch_dmv $new_state datamover-raw
