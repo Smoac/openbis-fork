@@ -39,11 +39,19 @@ public final class MasqueradingException extends RuntimeException
      */
     private final String rootExceptionClassName;
 
-    public MasqueradingException(final Exception rootException)
+    private final String prefix;
+
+    public MasqueradingException(final Exception rootException, final String prefix)
     {
         super(rootException.getMessage());
         setStackTrace(rootException.getStackTrace());
         rootExceptionClassName = rootException.getClass().getName();
+        this.prefix = prefix;
+    }
+
+    public MasqueradingException(final Exception rootException)
+    {
+        this(rootException, "Error occurred on server");
     }
 
     public final String getRootExceptionClassName()
@@ -58,7 +66,8 @@ public final class MasqueradingException extends RuntimeException
     @Override
     public final String toString()
     {
-        final String s = getClass().getSimpleName() + "(" + rootExceptionClassName + ")";
+        System.err.println("Prefix is " + prefix);
+        final String s = prefix + " [" + rootExceptionClassName + "]";
         final String message = getMessage();
         return (message != null) ? (s + ": " + message) : s;
     }
