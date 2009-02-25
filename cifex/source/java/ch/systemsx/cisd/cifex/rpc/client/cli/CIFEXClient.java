@@ -33,6 +33,7 @@ import org.springframework.remoting.RemoteConnectFailureException;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.MasqueradingException;
 import ch.systemsx.cisd.common.exceptions.SystemExitException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo;
@@ -149,6 +150,10 @@ public class CIFEXClient
             exitHandler.exit(1);
         } catch (final SystemExitException e)
         {
+            exitHandler.exit(1);
+        } catch (MasqueradingException e)
+        {
+            System.err.println(e);
             exitHandler.exit(1);
         } catch (final Exception e)
         {
