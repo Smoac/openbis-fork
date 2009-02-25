@@ -167,7 +167,8 @@ public class FileUploadClient
                         System.exit(0);
                     } else
                     {
-                        JOptionPane.showMessageDialog(frame, "Uploading aborted.");
+                        JOptionPane.showMessageDialog(frame, "Operation did not complete successfully. " +
+                        		"Check the status in the CIFEX Web GUI (Uploaded Files > Edit Sharing)");
                     }
                 }
 
