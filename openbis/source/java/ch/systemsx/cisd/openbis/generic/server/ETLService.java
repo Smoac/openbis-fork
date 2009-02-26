@@ -361,9 +361,12 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         assert sessionToken != null : "Unspecified session token.";
         assert dataSetCode != null : "Unspecified data set code.";
         
-        sessionManager.getSession(sessionToken); // assert authenticated
+        Session session = sessionManager.getSession(sessionToken); // assert authenticated
         
-        return daoFactory.getExternalDataDAO().tryToFindFullDataSetByCode(dataSetCode);
+        IExternalDataBO externalDataBO = boFactory.createExternalDataBO(session);
+        externalDataBO.loadByCode(dataSetCode);
+        externalDataBO.enrichWithParentsAndProcedure();
+        return externalDataBO.getExternalData();
     }
     
     

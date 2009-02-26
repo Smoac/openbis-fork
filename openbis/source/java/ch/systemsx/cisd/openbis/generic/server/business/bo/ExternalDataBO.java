@@ -51,7 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.ProcedureTypeCode;
  *
  * @author Franz-Josef Elmer
  */
-public class ExternalDataBO extends AbstractBusinessObject implements IExternalDataBO
+public class ExternalDataBO extends AbstractExternalDataBusinessObject implements IExternalDataBO
 {
     private ExternalDataPE externalData;
     private SourceType sourceType;
@@ -66,6 +66,19 @@ public class ExternalDataBO extends AbstractBusinessObject implements IExternalD
         return externalData;
     }
     
+    public void loadByCode(String dataSetCode)
+    {
+        externalData = getExternalDataDAO().tryToFindFullDataSetByCode(dataSetCode);
+    }
+    
+    public void enrichWithParentsAndProcedure()
+    {
+        if (externalData != null)
+        {
+            enrichWithParentsAndProcedure(externalData);
+        }
+    }
+
     public void define(ExternalData data, ProcedurePE procedure, SamplePE sample,
             SourceType type)
     {

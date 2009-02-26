@@ -41,5 +41,15 @@ public interface IExternalDataBO extends IBusinessObject
      */
     public void define(ExternalData externalData, ProcedurePE procedure, SamplePE sample,
             SourceType sourceType);
+    
+    /**
+     * Loads the external data item with specified code.
+     */
+    public void loadByCode(String dataSetCode);
+
+    /**
+     * Enrich external data with parents, procedure, and experiment.
+     */
+    public void enrichWithParentsAndProcedure();
 
 }

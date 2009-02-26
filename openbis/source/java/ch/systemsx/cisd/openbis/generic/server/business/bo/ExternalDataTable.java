@@ -41,7 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * 
  * @author Christian Ribeaud
  */
-public final class ExternalDataTable extends AbstractSampleIdentifierBusinessObject implements
+public final class ExternalDataTable extends AbstractExternalDataBusinessObject implements
         IExternalDataTable
 {
     private List<ExternalDataPE> externalData;
@@ -99,17 +99,6 @@ public final class ExternalDataTable extends AbstractSampleIdentifierBusinessObj
                     externalData.add(externalDataPE);
                 }
             }
-        }
-    }
-
-    private void enrichWithParentsAndProcedure(ExternalDataPE externalDataPE)
-    {
-        HibernateUtils.initialize(externalDataPE.getParents());
-        HibernateUtils.initialize(externalDataPE.getProcedure());
-        if (externalDataPE.getProcedure() != null)
-        {
-            final ExperimentPE exp = externalDataPE.getProcedure().getExperiment();
-            HibernateUtils.initialize(exp);
         }
     }
 }
