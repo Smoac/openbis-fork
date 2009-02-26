@@ -75,7 +75,7 @@ public class ActionLogTest
         prepare();
         LogMonitoringAppender appender =
                 LogMonitoringAppender.addAppender(LogCategory.TRACKING, "{USER: " + USER
-                        + ", HOST: " + HOST + ", SESSION: " + SESSION_ID
+                        + ", HOST: " + HOST + ", WEBSESSION: " + SESSION_ID
                         + "} Start Datamover 'dm1' with target 't1'");
         
         actionLog.logStartDatamover("dm1", "t1");
@@ -90,7 +90,7 @@ public class ActionLogTest
         prepare();
         LogMonitoringAppender appender =
                 LogMonitoringAppender.addAppender(LogCategory.TRACKING, "{USER: " + USER
-                        + ", HOST: " + HOST + ", SESSION: " + SESSION_ID
+                        + ", HOST: " + HOST + ", WEBSESSION: " + SESSION_ID
                         + "} Shutdown Datamover 'dm1'");
         
         actionLog.logShutdownDatamover("dm1");
@@ -104,7 +104,7 @@ public class ActionLogTest
         context.checking(new Expectations()
             {
                 {
-                    one(request).getSession(false);
+                    one(request).getSession();
                     will(returnValue(session));
                     
                     one(session).getId();
