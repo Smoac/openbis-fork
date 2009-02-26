@@ -59,16 +59,17 @@ public class InitializeCommand extends AbstractCommand
         {
             System.out.println("This command initializes the client for a given server.");
             String baseURL;
-            do
-            {
-                baseURL =
-                        getConsoleReader().readLine(
-                                "Server Base URL (e.g. 'https://myserver:8443'): ");
-            } while (baseURL == null);
+            baseURL =
+                    getConsoleReader().readLine("Server Base URL (e.g. 'https://myserver:8443'): ");
             if (StringUtils.isBlank(baseURL))
             {
-                System.err.println("No Server Base URL has been specified.");
+                System.err.println("No server base URL has been specified.");
                 System.exit(1);
+            }
+            // Remove trailing /, if any.
+            if (baseURL.endsWith("/"))
+            {
+                baseURL = baseURL.substring(0, baseURL.length() - 1);
             }
             // Write Base URL to file.
             FileUtils.writeStringToFile(getBaseURLFile(), baseURL);

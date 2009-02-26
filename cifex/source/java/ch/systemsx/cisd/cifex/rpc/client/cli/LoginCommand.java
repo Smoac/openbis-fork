@@ -20,6 +20,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.args4j.Option;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
@@ -140,22 +141,25 @@ public final class LoginCommand extends AbstractCommand
     {
         // userName
         String userName = initial.getUserName();
-        if (userName == null)
+        if (StringUtils.isBlank(userName))
         {
-            do
-            {
-                userName = getConsoleReader().readLine("User: ");
-            } while (userName == null);
+            userName = getConsoleReader().readLine("User: ");
+        }
+        if (StringUtils.isBlank(userName))
+        {
+            System.err.println("No user name has been specified.");
+            System.exit(1);
         }
         // password
         String password = initial.getPassword();
-        if (password == null)
+        if (StringUtils.isBlank(password))
         {
-            do
-            {
-                password = getConsoleReader().readLine("Password: ", Character.valueOf('*'));
-            } while (password == null);
-
+            password = getConsoleReader().readLine("Password: ", Character.valueOf('*'));
+        }
+        if (StringUtils.isBlank(password))
+        {
+            System.err.println("No password has been specified.");
+            System.exit(1);
         }
         return new Credentials(userName, password);
     }
