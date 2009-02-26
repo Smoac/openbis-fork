@@ -22,7 +22,6 @@ import java.util.Set;
 
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
-import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 
@@ -45,26 +44,6 @@ public abstract class AbstractUploadDownload implements IProgressListenerHolder
     protected final String sessionID;
 
     protected final Set<IProgressListener> listeners = new LinkedHashSet<IProgressListener>();
-
-    /**
-     * Creates an instance for the specified service URL and credentials.
-     */
-    public AbstractUploadDownload(String serviceURL, String username, String passwd)
-            throws AuthorizationFailureException, EnvironmentFailureException
-    {
-        this.service = RPCServiceFactory.createServiceProxy(serviceURL, false);
-        this.sessionID = service.login(username, passwd);
-        checkService();
-    }
-
-    /**
-     * Creates an instance for the specified service URL and session ID.
-     */
-    public AbstractUploadDownload(String serviceURL, String sessionID,
-            boolean getCertificateFromServer)
-    {
-        this(RPCServiceFactory.createServiceProxy(serviceURL, getCertificateFromServer), sessionID);
-    }
 
     /**
      * Creates an instance for the specified service and session ID.

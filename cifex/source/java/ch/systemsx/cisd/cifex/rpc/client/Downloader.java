@@ -25,9 +25,7 @@ import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
-import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
  * Class which downloads file via an implementation of {@link ICIFEXRPCService}, handling the
@@ -37,23 +35,6 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
  */
 public final class Downloader extends AbstractUploadDownload
 {
-
-    /**
-     * Creates an instance for the specified service URL and credentials.
-     */
-    public Downloader(String serviceURL, String username, String passwd)
-            throws AuthorizationFailureException, EnvironmentFailureException
-    {
-        super(serviceURL, username, passwd);
-    }
-
-    /**
-     * Creates an instance for the specified service URL and session ID.
-     */
-    public Downloader(String serviceURL, String sessionID, boolean getCertiticateFromServer)
-    {
-        super(serviceURL, sessionID, getCertiticateFromServer);
-    }
 
     /**
      * Creates an instance for the specified service and session ID.

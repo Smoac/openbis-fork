@@ -30,7 +30,6 @@ import ch.systemsx.cisd.cifex.rpc.UploadStatus;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IUploadProgressListener;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
-import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
@@ -45,23 +44,6 @@ public final class Uploader extends AbstractUploadDownload
 {
     private static final EnumSet<UploadState> RUNNING_STATES =
             EnumSet.of(UploadState.READY_FOR_NEXT_FILE, UploadState.UPLOADING);
-
-    /**
-     * Creates an instance for the specified service URL and credentials.
-     */
-    public Uploader(String serviceURL, String username, String passwd)
-            throws AuthorizationFailureException, EnvironmentFailureException
-    {
-        super(serviceURL, username, passwd);
-    }
-
-    /**
-     * Creates an instance for the specified service URL and session ID.
-     */
-    public Uploader(String serviceURL, String sessionID, boolean getCertificateFromServer)
-    {
-        super(serviceURL, sessionID, getCertificateFromServer);
-    }
 
     /**
      * Creates an instance for the specified service and session ID.
@@ -192,12 +174,10 @@ public final class Uploader extends AbstractUploadDownload
                         break;
                     case FINISHED:
                         service.finish(sessionID, true);
-                        service.logout(sessionID);
                         fireFinishedEvent(true);
                         running = false;
                         break;
                     case ABORTED:
-                        System.out.println(status);
                         service.finish(sessionID, false);
                         fireFinishedEvent(false);
                         running = false;

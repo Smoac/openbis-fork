@@ -46,8 +46,11 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableColumn;
 
+import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
+import ch.systemsx.cisd.cifex.rpc.client.RPCServiceFactory;
 import ch.systemsx.cisd.cifex.rpc.client.Uploader;
-import ch.systemsx.cisd.cifex.shared.basic.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
@@ -62,7 +65,8 @@ public class FileUploadClient
     private static final String REMOVE_FROM_TABLE_MENU_ITEM = "Remove selected files from table";
 
     public static void main(String[] args)
-            throws ch.systemsx.cisd.cifex.shared.basic.UserFailureException, EnvironmentFailureException
+            throws ch.systemsx.cisd.cifex.shared.basic.UserFailureException,
+            EnvironmentFailureException
     {
         try
         {
@@ -72,15 +76,18 @@ public class FileUploadClient
             {
                 final String sessionId = args[1];
                 maxUloadSizeInMB = Integer.parseInt(args[2]);
-                new FileUploadClient(serviceURL, sessionId, maxUloadSizeInMB, SYSTEM_TIME_PROVIDER)
-                        .show();
+                new FileUploadClient(RPCServiceFactory.createServiceProxy(serviceURL, true),
+                        sessionId, maxUloadSizeInMB, SYSTEM_TIME_PROVIDER).show();
             } else if (args.length == 4)
             {
                 final String userName = args[1];
                 final String passwd = args[2];
                 maxUloadSizeInMB = Integer.parseInt(args[3]);
-                new FileUploadClient(serviceURL, userName, passwd, maxUloadSizeInMB,
-                        SYSTEM_TIME_PROVIDER).show();
+                final ICIFEXRPCService service =
+                        RPCServiceFactory.createServiceProxy(serviceURL, true);
+                final String sessionId = service.login(userName, passwd);
+                new FileUploadClient(service, sessionId, maxUloadSizeInMB, SYSTEM_TIME_PROVIDER)
+                        .show();
             } else
             {
                 throw new UserFailureException("Wrong number of arguments.");
@@ -92,7 +99,6 @@ public class FileUploadClient
             JOptionPane.showMessageDialog(frame, ex.getMessage(), "Error",
                     JOptionPane.ERROR_MESSAGE);
             System.exit(1);
-
         }
     }
 
@@ -105,29 +111,24 @@ public class FileUploadClient
     private JButton uploadButton;
 
     private JButton cancelButton;
-    
+
     private JButton addButton;
 
     private JPopupMenu popupMenu;
 
-    FileUploadClient(String serviceURL, String sessionId, int maxUploadSizeInMB,
-            ITimeProvider timeProvider) throws ch.systemsx.cisd.cifex.shared.basic.UserFailureException,
-            EnvironmentFailureException
+    FileUploadClient(final ICIFEXRPCService service, final String sessionId,
+            final int maxUploadSizeInMB, final ITimeProvider timeProvider)
+            throws EnvironmentFailureException, InvalidSessionException
     {
-        this(new Uploader(serviceURL, sessionId, true), maxUploadSizeInMB, timeProvider);
-    }
-
-    FileUploadClient(String serviceURL, String userName, String passwd, int maxUploadSizeInMB,
-            ITimeProvider timeProvider) throws ch.systemsx.cisd.cifex.shared.basic.UserFailureException,
-            EnvironmentFailureException
-    {
-        this(new Uploader(serviceURL, userName, passwd), maxUploadSizeInMB, timeProvider);
-    }
-
-    FileUploadClient(Uploader uploader, int maxUploadSizeInMB, ITimeProvider timeProvider)
-            throws ch.systemsx.cisd.cifex.shared.basic.UserFailureException, EnvironmentFailureException
-    {
-        this.uploader = uploader;
+        Runtime.getRuntime().addShutdownHook(new Thread()
+            {
+                @Override
+                public void run()
+                {
+                    service.logout(sessionId);
+                }
+            });
+        this.uploader = new Uploader(service, sessionId);
         frame = new JFrame(TITLE);
         frame.addWindowListener(new WindowAdapter()
             {
@@ -167,8 +168,11 @@ public class FileUploadClient
                         System.exit(0);
                     } else
                     {
-                        JOptionPane.showMessageDialog(frame, "Operation did not complete successfully. " +
-                        		"Check the status in the CIFEX Web GUI (Uploaded Files > Edit Sharing)");
+                        JOptionPane
+                                .showMessageDialog(
+                                        frame,
+                                        "Operation did not complete successfully. "
+                                                + "Check the status in the CIFEX Web GUI (Uploaded Files > Edit Sharing)");
                     }
                 }
 
@@ -191,7 +195,7 @@ public class FileUploadClient
                 }
 
                 private String lastWarningMessage;
-                
+
                 public void warningOccured(String warningMessage)
                 {
                     if (warningMessage.equals(lastWarningMessage) == false)
@@ -364,7 +368,8 @@ public class FileUploadClient
 
                 private void showPopup(MouseEvent e)
                 {
-                    if (table.getSelectedRows().length > 0 && menu.isEnabled() && e.isPopupTrigger())
+                    if (table.getSelectedRows().length > 0 && menu.isEnabled()
+                            && e.isPopupTrigger())
                     {
                         menu.show(e.getComponent(), e.getX(), e.getY());
                     }
