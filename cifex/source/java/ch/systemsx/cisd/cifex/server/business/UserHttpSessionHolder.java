@@ -26,6 +26,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.cifex.rpc.server.SessionManager;
 import ch.systemsx.cisd.cifex.server.CIFEXServiceImpl;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -47,6 +48,8 @@ public final class UserHttpSessionHolder implements IUserSessionInvalidator
     public final static String USER_SESSION_HOLDER_BEAN_NAME = "user-session-holder";
 
     private final Map<HttpSession, Object> activeSessions;
+    
+    private final SessionManager rpcSessionManager;
 
     /**
      * A flag to avoid <code>ConcurrentModificationException</code> exception when session gets
@@ -54,8 +57,9 @@ public final class UserHttpSessionHolder implements IUserSessionInvalidator
      */
     private boolean isInvalidating;
 
-    public UserHttpSessionHolder()
+    public UserHttpSessionHolder(SessionManager rpcSessionManager)
     {
+        this.rpcSessionManager = rpcSessionManager;
         activeSessions = new WeakHashMap<HttpSession, Object>();
     }
 
@@ -89,7 +93,7 @@ public final class UserHttpSessionHolder implements IUserSessionInvalidator
             try
             {
                 final UserDTO user =
-                        (UserDTO) httpSession.getAttribute(CIFEXServiceImpl.SESSION_NAME);
+                        (UserDTO) httpSession.getAttribute(CIFEXServiceImpl.SESSION_ATTRIBUTE_USER_NAME);
                 if (user != null && user.getID().equals(userDTO.getID()))
                 {
                     // This unbinds all the attributes as well. So do not do clever cleaning here.
@@ -114,6 +118,7 @@ public final class UserHttpSessionHolder implements IUserSessionInvalidator
                 iterator.remove();
             }
         }
+        rpcSessionManager.removeSessionsForUser(userDTO.getUserCode());
         isInvalidating = false;
     }
 

@@ -32,7 +32,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
@@ -89,20 +88,21 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
     public CIFEXRPCService(final IDomainModel domainModel,
             final IRequestContextProvider requestContextProvider,
             final IUserActionLog userBehaviorLog,
-            final IAuthenticationService externalAuthenticationService, final String testingFlag)
+            final IAuthenticationService externalAuthenticationService,
+            final SessionManager sessionManager, final String testingFlag)
     {
         this(domainModel.getFileManager(), domainModel, requestContextProvider, userBehaviorLog,
-                externalAuthenticationService, testingFlag);
+                externalAuthenticationService, sessionManager, testingFlag);
     }
 
     public CIFEXRPCService(final IFileManager fileManager, final IDomainModel domainModel,
             final IRequestContextProvider requestContextProvider,
             final IUserActionLog userBehaviorLog,
-            final IAuthenticationService externalAuthenticationService, final String testingFlag)
+            final IAuthenticationService externalAuthenticationService,
+            final SessionManager sessionManager, final String testingFlag)
     {
-        this(fileManager, new SessionManager("true".equals(testingFlag)), domainModel,
-                requestContextProvider, userBehaviorLog, externalAuthenticationService,
-                createLoggingContextHandler(requestContextProvider));
+        this(fileManager, sessionManager, domainModel, requestContextProvider, userBehaviorLog,
+                externalAuthenticationService, createLoggingContextHandler(requestContextProvider));
         if ("true".equals(testingFlag))
         {
             UserDTO userDTO = new UserDTO();
@@ -145,9 +145,13 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
             throws AuthorizationFailureException, EnvironmentFailureException
     {
         logInvocation("session initialization", "Try to login user '" + userCode + "'.");
-        final UserDTO user = tryLoginUser(userCode, plainPassword);
+        final UserDTO user = tryLoginUser(userCode, plainPassword, false);
         if (user == null)
         {
+            if (userBehaviorLogOrNull != null)
+            {
+                userBehaviorLogOrNull.logFailedLoginAttempt(userCode);
+            }
             throw new AuthorizationFailureException("Login failed: invalid user or password");
         }
         return createSession(user, getURLForEmail());
@@ -155,7 +159,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
 
     public void logout(String sessionID) throws InvalidSessionException
     {
-        sessionManager.removeSession(sessionID);
+        sessionManager.removeSession(sessionID, false);
     }
 
     private String getURLForEmail()
@@ -234,8 +238,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
             UploadStatus status = getStatusAndCheckState(session, READY_FOR_NEXT_FILE);
             String nameOfCurrentFile = status.getNameOfCurrentFile();
             logInvocation(sessionID, "Start uploading " + nameOfCurrentFile);
-            fileName =
-                    FilenameUtilities.ensureMaximumSize(nameOfCurrentFile, MAX_FILENAME_LENGTH);
+            fileName = FilenameUtilities.ensureMaximumSize(nameOfCurrentFile, MAX_FILENAME_LENGTH);
             File file = fileManager.createFile(session.getUser(), fileName);
             session.setFile(file);
             File tempFile = createTempFile(file);
@@ -246,7 +249,10 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
             success = true;
         } finally
         {
-            domainModel.getBusinessContext().getUserActionLog().logUploadFile(fileName, success);
+            if (userBehaviorLogOrNull != null)
+            {
+                userBehaviorLogOrNull.logUploadFile(fileName, success);
+            }
         }
     }
 
@@ -329,7 +335,8 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
             file = fileInfo.getFileDTO();
             if (fileManager.isAllowedAccess(session.getUser(), file) == false)
             {
-                // Note: we send back the exact same error message as for a file that cannot be found.
+                // Note: we send back the exact same error message as for a file that cannot be
+                // found.
                 // We do not want to give information out on whether the file exists or not.
                 throw new WrappedIOException(new IOException(Constants
                         .getErrorMessageForFileNotFound(fileID)));
@@ -346,7 +353,10 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
                     fileInfo.getFileDTO());
         } finally
         {
-            domainModel.getBusinessContext().getUserActionLog().logDownloadFile(file, success);
+            if (userBehaviorLogOrNull != null)
+            {
+                userBehaviorLogOrNull.logDownloadFile(file, success);
+            }
         }
     }
 

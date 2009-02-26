@@ -87,6 +87,10 @@ public final class UserHttpSessionListener implements HttpSessionListener
             return;
         }
         getUserHttpSessionHolder(session).removeUserSession(session);
-        getUserBehaviorLog(session).logLogout(session);
+        // Only log http sessions that do not belong to an rpc session.
+        if (AbstractCIFEXService.tryGetRPCSession(session) == null)
+        {
+            getUserBehaviorLog(session).logLogout(session);
+        }
     }
 }

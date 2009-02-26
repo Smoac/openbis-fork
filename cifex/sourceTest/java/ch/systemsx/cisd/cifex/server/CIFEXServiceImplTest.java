@@ -1180,7 +1180,7 @@ public class CIFEXServiceImplTest
                         {
                             transferredUserDTO.setAdmin(false);
                         }
-                        one(httpSession).setAttribute(CIFEXServiceImpl.SESSION_NAME,
+                        one(httpSession).setAttribute(CIFEXServiceImpl.SESSION_ATTRIBUTE_USER_NAME,
                                 transferredUserDTO);
                         one(httpSession).setAttribute(
                                 with(same(CIFEXServiceImpl.UPLOAD_FEEDBACK_QUEUE)),
@@ -1189,7 +1189,7 @@ public class CIFEXServiceImplTest
                         will(returnValue(SESSION_TOKEN_EXAMPLE));
                     } else
                     {
-                        one(httpSession).getAttribute(CIFEXServiceImpl.SESSION_NAME);
+                        one(httpSession).getAttribute(CIFEXServiceImpl.SESSION_ATTRIBUTE_USER_NAME);
                         will(returnValue(userDTO));
                     }
                 }

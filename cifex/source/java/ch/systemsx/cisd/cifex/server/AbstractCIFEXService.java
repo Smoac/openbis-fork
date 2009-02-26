@@ -29,6 +29,8 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.NullAuthenticationService;
 import ch.systemsx.cisd.authentication.Principal;
+import ch.systemsx.cisd.cifex.rpc.server.CIFEXRPCService;
+import ch.systemsx.cisd.cifex.rpc.server.Session;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
 import ch.systemsx.cisd.cifex.server.business.IUserActionLog;
 import ch.systemsx.cisd.cifex.server.business.IUserManager;
@@ -50,8 +52,11 @@ import ch.systemsx.cisd.common.servlet.RequestContextProviderAdapter;
  */
 abstract public class AbstractCIFEXService
 {
-    /** The attribute name under which the session could be found. */
-    public static final String SESSION_NAME = "cifex-user";
+    /** The attribute name under which the user can be found for HTTP / AJAX sessions . */
+    public static final String SESSION_ATTRIBUTE_USER_NAME = "cifex-user";
+
+    /** The attribute name under which the RPC session could be found for RPC sessions. */
+    public static final String SESSION_ATTRIBUTE_RPC_SESSION = "rpc-session";
 
     /** The attribute name that holds the queue that has the feedbacks of the upload. */
     static final String UPLOAD_FEEDBACK_QUEUE = "upload-feedback-queue";
@@ -77,7 +82,7 @@ abstract public class AbstractCIFEXService
 
     protected final IAuthenticationService externalAuthenticationService;
 
-    protected final IUserActionLog userBehaviorLog;
+    protected final IUserActionLog userBehaviorLogOrNull;
 
     /** Session timeout in seconds. */
     private int sessionExpirationPeriod;
@@ -97,16 +102,22 @@ abstract public class AbstractCIFEXService
 
     protected AbstractCIFEXService(final IDomainModel domainModel,
             final IRequestContextProvider requestContextProvider,
-            final IUserActionLog userBehaviorLog,
+            final IUserActionLog userBehaviorLogOrNull,
             final IAuthenticationService externalAuthenticationService,
             final LoggingContextHandler loggingContextHandler)
     {
         this.domainModel = domainModel;
         this.requestContextProvider = requestContextProvider;
-        this.userBehaviorLog = userBehaviorLog;
+        this.userBehaviorLogOrNull = userBehaviorLogOrNull;
         this.externalAuthenticationService = externalAuthenticationService;
         this.loggingContextHandler = loggingContextHandler;
         checkAuthentication();
+    }
+
+    /** Returns the rpc session for an <var>httpSession</var>, if any. */
+    public static Session tryGetRPCSession(HttpSession httpSession)
+    {
+        return (Session) httpSession.getAttribute(CIFEXRPCService.SESSION_ATTRIBUTE_RPC_SESSION);
     }
 
     @Private
@@ -156,7 +167,7 @@ abstract public class AbstractCIFEXService
         final HttpSession httpSession = getSession(true);
         // A negative time (in seconds) indicates the session should never timeout.
         httpSession.setMaxInactiveInterval(sessionExpirationPeriod);
-        httpSession.setAttribute(SESSION_NAME, user);
+        httpSession.setAttribute(SESSION_ATTRIBUTE_USER_NAME, user);
         httpSession.setAttribute(UPLOAD_FEEDBACK_QUEUE, new FileUploadFeedbackProvider());
         return httpSession.getId();
     }
@@ -166,7 +177,7 @@ abstract public class AbstractCIFEXService
         return requestContextProvider.getHttpServletRequest().getSession(create);
     }
 
-    private UserDTO finishLogin(final UserDTO userDTO)
+    private UserDTO finishLogin(final UserDTO userDTO, final boolean doUserActionLog)
     {
         // Do not transfer the password or its hash value to the client (security).
         userDTO.setPassword(null);
@@ -178,12 +189,15 @@ abstract public class AbstractCIFEXService
         {
             operationLog.debug("Successfully created session for user " + userDTO);
         }
-        userBehaviorLog.logSuccessfulLogin();
+        if (doUserActionLog && userBehaviorLogOrNull != null)
+        {
+            userBehaviorLogOrNull.logSuccessfulLogin();
+        }
         return userDTO;
     }
 
-    protected final UserDTO tryLoginUser(final String userCode, final String plainPassword)
-            throws EnvironmentFailureException
+    protected final UserDTO tryLoginUser(final String userCode, final String plainPassword,
+            final boolean doUserActionLog) throws EnvironmentFailureException
     {
         if (operationLog.isDebugEnabled())
         {
@@ -194,7 +208,7 @@ abstract public class AbstractCIFEXService
         {
             final UserDTO userDTO = createAdminUserDTO(userCode, plainPassword);
             userManager.createUser(userDTO);
-            return finishLogin(userDTO);
+            return finishLogin(userDTO, doUserActionLog);
         }
         UserDTO userDTOOrNull = userManager.tryFindUserByCode(userCode);
         if (userDTOOrNull == null || userDTOOrNull.isExternallyAuthenticated())
@@ -202,18 +216,21 @@ abstract public class AbstractCIFEXService
             userDTOOrNull = tryExternalAuthenticationServiceLogin(userCode, plainPassword);
             if (userDTOOrNull != null)
             {
-                return finishLogin(userDTOOrNull);
+                return finishLogin(userDTOOrNull, doUserActionLog);
             }
         } else
         {
             final Password password = new Password(plainPassword);
             if (password.matches(userDTOOrNull.getPasswordHash()))
             {
-                return finishLogin(userDTOOrNull);
+                return finishLogin(userDTOOrNull, doUserActionLog);
             }
 
         }
-        userBehaviorLog.logFailedLoginAttempt(userCode);
+        if (doUserActionLog && userBehaviorLogOrNull != null)
+        {
+            userBehaviorLogOrNull.logFailedLoginAttempt(userCode);
+        }
         return null;
     }
 
@@ -236,7 +253,10 @@ abstract public class AbstractCIFEXService
             final String applicationToken = externalAuthenticationService.authenticateApplication();
             if (applicationToken == null)
             {
-                userBehaviorLog.logFailedLoginAttempt(userOrEmail);
+                if (userBehaviorLogOrNull != null)
+                {
+                    userBehaviorLogOrNull.logFailedLoginAttempt(userOrEmail);
+                }
                 final String msg =
                         "User '" + userOrEmail
                                 + "' couldn't be authenticated because authentication of "

@@ -75,6 +75,9 @@ public final class Constants
     public static final String USER_CODE_WITH_ID_PREFIX_REGEX =
             "^" + USER_ID_PREFIX + USER_CODE_REGEX.substring(1);
     
+    /** The property key to set the cifex.base.url in Eclipse. */
+    public static final String CIFEX_BASE_URL_PROP_KEY = "cifex.base.url";
+
     /**
      * The path to add to the end of the server to get the rpc service.
      */

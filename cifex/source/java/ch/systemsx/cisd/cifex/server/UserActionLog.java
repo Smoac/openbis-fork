@@ -27,6 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.cifex.rpc.server.Session;
 import ch.systemsx.cisd.cifex.server.business.IUserActionLog;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
@@ -41,6 +42,11 @@ import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
  */
 public final class UserActionLog extends AbstractActionLog implements IUserActionLog
 {
+
+    private static final String USER_SESSION_RPC_TEMPLATE = "{USER: %s, RPCSESSION: %s} logout%s";
+
+    private static final String USER_HOST_RPC_SESSION_TEMPLATE =
+            "{USER: %s, HOST: %s, RPCSESSION: %s} ";
 
     private static final String TEMPORARY_UNTIL_STR = "TEMPORARY until ";
 
@@ -61,12 +67,12 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
     {
         super("true".equals(testingFlag) ? new IRequestContextProvider()
             {
-        
+
                 public HttpServletRequest getHttpServletRequest()
                 {
                     return new MockHttpServletRequest();
                 }
-        
+
             } : requestContextProvider);
     }
 
@@ -77,12 +83,36 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
     @Override
     protected String getUserCode(HttpSession httpSession)
     {
-        return ((UserDTO) httpSession.getAttribute(CIFEXServiceImpl.SESSION_NAME)).getUserCode();
+        final Session sessionOrNull = AbstractCIFEXService.tryGetRPCSession(httpSession);
+        if (sessionOrNull != null)
+        {
+            return sessionOrNull.getUser().getUserCode();
+        } else
+        {
+            return ((UserDTO) httpSession
+                    .getAttribute(CIFEXServiceImpl.SESSION_ATTRIBUTE_USER_NAME)).getUserCode();
+        }
     }
 
     //
     // Users
     //
+
+    @Override
+    protected String getUserHostSessionDescription()
+    {
+        final Session sessionOrNull = AbstractCIFEXService.tryGetRPCSession(getHttpSession());
+        if (sessionOrNull != null)
+        {
+            final String remoteHost = remoteHostProvider.getRemoteHost();
+            final String userName = sessionOrNull.getUser().getUserCode();
+            final String id = sessionOrNull.getSessionID();
+            return String.format(USER_HOST_RPC_SESSION_TEMPLATE, userName, remoteHost, id);
+        } else
+        {
+            return super.getUserHostSessionDescription();
+        }
+    }
 
     public void logCreateUser(final UserDTO user, final boolean success)
     {
@@ -406,6 +436,20 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
             accessLog.info(getUserHostSessionDescription()
                     + String.format("switch_to_external_authentication user '%s': %s", userCode,
                             getSuccessString(success)));
+        }
+    }
+
+    public void logLogout(Session session, LogoutReason reason)
+    {
+        if (authenticationLog.isInfoEnabled())
+        {
+            final UserDTO userOrNull = session.getUser();
+            final String userName = (userOrNull == null) ? "UNKNOWN" : userOrNull.getUserCode();
+            final String id = session.getSessionID();
+            final String logoutMsg =
+                    String.format(USER_SESSION_RPC_TEMPLATE, userName, id, reason
+                            .getLogText());
+            authenticationLog.info(logoutMsg);
         }
     }
 

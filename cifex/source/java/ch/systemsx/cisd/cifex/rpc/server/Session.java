@@ -29,7 +29,7 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
  *
  * @author Franz-Josef Elmer
  */
-class Session
+public final class Session
 {
     private final String sessionID;
     
@@ -48,29 +48,33 @@ class Session
     private String[] recipients;
     
     private String comment;
+    
+    private long lastActiveMillis;
 
     Session(String sessionID, UserDTO user, String url)
     {
         this.sessionID = sessionID;
         this.user = user;
         this.url = url;
-        uploadStatus = new UploadStatus();
+        this.uploadStatus = new UploadStatus();
+        touchSession();
     }
     
     void reset()
     {
+        touchSession();
         temporaryFiles.clear();
         setFile(null);
         setRandomAccessFile(null);
         uploadStatus.reset();
     }
 
-    final String getSessionID()
+    public String getSessionID()
     {
         return sessionID;
     }
 
-    final UserDTO getUser()
+    public  UserDTO getUser()
     {
         return user;
     }
@@ -138,6 +142,16 @@ class Session
     final void setComment(String comments)
     {
         this.comment = comments;
+    }
+
+    public long getLastActiveMillis()
+    {
+        return lastActiveMillis;
+    }
+    
+    public void touchSession()
+    {
+        lastActiveMillis = System.currentTimeMillis();
     }
 
 }

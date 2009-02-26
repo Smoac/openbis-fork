@@ -37,14 +37,13 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.cifex.rpc.client.Uploader;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IUploadProgressListener;
 import ch.systemsx.cisd.cifex.rpc.server.CIFEXRPCService;
+import ch.systemsx.cisd.cifex.rpc.server.SessionManager;
 import ch.systemsx.cisd.cifex.server.business.IBusinessContext;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
 import ch.systemsx.cisd.cifex.server.business.IFileManager;
 import ch.systemsx.cisd.cifex.server.business.IUserActionLog;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
@@ -104,11 +103,11 @@ public class UploadingIntegrationTest extends AssertJUnit
     private Uploader uploader;
 
     private IUploadProgressListener listener;
-    
+
     private IDomainModel domainModel;
-    
+
     private IBusinessContext businessContext;
-    
+
     private IUserActionLog userActionLog;
 
     private UserDTO user;
@@ -122,7 +121,8 @@ public class UploadingIntegrationTest extends AssertJUnit
         businessContext = context.mock(IBusinessContext.class);
         userActionLog = context.mock(IUserActionLog.class);
         CIFEXRPCService uploadService =
-                new CIFEXRPCService(fileManager, domainModel, null, null, null, "false");
+                new CIFEXRPCService(fileManager, domainModel, null, userActionLog, null,
+                        new SessionManager(null, null, "false", 60000, 10), "false");
         user = new UserDTO();
         user.setUserCode("Isaac");
         String sessionID = uploadService.createSession(user, TEST_URL);
@@ -162,53 +162,6 @@ public class UploadingIntegrationTest extends AssertJUnit
     }
 
     @Test
-    public void testUploadTwice() throws IOException
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    one(listener).finished(true);
-                    one(listener).reset();
-                    exactly(2).of(listener).exceptionOccured(
-                            with(new BaseMatcher<EnvironmentFailureException>()
-                                {
-                                    public void describeTo(Description description)
-                                    {
-                                    }
-
-                                    public boolean matches(Object item)
-                                    {
-                                        if (item instanceof InvalidSessionException)
-                                        {
-                                            InvalidSessionException e =
-                                                    (InvalidSessionException) item;
-                                            return e.getMessage().startsWith(
-                                                    "No session found");
-                                        }
-                                        return false;
-                                    }
-
-                                }));
-                    one(listener).finished(false);
-                    one(listener).reset();
-                }
-            });
-
-        uploader.upload(Arrays.<File> asList(), "Albert\nGalileo", "no comment");
-        try
-        {
-            uploader.upload(Arrays.<File> asList(), "Albert\nGalileo", "no comment");
-            fail("InvalidSessionException expected");
-        } catch (InvalidSessionException e)
-        {
-            assertTrue("Expected message: " + e.getMessage(), e.getMessage().indexOf(
-                    "No session found") == 0);
-        }
-
-        context.assertIsSatisfied();
-    }
-
-    @Test
     public void testSingleSmallFile() throws IOException
     {
         final File fileOnClient = new File(CLIENT_FOLDER, SMALL_FILE);
@@ -220,8 +173,6 @@ public class UploadingIntegrationTest extends AssertJUnit
                     will(returnValue(businessContext));
                     allowing(businessContext).getMaxUploadRequestSizeInMB();
                     will(returnValue((int) (LARGE_FILE_SIZE * 2)));
-                    one(businessContext).getUserActionLog();
-                    will(returnValue(userActionLog));
                     one(userActionLog).logUploadFile(SMALL_FILE, true);
                     one(listener).start(fileOnClient, SMALL_FILE_SIZE * 1024L);
 
@@ -257,8 +208,6 @@ public class UploadingIntegrationTest extends AssertJUnit
                     will(returnValue(businessContext));
                     allowing(businessContext).getMaxUploadRequestSizeInMB();
                     will(returnValue((int) (LARGE_FILE_SIZE * 2)));
-                    one(businessContext).getUserActionLog();
-                    will(returnValue(userActionLog));
                     one(userActionLog).logUploadFile(LARGE_FILE, true);
                     one(listener).start(fileOnClient, LARGE_FILE_SIZE * 1024L);
 
@@ -299,8 +248,6 @@ public class UploadingIntegrationTest extends AssertJUnit
                     will(returnValue(businessContext));
                     allowing(businessContext).getMaxUploadRequestSizeInMB();
                     will(returnValue((int) (LARGE_FILE_SIZE * 2)));
-                    exactly(2).of(businessContext).getUserActionLog();
-                    will(returnValue(userActionLog));
                     one(userActionLog).logUploadFile(SMALL_FILE, true);
                     one(userActionLog).logUploadFile(LARGE_FILE, true);
                     one(listener).start(fileOnClient1, SMALL_FILE_SIZE * 1024L);
@@ -356,8 +303,6 @@ public class UploadingIntegrationTest extends AssertJUnit
                     will(returnValue(businessContext));
                     allowing(businessContext).getMaxUploadRequestSizeInMB();
                     will(returnValue((int) (LARGE_FILE_SIZE * 2)));
-                    one(businessContext).getUserActionLog();
-                    will(returnValue(userActionLog));
                     one(userActionLog).logUploadFile(SMALL_FILE, true);
                     one(listener).start(fileOnClient, SMALL_FILE_SIZE * 1024L);
 
@@ -395,7 +340,8 @@ public class UploadingIntegrationTest extends AssertJUnit
         {
             uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", "no comment");
             fail("UserFailureException expected");
-        } catch (UserFailureException e) {
+        } catch (UserFailureException e)
+        {
             assertEquals("Some user identifiers are invalid: [id:unknown]", e.getMessage());
         }
 
@@ -416,8 +362,6 @@ public class UploadingIntegrationTest extends AssertJUnit
                     will(returnValue(businessContext));
                     allowing(businessContext).getMaxUploadRequestSizeInMB();
                     will(returnValue((int) (SMALL_FILE_SIZE * 2)));
-                    one(businessContext).getUserActionLog();
-                    will(returnValue(userActionLog));
                     one(userActionLog).logUploadFile(SMALL_FILE, true);
                     one(listener).start(fileOnClient, SMALL_FILE_SIZE * 1024L);
 
@@ -462,8 +406,6 @@ public class UploadingIntegrationTest extends AssertJUnit
                     will(returnValue(businessContext));
                     allowing(businessContext).getMaxUploadRequestSizeInMB();
                     will(returnValue((int) (LARGE_FILE_SIZE * 2)));
-                    one(businessContext).getUserActionLog();
-                    will(returnValue(userActionLog));
                     one(userActionLog).logUploadFile(LARGE_FILE, true);
                     one(listener).start(fileOnClient, LARGE_FILE_SIZE * 1024L);
 
@@ -519,8 +461,6 @@ public class UploadingIntegrationTest extends AssertJUnit
                     will(returnValue(businessContext));
                     allowing(businessContext).getMaxUploadRequestSizeInMB();
                     will(returnValue((int) (LARGE_FILE_SIZE * 2)));
-                    exactly(3).of(businessContext).getUserActionLog();
-                    will(returnValue(userActionLog));
                     one(userActionLog).logUploadFile(SMALL_FILE, true);
                     exactly(2).of(userActionLog).logUploadFile(LARGE_FILE, true);
                     one(listener).start(fileOnClient1, SMALL_FILE_SIZE * 1024L);

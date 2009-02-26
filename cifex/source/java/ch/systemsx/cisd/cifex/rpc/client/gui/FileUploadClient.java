@@ -28,6 +28,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -46,6 +48,8 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableColumn;
 
+import org.springframework.remoting.RemoteAccessException;
+
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.cifex.rpc.client.RPCServiceFactory;
 import ch.systemsx.cisd.cifex.rpc.client.Uploader;
@@ -63,6 +67,8 @@ public class FileUploadClient
     private static final String TITLE = "CIFEX Uploader";
 
     private static final String REMOVE_FROM_TABLE_MENU_ITEM = "Remove selected files from table";
+
+    private static final long KEEP_ALIVE_PERIOD_MILLIS = 60 * 1000; // Every minute.
 
     public static void main(String[] args)
             throws ch.systemsx.cisd.cifex.shared.basic.UserFailureException,
@@ -106,6 +112,8 @@ public class FileUploadClient
 
     private final FileDialog fileDialog;
 
+    private final Thread shutdownHook;
+
     private JFrame frame;
 
     private JButton uploadButton;
@@ -120,14 +128,16 @@ public class FileUploadClient
             final int maxUploadSizeInMB, final ITimeProvider timeProvider)
             throws EnvironmentFailureException, InvalidSessionException
     {
-        Runtime.getRuntime().addShutdownHook(new Thread()
+        shutdownHook = new Thread()
             {
                 @Override
                 public void run()
                 {
                     service.logout(sessionId);
                 }
-            });
+            };
+        Runtime.getRuntime().addShutdownHook(shutdownHook);
+        startSessionKeepAliveTimer(service, sessionId, KEEP_ALIVE_PERIOD_MILLIS);
         this.uploader = new Uploader(service, sessionId);
         frame = new JFrame(TITLE);
         frame.addWindowListener(new WindowAdapter()
@@ -148,6 +158,11 @@ public class FileUploadClient
         fileDialog.setModal(true);
         fileDialog.setMode(FileDialog.LOAD);
         fileDialog.setTitle("Select file to upload");
+        addProgressListener();
+    }
+
+    private void addProgressListener()
+    {
         uploader.addProgressListener(new IUploadProgressListener()
             {
                 public void start(File file, long fileSize)
@@ -211,6 +226,34 @@ public class FileUploadClient
                 }
 
             });
+    }
+
+    private void startSessionKeepAliveTimer(final ICIFEXRPCService service, final String sessionId,
+            final long checkTimeIntervalMillis)
+    {
+        final Timer timer = new Timer("Session Keep Alive", true);
+        timer.schedule(new TimerTask()
+            {
+                @Override
+                public void run()
+                {
+                    try
+                    {
+                        service.checkSession(sessionId);
+                    } catch (RemoteAccessException ex)
+                    {
+                        System.err.println("Error connecting to the server");
+                        ex.printStackTrace();
+                    } catch (InvalidSessionException ex)
+                    {
+                        JOptionPane.showMessageDialog(frame,
+                                "Your session has expired on the server. Please log in again",
+                                "Error connecting to server", JOptionPane.ERROR_MESSAGE);
+                        Runtime.getRuntime().removeShutdownHook(shutdownHook);
+                        System.exit(1);
+                    }
+                }
+            }, 0L, checkTimeIntervalMillis);
     }
 
     void show()

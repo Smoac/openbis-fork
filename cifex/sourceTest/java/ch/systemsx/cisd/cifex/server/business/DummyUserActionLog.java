@@ -20,6 +20,7 @@ import java.util.Collection;
 
 import javax.servlet.http.HttpSession;
 
+import ch.systemsx.cisd.cifex.rpc.server.Session;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 
@@ -95,6 +96,14 @@ public class DummyUserActionLog implements IUserActionLog
     }
 
     public void logSwitchToExternalAuthentication(final String userCode, final boolean success)
+    {
+    }
+
+    public void logLogout(Session session, LogoutReason reason)
+    {
+    }
+
+    public void logSuccessfulLogin(Session session)
     {
     }
 }

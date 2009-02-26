@@ -172,7 +172,7 @@ public class File2GBUploadServletTest extends AssertJUnit
                     one(request).getSession(false);
                     will(returnValue(httpSession));
 
-                    one(httpSession).getAttribute(CIFEXServiceImpl.SESSION_NAME);
+                    one(httpSession).getAttribute(CIFEXServiceImpl.SESSION_ATTRIBUTE_USER_NAME);
                     will(returnValue(USER));
 
                     allowing(request).getScheme();

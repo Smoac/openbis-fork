@@ -103,7 +103,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
             throw new InvalidSessionException(
                     "You are not logged in or your session has expired. Please log in.");
         }
-        return (UserDTO) session.getAttribute(SESSION_NAME);
+        return (UserDTO) session.getAttribute(SESSION_ATTRIBUTE_USER_NAME);
     }
 
     private static String describeUser(final UserDTO user)
@@ -140,7 +140,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
     {
         try
         {
-            final UserDTO userDTO = super.tryLoginUser(userCode, plainPassword);
+            final UserDTO userDTO = super.tryLoginUser(userCode, plainPassword, true);
             return BeanUtils.createBean(UserInfoDTO.class, userDTO);
         } catch (ch.systemsx.cisd.common.exceptions.EnvironmentFailureException ex)
         {
@@ -192,11 +192,14 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
 
             copyUserDetailsExceptCode(privGetCurrentUser(), userDTOOrNull); // updating session
 
-            userBehaviorLog.logSwitchToExternalAuthentication(userCode, true);
+            if (userBehaviorLogOrNull != null)
+            {
+                userBehaviorLogOrNull.logSwitchToExternalAuthentication(userCode, true);
+            }
             return BeanUtils.createBean(UserInfoDTO.class, userDTOOrNull);
         } else
         {
-            userBehaviorLog.logSwitchToExternalAuthentication(userCode, false);
+            userBehaviorLogOrNull.logSwitchToExternalAuthentication(userCode, false);
             throw new InsufficientPrivilegesException("Password incorrect.");
         }
 
@@ -207,7 +210,10 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
     {
         if (userDTOOrNull.isExternallyAuthenticated())
         {
-            userBehaviorLog.logSwitchToExternalAuthentication(userCode, false);
+            if (userBehaviorLogOrNull != null)
+            {
+                userBehaviorLogOrNull.logSwitchToExternalAuthentication(userCode, false);
+            }
             throw new EnvironmentFailureException(String.format(
                     "User with code '%s' is already authenticated externally.", userCode));
         }
@@ -218,7 +224,10 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
     {
         if (userDTOOrNull == null)
         {
-            userBehaviorLog.logSwitchToExternalAuthentication(userCode, false);
+            if (userBehaviorLogOrNull != null)
+            {
+                userBehaviorLogOrNull.logSwitchToExternalAuthentication(userCode, false);
+            }
             throw new EnvironmentFailureException(String.format(
                     "User with code '%s' does not exist.", userCode));
         }
@@ -229,7 +238,10 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
     {
         if (hasExternalAuthenticationService() == false)
         {
-            userBehaviorLog.logSwitchToExternalAuthentication(userCode, false);
+            if (userBehaviorLogOrNull != null)
+            {
+                userBehaviorLogOrNull.logSwitchToExternalAuthentication(userCode, false);
+            }
             throw new EnvironmentFailureException("No external authentication service available.");
         }
     }
