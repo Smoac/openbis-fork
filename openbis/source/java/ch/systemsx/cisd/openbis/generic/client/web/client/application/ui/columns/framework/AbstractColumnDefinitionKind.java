@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleDateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimplePersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleYesNoRenderer;
@@ -88,6 +89,11 @@ public abstract class AbstractColumnDefinitionKind<T>
     public String getHeaderMsgKey()
     {
         return headerMsgKey;
+    }
+    
+    protected String renderLink(String cellContent)
+    {
+        return LinkRenderer.renderAsLink(cellContent);
     }
 
     protected String renderRegistrationDate(final AbstractRegistrationHolder entity)

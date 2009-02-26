@@ -32,6 +32,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 public class ExternalData extends CodeWithRegistration<ExternalData> implements
         IInvalidationProvider
 {
+    private String dataStoreBaseURL;
+    
     private ProcedureType procedureType;
 
     private boolean derived;
@@ -222,5 +224,15 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
     public void setSampleProperties(List<SampleProperty> sampleProperties)
     {
         this.sampleProperties = sampleProperties;
+    }
+
+    public final String getDataStoreBaseURL()
+    {
+        return dataStoreBaseURL;
+    }
+
+    public final void setDataStoreBaseURL(String dataStoreBaseURL)
+    {
+        this.dataStoreBaseURL = dataStoreBaseURL;
     }
 }

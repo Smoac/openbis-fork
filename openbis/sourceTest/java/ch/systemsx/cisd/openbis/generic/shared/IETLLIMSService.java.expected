@@ -58,7 +58,7 @@ public interface IETLLIMSService extends IWebService, IDataStoreInfoProvider, IS
             final ExternalData externalData) throws UserFailureException;
             
     @Transactional
-    @RolesAllowed(RoleSet.ETL_SERVER)
+    @RolesAllowed(RoleSet.OBSERVER)
     public ExternalDataPE tryGetDataSet(String sessionToken, String dataSetCode)
             throws UserFailureException;
 

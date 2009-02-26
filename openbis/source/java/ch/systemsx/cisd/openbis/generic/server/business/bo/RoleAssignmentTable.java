@@ -103,7 +103,7 @@ public final class RoleAssignmentTable extends AbstractBusinessObject implements
         }
         roleAssignment.setRegistrator(findRegistrator());
         roleAssignment.setRole(newRoleAssignment.getRole());
-        roleAssignment.setPerson(getPerson(newRoleAssignment.getUserId()));
+        getPerson(newRoleAssignment.getUserId()).addRoleAssignment(roleAssignment);
         roleAssignments.add(roleAssignment);
     }
 

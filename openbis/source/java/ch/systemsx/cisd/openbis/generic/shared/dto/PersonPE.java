@@ -45,6 +45,7 @@ import org.hibernate.validator.Email;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
@@ -59,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstant
 @Table(name = TableNames.PERSONS_TABLE, uniqueConstraints =
     { @UniqueConstraint(columnNames =
         { ColumnNames.USER_COLUMN, ColumnNames.DATABASE_INSTANCE_COLUMN }) })
+@Friend(toClasses=RoleAssignmentPE.class)
 public final class PersonPE extends HibernateAbstractRegistrationHolder implements
         Comparable<PersonPE>, IIdHolder, Serializable
 {

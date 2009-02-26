@@ -97,7 +97,7 @@ public interface IETLLIMSService extends IWebService, IDataStoreInfoProvider, IS
      * Tries to return the data set specified by its code.
      */
     @Transactional
-    @RolesAllowed(RoleSet.ETL_SERVER)
+    @RolesAllowed(RoleSet.OBSERVER)
     public ExternalDataPE tryGetDataSet(String sessionToken, String dataSetCode)
             throws UserFailureException;
 

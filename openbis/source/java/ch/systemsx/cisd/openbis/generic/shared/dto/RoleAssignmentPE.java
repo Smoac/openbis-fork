@@ -39,6 +39,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.annotations.Check;
 import org.hibernate.validator.NotNull;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
@@ -89,19 +90,16 @@ public final class RoleAssignmentPE extends HibernateAbstractRegistrationHolder 
     @NotNull(message = ValidationMessages.PERSON_NOT_NULL_MESSAGE)
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.PERSON_GRANTEE_COLUMN, updatable = false)
-    private final PersonPE getPersonInternal()
+    @Private
+    public final PersonPE getPersonInternal()
     {
         return person;
     }
 
-    final void setPersonInternal(final PersonPE person)
+    @Private
+    public final void setPersonInternal(final PersonPE person)
     {
         this.person = person;
-    }
-
-    public final void setPerson(final PersonPE person)
-    {
-        person.addRoleAssignment(this);
     }
 
     @Transient

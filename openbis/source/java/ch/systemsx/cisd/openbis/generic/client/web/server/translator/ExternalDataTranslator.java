@@ -49,12 +49,14 @@ public class ExternalDataTranslator
     {
     }
 
-    public static List<ExternalData> translate(List<ExternalDataPE> list)
+    public static List<ExternalData> translate(List<ExternalDataPE> list, String dataStoreBaseURL)
     {
         ArrayList<ExternalData> result = new ArrayList<ExternalData>(list.size());
         for (ExternalDataPE externalDataPE : list)
         {
-            result.add(translate(externalDataPE));
+            ExternalData data = translate(externalDataPE);
+            data.setDataStoreBaseURL(dataStoreBaseURL);
+            result.add(data);
         }
         return result;
     }

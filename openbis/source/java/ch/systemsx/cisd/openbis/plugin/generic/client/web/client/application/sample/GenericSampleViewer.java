@@ -23,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
@@ -32,6 +33,8 @@ import com.extjs.gxt.ui.client.data.BaseListLoader;
 import com.extjs.gxt.ui.client.data.ListLoader;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.RpcProxy;
+import com.extjs.gxt.ui.client.event.GridEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
@@ -50,8 +53,10 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExternalDataModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
@@ -59,6 +64,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Propert
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.URLMethodWithParameters;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -140,9 +148,32 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         externalDataGrid.setId(getId() + DATA_POSTFIX);
         externalDataGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         externalDataGrid.setLoadMask(true);
+        externalDataGrid.addListener(Events.CellDoubleClick, new Listener<GridEvent>()
+            {
+                public void handleEvent(GridEvent be)
+                {
+                    String column = externalDataGrid.getColumnModel().getColumn(be.colIndex).getId();
+                    if (ModelDataPropertyNames.CODE.equalsIgnoreCase(column))
+                    {
+                        ExternalDataModel item =
+                            (ExternalDataModel) be.grid.getStore().getAt(be.rowIndex);
+                        ExternalData dataSet = item.getBaseObject();
+                        showDataSet(dataSet);
+                    }
+                }
+            });
         panel.add(externalDataGrid);
         container.add(panel, new RowData(1, 0.5, new Margins(0, 5, 0, 0)));
         return container;
+    }
+
+    private void showDataSet(ExternalData dataSet)
+    {
+        URLMethodWithParameters methodWithParameters =
+            new URLMethodWithParameters(dataSet.getDataStoreBaseURL() + "/" + dataSet.getCode());
+        GenericViewModel model = viewContext.getModel();
+        methodWithParameters.addParameter("sessionID", model.getSessionContext().getSessionID());
+        WindowUtils.openWindow(methodWithParameters.toString());
     }
 
     private final static ContentPanel createContentPanel(final String heading)

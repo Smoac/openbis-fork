@@ -96,10 +96,10 @@ public abstract class AbstractServer<T extends IServer> implements IServer,
             final PersonPE person)
     {
         final RoleAssignmentPE roleAssignmentPE = new RoleAssignmentPE();
-        roleAssignmentPE.setPerson(person);
         roleAssignmentPE.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
         roleAssignmentPE.setRegistrator(registrator);
         roleAssignmentPE.setRole(RoleCode.ADMIN);
+        person.addRoleAssignment(roleAssignmentPE);
         return roleAssignmentPE;
     }
 

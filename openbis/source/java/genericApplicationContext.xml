@@ -80,6 +80,7 @@
     <bean id="common-service" class="ch.systemsx.cisd.openbis.generic.client.web.server.CommonClientService">
         <constructor-arg ref="common-server" />
         <constructor-arg ref="request-context-provider" />
+        <constructor-arg value="${data-store-server-base-url}"/>
     </bean>
     
     <!-- 

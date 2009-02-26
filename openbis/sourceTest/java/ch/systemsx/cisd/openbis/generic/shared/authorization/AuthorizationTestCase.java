@@ -206,14 +206,14 @@ public class AuthorizationTestCase extends AssertJUnit
         // Database assignment
         RoleAssignmentPE assignment = new RoleAssignmentPE();
         assignment.setRole(RoleCode.ADMIN);
-        assignment.setPerson(person);
         assignment.setDatabaseInstance(createDatabaseInstance());
+        person.addRoleAssignment(assignment);
         list.add(assignment);
         // Group assignment
         assignment = new RoleAssignmentPE();
         assignment.setRole(RoleCode.USER);
-        assignment.setPerson(person);
         assignment.setGroup(createAnotherGroup());
+        person.addRoleAssignment(assignment);
         list.add(assignment);
         person.setRoleAssignments(list);
         return person;

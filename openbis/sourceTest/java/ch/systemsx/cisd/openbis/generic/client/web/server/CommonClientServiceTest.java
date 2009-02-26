@@ -59,6 +59,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
  */
 public final class CommonClientServiceTest extends AbstractClientServiceTest
 {
+    private static final String DATA_STORE_BASE_URL = "basURL";
+
     private CommonClientService commonClientService;
 
     private ICommonServer commonServer;
@@ -117,7 +119,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
     {
         super.setUp();
         commonServer = context.mock(ICommonServer.class);
-        commonClientService = new CommonClientService(commonServer, requestContextProvider);
+        commonClientService = new CommonClientService(commonServer, requestContextProvider, DATA_STORE_BASE_URL);
     }
 
     @Test
@@ -318,8 +320,10 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         List<ExternalData> list =
                 commonClientService.listExternalDataForExperiment("db:/group/project/exp");
         assertEquals(1, list.size());
-        assertEquals("PNG", list.get(0).getFileFormatType().getCode());
-        assertEquals("Portable Network Graphics", list.get(0).getFileFormatType().getDescription());
+        ExternalData data = list.get(0);
+        assertEquals(DATA_STORE_BASE_URL, data.getDataStoreBaseURL());
+        assertEquals("PNG", data.getFileFormatType().getCode());
+        assertEquals("Portable Network Graphics", data.getFileFormatType().getDescription());
 
         context.assertIsSatisfied();
     }

@@ -121,7 +121,10 @@ public class ProcedurePE implements IIdHolder, Serializable
 
     public void setExperiment(final ExperimentPE experiment)
     {
-        experiment.addProcedure(this);
+        if (experiment != null)
+        {
+            experiment.addProcedure(this);
+        }
     }
 
     @Transient

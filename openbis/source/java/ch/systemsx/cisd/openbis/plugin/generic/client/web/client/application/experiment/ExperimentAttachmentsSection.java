@@ -34,8 +34,6 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
-import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -47,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.AttachmentModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.AttachmentVersionModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.URLMethodWithParameters;
@@ -273,7 +272,7 @@ public class ExperimentAttachmentsSection extends SectionPanel
                     {
                         return "";
                     }
-                    return createLink((String) value);
+                    return LinkRenderer.renderAsLink((String) value);
                 }
             });
         return column;
@@ -297,7 +296,7 @@ public class ExperimentAttachmentsSection extends SectionPanel
                     {
                         return "";
                     }
-                    return createLink((String) value);
+                    return LinkRenderer.renderAsLink((String) value);
                 }
             });
         return column;
@@ -332,18 +331,10 @@ public class ExperimentAttachmentsSection extends SectionPanel
                     {
                         final String message =
                                 messageProvider.getMessage(Dict.VERSIONS_TEMPLATE, versions.size());
-                        return createLink(message);
+                        return LinkRenderer.renderAsLink(message);
                     }
                 }
             });
         return column;
-    }
-
-    static private String createLink(final String message)
-    {
-        final Element div = DOM.createDiv();
-        div.setInnerText(message);
-        div.setClassName("link-style");
-        return DOM.toString(div);
     }
 }

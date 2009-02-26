@@ -127,10 +127,10 @@ public final class CommonServerTest extends AbstractServerTestCase
         final PersonPE systemPerson = createSystemUser();
         final PersonPE person = CommonTestUtils.createPersonFromPrincipal(PRINCIPAL);
         final RoleAssignmentPE roleAssignment = new RoleAssignmentPE();
-        roleAssignment.setPerson(person);
         roleAssignment.setDatabaseInstance(homeDatabaseInstance);
         roleAssignment.setRegistrator(systemPerson);
         roleAssignment.setRole(RoleCode.ADMIN);
+        person.addRoleAssignment(roleAssignment);
         context.checking(new Expectations()
             {
                 {

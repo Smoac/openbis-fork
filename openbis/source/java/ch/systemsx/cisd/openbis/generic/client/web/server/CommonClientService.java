@@ -108,12 +108,14 @@ public final class CommonClientService extends AbstractClientService implements
         ICommonClientService
 {
     private final ICommonServer commonServer;
+    private final String dataStoreBaseURL;
 
     public CommonClientService(final ICommonServer commonServer,
-            final IRequestContextProvider requestContextProvider)
+            final IRequestContextProvider requestContextProvider, String dataStoreBaseURL)
     {
         super(requestContextProvider);
         this.commonServer = commonServer;
+        this.dataStoreBaseURL = dataStoreBaseURL;
     }
 
     @Override
@@ -631,7 +633,7 @@ public final class CommonClientService extends AbstractClientService implements
             final SampleIdentifier identifier = SampleIdentifierFactory.parse(sampleIdentifier);
             final List<ExternalDataPE> externalData =
                     commonServer.listExternalData(sessionToken, identifier);
-            return ExternalDataTranslator.translate(externalData);
+            return ExternalDataTranslator.translate(externalData, dataStoreBaseURL);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -648,7 +650,7 @@ public final class CommonClientService extends AbstractClientService implements
                     new ExperimentIdentifierFactory(experimentIdentifier).createIdentifier();
             final List<ExternalDataPE> externalData =
                     commonServer.listExternalData(sessionToken, identifier);
-            return ExternalDataTranslator.translate(externalData);
+            return ExternalDataTranslator.translate(externalData, dataStoreBaseURL);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
