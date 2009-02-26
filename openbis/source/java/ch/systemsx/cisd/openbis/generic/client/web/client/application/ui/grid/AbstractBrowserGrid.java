@@ -80,9 +80,41 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo.SortDir;
 /**
  * @author Tomasz Pylak
  */
-public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> extends
+public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityModel<T>> extends
         LayoutContainer
 {
+    private static final class ColumnListener<T, M extends BaseEntityModel<T>> implements
+            Listener<GridEvent>
+    {
+        private final Map<String, ICellClickListener<T>> listeners =
+                new HashMap<String, ICellClickListener<T>>();
+
+        private final Grid<M> grid;
+
+        public ColumnListener(Grid<M> grid, int eventType)
+        {
+            this.grid = grid;
+            grid.addListener(eventType, this);
+        }
+
+        void registerCellClickListener(String columnID, ICellClickListener<T> listener)
+        {
+            listeners.put(columnID.toLowerCase(), listener);
+        }
+
+        @SuppressWarnings("unchecked")
+        public void handleEvent(GridEvent be)
+        {
+            String columnID = grid.getColumnModel().getColumn(be.colIndex).getId().toLowerCase();
+            ICellClickListener<T> listener = listeners.get(columnID);
+            if (listener != null)
+            {
+                ListStore store = be.grid.getStore();
+                listener.handle(((BaseEntityModel<T>) store.getAt(be.rowIndex)).getBaseObject());
+            }
+        }
+    }
+    
     /** Shows the detail view for the specified entity */
     abstract protected void showEntityViewer(M modelData);
 
@@ -135,6 +167,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
 
     private final Grid<M> grid;
 
+    private final ColumnListener<T, M> columnListener;
+    
     // the toolbar has the refresh and export buttons besides the paging controls
     private final BrowserGridPagingToolBar pagingToolbar;
 
@@ -194,9 +228,21 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends ModelData> ex
         contentPanel.add(grid);
         contentPanel.setBottomComponent(bottomToolbars);
         contentPanel.setHeaderVisible(showHeader);
+        columnListener = new ColumnListener<T, M>(grid, Events.CellClick);
 
         setLayout(new FitLayout());
         add(contentPanel);
+    }
+    
+    /**
+     * Registers the specified listener for clicks on cells in the specified column.
+     * 
+     * @param columnID Column ID. Not case sensitive.
+     * @param listener Listener handle single clicks.
+     */
+    public void registerCellClickListenerFor(final String columnID, final ICellClickListener<T> listener)
+    {
+        columnListener.registerCellClickListener(columnID, listener);
     }
 
     private List<PagingColumnFilter<T>> createFilterWidgets()

@@ -34,21 +34,22 @@ public class DataSetSearchHitTranslator
     {
     }
 
-    public static List<DataSetSearchHit> translate(List<DataSetSearchHitDTO> list)
+    public static List<DataSetSearchHit> translate(List<DataSetSearchHitDTO> list,
+            String dataStoreBaseURL)
     {
         ArrayList<DataSetSearchHit> result = new ArrayList<DataSetSearchHit>(list.size());
         for (DataSetSearchHitDTO item : list)
         {
-            result.add(translate(item));
+            result.add(translate(item, dataStoreBaseURL));
         }
         return result;
     }
 
-    public static DataSetSearchHit translate(DataSetSearchHitDTO hit)
+    public static DataSetSearchHit translate(DataSetSearchHitDTO hit, String dataStoreBaseURL)
     {
         DataSetSearchHit result = new DataSetSearchHit();
-        result.setDataSet(ExternalDataTranslator.translate(hit.getDataSet(), true,
-                LoadableFields.PROPERTIES));
+        result.setDataSet(ExternalDataTranslator.translate(hit.getDataSet(), dataStoreBaseURL,
+                true, LoadableFields.PROPERTIES));
         return result;
     }
 

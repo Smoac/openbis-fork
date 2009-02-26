@@ -53,7 +53,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExternalDataModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
@@ -63,10 +62,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnC
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DataSetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.URLMethodWithParameters;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -148,7 +145,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         externalDataGrid.setId(getId() + DATA_POSTFIX);
         externalDataGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         externalDataGrid.setLoadMask(true);
-        externalDataGrid.addListener(Events.CellDoubleClick, new Listener<GridEvent>()
+        externalDataGrid.addListener(Events.CellClick, new Listener<GridEvent>()
             {
                 public void handleEvent(GridEvent be)
                 {
@@ -157,23 +154,13 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
                     {
                         ExternalDataModel item =
                             (ExternalDataModel) be.grid.getStore().getAt(be.rowIndex);
-                        ExternalData dataSet = item.getBaseObject();
-                        showDataSet(dataSet);
+                        DataSetUtils.showDataSet(item.getBaseObject(), viewContext.getModel());
                     }
                 }
             });
         panel.add(externalDataGrid);
         container.add(panel, new RowData(1, 0.5, new Margins(0, 5, 0, 0)));
         return container;
-    }
-
-    private void showDataSet(ExternalData dataSet)
-    {
-        URLMethodWithParameters methodWithParameters =
-            new URLMethodWithParameters(dataSet.getDataStoreBaseURL() + "/" + dataSet.getCode());
-        GenericViewModel model = viewContext.getModel();
-        methodWithParameters.addParameter("sessionID", model.getSessionContext().getSessionID());
-        WindowUtils.openWindow(methodWithParameters.toString());
     }
 
     private final static ContentPanel createContentPanel(final String heading)

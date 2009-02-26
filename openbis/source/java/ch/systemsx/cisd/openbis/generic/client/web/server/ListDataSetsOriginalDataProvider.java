@@ -19,12 +19,14 @@ final class ListDataSetsOriginalDataProvider extends AbstractOriginalDataProvide
 {
 
     private final DataSetSearchCriteria criteria;
+    private final String dataStoreBaseURL;
 
     ListDataSetsOriginalDataProvider(final ICommonServer commonServer, final String sessionToken,
-            final DataSetSearchCriteria criteria)
+            final DataSetSearchCriteria criteria, String dataStoreBaseURL)
     {
         super(commonServer, sessionToken);
         this.criteria = criteria;
+        this.dataStoreBaseURL = dataStoreBaseURL;
     }
 
     //
@@ -38,7 +40,7 @@ final class ListDataSetsOriginalDataProvider extends AbstractOriginalDataProvide
         final List<DataSetSearchHit> list = new ArrayList<DataSetSearchHit>(hits.size());
         for (final DataSetSearchHitDTO hit : hits)
         {
-            list.add(DataSetSearchHitTranslator.translate(hit));
+            list.add(DataSetSearchHitTranslator.translate(hit, dataStoreBaseURL));
         }
         return list;
     }

@@ -490,7 +490,7 @@ public final class CommonClientService extends AbstractClientService implements
     {
         final String sessionToken = getSessionToken();
         return listEntities(resultSetConfig, new ListDataSetsOriginalDataProvider(commonServer,
-                sessionToken, criteria));
+                sessionToken, criteria, dataStoreBaseURL));
     }
 
     public final ResultSet<Experiment> listExperiments(final ListExperimentsCriteria listCriteria)

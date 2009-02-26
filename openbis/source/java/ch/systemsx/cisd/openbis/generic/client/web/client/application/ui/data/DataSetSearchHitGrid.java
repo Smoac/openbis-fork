@@ -28,13 +28,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellClickListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DataSetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetSearchHit;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
  * Grid with data set search results.
@@ -67,11 +69,19 @@ public class DataSetSearchHitGrid extends
 
     private List<PropertyType> availablePropertyTypes;
 
-    private DataSetSearchHitGrid(IViewContext<ICommonClientServiceAsync> viewContext)
+    private DataSetSearchHitGrid(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, GRID_ID, false, true);
         setId(BROWSER_ID);
         updateDefaultRefreshButton();
+        registerCellClickListenerFor(DataSetSearchHitColDefKind.CODE.id(),
+                new ICellClickListener<DataSetSearchHit>()
+                    {
+                        public void handle(DataSetSearchHit rowItem)
+                        {
+                            DataSetUtils.showDataSet(rowItem.getDataSet(), viewContext.getModel());
+                        }
+                    });
     }
 
     @Override

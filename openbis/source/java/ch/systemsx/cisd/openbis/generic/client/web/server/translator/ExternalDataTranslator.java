@@ -54,24 +54,24 @@ public class ExternalDataTranslator
         ArrayList<ExternalData> result = new ArrayList<ExternalData>(list.size());
         for (ExternalDataPE externalDataPE : list)
         {
-            ExternalData data = translate(externalDataPE);
-            data.setDataStoreBaseURL(dataStoreBaseURL);
+            ExternalData data = translate(externalDataPE, dataStoreBaseURL);
             result.add(data);
         }
         return result;
     }
 
-    public static ExternalData translate(ExternalDataPE externalDataPE,
+    public static ExternalData translate(ExternalDataPE externalDataPE, String dataStoreBaseURL,
             final LoadableFields... withExperimentFields)
     {
-        return translate(externalDataPE, false, withExperimentFields);
+        return translate(externalDataPE, dataStoreBaseURL, false, withExperimentFields);
     }
 
-    public static ExternalData translate(ExternalDataPE externalDataPE,
+    public static ExternalData translate(ExternalDataPE externalDataPE, String dataStoreBaseURL,
             boolean loadSampleProperties, final LoadableFields... withExperimentFields)
     {
         SamplePE sample = tryToGetSample(externalDataPE);
         ExternalData externalData = new ExternalData();
+        externalData.setDataStoreBaseURL(dataStoreBaseURL);
         externalData.setCode(externalDataPE.getCode());
         externalData.setComplete(BooleanOrUnknown.tryToResolve(externalDataPE.getComplete()));
         externalData.setDataProducerCode(externalDataPE.getDataProducerCode());

@@ -44,10 +44,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
  */
 public class ExternalDataTranslatorTest extends AssertJUnit
 {
+    private static final String BASE_URL = "url";
+
     @Test
     public void testTranslationOfEmptyExternalDataPE()
     {
-        ExternalData externalData = ExternalDataTranslator.translate(new ExternalDataPE());
+        ExternalData externalData = ExternalDataTranslator.translate(new ExternalDataPE(), BASE_URL);
         
         assertEquals(null, externalData.getCode());
         assertEquals(null, externalData.getParentCode());
@@ -104,8 +106,9 @@ public class ExternalDataTranslatorTest extends AssertJUnit
         samplePE.setInvalidation(invalidationPE);
         externalDataPE.setSampleAcquiredFrom(samplePE);
         
-        ExternalData externalData = ExternalDataTranslator.translate(externalDataPE);
+        ExternalData externalData = ExternalDataTranslator.translate(externalDataPE, BASE_URL);
         
+        assertEquals(BASE_URL, externalData.getDataStoreBaseURL());
         assertEquals("code", externalData.getCode());
         assertEquals(Boolean.FALSE, externalData.getComplete());
         assertEquals("dataProducerCode", externalData.getDataProducerCode());
@@ -142,7 +145,7 @@ public class ExternalDataTranslatorTest extends AssertJUnit
         samplePE.setSampleType(sampleTypePE);
         externalDataPE.setSampleDerivedFrom(samplePE);
         
-        ExternalData externalData = ExternalDataTranslator.translate(externalDataPE);
+        ExternalData externalData = ExternalDataTranslator.translate(externalDataPE, BASE_URL);
         
         assertEquals("sample", externalData.getSampleIdentifier());
         assertEquals("sampleTypeCode", externalData.getSampleType().getCode());
