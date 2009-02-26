@@ -143,7 +143,7 @@ case "$command" in
       exit 100
     fi
 
-    echo -n "Starting ETL Server "
+    echo -n "Starting Data Store Server "
     rotateLogFiles $LOGFILE $MAXLOGS
     shift 1
     ${JAVA_BIN} ${ALL_JAVA_OPTS} -jar $JAR_FILE "$@" > $STARTUPLOG 2>&1 & echo $! > $PIDFILE
@@ -192,7 +192,7 @@ case "$command" in
     fi
 		;;
   stop)
-   	echo -n "Stopping ETL Server "
+   	echo -n "Stopping Data Store Server "
     if [ -f $PIDFILE ]; then
       PID=`cat $PIDFILE 2> /dev/null`
       isPIDRunning $PID
