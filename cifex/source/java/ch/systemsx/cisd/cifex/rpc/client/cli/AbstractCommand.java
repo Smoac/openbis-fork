@@ -65,6 +65,11 @@ abstract class AbstractCommand implements ICommand
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
             }
         }
+        if (configuredBaseURL == null
+                && System.getProperty(Constants.CIFEX_BASE_URL_PROP_KEY) != null)
+        {
+            configuredBaseURL = System.getProperty(Constants.CIFEX_BASE_URL_PROP_KEY);
+        }
     }
 
     static File getBaseURLFile()
