@@ -28,21 +28,11 @@
 			<arg value="-lib"/>
 			<arg value="../build_resources/lib/ecj.jar"/>
 			<arg value="-f"/>
-			<arg value="../etlserver/build/build.xml"/>
+			<arg value="../datastore_server/build/build.xml"/>
 			<arg value="dist"/>
 		</exec>
 		<copy todir="${result.dir}">
-			<fileset dir="../etlserver/${dist}"/>
-		</copy>
-		<exec executable="ant" failonerror="true">
-			<arg value="-lib"/>
-			<arg value="../build_resources/lib/ecj.jar"/>
-			<arg value="-f"/>
-			<arg value="../dataset_download/build/build.xml"/>
-			<arg value="dist"/>
-		</exec>
-		<copy todir="${result.dir}">
-			<fileset dir="../dataset_download/${dist}"/>
+			<fileset dir="../datastore_server/${dist}"/>
 		</copy>
 	</target>
 
@@ -66,14 +56,7 @@
 			<arg value="-lib"/>
 			<arg value="../build_resources/lib/ecj.jar"/>
 			<arg value="-f"/>
-			<arg value="../etlserver/build/build.xml"/>
-			<arg value="clean"/>
-		</exec>
-		<exec executable="ant" failonerror="true">
-			<arg value="-lib"/>
-			<arg value="../build_resources/lib/ecj.jar"/>
-			<arg value="-f"/>
-			<arg value="../dataset_download/build/build.xml"/>
+			<arg value="../datastore_server/build/build.xml"/>
 			<arg value="clean"/>
 		</exec>
 	</target>

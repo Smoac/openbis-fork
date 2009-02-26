@@ -5,7 +5,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/authentication"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/bds"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/dataset_download"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/dbmigration"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/lims"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/lims_base"/>
