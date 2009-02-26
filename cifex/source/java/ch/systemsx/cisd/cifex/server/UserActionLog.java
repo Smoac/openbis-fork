@@ -89,8 +89,16 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
             return sessionOrNull.getUser().getUserCode();
         } else
         {
-            return ((UserDTO) httpSession
-                    .getAttribute(CIFEXServiceImpl.SESSION_ATTRIBUTE_USER_NAME)).getUserCode();
+            final UserDTO userDTOOrNull =
+                    (UserDTO) httpSession
+                            .getAttribute(CIFEXServiceImpl.SESSION_ATTRIBUTE_USER_NAME);
+            if (userDTOOrNull != null)
+            {
+                return userDTOOrNull.getUserCode();
+            } else
+            {
+                return "-";
+            }
         }
     }
 
@@ -447,8 +455,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
             final String userName = (userOrNull == null) ? "UNKNOWN" : userOrNull.getUserCode();
             final String id = session.getSessionID();
             final String logoutMsg =
-                    String.format(USER_SESSION_RPC_TEMPLATE, userName, id, reason
-                            .getLogText());
+                    String.format(USER_SESSION_RPC_TEMPLATE, userName, id, reason.getLogText());
             authenticationLog.info(logoutMsg);
         }
     }

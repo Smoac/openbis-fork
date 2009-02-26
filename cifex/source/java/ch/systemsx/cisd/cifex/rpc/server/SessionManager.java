@@ -25,11 +25,11 @@ import java.util.TimerTask;
 import javax.servlet.http.HttpSession;
 
 import ch.systemsx.cisd.cifex.server.business.IUserActionLog;
-import ch.systemsx.cisd.cifex.server.business.IUserActionLog.LogoutReason;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
+import ch.systemsx.cisd.common.servlet.IActionLog.LogoutReason;
 import ch.systemsx.cisd.common.utilities.TokenGenerator;
 
 /**

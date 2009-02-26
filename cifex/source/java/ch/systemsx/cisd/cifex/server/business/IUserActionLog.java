@@ -32,25 +32,6 @@ public interface IUserActionLog extends IActionLog
 {
     public static final String USER_ACTION_LOG_BEAN_NAME = "user-action-log";
 
-    public enum LogoutReason
-    {
-        SESSION_LOGOUT(""), SESSION_TIMEOUT(" (session timed out)"), USER_DELETED(
-                " (user was removed)");
-
-        private final String logText;
-
-        LogoutReason(String logText)
-        {
-            this.logText = logText;
-        }
-
-        public String getLogText()
-        {
-            return logText;
-        }
-
-    }
-
     //
     // Sessions
     //
