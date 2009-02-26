@@ -244,16 +244,6 @@
     </modificationset>
   </project>
   
-  <project name="dataset_download">
-    <modificationset quietperiod="${quiet-period}">
-      <buildstatus logdir="logs/build_resources"/>
-      <buildstatus logdir="logs/libraries"/>
-      <buildstatus logdir="logs/common"/>
-      <buildstatus logdir="logs/openbis"/>
-      <svn localWorkingCopy="${project.trunk}"/>
-    </modificationset>
-  </project>
-  
   <project name="lims">
     <modificationset quietperiod="${quiet-period}">
       <buildstatus logdir="logs/build_resources"/>
@@ -262,7 +252,6 @@
       <buildstatus logdir="logs/authentication"/>
       <buildstatus logdir="logs/dbmigration"/>
       <buildstatus logdir="logs/server-common"/>
-      <buildstatus logdir="logs/dataset_download"/>
       <buildstatus logdir="logs/lims_base"/>
       <buildstatus logdir="logs/openbis"/>
       <svn localWorkingCopy="${project.trunk}"/>
