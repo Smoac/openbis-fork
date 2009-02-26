@@ -1,7 +1,8 @@
 #! /bin/bash
 
 usage() {
-	echo "Usage: $0 [--port <port number>] <server folder> [<service properties file> <log configuration file>]"
+	echo "Usage: $0 [--port <port number>] <server folder>"
+	echo "Note that service.properties, log.xml and keystore are picked up from this directory if they exist."
 	exit 1
 }
 
@@ -37,32 +38,6 @@ fi
 
 properties_file="$installation_folder/service.properties"
 logconf_file="$installation_folder/log.xml"
-if [ $# -gt 1 ]; then
-	if [ $# -lt 3 ]; then
-		usage
-	fi
-	properties_file="$2"
-	# Specify properties file path as absolute
-	if [ "${properties_file#/}" == "${properties_file}" ]; then
-		properties_file="`pwd`/${properties_file}"
-	fi
-	logconf_file="$3"
-	# Specify log configuration file path as absolute
-	if [ "logconf_file#/}" == "logconf_file}" ]; then
-		logconf_file="`pwd`/logconf_file}"
-	fi
-fi
-# Check whether given properties file exists and is a regular file.
-if [ ! -f $properties_file ]; then
-	echo Given properties file \'$properties_file\' does not exist!
-	exit 1
-fi
-
-# Check whether given log configuration file exists and is a regular file.
-if [ ! -f $logconf_file ]; then
-	echo Given log configuration file \'$logconf_file\' does not exist!
-	exit 1
-fi
 
 rel_jetty_folder="jetty-`cat $installation_folder/jetty-version.txt`"
 jetty_folder="${server_folder}/${rel_jetty_folder}"
@@ -81,14 +56,15 @@ fi
 echo Unzipping Jetty...
 # Files are unzipped in $rel_jetty_folder
 unzip -q "$installation_folder/jetty.zip" -d "$server_folder"
-cp -p "$installation_folder"/jetty.xml "$jetty_folder"/etc
+test -f "$installation_folder"/jetty.xml && cp -p "$installation_folder"/jetty.xml "$jetty_folder"/etc
+test -f "$installation_folder"/keystore && cp -p "$installation_folder"/keystore "$jetty_folder"/etc
 
 echo Preparing and installing web archive...
 war_classes=WEB-INF/classes
 mkdir -p "$war_classes"/etc
 # Replace 'service.properties' and 'log.xml' files in war
-cp -p "$properties_file" "$war_classes/service.properties"
-cp -p "$logconf_file" "$war_classes/etc/log.xml"
+test -f $properties_file && cp -p "$properties_file" "$war_classes/service.properties"
+test -f $properties_file && cp -p "$logconf_file" "$war_classes/etc/log.xml"
 zip -u "$installation_folder"/cifex.war "$war_classes"/service.properties "$war_classes"/etc/log.xml
 cp -p "$installation_folder"/cifex.war "$jetty_folder"/webapps
 rm -rf WEB-INF
@@ -96,6 +72,11 @@ rm -rf WEB-INF
 # Create symlinks for easier access.
 cd "$server_folder"
 ln -s "${rel_jetty_folder}" jetty
+cd jetty/etc
+ln -s ../work/webapp/WEB-INF/classes/service.properties .
+ln -s ../work/webapp/WEB-INF/classes/etc/log.xml .
+ln -s ../bin/jetty.properties .
+cd ../..
 
 JETTY_BIN_DIR="$jetty_folder"/bin
 cp -p "$installation_folder"/startup.sh "$JETTY_BIN_DIR"
