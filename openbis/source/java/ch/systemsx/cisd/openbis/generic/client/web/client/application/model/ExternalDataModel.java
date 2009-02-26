@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.CommonExternalDataColDefKind;
@@ -42,6 +43,8 @@ public final class ExternalDataModel extends BaseEntityModel<ExternalData>
     public ExternalDataModel(final ExternalData externalData)
     {
         super(externalData, CommonExternalDataColDefKind.values());
+        String columnID = CommonExternalDataColDefKind.CODE.id();
+        set(columnID, LinkRenderer.renderAsLink(String.valueOf(get(columnID))));
     }
 
     /**
