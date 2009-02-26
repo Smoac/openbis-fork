@@ -44,7 +44,7 @@ public class RecursiveProjectTraverser
                 if (entry.isSubprojectEntry() && visitedEntries.contains(entry) == false)
                 {
                     visitedEntries.add(entry);
-                    traverse(projectHandler.createHandler(entry));
+                    traverse(projectHandler.createHandler(entry), visitedEntries);
                 }
             }
         }
