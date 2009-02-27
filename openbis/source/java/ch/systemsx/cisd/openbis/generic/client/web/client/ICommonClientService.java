@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureE
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -212,6 +213,36 @@ public interface ICommonClientService extends IClientService
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for Vocabularies.
      */
     public String prepareExportVocabularies(final TableExportCriteria<Vocabulary> criteria)
+            throws UserFailureException;
+
+    public ResultSet<? extends EntityType> listMaterialTypes(
+            DefaultResultSetConfig<String, MaterialType> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+
+    /**
+     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for MaterialType.
+     */
+    public String prepareExportMaterialTypes(final TableExportCriteria<MaterialType> criteria)
+            throws UserFailureException;
+
+    public ResultSet<? extends EntityType> listSampleTypes(
+            DefaultResultSetConfig<String, SampleType> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+
+    /**
+     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for SampleType.
+     */
+    public String prepareExportSampleTypes(final TableExportCriteria<SampleType> criteria)
+            throws UserFailureException;
+
+    public ResultSet<? extends EntityType> listExperimentTypes(
+            DefaultResultSetConfig<String, ExperimentType> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+
+    /**
+     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for ExperimentType.
+     */
+    public String prepareExportExperimentTypes(final TableExportCriteria<ExperimentType> criteria)
             throws UserFailureException;
 
     /**

@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -170,6 +171,33 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
 
     /** @see ICommonClientService#prepareExportVocabularies(TableExportCriteria) */
     public void prepareExportVocabularies(TableExportCriteria<Vocabulary> exportCriteria,
+            AsyncCallback<String> callback);
+
+    /** @see ICommonClientService#listMaterialTypes(DefaultResultSetConfig) */
+    public void listMaterialTypes(DefaultResultSetConfig<String, EntityType> criteria,
+            final AsyncCallback<ResultSet<EntityType>> asyncCallback)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+
+    /** @see ICommonClientService#prepareExportMaterialTypes(TableExportCriteria) */
+    public void prepareExportMaterialTypes(final TableExportCriteria<EntityType> criteria,
+            AsyncCallback<String> callback);
+
+    /** @see ICommonClientService#listSampleTypes(DefaultResultSetConfig) */
+    public void listSampleTypes(DefaultResultSetConfig<String, EntityType> criteria,
+            final AsyncCallback<ResultSet<EntityType>> asyncCallback)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+
+    /** @see ICommonClientService#prepareExportSampleTypes(TableExportCriteria) */
+    public void prepareExportSampleTypes(final TableExportCriteria<EntityType> criteria,
+            AsyncCallback<String> callback);
+
+    /** @see ICommonClientService#listExperimentTypes(DefaultResultSetConfig) */
+    public void listExperimentTypes(DefaultResultSetConfig<String, EntityType> criteria,
+            final AsyncCallback<ResultSet<EntityType>> asyncCallback)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+
+    /** @see ICommonClientService#prepareExportExperimentTypes(TableExportCriteria) */
+    public void prepareExportExperimentTypes(final TableExportCriteria<EntityType> criteria,
             AsyncCallback<String> callback);
 
     /**

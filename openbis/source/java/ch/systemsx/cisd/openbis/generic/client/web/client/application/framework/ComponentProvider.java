@@ -26,9 +26,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.RolesView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchHitGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentRegistrationPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialBatchRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project.ProjectGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project.ProjectRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeAssignmentForm;
@@ -38,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.propert
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBatchRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleRegistrationPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -418,6 +421,58 @@ final class ComponentProvider
                 public String getId()
                 {
                     return DataSetSearchHitGrid.BROWSER_ID;
+                }
+            };
+    }
+
+    public ITabItemFactory getSampleTypeBrowser()
+    {
+        return new ITabItemFactory()
+            {
+                public ITabItem create()
+                {
+                    DisposableComponent component = SampleTypeGrid.create(viewContext);
+                    return DefaultTabItem.create(getMessage(Dict.SAMPLE_TYPES), component, false);
+                }
+
+                public String getId()
+                {
+                    return SampleTypeGrid.BROWSER_ID;
+                }
+            };
+    }
+
+    public ITabItemFactory getMaterialTypeBrowser()
+    {
+        return new ITabItemFactory()
+            {
+                public ITabItem create()
+                {
+                    DisposableComponent component = MaterialTypeGrid.create(viewContext);
+                    return DefaultTabItem.create(getMessage(Dict.MATERIAL_TYPES), component, false);
+                }
+
+                public String getId()
+                {
+                    return MaterialTypeGrid.BROWSER_ID;
+                }
+            };
+    }
+
+    public ITabItemFactory getExperimentTypeBrowser()
+    {
+        return new ITabItemFactory()
+            {
+                public ITabItem create()
+                {
+                    DisposableComponent component = ExperimentTypeGrid.create(viewContext);
+                    return DefaultTabItem.create(getMessage(Dict.EXPERIMENT_TYPES), component,
+                            false);
+                }
+
+                public String getId()
+                {
+                    return ExperimentTypeGrid.BROWSER_ID;
                 }
             };
     }

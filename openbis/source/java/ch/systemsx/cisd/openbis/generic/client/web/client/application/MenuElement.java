@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder.MENU_ELEMENTS;
 
 /**
  * Element of the {@link MenuCategory}.
@@ -31,10 +32,10 @@ public final class MenuElement
 
     private final String partOfId;
 
-    public MenuElement(final String partOfId, final String title,
+    public MenuElement(final MENU_ELEMENTS partOfId, final String title,
             final ITabItemFactory tabItemFactory)
     {
-        this.partOfId = partOfId;
+        this.partOfId = partOfId.name();
         this.title = title;
         this.tabItemFactory = tabItemFactory;
     }

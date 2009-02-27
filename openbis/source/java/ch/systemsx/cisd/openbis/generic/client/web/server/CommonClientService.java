@@ -67,6 +67,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
@@ -476,6 +477,24 @@ public final class CommonClientService extends AbstractClientService implements
         return prepareExportEntities(criteria);
     }
 
+    public String prepareExportMaterialTypes(final TableExportCriteria<MaterialType> criteria)
+            throws UserFailureException
+    {
+        return prepareExportEntities(criteria);
+    }
+
+    public String prepareExportExperimentTypes(final TableExportCriteria<ExperimentType> criteria)
+            throws UserFailureException
+    {
+        return prepareExportEntities(criteria);
+    }
+
+    public String prepareExportSampleTypes(final TableExportCriteria<SampleType> criteria)
+            throws UserFailureException
+    {
+        return prepareExportEntities(criteria);
+    }
+
     // ---------------- methods which list entities using cache
 
     public final ResultSet<Sample> listSamples(final ListSampleCriteria listCriteria)
@@ -622,6 +641,45 @@ public final class CommonClientService extends AbstractClientService implements
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
+    }
+
+    public ResultSet<? extends EntityType> listMaterialTypes(
+            DefaultResultSetConfig<String, MaterialType> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return listEntities(criteria, new IOriginalDataProvider<MaterialType>()
+            {
+                public List<MaterialType> getOriginalData() throws UserFailureException
+                {
+                    return listMaterialTypes();
+                }
+            });
+    }
+
+    public ResultSet<? extends EntityType> listSampleTypes(
+            DefaultResultSetConfig<String, SampleType> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return listEntities(criteria, new IOriginalDataProvider<SampleType>()
+            {
+                public List<SampleType> getOriginalData() throws UserFailureException
+                {
+                    return listSampleTypes();
+                }
+            });
+    }
+
+    public ResultSet<? extends EntityType> listExperimentTypes(
+            DefaultResultSetConfig<String, ExperimentType> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return listEntities(criteria, new IOriginalDataProvider<ExperimentType>()
+            {
+                public List<ExperimentType> getOriginalData() throws UserFailureException
+                {
+                    return listExperimentTypes();
+                }
+            });
     }
 
     // ---------------- end list using cache ----------

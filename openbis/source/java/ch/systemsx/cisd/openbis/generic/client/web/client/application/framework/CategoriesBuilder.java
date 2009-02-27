@@ -35,51 +35,18 @@ public class CategoriesBuilder
 
     private static final String LABEL_BROWSE = "Browse";
 
-    public static class CATEGORIES
+    private static final String BROWSE_TYPES_LABEL = "Browse Types";
+
+    public static enum CATEGORIES
     {
-        public static final String VOCABULARIES = "VOCABULARIES";
-
-        public static final String MATERIALS = "MATERIALS";
-
-        public static final String EXPERIMENTS = "EXPERIMENTS";
-
-        public static final String PERSONS = "PERSONS";
-
-        public static final String PROJECTS = "PROJECTS";
-
-        public static final String GROUPS = "GROUPS";
-
-        public static final String ROLES = "ROLES";
-
-        public static final String SAMPLES = "SAMPLES";
-
-        public static final String DATA_SETS = "DATA_SETS";
-
-        public static final String PROPERTY_TYPES = "PROPERTY_TYPES";
+        VOCABULARIES, MATERIALS, EXPERIMENTS, PERSONS, PROJECTS, GROUPS, ROLES, SAMPLES, DATA_SETS,
+        PROPERTY_TYPES;
     }
 
-    public static class MENU_ELEMENTS
+    public static enum MENU_ELEMENTS
     {
-
-        public static final String ADD_ROLE = "ADD_ROLE";
-
-        public static final String ASSIGN = "ASSIGN";
-
-        public static final String ASSIGN_STPT = "ASSIGN_STPT";
-
-        public static final String ASSIGN_ETPT = "ASSIGN_ETPT";
-
-        public static final String REGISTER = "REGISTER";
-
-        public static final String IMPORT = "REGISTER_FROM_FILE";
-
-        public static final String BROWSE = "LIST";
-
-        public static final String MANAGE = "MANAGE";
-
-        public static final String LIST_ASSIGNMENTS = "LIST_ASSIGNMENTS";
-
-        public static final String SEARCH = "SEARCH";
+        ADD_ROLE, ASSIGN, ASSIGN_STPT, ASSIGN_ETPT, REGISTER, IMPORT, BROWSE, BROWSE_TYPES, MANAGE,
+        LIST_ASSIGNMENTS, SEARCH;
     }
 
     public final ComponentProvider provider;
@@ -116,6 +83,8 @@ public class CategoriesBuilder
                 .getSampleRegistration()));
         elements.add(new MenuElement(MENU_ELEMENTS.IMPORT, IMPORT_LABEL, provider
                 .getSampleBatchRegistration()));
+        elements.add(new MenuElement(MENU_ELEMENTS.BROWSE_TYPES, BROWSE_TYPES_LABEL, provider
+                .getSampleTypeBrowser()));
         return new MenuCategory(CATEGORIES.SAMPLES, "Samples", elements);
     }
 
@@ -191,6 +160,8 @@ public class CategoriesBuilder
                 .getMaterialBrowser()));
         elements.add(new MenuElement(MENU_ELEMENTS.IMPORT, IMPORT_LABEL, provider
                 .getMaterialBatchRegistration()));
+        elements.add(new MenuElement(MENU_ELEMENTS.BROWSE_TYPES, BROWSE_TYPES_LABEL, provider
+                .getMaterialTypeBrowser()));
         return new MenuCategory(CATEGORIES.MATERIALS, "Materials", elements);
     }
 
@@ -201,6 +172,8 @@ public class CategoriesBuilder
                 .getExperimentBrowser()));
         elements.add(new MenuElement(MENU_ELEMENTS.REGISTER, LABEL_REGISTER, provider
                 .getExperimentRegistration()));
+        elements.add(new MenuElement(MENU_ELEMENTS.BROWSE_TYPES, BROWSE_TYPES_LABEL, provider
+                .getExperimentTypeBrowser()));
         return new MenuCategory(CATEGORIES.EXPERIMENTS, "Experiments", elements);
     }
 
