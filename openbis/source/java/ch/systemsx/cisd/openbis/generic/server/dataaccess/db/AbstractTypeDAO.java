@@ -35,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 /**
  * An abstract extension of <code>HibernateAbstractDAO</code> suitable for tables that contains
  * <i>type</i> information. <br>
- * Note: this class has been copied from old lims project.
  * 
  * @author Izabela Adamczyk
  */
