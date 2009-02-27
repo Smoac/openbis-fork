@@ -102,6 +102,12 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         return businessObjectFactory;
     }
 
+    // Call this when session object is not needed but you want just to refresh/check the session.
+    private void checkSession(final String sessionToken)
+    {
+        getSessionManager().getSession(sessionToken);
+    }
+
     //
     // AbstractServer
     //
@@ -180,8 +186,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public final List<RoleAssignmentPE> listRoles(final String sessionToken)
     {
-        // Not needed but just to refresh/check the session.
-        getSessionManager().getSession(sessionToken);
+        checkSession(sessionToken);
         return getDAOFactory().getRoleAssignmentDAO().listRoleAssignments();
     }
 
@@ -277,8 +282,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public final List<PersonPE> listPersons(final String sessionToken)
     {
-        // Not needed but just to refresh/check the session.
-        getSessionManager().getSession(sessionToken);
+        checkSession(sessionToken);
         final List<PersonPE> persons = getDAOFactory().getPersonDAO().listPersons();
         Collections.sort(persons);
         return persons;
@@ -286,8 +290,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public final List<ProjectPE> listProjects(final String sessionToken)
     {
-        // Not needed but just to refresh/check the session.
-        getSessionManager().getSession(sessionToken);
+        checkSession(sessionToken);
         final List<ProjectPE> projects = getDAOFactory().getProjectDAO().listProjects();
         Collections.sort(projects);
         return projects;
@@ -295,8 +298,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public final List<SampleTypePE> listSampleTypes(final String sessionToken)
     {
-        // Not needed but just to refresh/check the session.
-        getSessionManager().getSession(sessionToken);
+        checkSession(sessionToken);
         final List<SampleTypePE> sampleTypes = getDAOFactory().getSampleTypeDAO().listSampleTypes();
         Collections.sort(sampleTypes);
         return sampleTypes;
@@ -358,8 +360,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public final List<SearchHit> listMatchingEntities(final String sessionToken,
             final SearchableEntity[] searchableEntities, final String queryText)
     {
-        // Not needed but just to refresh/check the session.
-        getSessionManager().getSession(sessionToken);
+        checkSession(sessionToken);
         final List<SearchHit> list = new ArrayList<SearchHit>();
         try
         {
@@ -392,8 +393,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public final List<ExperimentTypePE> listExperimentTypes(final String sessionToken)
     {
-        // Not needed but just to refresh/check the session.
-        getSessionManager().getSession(sessionToken);
+        checkSession(sessionToken);
         final List<ExperimentTypePE> experimentTypes =
                 getDAOFactory().getEntityTypeDAO(EntityKind.EXPERIMENT).listEntityTypes();
         Collections.sort(experimentTypes);
@@ -403,8 +403,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public final List<DataTypePE> listDataTypes(final String sessionToken)
     {
         assert sessionToken != null : "Unspecified session token";
-        // Not needed but just to refresh/check the session.
-        getSessionManager().getSession(sessionToken);
+        checkSession(sessionToken);
         final List<DataTypePE> dataTypes = getDAOFactory().getPropertyTypeDAO().listDataTypes();
         Collections.sort(dataTypes);
         return dataTypes;
@@ -414,8 +413,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             final boolean withTerms, boolean excludeInternal)
     {
         assert sessionToken != null : "Unspecified session token";
-        // Not needed but just to refresh/check the session.
-        getSessionManager().getSession(sessionToken);
+        checkSession(sessionToken);
         final List<VocabularyPE> vocabularies =
                 getDAOFactory().getVocabularyDAO().listVocabularies(excludeInternal);
         if (withTerms)
@@ -481,8 +479,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public List<DataSetSearchHitDTO> searchForDataSets(String sessionToken,
             DataSetSearchCriteria criteria)
     {
-        // Not needed but just to refresh/check the session.
-        getSessionManager().getSession(sessionToken);
+        checkSession(sessionToken);
         try
         {
             IHibernateSearchDAO searchDAO = getDAOFactory().getHibernateSearchDAO();
@@ -495,8 +492,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public List<MaterialTypePE> listMaterialTypes(String sessionToken)
     {
-        // Not needed but just to refresh/check the session.
-        getSessionManager().getSession(sessionToken);
+        checkSession(sessionToken);
         final List<MaterialTypePE> types =
                 getDAOFactory().getEntityTypeDAO(EntityKind.MATERIAL).listEntityTypes();
         Collections.sort(types);
