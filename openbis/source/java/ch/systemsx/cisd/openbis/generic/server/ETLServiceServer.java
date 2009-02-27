@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
  */
 @Controller
 @RequestMapping(
-    { "/rmi-etl", "/genericopenbis/rmi-etl" })
+    { "/rmi-etl", "/openbis/rmi-etl" })
 public class ETLServiceServer extends HttpInvokerServiceExporter
 {
     @Resource(name = ResourceNames.ETL_SERVICE)

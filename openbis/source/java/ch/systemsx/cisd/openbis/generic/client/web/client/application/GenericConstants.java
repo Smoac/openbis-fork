@@ -40,7 +40,7 @@ public final class GenericConstants
      */
     public static final String ID_PREFIX = "openbis_";
 
-    private static final String APPLICATION_NAME = "genericopenbis";
+    private static final String APPLICATION_NAME = "openbis";
 
     public static final String COMMON_SERVER_NAME = createServicePath("common");
 

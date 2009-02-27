@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
  */
 @Controller
 @RequestMapping(
-    { "/common", "/genericopenbis/common" })
+    { "/common", "/openbis/common" })
 public final class CommonClientServiceServlet extends GWTRPCServiceExporter
 {
     private static final long serialVersionUID = 1L;

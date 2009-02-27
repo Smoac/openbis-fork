@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
  */
 @Controller
 @RequestMapping(
-    { "/export-file-downloader", "/genericopenbis/export-file-downloader" })
+    { "/export-file-downloader", "/openbis/export-file-downloader" })
 public class FileExportServiceServlet extends AbstractFileDownloadServlet
 {
     @Resource(name = ResourceNames.COMMON_SERVICE)

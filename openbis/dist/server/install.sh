@@ -1,123 +1,95 @@
 #! /bin/bash
-APPLICATION_NAME=genericopenbis
 
-usage() {
-	echo "Usage: $0 [--port <port number>] <server folder> [<service properties file> <log configuration file>]"
-	exit 1
-}
-
-# Checks whether the number of arguments is smaller than one.
-# We at least need the server folder.
-check_arguments() {
-	if [ $# -lt 1 ]; then
-		usage
-	fi
-}
-
-check_arguments $@
-JETTY_PORT=8443
-if [ $1 == "--port" ]; then
-	shift
-	check_arguments $@
-	JETTY_PORT=$1
+nostartup=0
+if [[ "$1" = '-n' || "$1" = '--nostartup' ]]; then
+	nostartup=1
 	shift
 fi
-check_arguments $@
 
-# Installation folder: where the distribution zip file has been unzipped (and where this script resides)
+if [ $# -lt 1 ]; then
+    echo "Usage: $0 [--nostartup] <server folder> [<service properties file>]"
+    echo "  --nostartup: do not start up tomcat automatically"
+    exit 1
+fi
+
 installation_folder="`dirname $0`"
 if [ ${installation_folder#/} == ${installation_folder} ]; then
 	installation_folder="`pwd`/${installation_folder}"
 fi
-# Where the server will be installed.
 server_folder=$1
+shift
 
 if [ ${server_folder#/} == ${server_folder} ]; then
 	server_folder="`pwd`/${server_folder}"
 fi
 
-properties_file="$installation_folder/service.properties"
-logconf_file="$installation_folder/log.xml"
-if [ $# -gt 1 ]; then
-	if [ $# -lt 3 ]; then
-		usage
+properties_file="${installation_folder}/service.properties"
+# Check whether given properties file exists and is a regular file.
+if [ $1 ]; then
+	if [ ! -f $1 ]; then
+		echo "Given properties file '$1' does not exist!"
+		exit 1
 	fi
-	properties_file="$2"
-	# Specify properties file path as absolute
+	properties_file="$1"
 	if [ "${properties_file#/}" == "${properties_file}" ]; then
 		properties_file="`pwd`/${properties_file}"
 	fi
-	logconf_file="$3"
-	# Specify log configuration file path as absolute
-	if [ "logconf_file#/}" == "logconf_file}" ]; then
-		logconf_file="`pwd`/logconf_file}"
-	fi
-fi
-# Check whether given properties file exists and is a regular file.
-if [ ! -f $properties_file ]; then
-	echo Given properties file \'$properties_file\' does not exist!
-	exit 1
 fi
 
-# Check whether given log configuration file exists and is a regular file.
-if [ ! -f $logconf_file ]; then
-	echo Given log configuration file \'$logconf_file\' does not exist!
-	exit 1
-fi
-
-rel_jetty_folder="jetty-`cat $installation_folder/jetty-version.txt`"
-jetty_folder="${server_folder}/${rel_jetty_folder}"
+rel_tomcat_folder="apache-tomcat-`cat \"${installation_folder}/tomcat-version.txt\"`"
+tomcat_folder="${server_folder}/${rel_tomcat_folder}"
+rel_openbis_web_folder=webapps/openbis
+openbis_web_folder="${tomcat_folder}/${rel_openbis_web_folder}"
+rel_openbis_web_inf=${rel_openbis_web_folder}/WEB-INF
+openbis_web_inf="${tomcat_folder}/${rel_openbis_web_inf}"
+startup_script_path="${tomcat_folder}/bin/startup.sh"
 
 # Creates server folder.
-mkdir -p "$server_folder"
+mkdir -p "${server_folder}"
 
-# Checks whether a jetty folder already exists.
-if [ -d $jetty_folder ]; then
-	echo "There exists already a Jetty folder."
-	echo "Please shutdown and remove this Jetty installation"
+# Checks whether a tomcat folder already exists.
+if [ -d "${tomcat_folder}" ]; then
+	echo "There exists already a Tomcat folder."
+	echo "Please shutdown and remove this Tomcat installation"
 	echo "or choose another server folder."
 	exit 1
 fi
 
-echo Unzipping Jetty...
-# Files are unzipped in $rel_jetty_folder
-unzip -q "$installation_folder/jetty.zip" -d "$server_folder"
-cp -p "$installation_folder"/jetty.xml "$jetty_folder"/etc
+unzip -q "${installation_folder}/apache-tomcat.zip" -d "$server_folder"
+cp -p "${installation_folder}"/*.keystore "${tomcat_folder}"
+cp -p "${installation_folder}/server.xml" "${tomcat_folder}/conf"
+cp -p "${installation_folder}/passwd.sh" "${tomcat_folder}/bin"
+chmod 755 "${tomcat_folder}/bin/passwd.sh"
+STARTUP_TMP=`mktemp startup.sh.XXXXXX`
+sed -e "33i\\
+CATALINA_OPTS=\"-Xmx512M -Ddatabase.create-from-scratch=false -Ddatabase.script-single-step-mode=false\"\\
+export CATALINA_OPTS\\
+\\
+if [ \${PRGDIR#/} == \${PRGDIR} ]; then\\
+        PRGDIR=\"\`pwd\`/\${PRGDIR}\"\\
+fi\\
+cd \"\${PRGDIR}/..\"\\
+" -e "s/\/bin\/sh/\/bin\/bash/" "${startup_script_path}" "${startup_script_path}" > ${STARTUP_TMP}
+mv ${STARTUP_TMP} "${startup_script_path}"
+chmod 744 "${tomcat_folder}"/bin/*.sh
 
-echo Preparing and installing web archive...
-war_classes=WEB-INF/classes
-mkdir -p "$war_classes"/etc
-# Replace 'service.properties' and 'log.xml' files in war
-cp -p "$properties_file" "$war_classes/service.properties"
-cp -p "$logconf_file" "$war_classes/etc/log.xml"
-zip -u "$installation_folder"/$APPLICATION_NAME.war "$war_classes"/service.properties "$war_classes"/etc/log.xml
-cp -p "$installation_folder"/$APPLICATION_NAME.war "$jetty_folder"/webapps
-rm -rf WEB-INF
+unzip -q "${installation_folder}/openBIS.war" -d "${openbis_web_folder}"
+mkdir "${openbis_web_inf}/conf"
 
-# Create symlinks for easier access.
-cd "$server_folder"
-ln -s "${rel_jetty_folder}" jetty
+# Copy configuration files
 
-JETTY_BIN_DIR="$jetty_folder"/bin
-cp -p "$installation_folder"/startup.sh "$JETTY_BIN_DIR"
-cp -p "$installation_folder"/shutdown.sh "$JETTY_BIN_DIR"
-cp -p "$installation_folder"/passwd.sh "$JETTY_BIN_DIR"
+cp -p "${properties_file}" "${openbis_web_inf}/classes/service.properties"
+echo Given properties file \'${properties_file}\' copied to \'${openbis_web_inf}/classes/service.properties\'
 
-# Create a file called 'jetty.properties'.
-JETTY_PROPERTIES="$JETTY_BIN_DIR"/jetty.properties
-echo "JETTY_PORT=$JETTY_PORT" > "$JETTY_PROPERTIES"
-echo "JETTY_STOP_PORT=8079" >> "$JETTY_PROPERTIES"
-echo "JETTY_STOP_KEY=secret" >> "$JETTY_PROPERTIES"
-# Here goes the path of the JVM in case you need to set it hard
-echo "JVM=\"java\"" >> "$JETTY_PROPERTIES"
-# The default memory of the JVM at start up.
-echo "VM_STARTUP_MEM=\"256M\"" >> "$JETTY_PROPERTIES"
-# The maximum memory for the JVM
-echo "VM_MAX_MEM=\"786M\"" >> "$JETTY_PROPERTIES"
+# Create symlinks for easier access
 
-# Create a 'work' directory in jetty folder. Web applications will be unpacked there.
-mkdir -p "$jetty_folder"/work
+cd "${server_folder}"
+ln -s "${rel_tomcat_folder}" apache-tomcat
+cd "${tomcat_folder}"
+mkdir etc
+ln -s "../${rel_openbis_web_inf}"/classes/service.properties etc/
 
-cd "$jetty_folder"
-echo Starting Jetty...
-./bin/startup.sh
+if [ "$nostartup" -eq 0 ]; then
+	echo Starting tomcat...
+	bin/startup.sh
+fi

@@ -31,7 +31,7 @@ if [ ! -x "$JAVA_BIN" ]; then
 fi
 
 
-LIB=work/$APPLICATION_NAME/webapp/WEB-INF/lib
+LIB=webapps/$APPLICATION_NAME/WEB-INF/lib
 $JAVA_HOME/bin/java \
    -cp $LIB/commons-lang.jar:$LIB/commons-io.jar:$LIB/commons-codec.jar:$LIB/jline.jar:$LIB/log4j.jar:$LIB/$APPLICATION_NAME.jar \
    ch.systemsx.cisd.authentication.file.PasswordEditorCommand "$@"

@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
  */
 @Controller
 @RequestMapping(
-    { "/screening", "/genericopenbis/screening" })
+    { "/screening", "/openbis/screening" })
 public final class ScreeningClientServiceServlet extends GWTRPCServiceExporter
 {
     private static final long serialVersionUID = 1L;

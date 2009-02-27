@@ -43,15 +43,6 @@ chmod 700 download-service.sh
 export JAVA_HOME=/usr
 ./download-service.sh start
 
-echo Installing generic openBIS...
-cd ~
-unzip openbis-S$VER*
-WAR_FILE=openbis/genericopenbis.war
-# Put the previous 'service.properties' file into the war file.
-jar -uf $WAR_FILE -C old/sprint-$PREV_VER/openBIS-server/apache-tomcat/webapps/genericopenbis WEB-INF/classes/service.properties
-# Just put the war file in the weapps directory, Tomcat will do the rest
-mv $WAR_FILE sprint/openBIS-server/apache-tomcat/webapps
-
 echo Doing some cleaning...
 cd
 mv *.zip tmp

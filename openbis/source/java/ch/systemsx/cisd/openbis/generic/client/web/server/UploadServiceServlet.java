@@ -54,14 +54,14 @@ import ch.systemsx.cisd.common.utilities.Message;
  * string in case of exception.
  * </p>
  * <p>
- * <i>URL</i> mappings are: <code>/upload</code> and <code>/genericopenbis/upload</code>.
+ * <i>URL</i> mappings are: <code>/upload</code> and <code>/openbis/upload</code>.
  * </p>
  * 
  * @author Christian Ribeaud
  */
 @Controller
 @RequestMapping(
-    { "/upload", "/genericopenbis/upload" })
+    { "/upload", "/openbis/upload" })
 public final class UploadServiceServlet extends AbstractCommandController
 {
     private static final Logger operationLog =

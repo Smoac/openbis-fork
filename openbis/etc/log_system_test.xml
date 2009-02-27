@@ -8,7 +8,7 @@
 
     <appender name="FILE" class="org.apache.log4j.FileAppender">
 
-        <param name="File" value="targets/genericopenbis_log.txt" />
+        <param name="File" value="targets/openbis_log.txt" />
         <param name="Append" value="false" />
 
         <layout class="org.apache.log4j.PatternLayout">

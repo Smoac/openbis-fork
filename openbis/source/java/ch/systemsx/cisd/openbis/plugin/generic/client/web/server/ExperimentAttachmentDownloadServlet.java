@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
  */
 @Controller
 @RequestMapping(
-    { "/experiment-attachment-download", "/genericopenbis/experiment-attachment-download" })
+    { "/experiment-attachment-download", "/openbis/experiment-attachment-download" })
 public class ExperimentAttachmentDownloadServlet extends AbstractFileDownloadServlet
 {
 
