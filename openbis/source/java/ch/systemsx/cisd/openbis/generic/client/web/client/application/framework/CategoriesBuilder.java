@@ -37,13 +37,13 @@ public class CategoriesBuilder
 
     private static final String BROWSE_TYPES_LABEL = "Browse Types";
 
-    public static enum CATEGORIES
+    public static enum MenuCategoryKind
     {
         VOCABULARIES, MATERIALS, EXPERIMENTS, PERSONS, PROJECTS, GROUPS, ROLES, SAMPLES, DATA_SETS,
         PROPERTY_TYPES;
     }
 
-    public static enum MENU_ELEMENTS
+    public static enum MenuElementKind
     {
         ADD_ROLE, ASSIGN, ASSIGN_STPT, ASSIGN_ETPT, REGISTER, IMPORT, BROWSE, BROWSE_TYPES, MANAGE,
         LIST_ASSIGNMENTS, SEARCH;
@@ -77,104 +77,107 @@ public class CategoriesBuilder
     private MenuCategory createSampleCategory()
     {
         final List<MenuElement> elements = new ArrayList<MenuElement>();
-        elements.add(new MenuElement(MENU_ELEMENTS.BROWSE, LABEL_BROWSE, provider
+        elements.add(new MenuElement(MenuElementKind.BROWSE, LABEL_BROWSE, provider
                 .getSampleBrowser()));
-        elements.add(new MenuElement(MENU_ELEMENTS.REGISTER, LABEL_REGISTER, provider
+        elements.add(new MenuElement(MenuElementKind.REGISTER, LABEL_REGISTER, provider
                 .getSampleRegistration()));
-        elements.add(new MenuElement(MENU_ELEMENTS.IMPORT, IMPORT_LABEL, provider
+        elements.add(new MenuElement(MenuElementKind.IMPORT, IMPORT_LABEL, provider
                 .getSampleBatchRegistration()));
-        elements.add(new MenuElement(MENU_ELEMENTS.BROWSE_TYPES, BROWSE_TYPES_LABEL, provider
+        elements.add(new MenuElement(MenuElementKind.BROWSE_TYPES, BROWSE_TYPES_LABEL, provider
                 .getSampleTypeBrowser()));
-        return new MenuCategory(CATEGORIES.SAMPLES, "Samples", elements);
+        return new MenuCategory(MenuCategoryKind.SAMPLES, "Samples", elements);
     }
 
     private MenuCategory createRolesCategory()
     {
         final List<MenuElement> elements = new ArrayList<MenuElement>();
-        elements.add(new MenuElement(MENU_ELEMENTS.BROWSE, LABEL_BROWSE, provider.getRolesView()));
-        return new MenuCategory(CATEGORIES.ROLES, "Roles", elements);
+        elements
+                .add(new MenuElement(MenuElementKind.BROWSE, LABEL_BROWSE, provider.getRolesView()));
+        return new MenuCategory(MenuCategoryKind.ROLES, "Roles", elements);
     }
 
     private MenuCategory createGroupsCategory()
     {
         final List<MenuElement> elements = new ArrayList<MenuElement>();
-        elements.add(new MenuElement(MENU_ELEMENTS.BROWSE, LABEL_BROWSE, provider.getGroupsView()));
-        return new MenuCategory(CATEGORIES.GROUPS, "Groups", elements);
+        elements
+                .add(new MenuElement(MenuElementKind.BROWSE, LABEL_BROWSE, provider.getGroupsView()));
+        return new MenuCategory(MenuCategoryKind.GROUPS, "Groups", elements);
     }
 
     private MenuCategory createProjectsTypesCategory()
     {
         final List<MenuElement> elements = new ArrayList<MenuElement>();
-        elements.add(new MenuElement(MENU_ELEMENTS.BROWSE, LABEL_BROWSE, provider
+        elements.add(new MenuElement(MenuElementKind.BROWSE, LABEL_BROWSE, provider
                 .getProjectBrowser()));
-        elements.add(new MenuElement(MENU_ELEMENTS.REGISTER, LABEL_REGISTER, provider
+        elements.add(new MenuElement(MenuElementKind.REGISTER, LABEL_REGISTER, provider
                 .getProjectRegistration()));
-        return new MenuCategory(CATEGORIES.PROJECTS, "Projects", elements);
+        return new MenuCategory(MenuCategoryKind.PROJECTS, "Projects", elements);
     }
 
     private MenuCategory createPersonsCategory()
     {
         final List<MenuElement> elements = new ArrayList<MenuElement>();
-        elements
-                .add(new MenuElement(MENU_ELEMENTS.BROWSE, LABEL_BROWSE, provider.getPersonsView()));
-        return new MenuCategory(CATEGORIES.PERSONS, "Persons", elements);
+        elements.add(new MenuElement(MenuElementKind.BROWSE, LABEL_BROWSE, provider
+                .getPersonsView()));
+        return new MenuCategory(MenuCategoryKind.PERSONS, "Persons", elements);
     }
 
     private MenuCategory createPropertyTypesCategory()
     {
         final List<MenuElement> elements = new ArrayList<MenuElement>();
-        elements.add(new MenuElement(MENU_ELEMENTS.BROWSE, LABEL_BROWSE, provider
+        elements.add(new MenuElement(MenuElementKind.BROWSE, LABEL_BROWSE, provider
                 .getPropertyTypeBrowser()));
-        elements.add(new MenuElement(MENU_ELEMENTS.LIST_ASSIGNMENTS, "Browse Assignments", provider
-                .getPropertyTypeAssignmentBrowser()));
-        elements.add(new MenuElement(MENU_ELEMENTS.REGISTER, LABEL_REGISTER, provider
+        elements.add(new MenuElement(MenuElementKind.LIST_ASSIGNMENTS, "Browse Assignments",
+                provider.getPropertyTypeAssignmentBrowser()));
+        elements.add(new MenuElement(MenuElementKind.REGISTER, LABEL_REGISTER, provider
                 .getPropertyTypeRegistration()));
-        elements.add(new MenuElement(MENU_ELEMENTS.ASSIGN_ETPT, "Assign to Experiment Type",
+        elements.add(new MenuElement(MenuElementKind.ASSIGN_ETPT, "Assign to Experiment Type",
                 provider.getPropertyTypeExperimentTypeAssignmentForm()));
-        elements.add(new MenuElement(MENU_ELEMENTS.ASSIGN_STPT, "Assign to Sample Type", provider
+        elements.add(new MenuElement(MenuElementKind.ASSIGN_STPT, "Assign to Sample Type", provider
                 .getPropertyTypeSampleTypeAssignmentForm()));
-        return new MenuCategory(CATEGORIES.PROPERTY_TYPES, "Property Types", elements);
+        return new MenuCategory(MenuCategoryKind.PROPERTY_TYPES, "Property Types", elements);
     }
 
     private MenuCategory createDataSetsCategory()
     {
         final List<MenuElement> elements = new ArrayList<MenuElement>();
-        elements.add(new MenuElement(MENU_ELEMENTS.SEARCH, "Search", provider.getDataSetSearch()));
-        return new MenuCategory(CATEGORIES.DATA_SETS, "Data Sets", elements);
+        elements
+                .add(new MenuElement(MenuElementKind.SEARCH, "Search", provider.getDataSetSearch()));
+        return new MenuCategory(MenuCategoryKind.DATA_SETS, "Data Sets", elements);
     }
 
     private MenuCategory createVocabulariesCategory()
     {
         final List<MenuElement> elements = new ArrayList<MenuElement>();
-        elements.add(new MenuElement(MENU_ELEMENTS.BROWSE, LABEL_BROWSE, provider
+        elements.add(new MenuElement(MenuElementKind.BROWSE, LABEL_BROWSE, provider
                 .getVocabularyBrowser()));
-        elements.add(new MenuElement(MENU_ELEMENTS.REGISTER, LABEL_REGISTER, provider
+        elements.add(new MenuElement(MenuElementKind.REGISTER, LABEL_REGISTER, provider
                 .getVocabularyRegistration()));
-        return new MenuCategory(CATEGORIES.VOCABULARIES, "Vocabularies", elements);
+        return new MenuCategory(MenuCategoryKind.VOCABULARIES, "Vocabularies", elements);
     }
 
     private MenuCategory createMaterialCategory()
     {
         final List<MenuElement> elements = new ArrayList<MenuElement>();
-        elements.add(new MenuElement(MENU_ELEMENTS.BROWSE, LABEL_BROWSE, provider
+        elements.add(new MenuElement(MenuElementKind.BROWSE, LABEL_BROWSE, provider
                 .getMaterialBrowser()));
-        elements.add(new MenuElement(MENU_ELEMENTS.IMPORT, IMPORT_LABEL, provider
+        elements.add(new MenuElement(MenuElementKind.IMPORT, IMPORT_LABEL, provider
                 .getMaterialBatchRegistration()));
-        elements.add(new MenuElement(MENU_ELEMENTS.BROWSE_TYPES, BROWSE_TYPES_LABEL, provider
+        elements.add(new MenuElement(MenuElementKind.BROWSE_TYPES, BROWSE_TYPES_LABEL, provider
                 .getMaterialTypeBrowser()));
-        return new MenuCategory(CATEGORIES.MATERIALS, "Materials", elements);
+        return new MenuCategory(MenuCategoryKind.MATERIALS, "Materials", elements);
     }
 
     private MenuCategory createExperimentCategory()
     {
         final List<MenuElement> elements = new ArrayList<MenuElement>();
-        elements.add(new MenuElement(MENU_ELEMENTS.BROWSE, LABEL_BROWSE, provider
+        elements.add(new MenuElement(MenuElementKind.BROWSE, LABEL_BROWSE, provider
                 .getExperimentBrowser()));
-        elements.add(new MenuElement(MENU_ELEMENTS.REGISTER, LABEL_REGISTER, provider
+        elements.add(new MenuElement(MenuElementKind.REGISTER, LABEL_REGISTER, provider
                 .getExperimentRegistration()));
-        elements.add(new MenuElement(MENU_ELEMENTS.BROWSE_TYPES, BROWSE_TYPES_LABEL, provider
+        elements.add(new MenuElement(MenuElementKind.BROWSE_TYPES, BROWSE_TYPES_LABEL, provider
                 .getExperimentTypeBrowser()));
-        return new MenuCategory(CATEGORIES.EXPERIMENTS, "Experiments", elements);
+        return new MenuCategory(MenuCategoryKind.EXPERIMENTS, "Experiments", elements);
     }
 
     public List<MenuCategory> getCategories()

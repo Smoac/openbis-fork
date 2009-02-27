@@ -35,8 +35,8 @@ public class PropertyTypeBrowserTest extends AbstractGWTTestCase
     public final void testListPropertyTypes()
     {
         remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.PROPERTY_TYPES,
-                CategoriesBuilder.MENU_ELEMENTS.BROWSE));
+        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.PROPERTY_TYPES,
+                CategoriesBuilder.MenuElementKind.BROWSE));
         CheckPropertyTypeTable table = new CheckPropertyTypeTable();
         table.expectedRow(new Row().withCell(PropertyTypeColDefKind.CODE.id(), "PLATE_GEOMETRY"));
         remoteConsole.prepare(table.expectedSize(14));

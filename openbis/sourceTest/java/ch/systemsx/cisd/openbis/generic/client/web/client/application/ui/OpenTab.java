@@ -20,8 +20,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SessionContextCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.LeftMenu;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder.CATEGORIES;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder.MENU_ELEMENTS;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder.MenuCategoryKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder.MenuElementKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
@@ -36,7 +36,7 @@ public final class OpenTab extends AbstractDefaultTestCommand
 
     private final String option;
 
-    public OpenTab(final CATEGORIES category, final MENU_ELEMENTS option,
+    public OpenTab(final MenuCategoryKind category, final MenuElementKind option,
             final Class<? extends AsyncCallback<?>> callbackClass)
     {
         if (callbackClass == null)
@@ -50,7 +50,7 @@ public final class OpenTab extends AbstractDefaultTestCommand
         this.option = option.name();
     }
 
-    public OpenTab(final CATEGORIES category, final MENU_ELEMENTS option)
+    public OpenTab(final MenuCategoryKind category, final MenuElementKind option)
     {
         this(category, option, null);
     }

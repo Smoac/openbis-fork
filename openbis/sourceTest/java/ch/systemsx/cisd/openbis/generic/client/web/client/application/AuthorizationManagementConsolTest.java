@@ -47,8 +47,8 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
     {
         remoteConsole.prepare(new Login("test", "a"));
         final String groupCode = TEST_GROUP;
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.GROUPS,
-                CategoriesBuilder.MENU_ELEMENTS.BROWSE));
+        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.GROUPS,
+                CategoriesBuilder.MenuElementKind.BROWSE));
         remoteConsole.prepare(new CreateGroup(groupCode));
         remoteConsole.prepare(new CheckGroup(groupCode.toUpperCase()));
 
@@ -60,8 +60,8 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
         remoteConsole.prepare(new Login("test", "a"));
         // This userId must be one of the ones located on 'etc/passwd' (file based authentication).
         final String userId = USER_ID;
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.PERSONS,
-                CategoriesBuilder.MENU_ELEMENTS.BROWSE));
+        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.PERSONS,
+                CategoriesBuilder.MenuElementKind.BROWSE));
         remoteConsole.prepare(new CreatePerson(userId));
         remoteConsole.prepare(new CheckPerson(userId));
 
@@ -71,8 +71,8 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
     public final void testCreateRole()
     {
         remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.ROLES,
-                CategoriesBuilder.MENU_ELEMENTS.BROWSE));
+        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.ROLES,
+                CategoriesBuilder.MenuElementKind.BROWSE));
         remoteConsole.prepare(new CreateRole(TEST_GROUP.toUpperCase(), USER_ID,
                 RoleSetCode.OBSERVER.toString()));
         remoteConsole.prepare(new CheckRole(TEST_GROUP.toUpperCase(), USER_ID, RoleSetCode.OBSERVER
@@ -89,8 +89,8 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
     {
         remoteConsole.prepare(new Login("o", "o"));
         final String userId = "u";
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.PERSONS,
-                CategoriesBuilder.MENU_ELEMENTS.BROWSE));
+        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.PERSONS,
+                CategoriesBuilder.MenuElementKind.BROWSE));
         remoteConsole.prepare(new CreatePerson(userId));
         FailureExpectation failureExpectation =
                 new FailureExpectation(AddPersonDialog.RegisterPersonCallback.class)

@@ -40,8 +40,8 @@ public class VocabularyRegistrationTest extends AbstractGWTTestCase
     public final void testRegisterVocabulary()
     {
         remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.VOCABULARIES,
-                CategoriesBuilder.MENU_ELEMENTS.REGISTER));
+        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.VOCABULARIES,
+                CategoriesBuilder.MenuElementKind.REGISTER));
         remoteConsole.prepare(createFillVocabularyRegistrationForm());
 
         // TODO 2008-12-22, Christian Ribeaud: Finish this once we have list vocabularies.

@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder.CATEGORIES;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder.MenuCategoryKind;
 
 /**
  * Category in the menu.
@@ -34,7 +34,7 @@ public class MenuCategory
 
     private final String partOfId;
 
-    public MenuCategory(final CATEGORIES partOfId, final String name,
+    public MenuCategory(final MenuCategoryKind partOfId, final String name,
             final List<MenuElement> elements)
     {
         this.partOfId = partOfId.name();

@@ -48,12 +48,12 @@ public class PropertyTypeRegistrationTest extends AbstractGWTTestCase
     public final void testRegisterPropertyType()
     {
         remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.PROPERTY_TYPES,
-                CategoriesBuilder.MENU_ELEMENTS.REGISTER));
+        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.PROPERTY_TYPES,
+                CategoriesBuilder.MenuElementKind.REGISTER));
         remoteConsole.prepare(createFillPropertyTypeRegistrationForm());
 
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.PROPERTY_TYPES,
-                CategoriesBuilder.MENU_ELEMENTS.BROWSE,
+        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.PROPERTY_TYPES,
+                CategoriesBuilder.MenuElementKind.BROWSE,
                 PropertyTypeRegistrationForm.PropertyTypeRegistrationCallback.class));
         final CheckPropertyTypeTable table = new CheckPropertyTypeTable();
         table.expectedRow(new Row().withCell(PropertyTypeColDefKind.CODE.id(),

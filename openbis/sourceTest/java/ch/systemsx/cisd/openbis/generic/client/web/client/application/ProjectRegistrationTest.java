@@ -40,13 +40,13 @@ public class ProjectRegistrationTest extends AbstractGWTTestCase
     public final void testRegisterProject()
     {
         remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.PROJECTS,
-                CategoriesBuilder.MENU_ELEMENTS.REGISTER));
+        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.PROJECTS,
+                CategoriesBuilder.MenuElementKind.REGISTER));
         remoteConsole.prepare(new FillProjectRegistrationForm(PROJECT_CODE_HER_MAJESTY, "CISD",
                 DESCRIPTION_PROJECT_007));
 
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.PROJECTS,
-                CategoriesBuilder.MENU_ELEMENTS.BROWSE,
+        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.PROJECTS,
+                CategoriesBuilder.MenuElementKind.BROWSE,
                 ProjectRegistrationForm.ProjectRegistrationCallback.class));
         final CheckProjectTable table = new CheckProjectTable();
         table.expectedRow(new Row().withCell(ProjectColDefKind.CODE.id(), PROJECT_CODE_HER_MAJESTY)

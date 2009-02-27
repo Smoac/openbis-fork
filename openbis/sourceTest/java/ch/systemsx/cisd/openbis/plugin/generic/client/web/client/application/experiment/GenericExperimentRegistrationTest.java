@@ -40,8 +40,8 @@ public class GenericExperimentRegistrationTest extends AbstractGWTTestCase
     private final void loginAndPreprareRegistration(final String sampleType)
     {
         remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.EXPERIMENTS,
-                CategoriesBuilder.MENU_ELEMENTS.REGISTER));
+        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.EXPERIMENTS,
+                CategoriesBuilder.MenuElementKind.REGISTER));
         remoteConsole.prepare(new ChooseTypeOfNewExperiment(sampleType));
     }
 
@@ -58,8 +58,8 @@ public class GenericExperimentRegistrationTest extends AbstractGWTTestCase
                                 "MALE")).addProperty(
                         new PropertyField(GenericExperimentRegistrationForm.ID
                                 + "user-purchase-date", "2008-12-17")));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.EXPERIMENTS,
-                CategoriesBuilder.MENU_ELEMENTS.BROWSE,
+        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.EXPERIMENTS,
+                CategoriesBuilder.MenuElementKind.BROWSE,
                 GenericExperimentRegistrationForm.RegisterExperimentCallback.class));
         remoteConsole.prepare(new ListExperiments("DEFAULT", experimentTypeCode));
         remoteConsole.prepare(new CheckExperimentTable()
@@ -82,8 +82,8 @@ public class GenericExperimentRegistrationTest extends AbstractGWTTestCase
                 .addProperty(
                         new PropertyField(GenericExperimentRegistrationForm.ID
                                 + "user-purchase-date", "2008-12-18")));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.SAMPLES,
-                CategoriesBuilder.MENU_ELEMENTS.BROWSE,
+        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.SAMPLES,
+                CategoriesBuilder.MenuElementKind.BROWSE,
                 GenericExperimentRegistrationForm.RegisterExperimentCallback.class));
         remoteConsole.prepare(new ListSamples("CISD", "CELL_PLATE"));
         CheckSampleTable table = new CheckSampleTable();

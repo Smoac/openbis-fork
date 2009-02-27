@@ -35,8 +35,8 @@ public class PropertyTypeAssignmentBrowserTest extends AbstractGWTTestCase
     public final void testListAssignments()
     {
         remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.PROPERTY_TYPES,
-                CategoriesBuilder.MENU_ELEMENTS.LIST_ASSIGNMENTS));
+        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.PROPERTY_TYPES,
+                CategoriesBuilder.MenuElementKind.LIST_ASSIGNMENTS));
         CheckPropertyTypeAssignmentTable table = new CheckPropertyTypeAssignmentTable();
         table.expectedRow(new Row().withCell(
                 PropertyTypeAssignmentColDefKind.PROPERTY_TYPE_CODE.id(), "USER.DESCRIPTION")

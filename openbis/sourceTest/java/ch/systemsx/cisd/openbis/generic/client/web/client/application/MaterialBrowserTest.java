@@ -50,7 +50,7 @@ public class MaterialBrowserTest extends AbstractGWTTestCase
     private void loginAndGotoListMaterialsTab()
     {
         remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.MATERIALS,
-                CategoriesBuilder.MENU_ELEMENTS.BROWSE));
+        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.MATERIALS,
+                CategoriesBuilder.MenuElementKind.BROWSE));
     }
 }

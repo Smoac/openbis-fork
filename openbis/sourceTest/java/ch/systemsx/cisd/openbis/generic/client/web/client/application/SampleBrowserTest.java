@@ -106,7 +106,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
     private void loginAndGotoListSamplesTab()
     {
         remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.SAMPLES,
-                CategoriesBuilder.MENU_ELEMENTS.BROWSE));
+        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.SAMPLES,
+                CategoriesBuilder.MenuElementKind.BROWSE));
     }
 }

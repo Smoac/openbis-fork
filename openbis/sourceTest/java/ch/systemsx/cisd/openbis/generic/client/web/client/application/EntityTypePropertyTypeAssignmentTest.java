@@ -58,8 +58,8 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
     private final void prepareListingAfterAssignment(String propertyTypeCode,
             String entityTypeCode, EntityKind entityKind, int expectedEntries, boolean isMandatory)
     {
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.PROPERTY_TYPES,
-                CategoriesBuilder.MENU_ELEMENTS.LIST_ASSIGNMENTS,
+        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.PROPERTY_TYPES,
+                CategoriesBuilder.MenuElementKind.LIST_ASSIGNMENTS,
                 PropertyTypeAssignmentForm.AssignPropertyTypeCallback.class));
         CheckPropertyTypeAssignmentTable table = new CheckPropertyTypeAssignmentTable();
         table.expectedRow(new Row().withCell(
@@ -75,8 +75,8 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
     public final void testAssignExperimentPropertyType()
     {
         remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.PROPERTY_TYPES,
-                CategoriesBuilder.MENU_ELEMENTS.ASSIGN_ETPT));
+        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.PROPERTY_TYPES,
+                CategoriesBuilder.MenuElementKind.ASSIGN_ETPT));
         final boolean mandatory = true;
         remoteConsole.prepare(new FillPropertyTypeAssignmentForm(mandatory, USER_COMMENT,
                 COMPOUND_HCS, "a comment", EXPERIMENT));
@@ -87,12 +87,12 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
     public final void testGlobalValueAssignmentSamplePropertyType()
     {
         remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.PROPERTY_TYPES,
-                CategoriesBuilder.MENU_ELEMENTS.ASSIGN_STPT));
+        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.PROPERTY_TYPES,
+                CategoriesBuilder.MenuElementKind.ASSIGN_STPT));
         remoteConsole.prepare(new FillPropertyTypeAssignmentForm(false, USER_COMMENT,
                 CONTROL_LAYOUT, NO_COMMENT, SAMPLE));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.SAMPLES,
-                CategoriesBuilder.MENU_ELEMENTS.BROWSE,
+        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.SAMPLES,
+                CategoriesBuilder.MenuElementKind.BROWSE,
                 PropertyTypeAssignmentForm.AssignPropertyTypeCallback.class));
         remoteConsole.prepare(new ListSamples(CISD, CONTROL_LAYOUT));
         CheckSampleTable table = new CheckSampleTable();

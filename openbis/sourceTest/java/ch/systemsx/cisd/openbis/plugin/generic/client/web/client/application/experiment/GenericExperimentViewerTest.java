@@ -204,8 +204,8 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
             final String experimentCode)
     {
         remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.EXPERIMENTS,
-                CategoriesBuilder.MENU_ELEMENTS.BROWSE));
+        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.EXPERIMENTS,
+                CategoriesBuilder.MenuElementKind.BROWSE));
         remoteConsole.prepare(new ListExperiments(projectName, experimentTypeName));
         remoteConsole.prepare(new ShowExperiment(experimentCode));
     }

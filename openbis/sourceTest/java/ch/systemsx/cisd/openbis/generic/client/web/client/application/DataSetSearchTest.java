@@ -105,7 +105,7 @@ public class DataSetSearchTest extends AbstractGWTTestCase
     private void loginAndGotoTab()
     {
         remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.CATEGORIES.DATA_SETS,
-                CategoriesBuilder.MENU_ELEMENTS.SEARCH));
+        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.DATA_SETS,
+                CategoriesBuilder.MenuElementKind.SEARCH));
     }
 }
