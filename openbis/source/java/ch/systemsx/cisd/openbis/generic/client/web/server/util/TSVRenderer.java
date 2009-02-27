@@ -29,14 +29,21 @@ public class TSVRenderer
 {
     private static final String TAB = "\t";
 
-    private static final String NEWLINE = "\n";
+    private final String lineSeparator;
 
     /**
      * @param entities list of entities which will be exported
      * @param columnDefs column definitions. Each definition know column's header and is able to
      *            extract an appropriate value from the entity.
+     * @param lineSeparator character used as a lineSeparator separator
      */
-    public static <T> String createTable(List<T> entities, List<IColumnDefinition<T>> columnDefs)
+    public static <T> String createTable(List<T> entities, List<IColumnDefinition<T>> columnDefs,
+            String lineSeparator)
+    {
+        return new TSVRenderer(lineSeparator).createTable(entities, columnDefs);
+    }
+
+    private <T> String createTable(List<T> entities, List<IColumnDefinition<T>> columnDefs)
     {
         StringBuffer sb = new StringBuffer();
         appendHeader(columnDefs, sb);
@@ -47,8 +54,12 @@ public class TSVRenderer
         return sb.toString();
     }
 
-    private static <T> void appendEntity(T entity, List<IColumnDefinition<T>> columnDefs,
-            StringBuffer sb)
+    private TSVRenderer(String lineSeparator)
+    {
+        this.lineSeparator = lineSeparator;
+    }
+
+    private <T> void appendEntity(T entity, List<IColumnDefinition<T>> columnDefs, StringBuffer sb)
     {
         boolean isFirst = true;
         for (IColumnDefinition<T> column : columnDefs)
@@ -62,10 +73,10 @@ public class TSVRenderer
             }
             sb.append(column.getValue(entity));
         }
-        sb.append(NEWLINE);
+        sb.append(lineSeparator);
     }
 
-    private static <T> void appendHeader(List<IColumnDefinition<T>> columnDefs, StringBuffer sb)
+    private <T> void appendHeader(List<IColumnDefinition<T>> columnDefs, StringBuffer sb)
     {
         boolean isFirst = true;
         for (IColumnDefinition<T> column : columnDefs)
@@ -79,6 +90,6 @@ public class TSVRenderer
             }
             sb.append(column.getHeader());
         }
-        sb.append(NEWLINE);
+        sb.append(lineSeparator);
     }
 }

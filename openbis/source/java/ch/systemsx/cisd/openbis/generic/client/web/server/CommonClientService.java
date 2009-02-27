@@ -108,6 +108,7 @@ public final class CommonClientService extends AbstractClientService implements
         ICommonClientService
 {
     private final ICommonServer commonServer;
+
     private final String dataStoreBaseURL;
 
     public CommonClientService(final ICommonServer commonServer,
@@ -204,13 +205,14 @@ public final class CommonClientService extends AbstractClientService implements
      * Assumes that preparation of the export ({@link #prepareExportSamples(TableExportCriteria)}
      * has been invoked before and returned with an exportDataKey passed here as a parameter.
      */
-    public final String getExportTable(final String exportDataKey)
+    public final String getExportTable(final String exportDataKey, final String lineSeparator)
     {
         // NOTE: no generics in GWT
-        return getGenericExportTable(exportDataKey);
+        return getGenericExportTable(exportDataKey, lineSeparator);
     }
 
-    private final <T> String getGenericExportTable(final String exportDataKey)
+    private final <T> String getGenericExportTable(final String exportDataKey,
+            final String lineSeparator)
     {
         try
         {
@@ -218,7 +220,7 @@ public final class CommonClientService extends AbstractClientService implements
             getSessionToken();
             final TableExportCriteria<T> exportCriteria = getAndRemoveExportCriteria(exportDataKey);
             final List<T> entities = fetchCachedEntities(exportCriteria);
-            return TSVRenderer.createTable(entities, exportCriteria.getColumnDefs());
+            return TSVRenderer.createTable(entities, exportCriteria.getColumnDefs(), lineSeparator);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

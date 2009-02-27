@@ -23,8 +23,11 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import ch.systemsx.cisd.common.utilities.OSUtilities;
+import ch.systemsx.cisd.common.utilities.OSUtilities.OSKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.server.util.HttpUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 
 /**
@@ -46,7 +49,9 @@ public class FileExportServiceServlet extends AbstractFileDownloadServlet
 
         if (StringUtils.isNotBlank(exportDataKey))
         {
-            String fileContent = service.getExportTable(exportDataKey);
+            OSKind osKind = HttpUtils.figureOperatingSystemKind(request);
+            String lineSeparator = OSUtilities.getLineSeparator(osKind);
+            String fileContent = service.getExportTable(exportDataKey, lineSeparator);
             byte[] value = fileContent.getBytes();
             String fileName = "exportedData.txt";
             return new FileContent(value, fileName);

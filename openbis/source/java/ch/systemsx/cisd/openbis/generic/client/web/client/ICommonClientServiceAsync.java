@@ -173,9 +173,10 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<String> callback);
 
     /**
-     * @see ICommonClientService#getExportTable(String)
+     * @see ICommonClientService#getExportTable(String, String)
      */
-    public void getExportTable(String exportDataKey, AsyncCallback<String> asyncCallback);
+    public void getExportTable(String exportDataKey, String lineSeparator,
+            AsyncCallback<String> asyncCallback);
 
     /**
      * @see ICommonClientService#removeResultSet(String)

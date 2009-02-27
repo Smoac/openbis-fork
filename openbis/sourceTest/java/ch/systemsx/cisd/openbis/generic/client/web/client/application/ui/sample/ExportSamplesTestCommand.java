@@ -37,6 +37,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.ITestCom
  */
 public class ExportSamplesTestCommand extends AbstractDefaultTestCommand
 {
+    private static final String LINE_SEPARATOR = "\n";
+
     private final Client client;
 
     private String receivedExportedFileContent = null;
@@ -76,8 +78,8 @@ public class ExportSamplesTestCommand extends AbstractDefaultTestCommand
             assert viewContext != null : "viewContext is null";
 
             ICommonClientServiceAsync service = this.viewContext.getCommonService();
-            service.getExportTable(exportDataKey, new SaveExportedContentCallbackTest(
-                    this.viewContext));
+            service.getExportTable(exportDataKey, LINE_SEPARATOR,
+                    new SaveExportedContentCallbackTest(this.viewContext));
         }
     }
 
@@ -142,7 +144,7 @@ public class ExportSamplesTestCommand extends AbstractDefaultTestCommand
 
         private String[] parse(String content)
         {
-            return content.split("\n");
+            return content.split(LINE_SEPARATOR);
         }
     }
 }

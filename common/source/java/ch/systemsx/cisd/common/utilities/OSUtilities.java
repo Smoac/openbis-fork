@@ -84,7 +84,7 @@ public class OSUtilities
     {
         return System.getProperty("os.arch");
     }
-    
+
     /**
      * @return The name of the operating system.
      */
@@ -92,7 +92,7 @@ public class OSUtilities
     {
         return System.getProperty("os.name");
     }
-    
+
     /**
      * @return The name of the computer platform (CPU architecture and OS name).
      */
@@ -254,4 +254,23 @@ public class OSUtilities
         }
     }
 
+    public enum OSKind
+    {
+        MAC, WINDOWS, UNIX, OTHER
+    }
+
+    public static final String getLineSeparator(OSKind osKind)
+    {
+        switch (osKind)
+        {
+            case MAC:
+            case OTHER:
+            case UNIX:
+                return "/n";
+            case WINDOWS:
+                return "/t/n";
+            default:
+                throw new IllegalStateException("unknown os " + osKind);
+        }
+    }
 }

@@ -41,8 +41,8 @@ public class TSVRendererTest
             { "x", "y" });
         entities.add(new String[]
             { "a", "b" });
-        String content = TSVRenderer.createTable(entities, columnDefs);
-        Assert.assertEquals("h0\th1\nx\ty\na\tb\n", content);
+        String content = TSVRenderer.createTable(entities, columnDefs, "#");
+        Assert.assertEquals("h0\th1#x\ty#a\tb#", content);
     }
 
     private static List<IColumnDefinition<String[]>> createColumnDefs(int colNum)
@@ -60,7 +60,7 @@ public class TSVRendererTest
     {
         List<IColumnDefinition<String[]>> columnDefs = createColumnDefs(2);
         List<String[]> entities = new ArrayList<String[]>();
-        String content = TSVRenderer.createTable(entities, columnDefs);
+        String content = TSVRenderer.createTable(entities, columnDefs, "\n");
         Assert.assertEquals("h0\th1\n", content);
     }
 
