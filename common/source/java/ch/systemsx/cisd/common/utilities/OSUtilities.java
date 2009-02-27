@@ -266,9 +266,9 @@ public class OSUtilities
             case MAC:
             case OTHER:
             case UNIX:
-                return "/n";
+                return "\n";
             case WINDOWS:
-                return "/t/n";
+                return "\t\n";
             default:
                 throw new IllegalStateException("unknown os " + osKind);
         }
