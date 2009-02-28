@@ -28,6 +28,8 @@
 	<property name="webapp.file" value="${dist}/${webapp.file.name}" />
 
 	<property name="targets.www" value="${targets}/www/ch.systemsx.cisd.cifex.Cifex" />
+	
+	<property name="cifex.cli.zip" value="${dist}/cifex_cli.zip" />
 
 	<!-- 
 	// Cleans distribution directory.
@@ -49,6 +51,7 @@
 
 		<mkdir dir="${zipped.dir}" />
 		<move file="${webapp.file}" todir="${zipped.dir}" />
+		<move file="${cifex.cli.zip}" todir="${zipped.dir}" />
 
 		<copy file="${jetty.path}/jetty.zip" todir="${zipped.dir}" />
 		<copy file="${jetty.path}/version.txt" tofile="${zipped.dir}/jetty-version.txt">
@@ -227,8 +230,8 @@
 		</copy>
 		<copy file="${lib}/log4j/log4j.jar" todir="${dist}/cifex/lib" />
 		<copy file="${lib}/jline/jline.jar" todir="${dist}/cifex/lib" />
-		<zip destfile="${dist}/cifex_cli.zip" basedir="${dist}" includes="cifex/**" excludes="**/*.sh" />
-		<zip update="true" destfile="${dist}/cifex_cli.zip">
+		<zip destfile="${cifex.cli.zip}" basedir="${dist}" includes="cifex/**" excludes="**/*.sh" />
+		<zip update="true" destfile="${cifex.cli.zip}">
 			<zipfileset dir="${dist}/cifex" includes="*.sh" filemode="755" prefix="cifex" />
 		</zip>
 
@@ -267,7 +270,7 @@
 		<war warfile="${webapp.file}" webxml="${cifex.server.resource}/web.xml">
 			<fileset dir="${webapp.dist}" />
 			<!-- The command line client -->
-			<file file="${dist}/cifex_cli.zip" />
+			<file file="${cifex.cli.zip}" />
 			<!-- Add 'applicationContext.xml' and related files. -->
 			<classes dir="../server-common/${sources}">
 				<include name="**/*.xml" />
