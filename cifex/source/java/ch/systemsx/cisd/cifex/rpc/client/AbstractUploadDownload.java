@@ -33,7 +33,7 @@ import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 public abstract class AbstractUploadDownload implements IProgressListenerHolder
 {
 
-    protected static final int BLOCK_SIZE = 1 * 1024 * 1024;
+    protected static final int BLOCK_SIZE = 256 * 1024;
 
     protected static final int MAX_RETRIES = 30;
 
