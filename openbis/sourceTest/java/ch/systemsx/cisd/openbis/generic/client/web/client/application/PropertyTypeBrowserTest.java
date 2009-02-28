@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PropertyTypeColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.CheckPropertyTypeTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
@@ -34,9 +32,8 @@ public class PropertyTypeBrowserTest extends AbstractGWTTestCase
 
     public final void testListPropertyTypes()
     {
-        remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.PROPERTY_TYPES,
-                CategoriesBuilder.MenuElementKind.BROWSE));
+        loginAndGotoTab(CategoriesBuilder.MenuCategoryKind.PROPERTY_TYPES,
+                CategoriesBuilder.MenuElementKind.BROWSE);
         CheckPropertyTypeTable table = new CheckPropertyTypeTable();
         table.expectedRow(new Row().withCell(PropertyTypeColDefKind.CODE.id(), "PLATE_GEOMETRY"));
         remoteConsole.prepare(table.expectedSize(14));

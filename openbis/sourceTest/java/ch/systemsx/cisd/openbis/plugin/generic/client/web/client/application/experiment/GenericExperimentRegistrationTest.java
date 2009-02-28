@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.CheckExperimentTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ChooseTypeOfNewExperiment;
@@ -39,9 +38,8 @@ public class GenericExperimentRegistrationTest extends AbstractGWTTestCase
 
     private final void loginAndPreprareRegistration(final String sampleType)
     {
-        remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.EXPERIMENTS,
-                CategoriesBuilder.MenuElementKind.REGISTER));
+        loginAndGotoTab(CategoriesBuilder.MenuCategoryKind.EXPERIMENTS,
+                CategoriesBuilder.MenuElementKind.REGISTER);
         remoteConsole.prepare(new ChooseTypeOfNewExperiment(sampleType));
     }
 

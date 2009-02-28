@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sa
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.CheckSampleTable;
@@ -49,9 +48,8 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
 
     private final void loginAndPreprareRegistration(final String sampleType)
     {
-        remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.SAMPLES,
-                CategoriesBuilder.MenuElementKind.REGISTER));
+        loginAndGotoTab(CategoriesBuilder.MenuCategoryKind.SAMPLES,
+                CategoriesBuilder.MenuElementKind.REGISTER);
         remoteConsole.prepare(new ChooseTypeOfNewSample(sampleType));
     }
 
@@ -77,9 +75,8 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
      */
     public final void testRegisterSampleByAnUnauthorizedUser()
     {
-        remoteConsole.prepare(new Login("observer", "observer"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.SAMPLES,
-                CategoriesBuilder.MenuElementKind.REGISTER));
+        loginAndGotoTab("observer",
+                "observer", CategoriesBuilder.MenuCategoryKind.SAMPLES, CategoriesBuilder.MenuElementKind.REGISTER);
         remoteConsole.prepare(new ChooseTypeOfNewSample(SampleTypeCode.CONTROL_LAYOUT.getCode()));
         remoteConsole.prepare(new FillSampleRegistrationForm("TESTGROUP", GROUP_CL + "1")
                 .addProperty(new PropertyField(GenericSampleRegistrationForm.ID + "plate-geometry",
@@ -134,9 +131,8 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
     public final void testRegisterSharedSample()
     {
         final String sampleTypeCode = SampleTypeCode.CONTROL_LAYOUT.getCode();
-        remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.SAMPLES,
-                CategoriesBuilder.MenuElementKind.REGISTER));
+        loginAndGotoTab(CategoriesBuilder.MenuCategoryKind.SAMPLES,
+                CategoriesBuilder.MenuElementKind.REGISTER);
         remoteConsole.prepare(new ChooseTypeOfNewSample(sampleTypeCode));
         final String description = "A very nice control layout.";
         remoteConsole.prepare(new FillSampleRegistrationForm(

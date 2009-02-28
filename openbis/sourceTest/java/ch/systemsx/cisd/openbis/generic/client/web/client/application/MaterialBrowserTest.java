@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.CheckMaterialTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.ListMaterials;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialRow;
@@ -34,7 +32,8 @@ public class MaterialBrowserTest extends AbstractGWTTestCase
 
     public final void testListMaterials()
     {
-        loginAndGotoListMaterialsTab();
+        loginAndGotoTab(CategoriesBuilder.MenuCategoryKind.MATERIALS,
+                CategoriesBuilder.MenuElementKind.BROWSE);
 
         remoteConsole.prepare(new ListMaterials("BACTERIUM"));
         CheckMaterialTable table = new CheckMaterialTable();
@@ -45,12 +44,5 @@ public class MaterialBrowserTest extends AbstractGWTTestCase
         remoteConsole.prepare(table.expectedSize(4));
 
         launchTest(20000);
-    }
-
-    private void loginAndGotoListMaterialsTab()
-    {
-        remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.MATERIALS,
-                CategoriesBuilder.MenuElementKind.BROWSE));
     }
 }

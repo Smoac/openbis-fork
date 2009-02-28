@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns.DataSetRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ListSamples;
@@ -45,9 +43,8 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
 
     public final void testShowMasterPlateView()
     {
-        remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.SAMPLES,
-                CategoriesBuilder.MenuElementKind.BROWSE));
+        loginAndGotoTab(CategoriesBuilder.MenuCategoryKind.SAMPLES,
+                CategoriesBuilder.MenuElementKind.BROWSE);
         remoteConsole.prepare(new ListSamples("CISD", "CONTROL_LAYOUT"));
         remoteConsole.prepare(new ShowSample(CONTROL_LAYOUT_EXAMPLE));
         final CheckSample checkSample = new CheckSample(GROUP_IDENTIFIER, CONTROL_LAYOUT_EXAMPLE);
@@ -70,9 +67,8 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
 
     public final void testShowCellPlateView()
     {
-        remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.SAMPLES,
-                CategoriesBuilder.MenuElementKind.BROWSE));
+        loginAndGotoTab(CategoriesBuilder.MenuCategoryKind.SAMPLES,
+                CategoriesBuilder.MenuElementKind.BROWSE);
         remoteConsole.prepare(new ListSamples("CISD", "CELL_PLATE"));
         remoteConsole.prepare(new ShowSample(RendererTestUtil.invalidCode(CELL_PLATE_EXAMPLE)));
         final CheckSample checkSample = new CheckSample(GROUP_IDENTIFIER, CELL_PLATE_EXAMPLE);

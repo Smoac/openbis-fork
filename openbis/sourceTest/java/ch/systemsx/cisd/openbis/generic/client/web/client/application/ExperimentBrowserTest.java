@@ -16,9 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder.MenuCategoryKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder.MenuElementKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.CheckExperimentTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ListExperiments;
@@ -34,7 +33,7 @@ public class ExperimentBrowserTest extends AbstractGWTTestCase
 
     public final void testListExperiments()
     {
-        loginAndGotoListExperimentsTab();
+        loginAndGotoTab(MenuCategoryKind.EXPERIMENTS, MenuElementKind.BROWSE);
         remoteConsole.prepare(new ListExperiments("DEFAULT (CISD)", "SIRNA_HCS"));
         CheckExperimentTable table = new CheckExperimentTable();
         table.expectedRow(new ExperimentRow("EXP-REUSE").valid());
@@ -43,11 +42,4 @@ public class ExperimentBrowserTest extends AbstractGWTTestCase
 
         launchTest(20000);
     }
-
-    private void loginAndGotoListExperimentsTab()
-    {
-        remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.EXPERIMENTS,
-                CategoriesBuilder.MenuElementKind.BROWSE));
-    }   
 }

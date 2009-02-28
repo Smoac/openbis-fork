@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.ProjectColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project.CheckProjectTable;
@@ -39,9 +38,8 @@ public class ProjectRegistrationTest extends AbstractGWTTestCase
 
     public final void testRegisterProject()
     {
-        remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.PROJECTS,
-                CategoriesBuilder.MenuElementKind.REGISTER));
+        loginAndGotoTab(CategoriesBuilder.MenuCategoryKind.PROJECTS,
+                CategoriesBuilder.MenuElementKind.REGISTER);
         remoteConsole.prepare(new FillProjectRegistrationForm(PROJECT_CODE_HER_MAJESTY, "CISD",
                 DESCRIPTION_PROJECT_007));
 

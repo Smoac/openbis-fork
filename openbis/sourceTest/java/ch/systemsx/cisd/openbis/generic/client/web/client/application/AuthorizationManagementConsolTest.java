@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddPersonDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CheckGroup;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CheckPerson;
@@ -45,10 +43,9 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
 
     public final void testCreateGroup()
     {
-        remoteConsole.prepare(new Login("test", "a"));
         final String groupCode = TEST_GROUP;
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.GROUPS,
-                CategoriesBuilder.MenuElementKind.BROWSE));
+        loginAndGotoTab(CategoriesBuilder.MenuCategoryKind.GROUPS,
+                CategoriesBuilder.MenuElementKind.BROWSE);
         remoteConsole.prepare(new CreateGroup(groupCode));
         remoteConsole.prepare(new CheckGroup(groupCode.toUpperCase()));
 
@@ -57,11 +54,10 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
 
     public final void testCreatePerson()
     {
-        remoteConsole.prepare(new Login("test", "a"));
         // This userId must be one of the ones located on 'etc/passwd' (file based authentication).
         final String userId = USER_ID;
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.PERSONS,
-                CategoriesBuilder.MenuElementKind.BROWSE));
+        loginAndGotoTab(CategoriesBuilder.MenuCategoryKind.PERSONS,
+                CategoriesBuilder.MenuElementKind.BROWSE);
         remoteConsole.prepare(new CreatePerson(userId));
         remoteConsole.prepare(new CheckPerson(userId));
 
@@ -70,9 +66,8 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
 
     public final void testCreateRole()
     {
-        remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.ROLES,
-                CategoriesBuilder.MenuElementKind.BROWSE));
+        loginAndGotoTab(CategoriesBuilder.MenuCategoryKind.ROLES,
+                CategoriesBuilder.MenuElementKind.BROWSE);
         remoteConsole.prepare(new CreateRole(TEST_GROUP.toUpperCase(), USER_ID,
                 RoleSetCode.OBSERVER.toString()));
         remoteConsole.prepare(new CheckRole(TEST_GROUP.toUpperCase(), USER_ID, RoleSetCode.OBSERVER
@@ -87,10 +82,9 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
      */
     public final void testCreatePersonByAnUnauthorizedUser()
     {
-        remoteConsole.prepare(new Login("o", "o"));
+        loginAndGotoTab("o",
+                "o", CategoriesBuilder.MenuCategoryKind.PERSONS, CategoriesBuilder.MenuElementKind.BROWSE);
         final String userId = "u";
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.PERSONS,
-                CategoriesBuilder.MenuElementKind.BROWSE));
         remoteConsole.prepare(new CreatePerson(userId));
         FailureExpectation failureExpectation =
                 new FailureExpectation(AddPersonDialog.RegisterPersonCallback.class)

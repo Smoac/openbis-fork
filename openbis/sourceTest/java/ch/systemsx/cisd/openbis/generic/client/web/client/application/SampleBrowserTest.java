@@ -18,8 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.CheckSampleTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ExportSamplesTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ListSamples;
@@ -85,7 +83,8 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         remoteConsole.prepare(exportCommand);
         String header =
                 "Code\tExperiment\tProject\tRegistrator\tRegistration Date\tParent 1\tParent 2";
-        String firstLine = "3VCP1\tEXP1\tNEMO\tDoe, John\t2008-11-05 09:21:46 GMT+01:00\t3V-123\tMP001-1";
+        String firstLine =
+                "3VCP1\tEXP1\tNEMO\tDoe, John\t2008-11-05 09:21:46 GMT+01:00\t3V-123\tMP001-1";
         remoteConsole.prepare(exportCommand.createCheckExportCommand(header, firstLine, 16));
 
         launchTest(20000);
@@ -105,8 +104,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
 
     private void loginAndGotoListSamplesTab()
     {
-        remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.SAMPLES,
-                CategoriesBuilder.MenuElementKind.BROWSE));
+        loginAndGotoTab(CategoriesBuilder.MenuCategoryKind.SAMPLES,
+                CategoriesBuilder.MenuElementKind.BROWSE);
     }
 }

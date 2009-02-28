@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.DataSetSearchHitColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchHitGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.FillSearchCriteria;
@@ -104,8 +102,7 @@ public class DataSetSearchTest extends AbstractGWTTestCase
 
     private void loginAndGotoTab()
     {
-        remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.DATA_SETS,
-                CategoriesBuilder.MenuElementKind.SEARCH));
+        loginAndGotoTab(CategoriesBuilder.MenuCategoryKind.DATA_SETS,
+                CategoriesBuilder.MenuElementKind.SEARCH);
     }
 }

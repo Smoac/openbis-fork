@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PropertyTypeAssignmentColDefKind;
@@ -74,9 +73,8 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
 
     public final void testAssignExperimentPropertyType()
     {
-        remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.PROPERTY_TYPES,
-                CategoriesBuilder.MenuElementKind.ASSIGN_ETPT));
+        loginAndGotoTab(CategoriesBuilder.MenuCategoryKind.PROPERTY_TYPES,
+                CategoriesBuilder.MenuElementKind.ASSIGN_ETPT);
         final boolean mandatory = true;
         remoteConsole.prepare(new FillPropertyTypeAssignmentForm(mandatory, USER_COMMENT,
                 COMPOUND_HCS, "a comment", EXPERIMENT));
@@ -86,9 +84,8 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
 
     public final void testGlobalValueAssignmentSamplePropertyType()
     {
-        remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.PROPERTY_TYPES,
-                CategoriesBuilder.MenuElementKind.ASSIGN_STPT));
+        loginAndGotoTab(CategoriesBuilder.MenuCategoryKind.PROPERTY_TYPES,
+                CategoriesBuilder.MenuElementKind.ASSIGN_STPT);
         remoteConsole.prepare(new FillPropertyTypeAssignmentForm(false, USER_COMMENT,
                 CONTROL_LAYOUT, NO_COMMENT, SAMPLE));
         remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.SAMPLES,

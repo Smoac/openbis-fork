@@ -28,6 +28,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Client;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder.MenuCategoryKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder.MenuElementKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 
 /**
@@ -133,4 +137,20 @@ public abstract class AbstractGWTTestCase extends GWTTestCase
         tearDownTest();
     }
 
+    // ----------
+
+    /** login default user in and go to the specified tab */
+    protected final void loginAndGotoTab(MenuCategoryKind menuCategoryKind,
+            MenuElementKind menuElementKind)
+    {
+        loginAndGotoTab("test", "a", menuCategoryKind, menuElementKind);
+    }
+
+    /** login specified user in and go to the specified tab */
+    protected final void loginAndGotoTab(String userName, String passwd,
+            MenuCategoryKind menuCategoryKind, MenuElementKind menuElementKind)
+    {
+        remoteConsole.prepare(new Login(userName, passwd));
+        remoteConsole.prepare(new OpenTab(menuCategoryKind, menuElementKind));
+    }
 }
