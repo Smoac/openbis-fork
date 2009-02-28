@@ -52,7 +52,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
  */
 public class UploadingIntegrationTest extends AssertJUnit
 {
-    private static final int BLOCK_SIZE = 1024 * 1024;
+    private static final int BLOCK_SIZE = 256 * 1024;
 
     private static final String TEST_URL = "test-url";
 
@@ -196,6 +196,33 @@ public class UploadingIntegrationTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
+    private void addRegularProgressExpectations()
+    {
+        context.checking(new Expectations()
+        {
+            {
+                one(listener).reportProgress(0, 0);
+                one(listener).reportProgress(6, BLOCK_SIZE);
+                one(listener).reportProgress(12, 2 * BLOCK_SIZE);
+                one(listener).reportProgress(19, 3 * BLOCK_SIZE);
+                one(listener).reportProgress(25, 4 * BLOCK_SIZE);
+                one(listener).reportProgress(32, 5 * BLOCK_SIZE);
+                one(listener).reportProgress(38, 6 * BLOCK_SIZE);
+                one(listener).reportProgress(44, 7 * BLOCK_SIZE);
+                one(listener).reportProgress(51, 8 * BLOCK_SIZE);
+                one(listener).reportProgress(57, 9 * BLOCK_SIZE);
+                one(listener).reportProgress(64, 10 * BLOCK_SIZE);
+                one(listener).reportProgress(70, 11 * BLOCK_SIZE);
+                one(listener).reportProgress(76, 12 * BLOCK_SIZE);
+                one(listener).reportProgress(83, 13 * BLOCK_SIZE);
+                one(listener).reportProgress(89, 14 * BLOCK_SIZE);
+                one(listener).reportProgress(96, 15 * BLOCK_SIZE);
+                one(listener).finished(true);
+                one(listener).reset();
+            }
+        });
+    }
+    
     @Test
     public void testSingleLargeFile() throws IOException
     {
@@ -214,20 +241,14 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(fileManager).createFile(user, LARGE_FILE);
                     will(returnValue(fileInFileStore));
 
-                    one(listener).reportProgress(0, 0);
-                    one(listener).reportProgress(25, BLOCK_SIZE);
-                    one(listener).reportProgress(51, 2 * BLOCK_SIZE);
-                    one(listener).reportProgress(76, 3 * BLOCK_SIZE);
-                    one(listener).finished(true);
-                    one(listener).reset();
-
                     one(fileManager).registerFileLinkAndInformRecipients(user, LARGE_FILE,
                             "no comment", "application/octet-stream", fileInFileStore, new String[]
                                 { "Albert", "Galileo" }, TEST_URL);
                     will(returnValue(Collections.emptyList()));
                 }
             });
-
+        addRegularProgressExpectations();
+        
         uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", "no comment");
 
         assertEqualContent(fileOnClient, fileInFileStore);
@@ -268,13 +289,6 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(fileManager).createFile(user, LARGE_FILE);
                     will(returnValue(fileInFileStore2));
 
-                    one(listener).reportProgress(0, 0);
-                    one(listener).reportProgress(25, BLOCK_SIZE);
-                    one(listener).reportProgress(51, 2 * BLOCK_SIZE);
-                    one(listener).reportProgress(76, 3 * BLOCK_SIZE);
-                    one(listener).finished(true);
-                    one(listener).reset();
-
                     one(fileManager).registerFileLinkAndInformRecipients(user, LARGE_FILE,
                             "no comment", "application/octet-stream", fileInFileStore2,
                             new String[]
@@ -282,6 +296,7 @@ public class UploadingIntegrationTest extends AssertJUnit
                     will(returnValue(Collections.emptyList()));
                 }
             });
+        addRegularProgressExpectations();
 
         uploader.upload(Arrays.asList(fileOnClient1, fileOnClient2), "Albert\nGalileo",
                 "no comment");
@@ -412,29 +427,29 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(fileManager).createFile(user, LARGE_FILE);
                     will(returnValue(fileInFileStore));
 
-                    one(listener).reportProgress(25, BLOCK_SIZE);
-                    one(listener).reportProgress(with(equal(51)), with(new BaseMatcher<Long>()
+                    one(listener).reportProgress(6, BLOCK_SIZE);
+                    one(listener).reportProgress(with(equal(12)), with(new BaseMatcher<Long>()
+                            {
+                        public void describeTo(Description description)
                         {
-                            public void describeTo(Description description)
-                            {
-                            }
+                        }
 
-                            public boolean matches(Object item)
+                        public boolean matches(Object item)
+                        {
+                            if (item instanceof Long)
                             {
-                                if (item instanceof Long)
+                                long numberOfBytes = (Long) item;
+                                if (numberOfBytes == 2 * BLOCK_SIZE)
                                 {
-                                    long numberOfBytes = (Long) item;
-                                    if (numberOfBytes == 2 * BLOCK_SIZE)
-                                    {
-                                        assertEquals(true, tempFileInStore.exists());
-                                        assertEquals(numberOfBytes, tempFileInStore.length());
-                                        uploader.cancel();
-                                        return true;
-                                    }
+                                    assertEquals(true, tempFileInStore.exists());
+                                    assertEquals(numberOfBytes, tempFileInStore.length());
+                                    uploader.cancel();
+                                    return true;
                                 }
-                                return false;
                             }
-                        }));
+                            return false;
+                        }
+                    }));
                     one(listener).finished(false);
                     one(listener).reset();
                 }
@@ -481,8 +496,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(fileManager).createFile(user, LARGE_FILE);
                     will(returnValue(fileInFileStore2));
 
-                    one(listener).reportProgress(25, BLOCK_SIZE);
-                    one(listener).reportProgress(with(equal(51)), with(new BaseMatcher<Long>()
+                    one(listener).reportProgress(6, BLOCK_SIZE);
+                    one(listener).reportProgress(with(equal(12)), with(new BaseMatcher<Long>()
                         {
                             public void describeTo(Description description)
                             {
@@ -510,19 +525,13 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(fileManager).createFile(user, LARGE_FILE);
                     will(returnValue(fileInFileStore2));
 
-                    one(listener).reportProgress(0, 0);
-                    one(listener).reportProgress(25, BLOCK_SIZE);
-                    one(listener).reportProgress(51, 2 * BLOCK_SIZE);
-                    one(listener).reportProgress(76, 3 * BLOCK_SIZE);
-                    one(listener).finished(true);
-                    one(listener).reset();
-
                     one(fileManager).registerFileLinkAndInformRecipients(user, LARGE_FILE,
                             "2. try", "application/octet-stream", fileInFileStore2, new String[0],
                             TEST_URL);
                     will(returnValue(Collections.emptyList()));
                 }
             });
+        addRegularProgressExpectations();
 
         uploader.upload(Arrays.asList(fileOnClient1, fileOnClient2), "Albert\nGalileo",
                 "no comment");
