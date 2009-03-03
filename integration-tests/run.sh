@@ -90,7 +90,7 @@ function build_zips {
 		echo "No components to build were specified (--help explains how to do this)."
 		echo "Build process skipped."
     fi
-    assert_file_exists_or_die "$INSTALL/openbis*.zip"
+    assert_file_exists_or_die "$INSTALL/openBIS*.zip"
     assert_file_exists_or_die "$INSTALL/datastore_server*.zip"
     assert_file_exists_or_die "$INSTALL/datamover*.zip"
 
@@ -125,7 +125,7 @@ function build_components {
 	$build_cmd datamover
     fi
     if [ $build_openbis == "true" ]; then
-	rm -f $INSTALL/openbis*.zip
+	rm -f $INSTALL/openBIS*.zip
         $build_cmd openbis
     fi
 }
@@ -215,7 +215,7 @@ function install_openbis_server {
         rm -fr $OPENBIS_SERVER
 	copy_templates $OPENBIS_SERVER_NAME
     
-        unzip -d $OPENBIS_SERVER $INSTALL/openbis*.zip
+        unzip -d $OPENBIS_SERVER $INSTALL/openBIS*.zip
 	$OPENBIS_SERVER/openbis/install.sh $PWD/$OPENBIS_SERVER $OPENBIS_SERVER/service.properties $OPENBIS_SERVER/openbis/log.xml
 	wait_for_server
     else
