@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.rpc.client.cli;
 
 import java.io.IOException;
+import java.net.URL;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -70,6 +71,22 @@ public class InitializeCommand extends AbstractCommand
             if (baseURL.endsWith("/"))
             {
                 baseURL = baseURL.substring(0, baseURL.length() - 1);
+            }
+            // Fix port 
+            final URL url = new URL(baseURL);
+            if (url.getPort() < 0)
+            {
+                if ("https".equals(url.getProtocol()))
+                {
+                    baseURL += ":443";
+                } else if ("http".equals(url.getProtocol()))
+                {
+                    baseURL += ":80";
+                } else
+                {
+                    System.err.println("URL does not contain given.");
+                    System.exit(1);
+                }
             }
             // Write Base URL to file.
             FileUtils.writeStringToFile(getBaseURLFile(), baseURL);
