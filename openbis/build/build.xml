@@ -27,7 +27,7 @@
 	<property name="jar.file.name" value="${ant.project.name}.jar" />
 	<property name="jar.file" value="${dist}/${jar.file.name}" />
 
-	<property name="webapp.file.name" value="${ant.project.name}.war" />
+	<property name="webapp.file.name" value="openBIS.war" />
 	<property name="webapp.file" value="${server.dist}/${webapp.file.name}" />
 
 	<!-- 
