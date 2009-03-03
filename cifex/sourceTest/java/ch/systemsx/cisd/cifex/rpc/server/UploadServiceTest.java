@@ -48,7 +48,7 @@ public class UploadServiceTest extends AssertJUnit
         fileManager = context.mock(IFileManager.class);
         uploadService =
                 new CIFEXRPCService(fileManager, null, null, null, null, new SessionManager(null,
-                        null, "false", 60000, 10), "false");
+                        null, "false"), 60000L, 10, "false");
         sessionID = uploadService.createSession(new UserDTO(), "exmaple-url");
     }
 

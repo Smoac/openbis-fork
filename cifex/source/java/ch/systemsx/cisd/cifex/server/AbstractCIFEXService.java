@@ -25,7 +25,6 @@ import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.log4j.Logger;
 import org.springframework.dao.DataIntegrityViolationException;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.NullAuthenticationService;
 import ch.systemsx.cisd.authentication.Principal;
@@ -85,7 +84,7 @@ abstract public class AbstractCIFEXService
     protected final IUserActionLog userBehaviorLogOrNull;
 
     /** Session timeout in seconds. */
-    private int sessionExpirationPeriod;
+    private final int sessionExpirationPeriodInSeconds;
 
     protected static LoggingContextHandler createLoggingContextHandler(
             final IRequestContextProvider requestContextProvider)
@@ -104,13 +103,15 @@ abstract public class AbstractCIFEXService
             final IRequestContextProvider requestContextProvider,
             final IUserActionLog userBehaviorLogOrNull,
             final IAuthenticationService externalAuthenticationService,
-            final LoggingContextHandler loggingContextHandler)
+            final LoggingContextHandler loggingContextHandler,
+            final int sessionExpirationPeriodMinutes)
     {
         this.domainModel = domainModel;
         this.requestContextProvider = requestContextProvider;
         this.userBehaviorLogOrNull = userBehaviorLogOrNull;
         this.externalAuthenticationService = externalAuthenticationService;
         this.loggingContextHandler = loggingContextHandler;
+        this.sessionExpirationPeriodInSeconds = sessionExpirationPeriodMinutes * 60;
         checkAuthentication();
     }
 
@@ -118,13 +119,6 @@ abstract public class AbstractCIFEXService
     public static Session tryGetRPCSession(HttpSession httpSession)
     {
         return (Session) httpSession.getAttribute(CIFEXRPCService.SESSION_ATTRIBUTE_RPC_SESSION);
-    }
-
-    @Private
-    // for tests only
-    public void setSessionExpirationPeriodInMinutes(final int sessionExpirationPeriodInMinutes)
-    {
-        sessionExpirationPeriod = sessionExpirationPeriodInMinutes * 60;
     }
 
     private void checkAuthentication() throws HighLevelException
@@ -166,7 +160,7 @@ abstract public class AbstractCIFEXService
     {
         final HttpSession httpSession = getSession(true);
         // A negative time (in seconds) indicates the session should never timeout.
-        httpSession.setMaxInactiveInterval(sessionExpirationPeriod);
+        httpSession.setMaxInactiveInterval(sessionExpirationPeriodInSeconds);
         httpSession.setAttribute(SESSION_ATTRIBUTE_USER_NAME, user);
         httpSession.setAttribute(UPLOAD_FEEDBACK_QUEUE, new FileUploadFeedbackProvider());
         return httpSession.getId();

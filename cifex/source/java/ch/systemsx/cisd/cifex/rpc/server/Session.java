@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.cifex.rpc.UploadStatus;
+import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 
 /**
@@ -31,6 +32,11 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
  */
 public final class Session
 {
+    public enum Operation
+    {
+        UPLOAD, DOWNLOAD;
+    }
+    
     private final String sessionID;
     
     private final UserDTO user;
@@ -41,6 +47,8 @@ public final class Session
     
     private File file;
     
+    private FileDTO fileInfo;
+    
     private List<File> temporaryFiles = new ArrayList<File>();
     
     private RandomAccessFile randomAccessFile;
@@ -48,6 +56,8 @@ public final class Session
     private String[] recipients;
     
     private String comment;
+    
+    private Operation operation;
     
     private long lastActiveMillis;
 
@@ -99,6 +109,26 @@ public final class Session
         this.file = file;
     }
     
+    public FileDTO getFileInfo()
+    {
+        return fileInfo;
+    }
+
+    public void setFileInfo(FileDTO fileInfo)
+    {
+        this.fileInfo = fileInfo;
+    }
+
+    public Operation getOperation()
+    {
+        return operation;
+    }
+
+    public void setOperation(Operation operation)
+    {
+        this.operation = operation;
+    }
+
     final void addTempFile(File tempFile)
     {
         temporaryFiles.add(tempFile);

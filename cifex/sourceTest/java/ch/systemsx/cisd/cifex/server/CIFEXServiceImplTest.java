@@ -206,7 +206,6 @@ public class CIFEXServiceImplTest
         prepareForGettingUserFromHTTPSession(userDTO, true);
 
         final CIFEXServiceImpl service = createService(new NullAuthenticationService());
-        service.setSessionExpirationPeriodInMinutes(1);
         final UserInfoDTO user = service.tryLogin(userDTO.getEmail(), password);
         assertEquals(userDTO.getEmail(), user.getEmail());
         assertNull(user.getUserFullName());
@@ -227,7 +226,6 @@ public class CIFEXServiceImplTest
         prepareForGettingUserFromHTTPSession(userDTO, true);
 
         final CIFEXServiceImpl service = createService(new NullAuthenticationService());
-        service.setSessionExpirationPeriodInMinutes(1);
         final UserInfoDTO user = service.tryLogin(userDTO.getUserCode(), password);
         assertEquals(userDTO.getEmail(), user.getEmail());
         assertEquals(userDTO.getUserFullName(), user.getUserFullName());
@@ -250,7 +248,6 @@ public class CIFEXServiceImplTest
         prepareForGettingUserFromHTTPSession(userDTO, true, false);
 
         final CIFEXServiceImpl service = createService(new NullAuthenticationService());
-        service.setSessionExpirationPeriodInMinutes(1);
         final UserInfoDTO user = service.tryLogin(userDTO.getUserCode(), password);
         assertEquals(userDTO.getUserCode(), user.getUserCode());
         assertEquals(userDTO.getEmail(), user.getEmail());
@@ -606,7 +603,6 @@ public class CIFEXServiceImplTest
         prepareForGettingUserFromHTTPSession(userDTO, true);
 
         final CIFEXServiceImpl service = createService(new NullAuthenticationService());
-        service.setSessionExpirationPeriodInMinutes(1);
         final UserInfoDTO user = service.tryLogin(userDTO.getUserCode(), password);
         assertEquals(userDTO.getUserCode(), user.getUserCode());
         assertEquals(userDTO.getEmail(), user.getEmail());
@@ -925,7 +921,6 @@ public class CIFEXServiceImplTest
             });
 
         final CIFEXServiceImpl service = createService(authenticationService);
-        service.setSessionExpirationPeriodInMinutes(1);
         final UserInfoDTO user = service.tryLogin(userDTO.getUserCode(), password);
         assertEquals(userDTO.getEmail(), user.getEmail());
         assertEquals(userDTO.getUserFullName(), user.getUserFullName());
@@ -967,7 +962,6 @@ public class CIFEXServiceImplTest
         prepareForGettingUserFromHTTPSession(newUserDTO, true);
 
         final CIFEXServiceImpl service = createService(authenticationService);
-        service.setSessionExpirationPeriodInMinutes(1);
         final UserInfoDTO user = service.tryLogin(oldUserDTO.getUserCode(), password);
         assertEquals(oldUserDTO.getEmail(), user.getEmail());
         assertEquals(oldUserDTO.getUserFullName(), user.getUserFullName());
@@ -1010,7 +1004,6 @@ public class CIFEXServiceImplTest
         assertEquals(oldUserDTO.getEmail(), oldEmail);
 
         final CIFEXServiceImpl service = createService(authenticationService);
-        service.setSessionExpirationPeriodInMinutes(1);
         final UserInfoDTO user = service.tryLogin(oldUserDTO.getUserCode(), password);
 
         assertEquals(oldUserDTO.getEmail(), user.getEmail());
@@ -1054,7 +1047,6 @@ public class CIFEXServiceImplTest
         prepareForGettingUserFromHTTPSession(userDTO, true);
 
         final CIFEXServiceImpl service = createService(authenticationService);
-        service.setSessionExpirationPeriodInMinutes(1);
         final UserInfoDTO user = service.tryLogin(userDTO.getUserCode(), password);
         assertEquals(userDTO.getEmail(), user.getEmail());
         assertEquals(userDTO.getUserFullName(), user.getUserFullName());
@@ -1099,7 +1091,6 @@ public class CIFEXServiceImplTest
             });
 
         final CIFEXServiceImpl service = createService(authenticationService);
-        service.setSessionExpirationPeriodInMinutes(1);
         final UserInfoDTO user = service.tryLogin(userDTO.getUserCode(), externalPassword);
         assertTrue(user == null);
 
@@ -1253,7 +1244,7 @@ public class CIFEXServiceImplTest
     private CIFEXServiceImpl createService(final IAuthenticationService aService)
     {
         return new CIFEXServiceImpl(domainModel, requestContextProvider, new DummyUserActionLog(),
-                aService);
+                aService, 1);
     }
 
     @SuppressWarnings("unused")

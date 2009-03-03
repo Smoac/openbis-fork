@@ -30,6 +30,8 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.io.FilenameUtils;
@@ -40,6 +42,7 @@ import ch.systemsx.cisd.cifex.rpc.FileSizeExceededException;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.cifex.rpc.UploadState;
 import ch.systemsx.cisd.cifex.rpc.UploadStatus;
+import ch.systemsx.cisd.cifex.rpc.server.Session.Operation;
 import ch.systemsx.cisd.cifex.server.AbstractCIFEXService;
 import ch.systemsx.cisd.cifex.server.HttpUtils;
 import ch.systemsx.cisd.cifex.server.business.FileInformation;
@@ -60,7 +63,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.exceptions.WrappedIOException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.logging.LoggingContextHandler;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.common.utilities.StringUtilities;
@@ -84,43 +86,65 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
 
     private final IFileManager fileManager;
 
-    // used externally by spring
+    // used by spring in applicationContext.xml
     public CIFEXRPCService(final IDomainModel domainModel,
             final IRequestContextProvider requestContextProvider,
             final IUserActionLog userBehaviorLog,
             final IAuthenticationService externalAuthenticationService,
-            final SessionManager sessionManager, final String testingFlag)
+            final SessionManager sessionManager, final long cleaningTimeInterval,
+            final int sessionExpirationPeriodMinutes, final String testingFlag)
     {
         this(domainModel.getFileManager(), domainModel, requestContextProvider, userBehaviorLog,
-                externalAuthenticationService, sessionManager, testingFlag);
+                externalAuthenticationService, sessionManager, cleaningTimeInterval,
+                sessionExpirationPeriodMinutes, testingFlag);
     }
 
     public CIFEXRPCService(final IFileManager fileManager, final IDomainModel domainModel,
             final IRequestContextProvider requestContextProvider,
             final IUserActionLog userBehaviorLog,
             final IAuthenticationService externalAuthenticationService,
-            final SessionManager sessionManager, final String testingFlag)
+            final SessionManager sessionManager, final long cleaningTimeInterval,
+            final int sessionExpirationPeriodMinutes, final String testingFlag)
     {
-        this(fileManager, sessionManager, domainModel, requestContextProvider, userBehaviorLog,
-                externalAuthenticationService, createLoggingContextHandler(requestContextProvider));
+        super(domainModel, requestContextProvider, userBehaviorLog, externalAuthenticationService,
+                createLoggingContextHandler(requestContextProvider), sessionExpirationPeriodMinutes);
+        this.fileManager = fileManager;
+        this.sessionManager = sessionManager;
         if ("true".equals(testingFlag))
         {
             UserDTO userDTO = new UserDTO();
             userDTO.setID(Long.parseLong(System.getProperty("test-user.id")));
             userDTO.setUserCode(System.getProperty("test-user.code"));
             sessionManager.createSession(userDTO, "test-url");
+        } else
+        {
+            startSessionExpirationTimer(cleaningTimeInterval, sessionExpirationPeriodMinutes);
         }
     }
 
-    private CIFEXRPCService(IFileManager fileManager, SessionManager sessionManager,
-            IDomainModel domainModel, IRequestContextProvider requestContextProvider,
-            IUserActionLog userBehaviorLog, IAuthenticationService externalAuthenticationService,
-            LoggingContextHandler loggingContextHandler)
+    private void startSessionExpirationTimer(final long cleaningTimeInterval,
+            final long sessionExpirationPeriodMinutes)
     {
-        super(domainModel, requestContextProvider, userBehaviorLog, externalAuthenticationService,
-                loggingContextHandler);
-        this.fileManager = fileManager;
-        this.sessionManager = sessionManager;
+        final Timer timer = new Timer("Session Expiration", true);
+        final long sessionExpirationPeriodMillis = 60L * 1000 * sessionExpirationPeriodMinutes;
+        timer.schedule(new TimerTask()
+            {
+                @Override
+                public void run()
+                {
+                    final long now = System.currentTimeMillis();
+                    synchronized (sessionManager)
+                    {
+                        for (Session session : sessionManager.getAllSessions())
+                        {
+                            if (now - session.getLastActiveMillis() > sessionExpirationPeriodMillis)
+                            {
+                                logout(session.getSessionID(), true);
+                            }
+                        }
+                    }
+                }
+            }, 0L, cleaningTimeInterval);
     }
 
     //
@@ -159,7 +183,20 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
 
     public void logout(String sessionID) throws InvalidSessionException
     {
-        sessionManager.removeSession(sessionID, false);
+        logout(sessionID, false);
+    }
+
+    private void logout(String sessionID, boolean sessionExpired) throws InvalidSessionException
+    {
+        // As this method is also called outside of the ServletDisplatcher thread, we must not call
+        // getSession() with storeInHTTPSession = true.
+        final Session session = sessionManager.getSession(sessionID, false);
+        if (UploadState.RUNNING_STATES.contains(session.getUploadStatus().getUploadState()))
+        {
+            logInvocation(sessionID, "Cancel.");
+        }
+        cleanUpSession(session);
+        sessionManager.removeSession(sessionID, sessionExpired);
     }
 
     private String getURLForEmail()
@@ -221,10 +258,21 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
     {
         final Session session = sessionManager.getSession(sessionID);
         logInvocation(sessionID, successful ? "Successfully finished." : "Aborted.");
+        final Operation operationOrNull = session.getOperation();
+        if (operationOrNull != null && userBehaviorLogOrNull != null)
+        {
+            if (operationOrNull == Operation.UPLOAD)
+            {
+                // Nothing to do, has already been logged in last call to uploadBlock()
+            } else if (operationOrNull == Operation.DOWNLOAD)
+            {
+                userBehaviorLogOrNull.logDownloadFileFinished(session.getFileInfo(), successful);
+            }
+        }
         cleanUpSession(session);
         if (successful == false)
         {
-            session.getUploadStatus().setUploadState(UploadState.INITIALIZED);
+            session.getUploadStatus().setUploadState(INITIALIZED);
         }
     }
 
@@ -240,6 +288,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
             logInvocation(sessionID, "Start uploading " + nameOfCurrentFile);
             fileName = FilenameUtilities.ensureMaximumSize(nameOfCurrentFile, MAX_FILENAME_LENGTH);
             File file = fileManager.createFile(session.getUser(), fileName);
+            session.setOperation(Operation.UPLOAD);
             session.setFile(file);
             File tempFile = createTempFile(file);
             session.addTempFile(tempFile);
@@ -251,7 +300,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         {
             if (userBehaviorLogOrNull != null)
             {
-                userBehaviorLogOrNull.logUploadFile(fileName, success);
+                userBehaviorLogOrNull.logUploadFileStart(fileName, success);
             }
         }
     }
@@ -289,15 +338,19 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
             if (lastBlock)
             {
                 randomAccessFileOrNull.close();
-                File file = session.getFile();
+                final File file = session.getFile();
                 createTempFile(file).renameTo(file);
+                if (userBehaviorLogOrNull != null)
+                {
+                    userBehaviorLogOrNull.logUploadFileFinished(file.getName(), true);
+                }
                 String contentType = FilenameUtilities.getMimeType(status.getNameOfCurrentFile());
                 String comment = session.getComment();
-                UserDTO user = session.getUser();
-                String nameOfCurrentFile = status.getNameOfCurrentFile();
-                String[] recipients = session.getRecipients();
-                String url = session.getUrl();
-                List<String> invalidUserIdentifiers =
+                final UserDTO user = session.getUser();
+                final String nameOfCurrentFile = status.getNameOfCurrentFile();
+                final String[] recipients = session.getRecipients();
+                final String url = session.getUrl();
+                final List<String> invalidUserIdentifiers =
                         fileManager.registerFileLinkAndInformRecipients(user, nameOfCurrentFile,
                                 comment, contentType, file, recipients, url);
                 if (invalidUserIdentifiers.isEmpty() == false)
@@ -313,6 +366,10 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
             }
         } catch (IOException ex)
         {
+            if (userBehaviorLogOrNull != null)
+            {
+                userBehaviorLogOrNull.logUploadFileFinished(session.getFile().getName(), false);
+            }
             throw new WrappedIOException(ex);
         }
     }
@@ -341,6 +398,8 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
                 throw new WrappedIOException(new IOException(Constants
                         .getErrorMessageForFileNotFound(fileID)));
             }
+            session.setOperation(Operation.DOWNLOAD);
+            session.setFileInfo(file);
             try
             {
                 session.setRandomAccessFile(new RandomAccessFile(fileInfo.getFile(), "r"));
@@ -355,7 +414,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         {
             if (userBehaviorLogOrNull != null)
             {
-                userBehaviorLogOrNull.logDownloadFile(file, success);
+                userBehaviorLogOrNull.logDownloadFileStart(file, success);
             }
         }
     }
@@ -372,6 +431,10 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
             {
                 throw new IllegalStateException(
                         "downloadBlock() called without previous startDownloading()");
+            }
+            if (session.getUploadStatus().getUploadState() == UploadState.ABORTED)
+            {
+                throw new IllegalStateException("downloadBlock() called when download was aborted");
             }
             final long fileSize = randomAccessFileOrNull.length();
             final int bytesLeft = (int) (fileSize - filePointer);

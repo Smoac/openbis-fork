@@ -84,10 +84,11 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
     public CIFEXServiceImpl(final IDomainModel domainModel,
             final IRequestContextProvider requestContextProvider,
             final IUserActionLog userBehaviorLog,
-            final IAuthenticationService externalAuthenticationService)
+            final IAuthenticationService externalAuthenticationService,
+            final int sessionExpirationPeriodMinutes)
     {
         super(domainModel, requestContextProvider, userBehaviorLog, externalAuthenticationService,
-                createLoggingContextHandler(requestContextProvider));
+                createLoggingContextHandler(requestContextProvider), sessionExpirationPeriodMinutes);
     }
 
     public final boolean showSwitchToExternalOption(final UserInfoDTO user)
@@ -258,15 +259,17 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         to.setUserFullName(from.getUserFullName());
     }
 
-    public final UserInfoDTO[] listUsers() throws InvalidSessionException, InsufficientPrivilegesException
+    public final UserInfoDTO[] listUsers() throws InvalidSessionException,
+            InsufficientPrivilegesException
     {
         checkAdmin("listUsers");
         final List<UserDTO> users = domainModel.getUserManager().listUsers();
         return BeanUtils.createBeanArray(UserInfoDTO.class, users, null);
     }
 
-    public void createUser(final UserInfoDTO user, final String password, final UserInfoDTO registratorOrNull,
-            final String comment) throws EnvironmentFailureException, InvalidSessionException,
+    public void createUser(final UserInfoDTO user, final String password,
+            final UserInfoDTO registratorOrNull, final String comment)
+            throws EnvironmentFailureException, InvalidSessionException,
             InsufficientPrivilegesException, UserFailureException
     {
         checkCreateUserAllowed(user);
@@ -358,7 +361,8 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         }
     }
 
-    public AdminFileInfoDTO[] listFiles() throws InvalidSessionException, InsufficientPrivilegesException
+    public AdminFileInfoDTO[] listFiles() throws InvalidSessionException,
+            InsufficientPrivilegesException
     {
         checkAdmin("listFiles");
         final List<FileDTO> files = domainModel.getFileManager().listFiles();
@@ -375,7 +379,8 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         return listFiles(UPLOAD);
     }
 
-    private final FileInfoDTO[] listFiles(final boolean showDownload) throws InvalidSessionException
+    private final FileInfoDTO[] listFiles(final boolean showDownload)
+            throws InvalidSessionException
     {
         final UserDTO user = privGetCurrentUser();
         final List<FileDTO> files;
@@ -620,7 +625,8 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         return BeanUtils.createBeanArray(UserInfoDTO.class, users);
     }
 
-    public UserInfoDTO[] listUsersRegisteredBy(final String userCode) throws InvalidSessionException
+    public UserInfoDTO[] listUsersRegisteredBy(final String userCode)
+            throws InvalidSessionException
     {
         privGetCurrentUser();
         final IUserManager userManager = domainModel.getUserManager();

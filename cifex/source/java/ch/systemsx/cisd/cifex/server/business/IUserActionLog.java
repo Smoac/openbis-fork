@@ -62,6 +62,10 @@ public interface IUserActionLog extends IActionLog
 
     public void logUploadFile(String filename, boolean success);
 
+    public void logUploadFileStart(String filename, final boolean success);
+
+    public void logUploadFileFinished(String filename, boolean success);
+
     public void logShareFiles(Collection<FileDTO> files, Collection<UserDTO> usersToShareWith,
             Collection<String> emailsOfUsersToShareWith, Collection<String> invalidEmailAddresses,
             boolean success);
@@ -73,6 +77,10 @@ public interface IUserActionLog extends IActionLog
     public void logRenewFile(FileDTO file, boolean success);
 
     public void logDownloadFile(FileDTO file, boolean success);
+
+    public void logDownloadFileStart(FileDTO file, final boolean success);
+
+    public void logDownloadFileFinished(FileDTO file, boolean success);
 
     public void logDeleteSharingLink(long fileId, String userCode, boolean success);
 

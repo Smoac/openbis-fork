@@ -34,7 +34,7 @@
         <constructor-arg ref="request-context-provider" />
         <constructor-arg ref="user-action-log" />
         <constructor-arg ref="${external-authentication-service}" />
-        <property name="sessionExpirationPeriodInMinutes" value="${session-timeout}" />
+        <constructor-arg value="${session-timeout}" />    
     </bean>
 
     <bean id="domain-model" class="ch.systemsx.cisd.cifex.server.business.DomainModel">
@@ -81,8 +81,6 @@
                 <constructor-arg ref="request-context-provider" />
                 <constructor-arg ref="user-action-log" />
                 <constructor-arg value="${testing}" />
-                <constructor-arg value="${cleaning-time-interval}" />    
-                <constructor-arg value="${session-timeout}" />    
     </bean>
 
     <bean id="rpc-service" class="org.springframework.aop.framework.ProxyFactoryBean">
@@ -98,8 +96,9 @@
                 <constructor-arg ref="user-action-log" />
                 <constructor-arg ref="${external-authentication-service}" />
                 <constructor-arg ref="session-manager" />
+                <constructor-arg value="${cleaning-time-interval}" />    
+                <constructor-arg value="${session-timeout}" />    
                 <constructor-arg value="${testing}" />
-                <property name="sessionExpirationPeriodInMinutes" value="${session-timeout}" />    
             </bean>
         </property>
         <property name="interceptorNames">

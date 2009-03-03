@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.rpc;
 
+import java.util.EnumSet;
+
 /**
  * State of the upload session life cycle
  *
@@ -24,4 +26,8 @@ package ch.systemsx.cisd.cifex.rpc;
 public enum UploadState
 {
     INITIALIZED, READY_FOR_NEXT_FILE, UPLOADING, FINISHED, ABORTED;
+
+    public static final EnumSet<UploadState> RUNNING_STATES =
+        EnumSet.of(UploadState.READY_FOR_NEXT_FILE, UploadState.UPLOADING);
+
 }

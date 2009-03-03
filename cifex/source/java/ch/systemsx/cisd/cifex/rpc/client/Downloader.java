@@ -84,6 +84,7 @@ public final class Downloader extends AbstractUploadDownload
                     filePointer += blockSize;
                     fireProgressEvent(filePointer, fileSize);
                 }
+                service.finish(sessionID, true);
                 fireFinishedEvent(true);
             } finally
             {
@@ -91,6 +92,13 @@ public final class Downloader extends AbstractUploadDownload
             }
         } catch (Throwable th)
         {
+            try
+            {
+                service.finish(sessionID, false);
+            } catch (Throwable th2)
+            {
+                // Nothing we can do here.
+            }
             fireFinishedEvent(false);
             throw CheckedExceptionTunnel.wrapIfNecessary(th);
         }

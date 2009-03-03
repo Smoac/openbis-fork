@@ -16,11 +16,10 @@
 
 package ch.systemsx.cisd.cifex.rpc.server;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import javax.servlet.http.HttpSession;
 
@@ -52,41 +51,22 @@ public class SessionManager
     private int nextID;
 
     public SessionManager(final IRequestContextProvider requestContextProvider,
-            final IUserActionLog userBehaviorLogOrNull, final String testingFlag,
-            final long cleaningTimeInterval, final long sessionExpirationPeriodMinutes)
+            final IUserActionLog userBehaviorLogOrNull, final String testingFlag)
     {
         this.requestContextProviderOrNull = requestContextProvider;
         this.userBehaviorLogOrNull = userBehaviorLogOrNull;
         this.testMode = "true".equals(testingFlag);
-        if (testMode == false)
-        {
-            startSessionExpirationTimer(cleaningTimeInterval, sessionExpirationPeriodMinutes);
-        }
     }
 
-    private void startSessionExpirationTimer(final long cleaningTimeInterval,
-            final long sessionExpirationPeriodMinutes)
+    /**
+     * Returns all sessions currently in the session manager.
+     * <p>
+     * <b>Note:</b> The caller is expected to hold the synchronization monitor of this class when
+     * calling this method and processing the sessions.
+     */
+    Collection<Session> getAllSessions()
     {
-        final Timer timer = new Timer("Session Expiration", true);
-        final long sessionExpirationPeriodMillis = 60 * 1000 * sessionExpirationPeriodMinutes;
-        timer.schedule(new TimerTask()
-            {
-                @Override
-                public void run()
-                {
-                    final long now = System.currentTimeMillis();
-                    synchronized (this)
-                    {
-                        for (Session session : sessions.values())
-                        {
-                            if (now - session.getLastActiveMillis() > sessionExpirationPeriodMillis)
-                            {
-                                removeSession(session.getSessionID(), true);
-                            }
-                        }
-                    }
-                }
-            }, 0L, cleaningTimeInterval);
+        return sessions.values();
     }
 
     /**
@@ -110,9 +90,25 @@ public class SessionManager
     /**
      * Retrieves the session for the specified ID.
      * 
+     * @param sessionID The id of the session to get.
      * @throws EnvironmentFailureException if no session could be found.
      */
     public synchronized Session getSession(String sessionID) throws InvalidSessionException
+    {
+        return getSession(sessionID, true);
+    }
+
+    /**
+     * Retrieves the session for the specified ID.
+     * 
+     * @param sessionID The id of the session to get.
+     * @param storeInHTTPSession If <code>true</code>, the session object is stored in the HTTP
+     *            session. Only call it like this when you are in a web requests and in the
+     *            DispatcherServlet thread!
+     * @throws EnvironmentFailureException if no session could be found.
+     */
+    synchronized Session getSession(String sessionID, boolean storeInHTTPSession)
+            throws InvalidSessionException
     {
         Session session = sessions.get(sessionID);
         if (session == null)
@@ -120,7 +116,10 @@ public class SessionManager
             throw new InvalidSessionException("No session found for ID " + sessionID);
         }
         session.touchSession();
-        storeRPCSessionInHTTPSession(session);
+        if (storeInHTTPSession)
+        {
+            storeRPCSessionInHTTPSession(session);
+        }
         return session;
     }
 

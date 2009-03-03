@@ -106,4 +106,20 @@ public class DummyUserActionLog implements IUserActionLog
     public void logSuccessfulLogin(Session session)
     {
     }
+
+    public void logDownloadFileFinished(FileDTO file, boolean success)
+    {
+    }
+
+    public void logDownloadFileStart(FileDTO file, boolean success)
+    {
+    }
+
+    public void logUploadFileFinished(String filename, boolean success)
+    {
+    }
+
+    public void logUploadFileStart(String filename, boolean success)
+    {
+    }
 }

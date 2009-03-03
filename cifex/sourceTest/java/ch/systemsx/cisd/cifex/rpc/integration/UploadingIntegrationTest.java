@@ -122,7 +122,7 @@ public class UploadingIntegrationTest extends AssertJUnit
         userActionLog = context.mock(IUserActionLog.class);
         CIFEXRPCService uploadService =
                 new CIFEXRPCService(fileManager, domainModel, null, userActionLog, null,
-                        new SessionManager(null, null, "false", 60000, 10), "false");
+                        new SessionManager(null, null, "false"), 60000L, 10, "false");
         user = new UserDTO();
         user.setUserCode("Isaac");
         String sessionID = uploadService.createSession(user, TEST_URL);
@@ -173,7 +173,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                     will(returnValue(businessContext));
                     allowing(businessContext).getMaxUploadRequestSizeInMB();
                     will(returnValue((int) (LARGE_FILE_SIZE * 2)));
-                    one(userActionLog).logUploadFile(SMALL_FILE, true);
+                    one(userActionLog).logUploadFileStart(SMALL_FILE, true);
+                    one(userActionLog).logUploadFileFinished(SMALL_FILE, true);
                     one(listener).start(fileOnClient, SMALL_FILE_SIZE * 1024L);
 
                     one(fileManager).createFile(user, SMALL_FILE);
@@ -235,7 +236,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                     will(returnValue(businessContext));
                     allowing(businessContext).getMaxUploadRequestSizeInMB();
                     will(returnValue((int) (LARGE_FILE_SIZE * 2)));
-                    one(userActionLog).logUploadFile(LARGE_FILE, true);
+                    one(userActionLog).logUploadFileStart(LARGE_FILE, true);
+                    one(userActionLog).logUploadFileFinished(LARGE_FILE, true);
                     one(listener).start(fileOnClient, LARGE_FILE_SIZE * 1024L);
 
                     one(fileManager).createFile(user, LARGE_FILE);
@@ -269,8 +271,10 @@ public class UploadingIntegrationTest extends AssertJUnit
                     will(returnValue(businessContext));
                     allowing(businessContext).getMaxUploadRequestSizeInMB();
                     will(returnValue((int) (LARGE_FILE_SIZE * 2)));
-                    one(userActionLog).logUploadFile(SMALL_FILE, true);
-                    one(userActionLog).logUploadFile(LARGE_FILE, true);
+                    one(userActionLog).logUploadFileStart(SMALL_FILE, true);
+                    one(userActionLog).logUploadFileFinished(SMALL_FILE, true);
+                    one(userActionLog).logUploadFileStart(LARGE_FILE, true);
+                    one(userActionLog).logUploadFileFinished(LARGE_FILE, true);
                     one(listener).start(fileOnClient1, SMALL_FILE_SIZE * 1024L);
                     one(fileManager).createFile(user, SMALL_FILE);
                     will(returnValue(fileInFileStore1));
@@ -318,7 +322,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                     will(returnValue(businessContext));
                     allowing(businessContext).getMaxUploadRequestSizeInMB();
                     will(returnValue((int) (LARGE_FILE_SIZE * 2)));
-                    one(userActionLog).logUploadFile(SMALL_FILE, true);
+                    one(userActionLog).logUploadFileStart(SMALL_FILE, true);
+                    one(userActionLog).logUploadFileFinished(SMALL_FILE, true);
                     one(listener).start(fileOnClient, SMALL_FILE_SIZE * 1024L);
 
                     one(fileManager).createFile(user, SMALL_FILE);
@@ -377,7 +382,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                     will(returnValue(businessContext));
                     allowing(businessContext).getMaxUploadRequestSizeInMB();
                     will(returnValue((int) (SMALL_FILE_SIZE * 2)));
-                    one(userActionLog).logUploadFile(SMALL_FILE, true);
+                    one(userActionLog).logUploadFileStart(SMALL_FILE, true);
+                    one(userActionLog).logUploadFileFinished(SMALL_FILE, true);
                     one(listener).start(fileOnClient, SMALL_FILE_SIZE * 1024L);
 
                     one(fileManager).createFile(user, SMALL_FILE);
@@ -421,7 +427,7 @@ public class UploadingIntegrationTest extends AssertJUnit
                     will(returnValue(businessContext));
                     allowing(businessContext).getMaxUploadRequestSizeInMB();
                     will(returnValue((int) (LARGE_FILE_SIZE * 2)));
-                    one(userActionLog).logUploadFile(LARGE_FILE, true);
+                    one(userActionLog).logUploadFileStart(LARGE_FILE, true);
                     one(listener).start(fileOnClient, LARGE_FILE_SIZE * 1024L);
 
                     one(fileManager).createFile(user, LARGE_FILE);
@@ -476,8 +482,10 @@ public class UploadingIntegrationTest extends AssertJUnit
                     will(returnValue(businessContext));
                     allowing(businessContext).getMaxUploadRequestSizeInMB();
                     will(returnValue((int) (LARGE_FILE_SIZE * 2)));
-                    one(userActionLog).logUploadFile(SMALL_FILE, true);
-                    exactly(2).of(userActionLog).logUploadFile(LARGE_FILE, true);
+                    one(userActionLog).logUploadFileStart(SMALL_FILE, true);
+                    one(userActionLog).logUploadFileFinished(SMALL_FILE, true);
+                    exactly(2).of(userActionLog).logUploadFileStart(LARGE_FILE, true);
+                    one(userActionLog).logUploadFileFinished(LARGE_FILE, true);
                     one(listener).start(fileOnClient1, SMALL_FILE_SIZE * 1024L);
                     one(fileManager).createFile(user, SMALL_FILE);
                     will(returnValue(fileInFileStore1));

@@ -19,7 +19,6 @@ package ch.systemsx.cisd.cifex.rpc.client;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.EnumSet;
 import java.util.List;
 
 import org.springframework.remoting.RemoteAccessException;
@@ -42,9 +41,6 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
  */
 public final class Uploader extends AbstractUploadDownload
 {
-    private static final EnumSet<UploadState> RUNNING_STATES =
-            EnumSet.of(UploadState.READY_FOR_NEXT_FILE, UploadState.UPLOADING);
-
     /**
      * Creates an instance for the specified service and session ID.
      */
@@ -113,7 +109,7 @@ public final class Uploader extends AbstractUploadDownload
         try
         {
             UploadStatus status = service.getUploadStatus(sessionID);
-            return RUNNING_STATES.contains(status.getUploadState());
+            return UploadState.RUNNING_STATES.contains(status.getUploadState());
         } catch (RuntimeException ex)
         {
             fireExceptionEvent(ex);
@@ -230,7 +226,7 @@ public final class Uploader extends AbstractUploadDownload
             {
                 lastExceptionOrNull = ex;
                 fireWarningEvent("Error during upload: " + ex.getClass().getSimpleName() + ": "
-                        + ex.getMessage() + ", will retry download soon...");
+                        + ex.getMessage() + ", will retry upload soon...");
                 ConcurrencyUtilities.sleep(WAIT_AFTER_FAILURE_MILLIS);
             }
         }

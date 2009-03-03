@@ -279,6 +279,26 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
         }
     }
 
+    public void logUploadFileStart(String filename, final boolean success)
+    {
+        if (trackingLog.isInfoEnabled())
+        {
+            trackingLog.info(getUserHostSessionDescription()
+                    + String.format("upload_file_start '%s': %s", filename,
+                            getSuccessString(success)));
+        }
+    }
+
+    public void logUploadFileFinished(String filename, boolean success)
+    {
+        if (trackingLog.isInfoEnabled())
+        {
+            trackingLog.info(getUserHostSessionDescription()
+                    + String.format("upload_file_finished '%s': %s", filename,
+                            getSuccessString(success)));
+        }
+    }
+
     public void logShareFiles(final Collection<FileDTO> files,
             final Collection<UserDTO> usersToShareWith,
             final Collection<String> emailsOfUsersToShareWith,
@@ -411,6 +431,26 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
         {
             accessLog.info(getUserHostSessionDescription()
                     + String.format("download_file '%s': %s", getFileDescription(file),
+                            getSuccessString(success)));
+        }
+    }
+
+    public void logDownloadFileStart(FileDTO file, final boolean success)
+    {
+        if (accessLog.isInfoEnabled())
+        {
+            accessLog.info(getUserHostSessionDescription()
+                    + String.format("download_file_start '%s': %s", getFileDescription(file),
+                            getSuccessString(success)));
+        }
+    }
+
+    public void logDownloadFileFinished(FileDTO file, boolean success)
+    {
+        if (accessLog.isInfoEnabled())
+        {
+            accessLog.info(getUserHostSessionDescription()
+                    + String.format("download_file_finished '%s': %s", getFileDescription(file),
                             getSuccessString(success)));
         }
     }
