@@ -337,28 +337,37 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
             randomAccessFileOrNull.write(block, 0, block.length);
             if (lastBlock)
             {
-                randomAccessFileOrNull.close();
-                final File file = session.getFile();
-                createTempFile(file).renameTo(file);
-                String contentType = FilenameUtilities.getMimeType(status.getNameOfCurrentFile());
-                String comment = session.getComment();
-                final UserDTO user = session.getUser();
-                final String nameOfCurrentFile = status.getNameOfCurrentFile();
-                final String[] recipients = session.getRecipients();
-                final String url = session.getUrl();
-                final List<String> invalidUserIdentifiers =
-                        fileManager.registerFileLinkAndInformRecipients(user, nameOfCurrentFile,
-                                comment, contentType, file, recipients, url);
-                if (userBehaviorLogOrNull != null)
+                boolean success = false;
+                try
                 {
-                    userBehaviorLogOrNull.logUploadFileFinished(file.getName(), true);
-                }
-                if (invalidUserIdentifiers.isEmpty() == false)
+                    randomAccessFileOrNull.close();
+                    final File file = session.getFile();
+                    createTempFile(file).renameTo(file);
+                    String contentType =
+                            FilenameUtilities.getMimeType(status.getNameOfCurrentFile());
+                    String comment = session.getComment();
+                    final UserDTO user = session.getUser();
+                    final String nameOfCurrentFile = status.getNameOfCurrentFile();
+                    final String[] recipients = session.getRecipients();
+                    final String url = session.getUrl();
+                    final List<String> invalidUserIdentifiers =
+                            fileManager.registerFileLinkAndInformRecipients(user,
+                                    nameOfCurrentFile, comment, contentType, file, recipients, url);
+                    success = true;
+                    if (invalidUserIdentifiers.isEmpty() == false)
+                    {
+                        throw new UserFailureException("Some user identifiers are invalid: "
+                                + CollectionUtils.abbreviate(invalidUserIdentifiers, 10));
+                    }
+                    status.next();
+                } finally
                 {
-                    throw new UserFailureException("Some user identifiers are invalid: "
-                            + CollectionUtils.abbreviate(invalidUserIdentifiers, 10));
+                    if (userBehaviorLogOrNull != null)
+                    {
+                        userBehaviorLogOrNull.logUploadFileFinished(session.getFile().getName(),
+                                success);
+                    }
                 }
-                status.next();
             } else
             {
                 status.setUploadState(UploadState.UPLOADING);
@@ -366,10 +375,6 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
             }
         } catch (Throwable th)
         {
-            if (userBehaviorLogOrNull != null)
-            {
-                userBehaviorLogOrNull.logUploadFileFinished(session.getFile().getName(), false);
-            }
             throw CheckedExceptionTunnel.wrapIfNecessary(th);
         }
     }
