@@ -17,11 +17,14 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
 /**
+ * Listener interface for classes which could handle event on a cell of a grid.
  * 
- *
  * @author Franz-Josef Elmer
  */
-public interface ICellClickListener<T>
+public interface ICellListener<T>
 {
+    /**
+     * Handles the specified item.
+     */
     public void handle(T rowItem);
 }

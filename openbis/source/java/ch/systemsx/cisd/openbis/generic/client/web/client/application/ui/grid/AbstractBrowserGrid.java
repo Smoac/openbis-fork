@@ -83,38 +83,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo.SortDir;
 public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityModel<T>> extends
         LayoutContainer
 {
-    private static final class ColumnListener<T, M extends BaseEntityModel<T>> implements
-            Listener<GridEvent>
-    {
-        private final Map<String, ICellClickListener<T>> listeners =
-                new HashMap<String, ICellClickListener<T>>();
-
-        private final Grid<M> grid;
-
-        public ColumnListener(Grid<M> grid, int eventType)
-        {
-            this.grid = grid;
-            grid.addListener(eventType, this);
-        }
-
-        void registerCellClickListener(String columnID, ICellClickListener<T> listener)
-        {
-            listeners.put(columnID.toLowerCase(), listener);
-        }
-
-        @SuppressWarnings("unchecked")
-        public void handleEvent(GridEvent be)
-        {
-            String columnID = grid.getColumnModel().getColumn(be.colIndex).getId().toLowerCase();
-            ICellClickListener<T> listener = listeners.get(columnID);
-            if (listener != null)
-            {
-                ListStore store = be.grid.getStore();
-                listener.handle(((BaseEntityModel<T>) store.getAt(be.rowIndex)).getBaseObject());
-            }
-        }
-    }
-    
     /** Shows the detail view for the specified entity */
     abstract protected void showEntityViewer(M modelData);
 
@@ -228,7 +196,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         contentPanel.add(grid);
         contentPanel.setBottomComponent(bottomToolbars);
         contentPanel.setHeaderVisible(showHeader);
-        columnListener = new ColumnListener<T, M>(grid, Events.CellClick);
+        columnListener = new ColumnListener<T, M>(grid);
 
         setLayout(new FitLayout());
         add(contentPanel);
@@ -240,7 +208,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
      * @param columnID Column ID. Not case sensitive.
      * @param listener Listener handle single clicks.
      */
-    public void registerCellClickListenerFor(final String columnID, final ICellClickListener<T> listener)
+    public void registerCellClickListenerFor(final String columnID, final ICellListener<T> listener)
     {
         columnListener.registerCellClickListener(columnID, listener);
     }

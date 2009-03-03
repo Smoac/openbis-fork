@@ -58,6 +58,11 @@ abstract class AbstractExperimentTableSection<T extends ModelData> extends Secti
         setLayout(new RowLayout());
         add(grid, new RowData(-1, 200));
     }
+    
+    protected Grid<T> getGrid()
+    {
+        return grid;
+    }
 
     protected Grid<T> createGrid(final ListStore<T> listStore)
     {

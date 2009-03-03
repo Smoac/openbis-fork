@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellClickListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DataSetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetSearchHit;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -75,7 +75,7 @@ public class DataSetSearchHitGrid extends
         setId(BROWSER_ID);
         updateDefaultRefreshButton();
         registerCellClickListenerFor(DataSetSearchHitColDefKind.CODE.id(),
-                new ICellClickListener<DataSetSearchHit>()
+                new ICellListener<DataSetSearchHit>()
                     {
                         public void handle(DataSetSearchHit rowItem)
                         {

@@ -25,7 +25,12 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExternalDataModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DataSetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ListExternalDataCallback;
@@ -44,6 +49,16 @@ public class ExperimentDataSection extends AbstractExperimentTableSection<Extern
     public ExperimentDataSection(final Experiment experiment, final IViewContext<?> viewContext)
     {
         super(experiment, viewContext, "Data Sets", ID_PREFIX);
+        ColumnListener<ExternalData, ExternalDataModel> listener =
+                new ColumnListener<ExternalData, ExternalDataModel>(getGrid());
+        listener.registerCellClickListener(ModelDataPropertyNames.CODE,
+                new ICellListener<ExternalData>()
+                    {
+                        public void handle(ExternalData rowItem)
+                        {
+                            DataSetUtils.showDataSet(rowItem, viewContext.getModel());
+                        }
+                    });
     }
 
     @Override
