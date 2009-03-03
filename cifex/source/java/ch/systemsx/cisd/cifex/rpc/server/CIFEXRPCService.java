@@ -364,13 +364,13 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
                 status.setUploadState(UploadState.UPLOADING);
                 status.setFilePointer(filePointer + block.length);
             }
-        } catch (IOException ex)
+        } catch (Throwable th)
         {
             if (userBehaviorLogOrNull != null)
             {
                 userBehaviorLogOrNull.logUploadFileFinished(session.getFile().getName(), false);
             }
-            throw new WrappedIOException(ex);
+            throw CheckedExceptionTunnel.wrapIfNecessary(th);
         }
     }
 

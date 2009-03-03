@@ -383,7 +383,7 @@ public class UploadingIntegrationTest extends AssertJUnit
                     allowing(businessContext).getMaxUploadRequestSizeInMB();
                     will(returnValue((int) (SMALL_FILE_SIZE * 2)));
                     one(userActionLog).logUploadFileStart(SMALL_FILE, true);
-                    one(userActionLog).logUploadFileFinished(SMALL_FILE, true);
+                    one(userActionLog).logUploadFileFinished(SMALL_FILE, false);
                     one(listener).start(fileOnClient, SMALL_FILE_SIZE * 1024L);
 
                     one(fileManager).createFile(user, SMALL_FILE);
