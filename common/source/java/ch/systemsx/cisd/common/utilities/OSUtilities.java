@@ -254,23 +254,4 @@ public class OSUtilities
         }
     }
 
-    public enum OSKind
-    {
-        MAC, WINDOWS, UNIX, OTHER
-    }
-
-    public static final String getLineSeparator(OSKind osKind)
-    {
-        switch (osKind)
-        {
-            case MAC:
-            case OTHER:
-            case UNIX:
-                return "\n";
-            case WINDOWS:
-                return "\r\n";
-            default:
-                throw new IllegalStateException("unknown os " + osKind);
-        }
-    }
 }
