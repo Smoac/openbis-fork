@@ -44,4 +44,6 @@ public interface IEntityTypeDAO
      */
     public <T extends EntityTypePE> List<T> listEntityTypes() throws DataAccessException;
 
+    /** Creates a new entity type */
+    public <T extends EntityTypePE> void createEntityType(T entityType) throws DataAccessException;
 }

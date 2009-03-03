@@ -18,13 +18,18 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.hibernate.FetchMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -36,6 +41,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 final class EntityTypeDAO extends AbstractTypeDAO<EntityTypePE> implements IEntityTypeDAO
 {
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, MaterialDAO.class);
+
     private final EntityKind entityKind;
 
     EntityTypeDAO(final EntityKind entityKind, final SessionFactory sessionFactory,
@@ -79,4 +87,19 @@ final class EntityTypeDAO extends AbstractTypeDAO<EntityTypePE> implements IEnti
         return list;
     }
 
+    public final <T extends EntityTypePE> void createEntityType(T entityType)
+            throws DataAccessException
+    {
+        assert entityType != null : "entityType is null";
+        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+
+        validatePE(entityType);
+        entityType.setCode(CodeConverter.tryToDatabase(entityType.getCode()));
+        hibernateTemplate.save(entityType);
+        hibernateTemplate.flush();
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("ADD: entity type '%s'.", entityType));
+        }
+    }
 }
