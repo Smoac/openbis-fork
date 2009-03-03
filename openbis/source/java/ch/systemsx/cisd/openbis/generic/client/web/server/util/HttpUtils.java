@@ -35,7 +35,6 @@ public final class HttpUtils
 
     private static OSKind figureOperatingSystemKind(String userAgent)
     {
-        System.out.println("HttpUtils.figureOperatingSystemKind("+userAgent+")");
         if (userAgent.indexOf("Win") != -1)
         {
             return OSKind.WINDOWS;
