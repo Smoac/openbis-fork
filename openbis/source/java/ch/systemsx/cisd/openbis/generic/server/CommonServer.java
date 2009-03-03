@@ -50,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetSearchHitDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -393,11 +394,21 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public final List<ExperimentTypePE> listExperimentTypes(final String sessionToken)
     {
+        return listEntityTypes(sessionToken, EntityKind.EXPERIMENT);
+    }
+
+    public List<MaterialTypePE> listMaterialTypes(String sessionToken)
+    {
+        return listEntityTypes(sessionToken, EntityKind.MATERIAL);
+    }
+
+    private <T extends EntityTypePE> List<T> listEntityTypes(String sessionToken,
+            EntityKind entityKind)
+    {
         checkSession(sessionToken);
-        final List<ExperimentTypePE> experimentTypes =
-                getDAOFactory().getEntityTypeDAO(EntityKind.EXPERIMENT).listEntityTypes();
-        Collections.sort(experimentTypes);
-        return experimentTypes;
+        final List<T> types = getDAOFactory().getEntityTypeDAO(entityKind).listEntityTypes();
+        Collections.sort(types);
+        return types;
     }
 
     public final List<DataTypePE> listDataTypes(final String sessionToken)
@@ -488,15 +499,6 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         {
             throw new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
         }
-    }
-
-    public List<MaterialTypePE> listMaterialTypes(String sessionToken)
-    {
-        checkSession(sessionToken);
-        final List<MaterialTypePE> types =
-                getDAOFactory().getEntityTypeDAO(EntityKind.MATERIAL).listEntityTypes();
-        Collections.sort(types);
-        return types;
     }
 
     public List<MaterialPE> listMaterials(String sessionToken, MaterialTypePE materialType)
