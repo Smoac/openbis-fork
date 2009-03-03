@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnF
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddGroupDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelagatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 
 /**
@@ -161,7 +162,15 @@ public class GroupsView extends ContentPanel
                                 @Override
                                 public void componentSelected(ComponentEvent ce)
                                 {
-                                    new AddGroupDialog(viewContext, groupList).show();
+                                    AddGroupDialog dialog =
+                                            new AddGroupDialog(viewContext, new IDelagatedAction()
+                                                {
+                                                    public void execute()
+                                                    {
+                                                        groupList.refresh();
+                                                    }
+                                                });
+                                    dialog.show();
                                 }
                             });
         addGroupButton.setId(ADD_BUTTON_ID);

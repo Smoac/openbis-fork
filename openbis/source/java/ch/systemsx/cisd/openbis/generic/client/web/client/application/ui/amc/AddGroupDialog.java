@@ -16,17 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
 
-import com.extjs.gxt.ui.client.event.ComponentEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Window;
-import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GroupsView;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelagatedAction;
 
 /**
  * {@link Window} containing group registration form.
@@ -34,74 +30,30 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GroupsView
  * @author Franz-Josef Elmer
  * @author Izabela Adamczyk
  */
-public class AddGroupDialog extends Window
+public class AddGroupDialog extends AbstractRegistrationDialog
 {
-    final class RegisterGroupCallback extends AbstractAsyncCallback<Void>
-    {
-        private RegisterGroupCallback(final CommonViewContext viewContext)
-        {
-            super(viewContext);
-        }
+    private final CommonViewContext viewContext;
 
-        @Override
-        public void process(final Void result)
-        {
-            hide();
-            groupList.refresh();
-        }
+    private final TextField<String> codeField;
+
+    private final TextField<String> descriptionField;
+
+    public AddGroupDialog(final CommonViewContext viewContext,
+            final IDelagatedAction postRegistrationCallback)
+    {
+        super(viewContext, "Add a new group", postRegistrationCallback);
+        this.viewContext = viewContext;
+        this.codeField = createCodeField();
+        addField(codeField);
+
+        this.descriptionField = createDescriptionField();
+        addField(descriptionField);
     }
 
-    private static final String PREFIX = "add-group_";
-
-    static final String CODE_FIELD_ID = GenericConstants.ID_PREFIX + PREFIX + "code-field";
-
-    static final String SAVE_BUTTON_ID = GenericConstants.ID_PREFIX + PREFIX + "save-button";
-
-    private final GroupsView groupList;
-
-    public AddGroupDialog(final CommonViewContext viewContext, final GroupsView g)
+    @Override
+    protected void register(AsyncCallback<Void> registrationCallback)
     {
-        this.groupList = g;
-        setHeading("Add a new group");
-        setModal(true);
-        setWidth(400);
-        final FormPanel form = new FormPanel();
-        form.setHeaderVisible(false);
-        form.setBorders(false);
-        form.setBodyBorder(false);
-        add(form);
-        final TextField<String> codeField = new TextField<String>();
-        codeField.setWidth(100);
-        codeField.setFieldLabel("Code");
-        codeField.setAllowBlank(false);
-        codeField.setValidateOnBlur(true);
-        codeField.setId(CODE_FIELD_ID);
-        form.add(codeField);
-
-        final TextField<String> descriptionField = new TextField<String>();
-        descriptionField.setFieldLabel("Description");
-        form.add(descriptionField);
-
-        final Button saveButton = new Button("Save", new SelectionListener<ComponentEvent>()
-            {
-                @Override
-                public void componentSelected(ComponentEvent ce)
-                {
-                    viewContext.getService().registerGroup(codeField.getValue(),
-                            descriptionField.getValue(), null,
-                            new RegisterGroupCallback(viewContext));
-                }
-            });
-        saveButton.setId(SAVE_BUTTON_ID);
-        addButton(saveButton);
-        addButton(new Button("Cancel", new SelectionListener<ComponentEvent>()
-            {
-                @Override
-                public void componentSelected(final ComponentEvent ce)
-                {
-                    hide();
-                }
-            }));
+        viewContext.getService().registerGroup(codeField.getValue(), descriptionField.getValue(),
+                null, registrationCallback);
     }
-
 }

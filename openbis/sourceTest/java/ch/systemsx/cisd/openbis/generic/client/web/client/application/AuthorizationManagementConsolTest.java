@@ -87,7 +87,7 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
         final String userId = "u";
         remoteConsole.prepare(new CreatePerson(userId));
         FailureExpectation failureExpectation =
-                new FailureExpectation(AddPersonDialog.RegisterPersonCallback.class)
+                new FailureExpectation(AddPersonDialog.RegisterDialogCallback.class)
                         .with("Authorization failure: None of method roles '[INSTANCE.ADMIN]' "
                                 + "could be found in roles of user 'o'.");
         remoteConsole.prepare(failureExpectation);

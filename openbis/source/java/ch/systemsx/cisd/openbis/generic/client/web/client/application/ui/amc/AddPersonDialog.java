@@ -16,113 +16,38 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
 
-import com.extjs.gxt.ui.client.event.ComponentEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Window;
-import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.PersonsView;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelagatedAction;
 
 /**
  * {@link Window} containing person registration form.
  * 
  * @author Izabela Adamczyk
  */
-public class AddPersonDialog extends Window
+public class AddPersonDialog extends AbstractRegistrationDialog
 {
-    public final class RegisterPersonCallback extends AbstractAsyncCallback<Void>
-    {
-        private RegisterPersonCallback(IViewContext<?> viewContext)
-        {
-            super(viewContext);
-        }
+    private final CommonViewContext viewContext;
 
-        @Override
-        public final void process(final Void result)
-        {
-            hide();
-            personList.refresh();
-        }
+    private final TextField<String> codeField;
+
+    public AddPersonDialog(final CommonViewContext viewContext,
+            final IDelagatedAction postRegistrationCallback)
+    {
+        super(viewContext, "Add a new person", postRegistrationCallback);
+
+        this.viewContext = viewContext;
+        this.codeField = createCodeField();
+        addField(codeField);
     }
 
-    private static final String PREFIX = "add-person_";
-
-    static final String CODE_FIELD_ID = GenericConstants.ID_PREFIX + PREFIX + "code-field";
-
-    static final String SAVE_BUTTON_ID = GenericConstants.ID_PREFIX + PREFIX + "save-button";
-
-    private final PersonsView personList;
-
-    public AddPersonDialog(final CommonViewContext viewContext, final PersonsView p)
+    @Override
+    protected void register(AsyncCallback<Void> registrationCallback)
     {
-        this.personList = p;
-        setHeading("Add a new person");
-        setModal(true);
-        setWidth(400);
-        final FormPanel form = new FormPanel();
-        form.setHeaderVisible(false);
-        form.setBorders(false);
-        form.setBodyBorder(false);
-        add(form);
-        final TextField<String> codeField = new TextField<String>();
-        codeField.setWidth(100);
-        codeField.setFieldLabel("Code");
-        codeField.setAllowBlank(false);
-        codeField.setValidateOnBlur(true);
-        codeField.setId(CODE_FIELD_ID);
-        form.add(codeField);
-
-        addButton(createSaveButton(viewContext, codeField));
-        addButton(createCancelButton(viewContext));
+        viewContext.getService().registerPerson(codeField.getValue(), registrationCallback);
     }
-
-    private Button createCancelButton(IMessageProvider messageProvider)
-    {
-        final Button button =
-                new Button(messageProvider.getMessage(Dict.BUTTON_CANCEL),
-                        new SelectionListener<ComponentEvent>()
-                            {
-                                //
-                                // SelectionListener
-                                //
-
-                                @Override
-                                public final void componentSelected(ComponentEvent ce)
-                                {
-                                    hide();
-                                }
-                            });
-        return button;
-    }
-
-    private Button createSaveButton(final CommonViewContext viewContext,
-            final TextField<String> codeField)
-    {
-        final Button button =
-                new Button(viewContext.getMessage(Dict.BUTTON_SAVE),
-                        new SelectionListener<ComponentEvent>()
-                            {
-                                //
-                                // SelectionListener
-                                //
-
-                                @Override
-                                public final void componentSelected(final ComponentEvent ce)
-                                {
-                                    viewContext.getService().registerPerson(codeField.getValue(),
-                                            new RegisterPersonCallback(viewContext));
-                                }
-                            });
-        button.setId(SAVE_BUTTON_ID);
-        return button;
-    }
-
 }

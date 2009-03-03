@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.PersonsView;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.MainTabPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
@@ -45,7 +46,7 @@ public final class CreatePerson extends AbstractDefaultTestCommand
         GWTTestUtil.selectTabItemWithId(MainTabPanel.ID, PersonsView.ID + MainTabPanel.TAB_SUFFIX);
         GWTTestUtil.clickButtonWithID(PersonsView.ADD_BUTTON_ID);
         GWTTestUtil.getTextFieldWithID(AddPersonDialog.CODE_FIELD_ID).setValue(personCode);
-        GWTTestUtil.clickButtonWithID(AddPersonDialog.SAVE_BUTTON_ID);
+        GWTTestUtil.clickButtonWithID(AbstractRegistrationDialog.SAVE_BUTTON_ID);
     }
 
 }
