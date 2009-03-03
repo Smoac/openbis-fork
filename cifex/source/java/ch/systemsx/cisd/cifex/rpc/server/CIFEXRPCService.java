@@ -340,10 +340,6 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
                 randomAccessFileOrNull.close();
                 final File file = session.getFile();
                 createTempFile(file).renameTo(file);
-                if (userBehaviorLogOrNull != null)
-                {
-                    userBehaviorLogOrNull.logUploadFileFinished(file.getName(), true);
-                }
                 String contentType = FilenameUtilities.getMimeType(status.getNameOfCurrentFile());
                 String comment = session.getComment();
                 final UserDTO user = session.getUser();
@@ -353,6 +349,10 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
                 final List<String> invalidUserIdentifiers =
                         fileManager.registerFileLinkAndInformRecipients(user, nameOfCurrentFile,
                                 comment, contentType, file, recipients, url);
+                if (userBehaviorLogOrNull != null)
+                {
+                    userBehaviorLogOrNull.logUploadFileFinished(file.getName(), true);
+                }
                 if (invalidUserIdentifiers.isEmpty() == false)
                 {
                     throw new UserFailureException("Some user identifiers are invalid: "
