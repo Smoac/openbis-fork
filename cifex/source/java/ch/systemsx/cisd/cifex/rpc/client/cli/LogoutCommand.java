@@ -18,6 +18,7 @@ package ch.systemsx.cisd.cifex.rpc.client.cli;
 
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
@@ -53,20 +54,28 @@ public final class LogoutCommand extends AbstractCommand
     {
         if (SESSION_TOKEN_FILE.exists())
         {
-            String sessionToken = FileUtilities.loadToString(SESSION_TOKEN_FILE).trim();
-            final MinimalParameters parameters = new MinimalParameters(arguments, NAME);
-            parameters.assertArgsEmpty();
-            final ICIFEXRPCService serviceOrNull = tryGetService();
-            if (serviceOrNull != null)
+            try
             {
-                serviceOrNull.logout(sessionToken);
-            }
-            SESSION_TOKEN_FILE.delete();
-            if (serviceOrNull == null)
+                String sessionToken = FileUtilities.loadToString(SESSION_TOKEN_FILE).trim();
+                final MinimalParameters parameters = new MinimalParameters(arguments, NAME);
+                parameters.assertArgsEmpty();
+                final ICIFEXRPCService serviceOrNull = tryGetService();
+                if (serviceOrNull != null)
+                {
+                    serviceOrNull.logout(sessionToken);
+                }
+                SESSION_TOKEN_FILE.delete();
+                if (serviceOrNull == null)
+                {
+                    return 2;
+                }
+                System.out.println("Successfully logged out.");
+            } catch (InvalidSessionException ex)
             {
-                return 2;
+                // Ignore InvalidSessionException, as we logout anyway.
+                SESSION_TOKEN_FILE.delete();
+                return 0;
             }
-            System.out.println("Successfully logged out.");
         }
         return 0;
     }
