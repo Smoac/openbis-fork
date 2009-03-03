@@ -268,7 +268,7 @@ public class OSUtilities
             case UNIX:
                 return "\n";
             case WINDOWS:
-                return "\t\n";
+                return "\r\n";
             default:
                 throw new IllegalStateException("unknown os " + osKind);
         }
