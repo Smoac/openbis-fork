@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 
 import javax.servlet.http.HttpServletRequest;
 
-import ch.systemsx.cisd.common.utilities.OSUtilities.OSKind;
+import ch.systemsx.cisd.common.utilities.OSKind;
 
 /**
  * Some utilities around <i>Http</i>.
@@ -35,6 +35,7 @@ public final class HttpUtils
 
     private static OSKind figureOperatingSystemKind(String userAgent)
     {
+        System.out.println("HttpUtils.figureOperatingSystemKind("+userAgent+")");
         if (userAgent.indexOf("Win") != -1)
         {
             return OSKind.WINDOWS;
