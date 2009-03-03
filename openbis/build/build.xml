@@ -213,6 +213,7 @@
 			</classes>
 			<classes dir="${original.dist}">
 				<include name="etc/log.xml" />
+				<include name="etc/passwd" />
 			</classes>
 			<lib dir="${dist}">
 				<include name="${jar.file.name}" />

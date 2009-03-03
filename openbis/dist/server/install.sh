@@ -88,6 +88,7 @@ ln -s "${rel_tomcat_folder}" apache-tomcat
 cd "${tomcat_folder}"
 mkdir etc
 ln -s "../${rel_openbis_web_inf}"/classes/service.properties etc/
+cp -p "${rel_openbis_web_inf}"/classes/etc/passwd etc/
 
 if [ "$nostartup" -eq 0 ]; then
 	echo Starting tomcat...
