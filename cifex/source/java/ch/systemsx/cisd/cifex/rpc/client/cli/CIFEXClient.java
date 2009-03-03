@@ -33,6 +33,7 @@ import org.springframework.remoting.RemoteConnectFailureException;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.MasqueradingException;
 import ch.systemsx.cisd.common.exceptions.SystemExitException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -108,6 +109,12 @@ public class CIFEXClient
         try
         {
             exitHandler.exit(command.execute(newArgs));
+        } catch (final InvalidSessionException ex)
+        {
+            System.err
+                    .println("Your session is no longer valid. Please login again. [server said: '"
+                            + ex.getMessage() + "']");
+            exitHandler.exit(1);
         } catch (final UserFailureException ex)
         {
             System.err.println(ex.getMessage() + " (user fault)");
