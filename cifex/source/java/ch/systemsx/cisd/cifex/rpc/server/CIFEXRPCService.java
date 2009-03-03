@@ -437,12 +437,12 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
                 throw new IllegalStateException("downloadBlock() called when download was aborted");
             }
             final long fileSize = randomAccessFileOrNull.length();
-            final int bytesLeft = (int) (fileSize - filePointer);
+            final long bytesLeft = fileSize - filePointer;
             if (bytesLeft < 0)
             {
                 throw new WrappedIOException(new IOException("File pointer > file size."));
             }
-            buf = new byte[Math.min(blockSize, bytesLeft)];
+            buf = new byte[(int) Math.min(blockSize, bytesLeft)];
             session.getRandomAccessFile().readFully(buf);
         } catch (IOException ex)
         {
