@@ -44,6 +44,7 @@ import org.hibernate.search.annotations.Store;
 import org.hibernate.validator.Email;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
+import org.hibernate.validator.Pattern;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
@@ -60,11 +61,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstant
 @Table(name = TableNames.PERSONS_TABLE, uniqueConstraints =
     { @UniqueConstraint(columnNames =
         { ColumnNames.USER_COLUMN, ColumnNames.DATABASE_INSTANCE_COLUMN }) })
-@Friend(toClasses=RoleAssignmentPE.class)
+@Friend(toClasses = RoleAssignmentPE.class)
 public final class PersonPE extends HibernateAbstractRegistrationHolder implements
         Comparable<PersonPE>, IIdHolder, Serializable
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
+
+    /** Regular expression for allowed user codes */
+    private static final String USER_CODE_REGEX = "^([a-zA-Z0-9_\\.\\-\\@])+$";
 
     /**
      * The user id of the system user.
@@ -135,6 +139,7 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
     @Column(name = ColumnNames.USER_COLUMN)
     @Length(max = 50, message = ValidationMessages.USER_ID_LENGTH_MESSAGE)
     @NotNull(message = ValidationMessages.USER_ID_NOT_NULL_MESSAGE)
+    @Pattern(regex = USER_CODE_REGEX, flags = java.util.regex.Pattern.CASE_INSENSITIVE, message = ValidationMessages.VALID_USER_CODE_DESCRIPTION)
     public final String getUserId()
     {
         return userId;

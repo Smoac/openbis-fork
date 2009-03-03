@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.cifex.shared.basic;
 
-
 /**
  * Some constants used through the whole web application.
  * 
@@ -53,7 +52,8 @@ public final class Constants
     public static final String USER_CODE_REGEX = "^([a-zA-Z0-9_\\.\\-\\@])+$";
 
     public static final String VALID_USER_CODE_DESCRIPTION =
-            "User code must not be empty and must contain only allowed characters: [a-zA-Z0-9_.-@]. Whitespaces are not allowed.";
+            "User code must not be empty and must contain only allowed characters: "
+                    + "letters, digits, '_', '.', '-', '@'. Note that whitespaces are not allowed.";
 
     /** The HTTP URL parameter used to specify the file id. */
     public static final String FILE_ID_PARAMETER = "fileId";
@@ -74,7 +74,7 @@ public final class Constants
     /** A regular expression that match user code with prefix {@link #USER_ID_PREFIX}. */
     public static final String USER_CODE_WITH_ID_PREFIX_REGEX =
             "^" + USER_ID_PREFIX + USER_CODE_REGEX.substring(1);
-    
+
     /** The property key to set the cifex.base.url in Eclipse. */
     public static final String CIFEX_BASE_URL_PROP_KEY = "cifex.base.url";
 

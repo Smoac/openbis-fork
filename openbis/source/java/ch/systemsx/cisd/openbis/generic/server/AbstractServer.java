@@ -24,6 +24,7 @@ import javax.annotation.Resource;
 import org.apache.log4j.Logger;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
@@ -111,7 +112,13 @@ public abstract class AbstractServer<T extends IServer> implements IServer,
         person.setLastName(principal.getLastName());
         person.setEmail(principal.getEmail());
         person.setRegistrator(registrator);
-        daoFactory.getPersonDAO().createPerson(person);
+        try
+        {
+            daoFactory.getPersonDAO().createPerson(person);
+        } catch (final DataAccessException e)
+        {
+            throw new UserFailureException(e.getMessage(), e);
+        }
         return person;
     }
 

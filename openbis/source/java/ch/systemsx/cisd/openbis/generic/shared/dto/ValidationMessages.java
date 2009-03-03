@@ -145,6 +145,10 @@ public final class ValidationMessages
 
     public static final String VOCABULARY_NOT_NULL_MESSAGE = "Vocabulary" + CAN_NOT_BE_NULL;
 
+    public static final String VALID_USER_CODE_DESCRIPTION =
+            "User code must not be empty and must contain only allowed characters: "
+                    + "letters, digits, '_', '.', '-', '@'. Note that whitespaces are not allowed.";
+
     private ValidationMessages()
     {
         // Can not be instantiated.
