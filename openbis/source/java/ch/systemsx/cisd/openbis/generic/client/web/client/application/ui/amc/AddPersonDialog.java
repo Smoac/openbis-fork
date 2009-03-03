@@ -24,10 +24,12 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.PersonsView;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
  * {@link Window} containing person registration form.
@@ -79,42 +81,46 @@ public class AddPersonDialog extends Window
         form.add(codeField);
 
         addButton(createSaveButton(viewContext, codeField));
-        addButton(createCancelButton());
+        addButton(createCancelButton(viewContext));
     }
 
-    private Button createCancelButton()
+    private Button createCancelButton(IMessageProvider messageProvider)
     {
-        final Button button = new Button("Cancel", new SelectionListener<ComponentEvent>()
-            {
-                //
-                // SelectionListener
-                //
+        final Button button =
+                new Button(messageProvider.getMessage(Dict.BUTTON_CANCEL),
+                        new SelectionListener<ComponentEvent>()
+                            {
+                                //
+                                // SelectionListener
+                                //
 
-                @Override
-                public final void componentSelected(ComponentEvent ce)
-                {
-                    hide();
-                }
-            });
+                                @Override
+                                public final void componentSelected(ComponentEvent ce)
+                                {
+                                    hide();
+                                }
+                            });
         return button;
     }
 
     private Button createSaveButton(final CommonViewContext viewContext,
             final TextField<String> codeField)
     {
-        final Button button = new Button("Save", new SelectionListener<ComponentEvent>()
-            {
-                //
-                // SelectionListener
-                //
+        final Button button =
+                new Button(viewContext.getMessage(Dict.BUTTON_SAVE),
+                        new SelectionListener<ComponentEvent>()
+                            {
+                                //
+                                // SelectionListener
+                                //
 
-                @Override
-                public final void componentSelected(final ComponentEvent ce)
-                {
-                    viewContext.getService().registerPerson(codeField.getValue(),
-                            new RegisterPersonCallback(viewContext));
-                }
-            });
+                                @Override
+                                public final void componentSelected(final ComponentEvent ce)
+                                {
+                                    viewContext.getService().registerPerson(codeField.getValue(),
+                                            new RegisterPersonCallback(viewContext));
+                                }
+                            });
         button.setId(SAVE_BUTTON_ID);
         return button;
     }
