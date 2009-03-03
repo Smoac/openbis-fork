@@ -27,6 +27,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -441,6 +442,16 @@ public class FileUploadClient
         if (fileName != null)
         {
             File file = new File(new File(fileDialog.getDirectory()), fileName);
+            try
+            {
+                file = file.getCanonicalFile();
+            } catch (IOException ex)
+            {
+                JOptionPane.showMessageDialog(frame, "Problem canonicalizing file:\n"
+                        + file.getAbsolutePath());
+                
+                return;
+            }
             if (file.exists() == false)
             {
                 JOptionPane.showMessageDialog(frame, "File does not exists:\n"
