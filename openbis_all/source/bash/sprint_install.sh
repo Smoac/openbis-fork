@@ -17,7 +17,7 @@ unalias rm
 
 echo Stopping the components...
 ./sprint/openBIS-server/apache-tomcat/bin/shutdown.sh
-./sprint/download-server/download-service.sh stop
+./sprint/datastore_server/datastore_server.sh stop
 
 echo Making a database dump...
 pg_dump -U postgres -O lims_productive > $DB_SNAPSHOT
