@@ -16,14 +16,31 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
+import static ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer.DATA_POSTFIX;
+import static ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer.ID_PREFIX;
+
+import java.util.List;
+
+import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.event.GridEvent;
+import com.extjs.gxt.ui.client.event.MvcEvent;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
+import com.extjs.gxt.ui.client.mvc.DispatcherListener;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Widget;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExternalDataModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns.DataSetRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ListSamples;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ShowSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IValueAssertion;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 
@@ -94,7 +111,51 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                 "TIFF"));
         dataTable.expectedRow(new DataSetRow("20081105092159188-3").invalid().withLocation(
                 "analysis/result"));
-        remoteConsole.prepare(checkSample);
+        remoteConsole.prepare(new AbstractDefaultTestCommand()
+            {
+                @Override
+                public boolean validOnSucess(List<AsyncCallback<Object>> callbackObjects,
+                        Object result)
+                {
+                    return checkSample.validOnSucess(callbackObjects, result);
+                }
+
+                @SuppressWarnings("unchecked")
+                public void execute()
+                {
+                    checkSample.execute();
+                    // click on first data set
+                    DispatcherListener dispatcherListener = createDispatcherListener();
+                    Dispatcher dispatcher = Dispatcher.get();
+                    dispatcher.addDispatcherListener(dispatcherListener);
+                    final Widget widget =
+                            GWTTestUtil.getWidgetWithID(ID_PREFIX + GROUP_IDENTIFIER + "/"
+                                    + CELL_PLATE_EXAMPLE + DATA_POSTFIX);
+                    assertTrue(widget instanceof Grid);
+                    final Grid<ExternalDataModel> table = (Grid<ExternalDataModel>) widget;
+                    final GridEvent gridEvent = new GridEvent(table);
+                    gridEvent.rowIndex = 0;
+                    gridEvent.colIndex = 0;
+                    table.fireEvent(Events.CellClick, gridEvent);
+                    dispatcher.removeDispatcherListener(dispatcherListener);
+                }
+
+                private DispatcherListener createDispatcherListener()
+                {
+                    return new DispatcherListener()
+                        {
+                            @Override
+                            public void beforeDispatch(MvcEvent mvce)
+                            {
+                                String url = String.valueOf(mvce.appEvent.data);
+                                assertTrue("Invalid URL: " + url, url
+                                        .startsWith("https://localhost:8889/dataset-download/"
+                                                + "20081105092158673-1?sessionID=test-"));
+                            }
+                        };
+                }
+        
+            });
 
         launchTest(60000);
     }
