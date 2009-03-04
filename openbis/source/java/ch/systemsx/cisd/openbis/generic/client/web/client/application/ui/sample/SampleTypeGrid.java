@@ -16,28 +16,27 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample;
 
-import java.util.List;
+import com.extjs.gxt.ui.client.widget.Component;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.EntityTypeColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractEntityTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
  * Grid displaying sample types.
  * 
  * @author Tomasz Pylak
  */
-public class SampleTypeGrid extends AbstractSimpleBrowserGrid<EntityType>
+public class SampleTypeGrid extends AbstractEntityTypeGrid
 {
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "sample-type-browser";
 
@@ -46,25 +45,14 @@ public class SampleTypeGrid extends AbstractSimpleBrowserGrid<EntityType>
     public static DisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        return new SampleTypeGrid(viewContext).asDisposableWithoutToolbar();
+        final SampleTypeGrid grid = new SampleTypeGrid(viewContext);
+        Component toolbar = grid.createToolbar("Register a new sample type");
+        return grid.asDisposableWithToolbar(toolbar);
     }
 
     private SampleTypeGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, BROWSER_ID, GRID_ID);
-    }
-
-    @Override
-    protected IColumnDefinitionKind<EntityType>[] getStaticColumnsDefinition()
-    {
-        return EntityTypeColDefKind.values();
-    }
-
-    @Override
-    protected List<IColumnDefinition<EntityType>> getAvailableFilters()
-    {
-        return asColumnFilters(new EntityTypeColDefKind[]
-            { EntityTypeColDefKind.CODE });
     }
 
     @Override
@@ -79,5 +67,18 @@ public class SampleTypeGrid extends AbstractSimpleBrowserGrid<EntityType>
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportSampleTypes(exportCriteria, callback);
+    }
+
+    @Override
+    protected void registerEntityType(String code, String descriptionOrNull,
+            AsyncCallback<Void> registrationCallback)
+    {
+        SampleType sampleType = new SampleType();
+        sampleType.setCode(code);
+        sampleType.setDescription(descriptionOrNull);
+        sampleType.setListable(true);
+        sampleType.setPartOfHierarchyDepth(0);
+        sampleType.setGeneratedFromHierarchyDepth(3);
+        viewContext.getService().registerSampleType(sampleType, registrationCallback);
     }
 }

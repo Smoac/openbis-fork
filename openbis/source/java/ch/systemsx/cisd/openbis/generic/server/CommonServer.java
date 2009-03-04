@@ -28,6 +28,7 @@ import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
@@ -45,7 +46,10 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetSearchHitDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
@@ -107,6 +111,11 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     private void checkSession(final String sessionToken)
     {
         getSessionManager().getSession(sessionToken);
+    }
+
+    private static UserFailureException createUserFailureException(final DataAccessException ex)
+    {
+        return new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
     }
 
     //
@@ -374,7 +383,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             }
         } catch (final DataAccessException ex)
         {
-            throw new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
+            throw createUserFailureException(ex);
         }
         return list;
     }
@@ -497,7 +506,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             return searchDAO.searchForDataSets(criteria);
         } catch (final DataAccessException ex)
         {
-            throw new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
+            throw createUserFailureException(ex);
         }
     }
 
@@ -509,6 +518,48 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         final List<MaterialPE> materials = materialTable.getMaterials();
         Collections.sort(materials);
         return materials;
+    }
+
+    public void registerSampleType(String sessionToken, SampleType entityType)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        try
+        {
+            IEntityTypeBO entityTypeBO = businessObjectFactory.createEntityTypeBO(session);
+            entityTypeBO.define(entityType);
+            entityTypeBO.save();
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
+
+    public void registerMaterialType(String sessionToken, MaterialType entityType)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        try
+        {
+            IEntityTypeBO entityTypeBO = businessObjectFactory.createEntityTypeBO(session);
+            entityTypeBO.define(entityType);
+            entityTypeBO.save();
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
+
+    public void registerExperimentType(String sessionToken, ExperimentType entityType)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        try
+        {
+            IEntityTypeBO entityTypeBO = businessObjectFactory.createEntityTypeBO(session);
+            entityTypeBO.define(entityType);
+            entityTypeBO.save();
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
     }
 
 }

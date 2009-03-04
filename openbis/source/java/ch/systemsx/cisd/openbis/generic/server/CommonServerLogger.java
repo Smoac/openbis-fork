@@ -22,8 +22,11 @@ import java.util.List;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetSearchHitDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
@@ -287,4 +290,18 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    public void registerMaterialType(String sessionToken, MaterialType entityType)
+    {
+        logTracking(sessionToken, "register_material_type", "CODE(%s)", entityType.getCode());
+    }
+
+    public void registerSampleType(String sessionToken, SampleType entityType)
+    {
+        logTracking(sessionToken, "register_sample_type", "CODE(%s)", entityType.getCode());
+    }
+
+    public void registerExperimentType(String sessionToken, ExperimentType entityType)
+    {
+        logTracking(sessionToken, "register_experiment_type", "CODE(%s)", entityType.getCode());
+    }
 }

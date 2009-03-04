@@ -274,4 +274,14 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void prepareExportMaterials(TableExportCriteria<Material> exportCriteria,
             AsyncCallback<String> callback);
 
+    /** @see ICommonClientService#registerMaterialType(MaterialType) */
+    public void registerMaterialType(MaterialType entityType,
+            final AsyncCallback<Void> asyncCallback);
+
+    /** @see ICommonClientService#registerSampleType(SampleType) */
+    public void registerSampleType(SampleType entityType, final AsyncCallback<Void> asyncCallback);
+
+    /** @see ICommonClientService#registerExperimentType(ExperimentType) */
+    public void registerExperimentType(ExperimentType entityType,
+            final AsyncCallback<Void> asyncCallback);
 }

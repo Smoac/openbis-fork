@@ -322,4 +322,12 @@ public interface ICommonClientService extends IClientService
     public String prepareExportMaterials(final TableExportCriteria<Material> criteria)
             throws UserFailureException;
 
+    /** Registers a new material type */
+    public void registerMaterialType(MaterialType entityType) throws UserFailureException;
+
+    /** Registers a new sample type */
+    public void registerSampleType(SampleType entityType) throws UserFailureException;
+
+    /** Registers a new experiment type */
+    public void registerExperimentType(ExperimentType entityType) throws UserFailureException;
 }

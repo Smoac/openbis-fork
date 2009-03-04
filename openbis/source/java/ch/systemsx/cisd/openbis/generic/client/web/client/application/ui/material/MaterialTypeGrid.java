@@ -16,28 +16,27 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material;
 
-import java.util.List;
+import com.extjs.gxt.ui.client.widget.Component;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.EntityTypeColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractEntityTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 
 /**
  * Grid displaying material types.
  * 
  * @author Tomasz Pylak
  */
-public class MaterialTypeGrid extends AbstractSimpleBrowserGrid<EntityType>
+public class MaterialTypeGrid extends AbstractEntityTypeGrid
 {
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "material-type-browser";
 
@@ -46,25 +45,14 @@ public class MaterialTypeGrid extends AbstractSimpleBrowserGrid<EntityType>
     public static DisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        return new MaterialTypeGrid(viewContext).asDisposableWithoutToolbar();
+        final MaterialTypeGrid grid = new MaterialTypeGrid(viewContext);
+        Component toolbar = grid.createToolbar("Register a new material type");
+        return grid.asDisposableWithToolbar(toolbar);
     }
 
     private MaterialTypeGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, BROWSER_ID, GRID_ID);
-    }
-
-    @Override
-    protected IColumnDefinitionKind<EntityType>[] getStaticColumnsDefinition()
-    {
-        return EntityTypeColDefKind.values();
-    }
-
-    @Override
-    protected List<IColumnDefinition<EntityType>> getAvailableFilters()
-    {
-        return asColumnFilters(new EntityTypeColDefKind[]
-            { EntityTypeColDefKind.CODE });
     }
 
     @Override
@@ -79,5 +67,15 @@ public class MaterialTypeGrid extends AbstractSimpleBrowserGrid<EntityType>
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportMaterialTypes(exportCriteria, callback);
+    }
+
+    @Override
+    protected void registerEntityType(String code, String descriptionOrNull,
+            AsyncCallback<Void> registrationCallback)
+    {
+        MaterialType entityType = new MaterialType();
+        entityType.setCode(code);
+        entityType.setDescription(descriptionOrNull);
+        viewContext.getService().registerMaterialType(entityType, registrationCallback);
     }
 }

@@ -31,11 +31,11 @@ public class CategoriesBuilder
 {
     private static final String IMPORT_LABEL = "Import";
 
-    private static final String LABEL_REGISTER = "Register";
+    private static final String LABEL_REGISTER = "New";
 
     private static final String LABEL_BROWSE = "Browse";
 
-    private static final String BROWSE_TYPES_LABEL = "Browse Types";
+    private static final String BROWSE_TYPES_LABEL = "Types";
 
     public static enum MenuCategoryKind
     {

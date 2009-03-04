@@ -20,7 +20,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
- * The <i>generic</i> specific <i>Business Object</i> factory.
+ * The <i>generic</i> specific <i>Business Object</i> factory. Each method creates one kind of a
+ * business object.
  * 
  * @author Tomasz Pylak
  */
@@ -32,65 +33,30 @@ public interface ICommonBusinessObjectFactory
 
     public ISampleTable createSampleTable(final Session session);
 
-    /**
-     * Creates a {@link ISampleBO} <i>Business Object</i>.
-     */
     public ISampleBO createSampleBO(final Session session);
 
-    /**
-     * Creates a {@link IExternalDataBO} <i>Business Object</i>.
-     */
     public IExternalDataBO createExternalDataBO(Session session);
 
-    /**
-     * Creates a {@link IExternalDataTable} <i>Business Object</i>.
-     */
     public IExternalDataTable createExternalDataTable(final Session session);
 
-    /**
-     * Creates a {@link IExperimentTable} <i>Business Object</i>.
-     */
     public IExperimentTable createExperimentTable(final Session session);
 
-    /**
-     * Creates a {@link IExperimentBO} <i>Business Object</i>.
-     */
     public IExperimentBO createExperimentBO(final Session session);
 
-    /**
-     * Creates a {@link IPropertyTypeTable} <i>Business Object</i>.
-     */
     public IPropertyTypeTable createPropertyTypeTable(final Session session);
 
-    /**
-     * Creates a {@link IPropertyTypeBO} <i>Business Object</i>.
-     */
     public IPropertyTypeBO createPropertyTypeBO(final Session session);
 
-    /**
-     * Creates a {@link IVocabularyBO} <i>Business Object</i>.
-     */
     public IVocabularyBO createVocabularyBO(final Session session);
 
-    /**
-     * Creates a {@link IProcedureBO} <i>Business Object</i>.
-     */
     public IProcedureBO createProcedureBO(Session session);
 
-    /**
-     * Creates a {@link IEntityTypePropertyTypeBO} <i>Business Object</i>.
-     */
     public IEntityTypePropertyTypeBO createEntityTypePropertyTypeBO(Session session,
             EntityKind entityKind);
 
-    /**
-     * Creates a {@link IProjectBO} <i>Business Object</i>.
-     */
     public IProjectBO createProjectBO(final Session session);
 
-    /**
-     * Creates a {@link IMaterialTable} <i>Business Object</i>.
-     */
     public IMaterialTable createMaterialTable(Session session);
 
+    public IEntityTypeBO createEntityTypeBO(Session session);
 }

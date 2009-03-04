@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.AbstractBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityTypePropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ExperimentTable;
@@ -24,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ExternalDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.GroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
@@ -145,4 +147,8 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
         return new ProjectBO(getDaoFactory(), session);
     }
 
+    public IEntityTypeBO createEntityTypeBO(Session session)
+    {
+        return new EntityTypeBO(getDaoFactory(), session);
+    }
 }
