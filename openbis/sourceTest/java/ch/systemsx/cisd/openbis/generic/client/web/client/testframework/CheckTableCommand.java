@@ -110,6 +110,12 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
             {
                 buffer.append('\n').append(expectedRow);
             }
+            buffer.append("\nActual rows:");
+            for (int i = 0; i < store.getCount(); i++)
+            {
+                final ModelData row = store.getAt(i);
+                buffer.append("\n").append(row.getProperties());
+            }
             fail(buffer.toString());
         }
         if (expectedNumberOfRows >= 0)

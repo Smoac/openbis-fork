@@ -25,5 +25,15 @@ public class RendererTestUtil
     {
         return "<div class=\"invalid\">" + code + "</div>";
     }
+    
+    public static String link(final String text)
+    {
+        return "<div class=\"link-style\">" + text + "</div>";
+    }
 
+    public static String linkInvalid(final String text)
+    {
+        return "<div class=link-style><div class=invalid>" + text + "</div></div>";
+    }
+    
 }

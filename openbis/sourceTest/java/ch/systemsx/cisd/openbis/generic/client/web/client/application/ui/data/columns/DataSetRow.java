@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns;
 
+import java.util.Map;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.CommonExternalDataColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.RendererTestUtil;
@@ -31,14 +33,23 @@ public class DataSetRow extends Row
     public DataSetRow(String code)
     {
         this.code = code;
-        withCell(CommonExternalDataColDefKind.CODE, code);
+        withCell(CommonExternalDataColDefKind.CODE, RendererTestUtil.link(code));
+    }
+    
+    public DataSetRow linkCode()
+    {
+        Map<String, Object> map = getColumnIDValuesMap();
+        String id = CommonExternalDataColDefKind.CODE.id();
+        Object value = map.get(id);
+        map.put(id, RendererTestUtil.link(String.valueOf(value)));
+        return this;
     }
 
     public DataSetRow invalid()
     {
         withInvalidation(true);
         // overwrite previous code
-        withCell(CommonExternalDataColDefKind.CODE, RendererTestUtil.invalidCode(code));
+        withCell(CommonExternalDataColDefKind.CODE, RendererTestUtil.linkInvalid(code));
         return this;
     }
 
