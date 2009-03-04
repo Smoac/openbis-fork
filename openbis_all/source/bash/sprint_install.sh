@@ -34,14 +34,14 @@ unzip ../openBIS-server-S$VER*
 cd openBIS-server
 ./install.sh $PWD ../../service.properties
 
-echo Installing download server...
+echo Installing datastore server...
 cd ..
-unzip ../download-server-S$VER*
-cd download-server
-cp ~/old/sprint-$PREV_VER/download-server/etc/service.properties etc/
-chmod 700 download-service.sh
+unzip ../datastore_server-S$VER*
+cd datastore_server
+cp ~/datastore_server-service.properties etc/service.properties
+chmod 700 datastore_server.sh
 export JAVA_HOME=/usr
-./download-service.sh start
+./datastore_server.sh start
 
 echo Doing some cleaning...
 cd
