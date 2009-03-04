@@ -125,6 +125,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                 {
                     checkSample.execute();
                     // click on first data set
+                    client.removeControllers();
                     DispatcherListener dispatcherListener = createDispatcherListener();
                     Dispatcher dispatcher = Dispatcher.get();
                     dispatcher.addDispatcherListener(dispatcherListener);
