@@ -30,7 +30,7 @@ public class LinkRenderer
     public static String renderAsLink(final String message)
     {
         final Element div = DOM.createDiv();
-        div.setInnerText(message);
+        div.setInnerHTML(message);
         div.setClassName("link-style");
         return DOM.toString(div);
     }
