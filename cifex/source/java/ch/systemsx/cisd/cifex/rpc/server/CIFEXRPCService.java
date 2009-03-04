@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -133,14 +134,19 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
                 public void run()
                 {
                     final long now = System.currentTimeMillis();
+                    final List<Session> sessionsToRemove = new LinkedList<Session>();
                     synchronized (sessionManager)
                     {
                         for (Session session : sessionManager.getAllSessions())
                         {
                             if (now - session.getLastActiveMillis() > sessionExpirationPeriodMillis)
                             {
-                                logout(session.getSessionID(), true);
+                                sessionsToRemove.add(session);
                             }
+                        }
+                        for (Session session : sessionsToRemove)
+                        {
+                            logout(session, true);
                         }
                     }
                 }
@@ -183,20 +189,18 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
 
     public void logout(String sessionID) throws InvalidSessionException
     {
-        logout(sessionID, false);
+        final Session session = sessionManager.getSession(sessionID);
+        logout(session, false);
     }
 
-    private void logout(String sessionID, boolean sessionExpired) throws InvalidSessionException
+    private void logout(Session session, boolean sessionExpired) throws InvalidSessionException
     {
-        // As this method is also called outside of the ServletDisplatcher thread, we must not call
-        // getSession() with storeInHTTPSession = true.
-        final Session session = sessionManager.getSession(sessionID, false);
         if (UploadState.RUNNING_STATES.contains(session.getUploadStatus().getUploadState()))
         {
-            logInvocation(sessionID, "Cancel.");
+            logInvocation(session.getSessionID(), "Cancel.");
         }
         cleanUpSession(session);
-        sessionManager.removeSession(sessionID, sessionExpired);
+        sessionManager.removeSession(session.getSessionID(), sessionExpired);
     }
 
     private String getURLForEmail()
