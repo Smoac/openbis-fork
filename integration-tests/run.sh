@@ -216,7 +216,7 @@ function install_openbis_server {
 	copy_templates $OPENBIS_SERVER_NAME
     
         unzip -d $OPENBIS_SERVER $INSTALL/openBIS*.zip
-	$OPENBIS_SERVER/openbis/install.sh $PWD/$OPENBIS_SERVER $OPENBIS_SERVER/service.properties $OPENBIS_SERVER/openbis/log.xml
+	$OPENBIS_SERVER/openBIS-server/install.sh $PWD/$OPENBIS_SERVER $OPENBIS_SERVER/service.properties $OPENBIS_SERVER/openbis/log.xml
 	wait_for_server
     else
         copy_templates $OPENBIS_SERVER_NAME
