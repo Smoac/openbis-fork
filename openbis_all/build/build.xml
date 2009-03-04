@@ -18,16 +18,6 @@
 			<arg value="-lib"/>
 			<arg value="../build_resources/lib/ecj.jar"/>
 			<arg value="-f"/>
-			<arg value="../lims/build/build.xml"/>
-			<arg value="dist"/>
-		</exec>
-		<copy todir="${result.dir}">
-			<fileset dir="../lims/${dist}"/>
-		</copy>
-		<exec executable="ant" failonerror="true">
-			<arg value="-lib"/>
-			<arg value="../build_resources/lib/ecj.jar"/>
-			<arg value="-f"/>
 			<arg value="../datastore_server/build/build.xml"/>
 			<arg value="dist"/>
 		</exec>
@@ -43,13 +33,6 @@
 			<arg value="../build_resources/lib/ecj.jar"/>
 			<arg value="-f"/>
 			<arg value="../openbis/build/build.xml"/>
-			<arg value="clean"/>
-		</exec>
-		<exec executable="ant" failonerror="true">
-			<arg value="-lib"/>
-			<arg value="../build_resources/lib/ecj.jar"/>
-			<arg value="-f"/>
-			<arg value="../lims/build/build.xml"/>
 			<arg value="clean"/>
 		</exec>
 		<exec executable="ant" failonerror="true">
