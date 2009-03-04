@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.cifex.rpc.server;
 
 import static ch.systemsx.cisd.cifex.rpc.UploadState.ABORTED;
-import static ch.systemsx.cisd.cifex.rpc.UploadState.FINISHED;
 import static ch.systemsx.cisd.cifex.rpc.UploadState.INITIALIZED;
 import static ch.systemsx.cisd.cifex.rpc.UploadState.READY_FOR_NEXT_FILE;
 import static ch.systemsx.cisd.cifex.rpc.UploadState.UPLOADING;
@@ -245,7 +244,6 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         logInvocation(sessionID, "Upload files " + fileNames);
         UploadStatus status = getStatusAndCheckState(session, INITIALIZED);
         status.setFiles(files);
-        status.setUploadState(fileNames.isEmpty() ? FINISHED : READY_FOR_NEXT_FILE);
         session.setRecipients(StringUtilities.tokenize(recipients).toArray(new String[0]));
         session.setComment(comment);
     }
@@ -274,10 +272,6 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
             }
         }
         cleanUpSession(session);
-        if (successful == false)
-        {
-            session.getUploadStatus().setUploadState(INITIALIZED);
-        }
     }
 
     public void startUploading(String sessionID) throws InvalidSessionException
@@ -374,7 +368,6 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
                 }
             } else
             {
-                status.setUploadState(UploadState.UPLOADING);
                 status.setFilePointer(filePointer + block.length);
             }
         } catch (Throwable th)

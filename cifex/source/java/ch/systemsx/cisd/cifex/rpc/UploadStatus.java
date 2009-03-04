@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.cifex.rpc;
 
+import static ch.systemsx.cisd.cifex.rpc.UploadState.FINISHED;
+import static ch.systemsx.cisd.cifex.rpc.UploadState.INITIALIZED;
+import static ch.systemsx.cisd.cifex.rpc.UploadState.READY_FOR_NEXT_FILE;
+
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -24,39 +28,54 @@ import org.apache.commons.io.FilenameUtils;
 
 /**
  * Status of an uploading session.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class UploadStatus implements Serializable
 {
     private static final long serialVersionUID = 1L;
-    
+
     private final Set<String> uploadedFiles = new HashSet<String>();
-    
+
     private String[] files;
+
     private int indexOfCurrentFile;
+
     private long filePointer;
+
     private UploadState uploadState = UploadState.INITIALIZED;
-    
+
     public void reset()
     {
         files = null;
         filePointer = 0;
         indexOfCurrentFile = 0;
+        uploadState = INITIALIZED;
     }
 
     /**
      * Sets the absolute paths of all files to be uploaded.
      */
-    public final void setFiles(String[] files)
+    public final void setFiles(String[] filesOrNull)
     {
-        this.files = files;
-        if (files != null)
+        this.files = filesOrNull;
+        final boolean isEmpty = (filesOrNull == null || filesOrNull.length == 0);
+        if (isEmpty)
+        {
+            uploadState = FINISHED;
+        } else
         {
             indexOfCurrentFile = findNextIndex(0);
+            if (indexOfCurrentFile >= filesOrNull.length)
+            {
+                uploadState = FINISHED;
+            } else
+            {
+                uploadState = READY_FOR_NEXT_FILE;
+            }
         }
     }
-    
+
     private int findNextIndex(int startIndex)
     {
         for (int i = startIndex; i < files.length; i++)
@@ -68,19 +87,21 @@ public class UploadStatus implements Serializable
         }
         return files.length;
     }
-    
+
     /**
-     * Goes to the next file in the list of files to be uploaded. Also changes the state and
-     * resets the file pointer.
+     * Goes to the next file in the list of files to be uploaded. Also changes the state and resets
+     * the file pointer.
      */
     public void next()
     {
         uploadedFiles.add(getCurrentFile());
         indexOfCurrentFile = findNextIndex(indexOfCurrentFile);
         filePointer = 0;
-        uploadState = indexOfCurrentFile < files.length ? UploadState.READY_FOR_NEXT_FILE : UploadState.FINISHED;
+        uploadState =
+                indexOfCurrentFile < files.length ? UploadState.READY_FOR_NEXT_FILE
+                        : UploadState.FINISHED;
     }
-    
+
     /**
      * Returns the absolute path of the current file to be uploaded.
      */
@@ -88,7 +109,7 @@ public class UploadStatus implements Serializable
     {
         return files[indexOfCurrentFile];
     }
-    
+
     /**
      * Returns only the name of the current file to be uploaded.
      */
@@ -138,5 +159,5 @@ public class UploadStatus implements Serializable
         return "UploadStatus[" + uploadState + ",fileIndex=" + indexOfCurrentFile + ",filePointer="
                 + filePointer + "]";
     }
-    
+
 }
