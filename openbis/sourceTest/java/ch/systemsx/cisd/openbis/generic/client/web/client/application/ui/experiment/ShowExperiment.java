@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Expe
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.experiment.CommonExperimentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.TestUtil;
 
 /**
  * A {@link AbstractDefaultTestCommand} extension for showing a experiment of given code.
@@ -57,7 +58,7 @@ public class ShowExperiment extends AbstractDefaultTestCommand
         for (int i = 0; i < store.getCount(); i++)
         {
             final ExperimentModel row = store.getAt(i);
-            if (code.equals(row.get(CommonExperimentColDefKind.CODE.id())))
+            if (code.equalsIgnoreCase(TestUtil.normalize(row.get(CommonExperimentColDefKind.CODE.id()))))
             {
                 final GridEvent gridEvent = new GridEvent(table);
                 gridEvent.rowIndex = i;
