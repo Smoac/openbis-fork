@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.TestUtil;
 
 /**
  * A {@link AbstractDefaultTestCommand} extension for showing a sample of given code.
@@ -59,7 +60,7 @@ public final class ShowSample extends AbstractDefaultTestCommand
         for (int i = 0; i < store.getCount(); i++)
         {
             final SampleModel row = store.getAt(i);
-            String rowCode = String.valueOf(row.get(CommonSampleColDefKind.CODE.id())).trim();
+            String rowCode = TestUtil.normalize(row.get(CommonSampleColDefKind.CODE.id()));
             if (code.equalsIgnoreCase(rowCode))
             {
                 final GridEvent gridEvent = new GridEvent(table);

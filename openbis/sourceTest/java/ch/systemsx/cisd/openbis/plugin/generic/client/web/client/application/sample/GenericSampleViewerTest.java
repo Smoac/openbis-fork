@@ -21,7 +21,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns.DataSetRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ListSamples;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ShowSample;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.RendererTestUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
@@ -70,7 +69,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         loginAndGotoTab(CategoriesBuilder.MenuCategoryKind.SAMPLES,
                 CategoriesBuilder.MenuElementKind.BROWSE);
         remoteConsole.prepare(new ListSamples("CISD", "CELL_PLATE"));
-        remoteConsole.prepare(new ShowSample(RendererTestUtil.invalidCode(CELL_PLATE_EXAMPLE)));
+        remoteConsole.prepare(new ShowSample(CELL_PLATE_EXAMPLE));
         final CheckSample checkSample = new CheckSample(GROUP_IDENTIFIER, CELL_PLATE_EXAMPLE);
         checkSample.property("Sample").asString(CELL_PLATE_EXAMPLE);
         checkSample.property("Sample Type").asCode("CELL_PLATE");

@@ -27,7 +27,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.co
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ListExperiments;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ShowExperiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleRow;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.RendererTestUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
@@ -130,8 +129,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
 
     public final void testShowInvalidExperimentDetails()
     {
-        String expCode = RendererTestUtil.invalidCode(EXP_X);
-        prepareShowExperiment(DEFAULT, SIRNA_HCS, expCode);
+        prepareShowExperiment(DEFAULT, SIRNA_HCS, EXP_X);
         final CheckExperiment checkExperiment = new CheckExperiment(CISD_CISD_DEFAULT, EXP_X);
         checkExperiment.property("Experiment").asString(EXP_X);
         checkExperiment.property("Experiment Type").asCode(SIRNA_HCS);

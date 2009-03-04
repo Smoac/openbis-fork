@@ -16,11 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns;
 
-import java.util.Map;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.CommonExternalDataColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.RendererTestUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 
 /**
@@ -28,36 +25,20 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
  */
 public class DataSetRow extends Row
 {
-    private final String code;
-
     public DataSetRow(String code)
     {
-        this.code = code;
-        withCell(CommonExternalDataColDefKind.CODE, RendererTestUtil.link(code));
+        withCell(CommonExternalDataColDefKind.CODE, code);
     }
     
-    public DataSetRow linkCode()
-    {
-        Map<String, Object> map = getColumnIDValuesMap();
-        String id = CommonExternalDataColDefKind.CODE.id();
-        Object value = map.get(id);
-        map.put(id, RendererTestUtil.link(String.valueOf(value)));
-        return this;
-    }
-
     public DataSetRow invalid()
     {
         withInvalidation(true);
-        // overwrite previous code
-        withCell(CommonExternalDataColDefKind.CODE, RendererTestUtil.linkInvalid(code));
         return this;
     }
 
     public DataSetRow valid()
     {
         withInvalidation(false);
-        // just to be sure - overwrite previous code
-        withCell(CommonExternalDataColDefKind.CODE, code);
         return this;
     }
 

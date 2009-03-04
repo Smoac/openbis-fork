@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experi
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.experiment.CommonExperimentColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.RendererTestUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 
 /**
@@ -28,20 +27,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
  */
 public class ExperimentRow extends Row
 {
-    private String code;
-
     public ExperimentRow(final String code)
     {
         super();
-        this.code = code;
         withCell(CommonExperimentColDefKind.CODE.id(), code);
     }
 
     public ExperimentRow invalid()
     {
         withInvalidation(true);
-        // overwrite previous code
-        withCell(CommonExperimentColDefKind.CODE.id(), RendererTestUtil.invalidCode(code));
         return this;
     }
 

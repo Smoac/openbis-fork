@@ -20,7 +20,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.ParentGeneratedFromSampleColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.PropertySampleColDef;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.RendererTestUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
@@ -91,16 +90,12 @@ public class SampleRow extends Row
     public SampleRow invalid()
     {
         withInvalidation(true);
-        // overwrite previous code
-        withCell(CommonSampleColDefKind.CODE, RendererTestUtil.invalidCode(code));
         return this;
     }
 
     public SampleRow valid()
     {
         withInvalidation(false);
-        // just to be sure - overwrite previous code
-        withCell(CommonSampleColDefKind.CODE, code);
         return this;
     }
 

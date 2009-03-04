@@ -17,30 +17,52 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 
 /**
+ * Useful methods.
+ * 
  * @author Franz-Josef Elmer
  */
 public class TestUtil
 {
+    public static final String NULL = "<null>";
+    
     private TestUtil()
     {
     }
 
-    public static boolean isEqual(final Object object1, final Object object2)
+    /**
+     * Checks whether two objects are equal after normalization.
+     */
+    public static boolean isEqual(final Object object1OrNull, final Object object2OrNull)
     {
-        if (object1 == null)
+        if (object1OrNull == null)
         {
-            return object2 == null ? true : false;
+            return object2OrNull == null ? true : false;
         }
-        if (object2 == null)
+        if (object2OrNull == null)
         {
             return false;
         }
-        return normalize(object1).equals(normalize(object2));
+        return normalize(object1OrNull).equals(normalize(object2OrNull));
     }
 
-    private static String normalize(final Object object1)
+    /**
+     * Returns the specified object as a normalised string. Normalization includes trimming,
+     * conversion to lower case, stripping off <code>&lt;div&gt;</code> wrappers.
+     * 
+     * @return {@link #NULL} if <code>objectOrNull == null</code>
+     */
+    public static String normalize(final Object objectOrNull)
     {
-        return object1.toString().toLowerCase().trim();
+        if (objectOrNull == null)
+        {
+            return NULL;
+        }
+        String value = objectOrNull.toString().toLowerCase().trim();
+        while (value.startsWith("<div"))
+        {
+            value = value.substring(value.indexOf('>') + 1, value.length() - "</div>".length());
+        }
+        return value;
     }
 
 }
