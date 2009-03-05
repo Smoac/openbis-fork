@@ -25,7 +25,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetSearchHit;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
@@ -505,8 +504,8 @@ public final class CommonClientService extends AbstractClientService implements
                 sessionToken, listCriteria));
     }
 
-    public ResultSet<DataSetSearchHit> searchForDataSets(DataSetSearchCriteria criteria,
-            final IResultSetConfig<String, DataSetSearchHit> resultSetConfig)
+    public ResultSet<ExternalData> searchForDataSets(DataSetSearchCriteria criteria,
+            final IResultSetConfig<String, ExternalData> resultSetConfig)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
@@ -849,7 +848,7 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     public String prepareExportDataSetSearchHits(
-            TableExportCriteria<DataSetSearchHit> exportCriteria)
+            TableExportCriteria<ExternalData> exportCriteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return prepareExportEntities(exportCriteria);

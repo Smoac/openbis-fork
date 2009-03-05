@@ -19,12 +19,12 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetSearchHit;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ExperimentTranslator.LoadableFields;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetSearchHitDTO;
 
 /**
- * Converts {@link DataSetSearchHitDTO}s to {@link DataSetSearchHit}s.
+ * Converts {@link DataSetSearchHitDTO}s to {@link ExternalData}s.
  * 
  * @author Izabela Adamczyk
  */
@@ -34,10 +34,10 @@ public class DataSetSearchHitTranslator
     {
     }
 
-    public static List<DataSetSearchHit> translate(List<DataSetSearchHitDTO> list,
+    public static List<ExternalData> translate(List<DataSetSearchHitDTO> list,
             String dataStoreBaseURL)
     {
-        ArrayList<DataSetSearchHit> result = new ArrayList<DataSetSearchHit>(list.size());
+        ArrayList<ExternalData> result = new ArrayList<ExternalData>(list.size());
         for (DataSetSearchHitDTO item : list)
         {
             result.add(translate(item, dataStoreBaseURL));
@@ -45,12 +45,10 @@ public class DataSetSearchHitTranslator
         return result;
     }
 
-    public static DataSetSearchHit translate(DataSetSearchHitDTO hit, String dataStoreBaseURL)
+    public static ExternalData translate(DataSetSearchHitDTO hit, String dataStoreBaseURL)
     {
-        DataSetSearchHit result = new DataSetSearchHit();
-        result.setDataSet(ExternalDataTranslator.translate(hit.getDataSet(), dataStoreBaseURL,
-                true, LoadableFields.PROPERTIES));
-        return result;
+        return ExternalDataTranslator.translate(hit.getDataSet(), dataStoreBaseURL, true,
+                LoadableFields.PROPERTIES);
     }
 
 }

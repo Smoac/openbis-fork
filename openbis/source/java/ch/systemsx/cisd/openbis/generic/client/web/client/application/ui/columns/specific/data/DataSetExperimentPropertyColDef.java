@@ -19,13 +19,13 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.column
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractPropertyColDef;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetSearchHit;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 public final class DataSetExperimentPropertyColDef extends
-        AbstractPropertyColDef<DataSetSearchHit>
+        AbstractPropertyColDef<ExternalData>
 {
     private static final String ID_PREFIX = "exp";
 
@@ -41,14 +41,14 @@ public final class DataSetExperimentPropertyColDef extends
     }
 
     @Override
-    protected List<? extends EntityProperty<?, ?>> getProperties(DataSetSearchHit entity)
+    protected List<? extends EntityProperty<?, ?>> getProperties(ExternalData entity)
     {
         return getExperimentProperties(entity);
     }
     
-    public static List<ExperimentProperty> getExperimentProperties(DataSetSearchHit entity)
+    public static List<ExperimentProperty> getExperimentProperties(ExternalData entity)
     {
-        return entity.getDataSet().getProcedure().getExperiment().getProperties();
+        return entity.getProcedure().getExperiment().getProperties();
     }
 
 }

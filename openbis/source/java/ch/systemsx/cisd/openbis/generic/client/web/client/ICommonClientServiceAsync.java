@@ -20,7 +20,6 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetSearchHit;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
@@ -133,7 +132,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      * @see ICommonClientService#prepareExportDataSetSearchHits(TableExportCriteria)
      */
     public void prepareExportDataSetSearchHits(
-            TableExportCriteria<DataSetSearchHit> exportCriteria, AsyncCallback<String> callback);
+            TableExportCriteria<ExternalData> exportCriteria, AsyncCallback<String> callback);
 
     /** @see ICommonClientService#listPropertyTypes(DefaultResultSetConfig) */
     public void listPropertyTypes(DefaultResultSetConfig<String, PropertyType> criteria,
@@ -256,8 +255,8 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      * @see ICommonClientService#searchForDataSets(DataSetSearchCriteria, IResultSetConfig)
      */
     public void searchForDataSets(DataSetSearchCriteria criteria,
-            final IResultSetConfig<String, DataSetSearchHit> resultSetConfig,
-            final AsyncCallback<ResultSet<DataSetSearchHit>> callback);
+            final IResultSetConfig<String, ExternalData> resultSetConfig,
+            final AsyncCallback<ResultSet<ExternalData>> callback);
 
     /**
      * @see ICommonClientService#listMaterialTypes()

@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.DataSetSearchHitColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetSearchHit;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 /**
  * @author Tomasz Pylak
  */
-public class DataSetSearchHitModel extends BaseEntityModel<DataSetSearchHit>
+public class DataSetSearchHitModel extends BaseEntityModel<ExternalData>
 {
     private static final long serialVersionUID = 1L;
 
@@ -47,7 +47,7 @@ public class DataSetSearchHitModel extends BaseEntityModel<DataSetSearchHit>
 
     private static final String LABEL_SAMPLE_PROPERTY_PREFIX = "Sample ";
 
-    public DataSetSearchHitModel(final DataSetSearchHit entity)
+    public DataSetSearchHitModel(final ExternalData entity)
     {
         super(entity, createColumnsSchema(entity));
         String columnID = DataSetSearchHitColDefKind.CODE.id();
@@ -56,10 +56,10 @@ public class DataSetSearchHitModel extends BaseEntityModel<DataSetSearchHit>
 
     // here we create the columns definition having just one table row. We need them only to render
     // column values (headers have been already created), so no message provider is needed.
-    private static List<IColumnDefinitionUI<DataSetSearchHit>> createColumnsSchema(
-            DataSetSearchHit entity)
+    private static List<IColumnDefinitionUI<ExternalData>> createColumnsSchema(
+            ExternalData entity)
     {
-        List<IColumnDefinitionUI<DataSetSearchHit>> list = createCommonColumnsSchema(null);
+        List<IColumnDefinitionUI<ExternalData>> list = createCommonColumnsSchema(null);
         for (ExperimentProperty prop : DataSetExperimentPropertyColDef
                 .getExperimentProperties(entity))
         {
@@ -74,26 +74,26 @@ public class DataSetSearchHitModel extends BaseEntityModel<DataSetSearchHit>
         return list;
     }
 
-    private static IColumnDefinitionUI<DataSetSearchHit> createSamplePropertyTypeColDef(
+    private static IColumnDefinitionUI<ExternalData> createSamplePropertyTypeColDef(
             PropertyType propertyType)
     {
         String label = LABEL_SAMPLE_PROPERTY_PREFIX + propertyType.getLabel();
         return new DataSetSamplePropertyColDef(propertyType, true, PROPERTY_COLUMN_WIDTH, label);
     }
 
-    private static IColumnDefinitionUI<DataSetSearchHit> createExperimentPropertyTypeColDef(
+    private static IColumnDefinitionUI<ExternalData> createExperimentPropertyTypeColDef(
             PropertyType propertyType)
     {
         String label = LABEL_EXPERIMENT_PROPERTY_PREFIX + propertyType.getLabel();
         return new DataSetExperimentPropertyColDef(propertyType, true, PROPERTY_COLUMN_WIDTH, label);
     }
 
-    public static ColumnDefsAndConfigs<DataSetSearchHit> createColumnsSchema(
+    public static ColumnDefsAndConfigs<ExternalData> createColumnsSchema(
             IMessageProvider messageProvider, List<PropertyType> propertyTypes)
     {
-        List<IColumnDefinitionUI<DataSetSearchHit>> commonColumnsSchema =
+        List<IColumnDefinitionUI<ExternalData>> commonColumnsSchema =
                 createCommonColumnsSchema(messageProvider);
-        ColumnDefsAndConfigs<DataSetSearchHit> columns =
+        ColumnDefsAndConfigs<ExternalData> columns =
                 ColumnDefsAndConfigs.create(commonColumnsSchema);
 
         columns.addColumns(createExperimentsPropertyColumnsSchema(propertyTypes));
@@ -102,11 +102,11 @@ public class DataSetSearchHitModel extends BaseEntityModel<DataSetSearchHit>
         return columns;
     }
 
-    private static List<IColumnDefinitionUI<DataSetSearchHit>> createSamplesPropertyColumnsSchema(
+    private static List<IColumnDefinitionUI<ExternalData>> createSamplesPropertyColumnsSchema(
             List<PropertyType> propertyTypes)
     {
         List<PropertyType> experimentPropertyTypes = filterSamplePropertyTypes(propertyTypes);
-        List<IColumnDefinitionUI<DataSetSearchHit>> list = createEmptyColDefList();
+        List<IColumnDefinitionUI<ExternalData>> list = createEmptyColDefList();
         for (PropertyType prop : experimentPropertyTypes)
         {
             list.add(createSamplePropertyTypeColDef(prop));
@@ -114,11 +114,11 @@ public class DataSetSearchHitModel extends BaseEntityModel<DataSetSearchHit>
         return list;
     }
 
-    private static List<IColumnDefinitionUI<DataSetSearchHit>> createExperimentsPropertyColumnsSchema(
+    private static List<IColumnDefinitionUI<ExternalData>> createExperimentsPropertyColumnsSchema(
             List<PropertyType> propertyTypes)
     {
         List<PropertyType> experimentPropertyTypes = filterExperimentPropertyTypes(propertyTypes);
-        List<IColumnDefinitionUI<DataSetSearchHit>> list = createEmptyColDefList();
+        List<IColumnDefinitionUI<ExternalData>> list = createEmptyColDefList();
         for (PropertyType prop : experimentPropertyTypes)
         {
             list.add(createExperimentPropertyTypeColDef(prop));
@@ -126,15 +126,15 @@ public class DataSetSearchHitModel extends BaseEntityModel<DataSetSearchHit>
         return list;
     }
 
-    private static List<IColumnDefinitionUI<DataSetSearchHit>> createCommonColumnsSchema(
+    private static List<IColumnDefinitionUI<ExternalData>> createCommonColumnsSchema(
             IMessageProvider msgProviderOrNull)
     {
         return createColumnsDefinition(DataSetSearchHitColDefKind.values(), msgProviderOrNull);
     }
 
-    private static ArrayList<IColumnDefinitionUI<DataSetSearchHit>> createEmptyColDefList()
+    private static ArrayList<IColumnDefinitionUI<ExternalData>> createEmptyColDefList()
     {
-        return new ArrayList<IColumnDefinitionUI<DataSetSearchHit>>();
+        return new ArrayList<IColumnDefinitionUI<ExternalData>>();
     }
 
     // returns property types which are assigned to at least one sample type

@@ -19,12 +19,12 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.column
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractPropertyColDef;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetSearchHit;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 
-public final class DataSetSamplePropertyColDef extends AbstractPropertyColDef<DataSetSearchHit>
+public final class DataSetSamplePropertyColDef extends AbstractPropertyColDef<ExternalData>
 {
     private static final String ID_PREFIX = "sample";
 
@@ -40,13 +40,13 @@ public final class DataSetSamplePropertyColDef extends AbstractPropertyColDef<Da
     }
 
     @Override
-    protected List<? extends EntityProperty<?, ?>> getProperties(DataSetSearchHit entity)
+    protected List<? extends EntityProperty<?, ?>> getProperties(ExternalData entity)
     {
         return getSampleProperties(entity);
     }
 
-    public static List<SampleProperty> getSampleProperties(DataSetSearchHit entity)
+    public static List<SampleProperty> getSampleProperties(ExternalData entity)
     {
-        return entity.getDataSet().getSampleProperties();
+        return entity.getSampleProperties();
     }
 }

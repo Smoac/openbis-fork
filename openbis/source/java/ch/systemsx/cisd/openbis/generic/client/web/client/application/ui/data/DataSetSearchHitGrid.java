@@ -30,8 +30,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Co
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DataSetUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetSearchHit;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -44,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
  * @author Izabela Adamczyk
  */
 public class DataSetSearchHitGrid extends
-        AbstractBrowserGrid<DataSetSearchHit, DataSetSearchHitModel>
+        AbstractBrowserGrid<ExternalData, DataSetSearchHitModel>
 {
 
     // browser consists of the grid and the paging toolbar
@@ -75,17 +75,17 @@ public class DataSetSearchHitGrid extends
         setId(BROWSER_ID);
         updateDefaultRefreshButton();
         registerCellClickListenerFor(DataSetSearchHitColDefKind.CODE.id(),
-                new ICellListener<DataSetSearchHit>()
+                new ICellListener<ExternalData>()
                     {
-                        public void handle(DataSetSearchHit rowItem)
+                        public void handle(ExternalData rowItem)
                         {
-                            DataSetUtils.showDataSet(rowItem.getDataSet(), viewContext.getModel());
+                            DataSetUtils.showDataSet(rowItem, viewContext.getModel());
                         }
                     });
     }
 
     @Override
-    protected List<IColumnDefinition<DataSetSearchHit>> getAvailableFilters()
+    protected List<IColumnDefinition<ExternalData>> getAvailableFilters()
     {
         return asColumnFilters(new DataSetSearchHitColDefKind[]
             { DataSetSearchHitColDefKind.CODE, DataSetSearchHitColDefKind.LOCATION,
@@ -93,14 +93,14 @@ public class DataSetSearchHitGrid extends
     }
 
     @Override
-    protected void listEntities(DefaultResultSetConfig<String, DataSetSearchHit> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<DataSetSearchHit>> callback)
+    protected void listEntities(DefaultResultSetConfig<String, ExternalData> resultSetConfig,
+            AbstractAsyncCallback<ResultSet<ExternalData>> callback)
     {
         viewContext.getService().searchForDataSets(criteria, resultSetConfig, callback);
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<DataSetSearchHit> exportCriteria,
+    protected void prepareExportEntities(TableExportCriteria<ExternalData> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportDataSetSearchHits(exportCriteria, callback);
@@ -136,13 +136,13 @@ public class DataSetSearchHitGrid extends
     }
 
     @Override
-    protected DataSetSearchHitModel createModel(DataSetSearchHit entity)
+    protected DataSetSearchHitModel createModel(ExternalData entity)
     {
         return new DataSetSearchHitModel(entity);
     }
 
     @Override
-    protected ColumnDefsAndConfigs<DataSetSearchHit> createColumnsDefinition()
+    protected ColumnDefsAndConfigs<ExternalData> createColumnsDefinition()
     {
         return DataSetSearchHitModel.createColumnsSchema(viewContext, availablePropertyTypes);
     }

@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.column
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetSearchHit;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Procedure;
 
 /**
@@ -28,86 +28,86 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Procedure;
  * 
  * @author Izabela Adamczyk
  */
-public enum DataSetSearchHitColDefKind implements IColumnDefinitionKind<DataSetSearchHit>
+public enum DataSetSearchHitColDefKind implements IColumnDefinitionKind<ExternalData>
 {
 
-    CODE(new AbstractColumnDefinitionKind<DataSetSearchHit>(Dict.CODE, 200)
+    CODE(new AbstractColumnDefinitionKind<ExternalData>(Dict.CODE, 200)
         {
             @Override
-            public String tryGetValue(DataSetSearchHit entity)
+            public String tryGetValue(ExternalData entity)
             {
-                return entity.getDataSet().getCode();
+                return entity.getCode();
             }
         }),
 
-    PARENT_CODE(new AbstractColumnDefinitionKind<DataSetSearchHit>(Dict.PARENT_CODE, 200, true)
+    PARENT_CODE(new AbstractColumnDefinitionKind<ExternalData>(Dict.PARENT_CODE, 200, true)
         {
             @Override
-            public String tryGetValue(DataSetSearchHit entity)
+            public String tryGetValue(ExternalData entity)
             {
-                return entity.getDataSet().getParentCode();
+                return entity.getParentCode();
             }
         }),
 
-    LOCATION(new AbstractColumnDefinitionKind<DataSetSearchHit>(Dict.LOCATION, 200)
+    LOCATION(new AbstractColumnDefinitionKind<ExternalData>(Dict.LOCATION, 200)
         {
             @Override
-            public String tryGetValue(DataSetSearchHit entity)
+            public String tryGetValue(ExternalData entity)
             {
-                return entity.getDataSet().getLocation();
+                return entity.getLocation();
             }
         }),
 
-    DATA_SET_TYPE(new AbstractColumnDefinitionKind<DataSetSearchHit>(Dict.DATA_SET_TYPE, 120)
+    DATA_SET_TYPE(new AbstractColumnDefinitionKind<ExternalData>(Dict.DATA_SET_TYPE, 120)
         {
             @Override
-            public String tryGetValue(DataSetSearchHit entity)
+            public String tryGetValue(ExternalData entity)
             {
-                return entity.getDataSet().getDataSetType().getCode();
+                return entity.getDataSetType().getCode();
             }
         }),
 
-    FILE_TYPE(new AbstractColumnDefinitionKind<DataSetSearchHit>(Dict.FILE_FORMAT_TYPE, 120)
+    FILE_TYPE(new AbstractColumnDefinitionKind<ExternalData>(Dict.FILE_FORMAT_TYPE, 120)
         {
             @Override
-            public String tryGetValue(DataSetSearchHit entity)
+            public String tryGetValue(ExternalData entity)
             {
-                return entity.getDataSet().getFileFormatType().getCode();
+                return entity.getFileFormatType().getCode();
             }
         }),
 
-    SAMPLE(new AbstractColumnDefinitionKind<DataSetSearchHit>(Dict.SAMPLE, 100)
+    SAMPLE(new AbstractColumnDefinitionKind<ExternalData>(Dict.SAMPLE, 100)
         {
             @Override
-            public String tryGetValue(DataSetSearchHit entity)
+            public String tryGetValue(ExternalData entity)
             {
-                return entity.getDataSet().getSampleCode();
+                return entity.getSampleCode();
             }
         }),
 
-    SAMPLE_IDENTIFIER(new AbstractColumnDefinitionKind<DataSetSearchHit>(Dict.SAMPLE_IDENTIFIER,
+    SAMPLE_IDENTIFIER(new AbstractColumnDefinitionKind<ExternalData>(Dict.SAMPLE_IDENTIFIER,
             true)
         {
             @Override
-            public String tryGetValue(DataSetSearchHit entity)
+            public String tryGetValue(ExternalData entity)
             {
-                return entity.getDataSet().getSampleIdentifier();
+                return entity.getSampleIdentifier();
             }
         }),
 
-    SAMPLE_TYPE(new AbstractColumnDefinitionKind<DataSetSearchHit>(Dict.SAMPLE_TYPE, 100)
+    SAMPLE_TYPE(new AbstractColumnDefinitionKind<ExternalData>(Dict.SAMPLE_TYPE, 100)
         {
             @Override
-            public String tryGetValue(DataSetSearchHit entity)
+            public String tryGetValue(ExternalData entity)
             {
-                return entity.getDataSet().getSampleType().getCode();
+                return entity.getSampleType().getCode();
             }
         }),
 
-    GROUP(new AbstractColumnDefinitionKind<DataSetSearchHit>(Dict.GROUP, 100)
+    GROUP(new AbstractColumnDefinitionKind<ExternalData>(Dict.GROUP, 100)
         {
             @Override
-            public String tryGetValue(DataSetSearchHit entity)
+            public String tryGetValue(ExternalData entity)
             {
                 final Experiment exp = tryGetExperiment(entity);
                 if (exp == null)
@@ -118,10 +118,10 @@ public enum DataSetSearchHitColDefKind implements IColumnDefinitionKind<DataSetS
             }
         }),
 
-    PROJECT(new AbstractColumnDefinitionKind<DataSetSearchHit>(Dict.PROJECT, 100)
+    PROJECT(new AbstractColumnDefinitionKind<ExternalData>(Dict.PROJECT, 100)
         {
             @Override
-            public String tryGetValue(DataSetSearchHit entity)
+            public String tryGetValue(ExternalData entity)
             {
                 final Experiment exp = tryGetExperiment(entity);
                 if (exp == null)
@@ -132,10 +132,10 @@ public enum DataSetSearchHitColDefKind implements IColumnDefinitionKind<DataSetS
             }
         }),
 
-    EXPERIMENT(new AbstractColumnDefinitionKind<DataSetSearchHit>(Dict.EXPERIMENT, 100)
+    EXPERIMENT(new AbstractColumnDefinitionKind<ExternalData>(Dict.EXPERIMENT, 100)
         {
             @Override
-            public String tryGetValue(DataSetSearchHit entity)
+            public String tryGetValue(ExternalData entity)
             {
                 final Experiment exp = tryGetExperiment(entity);
                 if (exp == null)
@@ -146,10 +146,10 @@ public enum DataSetSearchHitColDefKind implements IColumnDefinitionKind<DataSetS
             }
         }),
 
-    EXPERIMENT_TYPE(new AbstractColumnDefinitionKind<DataSetSearchHit>(Dict.EXPERIMENT_TYPE, 120)
+    EXPERIMENT_TYPE(new AbstractColumnDefinitionKind<ExternalData>(Dict.EXPERIMENT_TYPE, 120)
         {
             @Override
-            public String tryGetValue(DataSetSearchHit entity)
+            public String tryGetValue(ExternalData entity)
             {
                 final Experiment experimentOrNull = tryGetExperiment(entity);
                 if (experimentOrNull == null)
@@ -161,31 +161,31 @@ public enum DataSetSearchHitColDefKind implements IColumnDefinitionKind<DataSetS
 
         }),
 
-    REGISTRATION_DATE(new AbstractColumnDefinitionKind<DataSetSearchHit>(Dict.REGISTRATION_DATE,
+    REGISTRATION_DATE(new AbstractColumnDefinitionKind<ExternalData>(Dict.REGISTRATION_DATE,
             200, true)
         {
             @Override
-            public String tryGetValue(DataSetSearchHit entity)
+            public String tryGetValue(ExternalData entity)
             {
-                return renderRegistrationDate(entity.getDataSet());
+                return renderRegistrationDate(entity);
             }
         }),
 
-    IS_INVALID(new AbstractColumnDefinitionKind<DataSetSearchHit>(Dict.IS_INVALID, 100, true)
+    IS_INVALID(new AbstractColumnDefinitionKind<ExternalData>(Dict.IS_INVALID, 100, true)
         {
             @Override
-            public String tryGetValue(DataSetSearchHit entity)
+            public String tryGetValue(ExternalData entity)
             {
-                return renderInvalidationFlag(entity.getDataSet());
+                return renderInvalidationFlag(entity);
             }
         }),
 
     ;
 
-    private final AbstractColumnDefinitionKind<DataSetSearchHit> columnDefinitionKind;
+    private final AbstractColumnDefinitionKind<ExternalData> columnDefinitionKind;
 
     private DataSetSearchHitColDefKind(
-            AbstractColumnDefinitionKind<DataSetSearchHit> columnDefinitionKind)
+            AbstractColumnDefinitionKind<ExternalData> columnDefinitionKind)
     {
         this.columnDefinitionKind = columnDefinitionKind;
     }
@@ -195,12 +195,12 @@ public enum DataSetSearchHitColDefKind implements IColumnDefinitionKind<DataSetS
         return name();
     }
 
-    public AbstractColumnDefinitionKind<DataSetSearchHit> getDescriptor()
+    public AbstractColumnDefinitionKind<ExternalData> getDescriptor()
     {
         return columnDefinitionKind;
     }
 
-    private static Experiment tryGetExperiment(DataSetSearchHit entity)
+    private static Experiment tryGetExperiment(ExternalData entity)
     {
         final Procedure procetureOrNull = tryGetProceture(entity);
         if (procetureOrNull == null)
@@ -210,9 +210,9 @@ public enum DataSetSearchHitColDefKind implements IColumnDefinitionKind<DataSetS
         return procetureOrNull.getExperiment();
     }
 
-    private static Procedure tryGetProceture(DataSetSearchHit entity)
+    private static Procedure tryGetProceture(ExternalData entity)
     {
-        return entity.getDataSet().getProcedure();
+        return entity.getProcedure();
     }
 
 }
