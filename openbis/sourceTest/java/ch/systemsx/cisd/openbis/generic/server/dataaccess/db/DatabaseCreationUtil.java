@@ -62,8 +62,8 @@ public final class DatabaseCreationUtil
     }
 
     /**
-     * Creates all files in <code>sourceTest/sql/postgresql</code> necessary to set up a database
-     * of the current version by dumping a database migrated from the specified version.
+     * Creates all files in <code>sourceTest/sql/postgresql</code> necessary to set up a database of
+     * the current version by dumping a database migrated from the specified version.
      */
     private final static void createFilesFromADumpOfAMigratedDatabase(final String databaseVersion)
             throws Exception
@@ -121,12 +121,33 @@ public final class DatabaseCreationUtil
 
     public static void main(final String[] args) throws Exception
     {
-        if (args.length != 1)
+        String sourceDbVersion;
+        if (args.length == 0)
+        {
+            sourceDbVersion = getPreviousDatabaseVersion();
+            System.out.println("Migrating from the previous database version " + sourceDbVersion);
+        } else if (args.length != 1)
+        {
+            sourceDbVersion = args[0];
+        } else
         {
             System.out.println("Usage: java " + DatabaseCreationUtil.class.getName()
-                    + "<database version>");
+                    + "[<database version>]");
             System.exit(1);
+            return; // never executed
         }
-        createFilesFromADumpOfAMigratedDatabase(args[0]);
+        createFilesFromADumpOfAMigratedDatabase(sourceDbVersion);
+    }
+
+    private static String getPreviousDatabaseVersion()
+    {
+        String curDbVer = DatabaseVersionHolder.getDatabaseVersion();
+        Integer ver = new Integer(curDbVer);
+        String prevVer = "" + (ver - 1);
+        while (prevVer.length() != 3)
+        {
+            prevVer = "0" + prevVer;
+        }
+        return prevVer;
     }
 }
