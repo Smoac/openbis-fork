@@ -43,38 +43,6 @@
   
   <!-- Projects -->
 
-  <!--project name="lims (nightly build)" requiremodification="false">
-    <bootstrappers>
-      <svnbootstrapper localWorkingCopy="${lims.nightly-build.dir}"/>
-    </bootstrappers>
-    <modificationset>
-      <svn localWorkingCopy="${lims.nightly-build.dir}"/>
-    </modificationset>
-    <schedule interval="60">
-      <ant target="nightly-build" time="0100" buildfile="${lims.nightly-build.dir}/build/build.xml" anthome="apache-ant"/>
-    </schedule>
-    <log>
-      <merge dir="${lims.nightly-build.dir}/targets/playground/openBIS-client" pattern="test-report*.xml"/>
-    </log>
-    <publishers>
-      <onsuccess>
-        <artifactspublisher dest="artifacts/${project.name}" dir="${lims.nightly-build.dir}/targets/dist/"/>
-      </onsuccess>
-      <onfailure>
-        <htmlemail buildresultsurl="http://cisd-ci:8090/buildresults/lims" 
-               returnaddress="cisd-group@systemsx.ch" mailhost="127.0.0.1"
-               xsldir="webapps/cruisecontrol/xsl/"
-               css="webapps/cruisecontrol/css/cruisecontrol.css">
-          <map alias="felmer" address="franz-josef.elmer@bsse.ethz.ch"/>
-          <map alias="brinn" address="bernd.rinn@bsse.ethz.ch"/>
-          <map alias="charlesr" address="charles.ramin-wright@bsse.ethz.ch"/>
-          <map alias="tpylak" address="tomasz.pylak@bsse.ethz.ch"/>
-          <map alias="izabel" address="izabela.adamczyk@bsse.ethz.ch" />
-        </htmlemail>
-      </onfailure>
-    </publishers>
-  </project-->
-
   <project name="openbis (nightly build)" requiremodification="false">
     <bootstrappers>
       <svnbootstrapper localWorkingCopy="${openbis.nightly-build.dir}"/>
@@ -230,30 +198,6 @@
       <buildstatus logdir="logs/common"/>
       <buildstatus logdir="logs/authentication"/>
       <buildstatus logdir="logs/server-common"/>
-      <svn localWorkingCopy="${project.trunk}"/>
-    </modificationset>
-  </project>
-  
-  <project name="lims_base">
-    <modificationset quietperiod="${quiet-period}">
-      <buildstatus logdir="logs/build_resources"/>
-      <buildstatus logdir="logs/libraries"/>
-      <buildstatus logdir="logs/common"/>
-      <buildstatus logdir="logs/openbis"/>
-      <svn localWorkingCopy="${project.trunk}"/>
-    </modificationset>
-  </project>
-  
-  <project name="lims">
-    <modificationset quietperiod="${quiet-period}">
-      <buildstatus logdir="logs/build_resources"/>
-      <buildstatus logdir="logs/libraries"/>
-      <buildstatus logdir="logs/common"/>
-      <buildstatus logdir="logs/authentication"/>
-      <buildstatus logdir="logs/dbmigration"/>
-      <buildstatus logdir="logs/server-common"/>
-      <buildstatus logdir="logs/lims_base"/>
-      <buildstatus logdir="logs/openbis"/>
       <svn localWorkingCopy="${project.trunk}"/>
     </modificationset>
   </project>
