@@ -80,6 +80,10 @@ final class DataSetService implements IETLLIMSService
         return null;
     }
 
+    public void registerDataStoreServerSessionToken(String sessionToken, String dssSessionToken)
+    {
+    }
+
     public void registerDataSet(String sessionToken, SampleIdentifier sampleIdentifier,
             String procedureTypeCode, ExternalData externalData) throws UserFailureException
     {
