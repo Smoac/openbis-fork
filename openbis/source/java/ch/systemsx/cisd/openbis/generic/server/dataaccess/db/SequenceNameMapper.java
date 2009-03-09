@@ -56,6 +56,8 @@ public final class SequenceNameMapper extends StandardSequenceNameMapper
                 SequenceNames.CONTROLLED_VOCABULARY_SEQUENCE);
         map.put(TableNames.CONTROLLED_VOCABULARY_TERM_TABLE,
                 SequenceNames.CONTROLLED_VOCABULARY_TERM_SEQUENCE);
+        // legacy code to make migration tests from db version 018 work
+        map.put("sample_component_materials", "SCMA_ID_SEQ");
         return Collections.unmodifiableMap(map);
     }
 

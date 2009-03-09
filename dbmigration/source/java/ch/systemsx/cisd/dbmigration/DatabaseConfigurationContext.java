@@ -96,6 +96,7 @@ public class DatabaseConfigurationContext implements DisposableBean
     {
         setOwner(null);
         setPassword("");
+        setSequenceUpdateNeeded(true);
     }
 
     public final void setDataSourceFactory(final IDataSourceFactory dataSourceFactory)
@@ -263,8 +264,8 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     /**
-     * Sets the user name of the owner of the database. If <var>owner</var> is <code>null</code>
-     * or empty, the OS user running the VM will be set instead.
+     * Sets the user name of the owner of the database. If <var>owner</var> is <code>null</code> or
+     * empty, the OS user running the VM will be set instead.
      */
     public final void setOwner(final String owner)
     {
@@ -303,9 +304,8 @@ public class DatabaseConfigurationContext implements DisposableBean
     /**
      * Sets user name of the administrator.
      * 
-     * @param adminUser New value. Can be <code>null</code>. For convenience when using with
-     *            Spring property place holders, an empty string will be replaced by
-     *            <code>null</code>.
+     * @param adminUser New value. Can be <code>null</code>. For convenience when using with Spring
+     *            property place holders, an empty string will be replaced by <code>null</code>.
      */
     public final void setAdminUser(final String adminUser)
     {
@@ -451,9 +451,9 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     /**
-     * Returns <code>true</code> if scripts in the db migration engine should be executed
-     * statement by statement. This mode gives better error messages on where the faulty SQL is but
-     * on the other hand it is a lot slower.
+     * Returns <code>true</code> if scripts in the db migration engine should be executed statement
+     * by statement. This mode gives better error messages on where the faulty SQL is but on the
+     * other hand it is a lot slower.
      */
     public final boolean isScriptSingleStepMode()
     {

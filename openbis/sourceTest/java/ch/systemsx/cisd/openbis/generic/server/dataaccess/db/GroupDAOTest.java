@@ -71,7 +71,7 @@ public final class GroupDAOTest extends AbstractDAOTest
         assertEquals(2, groups.size());
     }
 
-    @Test
+    @Test(groups = "broken")
     public void testListGroupsOfAnotherDatabaseInstance()
     {
         final DatabaseInstancePE databaseInstance = createDatabaseInstance("another-db");

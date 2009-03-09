@@ -116,9 +116,8 @@ public final class SampleServerPluginRegistry implements BeanFactoryAware
         final ISampleServerPlugin serverPlugin = plugins.get(technologySampleType);
         if (serverPlugin != null)
         {
-            throw new IllegalArgumentException(String.format(
-                    "There is already a plugin '%s' registered for '%s'.", serverPlugin.getClass()
-                            .getName(), technologySampleType));
+            operationLog.error(String.format("There is already a plugin '%s' registered for '%s'.",
+                    serverPlugin.getClass().getName(), technologySampleType));
         }
         plugins.put(technologySampleType, plugin);
     }

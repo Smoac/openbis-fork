@@ -47,5 +47,6 @@
 	<classpathentry kind="lib" path="/libraries/lucene-highlighter/lucene-highlighter.jar"/>
 	<classpathentry kind="lib" path="/libraries/beanlib-hibernate/beanlib-hibernate.jar" sourcepath="/libraries/beanlib-hibernate/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/beanlib/beanlib.jar" sourcepath="/libraries/beanlib/src.jar"/>
+	<classpathentry kind="lib" path="/libraries/apgdiff/apgdiff.jar" sourcepath="/libraries/apgdiff/src.zip"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
