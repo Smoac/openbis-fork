@@ -22,7 +22,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTab
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IPropertyChecker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IValueAssertion;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.PropertyCheckingManager;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ListExternalDataCallback;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentViewer.ExperimentInfoCallback;
 
 /**
@@ -46,7 +45,7 @@ public class CheckExperiment extends AbstractDefaultTestCommand implements
         propertyCheckingManager = new PropertyCheckingManager();
         addCallbackClass(ExperimentInfoCallback.class);
         addCallbackClass(SampleBrowserGrid.ListEntitiesCallback.class);
-        addCallbackClass(ListExternalDataCallback.class);
+        addCallbackClass(ExperimentDataSetBrowser.ListEntitiesCallback.class);
     }
 
     public Property property(final String name)
@@ -87,7 +86,8 @@ public class CheckExperiment extends AbstractDefaultTestCommand implements
 
     public CheckTableCommand dataSetTable()
     {
-        return new CheckTableCommand(ExperimentDataSetBrowser.ID_PREFIX + identifier);
+        return new CheckTableCommand(ExperimentDataSetBrowser.ID_PREFIX + identifier
+                + ExperimentDataSetBrowser.GRID_POSTFIX);
     }
 
 }

@@ -26,7 +26,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTab
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IPropertyChecker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IValueAssertion;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.PropertyCheckingManager;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ListExternalDataCallback;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer.SampleGenerationInfoCallback;
 
 /**
@@ -49,7 +48,7 @@ public class CheckSample extends AbstractDefaultTestCommand implements IProperty
         propertyCheckingManager = new PropertyCheckingManager();
         addCallbackClass(SampleGenerationInfoCallback.class);
         addCallbackClass(GenericSampleViewer.ListSamplesCallback.class);
-        addCallbackClass(ListExternalDataCallback.class);
+        addCallbackClass(SampleDataSetBrowser.ListEntitiesCallback.class);
     }
     
     public Property property(String name)
@@ -71,7 +70,9 @@ public class CheckSample extends AbstractDefaultTestCommand implements IProperty
 
     public CheckTableCommand dataTable()
     {
-        dataTableCheck = new CheckTableCommand(ID_PREFIX + identifier + DATA_POSTFIX);
+        dataTableCheck =
+                new CheckTableCommand(ID_PREFIX + identifier + DATA_POSTFIX
+                        + SampleDataSetBrowser.GRID_POSTFIX);
         return dataTableCheck;
     }
 

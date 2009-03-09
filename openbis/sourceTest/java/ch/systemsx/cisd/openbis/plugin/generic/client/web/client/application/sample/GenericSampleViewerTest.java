@@ -131,7 +131,8 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                     dispatcher.addDispatcherListener(dispatcherListener);
                     final Widget widget =
                             GWTTestUtil.getWidgetWithID(ID_PREFIX + GROUP_IDENTIFIER + "/"
-                                    + CELL_PLATE_EXAMPLE + DATA_POSTFIX);
+                                    + CELL_PLATE_EXAMPLE + DATA_POSTFIX
+                                    + SampleDataSetBrowser.GRID_POSTFIX);
                     assertTrue(widget instanceof Grid);
                     final Grid<ExternalDataModel> table = (Grid<ExternalDataModel>) widget;
                     final GridEvent gridEvent = new GridEvent(table);

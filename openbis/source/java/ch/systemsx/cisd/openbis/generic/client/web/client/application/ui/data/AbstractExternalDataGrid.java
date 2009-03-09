@@ -39,12 +39,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
  */
 public abstract class AbstractExternalDataGrid extends AbstractSimpleBrowserGrid<ExternalData>
 {
-    public static final String GRID_POSFIX = "-grid";
+    public static final String GRID_POSTFIX = "-grid";
     
     protected AbstractExternalDataGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             String browserId)
     {
-        super(viewContext, browserId, GRID_POSFIX);
+        super(viewContext, browserId, browserId + GRID_POSTFIX);
         registerCellClickListenerFor(CommonExternalDataColDefKind.CODE.id(),
                 new ICellListener<ExternalData>()
                     {
