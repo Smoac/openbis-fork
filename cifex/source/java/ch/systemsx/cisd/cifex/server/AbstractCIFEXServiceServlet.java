@@ -56,13 +56,16 @@ abstract class AbstractCIFEXServiceServlet extends HttpServlet
     private static final long serialVersionUID = 1L;
 
     private static final String DOMAIN_MODEL_BEAN_NAME = "domain-model";
-    
-    private static final Template ERROR_MESSAGE = new Template("<html><meta><title>CIFEX Error</title></meta>" +
-    		"<body><h1>CIFEX Error</h1>${error-message}</body></html>");
 
-    private static final Template FATAL_ERROR_MESSAGE = new Template("<html><meta><title>CIFEX Fatal Error</title></meta>" +
-    "<body><h1>CIFEX Fatal Error</h1>A fatal error occured:<br>${error-message}</body></html>");
-    
+    private static final Template ERROR_MESSAGE =
+            new Template("<html><meta><title>CIFEX Error</title></meta>"
+                    + "<body><h1>CIFEX Error</h1>${error-message}</body></html>");
+
+    private static final Template FATAL_ERROR_MESSAGE =
+            new Template(
+                    "<html><meta><title>CIFEX Fatal Error</title></meta>"
+                            + "<body><h1>CIFEX Fatal Error</h1>A fatal error occured:<br>${error-message}</body></html>");
+
     protected final Logger operationLog;
 
     protected final Logger notificationLog;
