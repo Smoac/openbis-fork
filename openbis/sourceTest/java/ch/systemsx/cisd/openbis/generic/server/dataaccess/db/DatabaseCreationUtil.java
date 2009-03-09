@@ -126,7 +126,7 @@ public final class DatabaseCreationUtil
         {
             sourceDbVersion = getPreviousDatabaseVersion();
             System.out.println("Migrating from the previous database version " + sourceDbVersion);
-        } else if (args.length != 1)
+        } else if (args.length == 1)
         {
             sourceDbVersion = args[0];
         } else
