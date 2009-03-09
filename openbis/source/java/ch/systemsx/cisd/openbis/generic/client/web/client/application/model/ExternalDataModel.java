@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.L
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.CommonExternalDataColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 
@@ -65,5 +66,11 @@ public final class ExternalDataModel extends BaseEntityModel<ExternalData>
             configs.add(columnConfig);
         }
         return new ColumnModel(configs);
+    }
+    
+    public static ColumnDefsAndConfigs<ExternalData> createColumnsSchema(IMessageProvider messageProvider)
+    {
+        CommonExternalDataColDefKind[] colDefs = CommonExternalDataColDefKind.values();
+        return ColumnDefsAndConfigs.create(createColumnsDefinition(colDefs, messageProvider));
     }
 }

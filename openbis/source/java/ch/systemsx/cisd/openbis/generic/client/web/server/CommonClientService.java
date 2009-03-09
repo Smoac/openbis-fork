@@ -680,41 +680,47 @@ public final class CommonClientService extends AbstractClientService implements
                 }
             });
     }
+    
+    public ResultSet<ExternalData> listSampleDataSets(final String sampleIdentifier,
+            DefaultResultSetConfig<String, ExternalData> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return listEntities(criteria, new IOriginalDataProvider<ExternalData>()
+            {
+                public List<ExternalData> getOriginalData() throws UserFailureException
+                {
+                    final String sessionToken = getSessionToken();
+                    final SampleIdentifier identifier = SampleIdentifierFactory.parse(sampleIdentifier);
+                    final List<ExternalDataPE> externalData =
+                        commonServer.listExternalData(sessionToken, identifier);
+                    return ExternalDataTranslator.translate(externalData, dataStoreBaseURL);
+                }
+            });
+    }
+
+    public ResultSet<ExternalData> listExperimentDataSets(final String experimentIdentifier,
+            DefaultResultSetConfig<String, ExternalData> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return listEntities(criteria, new IOriginalDataProvider<ExternalData>()
+            {
+
+                public List<ExternalData> getOriginalData() throws UserFailureException
+                {
+                    final String sessionToken = getSessionToken();
+                    final ExperimentIdentifier identifier =
+                            new ExperimentIdentifierFactory(experimentIdentifier)
+                                    .createIdentifier();
+                    final List<ExternalDataPE> externalData =
+                            commonServer.listExternalData(sessionToken, identifier);
+                    return ExternalDataTranslator.translate(externalData, dataStoreBaseURL);
+                }
+
+            });
+    }
+    
 
     // ---------------- end list using cache ----------
-
-    public final List<ExternalData> listExternalData(final String sampleIdentifier)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
-    {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final SampleIdentifier identifier = SampleIdentifierFactory.parse(sampleIdentifier);
-            final List<ExternalDataPE> externalData =
-                    commonServer.listExternalData(sessionToken, identifier);
-            return ExternalDataTranslator.translate(externalData, dataStoreBaseURL);
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
-    }
-
-    public List<ExternalData> listExternalDataForExperiment(String experimentIdentifier)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
-    {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final ExperimentIdentifier identifier =
-                    new ExperimentIdentifierFactory(experimentIdentifier).createIdentifier();
-            final List<ExternalDataPE> externalData =
-                    commonServer.listExternalData(sessionToken, identifier);
-            return ExternalDataTranslator.translate(externalData, dataStoreBaseURL);
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
-    }
 
     public final List<SearchableEntity> listSearchableEntities()
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException

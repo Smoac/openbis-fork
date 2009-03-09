@@ -23,7 +23,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
@@ -33,8 +32,6 @@ import com.extjs.gxt.ui.client.data.BaseListLoader;
 import com.extjs.gxt.ui.client.data.ListLoader;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.RpcProxy;
-import com.extjs.gxt.ui.client.event.GridEvent;
-import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
@@ -54,15 +51,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExternalDataModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DataSetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
@@ -73,7 +68,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ListExternalDataCallback;
 
 /**
  * The <i>generic</i> sample viewer.
@@ -95,9 +89,9 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
 
     private Grid<SampleModel> partOfSamplesGrid;
 
-    private Grid<ExternalDataModel> externalDataGrid;
-
     private final String sampleIdentifier;
+
+    private DisposableComponent disposableBrowser;
 
     public GenericSampleViewer(final IViewContext<IGenericClientServiceAsync> viewContext,
             final String sampleIdentifier)
@@ -136,31 +130,17 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         container.add(panel, new RowData(1, 0.5, new Margins(0, 5, 5, 0)));
         // External data
         panel = createContentPanel(viewContext.getMessage(Dict.EXTERNAL_DATA_HEADING));
-        final ListLoader<BaseListLoadConfig> externalDataLoader =
-                createListLoader(createRpcProxyForExternalData());
-        final ListStore<ExternalDataModel> externalDataListStore =
-                createListStore(externalDataLoader);
-        ColumnModel columnModel = ExternalDataModel.createColumnModel(viewContext);
-        externalDataGrid = new Grid<ExternalDataModel>(externalDataListStore, columnModel);
-        externalDataGrid.setId(getId() + DATA_POSTFIX);
-        externalDataGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        externalDataGrid.setLoadMask(true);
-        externalDataGrid.addListener(Events.CellClick, new Listener<GridEvent>()
-            {
-                public void handleEvent(GridEvent be)
-                {
-                    String column = externalDataGrid.getColumnModel().getColumn(be.colIndex).getId();
-                    if (ModelDataPropertyNames.CODE.equalsIgnoreCase(column))
-                    {
-                        ExternalDataModel item =
-                            (ExternalDataModel) be.grid.getStore().getAt(be.rowIndex);
-                        DataSetUtils.showDataSet(item.getBaseObject(), viewContext.getModel());
-                    }
-                }
-            });
-        panel.add(externalDataGrid);
+        disposableBrowser = SampleDataSetBrowser.create(viewContext, sampleIdentifier, getId() + DATA_POSTFIX);
+        panel.add(disposableBrowser.getComponent());
         container.add(panel, new RowData(1, 0.5, new Margins(0, 5, 0, 0)));
         return container;
+    }
+
+    @Override
+    protected void onDetach()
+    {
+        disposableBrowser.dispose();
+        super.onDetach();
     }
 
     private final static ContentPanel createContentPanel(final String heading)
@@ -198,25 +178,6 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
                     sampleCriteria.setContainerIdentifier(sampleIdentifier);
                     viewContext.getCommonService().listSamples(sampleCriteria,
                             new ListSamplesCallback(viewContext, callback));
-                }
-            };
-    }
-
-    private final RpcProxy<BaseListLoadConfig, BaseListLoadResult<ExternalDataModel>> createRpcProxyForExternalData()
-    {
-        return new RpcProxy<BaseListLoadConfig, BaseListLoadResult<ExternalDataModel>>()
-            {
-
-                //
-                // RpcProxy
-                //
-
-                @Override
-                public final void load(final BaseListLoadConfig loadConfig,
-                        final AsyncCallback<BaseListLoadResult<ExternalDataModel>> callback)
-                {
-                    viewContext.getCommonService().listExternalData(sampleIdentifier,
-                            new ListExternalDataCallback(viewContext, callback));
                 }
             };
     }
@@ -324,7 +285,6 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
 
     private final void loadStores()
     {
-        externalDataGrid.getStore().getLoader().load();
         partOfSamplesGrid.getStore().getLoader().load();
     }
 

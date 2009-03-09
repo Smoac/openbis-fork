@@ -192,7 +192,7 @@ public interface ICommonClientService extends IClientService
      */
     public ResultSet<Project> listProjects(DefaultResultSetConfig<String, Project> criteria)
             throws UserFailureException;
-
+    
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for projects.
      */
@@ -260,11 +260,12 @@ public interface ICommonClientService extends IClientService
     /**
      * For given <var>sampleIdentifier</var> returns corresponding list of {@link ExternalData}.
      */
-    public List<ExternalData> listExternalData(final String sampleIdentifier)
-            throws UserFailureException;
+    public ResultSet<ExternalData> listSampleDataSets(final String sampleIdentifier,
+            DefaultResultSetConfig<String, ExternalData> criteria) throws UserFailureException;
 
-    public List<ExternalData> listExternalDataForExperiment(String experimentIdentifier)
-            throws UserFailureException;
+    public ResultSet<ExternalData> listExperimentDataSets(String experimentIdentifier,
+            DefaultResultSetConfig<String, ExternalData> criteria) throws UserFailureException;
+    
 
     /**
      * Lists the searchable entities.

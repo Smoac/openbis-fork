@@ -73,7 +73,7 @@ public class ExperimentAttachmentsSection extends SectionPanel
     public ExperimentAttachmentsSection(final Experiment experiment,
             final IViewContext<?> viewContext)
     {
-        super("Experiment attachments");
+        super("Experiment Attachments");
         this.experiment = experiment;
         messageProvider = viewContext;
         if (experiment.getAttachments().size() > 0)

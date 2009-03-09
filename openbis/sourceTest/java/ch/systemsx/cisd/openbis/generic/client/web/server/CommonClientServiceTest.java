@@ -32,9 +32,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CachedResultSetManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DefaultResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetKeyGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager.TokenBasedResultSetKeyGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.VocabularyTranslator;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
@@ -308,6 +310,9 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
             {
                 {
                     prepareGetSessionToken(this);
+                    one(httpSession).getAttribute(SessionConstants.OPENBIS_RESULT_SET_MANAGER);
+                    will(returnValue(new CachedResultSetManager<String>(
+                            new TokenBasedResultSetKeyGenerator())));
 
                     one(commonServer).listExternalData(
                             SESSION_TOKEN,
@@ -317,8 +322,10 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                 }
             });
 
-        List<ExternalData> list =
-                commonClientService.listExternalDataForExperiment("db:/group/project/exp");
+        ResultSet<ExternalData> resultSet =
+                commonClientService.listExperimentDataSets("db:/group/project/exp",
+                        new DefaultResultSetConfig<String, ExternalData>());
+        List<ExternalData> list = resultSet.getList();
         assertEquals(1, list.size());
         ExternalData data = list.get(0);
         assertEquals(DATA_STORE_BASE_URL, data.getDataStoreBaseURL());

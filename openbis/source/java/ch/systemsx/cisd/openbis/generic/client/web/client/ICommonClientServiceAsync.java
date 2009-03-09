@@ -211,17 +211,19 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void removeResultSet(final String resultSetKey, final AsyncCallback<Void> asyncCallback);
 
     /**
-     * @see ICommonClientService#listExternalData(String)
+     * @see ICommonClientService#listSampleDataSets(String, DefaultResultSetConfig)
      */
-    public void listExternalData(final String sampleIdentifier,
-            AsyncCallback<List<ExternalData>> asyncCallback);
-
+    public void listSampleDataSets(String sampleIdentifier,
+            DefaultResultSetConfig<String, ExternalData> criteria,
+            AsyncCallback<ResultSet<ExternalData>> asyncCallback);
+    
     /**
-     * @see ICommonClientService#listExternalDataForExperiment(String)
+     * @see ICommonClientService#listExperimentDataSets(String, DefaultResultSetConfig)
      */
-    public void listExternalDataForExperiment(String experimentIdentifier,
-            AsyncCallback<List<ExternalData>> asyncCallback);
-
+    public void listExperimentDataSets(String experimentIdentifier,
+            DefaultResultSetConfig<String, ExternalData> criteria,
+            AsyncCallback<ResultSet<ExternalData>> asyncCallback);
+    
     /**
      * @see ICommonClientService#listSearchableEntities()
      */

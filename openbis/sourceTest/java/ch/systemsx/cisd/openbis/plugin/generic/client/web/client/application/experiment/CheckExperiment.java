@@ -87,7 +87,7 @@ public class CheckExperiment extends AbstractDefaultTestCommand implements
 
     public CheckTableCommand dataSetTable()
     {
-        return new CheckTableCommand(ExperimentDataSection.ID_PREFIX + identifier);
+        return new CheckTableCommand(ExperimentDataSetBrowser.ID_PREFIX + identifier);
     }
 
 }

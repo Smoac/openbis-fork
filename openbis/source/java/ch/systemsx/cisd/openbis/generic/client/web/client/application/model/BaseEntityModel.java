@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
@@ -89,6 +90,13 @@ public class BaseEntityModel<T> extends BaseModelData
     public static <T> List<IColumnDefinitionUI<T>> createColumnsDefinition(
             IColumnDefinitionKind<T>[] columnKinds, IMessageProvider msgProviderOrNull)
     {
+        return createColumnsDefinition(Arrays.asList(columnKinds), msgProviderOrNull);
+    }
+    
+    /** @param msgProviderOrNull if null, no headers labels will be generated */
+    public static <T> List<IColumnDefinitionUI<T>> createColumnsDefinition(
+            List<IColumnDefinitionKind<T>> columnKinds, IMessageProvider msgProviderOrNull)
+            {
         List<IColumnDefinitionUI<T>> list = new ArrayList<IColumnDefinitionUI<T>>();
         for (IColumnDefinitionKind<T> columnKind : columnKinds)
         {

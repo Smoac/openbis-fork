@@ -48,7 +48,7 @@ public class ExperimentPropertiesSection extends SectionPanel
     public ExperimentPropertiesSection(final Experiment experiment,
             final IViewContext<?> viewContext)
     {
-        super("Experiment properties");
+        super("Experiment Properties");
         this.experiment = experiment;
         this.viewContext = viewContext;
         add(createPropertyGrid());
