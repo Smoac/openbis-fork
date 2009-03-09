@@ -22,8 +22,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 
 /**
- * Operations on {@link EntityTypePE} extensions. Note that you can use only one define method at a
- * time.
+ * Operations on {@link EntityTypePE} extensions. Note that you can use only one <em>define</em>
+ * method at a time.
  * 
  * @author Tomasz Pylak
  */
