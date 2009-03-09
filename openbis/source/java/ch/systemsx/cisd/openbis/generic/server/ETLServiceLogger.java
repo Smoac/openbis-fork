@@ -52,6 +52,12 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         return null;
     }
 
+    public void registerDataStoreServerSessionToken(String sessionToken, String dssSessionToken)
+    {
+        logTracking(sessionToken, "register_data_store_server_session_token", "TOKEN(%s)",
+                dssSessionToken);
+    }
+
     public void registerDataSet(String sessionToken, SampleIdentifier sampleIdentifier,
             String procedureTypeCode, ExternalData externalData) throws UserFailureException
     {

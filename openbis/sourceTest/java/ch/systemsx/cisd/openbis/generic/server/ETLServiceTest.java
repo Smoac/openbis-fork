@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentContentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
@@ -62,13 +63,27 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 public class ETLServiceTest extends AbstractServerTestCase
 {
     private ICommonBusinessObjectFactory boFactory;
+    private DataStoreServerSessionManager dssSessionManager;
     
     @Override
     @BeforeMethod
     public final void setUp()
     {
         super.setUp();
+        dssSessionManager = new DataStoreServerSessionManager();
         boFactory = context.mock(ICommonBusinessObjectFactory.class);
+    }
+    
+    @Test
+    public void testRegister()
+    {
+        prepareGetSession();
+        createService().registerDataStoreServerSessionToken(SESSION_TOKEN, "dss42");
+        
+        DataStoreServerSession session = dssSessionManager.tryToGetSession(SESSION.getRemoteHost());
+        assertEquals("dss42", session.getSessionToken());
+        
+        context.assertIsSatisfied();
     }
     
     @Test
@@ -561,6 +576,6 @@ public class ETLServiceTest extends AbstractServerTestCase
     
     private IETLLIMSService createService()
     {
-        return new ETLService(sessionManager, daoFactory, boFactory);
+        return new ETLService(sessionManager, dssSessionManager, daoFactory, boFactory);
     }
 }

@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentAttachmentD
 import ch.systemsx.cisd.openbis.generic.shared.IWebService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
@@ -67,17 +68,21 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
     @Private static final String PROCESSING_DESCRIPTION_TEMPLATE = "$processing-description-for-%s";
     private static final String ENCODING = "utf-8";
     
-    private ISessionManager<Session> sessionManager;
+    private final ISessionManager<Session> sessionManager;
     
-    private IDAOFactory daoFactory;
+    private final DataStoreServerSessionManager dssSessionManager;
     
-    private ICommonBusinessObjectFactory boFactory;
+    private final IDAOFactory daoFactory;
+    
+    private final ICommonBusinessObjectFactory boFactory;
     
     public ETLService(ISessionManager<Session> sessionManager,
-            IDAOFactory daoFactory, ICommonBusinessObjectFactory boFactory)
+            DataStoreServerSessionManager dssSessionManager, IDAOFactory daoFactory,
+            ICommonBusinessObjectFactory boFactory)
     {
         super(sessionManager, daoFactory);
         this.sessionManager = sessionManager;
+        this.dssSessionManager = dssSessionManager;
         this.daoFactory = daoFactory;
         this.boFactory = boFactory;
     }
@@ -104,6 +109,14 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         return daoFactory.getHomeDatabaseInstance();
     }
     
+    public void registerDataStoreServerSessionToken(String sessionToken, String dssSessionToken)
+    {
+        Session session = sessionManager.getSession(sessionToken);
+        String dssURL = session.getRemoteHost();
+        DataStoreServerSession dssSession = new DataStoreServerSession(dssURL, dssSessionToken);
+        dssSessionManager.registerDataStoreServer(dssSession);
+    }
+
     public String authenticate(String user, String password) throws UserFailureException
     {
         Session session = tryToAuthenticate(user, password);

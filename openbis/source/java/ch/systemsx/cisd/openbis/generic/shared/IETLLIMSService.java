@@ -45,6 +45,13 @@ public interface IETLLIMSService extends IWebService, IDataStoreInfoProvider, IS
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.ETL_SERVER)
     public DatabaseInstancePE getHomeDatabaseInstance(final String sessionToken);
+    
+    /**
+     * Registers the specified DSS session token. It should be used when invoking...
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.ETL_SERVER)
+    public void registerDataStoreServerSessionToken(String sessionToken, String dssSessionToken);
 
     /**
      * Gets an {@link ExperimentPE} object specified by experiment ID and sample code.
