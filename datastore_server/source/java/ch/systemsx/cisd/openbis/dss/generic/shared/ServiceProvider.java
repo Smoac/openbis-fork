@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.shared;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 
 /**
  * Provider of remote service onto openBIS.
@@ -36,6 +37,11 @@ public class ServiceProvider
     public static IEncapsulatedOpenBISService getOpenBISService()
     {
         return ((IEncapsulatedOpenBISService) APPLICATION_CONTEXT.getBean("openBIS-service"));
+    }
+    
+    public static HttpInvokerServiceExporter getDataStoreServer()
+    {
+        return ((HttpInvokerServiceExporter) APPLICATION_CONTEXT.getBean("data-store-server"));
     }
     
     private ServiceProvider()

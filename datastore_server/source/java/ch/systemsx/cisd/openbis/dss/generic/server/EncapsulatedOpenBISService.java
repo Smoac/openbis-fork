@@ -51,35 +51,44 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, EncapsulatedOpenBISService.class);
 
+    private final int port;
+    
     private final String username;
 
     private final String password;
 
     private final IETLLIMSService service;
 
+    private final SessionTokenManager sessionTokenManager;
+    
     private String sessionToken; // NOTE: can be changed in parallel by different threads
 
     private Integer version;
 
     private DatabaseInstancePE homeDatabaseInstance;
 
-    public EncapsulatedOpenBISService(final String serverURL, final String username,
-            final String password)
+    public EncapsulatedOpenBISService(SessionTokenManager sessionTokenManager, String serverURL,
+            int port, String username, String password)
     {
-        this(HttpInvokerUtils.createServiceStub(IETLLIMSService.class, serverURL + "/rmi-etl", 5),
-                username, password);
+        this(sessionTokenManager, HttpInvokerUtils.createServiceStub(IETLLIMSService.class,
+                serverURL + "/rmi-etl", 5), port, username, password);
     }
-    
-    public EncapsulatedOpenBISService(final IETLLIMSService service, final String username,
-            final String password)
+
+    public EncapsulatedOpenBISService(SessionTokenManager sessionTokenManager,
+            IETLLIMSService service, int port, String username, String password)
     {
+        assert sessionTokenManager != null : "Unspecified session token manager.";
         assert service != null : "Given IETLLIMSService implementation can not be null.";
         assert username != null : "Given username can not be null.";
         assert password != null : "Given password can not be null.";
 
+        this.sessionTokenManager = sessionTokenManager;
         this.service = service;
+        this.port = port;
         this.username = username;
         this.password = password;
+        
+        authenticate();
     }
 
     public Object getObject() throws Exception
@@ -102,15 +111,16 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     {
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug("Authenticating to LIMS server as user '" + username + "'.");
+            operationLog.debug("Authenticating to openBIS server as user '" + username + "'.");
         }
         sessionToken = service.authenticate(username, password);
         if (sessionToken == null)
         {
             final String msg =
-                    "Authentication failure to LIMS server. Most probable cause: user or password are invalid.";
+                    "Authentication failure to openBIS server. Most probable cause: user or password are invalid.";
             throw new ConfigurationFailureException(msg);
         }
+        service.registerDataStoreServer(sessionToken, port, sessionTokenManager.drawSessionToken());
     }
 
     private final void checkSessionToken()

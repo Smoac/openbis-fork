@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver;
+package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -24,6 +24,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.server.SessionTokenManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
@@ -36,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.ProcedureTypeCode;
  * 
  * @author Basil Neff
  */
-public class EncapsulatedLimsServiceTest
+public class EncapsulatedOpenBISServiceTest
 {
     private Mockery context;
 
@@ -59,6 +60,8 @@ public class EncapsulatedLimsServiceTest
             final DataSetInformation dataSetInformation)
     {
         exp.one(limsService).authenticate(LIMS_USER, LIMS_PASSWORD);
+        exp.one(limsService).registerDataStoreServer(
+                exp.with(Expectations.equal("")), 0, exp.with(Expectations.any(String.class)));
         exp.one(limsService).tryToGetBaseExperiment("", dataSetInformation.getSampleIdentifier());
     }
 
@@ -67,8 +70,18 @@ public class EncapsulatedLimsServiceTest
     {
         context = new Mockery();
         limsService = context.mock(IETLLIMSService.class);
+        context.checking(new Expectations()
+            {
+                {
+                    one(limsService).authenticate(LIMS_USER, LIMS_PASSWORD);
+                    
+                    one(limsService).registerDataStoreServer(
+                            with(equal("")), 0, with(any(String.class)));
+                }
+            });
         encapsulatedLimsService =
-                new EncapsulatedOpenBISService(limsService, LIMS_USER, LIMS_PASSWORD);
+                new EncapsulatedOpenBISService(new SessionTokenManager(), limsService, 0,
+                        LIMS_USER, LIMS_PASSWORD);
     }
 
     @AfterMethod
@@ -86,7 +99,7 @@ public class EncapsulatedLimsServiceTest
         context.checking(new Expectations()
             {
                 {
-                    prepareCallGetBaseExperiment(this, dataSetInformation);
+                    one(limsService).tryToGetBaseExperiment("", dataSetInformation.getSampleIdentifier());
                     will(throwException(new InvalidSessionException("error")));
                     prepareCallGetBaseExperiment(this, dataSetInformation);
                 }
@@ -102,7 +115,7 @@ public class EncapsulatedLimsServiceTest
         context.checking(new Expectations()
             {
                 {
-                    prepareCallGetBaseExperiment(this, dataSetInformation);
+                    one(limsService).tryToGetBaseExperiment("", dataSetInformation.getSampleIdentifier());
                 }
             });
         encapsulatedLimsService.getBaseExperiment(dataSetInformation.getSampleIdentifier());
@@ -118,7 +131,6 @@ public class EncapsulatedLimsServiceTest
         context.checking(new Expectations()
             {
                 {
-                    one(limsService).authenticate(LIMS_USER, LIMS_PASSWORD);
                     one(limsService).registerDataSet("", dataSetInfo.getSampleIdentifier(),
                             procedureTypeCode.getCode(), data);
                 }
@@ -135,7 +147,6 @@ public class EncapsulatedLimsServiceTest
         context.checking(new Expectations()
             {
                 {
-                    one(limsService).authenticate(LIMS_USER, LIMS_PASSWORD);
                     one(limsService).tryToGetPropertiesOfTopSampleRegisteredFor("",
                             sampleIdentifier);
                 }

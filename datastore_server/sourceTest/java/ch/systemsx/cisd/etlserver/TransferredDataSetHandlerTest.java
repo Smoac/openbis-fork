@@ -56,6 +56,7 @@ import ch.systemsx.cisd.common.mail.JavaMailProperties;
 import ch.systemsx.cisd.common.test.LogMonitoringAppender;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
 import ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.server.SessionTokenManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
@@ -269,8 +270,18 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         final IETLServerPlugin plugin =
                 new ETLServerPlugin(new MockDataSetInfoExtractor(dataSetInfoExtractor),
                         typeExtractor, storageProcessor);
+        context.checking(new Expectations()
+            {
+                {
+                    one(limsService).authenticate("u", "p");
+                    will(returnValue(SESSION_TOKEN));
+                    
+                    one(limsService).registerDataStoreServer(
+                            with(equal(SESSION_TOKEN)), 0, with(any(String.class)));
+                }
+            });
         final IEncapsulatedOpenBISService authorizedLimsService =
-                new EncapsulatedOpenBISService(limsService, "u", "p");
+            new EncapsulatedOpenBISService(new SessionTokenManager(), limsService, 0, "u", "p");
         handler =
                 new TransferredDataSetHandler(null, storageProcessor, plugin,
                         authorizedLimsService, mailClient, true);
@@ -381,9 +392,6 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                 {
                     one(dataSetInfoExtractor).getDataSetInformation(dataSet);
                     will(returnValue(dataSetInformation));
-
-                    one(limsService).authenticate("u", "p");
-                    will(returnValue(SESSION_TOKEN));
 
                     one(limsService).getHomeDatabaseInstance(SESSION_TOKEN);
                     will(returnValue(homeDatabaseInstance));

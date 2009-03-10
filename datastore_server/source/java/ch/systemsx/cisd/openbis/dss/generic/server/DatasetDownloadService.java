@@ -17,13 +17,24 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Properties;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.security.SslSocketConnector;
 import org.mortbay.jetty.servlet.Context;
+import org.mortbay.jetty.servlet.ServletHolder;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.util.StringUtils;
+import org.springframework.web.HttpRequestHandler;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -41,6 +52,45 @@ import ch.systemsx.cisd.openbis.generic.shared.IWebService;
  */
 public class DatasetDownloadService
 {
+    private static final class DataStoreServlet extends HttpServlet
+    {
+        private static final long serialVersionUID = 1L;
+
+        private HttpRequestHandler target;
+
+        @Override
+        public void init() throws ServletException
+        {
+            target = ServiceProvider.getDataStoreServer();
+        }
+
+        // Code copied from org.springframework.web.context.support.HttpRequestHandlerServlet
+        @Override
+        protected void service(HttpServletRequest request, HttpServletResponse response)
+                throws ServletException, IOException
+        {
+
+            LocaleContextHolder.setLocale(request.getLocale());
+            try
+            {
+                this.target.handleRequest(request, response);
+            } catch (HttpRequestMethodNotSupportedException ex)
+            {
+                String[] supportedMethods = ex.getSupportedMethods();
+                if (supportedMethods != null)
+                {
+                    response.setHeader("Allow", StringUtils.arrayToDelimitedString(
+                            supportedMethods, ", "));
+                }
+                response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, ex
+                        .getMessage());
+            } finally
+            {
+                LocaleContextHolder.resetLocaleContext();
+            }
+        }
+    }
+
     static final String APPLICATION_CONTEXT_KEY = "application-context";
 
     private static final String PREFIX = "data-set-download.";
@@ -110,8 +160,9 @@ public class DatasetDownloadService
         thisServer.addConnector(socketConnector);
         final Context context = new Context(thisServer, "/", Context.SESSIONS);
         context.setAttribute(APPLICATION_CONTEXT_KEY, applicationContext);
-        context.addServlet(DatasetDownloadServlet.class, "/"
-                + applicationContext.getApplicationName() + "/*");
+        String applicationName = "/" + applicationContext.getApplicationName();
+        context.addServlet(DatasetDownloadServlet.class, applicationName + "/*");
+        context.addServlet(new ServletHolder(new DataStoreServlet()), applicationName + "/dss/*");
         return thisServer;
     }
 
