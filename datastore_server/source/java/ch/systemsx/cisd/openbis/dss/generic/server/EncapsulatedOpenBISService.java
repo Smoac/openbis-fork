@@ -14,19 +14,24 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver;
+package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.FactoryBean;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
+import ch.systemsx.cisd.etlserver.DataSetInformation;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
@@ -40,17 +45,17 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  * 
  * @author Bernd Rinn
  */
-final class EncapsulatedLimsService implements IEncapsulatedLimsService
+public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISService, FactoryBean
 {
 
     private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, EncapsulatedLimsService.class);
+            LogFactory.getLogger(LogCategory.OPERATION, EncapsulatedOpenBISService.class);
 
     private final String username;
 
     private final String password;
 
-    private final IETLLIMSService limsService;
+    private final IETLLIMSService service;
 
     private String sessionToken; // NOTE: can be changed in parallel by different threads
 
@@ -58,16 +63,39 @@ final class EncapsulatedLimsService implements IEncapsulatedLimsService
 
     private DatabaseInstancePE homeDatabaseInstance;
 
-    EncapsulatedLimsService(final IETLLIMSService limsService, final String username,
+    public EncapsulatedOpenBISService(final String serverURL, final String username,
             final String password)
     {
-        assert limsService != null : "Given IETLLIMSService implementation can not be null.";
+        this(HttpInvokerUtils.createServiceStub(IETLLIMSService.class, serverURL + "/rmi-etl", 5),
+                username, password);
+    }
+    
+    public EncapsulatedOpenBISService(final IETLLIMSService service, final String username,
+            final String password)
+    {
+        assert service != null : "Given IETLLIMSService implementation can not be null.";
         assert username != null : "Given username can not be null.";
         assert password != null : "Given password can not be null.";
 
-        this.limsService = limsService;
+        this.service = service;
         this.username = username;
         this.password = password;
+    }
+
+    public Object getObject() throws Exception
+    {
+        return this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public Class getObjectType()
+    {
+        return IEncapsulatedOpenBISService.class;
+    }
+
+    public boolean isSingleton()
+    {
+        return true;
     }
 
     private final void authenticate()
@@ -76,7 +104,7 @@ final class EncapsulatedLimsService implements IEncapsulatedLimsService
         {
             operationLog.debug("Authenticating to LIMS server as user '" + username + "'.");
         }
-        sessionToken = limsService.authenticate(username, password);
+        sessionToken = service.authenticate(username, password);
         if (sessionToken == null)
         {
             final String msg =
@@ -95,27 +123,27 @@ final class EncapsulatedLimsService implements IEncapsulatedLimsService
 
     private final ExperimentPE primGetBaseExperiment(final SampleIdentifier sampleIdentifier)
     {
-        return limsService.tryToGetBaseExperiment(sessionToken, sampleIdentifier);
+        return service.tryToGetBaseExperiment(sessionToken, sampleIdentifier);
     }
 
     private final void primRegisterDataSet(final DataSetInformation dataSetInformation,
             final String procedureTypeCode, final ExternalData data)
     {
-        limsService.registerDataSet(sessionToken, dataSetInformation.getSampleIdentifier(),
+        service.registerDataSet(sessionToken, dataSetInformation.getSampleIdentifier(),
                 procedureTypeCode, data);
     }
 
     private final SamplePropertyPE[] primGetPropertiesOfSampleRegisteredFor(
             final SampleIdentifier sampleIdentifier)
     {
-        return limsService.tryToGetPropertiesOfTopSampleRegisteredFor(sessionToken, sampleIdentifier);
+        return service.tryToGetPropertiesOfTopSampleRegisteredFor(sessionToken, sampleIdentifier);
     }
 
     private final String primCreateDataSetCode()
     {
-        return limsService.createDataSetCode(sessionToken);
+        return service.createDataSetCode(sessionToken);
     }
-
+    
     //
     // IEncapsulatedLimsService
     //
@@ -180,7 +208,7 @@ final class EncapsulatedLimsService implements IEncapsulatedLimsService
         checkSessionToken();
         if (version == null)
         {
-            version = limsService.getVersion();
+            version = service.getVersion();
         }
         return version;
     }
@@ -190,7 +218,7 @@ final class EncapsulatedLimsService implements IEncapsulatedLimsService
         checkSessionToken();
         if (homeDatabaseInstance == null)
         {
-            homeDatabaseInstance = limsService.getHomeDatabaseInstance(sessionToken);
+            homeDatabaseInstance = service.getHomeDatabaseInstance(sessionToken);
         }
         return homeDatabaseInstance;
     }
@@ -206,6 +234,11 @@ final class EncapsulatedLimsService implements IEncapsulatedLimsService
             authenticate();
             return primCreateDataSetCode();
         }
+    }
+
+    synchronized public ExternalDataPE tryGetDataSet(String sToken, String dataSetCode) throws UserFailureException
+    {
+        return service.tryGetDataSet(sToken, dataSetCode);
     }
 
 }

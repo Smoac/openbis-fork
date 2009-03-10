@@ -45,10 +45,7 @@ import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
-import ch.systemsx.cisd.openbis.dss.generic.server.ApplicationContext;
-import ch.systemsx.cisd.openbis.dss.generic.server.ConfigParameters;
-import ch.systemsx.cisd.openbis.dss.generic.server.DatasetDownloadServlet;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -129,7 +126,7 @@ public class DatasetDownloadServletTest
 
     private HttpServletResponse response;
 
-    private IETLLIMSService dataSetService;
+    private IEncapsulatedOpenBISService dataSetService;
 
     private HttpSession httpSession;
 
@@ -140,7 +137,7 @@ public class DatasetDownloadServletTest
         context = new Mockery();
         request = context.mock(HttpServletRequest.class);
         response = context.mock(HttpServletResponse.class);
-        dataSetService = context.mock(IETLLIMSService.class);
+        dataSetService = context.mock(IEncapsulatedOpenBISService.class);
         httpSession = context.mock(HttpSession.class);
         TEST_FOLDER.mkdirs();
         EXAMPLE_DATA_SET_FOLDER.mkdir();

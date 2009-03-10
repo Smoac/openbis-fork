@@ -23,13 +23,15 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
+import ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.ProcedureTypeCode;
 
 /**
- * Test cases for corresponding {@link EncapsulatedLimsService} class.
+ * Test cases for corresponding {@link EncapsulatedOpenBISService} class.
  * 
  * @author Basil Neff
  */
@@ -39,7 +41,7 @@ public class EncapsulatedLimsServiceTest
 
     private IETLLIMSService limsService;
 
-    private IEncapsulatedLimsService encapsulatedLimsService;
+    private IEncapsulatedOpenBISService encapsulatedLimsService;
 
     private static final String LIMS_USER = "testuser";
 
@@ -65,7 +67,7 @@ public class EncapsulatedLimsServiceTest
         context = new Mockery();
         limsService = context.mock(IETLLIMSService.class);
         encapsulatedLimsService =
-                new EncapsulatedLimsService(limsService, LIMS_USER, LIMS_PASSWORD);
+                new EncapsulatedOpenBISService(limsService, LIMS_USER, LIMS_PASSWORD);
     }
 
     @AfterMethod

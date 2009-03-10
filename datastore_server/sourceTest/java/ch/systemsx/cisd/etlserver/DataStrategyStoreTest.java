@@ -32,6 +32,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.filesystem.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
@@ -55,7 +56,7 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
 
     private Mockery context;
 
-    private IEncapsulatedLimsService limsService;
+    private IEncapsulatedOpenBISService limsService;
 
     private IMailClient mailClient;
 
@@ -100,7 +101,7 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
     public final void beforeClass()
     {
         context = new Mockery();
-        limsService = context.mock(IEncapsulatedLimsService.class);
+        limsService = context.mock(IEncapsulatedOpenBISService.class);
         mailClient = context.mock(IMailClient.class);
         dataStrategyStore = new DataStrategyStore(limsService, mailClient);
     }

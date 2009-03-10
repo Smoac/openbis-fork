@@ -53,6 +53,7 @@ import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -98,7 +99,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
 
     private final IStoreRootDirectoryHolder storeRootDirectoryHolder;
 
-    private final IEncapsulatedLimsService limsService;
+    private final IEncapsulatedOpenBISService limsService;
 
     private final IDataStrategyStore dataStrategyStore;
 
@@ -126,7 +127,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
     private DatabaseInstancePE homeDatabaseInstance;
 
     public TransferredDataSetHandler(final String groupCode, final IETLServerPlugin plugin,
-            final IEncapsulatedLimsService limsService, final Properties mailProperties,
+            final IEncapsulatedOpenBISService limsService, final Properties mailProperties,
             final HighwaterMarkWatcher highwaterMarkWatcher,
             final boolean notifySuccessfulRegistration)
 
@@ -137,7 +138,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
 
     TransferredDataSetHandler(final String groupCode,
             final IStoreRootDirectoryHolder storeRootDirectoryHolder,
-            final IETLServerPlugin plugin, final IEncapsulatedLimsService limsService,
+            final IETLServerPlugin plugin, final IEncapsulatedOpenBISService limsService,
             final IMailClient mailClient, final boolean notifySuccessfulRegistration)
 
     {

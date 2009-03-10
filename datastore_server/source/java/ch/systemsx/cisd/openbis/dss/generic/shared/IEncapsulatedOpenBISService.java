@@ -14,25 +14,33 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver;
+package ch.systemsx.cisd.openbis.dss.generic.shared;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.etlserver.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
  * This interface is very similar to {@link IETLLIMSService} but <code>sessionToken</code> has
- * been removed from each method.
+ * been removed from most methods.
  * 
  * @see IETLLIMSService
  * @author Christian Ribeaud
  */
-interface IEncapsulatedLimsService
+public interface IEncapsulatedOpenBISService
 {
+    /**
+     * Tries to get the data set for the specified data set code.
+     */
+    public ExternalDataPE tryGetDataSet(final String sessionToken, final String dataSetCode)
+            throws UserFailureException;
+    
     /**
      * For given <var>dataSetInfo</var> returns the <code>BaseExperiment</code> object.
      */

@@ -59,6 +59,8 @@ import ch.systemsx.cisd.common.utilities.ISelfTestable;
 import ch.systemsx.cisd.common.utilities.IStopSignaler;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.SystemExit;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.IWebService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -141,7 +143,7 @@ public final class Main
     }
 
     private static void selfTest(final File incomingDirectory,
-            final IEncapsulatedLimsService service, final ISelfTestable... selfTestables)
+            final IEncapsulatedOpenBISService service, final ISelfTestable... selfTestables)
     {
         final String msgStart = "Data Store Server self test failed:";
         ISelfTestable currentSelfTestableOrNull = null;
@@ -240,26 +242,16 @@ public final class Main
                     .create(entry.getValue()));
         }
         final ThreadParameters[] threads = parameters.getThreads();
-        final IEncapsulatedLimsService authorizedLimsService =
-                createAuthorizedLimsService(parameters);
+        IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
         final Properties properties = parameters.getProperties();
         final boolean notifySuccessfulRegistration = getNotifySuccessfulRegistration(properties);
         final HighwaterMarkWatcher highwaterMarkWatcher =
                 new HighwaterMarkWatcher(getHighwaterMark(properties));
         for (final ThreadParameters threadParameters : threads)
         {
-            createProcessingThread(parameters, threadParameters, authorizedLimsService,
+            createProcessingThread(parameters, threadParameters, openBISService,
                     processorFactories, highwaterMarkWatcher, notifySuccessfulRegistration);
         }
-    }
-
-    private static IEncapsulatedLimsService createAuthorizedLimsService(final Parameters parameters)
-    {
-        final String username = parameters.getUsername();
-        final String password = parameters.getPassword();
-
-        final IETLLIMSService limsService = getETLLIMSService(parameters);
-        return new EncapsulatedLimsService(limsService, username, password);
     }
 
     private final static File getStoreRootDir(final Properties properties)
@@ -355,7 +347,7 @@ public final class Main
 
     private final static void createProcessingThread(final Parameters parameters,
             final ThreadParameters threadParameters,
-            final IEncapsulatedLimsService authorizedLimsService,
+            final IEncapsulatedOpenBISService authorizedLimsService,
             final Map<String, IProcessorFactory> processorFactories,
             final HighwaterMarkWatcher highwaterMarkWatcher,
             final boolean notifySuccessfulRegistration)

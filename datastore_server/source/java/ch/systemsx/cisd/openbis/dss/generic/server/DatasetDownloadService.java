@@ -30,6 +30,8 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.IWebService;
 
@@ -116,7 +118,8 @@ public class DatasetDownloadService
 
     private final static void selfTest(final ApplicationContext applicationContext)
     {
-        final int version = applicationContext.getDataSetService().getVersion();
+        IEncapsulatedOpenBISService dataSetService = applicationContext.getDataSetService();
+        final int version = dataSetService.getVersion();
         if (IWebService.VERSION != version)
         {
             throw new ConfigurationFailureException(
@@ -132,9 +135,10 @@ public class DatasetDownloadService
     private final static ApplicationContext createApplicationContext()
     {
         final ConfigParameters configParameters = getConfigParameters();
-        final IETLLIMSService dataSetService = new DataSetService(configParameters);
+        IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
         final ApplicationContext applicationContext =
-                new ApplicationContext(dataSetService, configParameters, "dataset-download");
+                new ApplicationContext(openBISService, configParameters,
+                        "dataset-download");
         return applicationContext;
     }
 

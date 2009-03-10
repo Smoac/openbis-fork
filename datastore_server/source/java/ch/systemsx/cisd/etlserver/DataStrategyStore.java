@@ -27,6 +27,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -53,13 +54,13 @@ final class DataStrategyStore implements IDataStrategyStore
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, DataStrategyStore.class);
 
-    private final IEncapsulatedLimsService limsService;
+    private final IEncapsulatedOpenBISService limsService;
 
     private final IMailClient mailClient;
 
     private final Map<DataStoreStrategyKey, IDataStoreStrategy> dataStoreStrategies;
 
-    DataStrategyStore(final IEncapsulatedLimsService limsService, final IMailClient mailClient)
+    DataStrategyStore(final IEncapsulatedOpenBISService limsService, final IMailClient mailClient)
     {
         this.mailClient = mailClient;
         dataStoreStrategies = createDataStoreStrategies();

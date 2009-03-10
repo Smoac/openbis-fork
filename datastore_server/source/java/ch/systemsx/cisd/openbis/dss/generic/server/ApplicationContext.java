@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 
 /**
@@ -26,13 +27,13 @@ import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
  */
 class ApplicationContext
 {
-    private final IETLLIMSService dataSetService;
+    private final IEncapsulatedOpenBISService dataSetService;
     
     private final ConfigParameters configParameters;
 
     private final String applicationName;
     
-    ApplicationContext(IETLLIMSService service, ConfigParameters configParameters,
+    ApplicationContext(IEncapsulatedOpenBISService service, ConfigParameters configParameters,
             String applicationName)
     {
         this.dataSetService = service;
@@ -40,7 +41,7 @@ class ApplicationContext
         this.applicationName = applicationName;
     }
 
-    public final IETLLIMSService getDataSetService()
+    public final IEncapsulatedOpenBISService getDataSetService()
     {
         return dataSetService;
     }
