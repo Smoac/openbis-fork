@@ -277,7 +277,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                     will(returnValue(SESSION_TOKEN));
                     
                     one(limsService).registerDataStoreServer(
-                            with(equal(SESSION_TOKEN)), 0, with(any(String.class)));
+                            with(equal(SESSION_TOKEN)), with(equal(0)), with(any(String.class)));
                 }
             });
         final IEncapsulatedOpenBISService authorizedLimsService =
