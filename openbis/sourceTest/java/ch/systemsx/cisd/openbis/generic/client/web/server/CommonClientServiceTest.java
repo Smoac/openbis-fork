@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server;
 
+import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -40,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.VocabularyTranslator;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
+import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -61,7 +64,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
  */
 public final class CommonClientServiceTest extends AbstractClientServiceTest
 {
-    private static final String DATA_STORE_BASE_URL = "basURL";
+    private static final String DATA_STORE_BASE_URL = "baseURL";
 
     private CommonClientService commonClientService;
 
@@ -328,7 +331,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         List<ExternalData> list = resultSet.getList();
         assertEquals(1, list.size());
         ExternalData data = list.get(0);
-        assertEquals(DATA_STORE_BASE_URL, data.getDataStoreBaseURL());
+        assertEquals(DATA_STORE_BASE_URL + "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME, data.getDataStoreBaseURL());
         assertEquals("PNG", data.getFileFormatType().getCode());
         assertEquals("Portable Network Graphics", data.getFileFormatType().getDescription());
 
