@@ -168,6 +168,8 @@ public final class ColumnNames
 
     public static final String VOCABULARY_TERM_COLUMN = "cvte_id";
 
+    public static final String PROPERTY_MATERIAL_TYPE_COLUMN = "maty_prop_id";
+
     private ColumnNames()
     {
         // Can not be instantiated.

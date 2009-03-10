@@ -21,7 +21,9 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
@@ -48,7 +50,16 @@ public enum PropertyTypeColDefKind implements IColumnDefinitionKind<PropertyType
             }
         }),
 
-    DATA_TYPE(new AbstractColumnDefinitionKind<PropertyType>(Dict.DATA_TYPE)
+    DATA_TYPE(new AbstractColumnDefinitionKind<PropertyType>(Dict.DATA_TYPE, 200)
+        {
+            @Override
+            public String tryGetValue(PropertyType entity)
+            {
+                return renderDataType(entity);
+            }
+        }),
+
+    DATA_TYPE_CODE(new AbstractColumnDefinitionKind<PropertyType>(Dict.DATA_TYPE_CODE, true)
         {
             @Override
             public String tryGetValue(PropertyType entity)
@@ -57,13 +68,23 @@ public enum PropertyTypeColDefKind implements IColumnDefinitionKind<PropertyType
             }
         }),
 
-    VOCABULARY(new AbstractColumnDefinitionKind<PropertyType>(Dict.VOCABULARY)
+    VOCABULARY(new AbstractColumnDefinitionKind<PropertyType>(Dict.VOCABULARY, true)
         {
             @Override
             public String tryGetValue(PropertyType entity)
             {
                 Vocabulary vocabulary = entity.getVocabulary();
                 return vocabulary != null ? vocabulary.getCode() : null;
+            }
+        }),
+
+    MATERIAL_TYPE(new AbstractColumnDefinitionKind<PropertyType>(Dict.MATERIAL_TYPE, true)
+        {
+            @Override
+            public String tryGetValue(PropertyType entity)
+            {
+                MaterialType materialType = entity.getMaterialType();
+                return materialType != null ? materialType.getCode() : null;
             }
         }),
 
@@ -102,7 +123,7 @@ public enum PropertyTypeColDefKind implements IColumnDefinitionKind<PropertyType
                 return render(entity.getMaterialTypePropertyTypes());
             }
         });
-    
+
     private final AbstractColumnDefinitionKind<PropertyType> columnDefinitionKind;
 
     private PropertyTypeColDefKind(AbstractColumnDefinitionKind<PropertyType> columnDefinitionKind)
@@ -149,4 +170,48 @@ public enum PropertyTypeColDefKind implements IColumnDefinitionKind<PropertyType
         }
         return sb.toString();
     }
+
+    private static String tryGetVocabularyCode(PropertyType entity)
+    {
+        Vocabulary vocabulary = entity.getVocabulary();
+        return vocabulary != null ? vocabulary.getCode() : null;
+    }
+
+    private static String tryGetMaterialTypeCode(PropertyType entity)
+    {
+        MaterialType materialType = entity.getMaterialType();
+        return materialType != null ? materialType.getCode() : null;
+    }
+
+    private static String renderDataType(PropertyType entity)
+    {
+        DataTypeCode dataType = entity.getDataType().getCode();
+        switch (dataType)
+        {
+            case BOOLEAN:
+                return "True / False";
+            case CONTROLLEDVOCABULARY:
+                return "Vocabulary: " + tryGetVocabularyCode(entity);
+            case INTEGER:
+                return "Integer Number";
+            case MATERIAL:
+                String materialTypeCode = tryGetMaterialTypeCode(entity);
+                if (materialTypeCode == null)
+                {
+                    return "Material of Any Type";
+                } else
+                {
+                    return "Material of Type: " + materialTypeCode;
+                }
+            case REAL:
+                return "Float Number";
+            case TIMESTAMP:
+                return "Date and Time";
+            case VARCHAR:
+                return "Text";
+            default:
+                return dataType.name();
+        }
+    }
+
 }

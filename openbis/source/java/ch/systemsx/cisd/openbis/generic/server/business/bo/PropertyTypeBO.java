@@ -20,12 +20,17 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * The only productive implementation of {@link IPropertyTypeBO}.
@@ -53,20 +58,12 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
         propertyTypePE.setCode(propertyType.getCode());
         propertyTypePE.setLabel(propertyType.getLabel());
         propertyTypePE.setDescription(propertyType.getDescription());
-        final String dataTypeCode = propertyType.getDataType().getCode().name();
-        DataTypePE dataTypePE = null;
-        try
-        {
-            dataTypePE =
-                    getPropertyTypeDAO().getDataTypeByCode(EntityDataType.valueOf(dataTypeCode));
-        } catch (final IllegalArgumentException e)
-        {
-            throw UserFailureException.fromTemplate(String.format("Unknow data type code '%s'."),
-                    dataTypeCode);
-        }
-        assert dataTypePE != null : "Can not be null reaching this point.";
+        DataTypePE dataTypePE = getDataTypeCode(propertyType.getDataType());
         propertyTypePE.setType(dataTypePE);
+        MaterialTypePE materialType = tryGetMaterialType(propertyType.getMaterialType());
+        propertyTypePE.setMaterialType(materialType);
         propertyTypePE.setRegistrator(findRegistrator());
+
         if (EntityDataType.CONTROLLEDVOCABULARY.equals(dataTypePE.getCode()))
         {
             VocabularyPE vocabularyPE =
@@ -80,6 +77,37 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
             }
             propertyTypePE.setVocabulary(vocabularyPE);
         }
+    }
+
+    private MaterialTypePE tryGetMaterialType(MaterialType materialType)
+    {
+        if (materialType != null)
+        {
+            EntityTypePE entityType =
+                    getEntityTypeDAO(EntityKind.MATERIAL).tryToFindEntityTypeByCode(
+                            materialType.getCode());
+            return (MaterialTypePE) entityType;
+        } else
+        {
+            return null;
+        }
+    }
+
+    private DataTypePE getDataTypeCode(final DataType dataType)
+    {
+        DataTypePE dataTypePE = null;
+        final String dataTypeCode = dataType.getCode().name();
+        try
+        {
+            dataTypePE =
+                    getPropertyTypeDAO().getDataTypeByCode(EntityDataType.valueOf(dataTypeCode));
+        } catch (final IllegalArgumentException e)
+        {
+            throw UserFailureException.fromTemplate(String.format("Unknow data type code '%s'."),
+                    dataType);
+        }
+        assert dataTypePE != null : "Can not be null reaching this point.";
+        return dataTypePE;
     }
 
     @Override

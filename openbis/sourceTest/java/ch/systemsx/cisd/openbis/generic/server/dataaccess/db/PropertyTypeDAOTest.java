@@ -109,6 +109,7 @@ public final class PropertyTypeDAOTest extends AbstractDAOTest
         assertEquals(DataTypeCode.values().length, list.size());
         for (final DataTypePE dataType : list)
         {
+            DataTypeCode.valueOf(dataType.getCode().name()); // check enums identity
             checkDataType(dataType, true);
         }
     }

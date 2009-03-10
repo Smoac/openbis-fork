@@ -131,6 +131,7 @@ var common = {
   
   label: "Label",
   data_type: "Data Type",
+  data_type_code: "Data Type Code",
   description: "Description",
   sample_types: "Sample Types",
   material_types: "Material Types",

@@ -212,6 +212,8 @@ public abstract class Dict
 
     public static final String DATA_TYPE = "data_type";
 
+    public static final String DATA_TYPE_CODE = "data_type_code";
+
     public static final String DESCRIPTION = "description";
 
     public static final String SAMPLE_TYPES = "sample_types";

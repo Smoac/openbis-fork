@@ -23,11 +23,10 @@ import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -48,7 +47,7 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
 
     private TextArea vocabularyTermsField;
 
-    private final IViewContext<ICommonClientServiceAsync> viewContext;
+    private final IMessageProvider messageProvider;
 
     private final int labelWidth;
 
@@ -57,10 +56,10 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
     private final String idPrefix;
 
     public VocabularyRegistrationFieldSet(
-            final IViewContext<ICommonClientServiceAsync> viewContext, final String idPrefix,
+            final IMessageProvider viewContext, final String idPrefix,
             final int labelWidth, final int fieldWidth)
     {
-        this.viewContext = viewContext;
+        this.messageProvider = viewContext;
         this.labelWidth = labelWidth;
         this.fieldWith = fieldWidth;
         this.idPrefix = idPrefix + ID;
@@ -84,7 +83,7 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
     private final CodeField createCodeField()
     {
         final CodeField codeField =
-                new CodeField(viewContext, viewContext.getMessage(Dict.CODE),
+                new CodeField(messageProvider, messageProvider.getMessage(Dict.CODE),
                         CodeField.CODE_PATTERN_WITH_DOT);
         codeField.setId(idPrefix + "_code");
         return codeField;
@@ -102,11 +101,11 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
     private final TextArea createVocabularyTermsField()
     {
         final TextArea textArea = new TextArea();
-        final String fieldLabel = viewContext.getMessage(Dict.VOCABULARY_TERMS);
+        final String fieldLabel = messageProvider.getMessage(Dict.VOCABULARY_TERMS);
         VarcharField.configureField(textArea, fieldLabel, true);
         textArea.setId(idPrefix + "_terms");
-        textArea.setEmptyText(viewContext.getMessage(Dict.VOCABULARY_TERMS_EMPTY));
-        textArea.setValidator(new VocabularyTermValidator(viewContext));
+        textArea.setEmptyText(messageProvider.getMessage(Dict.VOCABULARY_TERMS_EMPTY));
+        textArea.setValidator(new VocabularyTermValidator(messageProvider));
         return textArea;
     }
 

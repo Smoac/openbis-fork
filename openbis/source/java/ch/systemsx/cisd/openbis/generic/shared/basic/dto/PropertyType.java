@@ -33,8 +33,8 @@ public class PropertyType extends Code<PropertyType> implements IsSerializable
     public final static String USER_NAMESPACE_CODE_PREPEND = "USER.";
 
     /**
-     * Only used for displaying/viewing. With <code>managedInternally</code> is unambiguous
-     * (meaning that <code>simpleCode</code> alone could be not unique).
+     * Only used for displaying/viewing. With <code>managedInternally</code> is unambiguous (meaning
+     * that <code>simpleCode</code> alone could be not unique).
      * <p>
      * We have to use it, partly because <i>Javascript</i> handle '.' in an object-oriented way.
      * </p>
@@ -50,6 +50,8 @@ public class PropertyType extends Code<PropertyType> implements IsSerializable
     private DataType dataType;
 
     private Vocabulary vocabulary;
+
+    private MaterialType materialType;
 
     private String description;
 
@@ -160,6 +162,16 @@ public class PropertyType extends Code<PropertyType> implements IsSerializable
     public final void setManagedInternally(final boolean managedInternally)
     {
         this.managedInternally = managedInternally;
+    }
+
+    public MaterialType getMaterialType()
+    {
+        return materialType;
+    }
+
+    public void setMaterialType(MaterialType materialType)
+    {
+        this.materialType = materialType;
     }
 
 }

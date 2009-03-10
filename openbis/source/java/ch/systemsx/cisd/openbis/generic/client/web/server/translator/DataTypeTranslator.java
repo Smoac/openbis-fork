@@ -36,6 +36,7 @@ public class DataTypeTranslator
     }
 
     public static DataType translate(final DataTypePE dataTypePE)
+    
     {
         final DataType result = new DataType();
         result.setCode(translate(dataTypePE.getCode()));
@@ -45,40 +46,11 @@ public class DataTypeTranslator
 
     public static EntityDataType translate(final DataType dataType)
     {
-        switch (dataType.getCode())
-        {
-            case BOOLEAN:
-                return EntityDataType.BOOLEAN;
-            case CONTROLLEDVOCABULARY:
-                return EntityDataType.CONTROLLEDVOCABULARY;
-            case INTEGER:
-                return EntityDataType.INTEGER;
-            case REAL:
-                return EntityDataType.REAL;
-            case TIMESTAMP:
-                return EntityDataType.TIMESTAMP;
-            default:
-                return EntityDataType.VARCHAR;
-        }
+        return EntityDataType.valueOf(dataType.getCode().name());
     }
 
     private static DataTypeCode translate(EntityDataType edt)
     {
-        switch (edt)
-        {
-            case BOOLEAN:
-                return DataTypeCode.BOOLEAN;
-            case CONTROLLEDVOCABULARY:
-                return DataTypeCode.CONTROLLEDVOCABULARY;
-            case INTEGER:
-                return DataTypeCode.INTEGER;
-            case REAL:
-                return DataTypeCode.REAL;
-            case TIMESTAMP:
-                return DataTypeCode.TIMESTAMP;
-            default:
-                return DataTypeCode.VARCHAR;
-
-        }
+        return DataTypeCode.valueOf(edt.name());
     }
 }

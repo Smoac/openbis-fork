@@ -33,15 +33,19 @@ public class MaterialTypeTranslator
     {
     }
 
-    public static MaterialType translate(MaterialTypePE entityTypePE)
+    public static MaterialType translate(MaterialTypePE entityTypeOrNull)
     {
+        if (entityTypeOrNull == null)
+        {
+            return null;
+        }
         final MaterialType result = new MaterialType();
-        result.setCode(entityTypePE.getCode());
-        result.setDescription(StringEscapeUtils.escapeHtml(entityTypePE.getDescription()));
-        result.setDatabaseInstance(DatabaseInstanceTranslator.translate(entityTypePE
+        result.setCode(entityTypeOrNull.getCode());
+        result.setDescription(StringEscapeUtils.escapeHtml(entityTypeOrNull.getDescription()));
+        result.setDatabaseInstance(DatabaseInstanceTranslator.translate(entityTypeOrNull
                 .getDatabaseInstance()));
         result.setMaterialTypePropertyTypes(MaterialTypePropertyTypeTranslator.translate(
-                entityTypePE.getMaterialTypePropertyTypes(), result));
+                entityTypeOrNull.getMaterialTypePropertyTypes(), result));
         return result;
     }
 

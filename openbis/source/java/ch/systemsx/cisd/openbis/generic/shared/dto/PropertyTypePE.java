@@ -73,7 +73,16 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
 
     private String label;
 
+    /** can be null. Is always null when {@link #materialType} is not null. */
     private VocabularyPE vocabulary;
+
+    /**
+     * If this field is set, then it specifies the type of the materials, which are values of this
+     * property type.<br>
+     * Note that this field can be null and the data type can be still MATERIAL, it means that, that
+     * material of any type can be a valid property value.
+     */
+    private MaterialTypePE materialType;
 
     private boolean internalNamespace;
 
@@ -101,7 +110,21 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
 
     public void setVocabulary(final VocabularyPE vocabulary)
     {
+        assert materialType == null || vocabulary == null : "Property cannot be of controled vocabulary and material type at the same moment";
         this.vocabulary = vocabulary;
+    }
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = ColumnNames.PROPERTY_MATERIAL_TYPE_COLUMN, updatable = false)
+    public MaterialTypePE getMaterialType()
+    {
+        return materialType;
+    }
+
+    public void setMaterialType(MaterialTypePE materialType)
+    {
+        assert materialType == null || vocabulary == null : "Property cannot be of controled vocabulary and material type at the same moment";
+        this.materialType = materialType;
     }
 
     /**
@@ -398,5 +421,4 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
         child.setPropertyTypeInternal(this);
         getMaterialTypePropertyTypesInternal().add(child);
     }
-
 }

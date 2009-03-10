@@ -44,7 +44,7 @@ public final class MaterialTypeSelectionWidget extends
     public MaterialTypeSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext,
             final String idSuffix)
     {
-        super(viewContext, SUFFIX + idSuffix, Dict.EXPERIMENT_TYPE, ModelDataPropertyNames.CODE,
+        super(viewContext, SUFFIX + idSuffix, Dict.MATERIAL_TYPE, ModelDataPropertyNames.CODE,
                 "material type", "material types");
         this.viewContext = viewContext;
     }
