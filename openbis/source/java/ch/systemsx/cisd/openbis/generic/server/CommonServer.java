@@ -119,7 +119,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     }
 
     //
-    // AbstractServer
+    // AbstractServerWithLogger
     //
 
     @Override

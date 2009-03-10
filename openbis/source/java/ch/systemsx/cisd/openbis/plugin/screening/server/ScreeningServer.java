@@ -61,7 +61,7 @@ public final class ScreeningServer extends AbstractPluginServer<IScreeningServer
     }
 
     //
-    // AbstractServer
+    // AbstractServerWithLogger
     //
 
     @Override

@@ -80,7 +80,7 @@ public final class GenericServer extends AbstractPluginServer<IGenericServer> im
     }
 
     //
-    // AbstractServer
+    // AbstractServerWithLogger
     //
 
     @Override

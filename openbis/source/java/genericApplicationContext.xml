@@ -14,8 +14,6 @@
 
     <import resource="dbConfigurationContext.xml" />
 
-    <bean id="log-interceptor" class="ch.systemsx.cisd.common.spring.LogInterceptor" />
-
     <bean id="data-source" factory-bean="db-configuration-context" factory-method="getDataSource" />
 
     <bean id="transaction-manager"
