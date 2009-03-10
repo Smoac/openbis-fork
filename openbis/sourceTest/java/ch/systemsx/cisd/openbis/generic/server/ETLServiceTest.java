@@ -78,9 +78,10 @@ public class ETLServiceTest extends AbstractServerTestCase
     public void testRegister()
     {
         prepareGetSession();
-        createService().registerDataStoreServerSessionToken(SESSION_TOKEN, "dss42");
+        createService().registerDataStoreServer(SESSION_TOKEN, 443, "dss42");
         
-        DataStoreServerSession session = dssSessionManager.tryToGetSession(SESSION.getRemoteHost());
+        String url = "https://" + SESSION.getRemoteHost() + ":443";
+        DataStoreServerSession session = dssSessionManager.tryToGetSession(url);
         assertEquals("dss42", session.getSessionToken());
         
         context.assertIsSatisfied();

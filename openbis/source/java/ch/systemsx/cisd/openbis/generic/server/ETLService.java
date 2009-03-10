@@ -109,10 +109,10 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         return daoFactory.getHomeDatabaseInstance();
     }
     
-    public void registerDataStoreServerSessionToken(String sessionToken, String dssSessionToken)
+    public void registerDataStoreServer(String sessionToken, int port, String dssSessionToken)
     {
         Session session = sessionManager.getSession(sessionToken);
-        String dssURL = session.getRemoteHost();
+        String dssURL = "https://" + session.getRemoteHost() + ":" + port;
         DataStoreServerSession dssSession = new DataStoreServerSession(dssURL, dssSessionToken);
         dssSessionManager.registerDataStoreServer(dssSession);
     }

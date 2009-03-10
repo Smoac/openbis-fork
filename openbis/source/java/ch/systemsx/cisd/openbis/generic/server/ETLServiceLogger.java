@@ -52,10 +52,10 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         return null;
     }
 
-    public void registerDataStoreServerSessionToken(String sessionToken, String dssSessionToken)
+    public void registerDataStoreServer(String sessionToken, int port, String dssSessionToken)
     {
-        logTracking(sessionToken, "register_data_store_server_session_token", "TOKEN(%s)",
-                dssSessionToken);
+        logTracking(sessionToken, "register_data_store_server_session_token", "PORT(%s) DSS-TOKEN(%s)",
+                port, dssSessionToken);
     }
 
     public void registerDataSet(String sessionToken, SampleIdentifier sampleIdentifier,

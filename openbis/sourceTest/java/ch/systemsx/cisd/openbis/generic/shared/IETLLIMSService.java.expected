@@ -40,7 +40,7 @@ public interface IETLLIMSService extends IWebService, IDataStoreInfoProvider, IS
 
     @Transactional
     @RolesAllowed(RoleSet.ETL_SERVER)
-    public void registerDataStoreServerSessionToken(String sessionToken, String dssSessionToken);
+    public void registerDataStoreServer(String sessionToken, int port, String dssSessionToken);
     
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.ETL_SERVER)

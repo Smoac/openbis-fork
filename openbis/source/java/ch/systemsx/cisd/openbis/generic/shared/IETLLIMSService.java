@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -47,11 +49,13 @@ public interface IETLLIMSService extends IWebService, IDataStoreInfoProvider, IS
     public DatabaseInstancePE getHomeDatabaseInstance(final String sessionToken);
     
     /**
-     * Registers the specified DSS session token. It should be used when invoking...
+     * Registers a Data Store Server for the specified port and DSS session token. 
+     * It should be reachable via this port and the DSS session token should be used when invoking
+     * methods. Note, that the host can be inferred by the asking {@link HttpServletRequest}.
      */
     @Transactional
     @RolesAllowed(RoleSet.ETL_SERVER)
-    public void registerDataStoreServerSessionToken(String sessionToken, String dssSessionToken);
+    public void registerDataStoreServer(String sessionToken, int port, String dssSessionToken);
 
     /**
      * Gets an {@link ExperimentPE} object specified by experiment ID and sample code.
