@@ -19,6 +19,7 @@ package ch.systemsx.cisd.etlserver;
 import java.util.Properties;
 
 import ch.systemsx.cisd.bds.storage.IDirectory;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
  * This role is supposed to be implemented by classes that can extract HCS image files from an

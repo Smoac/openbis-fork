@@ -27,9 +27,9 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.AbstractDataSetInfoExtractor;
-import ch.systemsx.cisd.etlserver.DataSetInformation;
 import ch.systemsx.cisd.etlserver.DataSetNameEntitiesProvider;
 import ch.systemsx.cisd.etlserver.DefaultDataSetInfoExtractor;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
  * @author Franz-Josef Elmer

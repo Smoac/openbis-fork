@@ -38,6 +38,9 @@
                 <include name="**/*.class" />
                 <include name="${build.info.filename}" />
             </fileset>
+            <fileset dir="${sources}">
+                <include name="**/*.xml" />
+            </fileset>
             <fileset dir="${nativeroot}">
 	  					  <include name="**/unix.so"/>
 		  			</fileset>

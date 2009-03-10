@@ -18,6 +18,8 @@ package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
 
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+
 /**
  * The main purpose of this interface is to return a <code>IDataStoreStrategy</code> for a given
  * <code>DataSetInformation</code>.

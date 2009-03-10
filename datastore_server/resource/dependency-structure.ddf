@@ -4,15 +4,31 @@
 #show allResults
 
 {root} = ch.systemsx.cisd
+{openbis} = ${root}.openbis
+{dss} = ${openbis}.dss
 {etlserver} = ${root}.etlserver
 
 ######################################################################
 # Check dependencies to openbis
 
-{openbis} = ${root}.openbis
 [etlserver] = ${etlserver}.*
-[private_openbis] = ${openbis}.* excluding ${openbis}.generic.shared.dto.* ${openbis}.generic.shared.IETLLIMSService
+[dss] = ${dss}.*
+[private_openbis] = ${openbis}.* excluding [dss] ${openbis}.generic.shared.*
 
-check sets [etlserver]
+check sets [dss] [etlserver]
 
-check [etlserver] independentOf [private_openbis]
+check [dss] [etlserver] independentOf [private_openbis]
+
+######################################################################
+# Check dependencies of etlserver to dss
+
+[dss.shared] = ${dss}.generic.shared.*
+[private_dss] = ${dss}.* excluding [dss.shared] ${dss}.generic.DataStoreServer 
+
+check sets [dss.shared] [private_dss]
+
+layer l1 = [dss.shared]
+layer l2 = [etlserver] [private_dss]
+
+check layeringOf l1 l2
+

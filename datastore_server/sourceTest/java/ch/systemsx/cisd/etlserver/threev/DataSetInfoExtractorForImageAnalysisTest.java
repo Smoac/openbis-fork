@@ -26,8 +26,8 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.etlserver.CodeExtractortTestCase;
-import ch.systemsx.cisd.etlserver.DataSetInformation;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
  * @author Franz-Josef Elmer

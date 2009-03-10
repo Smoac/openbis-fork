@@ -41,10 +41,10 @@ import ch.systemsx.cisd.common.exceptions.StopException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.ChannelSetHelper;
-import ch.systemsx.cisd.etlserver.DataSetInformation;
 import ch.systemsx.cisd.etlserver.HCSImageFileExtractionResult;
 import ch.systemsx.cisd.etlserver.IHCSImageFileAccepter;
 import ch.systemsx.cisd.etlserver.IHCSImageFileExtractor;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
  * A <code>IHCSImageFileExtractor</code> implementation suitable for <i>3V</i>.

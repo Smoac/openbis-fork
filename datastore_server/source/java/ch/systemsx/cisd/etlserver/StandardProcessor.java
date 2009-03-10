@@ -29,6 +29,7 @@ import ch.systemsx.cisd.common.exceptions.StopException;
 import ch.systemsx.cisd.common.filesystem.PathPrefixPrepender;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcessingInstructionDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 

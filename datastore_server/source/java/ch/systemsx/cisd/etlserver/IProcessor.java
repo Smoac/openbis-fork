@@ -18,6 +18,7 @@ package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
 
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcessingInstructionDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 

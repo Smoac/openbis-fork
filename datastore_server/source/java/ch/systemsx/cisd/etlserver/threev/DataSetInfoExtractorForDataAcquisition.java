@@ -19,8 +19,8 @@ package ch.systemsx.cisd.etlserver.threev;
 import java.util.Properties;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.etlserver.DataSetInformation;
 import ch.systemsx.cisd.etlserver.DefaultDataSetInfoExtractor;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
  * Implementation which assumes that the information can be extracted from the file name. Following

@@ -27,6 +27,7 @@ import java.util.Properties;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
  * Test cases for the {@link DefaultDataSetInfoExtractor}.

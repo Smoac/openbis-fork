@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.regex.Pattern;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetType;
 
 /**

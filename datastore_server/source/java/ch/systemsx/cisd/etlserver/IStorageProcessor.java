@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 

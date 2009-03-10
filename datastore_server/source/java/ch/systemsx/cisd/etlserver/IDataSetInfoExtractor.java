@@ -20,6 +20,7 @@ import java.io.File;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
  * A role to extract {@link DataSetInformation} from an incoming data set. Implementations of this

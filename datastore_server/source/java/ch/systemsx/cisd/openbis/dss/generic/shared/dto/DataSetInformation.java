@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver;
+package ch.systemsx.cisd.openbis.dss.generic.shared.dto;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -59,8 +59,7 @@ public final class DataSetInformation implements Serializable
     private String instanceCode;
 
     /**
-     * The group code (set by the {@link IDataSetInfoExtractor} or as specified in the
-     * <code>service.properties</code> file).
+     * The group code.
      */
     private String groupCode;
 
