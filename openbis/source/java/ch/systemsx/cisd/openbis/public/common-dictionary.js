@@ -205,10 +205,18 @@ var common = {
  // Data Set Search
  //
  data_set_search: "Data Set Search",
- location: "Location",
  match_all: "Match all criteria",
  match_any: "Match any criteria",
  button_change_query : "Change Search Criteria",
+  
+ //
+ // Data Set Browser
+ //
+ location: "Location",
+ procedure_type: "Procedure Type",
+ external_data_sample: "Sample",
+ is_derived: "Derived?",
+ is_complete: "Complete?",
  data_set_type: "Data Set Type",
  parent_code: "Parent Code",
  file_format_type: "File Type",

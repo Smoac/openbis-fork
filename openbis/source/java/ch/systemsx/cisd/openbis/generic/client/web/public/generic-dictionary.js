@@ -21,21 +21,6 @@ var generic = {
   sample_properties_heading: "Sample Properties",
   part_of_heading: "Components",
   external_data_heading: "External Data",
-
-  //
-  // ExternalData Viewer
-  //
-  
-  parent_code: "Parent Code",
-  location: "Location",
-  file_format_type: "File Format",
-  procedure_type: "Procedure Type",
-  external_data_sample: "Sample",
-  is_derived: "Derived?",
-  is_complete: "Complete?",
-  production_date: "Production Date",
-  data_producer_code: "Data Producer",
-  
   
   //
   // Sample Registration
