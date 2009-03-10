@@ -4,3 +4,4 @@
 4	BOOLEAN	An enumerated type with values True and False
 5	TIMESTAMP	Both date and time. Format: yyyy-mm-dd hh:mm:ss
 6	CONTROLLEDVOCABULARY	Controlled Vocabulary
+7	MATERIAL	Reference to a material

@@ -118,9 +118,9 @@ CREATE TABLE experiment_properties (
     cvte_id tech_id,
     pers_id_registerer tech_id NOT NULL,
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
-    modification_timestamp time_stamp_dfl,
+    modification_timestamp time_stamp DEFAULT NULL::timestamp with time zone,
     mate_prop_id tech_id,
-    CONSTRAINT expr_ck CHECK ((((value IS NOT NULL) AND (cvte_id IS NULL)) OR ((value IS NULL) AND (cvte_id IS NOT NULL))))
+    CONSTRAINT expr_ck CHECK ((((((value IS NOT NULL) AND (cvte_id IS NULL)) AND (mate_prop_id IS NULL)) OR (((value IS NULL) AND (cvte_id IS NOT NULL)) AND (mate_prop_id IS NULL))) OR (((value IS NULL) AND (cvte_id IS NULL)) AND (mate_prop_id IS NOT NULL))))
 );
 CREATE TABLE experiment_type_property_types (
     id tech_id NOT NULL,
@@ -148,7 +148,7 @@ CREATE TABLE experiments (
     inva_id tech_id,
     is_public boolean_char DEFAULT false NOT NULL,
     dast_id tech_id,
-    modification_timestamp time_stamp_dfl
+    modification_timestamp time_stamp DEFAULT NULL::timestamp with time zone
 );
 CREATE DOMAIN boolean_char_or_unknown AS character(1) DEFAULT 'U'::bpchar
 	CONSTRAINT boolean_char_or_unknown_check CHECK ((VALUE = ANY (ARRAY['F'::bpchar, 'T'::bpchar, 'U'::bpchar])));
@@ -207,9 +207,9 @@ CREATE TABLE material_properties (
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     pers_id_registerer tech_id NOT NULL,
     cvte_id tech_id,
-    modification_timestamp time_stamp_dfl,
+    modification_timestamp time_stamp DEFAULT NULL::timestamp with time zone,
     mate_prop_id tech_id,
-    CONSTRAINT mapr_ck CHECK ((((value IS NOT NULL) AND (cvte_id IS NULL)) OR ((value IS NULL) AND (cvte_id IS NOT NULL))))
+    CONSTRAINT mapr_ck CHECK ((((((value IS NOT NULL) AND (cvte_id IS NULL)) AND (mate_prop_id IS NULL)) OR (((value IS NULL) AND (cvte_id IS NOT NULL)) AND (mate_prop_id IS NULL))) OR (((value IS NULL) AND (cvte_id IS NULL)) AND (mate_prop_id IS NOT NULL))))
 );
 CREATE TABLE material_type_property_types (
     id tech_id NOT NULL,
@@ -233,7 +233,8 @@ CREATE TABLE materials (
     pers_id_registerer tech_id NOT NULL,
     mate_id_inhibitor_of tech_id,
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
-    dbin_id tech_id NOT NULL
+    dbin_id tech_id NOT NULL,
+    modification_timestamp time_stamp DEFAULT NULL::timestamp with time zone
 );
 CREATE DOMAIN user_id AS character varying(50);
 CREATE TABLE persons (
@@ -314,9 +315,9 @@ CREATE TABLE sample_properties (
     cvte_id tech_id,
     pers_id_registerer tech_id NOT NULL,
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
-    modification_timestamp time_stamp_dfl,
+    modification_timestamp time_stamp DEFAULT NULL::timestamp with time zone,
     mate_prop_id tech_id,
-    CONSTRAINT sapr_ck CHECK ((((value IS NOT NULL) AND (cvte_id IS NULL)) OR ((value IS NULL) AND (cvte_id IS NOT NULL))))
+    CONSTRAINT sapr_ck CHECK ((((((value IS NOT NULL) AND (cvte_id IS NULL)) AND (mate_prop_id IS NULL)) OR (((value IS NULL) AND (cvte_id IS NOT NULL)) AND (mate_prop_id IS NULL))) OR (((value IS NULL) AND (cvte_id IS NULL)) AND (mate_prop_id IS NOT NULL))))
 );
 CREATE TABLE sample_type_property_types (
     id tech_id NOT NULL,
@@ -350,7 +351,7 @@ CREATE TABLE samples (
     dbin_id tech_id,
     grou_id tech_id,
     samp_id_part_of tech_id,
-    modification_timestamp time_stamp_dfl,
+    modification_timestamp time_stamp DEFAULT NULL::timestamp with time zone,
     CONSTRAINT samp_dbin_grou_arc_ck CHECK ((((dbin_id IS NOT NULL) AND (grou_id IS NULL)) OR ((dbin_id IS NULL) AND (grou_id IS NOT NULL))))
 );
 CREATE FUNCTION controlled_vocabulary_check() RETURNS trigger
@@ -369,6 +370,33 @@ BEGIN
 END;
 $$
     LANGUAGE plpgsql;
+CREATE FUNCTION experiment_property_with_material_data_type_check() RETURNS trigger
+    AS $$
+DECLARE
+   v_type_id  CODE;
+   v_type_id_prop  CODE;
+BEGIN
+   if NEW.mate_prop_id IS NOT NULL then
+			-- find material type id of the property type 
+			select pt.maty_prop_id into v_type_id_prop 
+			  from material_type_property_types etpt, property_types pt 
+			 where NEW.etpt_id = etpt.id AND etpt.prty_id = pt.id;
+		
+			if v_type_id_prop IS NOT NULL then
+				-- find material type id of the material which consists the entity's property value
+				select entity.maty_id into v_type_id 
+				  from materials entity
+				 where NEW.mate_prop_id = entity.id;
+				if v_type_id != v_type_id_prop then
+					RAISE EXCEPTION 'Insert/Update of property value referencing material (id: %) failed, as referenced material type is different than expected (id %, expected id: %).', 
+												 NEW.mate_prop_id, v_type_id, v_type_id_prop;
+				end if;
+			end if;
+   end if;
+   RETURN NEW;
+END;
+$$
+    LANGUAGE plpgsql;
 CREATE FUNCTION external_data_storage_format_check() RETURNS trigger
     AS $$
 DECLARE
@@ -382,6 +410,33 @@ BEGIN
    if v_covo_code != 'STORAGE_FORMAT' then
       select code into data_code from data where id = NEW.data_id; 
       RAISE EXCEPTION 'Insert/Update of Data (Code: %) failed, as its Storage Format is %, but is required to be STORAGE_FORMAT.', data_code, v_covo_code;
+   end if;
+   RETURN NEW;
+END;
+$$
+    LANGUAGE plpgsql;
+CREATE FUNCTION material_property_with_material_data_type_check() RETURNS trigger
+    AS $$
+DECLARE
+   v_type_id  CODE;
+   v_type_id_prop  CODE;
+BEGIN
+   if NEW.mate_prop_id IS NOT NULL then
+			-- find material type id of the property type 
+			select pt.maty_prop_id into v_type_id_prop 
+			  from material_type_property_types etpt, property_types pt 
+			 where NEW.mtpt_id = etpt.id AND etpt.prty_id = pt.id;
+		
+			if v_type_id_prop IS NOT NULL then
+				-- find material type id of the material which consists the entity's property value
+				select entity.maty_id into v_type_id 
+				  from materials entity
+				 where NEW.mate_prop_id = entity.id;
+				if v_type_id != v_type_id_prop then
+					RAISE EXCEPTION 'Insert/Update of property value referencing material (id: %) failed, as referenced material type is different than expected (id %, expected id: %).', 
+							 NEW.mate_prop_id, v_type_id, v_type_id_prop;
+				end if;
+			end if;
    end if;
    RETURN NEW;
 END;
@@ -437,6 +492,33 @@ BEGIN
 END;
 $$
     LANGUAGE plpgsql;
+CREATE FUNCTION sample_property_with_material_data_type_check() RETURNS trigger
+    AS $$
+DECLARE
+   v_type_id  CODE;
+   v_type_id_prop  CODE;
+BEGIN
+   if NEW.mate_prop_id IS NOT NULL then
+			-- find material type id of the property type 
+			select pt.maty_prop_id into v_type_id_prop 
+			  from material_type_property_types etpt, property_types pt 
+			 where NEW.stpt_id = etpt.id AND etpt.prty_id = pt.id;
+		
+			if v_type_id_prop IS NOT NULL then
+				-- find material type id of the material which consists the entity's property value
+				select entity.maty_id into v_type_id 
+				  from materials entity
+				 where NEW.mate_prop_id = entity.id;
+				if v_type_id != v_type_id_prop then
+					RAISE EXCEPTION 'Insert/Update of property value referencing material (id: %) failed, as referenced material type is different than expected (id %, expected id: %).', 
+												 NEW.mate_prop_id, v_type_id, v_type_id_prop;
+				end if;
+			end if;
+   end if;
+   RETURN NEW;
+END;
+$$
+    LANGUAGE plpgsql;
 CREATE SEQUENCE controlled_vocabulary_id_seq
     INCREMENT BY 1
     NO MAXVALUE
@@ -479,7 +561,7 @@ CREATE SEQUENCE data_type_id_seq
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('data_type_id_seq', 6, true);
+SELECT pg_catalog.setval('data_type_id_seq', 7, true);
 CREATE SEQUENCE database_instance_id_seq
     INCREMENT BY 1
     NO MAXVALUE

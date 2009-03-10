@@ -26,7 +26,7 @@ import java.io.Serializable;
 public enum EntityDataType implements Serializable
 {
     INTEGER("INT"), VARCHAR("STRING"), REAL("DOUBLE"), TIMESTAMP("DATE"), BOOLEAN("BOOLEAN"),
-    CONTROLLEDVOCABULARY("VOCABULARY");
+    CONTROLLEDVOCABULARY("VOCABULARY"), MATERIAL("MATERIAL");
 
     private final String niceRepresentation;
 

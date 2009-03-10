@@ -69,6 +69,7 @@ $$ LANGUAGE 'plpgsql';
 CREATE TRIGGER EXTERNAL_DATA_STORAGE_FORMAT_CHECK BEFORE INSERT OR UPDATE ON EXTERNAL_DATA
     FOR EACH ROW EXECUTE PROCEDURE EXTERNAL_DATA_STORAGE_FORMAT_CHECK();
 
+   
 ------------------------------------------------------------------------------------
 --  Purpose:  Create trigger SAMPLE_CODE_UNIQUENESS_CHECK 
 ------------------------------------------------------------------------------------
@@ -112,3 +113,97 @@ $$ LANGUAGE 'plpgsql';
 
 CREATE TRIGGER SAMPLE_CODE_UNIQUENESS_CHECK BEFORE INSERT OR UPDATE ON SAMPLES
     FOR EACH ROW EXECUTE PROCEDURE SAMPLE_CODE_UNIQUENESS_CHECK();
+    
+------------------------------------------------------------------------------------
+--  Purpose:  Create trigger MATERIAL/SAMPLE/EXPERIMENT _PROPERTY_WITH_MATERIAL_DATA_TYPE_CHECK
+--            It checks that if material property value is assigned to the entity,
+--						then the material type is equal to the one described by property type.
+------------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION MATERIAL_PROPERTY_WITH_MATERIAL_DATA_TYPE_CHECK() RETURNS trigger AS $$
+DECLARE
+   v_type_id  CODE;
+   v_type_id_prop  CODE;
+BEGIN
+   if NEW.mate_prop_id IS NOT NULL then
+			-- find material type id of the property type 
+			select pt.maty_prop_id into v_type_id_prop 
+			  from material_type_property_types etpt, property_types pt 
+			 where NEW.mtpt_id = etpt.id AND etpt.prty_id = pt.id;
+		
+			if v_type_id_prop IS NOT NULL then
+				-- find material type id of the material which consists the entity's property value
+				select entity.maty_id into v_type_id 
+				  from materials entity
+				 where NEW.mate_prop_id = entity.id;
+				if v_type_id != v_type_id_prop then
+					RAISE EXCEPTION 'Insert/Update of property value referencing material (id: %) failed, as referenced material type is different than expected (id %, expected id: %).', 
+							 NEW.mate_prop_id, v_type_id, v_type_id_prop;
+				end if;
+			end if;
+   end if;
+   RETURN NEW;
+END;
+$$ LANGUAGE 'plpgsql';
+
+CREATE TRIGGER MATERIAL_PROPERTY_WITH_MATERIAL_DATA_TYPE_CHECK BEFORE INSERT OR UPDATE ON material_properties
+    FOR EACH ROW EXECUTE PROCEDURE MATERIAL_PROPERTY_WITH_MATERIAL_DATA_TYPE_CHECK();
+    
+CREATE OR REPLACE FUNCTION SAMPLE_PROPERTY_WITH_MATERIAL_DATA_TYPE_CHECK() RETURNS trigger AS $$
+DECLARE
+   v_type_id  CODE;
+   v_type_id_prop  CODE;
+BEGIN
+   if NEW.mate_prop_id IS NOT NULL then
+			-- find material type id of the property type 
+			select pt.maty_prop_id into v_type_id_prop 
+			  from material_type_property_types etpt, property_types pt 
+			 where NEW.stpt_id = etpt.id AND etpt.prty_id = pt.id;
+		
+			if v_type_id_prop IS NOT NULL then
+				-- find material type id of the material which consists the entity's property value
+				select entity.maty_id into v_type_id 
+				  from materials entity
+				 where NEW.mate_prop_id = entity.id;
+				if v_type_id != v_type_id_prop then
+					RAISE EXCEPTION 'Insert/Update of property value referencing material (id: %) failed, as referenced material type is different than expected (id %, expected id: %).', 
+												 NEW.mate_prop_id, v_type_id, v_type_id_prop;
+				end if;
+			end if;
+   end if;
+   RETURN NEW;
+END;
+$$ LANGUAGE 'plpgsql';
+
+CREATE TRIGGER SAMPLE_PROPERTY_WITH_MATERIAL_DATA_TYPE_CHECK BEFORE INSERT OR UPDATE ON sample_properties
+    FOR EACH ROW EXECUTE PROCEDURE SAMPLE_PROPERTY_WITH_MATERIAL_DATA_TYPE_CHECK();
+    
+CREATE OR REPLACE FUNCTION EXPERIMENT_PROPERTY_WITH_MATERIAL_DATA_TYPE_CHECK() RETURNS trigger AS $$
+DECLARE
+   v_type_id  CODE;
+   v_type_id_prop  CODE;
+BEGIN
+   if NEW.mate_prop_id IS NOT NULL then
+			-- find material type id of the property type 
+			select pt.maty_prop_id into v_type_id_prop 
+			  from material_type_property_types etpt, property_types pt 
+			 where NEW.etpt_id = etpt.id AND etpt.prty_id = pt.id;
+		
+			if v_type_id_prop IS NOT NULL then
+				-- find material type id of the material which consists the entity's property value
+				select entity.maty_id into v_type_id 
+				  from materials entity
+				 where NEW.mate_prop_id = entity.id;
+				if v_type_id != v_type_id_prop then
+					RAISE EXCEPTION 'Insert/Update of property value referencing material (id: %) failed, as referenced material type is different than expected (id %, expected id: %).', 
+												 NEW.mate_prop_id, v_type_id, v_type_id_prop;
+				end if;
+			end if;
+   end if;
+   RETURN NEW;
+END;
+$$ LANGUAGE 'plpgsql';
+
+CREATE TRIGGER EXPERIMENT_PROPERTY_WITH_MATERIAL_DATA_TYPE_CHECK BEFORE INSERT OR UPDATE ON experiment_properties
+    FOR EACH ROW EXECUTE PROCEDURE EXPERIMENT_PROPERTY_WITH_MATERIAL_DATA_TYPE_CHECK();
+   

@@ -224,14 +224,26 @@ CREATE TRIGGER controlled_vocabulary_check
     BEFORE INSERT OR UPDATE ON property_types
     FOR EACH ROW
     EXECUTE PROCEDURE controlled_vocabulary_check();
+CREATE TRIGGER experiment_property_with_material_data_type_check
+    BEFORE INSERT OR UPDATE ON experiment_properties
+    FOR EACH ROW
+    EXECUTE PROCEDURE experiment_property_with_material_data_type_check();
 CREATE TRIGGER external_data_storage_format_check
     BEFORE INSERT OR UPDATE ON external_data
     FOR EACH ROW
     EXECUTE PROCEDURE external_data_storage_format_check();
+CREATE TRIGGER material_property_with_material_data_type_check
+    BEFORE INSERT OR UPDATE ON material_properties
+    FOR EACH ROW
+    EXECUTE PROCEDURE material_property_with_material_data_type_check();
 CREATE TRIGGER sample_code_uniqueness_check
     BEFORE INSERT OR UPDATE ON samples
     FOR EACH ROW
     EXECUTE PROCEDURE sample_code_uniqueness_check();
+CREATE TRIGGER sample_property_with_material_data_type_check
+    BEFORE INSERT OR UPDATE ON sample_properties
+    FOR EACH ROW
+    EXECUTE PROCEDURE sample_property_with_material_data_type_check();
 ALTER TABLE ONLY controlled_vocabularies
     ADD CONSTRAINT covo_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
 ALTER TABLE ONLY controlled_vocabularies
@@ -437,7 +449,7 @@ ALTER TABLE ONLY sample_type_property_types
 ALTER TABLE ONLY sample_type_property_types
     ADD CONSTRAINT stpt_saty_fk FOREIGN KEY (saty_id) REFERENCES sample_types(id);
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
-REVOKE ALL ON SCHEMA public FROM "postgres";
-GRANT ALL ON SCHEMA public TO "postgres";
+REVOKE ALL ON SCHEMA public FROM "Tomek";
+GRANT ALL ON SCHEMA public TO "Tomek";
 GRANT ALL ON SCHEMA public TO PUBLIC;
 
