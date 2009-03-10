@@ -164,9 +164,9 @@ public class DatasetDownloadService
         final Context context = new Context(thisServer, "/", Context.SESSIONS);
         context.setAttribute(APPLICATION_CONTEXT_KEY, applicationContext);
         String applicationName = "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME;
-        context.addServlet(DatasetDownloadServlet.class, applicationName + "/*");
         context.addServlet(new ServletHolder(new DataStoreServlet()),
                 "/" + DATA_STORE_SERVER_SERVICE_NAME + "/*");
+        context.addServlet(DatasetDownloadServlet.class, applicationName + "/*");
         return thisServer;
     }
 
