@@ -34,4 +34,11 @@ public final class GenericSharedConstants
      * this.
      */
     public static final int VERSION = 30; // for release S44
+    
+    /** Part of the URL of the DSS server. */
+    public static final String DATA_STORE_SERVER_WEB_APPLICATION_NAME = "datastore_server";
+    
+    /** Part of the URL of the DSS service. */
+    public static final String DATA_STORE_SERVER_SERVICE_NAME =
+            DATA_STORE_SERVER_WEB_APPLICATION_NAME + "/dss";
 }

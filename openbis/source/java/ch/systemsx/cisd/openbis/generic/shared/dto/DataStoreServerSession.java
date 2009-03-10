@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
+
 /**
  * Class for session on a Data Store Server.
  *
@@ -26,13 +28,16 @@ import java.io.Serializable;
 public class DataStoreServerSession implements Serializable
 {
     private static final long serialVersionUID = 1L;
+    
     private final String dataStoreServerURL;
     private final String sessionToken;
+    private final IDataStoreService service;
 
-    public DataStoreServerSession(String dataStoreServerURL, String sessionToken)
+    public DataStoreServerSession(String dataStoreServerURL, String sessionToken, IDataStoreService service)
     {
         this.dataStoreServerURL = dataStoreServerURL;
         this.sessionToken = sessionToken;
+        this.service = service;
     }
 
     public final String getDataStoreServerURL()
@@ -43,6 +48,11 @@ public class DataStoreServerSession implements Serializable
     public final String getSessionToken()
     {
         return sessionToken;
+    }
+
+    public final IDataStoreService getService()
+    {
+        return service;
     }
     
 }

@@ -28,6 +28,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
@@ -36,6 +37,8 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IProcedureBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentAttachmentDAO;
+import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IWebService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -113,7 +116,11 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
     {
         Session session = sessionManager.getSession(sessionToken);
         String dssURL = "https://" + session.getRemoteHost() + ":" + port;
-        DataStoreServerSession dssSession = new DataStoreServerSession(dssURL, dssSessionToken);
+        IDataStoreService service =
+                HttpInvokerUtils.createServiceStub(IDataStoreService.class, dssURL + "/"
+                        + GenericSharedConstants.DATA_STORE_SERVER_SERVICE_NAME, 5);
+        DataStoreServerSession dssSession =
+                new DataStoreServerSession(dssURL, dssSessionToken, service);
         dssSessionManager.registerDataStoreServer(dssSession);
     }
 

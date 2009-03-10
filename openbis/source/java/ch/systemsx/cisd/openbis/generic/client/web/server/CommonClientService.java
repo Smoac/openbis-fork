@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server;
 
+import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -116,7 +118,7 @@ public final class CommonClientService extends AbstractClientService implements
     {
         super(requestContextProvider);
         this.commonServer = commonServer;
-        this.dataStoreBaseURL = dataStoreBaseURL;
+        this.dataStoreBaseURL = dataStoreBaseURL + "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME;
     }
 
     @Override
