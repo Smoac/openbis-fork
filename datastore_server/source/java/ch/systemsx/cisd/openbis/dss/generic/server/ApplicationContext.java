@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 
 /**
  *  Application context. It contains the object accessing the openBIS for retrieving the data set,
