@@ -30,13 +30,13 @@ public class DataStoreServerSession implements Serializable
     private static final long serialVersionUID = 1L;
     
     private final String dataStoreServerURL;
-    private final String sessionToken;
     private final IDataStoreService service;
+    
+    private String sessionToken;
 
-    public DataStoreServerSession(String dataStoreServerURL, String sessionToken, IDataStoreService service)
+    public DataStoreServerSession(String dataStoreServerURL, IDataStoreService service)
     {
         this.dataStoreServerURL = dataStoreServerURL;
-        this.sessionToken = sessionToken;
         this.service = service;
     }
 
@@ -48,6 +48,11 @@ public class DataStoreServerSession implements Serializable
     public final String getSessionToken()
     {
         return sessionToken;
+    }
+
+    public final void setSessionToken(String sessionToken)
+    {
+        this.sessionToken = sessionToken;
     }
 
     public final IDataStoreService getService()

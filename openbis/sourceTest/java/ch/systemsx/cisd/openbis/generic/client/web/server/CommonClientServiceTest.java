@@ -42,7 +42,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.VocabularyTranslator;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;

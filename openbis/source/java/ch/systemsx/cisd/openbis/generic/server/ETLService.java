@@ -112,16 +112,37 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         return daoFactory.getHomeDatabaseInstance();
     }
     
-    public void registerDataStoreServer(String sessionToken, int port, String dssSessionToken)
+    public void registerDataStoreServer(String sessionToken, int port, final String dssSessionToken)
     {
         Session session = sessionManager.getSession(sessionToken);
-        String dssURL = "https://" + session.getRemoteHost() + ":" + port;
-        IDataStoreService service =
-                HttpInvokerUtils.createServiceStub(IDataStoreService.class, dssURL + "/"
-                        + GenericSharedConstants.DATA_STORE_SERVER_SERVICE_NAME, 5);
-        DataStoreServerSession dssSession =
-                new DataStoreServerSession(dssURL, dssSessionToken, service);
-        dssSessionManager.registerDataStoreServer(dssSession);
+        final String dssURL = "https://" + session.getRemoteHost() + ":" + port;
+        DataStoreServerSession dssSession = dssSessionManager.tryToGetSession(dssURL);
+        if (dssSession == null)
+        {
+            final IDataStoreService service =
+                    HttpInvokerUtils.createServiceStub(IDataStoreService.class, dssURL + "/"
+                            + GenericSharedConstants.DATA_STORE_SERVER_SERVICE_NAME, 5);
+            dssSession = new DataStoreServerSession(dssURL, service);
+            dssSessionManager.registerDataStoreServer(dssSession);
+            new Thread(new Runnable()
+                {
+                    public void run()
+                    {
+                        int dssVersion = service.getVersion(dssSessionToken);
+                        if (IDataStoreService.VERSION != dssVersion)
+                        {
+                            operationLog.error("Data Store Server version is " + dssVersion
+                                    + " instead of " + IDataStoreService.VERSION);
+                        }
+                        if (operationLog.isInfoEnabled())
+                        {
+                            operationLog.info("Data Store Server (version " + dssVersion
+                                    + ") registered for " + dssURL);
+                        }
+                    }
+                }).start();
+        }
+        dssSession.setSessionToken(dssSessionToken);
     }
 
     public String authenticate(String user, String password) throws UserFailureException

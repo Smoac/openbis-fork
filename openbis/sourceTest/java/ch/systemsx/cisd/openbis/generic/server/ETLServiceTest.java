@@ -75,7 +75,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     }
     
     @Test
-    public void testRegister()
+    public void testRegisterDataStoreServer()
     {
         prepareGetSession();
         createService().registerDataStoreServer(SESSION_TOKEN, 443, "dss42");
