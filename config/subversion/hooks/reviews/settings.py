@@ -5,13 +5,12 @@ class Settings:
   def __init__(self):
     self.smtp_server = 'localhost'
     self.recipients = [ 
-            'basil.neff@systemsx.ch',
-            'bernd.rinn@systemsx.ch',
-            'charles.ramin-wright@systemsx.ch',
-            'franz-josef.elmer@systemsx.ch',
-            'izabela.adamczyk@systemsx.ch',
-            'christian.ribeaud@systemsx.ch',
-            'tomasz.pylak@systemsx.ch',
+            'brinn':    'bernd.rinn@systemsx.ch',
+            'charlesr': 'charles.ramin-wright@systemsx.ch',
+            'felmer':   'franz-josef.elmer@systemsx.ch',
+            'izabel':   'izabela.adamczyk@systemsx.ch',
+            'tpylak':   'tomasz.pylak@systemsx.ch',
+            'buczekp':	'piotr.buczek@systemsx.ch',
     ]
     self.cc = []
     self.path = '/data/svn/repositories/productive/hooks/code_review'
@@ -23,14 +22,12 @@ class Settings:
     self.subject_length = 100
     self.subject_prefix = "CISDCS "
     self.__author2email_map = {
-            'bneff':    'basil.neff@systemsx.ch',
             'brinn':    'bernd.rinn@systemsx.ch',
             'charlesr': 'charles.ramin-wright@systemsx.ch',
             'felmer':   'franz-josef.elmer@systemsx.ch',
-            'hadrian':  'adrian.honegger@systemsx.ch',
             'izabel':   'izabela.adamczyk@systemsx.ch',
-            'ribeaudc': 'christian.ribeaud@systemsx.ch',
             'tpylak':   'tomasz.pylak@systemsx.ch',
+            'buczekp':	'piotr.buczek@systemsx.ch',
     }
 
   def get_email_for_author(self, author):
