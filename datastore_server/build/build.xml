@@ -38,9 +38,6 @@
                 <include name="**/*.class" />
                 <include name="${build.info.filename}" />
             </fileset>
-            <fileset dir="${sources}">
-                <include name="**/*.xml" />
-            </fileset>
             <fileset dir="${nativeroot}">
 	  					  <include name="**/unix.so"/>
 		  			</fileset>
@@ -56,6 +53,11 @@
                            value="${version.number} (r${revision.number},${clean.flag})" />
             </manifest>
         </recursive-jar>
+    	<jar update="true" destfile="${jar.file}">
+            <fileset dir="${sources}">
+                <include name="**/*.xml" />
+            </fileset>
+    	</jar>
     </target>
 
     <target name="dist" depends="jar">
