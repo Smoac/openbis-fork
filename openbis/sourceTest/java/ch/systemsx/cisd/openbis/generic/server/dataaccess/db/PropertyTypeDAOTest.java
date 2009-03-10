@@ -30,6 +30,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
@@ -105,6 +106,7 @@ public final class PropertyTypeDAOTest extends AbstractDAOTest
     {
         final List<DataTypePE> list = daoFactory.getPropertyTypeDAO().listDataTypes();
         assertEquals(EntityDataType.values().length, list.size());
+        assertEquals(DataTypeCode.values().length, list.size());
         for (final DataTypePE dataType : list)
         {
             checkDataType(dataType, true);
