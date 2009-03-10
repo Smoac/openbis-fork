@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import static ch.systemsx.cisd.openbis.dss.generic.server.DatasetDownloadService.APPLICATION_CONTEXT_KEY;
+import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -175,7 +176,7 @@ public class DatasetDownloadServlet extends HttpServlet
         try
         {
             RequestParams requestParams =
-                    parseRequestURL(request, applicationContext.getApplicationName());
+                    parseRequestURL(request, DATA_STORE_SERVER_WEB_APPLICATION_NAME);
             rendererFactory = createRendererFactory(requestParams.isPlainTextMode());
 
             obtainDataSetFromServer(requestParams.getDataSetCode(),

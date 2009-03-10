@@ -30,14 +30,10 @@ class ApplicationContext
     
     private final ConfigParameters configParameters;
 
-    private final String applicationName;
-    
-    ApplicationContext(IEncapsulatedOpenBISService service, ConfigParameters configParameters,
-            String applicationName)
+    ApplicationContext(IEncapsulatedOpenBISService service, ConfigParameters configParameters)
     {
         this.dataSetService = service;
         this.configParameters = configParameters;
-        this.applicationName = applicationName;
     }
 
     public final IEncapsulatedOpenBISService getDataSetService()
@@ -50,9 +46,5 @@ class ApplicationContext
         return configParameters;
     }
 
-    public final String getApplicationName()
-    {
-        return applicationName;
-    }
     
 }

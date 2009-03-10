@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
+import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_SERVICE_NAME;
+import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
@@ -160,9 +163,10 @@ public class DatasetDownloadService
         thisServer.addConnector(socketConnector);
         final Context context = new Context(thisServer, "/", Context.SESSIONS);
         context.setAttribute(APPLICATION_CONTEXT_KEY, applicationContext);
-        String applicationName = "/" + applicationContext.getApplicationName();
+        String applicationName = "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME;
         context.addServlet(DatasetDownloadServlet.class, applicationName + "/*");
-        context.addServlet(new ServletHolder(new DataStoreServlet()), applicationName + "/dss/*");
+        context.addServlet(new ServletHolder(new DataStoreServlet()),
+                "/" + DATA_STORE_SERVER_SERVICE_NAME + "/*");
         return thisServer;
     }
 
@@ -187,8 +191,7 @@ public class DatasetDownloadService
         final ConfigParameters configParameters = getConfigParameters();
         IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
         final ApplicationContext applicationContext =
-                new ApplicationContext(openBISService, configParameters,
-                        "dataset-download");
+                new ApplicationContext(openBISService, configParameters);
         return applicationContext;
     }
 

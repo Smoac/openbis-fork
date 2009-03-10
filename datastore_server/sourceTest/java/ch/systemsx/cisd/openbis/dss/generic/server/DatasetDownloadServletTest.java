@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
+import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.io.ByteArrayOutputStream;
@@ -46,6 +47,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.utilities.OSUtilities;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -61,9 +63,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
  */
 public class DatasetDownloadServletTest
 {
-    private static final String APPLICATION_NAME = "download";
-
-    private static final String REQUEST_URI_PREFIX = "/" + APPLICATION_NAME + "/";
+    private static final String REQUEST_URI_PREFIX =
+            "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME + "/";
 
     private static final String EXPIRATION_MESSAGE =
             "<html><body>Download session expired.</body></html>";
@@ -475,7 +476,8 @@ public class DatasetDownloadServletTest
                     will(returnValue(codeAndPath));
 
                     allowing(request).getRequestURI();
-                    will(returnValue(APPLICATION_NAME + "/" + codeAndPath));
+                    will(returnValue(GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME
+                            + "/" + codeAndPath));
 
                 }
             });
@@ -565,8 +567,7 @@ public class DatasetDownloadServletTest
         properties.setProperty(ConfigParameters.KEYSTORE_PASSWORD_KEY, "x");
         properties.setProperty(ConfigParameters.KEYSTORE_KEY_PASSWORD_KEY, "y");
         ConfigParameters configParameters = new ConfigParameters(properties);
-        return new DatasetDownloadServlet(new ApplicationContext(dataSetService, configParameters,
-                APPLICATION_NAME));
+        return new DatasetDownloadServlet(new ApplicationContext(dataSetService, configParameters));
     }
 
     private String getNormalizedLogContent()
