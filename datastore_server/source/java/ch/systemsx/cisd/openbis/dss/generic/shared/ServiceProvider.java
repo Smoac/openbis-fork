@@ -20,8 +20,6 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 
-import ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService;
-
 /**
  * Provider of remote service onto openBIS.
  *
@@ -36,9 +34,9 @@ public class ServiceProvider
     /**
      * Returns openBIS service singleton.
      */
-    public static EncapsulatedOpenBISService getOpenBISService()
+    public static IEncapsulatedOpenBISService getOpenBISService()
     {
-        return ((EncapsulatedOpenBISService) APPLICATION_CONTEXT.getBean("openBIS-service"));
+        return ((IEncapsulatedOpenBISService) APPLICATION_CONTEXT.getBean("openBIS-service"));
     }
     
     public static HttpInvokerServiceExporter getDataStoreServer()

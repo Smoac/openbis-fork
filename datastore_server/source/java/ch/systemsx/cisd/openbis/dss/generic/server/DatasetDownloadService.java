@@ -111,7 +111,7 @@ public class DatasetDownloadService
     {
         assert server == null : "Server already started";
         final ConfigParameters configParameters = getConfigParameters();
-        EncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
+        IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
         final ApplicationContext applicationContext1 =
                 new ApplicationContext(openBISService, configParameters);
         final ApplicationContext applicationContext = applicationContext1;
