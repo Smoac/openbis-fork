@@ -128,16 +128,23 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
                 {
                     public void run()
                     {
-                        int dssVersion = service.getVersion(dssSessionToken);
-                        if (IDataStoreService.VERSION != dssVersion)
+                        int dssVersion;
+                        try
                         {
-                            operationLog.error("Data Store Server version is " + dssVersion
-                                    + " instead of " + IDataStoreService.VERSION);
-                        }
-                        if (operationLog.isInfoEnabled())
+                            dssVersion = service.getVersion(dssSessionToken);
+                            if (IDataStoreService.VERSION != dssVersion)
+                            {
+                                notificationLog.error("Data Store Server version is " + dssVersion
+                                        + " instead of " + IDataStoreService.VERSION);
+                            }
+                            if (operationLog.isInfoEnabled())
+                            {
+                                operationLog.info("Data Store Server (version " + dssVersion
+                                        + ") registered for " + dssURL);
+                            }
+                        } catch (Throwable t)
                         {
-                            operationLog.info("Data Store Server (version " + dssVersion
-                                    + ") registered for " + dssURL);
+                            notificationLog.error("Couldn't reach Data Store Server at " + dssURL, t);
                         }
                     }
                 }).start();
