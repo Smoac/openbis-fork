@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
+import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
 import static ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer.DATA_POSTFIX;
 import static ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer.ID_PREFIX;
 
@@ -43,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTab
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IValueAssertion;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
+import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 
 /**
  * A {@link AbstractGWTTestCase} extension to test {@link GenericSampleViewer}.
@@ -151,7 +153,8 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                             {
                                 String url = String.valueOf(mvce.appEvent.data);
                                 assertTrue("Invalid URL: " + url, url
-                                        .startsWith("https://localhost:8889/dataset-download/"
+                                        .startsWith("https://localhost:8889/"
+                                                + DATA_STORE_SERVER_WEB_APPLICATION_NAME + "/"
                                                 + "20081105092158673-1?sessionID=test-"));
                             }
                         };
