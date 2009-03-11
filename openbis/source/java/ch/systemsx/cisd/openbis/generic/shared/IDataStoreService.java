@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared;
 import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 
 /**
- * 
+ * Service interface of Data Store Server.
  *
  * @author Franz-Josef Elmer
  */
