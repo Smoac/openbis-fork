@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared;
 
+import java.util.List;
+
 import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 
 /**
@@ -40,6 +42,16 @@ public interface IDataStoreService
      * @throws InvalidAuthenticationException if <code>sessionToken</code> is invalid.
      */
     public int getVersion(String sessionToken) throws InvalidAuthenticationException;
+
+    /**
+     * Deletes the specified data sets.
+     * 
+     * @param sessionToken Valid token to identify authorised access.
+     * 
+     * @throws InvalidAuthenticationException if <code>sessionToken</code> is invalid.
+     */
+    public void deleteDataSets(String sessionToken, List<String> dataSetLocations)
+            throws InvalidAuthenticationException;
     
 
 }
