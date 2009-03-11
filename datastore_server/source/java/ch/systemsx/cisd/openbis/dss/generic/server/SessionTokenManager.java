@@ -19,16 +19,19 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.common.utilities.TokenGenerator;
 
 /**
+ * Class managing DSS session tokens. Each invocation of {@link #drawSessionToken()} generates a new
+ * token. The last two tokens are valid. Invocation of {@link #assertValidSessionToken(String)} will
+ * throw an {@link InvalidAuthenticationException} in case of an invalid token.
  * 
- *
  * @author Franz-Josef Elmer
  */
 public class SessionTokenManager
 {
-    private static final int MAX_NUMBER_OF_TOKENS = 3;
+    private static final int MAX_NUMBER_OF_TOKENS = 2;
     
     private final List<String> sessionTokens = new ArrayList<String>();
     private final TokenGenerator tokenGenerator = new TokenGenerator();
@@ -48,7 +51,7 @@ public class SessionTokenManager
     {
         if (sessionTokens.contains(sessionToken) == false)
         {
-            throw new IllegalArgumentException("Invalid session token.");
+            throw new InvalidAuthenticationException("Invalid session token.");
         }
     }
 }
