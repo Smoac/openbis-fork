@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_SERVICE_NAME;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.types.ProcedureTypeCode.DATA_ACQUISITION;
 
 import java.io.UnsupportedEncodingException;
@@ -26,6 +27,7 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
@@ -37,7 +39,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IProcedureBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentAttachmentDAO;
-import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IWebService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
@@ -79,15 +80,33 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
     
     private final ICommonBusinessObjectFactory boFactory;
     
+    private final IDataStoreServiceFactory dssFactory;
+    
     public ETLService(ISessionManager<Session> sessionManager,
             DataStoreServerSessionManager dssSessionManager, IDAOFactory daoFactory,
             ICommonBusinessObjectFactory boFactory)
+    {
+        this(sessionManager, dssSessionManager, daoFactory, boFactory,
+                new IDataStoreServiceFactory()
+                    {
+                        public IDataStoreService create(String serverURL)
+                        {
+                            return HttpInvokerUtils.createServiceStub(IDataStoreService.class,
+                                    serverURL + "/" + DATA_STORE_SERVER_SERVICE_NAME, 5);
+                        }
+                    });
+    }
+
+    ETLService(ISessionManager<Session> sessionManager,
+            DataStoreServerSessionManager dssSessionManager, IDAOFactory daoFactory,
+            ICommonBusinessObjectFactory boFactory, IDataStoreServiceFactory dssFactory)
     {
         super(sessionManager, daoFactory);
         this.sessionManager = sessionManager;
         this.dssSessionManager = dssSessionManager;
         this.daoFactory = daoFactory;
         this.boFactory = boFactory;
+        this.dssFactory = dssFactory;
     }
     
     @Override
@@ -115,39 +134,31 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
     public void registerDataStoreServer(String sessionToken, int port, final String dssSessionToken)
     {
         Session session = sessionManager.getSession(sessionToken);
-        final String dssURL = "https://" + session.getRemoteHost() + ":" + port;
+        String remoteHost = session.getRemoteHost();
+        final String dssURL = "https://" + remoteHost + ":" + port;
         DataStoreServerSession dssSession = dssSessionManager.tryToGetSession(dssURL);
         if (dssSession == null)
         {
-            final IDataStoreService service =
-                    HttpInvokerUtils.createServiceStub(IDataStoreService.class, dssURL + "/"
-                            + GenericSharedConstants.DATA_STORE_SERVER_SERVICE_NAME, 5);
+            final IDataStoreService service = dssFactory.create(dssURL);
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info("Obtain version of Data Store Server at " + dssURL);
+            }
+            int dssVersion = service.getVersion(dssSessionToken);
+            if (IDataStoreService.VERSION != dssVersion)
+            {
+                String msg = "Data Store Server version is " + dssVersion
+                        + " instead of " + IDataStoreService.VERSION;
+                notificationLog.error(msg);
+                throw new ConfigurationFailureException(msg);
+            }
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info("Data Store Server (version " + dssVersion
+                        + ") registered for " + dssURL);
+            }
             dssSession = new DataStoreServerSession(dssURL, service);
             dssSessionManager.registerDataStoreServer(dssSession);
-            new Thread(new Runnable()
-                {
-                    public void run()
-                    {
-                        int dssVersion;
-                        try
-                        {
-                            dssVersion = service.getVersion(dssSessionToken);
-                            if (IDataStoreService.VERSION != dssVersion)
-                            {
-                                notificationLog.error("Data Store Server version is " + dssVersion
-                                        + " instead of " + IDataStoreService.VERSION);
-                            }
-                            if (operationLog.isInfoEnabled())
-                            {
-                                operationLog.info("Data Store Server (version " + dssVersion
-                                        + ") registered for " + dssURL);
-                            }
-                        } catch (Throwable t)
-                        {
-                            notificationLog.error("Couldn't reach Data Store Server at " + dssURL, t);
-                        }
-                    }
-                }).start();
         }
         dssSession.setSessionToken(dssSessionToken);
     }

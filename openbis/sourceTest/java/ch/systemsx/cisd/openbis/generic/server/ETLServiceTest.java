@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import static ch.systemsx.cisd.openbis.generic.shared.IDataStoreService.VERSION;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.types.ProcedureTypeCode.DATA_ACQUISITION;
 
 import java.util.Arrays;
@@ -27,9 +28,11 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
+import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentContentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
@@ -64,6 +67,8 @@ public class ETLServiceTest extends AbstractServerTestCase
 {
     private ICommonBusinessObjectFactory boFactory;
     private DataStoreServerSessionManager dssSessionManager;
+    private IDataStoreServiceFactory dssfactory;
+    private IDataStoreService dataStoreService;
     
     @Override
     @BeforeMethod
@@ -72,17 +77,62 @@ public class ETLServiceTest extends AbstractServerTestCase
         super.setUp();
         dssSessionManager = new DataStoreServerSessionManager();
         boFactory = context.mock(ICommonBusinessObjectFactory.class);
+        dssfactory = context.mock(IDataStoreServiceFactory.class);
+        dataStoreService = context.mock(IDataStoreService.class);
     }
     
     @Test
     public void testRegisterDataStoreServer()
     {
+        final String url = "https://" + SESSION.getRemoteHost() + ":443";
+        final String dssToken = "dss42";
         prepareGetSession();
-        createService().registerDataStoreServer(SESSION_TOKEN, 443, "dss42");
+        context.checking(new Expectations()
+            {
+                {
+                    one(dssfactory).create(url);
+                    will(returnValue(dataStoreService));
+                    
+                    one(dataStoreService).getVersion(dssToken);
+                    will(returnValue(IDataStoreService.VERSION));
+                }
+            });
         
-        String url = "https://" + SESSION.getRemoteHost() + ":443";
+        createService().registerDataStoreServer(SESSION_TOKEN, 443, dssToken);
+        
         DataStoreServerSession session = dssSessionManager.tryToGetSession(url);
-        assertEquals("dss42", session.getSessionToken());
+        assertEquals(dssToken, session.getSessionToken());
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testRegisterDataStoreServerWithWrongVersion()
+    {
+        final String url = "https://" + SESSION.getRemoteHost() + ":443";
+        final String dssToken = "dss42";
+        prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(dssfactory).create(url);
+                    will(returnValue(dataStoreService));
+
+                    one(dataStoreService).getVersion(dssToken);
+                    will(returnValue(VERSION + 1));
+                }
+            });
+
+        try
+        {
+            createService().registerDataStoreServer(SESSION_TOKEN, 443, dssToken);
+            fail("ConfigurationFailureException expected");
+        } catch (ConfigurationFailureException e)
+        {
+            assertEquals(
+                    "Data Store Server version is " + (VERSION + 1) + " instead of " + VERSION, e
+                            .getMessage());
+        }
         
         context.assertIsSatisfied();
     }
@@ -577,6 +627,6 @@ public class ETLServiceTest extends AbstractServerTestCase
     
     private IETLLIMSService createService()
     {
-        return new ETLService(sessionManager, dssSessionManager, daoFactory, boFactory);
+        return new ETLService(sessionManager, dssSessionManager, daoFactory, boFactory, dssfactory);
     }
 }
