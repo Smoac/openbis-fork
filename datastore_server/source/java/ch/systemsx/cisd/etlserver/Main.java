@@ -37,7 +37,6 @@ import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.concurrent.TimerUtilities;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.HighLevelException;
 import ch.systemsx.cisd.common.exceptions.StopException;
 import ch.systemsx.cisd.common.filesystem.DirectoryScanningTimerTask;
@@ -52,7 +51,6 @@ import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
-import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.common.utilities.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.common.utilities.IExitHandler;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
@@ -61,7 +59,6 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.SystemExit;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.IWebService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 
@@ -212,23 +209,6 @@ public final class Main
         {
             throw new ConfigurationFailureException(errorMessage);
         }
-    }
-
-    private static IETLLIMSService getETLLIMSService(final Parameters parameters)
-    {
-        final String serviceURL = getServiceURL(parameters) + "/rmi-etl";
-        final IETLLIMSService service = HttpInvokerUtils.createServiceStub(IETLLIMSService.class, serviceURL, 5);
-        return service;
-    }
-
-    private static String getServiceURL(final Parameters parameters)
-    {
-        final String serverURL = parameters.getServerURL();
-        if (serverURL == null)
-        {
-            throw new EnvironmentFailureException("Application Server URL is not defined.");
-        }
-        return serverURL;
     }
 
     private static void startupServer(final Parameters parameters)

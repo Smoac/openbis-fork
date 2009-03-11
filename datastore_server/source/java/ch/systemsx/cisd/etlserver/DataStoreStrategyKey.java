@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.etlserver;
 
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+
 /**
  * Key associated with each {@link IDataStoreStrategy}.
  * 
