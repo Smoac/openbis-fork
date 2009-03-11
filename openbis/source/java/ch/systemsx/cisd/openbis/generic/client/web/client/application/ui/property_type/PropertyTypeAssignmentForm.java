@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Abstrac
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.PropertyFieldFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -130,9 +131,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer
                             createChildId(PROPERTY_TYPE_ID_SUFFIX));
             propertyTypeSelectionWidget
                     .addListener(Events.Focus, new InfoBoxResetListener(infoBox));
-            propertyTypeSelectionWidget.setAllowBlank(false);
-            propertyTypeSelectionWidget
-                    .setLabelSeparator(GenericConstants.MANDATORY_LABEL_SEPARATOR);
+            FieldUtil.markAsMandatory(propertyTypeSelectionWidget);
             propertyTypeSelectionWidget.addListener(Events.SelectionChange,
                     new Listener<BaseEvent>()
                         {
@@ -157,9 +156,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer
                                     EXPERIMENT_TYPE_ID_SUFFIX);
                     experimentTypeSelectionWidget.addListener(Events.Focus,
                             new InfoBoxResetListener(infoBox));
-                    experimentTypeSelectionWidget.setAllowBlank(false);
-                    experimentTypeSelectionWidget
-                            .setLabelSeparator(GenericConstants.MANDATORY_LABEL_SEPARATOR);
+                    FieldUtil.markAsMandatory(experimentTypeSelectionWidget);
                 }
                 return experimentTypeSelectionWidget;
             case SAMPLE:
@@ -169,9 +166,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer
                             new SampleTypeSelectionWidget(viewContext, SAMPLE_TYPE_ID_SUFFIX, false);
                     sampleTypeSelectionWidget.addListener(Events.Focus, new InfoBoxResetListener(
                             infoBox));
-                    sampleTypeSelectionWidget.setAllowBlank(false);
-                    sampleTypeSelectionWidget
-                            .setLabelSeparator(GenericConstants.MANDATORY_LABEL_SEPARATOR);
+                    FieldUtil.markAsMandatory(sampleTypeSelectionWidget);
                 }
                 return sampleTypeSelectionWidget;
             default:

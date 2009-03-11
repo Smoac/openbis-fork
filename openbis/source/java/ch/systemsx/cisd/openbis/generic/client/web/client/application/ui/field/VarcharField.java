@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
 import com.extjs.gxt.ui.client.widget.form.TextField;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 
 /**
  * A basic {@link TextField} extension for registering text (<code>String</code>).
@@ -38,10 +38,6 @@ public class VarcharField extends TextField<String>
         textField.setFieldLabel(fieldLabel);
         textField.setValidateOnBlur(true);
         textField.setAutoValidate(true);
-        if (mandatory)
-        {
-            textField.setLabelSeparator(GenericConstants.MANDATORY_LABEL_SEPARATOR);
-            textField.setAllowBlank(false);
-        }
+        FieldUtil.setMandatoryFlag(textField, mandatory);
     }
 }

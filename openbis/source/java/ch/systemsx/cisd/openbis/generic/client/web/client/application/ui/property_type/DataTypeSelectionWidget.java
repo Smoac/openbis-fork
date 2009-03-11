@@ -24,11 +24,11 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DataTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.DropDownList;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 
 /**
@@ -52,14 +52,7 @@ public final class DataTypeSelectionWidget extends DropDownList<DataTypeModel, D
         super(viewContext, SUFFIX, Dict.DATA_TYPE, ModelDataPropertyNames.CODE, CHOOSE,
                 EMPTY_RESULT);
         this.viewContext = viewContext;
-        if (mandatory)
-        {
-            setLabelSeparator(GenericConstants.MANDATORY_LABEL_SEPARATOR);
-            setAllowBlank(false);
-        } else
-        {
-            setAllowBlank(true);
-        }
+        FieldUtil.setMandatoryFlag(this, mandatory);
     }
 
     /**

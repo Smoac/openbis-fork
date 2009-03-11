@@ -29,10 +29,10 @@ import com.extjs.gxt.ui.client.widget.form.TextArea;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ProjectSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -151,9 +151,8 @@ public final class GenericExperimentRegistrationForm
     {
 
         projectSelectionWidget = new ProjectSelectionWidget(viewContext, getId());
-        projectSelectionWidget.setLabelSeparator(GenericConstants.MANDATORY_LABEL_SEPARATOR);
+        FieldUtil.markAsMandatory(projectSelectionWidget);
         projectSelectionWidget.setFieldLabel(viewContext.getMessage(Dict.PROJECT));
-        projectSelectionWidget.setAllowBlank(false);
 
         samplesArea = new TextArea();
         samplesArea.setFieldLabel(viewContext.getMessage(Dict.SAMPLES));

@@ -23,7 +23,7 @@ import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.ListBox;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 
@@ -43,9 +43,9 @@ public final class ControlledVocabullaryField extends AdapterField
         super(new VocabularyList(terms, mandatory));
         this.mandatory = mandatory;
         setFieldLabel(labelField);
+        FieldUtil.setMandatoryFlag(this, mandatory);
         if (mandatory)
         {
-            setLabelSeparator(GenericConstants.MANDATORY_LABEL_SEPARATOR);
             ((VocabularyList) getWidget()).setParent(this);
         }
     }

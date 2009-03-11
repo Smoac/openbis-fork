@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Abstrac
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 
 /**
@@ -75,9 +76,8 @@ public final class ProjectRegistrationForm extends AbstractRegistrationForm
     private final GroupSelectionWidget createGroupField()
     {
         GroupSelectionWidget field = new GroupSelectionWidget(viewContext, getId(), false);
-        field.setLabelSeparator(GenericConstants.MANDATORY_LABEL_SEPARATOR);
+        FieldUtil.markAsMandatory(field);
         field.setFieldLabel(viewContext.getMessage(Dict.GROUP));
-        field.setAllowBlank(false);
         return field;
     }
 

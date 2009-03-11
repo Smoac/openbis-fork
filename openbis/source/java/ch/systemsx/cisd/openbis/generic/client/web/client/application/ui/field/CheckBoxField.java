@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 
 /**
  * A small {@link CheckBox} extension for registering a boolean.
@@ -30,9 +30,6 @@ public final class CheckBoxField extends CheckBox
     public CheckBoxField(final String labelField, final boolean mandatory)
     {
         setFieldLabel(labelField);
-        if (mandatory)
-        {
-            setLabelSeparator(GenericConstants.MANDATORY_LABEL_SEPARATOR);
-        }
+        FieldUtil.setMandatoryFlag(this, mandatory);
     }
 }

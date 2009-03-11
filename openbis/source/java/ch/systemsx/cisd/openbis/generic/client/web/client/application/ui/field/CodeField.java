@@ -20,7 +20,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
- * The {@link VarcharField} extension suitable for registering a code.
+ * The {@link VarcharField} extension suitable for registering a mandatory code.
  * 
  * @author Christian Ribeaud
  */
