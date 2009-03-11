@@ -192,7 +192,7 @@ function check_server_port {
 function wait_for_server {
     echo -n "Server starting"
     i=0; 
-    while [ "`check_server_port`" == "" -a $i -lt 5 ]; do 
+    while [ "`check_server_port`" == "" -a $i -lt 20 ]; do 
 	sleep 2; 
 	echo -n "."; 
 	let i=$i+1; 
