@@ -56,13 +56,13 @@ if [ -d "${tomcat_folder}" ]; then
 fi
 
 unzip -q "${installation_folder}/apache-tomcat.zip" -d "$server_folder"
-cp -p "${installation_folder}"/*.keystore "${tomcat_folder}"
+cp -p "${installation_folder}"/openBIS.keystore "${tomcat_folder}"
 cp -p "${installation_folder}/server.xml" "${tomcat_folder}/conf"
 cp -p "${installation_folder}/passwd.sh" "${tomcat_folder}/bin"
 chmod 755 "${tomcat_folder}/bin/passwd.sh"
 STARTUP_TMP=`mktemp startup.sh.XXXXXX`
 sed -e "33i\\
-CATALINA_OPTS=\"-Xmx512M -Ddatabase.create-from-scratch=false -Ddatabase.script-single-step-mode=false\"\\
+CATALINA_OPTS=\"-Xmx512M -Djavax.net.ssl.trustStore=openBIS.keystore -Ddatabase.create-from-scratch=false -Ddatabase.script-single-step-mode=false\"\\
 export CATALINA_OPTS\\
 \\
 if [ \${PRGDIR#/} == \${PRGDIR} ]; then\\

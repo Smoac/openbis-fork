@@ -73,11 +73,6 @@
          IP address of the remote client.
     -->
 
-    <!-- Define a non-SSL HTTP/1.1 Connector on port 8080 -->
-    <Connector port="8080" maxHttpHeaderSize="8192"
-               maxThreads="150" minSpareThreads="25" maxSpareThreads="75"
-               enableLookups="false" redirectPort="8443" acceptCount="100"
-               connectionTimeout="0" disableUploadTimeout="true" />
     <!-- Note : To disable connection timeouts, set connectionTimeout value
      to 0 -->
 	
@@ -92,7 +87,7 @@
     <!-- Define a SSL HTTP/1.1 Connector on port 8443 -->
     <Connector port="8443" maxHttpHeaderSize="8192"
                maxThreads="150" minSpareThreads="25" maxSpareThreads="75"
-               keystoreFile="server.keystore"
+               keystoreFile="openBIS.keystore"
                enableLookups="false" disableUploadTimeout="true"
                acceptCount="100" scheme="https" secure="true"
                clientAuth="false" sslProtocol="TLS" />
