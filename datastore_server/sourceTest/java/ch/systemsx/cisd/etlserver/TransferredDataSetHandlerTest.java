@@ -270,16 +270,6 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         final IETLServerPlugin plugin =
                 new ETLServerPlugin(new MockDataSetInfoExtractor(dataSetInfoExtractor),
                         typeExtractor, storageProcessor);
-        context.checking(new Expectations()
-            {
-                {
-                    one(limsService).authenticate("u", "p");
-                    will(returnValue(SESSION_TOKEN));
-                    
-                    one(limsService).registerDataStoreServer(
-                            with(equal(SESSION_TOKEN)), with(equal(0)), with(any(String.class)));
-                }
-            });
         final IEncapsulatedOpenBISService authorizedLimsService =
             new EncapsulatedOpenBISService(new SessionTokenManager(), limsService, 0, "u", "p");
         handler =
@@ -398,6 +388,12 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
                     one(storageProcessor).getStoreRootDirectory();
                     will(returnValue(workingDirectory));
+                    
+                    one(limsService).authenticate("u", "p");
+                    will(returnValue(SESSION_TOKEN));
+                    
+                    one(limsService).registerDataStoreServer(
+                            with(equal(SESSION_TOKEN)), with(equal(0)), with(any(String.class)));
 
                     atLeast(1).of(limsService).tryToGetBaseExperiment(SESSION_TOKEN,
                             dataSetInformation.getSampleIdentifier());
