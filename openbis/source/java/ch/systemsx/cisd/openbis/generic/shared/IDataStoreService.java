@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared;
 
+import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
+
 /**
  * 
  *
@@ -34,8 +36,10 @@ public interface IDataStoreService
      * 
      * @param sessionToken Valid token to identify authorised access.
      * @return {@link #VERSION}
+     * 
+     * @throws InvalidAuthenticationException if <code>sessionToken</code> is invalid.
      */
-    public int getVersion(String sessionToken);
+    public int getVersion(String sessionToken) throws InvalidAuthenticationException;
     
 
 }
