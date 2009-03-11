@@ -110,12 +110,17 @@ public class DatasetDownloadService
     public static final void start()
     {
         assert server == null : "Server already started";
-        final ApplicationContext applicationContext = createApplicationContext();
+        final ConfigParameters configParameters = getConfigParameters();
+        EncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
+        final ApplicationContext applicationContext1 =
+                new ApplicationContext(openBISService, configParameters);
+        final ApplicationContext applicationContext = applicationContext1;
         server = createServer(applicationContext);
         try
         {
             server.start();
             selfTest(applicationContext);
+            openBISService.registerAtOpenBIS();
             if (operationLog.isInfoEnabled())
             {
                 operationLog.info("Data set download server ready on port "
@@ -184,15 +189,6 @@ public class DatasetDownloadService
         {
             operationLog.info("openBIS service (interface version " + version + ") is reachable");
         }
-    }
-
-    private final static ApplicationContext createApplicationContext()
-    {
-        final ConfigParameters configParameters = getConfigParameters();
-        IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
-        final ApplicationContext applicationContext =
-                new ApplicationContext(openBISService, configParameters);
-        return applicationContext;
     }
 
     private final static ConfigParameters getConfigParameters()

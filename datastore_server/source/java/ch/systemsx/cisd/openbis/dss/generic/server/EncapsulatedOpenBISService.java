@@ -87,7 +87,10 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         this.port = port;
         this.username = username;
         this.password = password;
-        
+    }
+    
+    void registerAtOpenBIS()
+    {
         authenticate();
     }
 
