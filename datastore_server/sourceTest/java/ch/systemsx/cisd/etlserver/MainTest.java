@@ -29,11 +29,11 @@ import ch.systemsx.cisd.common.filesystem.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 
 /**
- * Test cases for corresponding {@link Main} class.
+ * Test cases for corresponding {@link ETLDaemon} class.
  * 
  * @author Christian Ribeaud
  */
-@Friend(toClasses = Main.class)
+@Friend(toClasses = ETLDaemon.class)
 public final class MainTest extends AbstractFileSystemTestCase
 {
 
@@ -56,16 +56,16 @@ public final class MainTest extends AbstractFileSystemTestCase
         assertTrue(instanceDir.exists());
         final DatabaseInstancePE databaseInstancePE = createDatabaseInstance();
         // Not same code
-        Main.migrateStoreRootDir(workingDirectory, databaseInstancePE);
+        ETLDaemon.migrateStoreRootDir(workingDirectory, databaseInstancePE);
         assertTrue(instanceDir.exists());
         databaseInstancePE.setCode("CISD");
         // Same code
-        Main.migrateStoreRootDir(workingDirectory, databaseInstancePE);
+        ETLDaemon.migrateStoreRootDir(workingDirectory, databaseInstancePE);
         assertFalse(instanceDir.exists());
         assertTrue(new File(workingDirectory, IdentifiedDataStrategy.INSTANCE_PREFIX
                 + databaseInstancePE.getUuid()).exists());
         // Trying again does not change anything
-        Main.migrateStoreRootDir(workingDirectory, databaseInstancePE);
+        ETLDaemon.migrateStoreRootDir(workingDirectory, databaseInstancePE);
         assertFalse(instanceDir.exists());
         assertTrue(new File(workingDirectory, IdentifiedDataStrategy.INSTANCE_PREFIX
                 + databaseInstancePE.getUuid()).exists());
@@ -92,7 +92,7 @@ public final class MainTest extends AbstractFileSystemTestCase
         // Don't break when directory does not exist
         //
 
-        Main.migrateDataStoreByRenamingObservableTypeToDataSetType(workingDirectory);
+        ETLDaemon.migrateDataStoreByRenamingObservableTypeToDataSetType(workingDirectory);
 
         //
         // Rename ObservableType_<> directory and observable_type file
@@ -114,7 +114,7 @@ public final class MainTest extends AbstractFileSystemTestCase
         assertTrue(observableTypeFile.getName().equals(observableTypeFileName));
 
         // Do the migration
-        Main.migrateDataStoreByRenamingObservableTypeToDataSetType(workingDirectory);
+        ETLDaemon.migrateDataStoreByRenamingObservableTypeToDataSetType(workingDirectory);
 
         // check directory renamed
         AssertJUnit.assertEquals(IdentifiedDataStrategy.DATA_SET_TYPE_PREFIX + observableTypeValue,

@@ -139,7 +139,7 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
     private final static Properties createProperties(final Format format)
     {
         final Properties props = createPropertiesWithVersion();
-        props.setProperty(Main.STOREROOT_DIR_KEY, "store");
+        props.setProperty(ETLDaemon.STOREROOT_DIR_KEY, "store");
         props.setProperty(SAMPLE_TYPE_DESCRIPTION_KEY, EXAMPLE_TYPE_DESCRIPTION);
         props.setProperty(SAMPLE_TYPE_CODE_KEY, SampleTypeCode.CELL_PLATE.getCode());
         props.setProperty(FORMAT_KEY, format.getCode() + " " + format.getVersion());
@@ -268,7 +268,7 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
     public final void testCheckVersionInProperties()
     {
         final Properties props = new Properties();
-        props.setProperty(Main.STOREROOT_DIR_KEY, "store");
+        props.setProperty(ETLDaemon.STOREROOT_DIR_KEY, "store");
         final String version = "ae";
         props.setProperty(VERSION_PROPERTY_KEY, version);
         try
@@ -286,7 +286,7 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
     public final void testCheckVersionCompatible()
     {
         final Properties props = new Properties();
-        props.setProperty(Main.STOREROOT_DIR_KEY, "store");
+        props.setProperty(ETLDaemon.STOREROOT_DIR_KEY, "store");
         props.setProperty(VERSION_PROPERTY_KEY, "1.2");
         try
         {

@@ -259,7 +259,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         final Properties properties = new Properties();
         properties.setProperty(JavaMailProperties.MAIL_SMTP_HOST, "host");
         properties.setProperty(JavaMailProperties.MAIL_FROM, "me");
-        properties.setProperty(Main.STOREROOT_DIR_KEY, workingDirectory.getPath());
+        properties.setProperty(ETLDaemon.STOREROOT_DIR_KEY, workingDirectory.getPath());
         storageProcessor = context.mock(IStorageProcessor.class);
         limsService = context.mock(IETLLIMSService.class);
         mailClient = context.mock(IMailClient.class);

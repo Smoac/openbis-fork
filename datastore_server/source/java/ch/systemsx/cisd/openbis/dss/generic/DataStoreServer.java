@@ -16,8 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic;
 
-import ch.systemsx.cisd.etlserver.Main;
-import ch.systemsx.cisd.openbis.dss.generic.server.DatasetDownloadService;
+import ch.systemsx.cisd.etlserver.ETLDaemon;
 
 /**
  * 
@@ -28,7 +27,7 @@ public class DataStoreServer
 {
     public static void main(String[] args)
     {
-        DatasetDownloadService.main(args);
-        Main.main(args);
+        DataStoreServer.main(args);
+        ETLDaemon.main(args);
     }
 }

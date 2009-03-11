@@ -89,11 +89,6 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         this.password = password;
     }
     
-    public void registerAtOpenBIS()
-    {
-        authenticate();
-    }
-
     public Object getObject() throws Exception
     {
         return this;

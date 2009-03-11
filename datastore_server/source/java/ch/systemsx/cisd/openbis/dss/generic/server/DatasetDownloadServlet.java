@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
-import static ch.systemsx.cisd.openbis.dss.generic.server.DatasetDownloadService.APPLICATION_CONTEXT_KEY;
+import static ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer.APPLICATION_CONTEXT_KEY;
 import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
 
 import java.io.File;

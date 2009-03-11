@@ -67,17 +67,17 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
  * 
  * @author Bernd Rinn
  */
-public final class Main
+public final class ETLDaemon
 {
     static final String STOREROOT_DIR_KEY = "storeroot-dir";
 
     static final String NOTIFY_SUCCESSFUL_REGISTRATION = "notify-successful-registration";
 
     private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, Main.class);
+            LogFactory.getLogger(LogCategory.OPERATION, ETLDaemon.class);
 
     private static final Logger notificationLog =
-            LogFactory.getLogger(LogCategory.NOTIFY, Main.class);
+            LogFactory.getLogger(LogCategory.NOTIFY, ETLDaemon.class);
 
     private static final File shredderQueueFile = new File(".shredder");
 

@@ -36,11 +36,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 public interface IEncapsulatedOpenBISService
 {
     /**
-     * Registers this Data Set Server at its openBIS Server.
-     */
-    public void registerAtOpenBIS();
-    
-    /**
      * Tries to get the data set for the specified data set code.
      */
     public ExternalDataPE tryGetDataSet(final String sessionToken, final String dataSetCode)

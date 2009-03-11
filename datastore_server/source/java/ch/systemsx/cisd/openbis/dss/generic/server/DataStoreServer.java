@@ -53,7 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IWebService;
  * 
  * @author Franz-Josef Elmer
  */
-public class DatasetDownloadService
+public class DataStoreServer
 {
     private static final class DataStoreServlet extends HttpServlet
     {
@@ -103,7 +103,7 @@ public class DatasetDownloadService
     private static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";
 
     private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, DatasetDownloadService.class);
+            LogFactory.getLogger(LogCategory.OPERATION, DataStoreServer.class);
 
     private static Server server;
 
@@ -120,7 +120,6 @@ public class DatasetDownloadService
         {
             server.start();
             selfTest(applicationContext);
-            openBISService.registerAtOpenBIS();
             if (operationLog.isInfoEnabled())
             {
                 operationLog.info("Data set download server ready on port "

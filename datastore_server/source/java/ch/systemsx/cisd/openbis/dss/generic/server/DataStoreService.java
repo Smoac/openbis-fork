@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
+import java.util.List;
+
+import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.common.spring.AbstractServiceWithLogger;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 
@@ -50,6 +53,18 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         sessionTokenManager.assertValidSessionToken(sessionToken);
         
         return IDataStoreService.VERSION;
+    }
+
+    public void deleteDataSets(String sessionToken, List<String> dataSetLocations)
+            throws InvalidAuthenticationException
+    {
+        sessionTokenManager.assertValidSessionToken(sessionToken);
+        
+        for (String location : dataSetLocations)
+        {
+            System.out.println(location);
+        }
+        
     }
 
 }

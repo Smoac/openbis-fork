@@ -16,8 +16,11 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
+import java.util.List;
+
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 
 /**
@@ -64,6 +67,12 @@ class DataStoreServiceLogger implements IDataStoreService
     {
         log("get_version", "SESSION(%s)", sessionToken);
         return 0;
+    }
+
+    public void deleteDataSets(String sessionToken, List<String> dataSetLocations)
+            throws InvalidAuthenticationException
+    {
+        log("delete_data_set", "DELETE(%s)", dataSetLocations);
     }
 
 }
