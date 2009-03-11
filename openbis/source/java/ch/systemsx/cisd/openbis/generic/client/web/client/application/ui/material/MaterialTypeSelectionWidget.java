@@ -41,28 +41,65 @@ public final class MaterialTypeSelectionWidget extends
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
+    private final boolean includeAdditionalOption;
+
+    private final String additionalOptionLabelOrNull;
+
+    /**
+     * Creates a material type chooser with one additional option. It's useful when you want to have
+     * one special value on the list.
+     */
+    public static MaterialTypeSelectionWidget createWithAdditionalOption(
+            final IViewContext<ICommonClientServiceAsync> viewContext,
+            final String additionalOptionLabel, final String idSuffix)
+    {
+        return new MaterialTypeSelectionWidget(viewContext, true, additionalOptionLabel, idSuffix);
+    }
+
     public MaterialTypeSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext,
             final String idSuffix)
+    {
+        this(viewContext, false, null, idSuffix);
+    }
+
+    private MaterialTypeSelectionWidget(IViewContext<ICommonClientServiceAsync> viewContext,
+            boolean includeNoneOption, String additionalOptionLabelOrNull, String idSuffix)
     {
         super(viewContext, SUFFIX + idSuffix, Dict.MATERIAL_TYPE, ModelDataPropertyNames.CODE,
                 "material type", "material types");
         this.viewContext = viewContext;
+        this.includeAdditionalOption = includeNoneOption;
+        this.additionalOptionLabelOrNull = additionalOptionLabelOrNull;
     }
 
     /**
      * Returns the {@link MaterialType} currently selected.
      * 
-     * @return <code>null</code> if nothing is selected yet.
+     * @return <code>null</code> if nothing is selected yet or "none" option has been chosen (if it
+     *         has been enabled before).
      */
     public final MaterialType tryGetSelectedMaterialType()
     {
         return super.tryGetSelected();
     }
 
+    /** @return true if none option has been enabled and chosen */
+    public final boolean isAdditionalOptionSelected()
+    {
+        return includeAdditionalOption && isAnythingSelected() && tryGetSelected() == null;
+    }
+
     @Override
     protected List<MaterialTypeModel> convertItems(List<MaterialType> result)
     {
-        return MaterialTypeModel.convert(result);
+        if (includeAdditionalOption)
+        {
+            return MaterialTypeModel.convertWithAdditionalOption(result,
+                    additionalOptionLabelOrNull);
+        } else
+        {
+            return MaterialTypeModel.convert(result);
+        }
     }
 
     @Override

@@ -400,6 +400,8 @@ public abstract class Dict
 
     public static final String INHIBITOR_OF = "infibitor_of";
 
+    public static final String ALLOW_ANY_TYPE = "allow_any_type";
+
     // 
     // Material Import
     //

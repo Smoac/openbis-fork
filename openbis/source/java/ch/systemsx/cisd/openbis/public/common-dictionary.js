@@ -230,6 +230,7 @@ var common = {
  material_type: "Material Type",
  material_browser: "Material Browser", 
  infibitor_of: "Inhibitor of",
+ allow_any_type: "(Allow Any Type)",
  
  //
  // Import Materials

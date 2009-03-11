@@ -73,6 +73,16 @@ public abstract class DropDownList<M extends ModelData, E> extends ComboBox<M>
         return GWTUtils.tryGetSingleSelected(this);
     }
 
+    /**
+     * @return true if anything has been selected. <br>
+     *         Note that the result can be different from tryGetSelected() != null if there are null
+     *         values in the model.
+     */
+    protected boolean isAnythingSelected()
+    {
+        return GWTUtils.tryGetSingleSelectedCode(this) != null;
+    }
+
     @Override
     protected void onRender(final Element parent, final int pos)
     {

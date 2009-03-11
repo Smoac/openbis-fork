@@ -36,8 +36,27 @@ public class MaterialTypeModel extends BaseModelData
 
     public MaterialTypeModel(final MaterialType type)
     {
-        set(ModelDataPropertyNames.CODE, type.getCode());
-        set(ModelDataPropertyNames.OBJECT, type);
+        this(type.getCode(), type);
+    }
+
+    private static MaterialTypeModel createNone(String label)
+    {
+        return new MaterialTypeModel(label, null);
+    }
+
+    private MaterialTypeModel(String code, Object object)
+    {
+        set(ModelDataPropertyNames.CODE, code);
+        set(ModelDataPropertyNames.OBJECT, object);
+    }
+
+    /** adds an additional option to the list with the specified label and null value */
+    public final static List<MaterialTypeModel> convertWithAdditionalOption(
+            final List<MaterialType> types, String additionalOptionLabel)
+    {
+        final List<MaterialTypeModel> result = convert(types);
+        result.add(0, createNone(additionalOptionLabel));
+        return result;
     }
 
     public final static List<MaterialTypeModel> convert(final List<MaterialType> types)

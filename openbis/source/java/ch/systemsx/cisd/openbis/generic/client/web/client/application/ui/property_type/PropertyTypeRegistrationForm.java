@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.V
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyRegistrationFieldSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularySelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -78,7 +79,7 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
         this.dataTypeSelectionWidget = createDataTypeSelectionWidget();
         this.vocabularyRegistrationFieldSet = createVocabularyRegistrationFieldSet();
         this.vocabularySelectionWidget = createVocabularySelectionWidget();
-        this.materialTypeSelectionWidget = new MaterialTypeSelectionWidget(viewContext, ID);
+        this.materialTypeSelectionWidget = createMaterialTypeSelectionField(viewContext);
 
         vocabularySelectionWidget.setVisible(false);
         vocabularyRegistrationFieldSet.setVisible(false);
@@ -91,6 +92,16 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
         formPanel.add(vocabularySelectionWidget);
         formPanel.add(vocabularyRegistrationFieldSet);
         formPanel.add(materialTypeSelectionWidget);
+    }
+
+    private static MaterialTypeSelectionWidget createMaterialTypeSelectionField(
+            final IViewContext<ICommonClientServiceAsync> viewContext)
+    {
+        String label = viewContext.getMessage(Dict.ALLOW_ANY_TYPE);
+        MaterialTypeSelectionWidget chooser =
+                MaterialTypeSelectionWidget.createWithAdditionalOption(viewContext, label, ID);
+        FieldUtil.markAsMandatory(chooser);
+        return chooser;
     }
 
     private final VocabularyRegistrationFieldSet createVocabularyRegistrationFieldSet()
@@ -167,7 +178,7 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
     {
         if (DataTypeCode.MATERIAL.equals(selectedDataType.getCode()))
         {
-            return (MaterialType) GWTUtils.tryGetSingleSelected(materialTypeSelectionWidget);
+            return materialTypeSelectionWidget.tryGetSelected();
         } else
         {
             return null;
