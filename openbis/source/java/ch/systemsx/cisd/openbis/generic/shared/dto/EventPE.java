@@ -46,7 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
  */
 @Entity
 @Table(name = TableNames.EVENTS_TABLE)
-@Friend(toClasses = EventPE.class)
+@Friend(toClasses = DataPE.class)
 public class EventPE extends HibernateAbstractRegistrationHolder implements IIdHolder, Serializable
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
