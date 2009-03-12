@@ -34,19 +34,19 @@
     // We do not need to set a level value here as loggers inherit their level from the root logger.
   -->
 
-  <!--  
-    // Uncomment this for debugging value binding in Hibernate
-      <category name="org.hibernate.type">  
-        <priority value="TRACE"/>  
-      </category>
-  -->
-  
   <!-- 
     // Do not use log level debug otherwise plain passwords are readable.
   -->
   <logger name="httpclient.wire">
     <level value="ERROR" />
   </logger>
+
+  <!--  
+    // Uncomment this for debugging value binding in Hibernate
+      <category name="org.hibernate.type">  
+        <priority value="TRACE"/>  
+      </category>
+  -->
 
   <!--
     <logger name="org.apache.commons.httpclient">
