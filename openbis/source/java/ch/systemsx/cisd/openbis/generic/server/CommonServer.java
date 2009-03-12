@@ -17,8 +17,11 @@
 package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
 
@@ -41,10 +44,12 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -52,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetSearchHitDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -93,12 +99,16 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     private final ICommonBusinessObjectFactory businessObjectFactory;
 
+    private final DataStoreServerSessionManager dssSessionManager;
+
     public CommonServer(final IAuthenticationService authenticationService,
-            final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
+            final ISessionManager<Session> sessionManager,
+            DataStoreServerSessionManager dssSessionManager, final IDAOFactory daoFactory,
             final ICommonBusinessObjectFactory businessObjectFactory)
     {
         super(sessionManager, daoFactory);
         this.authenticationService = authenticationService;
+        this.dssSessionManager = dssSessionManager;
         this.businessObjectFactory = businessObjectFactory;
     }
 
@@ -559,6 +569,61 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);
+        }
+    }
+
+    public void deleteDataSets(String sessionToken, List<String> dataSetCodes)
+    {
+        getSessionManager().getSession(sessionToken); // checks authentication
+        IExternalDataDAO externalDataDAO = getDAOFactory().getExternalDataDAO();
+        List<ExternalDataPE> dataSets = new ArrayList<ExternalDataPE>();
+        List<String> locations = new ArrayList<String>();
+        for (String dataSetCode : dataSetCodes)
+        {
+            ExternalDataPE dataSet = externalDataDAO.tryToFindFullDataSetByCode(dataSetCode);
+            if (dataSet != null)
+            {
+                dataSets.add(dataSet);
+                locations.add(dataSet.getLocation());
+            }
+        }
+        assertDataSetsAreKnown(dataSets, locations);
+        
+        for (ExternalDataPE dataSet : dataSets)
+        {
+            externalDataDAO.delete(dataSet);
+        }
+        Collection<DataStoreServerSession> sessions = dssSessionManager.getSessions();
+        for (DataStoreServerSession session : sessions)
+        {
+            session.getService().deleteDataSets(session.getSessionToken(), locations);
+        }
+    }
+
+    private void assertDataSetsAreKnown(List<ExternalDataPE> dataSets, List<String> locations)
+    {
+        Set<String> knownLocations = new LinkedHashSet<String>();
+        Collection<DataStoreServerSession> sessions = dssSessionManager.getSessions();
+        for (DataStoreServerSession session : sessions)
+        {
+            IDataStoreService service = session.getService();
+            String dssSessionToken = session.getSessionToken();
+            knownLocations.addAll(service.getKnownDataSets(dssSessionToken, locations));
+        }
+        List<String> unknownDataSets = new ArrayList<String>();
+        for (ExternalDataPE dataSet : dataSets)
+        {
+            if (knownLocations.contains(dataSet.getLocation()) == false)
+            {
+                unknownDataSets.add(dataSet.getCode());
+            }
+        }
+        if (unknownDataSets.isEmpty() == false)
+        {
+            throw new UserFailureException(
+                    "The following data sets are unknown by any registered Data Store Server. "
+                            + "May be the responsible Data Store Server is not running.\n"
+                            + unknownDataSets);
         }
     }
 

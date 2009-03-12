@@ -46,14 +46,6 @@ public final class BrowserGridPagingToolBar extends PagingToolBarAdapter
 
     private final Button refreshButton;
 
-    /** internal interface to delegate export and refresh actions */
-    interface IBrowserGridActionInvoker
-    {
-        void export();
-
-        void refresh();
-    }
-
     public BrowserGridPagingToolBar(IBrowserGridActionInvoker invoker,
             IMessageProvider messageProvider, int pageSize)
     {

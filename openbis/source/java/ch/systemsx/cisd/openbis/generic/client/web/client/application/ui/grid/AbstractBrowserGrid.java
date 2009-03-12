@@ -63,7 +63,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.BrowserGridPagingToolBar.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelagatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
@@ -138,7 +137,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     private final ColumnListener<T, M> columnListener;
     
     // the toolbar has the refresh and export buttons besides the paging controls
-    private final BrowserGridPagingToolBar pagingToolbar;
+    protected final BrowserGridPagingToolBar pagingToolbar;
 
     private final boolean refreshAutomatically;
 
@@ -488,7 +487,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     // wraps this browser into the interface appropriate for the toolbar. If this class would just
     // implement the interface it could be very confusing for the code reader.
-    private final IBrowserGridActionInvoker asActionInvoker()
+    protected final IBrowserGridActionInvoker asActionInvoker()
     {
         final AbstractBrowserGrid<T, M> delegate = this;
         return new IBrowserGridActionInvoker()

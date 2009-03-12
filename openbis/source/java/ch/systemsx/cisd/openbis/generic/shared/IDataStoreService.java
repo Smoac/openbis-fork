@@ -42,12 +42,21 @@ public interface IDataStoreService
      * @throws InvalidAuthenticationException if <code>sessionToken</code> is invalid.
      */
     public int getVersion(String sessionToken) throws InvalidAuthenticationException;
-
+    
+    /**
+     * Returns from the specified data set locations those locations known by the Data Store Server.
+     * 
+     * @param sessionToken Valid token to identify authorised access.
+     * 
+     * @throws InvalidAuthenticationException if <code>sessionToken</code> is invalid.
+     */
+    public List<String> getKnownDataSets(String sessionToken, List<String> dataSetLocations)
+            throws InvalidAuthenticationException;
+    
     /**
      * Deletes the specified data sets.
      * 
      * @param sessionToken Valid token to identify authorised access.
-     * 
      * @throws InvalidAuthenticationException if <code>sessionToken</code> is invalid.
      */
     public void deleteDataSets(String sessionToken, List<String> dataSetLocations)

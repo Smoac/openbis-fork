@@ -24,17 +24,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.DataSetSearchHitColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DataSetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
@@ -43,15 +40,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
  * 
  * @author Izabela Adamczyk
  */
-public class DataSetSearchHitGrid extends
-        AbstractBrowserGrid<ExternalData, DataSetSearchHitModel>
+public class DataSetSearchHitGrid extends AbstractExternalDataGrid
 {
 
     // browser consists of the grid and the paging toolbar
     public static final String BROWSER_ID =
             GenericConstants.ID_PREFIX + "data-set-search-hit-browser";
-
-    public static final String GRID_ID = BROWSER_ID + "_grid";
 
     public static DisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
@@ -71,17 +65,7 @@ public class DataSetSearchHitGrid extends
 
     private DataSetSearchHitGrid(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(viewContext, GRID_ID, false, true);
-        setId(BROWSER_ID);
-        updateDefaultRefreshButton();
-        registerCellClickListenerFor(DataSetSearchHitColDefKind.CODE.id(),
-                new ICellListener<ExternalData>()
-                    {
-                        public void handle(ExternalData rowItem)
-                        {
-                            DataSetUtils.showDataSet(rowItem, viewContext.getModel());
-                        }
-                    });
+        super(viewContext, BROWSER_ID);
     }
 
     @Override
@@ -99,18 +83,18 @@ public class DataSetSearchHitGrid extends
         viewContext.getService().searchForDataSets(criteria, resultSetConfig, callback);
     }
 
-    @Override
-    protected void prepareExportEntities(TableExportCriteria<ExternalData> exportCriteria,
-            AbstractAsyncCallback<String> callback)
-    {
-        viewContext.getService().prepareExportDataSetSearchHits(exportCriteria, callback);
-    }
-
     public void refresh(DataSetSearchCriteria newCriteria, List<PropertyType> propertyTypes)
     {
         criteria = newCriteria;
         availablePropertyTypes = propertyTypes;
         refresh();
+    }
+
+    // Will not be called.
+    @Override
+    protected IColumnDefinitionKind<ExternalData>[] getStaticColumnsDefinition()
+    {
+        return null;
     }
 
     @Override
@@ -121,18 +105,6 @@ public class DataSetSearchHitGrid extends
             return;
         }
         super.refresh(null, false);
-    }
-
-    @Override
-    protected final boolean isRefreshEnabled()
-    {
-        return true;
-    }
-
-    @Override
-    protected final void showEntityViewer(DataSetSearchHitModel modelData)
-    {
-        // do nothing
     }
 
     @Override

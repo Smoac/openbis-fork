@@ -42,7 +42,7 @@ var common = {
   button_submit: "Submit",
   button_refresh: "Refresh",
   button_show: "Show",
-  button_exportData: "Export Data",
+  button_exportData: "Export Table",
   button_add_group: "Add Group",
   button_show_details: "Show Details",
   
@@ -223,6 +223,10 @@ var common = {
  file_format_type: "File Type",
  production_date: "Production Date",
  data_producer_code: "Producer",
+ button_delete_datasets: "Delete",
+ confirm_dataset_deletion_title: "Data Sets Deletion Confirmation",
+ confirm_dataset_deletion_msg: "Do you really want to delete the following data sets?\n\n{0}",
+ 
  
  //
  // Material Browser

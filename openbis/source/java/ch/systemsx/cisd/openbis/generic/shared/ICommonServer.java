@@ -335,4 +335,12 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     public void registerExperimentType(String sessionToken, ExperimentType entityType);
 
+    /**
+     * Deletes specified data sets.
+     */
+    // TODO 2009-03-12 FJE, Authorization guard for data sets needed
+    @Transactional
+    @RolesAllowed(RoleSet.GROUP_ADMIN)
+    public void deleteDataSets(String sessionToken, List<String> dataSetCodes);
+
 }

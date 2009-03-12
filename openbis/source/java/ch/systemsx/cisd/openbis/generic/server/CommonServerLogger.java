@@ -304,4 +304,9 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logTracking(sessionToken, "register_experiment_type", "CODE(%s)", entityType.getCode());
     }
+
+    public void deleteDataSets(String sessionToken, List<String> dataSetCodes)
+    {
+        logTracking(sessionToken, "delete_data_sets", "CODES(%s)", dataSetCodes);
+    }
 }

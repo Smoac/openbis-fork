@@ -65,5 +65,10 @@ public interface IExternalDataDAO
      * Updates the specified data set.
      */
     public void updateDataSet(ExternalDataPE dataset);
+
+    /**
+     * Deletes the specified data set.
+     */
+    public void delete(ExternalDataPE dataSet);
     
 }

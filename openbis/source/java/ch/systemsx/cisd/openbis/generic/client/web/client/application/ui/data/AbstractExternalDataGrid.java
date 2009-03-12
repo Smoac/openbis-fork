@@ -16,17 +16,27 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExternalDataModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.CommonExternalDataColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DataSetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
@@ -41,6 +51,65 @@ public abstract class AbstractExternalDataGrid extends AbstractSimpleBrowserGrid
 {
     public static final String GRID_POSTFIX = "-grid";
     
+    static final class DeletionCallback extends AbstractAsyncCallback<Void>
+    {
+        private final IBrowserGridActionInvoker invoker;
+
+        private DeletionCallback(IViewContext<?> viewContext, IBrowserGridActionInvoker invoker)
+        {
+            super(viewContext);
+            this.invoker = invoker;
+        }
+        
+        @Override
+        protected void process(Void result)
+        {
+            invoker.refresh();
+        }
+    }
+    
+    private static final class DeletionConfirmationDialog extends ConfirmationDialog
+    {
+
+        private static String render(List<ExternalData> dataSets)
+        {
+            StringBuilder builder = new StringBuilder();
+            for (ExternalData externalData : dataSets)
+            {
+                builder.append("\n").append(externalData.getCode());
+            }
+            return builder.toString();
+        }
+        
+        private final IViewContext<?> viewContext;
+
+        private final List<String> dataSetCodes;
+
+        private final IBrowserGridActionInvoker invoker;
+
+        public DeletionConfirmationDialog(IViewContext<?> viewContext, List<ExternalData> dataSets,
+                IBrowserGridActionInvoker invoker)
+        {
+            super(viewContext.getMessage(Dict.CONFIRM_DATASET_DELETION_TITLE), viewContext
+                    .getMessage(Dict.CONFIRM_DATASET_DELETION_MSG, render(dataSets)));
+            this.viewContext = viewContext;
+            this.invoker = invoker;
+            dataSetCodes = new ArrayList<String>();
+            for (ExternalData externalData : dataSets)
+            {
+                dataSetCodes.add(externalData.getCode());
+            }
+            setSize(400, 300);
+        }
+
+        @Override
+        protected void onYes()
+        {
+            viewContext.getCommonService().deleteDataSets(dataSetCodes,
+                    new DeletionCallback(viewContext, invoker));
+        }
+    }
+    
     protected AbstractExternalDataGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             String browserId)
     {
@@ -53,6 +122,24 @@ public abstract class AbstractExternalDataGrid extends AbstractSimpleBrowserGrid
                             DataSetUtils.showDataSet(rowItem, viewContext.getModel());
                         }
                     });
+        Button deleteButton = new Button(viewContext.getMessage(Dict.BUTTON_DELETE_DATASETS));
+        deleteButton.addSelectionListener(new SelectionListener<ButtonEvent>()
+            {
+                @Override
+                public void componentSelected(ButtonEvent ce)
+                {
+                    BaseEntityModel<ExternalData> item = tryGetSelectedItem();
+                    if (item != null)
+                    {
+                        ExternalData dataSet = item.getBaseObject();
+                        List<ExternalData> dataSets = Arrays.asList(dataSet);
+                        IBrowserGridActionInvoker invoker = asActionInvoker();
+                        new DeletionConfirmationDialog(viewContext, dataSets, invoker).show();
+                    }
+                    
+                }
+            });
+        pagingToolbar.add(new AdapterToolItem(deleteButton));
     }
 
     @Override

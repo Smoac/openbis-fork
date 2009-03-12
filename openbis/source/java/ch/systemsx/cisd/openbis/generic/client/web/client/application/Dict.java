@@ -101,7 +101,7 @@ public abstract class Dict
     public static final String BUTTON_EXPORT_DATA = "button_exportData";
 
     public static final String BUTTON_ADD_GROUP = "button_add_group";
-
+    
     //
     // LoginWidget
     //
@@ -303,6 +303,12 @@ public abstract class Dict
     public static final String PRODUCTION_DATE = "production_date";
 
     public static final String DATA_PRODUCER_CODE = "data_producer_code";
+
+    public static final String BUTTON_DELETE_DATASETS = "button_delete_datasets";
+    
+    public static final String CONFIRM_DATASET_DELETION_TITLE = "confirm_dataset_deletion_title";
+    
+    public static final String CONFIRM_DATASET_DELETION_MSG = "confirm_dataset_deletion_msg";
 
     //
     // Sample Registration

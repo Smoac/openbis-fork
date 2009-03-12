@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,6 +54,17 @@ public class DataStoreServerSessionManager
         synchronized (sessions)
         {
             return sessions.get(dssURL);
+        }
+    }
+
+    /**
+     * Returns all registered DSS sessions.
+     */
+    public Collection<DataStoreServerSession> getSessions()
+    {
+        synchronized (sessions)
+        {
+            return new ArrayList<DataStoreServerSession>(sessions.values());
         }
     }
 }

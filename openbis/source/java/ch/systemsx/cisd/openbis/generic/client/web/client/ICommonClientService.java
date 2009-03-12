@@ -330,4 +330,8 @@ public interface ICommonClientService extends IClientService
 
     /** Registers a new experiment type */
     public void registerExperimentType(ExperimentType entityType) throws UserFailureException;
+    
+    /** Deletes the specified data sets. */
+    public void deleteDataSets(List<String> dataSetCodes) throws UserFailureException;
+
 }

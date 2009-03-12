@@ -43,7 +43,7 @@ abstract public class AbstractSimpleBrowserGrid<T/* Entity */> extends
     }
 
     @Override
-    protected final ColumnDefsAndConfigs<T> createColumnsDefinition()
+    protected ColumnDefsAndConfigs<T> createColumnsDefinition()
     {
         IColumnDefinitionKind<T>[] colDefKinds = getStaticColumnsDefinition();
         List<IColumnDefinitionUI<T>> colDefs =

@@ -188,4 +188,12 @@ final class ExternalDataDAO extends AbstractDAO implements IExternalDataDAO
             operationLog.info(String.format("UPDATE: external data '%s'.", externalData));
         }
     }
+
+    public void delete(ExternalDataPE dataSet)
+    {
+        assert dataSet != null : "Unspecified data set.";
+        
+        // TODO Auto-generated method stub
+        
+    }
 }
