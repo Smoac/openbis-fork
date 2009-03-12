@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.InitializingBean;
@@ -94,6 +95,22 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         sessionTokenManager.assertValidSessionToken(sessionToken);
         
         return IDataStoreService.VERSION;
+    }
+
+    public List<String> getKnownDataSets(String sessionToken, List<String> dataSetLocations)
+            throws InvalidAuthenticationException
+    {
+        sessionTokenManager.assertValidSessionToken(sessionToken);
+        
+        List<String> knownLocations = new ArrayList<String>();
+        for (String location : dataSetLocations)
+        {
+            if (new File(storeRoot, location).exists())
+            {
+                knownLocations.add(location);
+            }
+        }
+        return knownLocations;
     }
 
     public void deleteDataSets(String sessionToken, List<String> dataSetLocations)
