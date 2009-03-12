@@ -38,7 +38,10 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SequenceNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
@@ -189,11 +192,21 @@ final class ExternalDataDAO extends AbstractDAO implements IExternalDataDAO
         }
     }
 
-    public void delete(ExternalDataPE dataSet)
+    public void markAsDeleted(ExternalDataPE dataSet, PersonPE registrator, String reason)
     {
         assert dataSet != null : "Unspecified data set.";
         
-        // TODO Auto-generated method stub
-        
+        EventPE event = new EventPE();
+        event.setEventType(EventType.DELETION);
+        event.setReason(reason);
+        event.setRegistrator(registrator);
+        dataSet.addEvent(event);
+        HibernateTemplate template = getHibernateTemplate();
+        template.update(dataSet);
+        template.flush();
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("UPDATE: Events of data set '%s'.", dataSet));
+        }
     }
 }

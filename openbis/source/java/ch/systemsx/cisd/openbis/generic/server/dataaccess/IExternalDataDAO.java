@@ -22,6 +22,7 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
 
@@ -67,8 +68,8 @@ public interface IExternalDataDAO
     public void updateDataSet(ExternalDataPE dataset);
 
     /**
-     * Deletes the specified data set.
+     * Marks the specified data set for the specified reason as deleted.
      */
-    public void delete(ExternalDataPE dataSet);
+    public void markAsDeleted(ExternalDataPE dataSet, PersonPE registrator, String reason);
     
 }

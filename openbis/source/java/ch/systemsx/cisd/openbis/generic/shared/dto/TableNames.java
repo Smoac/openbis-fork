@@ -99,6 +99,8 @@ public final class TableNames
     public static final String SAMPLE_TYPES_TABLE = "sample_types";
 
     public static final String SAMPLES_TABLE = "samples";
+    
+    public static final String EVENTS_TABLE = "events";
 
     private TableNames()
     {

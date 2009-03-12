@@ -33,6 +33,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -50,6 +51,7 @@ import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
+import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 
@@ -96,6 +98,9 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE>
     private SamplePE sampleDerivedFrom;
 
     private Set<DataPE> parents = new HashSet<DataPE>();
+
+    private Set<EventPE> events = new HashSet<EventPE>();
+
 
     @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false)
     @Generated(GenerationTime.ALWAYS)
@@ -281,6 +286,52 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE>
     public void setProcedure(final ProcedurePE procedure)
     {
         this.procedure = procedure;
+    }
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "dataInternal", cascade = CascadeType.ALL)
+    private final Set<EventPE> getEventsInternal()
+    {
+        return events;
+    }
+
+    // Required by Hibernate.
+    @SuppressWarnings("unused")
+    private final void setEventsInternal(final Set<EventPE> events)
+    {
+        this.events = events;
+    }
+
+    public final void setEvents(final Set<EventPE> events)
+    {
+        getEventsInternal().clear();
+        for (final EventPE child : events)
+        {
+            addEvent(child);
+        }
+    }
+
+    @Transient
+    public final Set<EventPE> getEvents()
+    {
+        return new UnmodifiableSetDecorator<EventPE>(getEventsInternal());
+    }
+
+    public void addEvent(final EventPE event)
+    {
+        final DataPE data = event.getData();
+        if (data != null)
+        {
+            data.removeEvent(event);
+        }
+        event.setDataInternal(this);
+        getEventsInternal().add(event);
+    }
+    
+    public void removeEvent(final EventPE event)
+    {
+        assert event != null : "Unspecified event.";
+        getEventsInternal().remove(event);
+        event.setDataInternal(null);
     }
 
 }

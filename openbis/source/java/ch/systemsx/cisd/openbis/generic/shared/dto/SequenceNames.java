@@ -94,6 +94,8 @@ public final class SequenceNames
     public static final String SAMPLE_TYPE_PROPERTY_TYPE_SEQUENCE = "STPT_ID_SEQ";
 
     public static final String SAMPLE_TYPE_SEQUENCE = "SAMPLE_TYPE_ID_SEQ";
+    
+    public static final String EVENT_SEQUENCE = "EVENT_ID_SEQ";
 
     private SequenceNames()
     {

@@ -574,7 +574,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public void deleteDataSets(String sessionToken, List<String> dataSetCodes)
     {
-        getSessionManager().getSession(sessionToken); // checks authentication
+        Session session = getSessionManager().getSession(sessionToken);
         IExternalDataDAO externalDataDAO = getDAOFactory().getExternalDataDAO();
         List<ExternalDataPE> dataSets = new ArrayList<ExternalDataPE>();
         List<String> locations = new ArrayList<String>();
@@ -591,12 +591,12 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         
         for (ExternalDataPE dataSet : dataSets)
         {
-            externalDataDAO.delete(dataSet);
+            externalDataDAO.markAsDeleted(dataSet, session.tryGetPerson(), null);
         }
         Collection<DataStoreServerSession> sessions = dssSessionManager.getSessions();
-        for (DataStoreServerSession session : sessions)
+        for (DataStoreServerSession dssSession : sessions)
         {
-            session.getService().deleteDataSets(session.getSessionToken(), locations);
+            dssSession.getService().deleteDataSets(dssSession.getSessionToken(), locations);
         }
     }
 
