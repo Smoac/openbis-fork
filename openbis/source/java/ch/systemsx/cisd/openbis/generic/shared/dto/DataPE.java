@@ -51,6 +51,7 @@ import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
@@ -70,6 +71,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstant
         + ColumnNames.SAMPLE_DERIVED_FROM + " IS NULL) OR (" + ColumnNames.SAMPLE_ACQUIRED_FROM
         + " IS NULL AND " + ColumnNames.SAMPLE_DERIVED_FROM + " IS NOT NULL)")
 @Inheritance(strategy = InheritanceType.JOINED)
+@Friend(toClasses = EventPE.class)
 public class DataPE extends AbstractIdAndCodeHolder<DataPE>
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
