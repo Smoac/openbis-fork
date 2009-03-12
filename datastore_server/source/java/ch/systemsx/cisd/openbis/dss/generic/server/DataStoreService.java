@@ -16,9 +16,15 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
+import org.springframework.beans.factory.InitializingBean;
+
 import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
+import ch.systemsx.cisd.common.exceptions.WrappedIOException;
+import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
 import ch.systemsx.cisd.common.spring.AbstractServiceWithLogger;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 
@@ -28,15 +34,50 @@ import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
  * 
  * @author Franz-Josef Elmer
  */
-public class DataStoreService extends AbstractServiceWithLogger<IDataStoreService> implements IDataStoreService
+public class DataStoreService extends AbstractServiceWithLogger<IDataStoreService> implements
+        IDataStoreService, InitializingBean
 {
     private final SessionTokenManager sessionTokenManager;
+    
+    private File storeRoot;
 
     public DataStoreService(SessionTokenManager sessionTokenManager)
     {
         this.sessionTokenManager = sessionTokenManager;
     }
     
+    public final void setStoreRoot(File storeRoot)
+    {
+        this.storeRoot = storeRoot;
+    }
+
+    public void afterPropertiesSet() throws Exception
+    {
+        String prefix = "Property 'storeRoot' ";
+        if (storeRoot == null)
+        {
+            throw new IllegalStateException(prefix + "not set.");
+        }
+        String storeRootPath = storeRoot.getAbsolutePath();
+        if (storeRoot.isFile())
+        {
+            throw new IllegalArgumentException(prefix + "is a file instead of a directory: "
+                    + storeRootPath);
+        }
+        if (storeRoot.exists() == false)
+        {
+            if (storeRoot.mkdirs() == false)
+            {
+                throw new WrappedIOException(new IOException(
+                        "Couldn't create root directory of the data store: " + storeRootPath));
+            }
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info("Creates root directory of the data store: " + storeRootPath);
+            }
+        }
+    }
+
     @Override
     protected Class<IDataStoreService> getProxyInterface()
     {
@@ -62,9 +103,8 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         
         for (String location : dataSetLocations)
         {
-            System.out.println(location);
+            QueueingPathRemoverService.removeRecursively(new File(storeRoot, location));
         }
-        
     }
 
 }

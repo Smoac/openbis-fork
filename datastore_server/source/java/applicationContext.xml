@@ -32,6 +32,7 @@
         <property name="service">
             <bean class="ch.systemsx.cisd.openbis.dss.generic.server.DataStoreService">
                 <constructor-arg ref="session-token-manager" />
+                <property name="storeRoot" value="storeroot-dir"/>
             </bean>
         </property>
         <property name="serviceInterface" value="ch.systemsx.cisd.openbis.generic.shared.IDataStoreService" />
