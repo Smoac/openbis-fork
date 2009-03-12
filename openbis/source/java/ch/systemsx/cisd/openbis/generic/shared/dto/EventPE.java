@@ -35,6 +35,7 @@ import javax.persistence.Transient;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 
+import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 
@@ -45,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
  */
 @Entity
 @Table(name = TableNames.EVENTS_TABLE)
+@Friend(toClasses = EventPE.class)
 public class EventPE extends HibernateAbstractRegistrationHolder implements IIdHolder, Serializable
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
