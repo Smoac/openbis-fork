@@ -335,4 +335,8 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     public void registerExperimentType(String sessionToken, ExperimentType entityType);
 
+    @Transactional
+    @RolesAllowed(RoleSet.GROUP_ADMIN)
+    public void deleteDataSets(String sessionToken, List<String> dataSetCodes);
+    
 }

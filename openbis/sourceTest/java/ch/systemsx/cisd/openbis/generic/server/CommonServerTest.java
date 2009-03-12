@@ -60,11 +60,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 public final class CommonServerTest extends AbstractServerTestCase
 {
     private ICommonBusinessObjectFactory commonBusinessObjectFactory;
+    private DataStoreServerSessionManager dssSessionManager;
 
     private final ICommonServer createServer()
     {
-        return new CommonServer(authenticationService, sessionManager, daoFactory,
-                commonBusinessObjectFactory);
+        return new CommonServer(authenticationService, sessionManager,
+                dssSessionManager, daoFactory, commonBusinessObjectFactory);
     }
 
     private final static PersonPE createSystemUser()
@@ -83,6 +84,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     public final void setUp()
     {
         super.setUp();
+        dssSessionManager = new DataStoreServerSessionManager();
         commonBusinessObjectFactory = context.mock(ICommonBusinessObjectFactory.class);
     }
 
