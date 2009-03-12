@@ -19,7 +19,8 @@ package ch.systemsx.cisd.openbis.dss.generic;
 import ch.systemsx.cisd.etlserver.ETLDaemon;
 
 /**
- * 
+ * Main class starting {@link ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer}
+ * and {@link ETLDaemon}.
  *
  * @author Franz-Josef Elmer
  */
@@ -27,7 +28,7 @@ public class DataStoreServer
 {
     public static void main(String[] args)
     {
-        DataStoreServer.main(args);
+        ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer.main(args);
         ETLDaemon.main(args);
     }
 }
