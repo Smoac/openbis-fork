@@ -43,6 +43,13 @@
         <level value="ERROR" />
     </logger>
     
+    <!--  
+        // Uncomment this for debugging value binding in Hibernate
+        <category name="org.hibernate.type">  
+          <priority value="TRACE"/>  
+        </category>
+    -->
+    
     <!--
         <logger name="org.hibernate.cache">
         <level value="DEBUG" />
