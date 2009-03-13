@@ -35,6 +35,7 @@ public class PagingColumnFilter<T/* entity */> extends StoreFilterField<ModelDat
 
     private final IDelagatedAction onFilterAction;
 
+    /** @param onFilterAction callback executed when data are about to be filtered. */
     public PagingColumnFilter(IColumnDefinition<T> filteredField, IDelagatedAction onFilterAction)
     {
         this.filteredField = filteredField;
