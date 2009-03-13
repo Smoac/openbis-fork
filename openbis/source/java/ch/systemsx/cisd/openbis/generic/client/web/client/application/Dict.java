@@ -200,8 +200,6 @@ public abstract class Dict
 
     public static final String PART_OF = "part_of";
 
-    public static final String BUTTON_INVALIDATE = "button_invalidate";
-
     //
     // Experiment Browser
     //

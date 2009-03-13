@@ -23,7 +23,6 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -90,11 +89,6 @@ public final class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment,
         Button showDetailsButton =
                 createSelectedItemButton(showDetailsTitle, asShowEntityInvoker());
         this.topToolbar.add(new AdapterToolItem(showDetailsButton));
-
-        this.topToolbar.add(new SeparatorToolItem());
-        String invalidateTitle = viewContext.getMessage(Dict.BUTTON_INVALIDATE);
-        Button invalidateButton = createSelectedItemDummyButton(invalidateTitle);
-        this.topToolbar.add(new AdapterToolItem(invalidateButton));
     }
 
     @Override
