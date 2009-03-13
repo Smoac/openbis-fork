@@ -16,16 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 
-import java.util.List;
-
 import com.extjs.gxt.ui.client.data.ModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
 
 /**
@@ -46,13 +42,7 @@ public final class MatchingEntityModel extends BaseEntityModel<MatchingEntity>
                 .getRegistrator()));
     }
 
-    public static List<IColumnDefinitionUI<MatchingEntity>> createColumnsSchema(
-            IMessageProvider msgProviderOrNull)
-    {
-        return createColumnsDefinition(getStaticColumnsDefinition(), msgProviderOrNull);
-    }
-
-    private static IColumnDefinitionKind<MatchingEntity>[] getStaticColumnsDefinition()
+    public static IColumnDefinitionKind<MatchingEntity>[] getStaticColumnsDefinition()
     {
         return MatchingEntityColumnKind.values();
     }

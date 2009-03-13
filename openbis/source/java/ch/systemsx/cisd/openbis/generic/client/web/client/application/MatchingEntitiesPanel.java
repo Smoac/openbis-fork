@@ -24,9 +24,9 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.MatchingEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.MatchingEntityModel.MatchingEntityColumnKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -97,9 +97,8 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
     @Override
     protected ColumnDefsAndConfigs<MatchingEntity> createColumnsDefinition()
     {
-        List<IColumnDefinitionUI<MatchingEntity>> list =
-                MatchingEntityModel.createColumnsSchema(viewContext);
-        return ColumnDefsAndConfigs.create(list);
+        return BaseEntityModel.createColumnConfigs(
+                MatchingEntityModel.getStaticColumnsDefinition(), viewContext);
     }
 
     @Override

@@ -41,7 +41,7 @@ public class ColumnDefsAndConfigs<T>
         return result;
     }
 
-    public ColumnDefsAndConfigs()
+    private ColumnDefsAndConfigs()
     {
         this.columnConfigs = new ArrayList<ColumnConfig>();
         this.columnDefs = new ArrayList<IColumnDefinition<T>>();

@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.P
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.CommonColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IInvalidationProvider;
@@ -87,16 +88,25 @@ public class BaseEntityModel<T> extends BaseModelData
     }
 
     /** @param msgProviderOrNull if null, no headers labels will be generated */
+    public static <T> ColumnDefsAndConfigs<T> createColumnConfigs(
+            IColumnDefinitionKind<T>[] colDefKinds, IMessageProvider msgProviderOrNull)
+    {
+        List<IColumnDefinitionUI<T>> colDefs =
+                createColumnsDefinition(colDefKinds, msgProviderOrNull);
+        return ColumnDefsAndConfigs.create(colDefs);
+    }
+
+    /** @param msgProviderOrNull if null, no headers labels will be generated */
     public static <T> List<IColumnDefinitionUI<T>> createColumnsDefinition(
             IColumnDefinitionKind<T>[] columnKinds, IMessageProvider msgProviderOrNull)
     {
         return createColumnsDefinition(Arrays.asList(columnKinds), msgProviderOrNull);
     }
-    
+
     /** @param msgProviderOrNull if null, no headers labels will be generated */
     public static <T> List<IColumnDefinitionUI<T>> createColumnsDefinition(
             List<IColumnDefinitionKind<T>> columnKinds, IMessageProvider msgProviderOrNull)
-            {
+    {
         List<IColumnDefinitionUI<T>> list = new ArrayList<IColumnDefinitionUI<T>>();
         for (IColumnDefinitionKind<T> columnKind : columnKinds)
         {

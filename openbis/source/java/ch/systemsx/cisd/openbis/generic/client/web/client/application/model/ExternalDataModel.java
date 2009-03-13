@@ -67,10 +67,11 @@ public final class ExternalDataModel extends BaseEntityModel<ExternalData>
         }
         return new ColumnModel(configs);
     }
-    
-    public static ColumnDefsAndConfigs<ExternalData> createColumnsSchema(IMessageProvider messageProvider)
+
+    public static ColumnDefsAndConfigs<ExternalData> createColumnsSchema(
+            IMessageProvider messageProvider)
     {
-        CommonExternalDataColDefKind[] colDefs = CommonExternalDataColDefKind.values();
-        return ColumnDefsAndConfigs.create(createColumnsDefinition(colDefs, messageProvider));
+        return BaseEntityModel.createColumnConfigs(CommonExternalDataColDefKind.values(),
+                messageProvider);
     }
 }
