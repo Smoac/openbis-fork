@@ -72,11 +72,13 @@ public class FileStoreRemote extends AbstractFileStore
         return findExec + " " + path + " -printf \"%T@\\n\" | sort -n | head -1 ";
     }
 
-    private static String mkLastchangedCommand(final String path, final String lastchangedExec)
+    private static String mkLastchangedCommand(final String path,
+            final long stopWhenFindYoungerMillis, boolean isRelative, final String lastchangedExec)
     {
-        return lastchangedExec + " " + path;
+        return lastchangedExec + " " + path + " " + (isRelative ? "r" : "")
+                + Long.toString(stopWhenFindYoungerMillis / 1000);
     }
-    
+
     // Creates bash command. The command deletes file or recursively deletes the whole directory.
     // Be careful!
     private static String mkDeleteFileCommand(final String pathString)
@@ -252,18 +254,21 @@ public class FileStoreRemote extends AbstractFileStore
     {
         if (remoteLastchangedExecutableOrNull != null)
         {
-            return lastChangedExec(item);
+            return lastChangedExec(item, stopWhenFindYounger, false);
         } else
         {
             return lastChangedEmulatedGNUFindExec(item);
         }
     }
 
-    private final StatusWithResult<Long> lastChangedExec(final StoreItem item)
+    private final StatusWithResult<Long> lastChangedExec(final StoreItem item,
+            final long stopWhenFindYoungerMillis, boolean isRelative)
     {
         final String itemPath = StoreItem.asFile(getPath(), item).getPath();
 
-        final String cmd = mkLastchangedCommand(itemPath, remoteLastchangedExecutableOrNull);
+        final String cmd =
+                mkLastchangedCommand(itemPath, stopWhenFindYoungerMillis, isRelative,
+                        remoteLastchangedExecutableOrNull);
         final ProcessResult result = tryExecuteCommandRemotely(cmd, LONG_SSH_TIMEOUT_MILLIS);
         final String errMsg = getErrorMessageOrNullForLastchanged(result);
         if (errMsg == null)
@@ -320,7 +325,13 @@ public class FileStoreRemote extends AbstractFileStore
     public final StatusWithResult<Long> lastChangedRelative(final StoreItem item,
             final long stopWhenFindYoungerRelative)
     {
-        return lastChanged(item, stopWhenFindYoungerRelative);
+        if (remoteLastchangedExecutableOrNull != null)
+        {
+            return lastChangedExec(item, stopWhenFindYoungerRelative, true);
+        } else
+        {
+            return lastChangedEmulatedGNUFindExec(item);
+        }
     }
 
     // outgoing and self-test
@@ -329,7 +340,8 @@ public class FileStoreRemote extends AbstractFileStore
         final BooleanStatus status = checkDirectoryAccessible(getPathString(), timeOutMillis);
         if (status.isSuccess())
         {
-            if (this.remoteLastchangedExecutableOrNull != null || checkAvailableAndSetLastchangedUtil())
+            if (this.remoteLastchangedExecutableOrNull != null
+                    || checkAvailableAndSetLastchangedUtil())
             {
                 return BooleanStatus.createTrue();
             } else if (this.remoteFindExecutableOrNull != null || checkAvailableAndSetFindUtil())
