@@ -44,9 +44,10 @@ public final class FileStoreFactory
      */
     private static final IFileStore createRemoteHost(final HostAwareFileWithHighwaterMark path,
             final String kind, final IFileSysOperationsFactory factory,
-            final String findExecutableOrNull)
+            final String findExecutableOrNull, final String lastchangedExecutableOrNull)
     {
-        return new FileStoreRemote(path, kind, factory, findExecutableOrNull);
+        return new FileStoreRemote(path, kind, factory, findExecutableOrNull,
+                lastchangedExecutableOrNull);
     }
 
     /**
@@ -78,7 +79,7 @@ public final class FileStoreFactory
             final IFileSysOperationsFactory factory)
     {
         return createRemoteHost(new HostAwareFileWithHighwaterMark(host, path, rsyncModuleOrNull),
-                kind, factory, null);
+                kind, factory, null, null);
     }
 
     /**
@@ -89,11 +90,13 @@ public final class FileStoreFactory
      */
     public final static IFileStore createStore(final HostAwareFileWithHighwaterMark path,
             final String kind, final boolean isRemote, final IFileSysOperationsFactory factory,
-            final String findExecutableOrNull, final long checkIntervalMillis)
+            final String findExecutableOrNull, final String lastchangedExecutableOrNull,
+            final long checkIntervalMillis)
     {
         if (path.tryGetHost() != null)
         {
-            return createRemoteHost(path, kind, factory, findExecutableOrNull);
+            return createRemoteHost(path, kind, factory, findExecutableOrNull,
+                    lastchangedExecutableOrNull);
         } else
         {
             if (isRemote)

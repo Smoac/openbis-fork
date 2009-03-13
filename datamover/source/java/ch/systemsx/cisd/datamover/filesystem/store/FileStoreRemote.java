@@ -60,7 +60,7 @@ public class FileStoreRemote extends AbstractFileStore
 
     private static final long QUICK_SSH_TIMEOUT_MILLIS = 15 * 1000;
 
-    private static final long LONG_SSH_TIMEOUT_MILIS = 120 * 1000;
+    private static final long LONG_SSH_TIMEOUT_MILLIS = 120 * 1000;
 
     // -- bash commands -------------
 
@@ -72,6 +72,11 @@ public class FileStoreRemote extends AbstractFileStore
         return findExec + " " + path + " -printf \"%T@\\n\" | sort -n | head -1 ";
     }
 
+    private static String mkLastchangedCommand(final String path, final String lastchangedExec)
+    {
+        return lastchangedExec + " " + path;
+    }
+    
     // Creates bash command. The command deletes file or recursively deletes the whole directory.
     // Be careful!
     private static String mkDeleteFileCommand(final String pathString)
@@ -123,6 +128,8 @@ public class FileStoreRemote extends AbstractFileStore
 
     private final HighwaterMarkWatcher highwaterMarkWatcher;
 
+    private String remoteLastchangedExecutableOrNull;
+
     private String remoteFindExecutableOrNull;
 
     /**
@@ -133,22 +140,24 @@ public class FileStoreRemote extends AbstractFileStore
      */
     public FileStoreRemote(final HostAwareFileWithHighwaterMark fileWithHighwaterMark,
             final String kind, final IFileSysOperationsFactory factory,
-            String remoteFindExecutableOrNull)
+            final String remoteFindExecutableOrNull, final String lastchangedExecutableOrNull)
     {
         this(fileWithHighwaterMark, kind, createSshCommandBuilder(findSSHOrDie(factory)), factory,
-                remoteFindExecutableOrNull);
+                remoteFindExecutableOrNull, lastchangedExecutableOrNull);
     }
 
     @Private
     FileStoreRemote(final HostAwareFileWithHighwaterMark hostAwareFileWithHighwaterMark,
             final String kind, final ISshCommandBuilder sshCommandBuilder,
-            final IFileSysOperationsFactory factory, final String remoteFindExecutableOrNull)
+            final IFileSysOperationsFactory factory, final String remoteFindExecutableOrNull,
+            final String lastchangedExecutableOrNull)
     {
         super(hostAwareFileWithHighwaterMark, kind, factory);
         assert hostAwareFileWithHighwaterMark.tryGetHost() != null : "Unspecified host";
         this.sshCommandBuilder = sshCommandBuilder;
         this.highwaterMarkWatcher =
                 createHighwaterMarkWatcher(hostAwareFileWithHighwaterMark, sshCommandBuilder);
+        setAndLogLastchangedExecutable(lastchangedExecutableOrNull);
         setAndLogFindExecutable(remoteFindExecutableOrNull);
         if (remoteFindExecutableOrNull != null)
         {
@@ -241,17 +250,41 @@ public class FileStoreRemote extends AbstractFileStore
     public final StatusWithResult<Long> lastChanged(final StoreItem item,
             final long stopWhenFindYounger)
     {
-        return lastChanged(item);
+        if (remoteLastchangedExecutableOrNull != null)
+        {
+            return lastChangedExec(item);
+        } else
+        {
+            return lastChangedEmulatedGNUFindExec(item);
+        }
     }
 
-    private final StatusWithResult<Long> lastChanged(final StoreItem item)
+    private final StatusWithResult<Long> lastChangedExec(final StoreItem item)
+    {
+        final String itemPath = StoreItem.asFile(getPath(), item).getPath();
+
+        final String cmd = mkLastchangedCommand(itemPath, remoteLastchangedExecutableOrNull);
+        final ProcessResult result = tryExecuteCommandRemotely(cmd, LONG_SSH_TIMEOUT_MILLIS);
+        final String errMsg = getErrorMessageOrNullForLastchanged(result);
+        if (errMsg == null)
+        {
+            final String resultLine = result.getOutput().get(0);
+            final long lastChanged = tryParseLastChangedMillis(resultLine);
+            return StatusWithResult.<Long> create(lastChanged);
+        } else
+        {
+            return createLastChangeError(item, errMsg);
+        }
+    }
+
+    private final StatusWithResult<Long> lastChangedEmulatedGNUFindExec(final StoreItem item)
     {
         final String itemPath = StoreItem.asFile(getPath(), item).getPath();
 
         final String findExec = getRemoteFindExecutableOrDie();
         final String cmd = mkFindYoungestModificationTimestampSecCommand(itemPath, findExec);
-        final ProcessResult result = tryExecuteCommandRemotely(cmd, LONG_SSH_TIMEOUT_MILIS);
-        final String errMsg = getErrorMessageOrNullForLastChanged(result);
+        final ProcessResult result = tryExecuteCommandRemotely(cmd, LONG_SSH_TIMEOUT_MILLIS);
+        final String errMsg = getErrorMessageOrNullForFind(result);
         if (errMsg == null)
         {
             final String resultLine = result.getOutput().get(0);
@@ -287,7 +320,7 @@ public class FileStoreRemote extends AbstractFileStore
     public final StatusWithResult<Long> lastChangedRelative(final StoreItem item,
             final long stopWhenFindYoungerRelative)
     {
-        return lastChanged(item);
+        return lastChanged(item, stopWhenFindYoungerRelative);
     }
 
     // outgoing and self-test
@@ -296,7 +329,10 @@ public class FileStoreRemote extends AbstractFileStore
         final BooleanStatus status = checkDirectoryAccessible(getPathString(), timeOutMillis);
         if (status.isSuccess())
         {
-            if (this.remoteFindExecutableOrNull != null || checkAvailableAndSetFindUtil())
+            if (this.remoteLastchangedExecutableOrNull != null || checkAvailableAndSetLastchangedUtil())
+            {
+                return BooleanStatus.createTrue();
+            } else if (this.remoteFindExecutableOrNull != null || checkAvailableAndSetFindUtil())
             {
                 return BooleanStatus.createTrue();
             } else
@@ -345,7 +381,8 @@ public class FileStoreRemote extends AbstractFileStore
     private String checkFindExecutable(final String findExec)
     {
         final String cmd = mkCheckCommandExistsCommand(findExec);
-        final ProcessResult result = tryExecuteCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILLIS, false);
+        final ProcessResult result =
+                tryExecuteCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILLIS, false);
         if (machineLog.isDebugEnabled())
         {
             result.log();
@@ -372,7 +409,7 @@ public class FileStoreRemote extends AbstractFileStore
     {
         return output.size() > 0 && output.get(0).contains("GNU") && output.get(0).contains("find");
     }
-    
+
     private void setAndLogFindExecutable(final String findExecutableOrNull)
     {
         if (findExecutableOrNull != null)
@@ -380,6 +417,44 @@ public class FileStoreRemote extends AbstractFileStore
             this.remoteFindExecutableOrNull = findExecutableOrNull;
             machineLog.info("Using GNU find executable '" + findExecutableOrNull + "' on store '"
                     + this + "'.");
+        }
+    }
+
+    private boolean checkAvailableAndSetLastchangedUtil()
+    {
+        final String lastchangedExecutableOrNull = checkExecutable("lastchanged");
+        if (lastchangedExecutableOrNull != null)
+        {
+            setAndLogLastchangedExecutable(lastchangedExecutableOrNull);
+        }
+        return (lastchangedExecutableOrNull != null);
+    }
+
+    private String checkExecutable(final String exec)
+    {
+        final String cmd = mkCheckCommandExistsCommand(exec);
+        final ProcessResult result =
+                tryExecuteCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILLIS, false);
+        if (machineLog.isDebugEnabled())
+        {
+            result.log();
+        }
+        if (result.isOK())
+        {
+            return result.getOutput().get(0);
+        } else
+        {
+            return null;
+        }
+    }
+
+    private void setAndLogLastchangedExecutable(final String lastchangedExecutableOrNull)
+    {
+        if (lastchangedExecutableOrNull != null)
+        {
+            this.remoteLastchangedExecutableOrNull = lastchangedExecutableOrNull;
+            machineLog.info("Using 'lastchanged' executable '" + lastchangedExecutableOrNull
+                    + "' on store '" + this + "'.");
         }
     }
 
@@ -450,7 +525,7 @@ public class FileStoreRemote extends AbstractFileStore
     public final StoreItem[] tryListSortByLastModified(final ISimpleLogger loggerOrNull)
     {
         final String simpleCmd = mkListByOldestModifiedCommand(getPathString());
-        final ProcessResult result = tryExecuteCommandRemotely(simpleCmd, LONG_SSH_TIMEOUT_MILIS);
+        final ProcessResult result = tryExecuteCommandRemotely(simpleCmd, LONG_SSH_TIMEOUT_MILLIS);
         if (result.isOK())
         {
             return asStoreItems(result.getOutput());
@@ -511,10 +586,23 @@ public class FileStoreRemote extends AbstractFileStore
         }
     }
 
+    private static String getErrorMessageOrNullForLastchanged(final ProcessResult result)
+    {
+        if (result.isOK() == false)
+        {
+            return String.format("Command '%s' failed with error exitval=%d, output=[%s]", result
+                    .getCommandLine(), result.getExitValue(), StringUtils.join(result.getOutput(),
+                    '\n'));
+        } else
+        {
+            return null;
+        }
+    }
+
     // Implementation note: As the find command used via ssh is a pipe, the exit value is the exit
     // value of the last command of the pipe. This is a "head" command that usually doesn't fail.
     // Thus we need other means to find out whether the command was successful than the exit value.
-    private static String getErrorMessageOrNullForLastChanged(final ProcessResult result)
+    private static String getErrorMessageOrNullForFind(final ProcessResult result)
     {
         if (result.isOK() == false)
         {

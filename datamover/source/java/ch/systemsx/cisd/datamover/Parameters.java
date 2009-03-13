@@ -120,15 +120,34 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     private String sshExecutable = null;
 
     /**
+     * The path to the <code>lastchanged</code> executable file on the incoming host.
+     */
+    @Option(longName = PropertyNames.INCOMING_HOST_LASTCHANGED_EXECUTABLE, metaVar = "EXEC", usage = "The executable to use for checking the last modification time of files on the remote incoming host."
+            + " It has to be the CISD 'lastchanged' executable included in the Datamover distribution."
+            + " Useful only in SSH tunneling mode.")
+    private String incomingHostLastchangedExecutableOrNull = null;
+
+    /**
      * The path to the <code>find</code> executable file on the incoming host.
      */
-    @Option(longName = PropertyNames.INCOMING_HOST_FIND_EXECUTABLE, metaVar = "EXEC", usage = "The executable to use for checking the last modification time of files on the remote incoming host."
+    @Option(longName = PropertyNames.INCOMING_HOST_FIND_EXECUTABLE, metaVar = "EXEC", usage = "The find executable to use for checking the last modification time of files on the remote incoming host."
+            + " It is only considered if "
+            + PropertyNames.OUTGOING_HOST_LASTCHANGED_EXECUTABLE
+            + " is not set."
             + " It should be a GNU find supporting -printf option."
             + " Useful only in SSH tunneling mode.")
     private String incomingHostFindExecutableOrNull = null;
 
     /**
-     * The path to the <code>find</code> executable file on the incoming host.
+     * The path to the <code>lastchanged</code> executable file on the outgoing host.
+     */
+    @Option(longName = PropertyNames.OUTGOING_HOST_LASTCHANGED_EXECUTABLE, metaVar = "EXEC", usage = "The executable to use for checking the last modification time of files on the remote outgoing host."
+            + " It has to be the CISD 'lastchanged' executable included in the Datamover distribution."
+            + " Useful only in SSH tunneling mode.")
+    private String outgoingHostLastchangedExecutableOrNull = null;
+
+    /**
+     * The path to the <code>find</code> executable file on the outgoing host.
      */
     @Option(longName = PropertyNames.OUTGOING_HOST_FIND_EXECUTABLE, metaVar = "EXEC", usage = "The executable to use for checking the last modification time of files on the remote outgoing host."
             + " It should be a GNU find supporting -printf option."
@@ -420,10 +439,18 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
                 PropertyUtils.getProperty(serviceProperties,
                         PropertyNames.INCOMING_HOST_FIND_EXECUTABLE,
                         incomingHostFindExecutableOrNull);
+        incomingHostLastchangedExecutableOrNull =
+                PropertyUtils.getProperty(serviceProperties,
+                        PropertyNames.INCOMING_HOST_LASTCHANGED_EXECUTABLE,
+                        incomingHostLastchangedExecutableOrNull);
         outgoingHostFindExecutableOrNull =
                 PropertyUtils.getProperty(serviceProperties,
                         PropertyNames.OUTGOING_HOST_FIND_EXECUTABLE,
                         outgoingHostFindExecutableOrNull);
+        outgoingHostLastchangedExecutableOrNull =
+                PropertyUtils.getProperty(serviceProperties,
+                        PropertyNames.OUTGOING_HOST_LASTCHANGED_EXECUTABLE,
+                        outgoingHostLastchangedExecutableOrNull);
         checkIntervalMillis =
                 toMillis(PropertyUtils.getPosLong(serviceProperties, PropertyNames.CHECK_INTERVAL,
                         checkIntervalMillis));
@@ -538,8 +565,8 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     }
 
     /**
-     * @return <code>true</code>, if rsync is called in such a way to files that already exist
-     *         are overwritten rather than appended to.
+     * @return <code>true</code>, if rsync is called in such a way to files that already exist are
+     *         overwritten rather than appended to.
      */
     public final boolean isRsyncOverwrite()
     {
@@ -622,7 +649,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
             incomingStore =
                     FileStoreFactory.createStore(incomingTarget, INCOMING_KIND_DESC,
                             treatIncomingAsRemote, factory, incomingHostFindExecutableOrNull,
-                            checkIntervalMillis);
+                            incomingHostLastchangedExecutableOrNull, checkIntervalMillis);
         }
         return incomingStore;
     }
@@ -652,7 +679,8 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
         {
             outgoingStore =
                     FileStoreFactory.createStore(outgoingTarget, OUTGOING_KIND_DESC, true, factory,
-                            outgoingHostFindExecutableOrNull, checkIntervalMillis);
+                            outgoingHostFindExecutableOrNull,
+                            outgoingHostLastchangedExecutableOrNull, checkIntervalMillis);
         }
         return outgoingStore;
     }
@@ -669,8 +697,8 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
 
     /**
      * @return The directory where we create an additional copy of incoming data or
-     *         <code>null</code> if it is not specified. Note that this directory needs to be on
-     *         the same file system as {@link #getBufferDirectoryPath}.
+     *         <code>null</code> if it is not specified. Note that this directory needs to be on the
+     *         same file system as {@link #getBufferDirectoryPath}.
      */
     public final File tryGetExtraCopyDir()
     {

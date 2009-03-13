@@ -52,7 +52,11 @@ public final class PropertyNames
 
     static final String INCOMING_HOST_FIND_EXECUTABLE = "incoming-host-find-executable";
 
+    static final String INCOMING_HOST_LASTCHANGED_EXECUTABLE = "incoming-host-lastchanged-executable";
+    
     static final String OUTGOING_HOST_FIND_EXECUTABLE = "outgoing-host-find-executable";
+
+    static final String OUTGOING_HOST_LASTCHANGED_EXECUTABLE = "outgoing-host-lastchanged-executable";
 
     static final String INACTIVITY_PERIOD = "inactivity-period";
 
