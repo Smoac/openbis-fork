@@ -18,10 +18,22 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabu
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.VocabularyColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
@@ -37,18 +49,38 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
  * 
  * @author Tomasz Pylak
  */
-public class VocabularyGrid extends
-        AbstractSimpleBrowserGrid<Vocabulary>
+public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
 {
     // browser consists of the grid and the paging toolbar
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "vocabulary-browser";
 
     public static final String GRID_ID = BROWSER_ID + "_grid";
 
+    public static final String SHOW_DETAILS_BUTTON_ID = BROWSER_ID + "-show-details";
+
     public static DisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        return new VocabularyGrid(viewContext).asDisposableWithoutToolbar();
+        final VocabularyGrid grid = new VocabularyGrid(viewContext);
+        return grid.asDisposableWithToolbar(grid.createToolbar());
+    }
+
+    private final Component createToolbar()
+    {
+        ToolBar toolbar = new ToolBar();
+        toolbar.add(new FillToolItem());
+        Button showDetailsButton =
+                createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS),
+                        new ISelectedEntityInvoker<BaseEntityModel<Vocabulary>>()
+                            {
+                                public void invoke(BaseEntityModel<Vocabulary> selectedItem)
+                                {
+                                    showEntityViewer(selectedItem);
+                                }
+                            });
+        showDetailsButton.setId(SHOW_DETAILS_BUTTON_ID);
+        toolbar.add(new AdapterToolItem(showDetailsButton));
+        return toolbar;
     }
 
     private VocabularyGrid(IViewContext<ICommonClientServiceAsync> viewContext)
@@ -82,4 +114,29 @@ public class VocabularyGrid extends
     {
         viewContext.getService().prepareExportVocabularies(exportCriteria, callback);
     }
+
+    @Override
+    protected void showEntityViewer(BaseEntityModel<Vocabulary> modelData)
+    {
+        final Vocabulary vocabulary = modelData.getBaseObject();
+        final ITabItemFactory tabFactory = new ITabItemFactory()
+            {
+                public ITabItem create()
+                {
+                    DisposableComponent component =
+                            VocabularyTermGrid.create(viewContext, vocabulary);
+                    String tabTitle =
+                            viewContext.getMessage(Dict.VOCABULARY_TERMS_BROWSER, vocabulary
+                                    .getCode());
+                    return DefaultTabItem.create(tabTitle, component);
+                }
+
+                public String getId()
+                {
+                    return VocabularyTermGrid.createBrowserId(vocabulary);
+                }
+            };
+        DispatcherHelper.dispatchNaviEvent(tabFactory);
+    }
+
 }

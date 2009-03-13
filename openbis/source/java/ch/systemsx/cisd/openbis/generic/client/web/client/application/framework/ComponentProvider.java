@@ -74,7 +74,7 @@ final class ComponentProvider
                 public ITabItem create()
                 {
                     DisposableComponent browser = SampleBrowserGrid.create(viewContext);
-                    return DefaultTabItem.create(getMessage(Dict.SAMPLE_BROWSER), browser, false);
+                    return DefaultTabItem.create(getMessage(Dict.SAMPLE_BROWSER), browser);
                 }
 
                 public String getId()
@@ -92,7 +92,7 @@ final class ComponentProvider
                 {
                     DisposableComponent browser =
                             MaterialBrowserGrid.createWithTypeChooser(viewContext);
-                    return DefaultTabItem.create(getMessage(Dict.MATERIAL_BROWSER), browser, false);
+                    return DefaultTabItem.create(getMessage(Dict.MATERIAL_BROWSER), browser);
                 }
 
                 public String getId()
@@ -280,8 +280,7 @@ final class ComponentProvider
                 public ITabItem create()
                 {
                     DisposableComponent component = VocabularyGrid.create(viewContext);
-                    return DefaultTabItem.create(getMessage(Dict.VOCABULARY_BROWSER), component,
-                            false);
+                    return DefaultTabItem.create(getMessage(Dict.VOCABULARY_BROWSER), component);
                 }
 
                 public String getId()
@@ -298,8 +297,7 @@ final class ComponentProvider
                 public ITabItem create()
                 {
                     DisposableComponent component = ProjectGrid.create(viewContext);
-                    return DefaultTabItem
-                            .create(getMessage(Dict.PROJECT_BROWSER), component, false);
+                    return DefaultTabItem.create(getMessage(Dict.PROJECT_BROWSER), component);
                 }
 
                 public String getId()
@@ -316,8 +314,7 @@ final class ComponentProvider
                 public ITabItem create()
                 {
                     DisposableComponent browser = ExperimentBrowserGrid.create(viewContext);
-                    return DefaultTabItem.create(getMessage(Dict.EXPERIMENT_BROWSER), browser,
-                            false);
+                    return DefaultTabItem.create(getMessage(Dict.EXPERIMENT_BROWSER), browser);
                 }
 
                 public String getId()
@@ -334,7 +331,7 @@ final class ComponentProvider
                 public ITabItem create()
                 {
                     DisposableComponent component = PropertyTypeGrid.create(viewContext);
-                    return DefaultTabItem.create(getMessage(Dict.PROPERTY_TYPES), component, false);
+                    return DefaultTabItem.create(getMessage(Dict.PROPERTY_TYPES), component);
                 }
 
                 public String getId()
@@ -370,7 +367,7 @@ final class ComponentProvider
                 {
                     DisposableComponent component = PropertyTypeAssignmentGrid.create(viewContext);
                     return DefaultTabItem.create(getMessage(Dict.PROPERTY_TYPE_ASSIGNMENTS),
-                            component, false);
+                            component);
                 }
 
                 public String getId()
@@ -416,7 +413,7 @@ final class ComponentProvider
                 public ITabItem create()
                 {
                     DisposableComponent browser = DataSetSearchHitGrid.create(viewContext);
-                    return DefaultTabItem.create(getMessage(Dict.DATA_SET_SEARCH), browser, false);
+                    return DefaultTabItem.create(getMessage(Dict.DATA_SET_SEARCH), browser);
                 }
 
                 public String getId()
@@ -433,7 +430,7 @@ final class ComponentProvider
                 public ITabItem create()
                 {
                     DisposableComponent component = SampleTypeGrid.create(viewContext);
-                    return DefaultTabItem.create(getMessage(Dict.SAMPLE_TYPES), component, false);
+                    return DefaultTabItem.create(getMessage(Dict.SAMPLE_TYPES), component);
                 }
 
                 public String getId()
@@ -450,7 +447,7 @@ final class ComponentProvider
                 public ITabItem create()
                 {
                     DisposableComponent component = MaterialTypeGrid.create(viewContext);
-                    return DefaultTabItem.create(getMessage(Dict.MATERIAL_TYPES), component, false);
+                    return DefaultTabItem.create(getMessage(Dict.MATERIAL_TYPES), component);
                 }
 
                 public String getId()
@@ -467,8 +464,7 @@ final class ComponentProvider
                 public ITabItem create()
                 {
                     DisposableComponent component = ExperimentTypeGrid.create(viewContext);
-                    return DefaultTabItem.create(getMessage(Dict.EXPERIMENT_TYPES), component,
-                            false);
+                    return DefaultTabItem.create(getMessage(Dict.EXPERIMENT_TYPES), component);
                 }
 
                 public String getId()

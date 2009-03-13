@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 
 /**
  * Asynchronous version of {@link ICommonClientService}.
@@ -131,8 +132,8 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /**
      * @see ICommonClientService#prepareExportDataSetSearchHits(TableExportCriteria)
      */
-    public void prepareExportDataSetSearchHits(
-            TableExportCriteria<ExternalData> exportCriteria, AsyncCallback<String> callback);
+    public void prepareExportDataSetSearchHits(TableExportCriteria<ExternalData> exportCriteria,
+            AsyncCallback<String> callback);
 
     /** @see ICommonClientService#listPropertyTypes(DefaultResultSetConfig) */
     public void listPropertyTypes(DefaultResultSetConfig<String, PropertyType> criteria,
@@ -170,6 +171,15 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
 
     /** @see ICommonClientService#prepareExportVocabularies(TableExportCriteria) */
     public void prepareExportVocabularies(TableExportCriteria<Vocabulary> exportCriteria,
+            AsyncCallback<String> callback);
+
+    /** @see ICommonClientService#listVocabularyTerms(Vocabulary, DefaultResultSetConfig) */
+    public void listVocabularyTerms(Vocabulary vocabulary,
+            DefaultResultSetConfig<String, VocabularyTerm> resultSetConfig,
+            AsyncCallback<ResultSet<VocabularyTerm>> callback);
+
+    /** @see ICommonClientService#prepareExportVocabularyTerms(TableExportCriteria) */
+    public void prepareExportVocabularyTerms(TableExportCriteria<VocabularyTerm> exportCriteria,
             AsyncCallback<String> callback);
 
     /** @see ICommonClientService#listMaterialTypes(DefaultResultSetConfig) */
@@ -216,14 +226,14 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void listSampleDataSets(String sampleIdentifier,
             DefaultResultSetConfig<String, ExternalData> criteria,
             AsyncCallback<ResultSet<ExternalData>> asyncCallback);
-    
+
     /**
      * @see ICommonClientService#listExperimentDataSets(String, DefaultResultSetConfig)
      */
     public void listExperimentDataSets(String experimentIdentifier,
             DefaultResultSetConfig<String, ExternalData> criteria,
             AsyncCallback<ResultSet<ExternalData>> asyncCallback);
-    
+
     /**
      * @see ICommonClientService#listSearchableEntities()
      */

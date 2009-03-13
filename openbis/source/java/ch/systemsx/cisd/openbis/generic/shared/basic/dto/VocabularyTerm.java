@@ -16,14 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-
-
 /**
  * A vocabulary term.
  * 
  * @author Izabela Adamczyk
  */
-public final class VocabularyTerm extends Code<VocabularyTerm>
+public final class VocabularyTerm extends CodeWithRegistration<Vocabulary>
 {
     public VocabularyTerm()
     {

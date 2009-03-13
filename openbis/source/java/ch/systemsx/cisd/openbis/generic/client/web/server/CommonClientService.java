@@ -80,6 +80,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -478,6 +479,11 @@ public final class CommonClientService extends AbstractClientService implements
         return prepareExportEntities(criteria);
     }
 
+    public String prepareExportVocabularyTerms(TableExportCriteria<VocabularyTerm> criteria)
+    {
+        return prepareExportEntities(criteria);
+    }
+
     public String prepareExportMaterialTypes(final TableExportCriteria<MaterialType> criteria)
             throws UserFailureException
     {
@@ -644,6 +650,21 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    public ResultSet<VocabularyTerm> listVocabularyTerms(final Vocabulary vocabulary,
+            DefaultResultSetConfig<String, VocabularyTerm> criteria)
+    {
+        return listEntities(criteria, new IOriginalDataProvider<VocabularyTerm>()
+            {
+                public List<VocabularyTerm> getOriginalData() throws UserFailureException
+                {
+                    // NOTE: we do not have to hit the database, the result is actually in the
+                    // vocabulary specification. But we have to go through the server to provide
+                    // export functionality.
+                    return vocabulary.getTerms();
+                }
+            });
+    }
+
     public ResultSet<? extends EntityType> listMaterialTypes(
             DefaultResultSetConfig<String, MaterialType> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -682,7 +703,7 @@ public final class CommonClientService extends AbstractClientService implements
                 }
             });
     }
-    
+
     public ResultSet<ExternalData> listSampleDataSets(final String sampleIdentifier,
             DefaultResultSetConfig<String, ExternalData> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -692,9 +713,10 @@ public final class CommonClientService extends AbstractClientService implements
                 public List<ExternalData> getOriginalData() throws UserFailureException
                 {
                     final String sessionToken = getSessionToken();
-                    final SampleIdentifier identifier = SampleIdentifierFactory.parse(sampleIdentifier);
+                    final SampleIdentifier identifier =
+                            SampleIdentifierFactory.parse(sampleIdentifier);
                     final List<ExternalDataPE> externalData =
-                        commonServer.listExternalData(sessionToken, identifier);
+                            commonServer.listExternalData(sessionToken, identifier);
                     return ExternalDataTranslator.translate(externalData, dataStoreBaseURL);
                 }
             });
@@ -720,7 +742,6 @@ public final class CommonClientService extends AbstractClientService implements
 
             });
     }
-    
 
     // ---------------- end list using cache ----------
 
@@ -855,8 +876,7 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public String prepareExportDataSetSearchHits(
-            TableExportCriteria<ExternalData> exportCriteria)
+    public String prepareExportDataSetSearchHits(TableExportCriteria<ExternalData> exportCriteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return prepareExportEntities(exportCriteria);
@@ -946,5 +966,4 @@ public final class CommonClientService extends AbstractClientService implements
             throw UserFailureExceptionTranslator.translate(e);
         }
     }
-
 }

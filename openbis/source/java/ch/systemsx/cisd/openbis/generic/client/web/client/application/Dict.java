@@ -380,6 +380,8 @@ public abstract class Dict
 
     public static final String TERMS = "terms";
     
+    public static final String VOCABULARY_TERMS_BROWSER = "VOCABULARY_TERMS_BROWSER";
+
     //
     // Project Browser
     //

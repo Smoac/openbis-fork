@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 
 /**
  * Service interface for the generic GWT client.
@@ -145,8 +146,8 @@ public interface ICommonClientService extends IClientService
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for data set search hits.
      */
-    public String prepareExportDataSetSearchHits(
-            TableExportCriteria<ExternalData> exportCriteria) throws UserFailureException;
+    public String prepareExportDataSetSearchHits(TableExportCriteria<ExternalData> exportCriteria)
+            throws UserFailureException;
 
     /**
      * Lists the entities matching the search.
@@ -192,7 +193,7 @@ public interface ICommonClientService extends IClientService
      */
     public ResultSet<Project> listProjects(DefaultResultSetConfig<String, Project> criteria)
             throws UserFailureException;
-    
+
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for projects.
      */
@@ -213,6 +214,17 @@ public interface ICommonClientService extends IClientService
      */
     public String prepareExportVocabularies(final TableExportCriteria<Vocabulary> criteria)
             throws UserFailureException;
+
+    /**
+     * Returns a list of all vocabulary terms for a specified vocabulary.
+     */
+    public ResultSet<VocabularyTerm> listVocabularyTerms(Vocabulary vocabulary,
+            DefaultResultSetConfig<String, VocabularyTerm> resultSetConfig);
+
+    /**
+     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for Vocabulary Terms.
+     */
+    public String prepareExportVocabularyTerms(TableExportCriteria<VocabularyTerm> criteria);
 
     public ResultSet<? extends EntityType> listMaterialTypes(
             DefaultResultSetConfig<String, MaterialType> criteria)
@@ -265,7 +277,6 @@ public interface ICommonClientService extends IClientService
 
     public ResultSet<ExternalData> listExperimentDataSets(String experimentIdentifier,
             DefaultResultSetConfig<String, ExternalData> criteria) throws UserFailureException;
-    
 
     /**
      * Lists the searchable entities.
@@ -330,7 +341,7 @@ public interface ICommonClientService extends IClientService
 
     /** Registers a new experiment type */
     public void registerExperimentType(ExperimentType entityType) throws UserFailureException;
-    
+
     /** Deletes the specified data sets. */
     public void deleteDataSets(List<String> dataSetCodes) throws UserFailureException;
 

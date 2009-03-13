@@ -31,6 +31,8 @@ public class VocabularyTermTranslator
     {
         VocabularyTerm result = new VocabularyTerm();
         result.setCode(StringEscapeUtils.escapeHtml(vt.getCode()));
+        result.setRegistrationDate(vt.getRegistrationDate());
+        result.setRegistrator(PersonTranslator.translate(vt.getRegistrator()));
         return result;
     }
 
