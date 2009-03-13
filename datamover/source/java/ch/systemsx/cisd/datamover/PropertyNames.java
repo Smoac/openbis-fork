@@ -96,6 +96,10 @@ public final class PropertyNames
 
     static final String TREAT_INCOMING_AS_REMOTE = "treat-incoming-as-remote";
 
+    static final String SKIP_ACCESSIBILITY_TEST_ON_INCOMING = "skip-accessibility-test-on-incoming";
+    
+    static final String SKIP_ACCESSIBILITY_TEST_ON_OUTGOING = "skip-accessibility-test-on-outgoing";
+    
     private PropertyNames()
     {
         // This class can not be instantiated.

@@ -279,6 +279,18 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     HostAwareFileWithHighwaterMark outgoingTarget = null;
 
     /**
+     * If set to <code>true</code>, the initial test for accessibility will be skipped on the incoming store.
+     */
+    @Option(longName = PropertyNames.SKIP_ACCESSIBILITY_TEST_ON_INCOMING, usage = "If true, the initial test on accessability of the incoming directory will be skipped (default: false).")
+    private boolean skipAccessibilityTestOnIncoming = false;
+
+    /**
+     * If set to <code>true</code>, the initial test for accessibility will be skipped on the outgoing store.
+     */
+    @Option(longName = PropertyNames.SKIP_ACCESSIBILITY_TEST_ON_OUTGOING, usage = "If true, the initial test on accessability of the outgoing directory will be skipped (default: false).")
+    private boolean skipAccessibilityTestOnOutgoing = false;
+
+    /**
      * The local directory where we create additional copy of the incoming data (if and only if the
      * directory is specified)
      */
@@ -451,6 +463,14 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
                 PropertyUtils.getProperty(serviceProperties,
                         PropertyNames.OUTGOING_HOST_LASTCHANGED_EXECUTABLE,
                         outgoingHostLastchangedExecutableOrNull);
+        skipAccessibilityTestOnIncoming =
+            PropertyUtils.getBoolean(serviceProperties,
+                    PropertyNames.SKIP_ACCESSIBILITY_TEST_ON_INCOMING,
+                    skipAccessibilityTestOnIncoming);
+        skipAccessibilityTestOnOutgoing =
+                PropertyUtils.getBoolean(serviceProperties,
+                        PropertyNames.SKIP_ACCESSIBILITY_TEST_ON_OUTGOING,
+                        skipAccessibilityTestOnOutgoing);
         checkIntervalMillis =
                 toMillis(PropertyUtils.getPosLong(serviceProperties, PropertyNames.CHECK_INTERVAL,
                         checkIntervalMillis));
@@ -648,10 +668,20 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
         {
             incomingStore =
                     FileStoreFactory.createStore(incomingTarget, INCOMING_KIND_DESC,
-                            treatIncomingAsRemote, factory, incomingHostFindExecutableOrNull,
+                            treatIncomingAsRemote, factory, skipAccessibilityTestOnIncoming,
+                            incomingHostFindExecutableOrNull,
                             incomingHostLastchangedExecutableOrNull, checkIntervalMillis);
         }
         return incomingStore;
+    }
+
+    /**
+     * @return <code>true</code>, if the initial test of accessibility on the incoming target should
+     *         be skipped.
+     */
+    public boolean isSkipAccessibilityTestOnIncoming()
+    {
+        return skipAccessibilityTestOnIncoming;
     }
 
     public final HostAwareFileWithHighwaterMark getOutgoingTarget()
@@ -679,10 +709,19 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
         {
             outgoingStore =
                     FileStoreFactory.createStore(outgoingTarget, OUTGOING_KIND_DESC, true, factory,
-                            outgoingHostFindExecutableOrNull,
+                            skipAccessibilityTestOnOutgoing, outgoingHostFindExecutableOrNull,
                             outgoingHostLastchangedExecutableOrNull, checkIntervalMillis);
         }
         return outgoingStore;
+    }
+
+    /**
+     * @return <code>true</code>, if the initial test of accessibility on the outgoing target should
+     *         be skipped.
+     */
+    public boolean isSkipAccessibilityTestOnOutgoing()
+    {
+        return skipAccessibilityTestOnOutgoing;
     }
 
     /**

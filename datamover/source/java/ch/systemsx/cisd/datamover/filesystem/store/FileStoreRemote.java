@@ -130,6 +130,8 @@ public class FileStoreRemote extends AbstractFileStore
 
     private final HighwaterMarkWatcher highwaterMarkWatcher;
 
+    private final boolean skipAccessibilityTest;
+
     private String remoteLastchangedExecutableOrNull;
 
     private String remoteFindExecutableOrNull;
@@ -142,24 +144,27 @@ public class FileStoreRemote extends AbstractFileStore
      */
     public FileStoreRemote(final HostAwareFileWithHighwaterMark fileWithHighwaterMark,
             final String kind, final IFileSysOperationsFactory factory,
-            final String remoteFindExecutableOrNull, final String lastchangedExecutableOrNull)
+            final boolean skipAccessibilityTest, final String remoteFindExecutableOrNull,
+            final String remoteLastchangedExecutableOrNull)
     {
         this(fileWithHighwaterMark, kind, createSshCommandBuilder(findSSHOrDie(factory)), factory,
-                remoteFindExecutableOrNull, lastchangedExecutableOrNull);
+                skipAccessibilityTest, remoteFindExecutableOrNull,
+                remoteLastchangedExecutableOrNull);
     }
 
     @Private
     FileStoreRemote(final HostAwareFileWithHighwaterMark hostAwareFileWithHighwaterMark,
             final String kind, final ISshCommandBuilder sshCommandBuilder,
-            final IFileSysOperationsFactory factory, final String remoteFindExecutableOrNull,
-            final String lastchangedExecutableOrNull)
+            final IFileSysOperationsFactory factory, final boolean skipAccessibilityTest,
+            final String remoteFindExecutableOrNull, final String remoteLastchangedExecutableOrNull)
     {
         super(hostAwareFileWithHighwaterMark, kind, factory);
         assert hostAwareFileWithHighwaterMark.tryGetHost() != null : "Unspecified host";
+        this.skipAccessibilityTest = skipAccessibilityTest;
         this.sshCommandBuilder = sshCommandBuilder;
         this.highwaterMarkWatcher =
                 createHighwaterMarkWatcher(hostAwareFileWithHighwaterMark, sshCommandBuilder);
-        setAndLogLastchangedExecutable(lastchangedExecutableOrNull);
+        setAndLogLastchangedExecutable(remoteLastchangedExecutableOrNull);
         setAndLogFindExecutable(remoteFindExecutableOrNull);
         if (remoteFindExecutableOrNull != null)
         {
@@ -337,7 +342,9 @@ public class FileStoreRemote extends AbstractFileStore
     // outgoing and self-test
     public final BooleanStatus checkDirectoryFullyAccessible(final long timeOutMillis)
     {
-        final BooleanStatus status = checkDirectoryAccessible(getPathString(), timeOutMillis);
+        final BooleanStatus status =
+                skipAccessibilityTest ? BooleanStatus.createTrue() : checkDirectoryAccessible(
+                        getPathString(), timeOutMillis);
         if (status.isSuccess())
         {
             if (this.remoteLastchangedExecutableOrNull != null

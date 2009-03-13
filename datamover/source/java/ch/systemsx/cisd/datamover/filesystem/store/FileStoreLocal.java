@@ -60,10 +60,14 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
 
     private final HighwaterMarkWatcher highwaterMarkWatcher;
 
+    private final boolean skipAccessibilityTest;
+
     public FileStoreLocal(final HostAwareFileWithHighwaterMark hostAwareFileWithHighwaterMark,
-            final String description, final IFileSysOperationsFactory factory)
+            final String description, final IFileSysOperationsFactory factory,
+            final boolean skipAccessibilityTest)
     {
         super(hostAwareFileWithHighwaterMark, description, factory);
+        this.skipAccessibilityTest = skipAccessibilityTest;
         this.remover = factory.getRemover();
         this.mover = factory.getMover();
         this.highwaterMarkWatcher = createHighwaterMarkWatcher(hostAwareFileWithHighwaterMark);
@@ -129,6 +133,10 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
 
     public final BooleanStatus checkDirectoryFullyAccessible(final long timeOutMillis)
     {
+        if (skipAccessibilityTest)
+        {
+            return BooleanStatus.createTrue();
+        }
         final boolean available =
                 FileUtils.waitFor(getPath(), (int) (timeOutMillis / DateUtils.MILLIS_PER_SECOND));
         String unaccesibleMsg;

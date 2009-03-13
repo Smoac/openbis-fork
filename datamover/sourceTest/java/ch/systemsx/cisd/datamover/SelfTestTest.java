@@ -246,7 +246,7 @@ public class SelfTestTest
     private final static IFileStore createLocalStore(File path, String description)
     {
         return FileStoreFactory.createLocal(path, description, FileOperationsUtil
-                .createTestFactory());
+                .createTestFactory(), false);
     }
 
 }

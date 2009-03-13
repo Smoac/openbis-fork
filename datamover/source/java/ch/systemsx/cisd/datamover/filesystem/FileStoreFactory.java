@@ -44,28 +44,31 @@ public final class FileStoreFactory
      */
     private static final IFileStore createRemoteHost(final HostAwareFileWithHighwaterMark path,
             final String kind, final IFileSysOperationsFactory factory,
-            final String findExecutableOrNull, final String lastchangedExecutableOrNull)
+            final boolean skipAccessibilityTest, final String findExecutableOrNull,
+            final String lastchangedExecutableOrNull)
     {
-        return new FileStoreRemote(path, kind, factory, findExecutableOrNull,
-                lastchangedExecutableOrNull);
+        return new FileStoreRemote(path, kind, factory, skipAccessibilityTest,
+                findExecutableOrNull, lastchangedExecutableOrNull);
     }
 
     /**
      * use when file store is on a local host.
      */
     public static final IFileStore createLocal(final HostAwareFileWithHighwaterMark path,
-            final String kind, final IFileSysOperationsFactory factory)
+            final String kind, final IFileSysOperationsFactory factory,
+            final boolean skipAccessibilityTest)
     {
-        return new FileStoreLocal(path, kind, factory);
+        return new FileStoreLocal(path, kind, factory, skipAccessibilityTest);
     }
 
     /**
      * use when file store is on a local host.
      */
     public static final IFileStore createLocal(final File readyToMoveDir, final String string,
-            final IFileSysOperationsFactory factory)
+            final IFileSysOperationsFactory factory, final boolean skipAccessibilityTest)
     {
-        return createLocal(new HostAwareFileWithHighwaterMark(readyToMoveDir), string, factory);
+        return createLocal(new HostAwareFileWithHighwaterMark(readyToMoveDir), string, factory,
+                skipAccessibilityTest);
     }
 
     /**
@@ -79,7 +82,7 @@ public final class FileStoreFactory
             final IFileSysOperationsFactory factory)
     {
         return createRemoteHost(new HostAwareFileWithHighwaterMark(host, path, rsyncModuleOrNull),
-                kind, factory, null, null);
+                kind, factory, false, null, null);
     }
 
     /**
@@ -90,21 +93,22 @@ public final class FileStoreFactory
      */
     public final static IFileStore createStore(final HostAwareFileWithHighwaterMark path,
             final String kind, final boolean isRemote, final IFileSysOperationsFactory factory,
-            final String findExecutableOrNull, final String lastchangedExecutableOrNull,
-            final long checkIntervalMillis)
+            final boolean skipAccessibilityTest, final String findExecutableOrNull,
+            final String lastchangedExecutableOrNull, final long checkIntervalMillis)
     {
         if (path.tryGetHost() != null)
         {
-            return createRemoteHost(path, kind, factory, findExecutableOrNull,
-                    lastchangedExecutableOrNull);
+            return createRemoteHost(path, kind, factory, skipAccessibilityTest,
+                    findExecutableOrNull, lastchangedExecutableOrNull);
         } else
         {
             if (isRemote)
             {
-                return new FileStoreRemoteMounted(path, kind, factory, checkIntervalMillis * 3);
+                return new FileStoreRemoteMounted(path, kind, factory, skipAccessibilityTest,
+                        checkIntervalMillis * 3);
             } else
             {
-                return createLocal(path, kind, factory);
+                return createLocal(path, kind, factory, skipAccessibilityTest);
             }
         }
     }

@@ -404,7 +404,7 @@ public final class ParametersTest extends AbstractFileSystemTestCase
         final File file = new File(path);
         if (hostOrNull == null)
         {
-            return FileStoreFactory.createLocal(file, kind, factory);
+            return FileStoreFactory.createLocal(file, kind, factory, false);
         } else
         {
             return FileStoreFactory.createRemoteHost(file, hostOrNull, null, kind, factory);

@@ -247,7 +247,7 @@ public final class DataMover
         final IFileStore outgoingStore = parameters.getOutgoingStore(factory);
         final File sourceDirectory = bufferDirs.getReadyToMoveDir();
         final IFileStore readyToMoveStore =
-                FileStoreFactory.createLocal(sourceDirectory, "ready-to-move", factory);
+                FileStoreFactory.createLocal(sourceDirectory, "ready-to-move", factory, false);
         final IStoreHandler remoteStoreMover =
                 createRemotePathMover(readyToMoveStore, outgoingStore);
         final HighwaterMarkDirectoryScanningHandler directoryScanningHandler =
