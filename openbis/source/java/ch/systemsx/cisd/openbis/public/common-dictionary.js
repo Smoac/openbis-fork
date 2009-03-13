@@ -37,6 +37,7 @@ var common = {
   //
   
   button_save: "Save",
+  button_choose: "Choose",
   button_cancel: "Cancel",
   button_reset: "Reset",
   button_submit: "Submit",
@@ -45,6 +46,7 @@ var common = {
   button_exportData: "Export Table",
   button_add_group: "Add Group",
   button_show_details: "Show Details",
+  button_browse: "Browse",
   
   tooltip_refresh_disabled: "To activate select appropriate criteria first.",
   tooltip_refresh_enabled: "Load or update the table.",
@@ -240,6 +242,16 @@ var common = {
  // Import Materials
  //
  material_import: "Import Materials",
-  // LAST LINE: KEEP IT AT THE END
+ 
+ 
+ // 
+ // Material Chooser
+ //
+
+ title_choose_material: "Choose a Material",
+ choose_any_material: "Choose Any Material...",
+ incorrect_material_syntax: "Incorrect material specification. Please provide the material code followed by the type in brackets: 'code (type)'.",
+ 
+ // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma
 };

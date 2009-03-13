@@ -20,6 +20,8 @@ import java.util.Date;
 
 import com.extjs.gxt.ui.client.widget.form.Field;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -30,7 +32,7 @@ public class PropertyFieldFactory
      * Creates a field for given data type.
      */
     public static Field<?> createField(final PropertyType pt, boolean isMandatory, String label,
-            String fieldId)
+            String fieldId, IViewContext<ICommonClientServiceAsync> viewContext)
     {
         final Field<?> field;
         final DataTypeCode dataType = pt.getDataType().getCode();
@@ -55,6 +57,11 @@ public class PropertyFieldFactory
                 break;
             case REAL:
                 field = new RealField(label, isMandatory);
+                break;
+            case MATERIAL:
+                field =
+                        MaterialChooserField.create(label, isMandatory, pt.getMaterialType(),
+                                viewContext);
                 break;
             default:
                 field = new VarcharField(label, isMandatory);

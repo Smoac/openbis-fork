@@ -42,10 +42,13 @@ class MaterialBrowserToolbar extends ToolBar
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    public MaterialBrowserToolbar(final IViewContext<ICommonClientServiceAsync> viewContext)
+    public MaterialBrowserToolbar(final IViewContext<ICommonClientServiceAsync> viewContext,
+            MaterialType initValueOrNull)
     {
         this.viewContext = viewContext;
-        selectMaterialTypeCombo = new MaterialTypeSelectionWidget(viewContext, ID);
+        this.selectMaterialTypeCombo =
+                MaterialTypeSelectionWidget
+                        .createWithInitialValue(viewContext, initValueOrNull, ID);
         display();
     }
 
@@ -69,9 +72,7 @@ class MaterialBrowserToolbar extends ToolBar
         {
             return null;
         }
-        ListMaterialCriteria criteria = new ListMaterialCriteria();
-        criteria.setMaterialType(selectedType);
-        return criteria;
+        return new ListMaterialCriteria(selectedType);
     }
 
     @Override

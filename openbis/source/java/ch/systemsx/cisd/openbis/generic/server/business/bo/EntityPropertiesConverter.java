@@ -29,9 +29,12 @@ import ch.systemsx.cisd.openbis.generic.server.util.KeyExtractorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
@@ -116,6 +119,28 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         return propertyType;
     }
 
+    private MaterialPE tryGetMaterial(String value, PropertyTypePE propertyType)
+    {
+        MaterialTypePE materialType = propertyType.getMaterialType();
+        if (materialType == null)
+        {
+            return null; // this is not a property of MATERIAL type
+        }
+        MaterialIdentifier materialIdentifier = MaterialIdentifier.tryParseIdentifier(value);
+        if (materialIdentifier == null)
+        {
+            // identifier is valid but null
+            return null;
+        }
+        MaterialPE material = daoFactory.getMaterialDAO().tryFindMaterial(materialIdentifier);
+        if (material == null)
+        {
+            throw UserFailureException.fromTemplate(
+                    "No material could be found for identifier '%s'.", materialIdentifier);
+        }
+        return material;
+    }
+
     private final static VocabularyTermPE tryGetVocabularyTerm(final String untypedValue,
             final PropertyTypePE propertyType)
     {
@@ -189,7 +214,8 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         entityProperty.setRegistrator(registrator);
         entityProperty.setEntityTypePropertyType(entityTypePropertyType);
         final VocabularyTermPE vocabularyTerm = tryGetVocabularyTerm(value, propertyType);
-        entityProperty.setUntypedValue(value, vocabularyTerm);
+        final MaterialPE material = tryGetMaterial(value, propertyType);
+        entityProperty.setUntypedValue(value, vocabularyTerm, material);
         return entityProperty;
     }
 

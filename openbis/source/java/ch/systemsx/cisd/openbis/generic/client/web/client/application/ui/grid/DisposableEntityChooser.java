@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2009 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.dto;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
 /**
- * Holds the untyped property value.
+ * An interface for a component which has a functionality of selecting a single object of the
+ * specified type.
  * 
- * @author Franz-Josef Elmer
+ * @author Tomasz Pylak
  */
-public interface IUntypedValueSetter
+public interface DisposableEntityChooser<T> extends DisposableComponent
 {
-    /** Internally sets the untyped property value. */
-    public void setUntypedValue(final String valueOrNull,
-            final VocabularyTermPE vocabularyTermOrNull, MaterialPE materialOrNull);
+    /** @return selected entity or null if nothing was selected */
+    T tryGetSingleSelected();
 }

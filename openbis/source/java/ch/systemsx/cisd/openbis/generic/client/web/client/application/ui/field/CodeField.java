@@ -26,13 +26,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  */
 public final class CodeField extends VarcharField
 {
+    public static final String CODE_CHARS = "[a-zA-Z0-9_\\-]+";
+
     /**
      * The pattern for a correct code.
      * <p>
-     * Note that this one accepts letters in lower case.
+     * Note that this one accepts also letters in lower case.
      * </p>
      */
-    public final static String CODE_PATTERN = "^[a-zA-Z0-9_\\-]+$";
+    public final static String CODE_PATTERN = "^" + CODE_CHARS + "$";
 
     /**
      * Code pattern extended by '.'.

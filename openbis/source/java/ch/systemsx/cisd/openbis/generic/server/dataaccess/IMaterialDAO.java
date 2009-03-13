@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 
@@ -36,5 +37,8 @@ public interface IMaterialDAO
 
     /** Inserts given {@link MaterialPE}s into the database. */
     public void createMaterials(List<MaterialPE> materials);
+
+    /** @return material with the given identifier or null if it is not found. */
+    public MaterialPE tryFindMaterial(MaterialIdentifier identifier);
 
 }

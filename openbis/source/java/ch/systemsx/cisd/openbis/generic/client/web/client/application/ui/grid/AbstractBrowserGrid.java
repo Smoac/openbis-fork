@@ -135,7 +135,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     private final Grid<M> grid;
 
     private final ColumnListener<T, M> columnListener;
-    
+
     // the toolbar has the refresh and export buttons besides the paging controls
     protected final BrowserGridPagingToolBar pagingToolbar;
 
@@ -195,12 +195,13 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         contentPanel.add(grid);
         contentPanel.setBottomComponent(bottomToolbars);
         contentPanel.setHeaderVisible(showHeader);
+        contentPanel.setAutoWidth(true);
         columnListener = new ColumnListener<T, M>(grid);
 
         setLayout(new FitLayout());
         add(contentPanel);
     }
-    
+
     /**
      * Registers the specified listener for clicks on cells in the specified column.
      * 
@@ -245,26 +246,38 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     /** @return this grid as a disposable component with a specified toolbar at the top. */
-    protected final DisposableComponent asDisposableWithToolbar(final Component toolbar)
+    protected final DisposableEntityChooser<T> asDisposableWithToolbar(final Component toolbar)
     {
         final LayoutContainer container = new LayoutContainer();
         container.setLayout(new RowLayout());
         container.add(toolbar);
         container.add(this, new RowData(1, 1));
 
-        return asDisposableComponent(container);
+        return asDisposableMaterialChooser(container);
     }
 
     /** @return this grid as a disposable component */
-    protected final DisposableComponent asDisposableWithoutToolbar()
+    protected final DisposableEntityChooser<T> asDisposableWithoutToolbar()
     {
-        return asDisposableComponent(this);
+        return asDisposableMaterialChooser(this);
     }
 
-    private DisposableComponent asDisposableComponent(final Component component)
+    private DisposableEntityChooser<T> asDisposableMaterialChooser(final Component mainComponent)
     {
-        return new DisposableComponent()
+        return new DisposableEntityChooser<T>()
             {
+                public T tryGetSingleSelected()
+                {
+                    M selectedModel = tryGetSelectedItem();
+                    if (selectedModel != null)
+                    {
+                        return selectedModel.getBaseObject();
+                    } else
+                    {
+                        return null;
+                    }
+                }
+
                 public void dispose()
                 {
                     disposeCache();
@@ -272,7 +285,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
                 public Component getComponent()
                 {
-                    return component;
+                    return mainComponent;
                 }
             };
     }

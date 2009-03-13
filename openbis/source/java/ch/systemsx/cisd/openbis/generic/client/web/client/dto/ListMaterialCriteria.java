@@ -30,14 +30,18 @@ public final class ListMaterialCriteria extends DefaultResultSetConfig<String, M
 {
     private MaterialType materialType;
 
-    public MaterialType getMaterialType()
+    // GWT only
+    public ListMaterialCriteria()
     {
-        return materialType;
     }
 
-    public void setMaterialType(MaterialType materialType)
+    public ListMaterialCriteria(MaterialType materialType)
     {
         this.materialType = materialType;
     }
 
+    public MaterialType getMaterialType()
+    {
+        return materialType;
+    }
 }

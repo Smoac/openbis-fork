@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Mate
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.material.CommonMaterialColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriteria;
@@ -55,44 +55,92 @@ public final class MaterialBrowserGrid extends AbstractBrowserGrid<Material, Mat
 
     public static final String GRID_ID = BROWSER_ID + "_grid";
 
-    private final MaterialBrowserToolbar topToolbar;
-
+    // criteria used in the previous refresh operation or null if it has not occurred yet
     private ListMaterialCriteria criteria;
 
-    public static DisposableComponent create(
+    private ICriteriaProvider criteriaProvider;
+
+    private interface ICriteriaProvider
+    {
+        /**
+         * @return criteria which should be used to display materials or null if they are not yet
+         *         set.
+         */
+        ListMaterialCriteria tryGetCriteria();
+    }
+
+    public static DisposableEntityChooser<Material> createWithTypeChooser(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        final MaterialBrowserToolbar toolbar = new MaterialBrowserToolbar(viewContext);
-        final MaterialBrowserGrid browserGrid = new MaterialBrowserGrid(viewContext, toolbar);
+        final MaterialBrowserToolbar toolbar = new MaterialBrowserToolbar(viewContext, null);
+        final MaterialBrowserGrid browserGrid =
+                new MaterialBrowserGrid(viewContext, false, new ICriteriaProvider()
+                    {
+                        public ListMaterialCriteria tryGetCriteria()
+                        {
+                            return toolbar.tryGetCriteria();
+                        }
+                    });
+        browserGrid.extendTopToolbar(toolbar);
         return browserGrid.asDisposableWithToolbar(toolbar);
     }
 
-    private MaterialBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
-            MaterialBrowserToolbar topToolbar)
+    /**
+     * If the material type is given, does not show the toolbar with material type selection and
+     * refreshes the grid automatically.
+     */
+    public static DisposableEntityChooser<Material> create(
+            final IViewContext<ICommonClientServiceAsync> viewContext,
+            final MaterialType initValueOrNull)
     {
-        super(viewContext, GRID_ID);
-        this.topToolbar = topToolbar;
-        extendToolbar();
+        if (initValueOrNull == null)
+        {
+            return createWithTypeChooser(viewContext);
+        } else
+        {
+            return createWithoutTypeChooser(viewContext, initValueOrNull);
+        }
+    }
+
+    private static DisposableEntityChooser<Material> createWithoutTypeChooser(
+            final IViewContext<ICommonClientServiceAsync> viewContext, final MaterialType initValue)
+    {
+        final MaterialBrowserGrid browserGrid =
+                new MaterialBrowserGrid(viewContext, true, new ICriteriaProvider()
+                    {
+                        public ListMaterialCriteria tryGetCriteria()
+                        {
+                            return new ListMaterialCriteria(initValue);
+                        }
+                    });
+        return browserGrid.asDisposableWithoutToolbar();
+    }
+
+    private MaterialBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
+            boolean refreshAutomatically, ICriteriaProvider criteriaProvider)
+    {
+        super(viewContext, GRID_ID, true, refreshAutomatically);
+        this.criteriaProvider = criteriaProvider;
         setId(BROWSER_ID);
     }
 
-    private void extendToolbar()
+    private void extendTopToolbar(MaterialBrowserToolbar toolbar)
     {
-        SelectionChangedListener<?> refreshButtonListener = addRefreshButton(topToolbar);
-        this.topToolbar.setCriteriaChangedListener(refreshButtonListener);
-        this.topToolbar.add(new FillToolItem());
+        SelectionChangedListener<?> refreshButtonListener = addRefreshButton(toolbar);
+        toolbar.setCriteriaChangedListener(refreshButtonListener);
+        toolbar.add(new FillToolItem());
 
         String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
         Button showDetailsButton =
                 createSelectedItemButton(showDetailsTitle, asShowEntityInvoker());
-        this.topToolbar.add(new AdapterToolItem(showDetailsButton));
+        toolbar.add(new AdapterToolItem(showDetailsButton));
 
     }
 
     @Override
     protected boolean isRefreshEnabled()
     {
-        return topToolbar.tryGetCriteria() != null;
+        return criteriaProvider.tryGetCriteria() != null;
     }
 
     @Override
@@ -142,7 +190,7 @@ public final class MaterialBrowserGrid extends AbstractBrowserGrid<Material, Mat
     @Override
     protected final void refresh()
     {
-        ListMaterialCriteria newCriteria = topToolbar.tryGetCriteria();
+        ListMaterialCriteria newCriteria = criteriaProvider.tryGetCriteria();
         if (newCriteria == null)
         {
             return;

@@ -29,6 +29,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
@@ -95,6 +96,25 @@ public class MaterialDAO extends AbstractDAO implements IMaterialDAO
         {
             operationLog.info(String.format("ADD: material '%s'.", material));
         }
+    }
+
+    public MaterialPE tryFindMaterial(MaterialIdentifier identifier)
+    {
+        assert identifier != null : "identifier not given";
+
+        String code = CodeConverter.tryToDatabase(identifier.getCode());
+        String typeCode = CodeConverter.tryToDatabase(identifier.getTypeCode());
+
+        final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
+        criteria.add(Restrictions.eq("code", code));
+        criteria.createCriteria("materialType").add(Restrictions.eq("code", typeCode));
+        final MaterialPE material = (MaterialPE) criteria.uniqueResult();
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("Following material '%s' has been found for "
+                    + "code '%s' and type '%s'.", material, code, typeCode));
+        }
+        return material;
     }
 
 }

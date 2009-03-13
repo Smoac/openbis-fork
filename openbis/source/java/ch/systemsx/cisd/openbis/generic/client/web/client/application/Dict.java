@@ -86,6 +86,8 @@ public abstract class Dict
 
     public static final String BUTTON_SAVE = "button_save";
 
+    public static final String BUTTON_CHOOSE = "button_choose";
+
     public static final String BUTTON_CANCEL = "button_cancel";
 
     public static final String BUTTON_RESET = "button_reset";
@@ -96,12 +98,14 @@ public abstract class Dict
 
     public static final String BUTTON_SHOW = "button_show";
 
+    public static final String BUTTON_BROWSE = "button_browse";
+
     public static final String BUTTON_SHOW_DETAILS = "button_show_details";
 
     public static final String BUTTON_EXPORT_DATA = "button_exportData";
 
     public static final String BUTTON_ADD_GROUP = "button_add_group";
-    
+
     //
     // LoginWidget
     //
@@ -305,9 +309,9 @@ public abstract class Dict
     public static final String DATA_PRODUCER_CODE = "data_producer_code";
 
     public static final String BUTTON_DELETE_DATASETS = "button_delete_datasets";
-    
+
     public static final String CONFIRM_DATASET_DELETION_TITLE = "confirm_dataset_deletion_title";
-    
+
     public static final String CONFIRM_DATASET_DELETION_MSG = "confirm_dataset_deletion_msg";
 
     //
@@ -412,6 +416,16 @@ public abstract class Dict
     // Material Import
     //
     public static final String MATERIAL_IMPORT = "material_import";
+
+    // 
+    // Material Chooser
+    //
+
+    public static final String TITLE_CHOOSE_MATERIAL = "title_choose_material";
+
+    public static final String CHOOSE_ANY_MATERIAL = "choose_any_material";
+
+    public static final String INCORRECT_MATERIAL_SYNTAX = "incorrect_material_syntax";
 
     //
     // Unclassified

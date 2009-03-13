@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 
 import ch.systemsx.cisd.common.collections.CollectionUtils;
@@ -32,6 +33,7 @@ import ch.systemsx.cisd.common.collections.IToStringConverter;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.PropertyUtils.Boolean;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
@@ -54,9 +56,10 @@ public final class PropertyValidator implements IPropertyValueValidator
 
     private final static String[] DATE_PATTERNS = createDatePatterns();
 
-    private final static Map<EntityDataType, IDataTypeValidator> dataTypeValidators = createMap();
+    private final static Map<EntityDataType, IDataTypeValidator> dataTypeValidators =
+            createDataTypeValidators();
 
-    private final static Map<EntityDataType, IDataTypeValidator> createMap()
+    private final static Map<EntityDataType, IDataTypeValidator> createDataTypeValidators()
     {
         final Map<EntityDataType, IDataTypeValidator> map =
                 new EnumMap<EntityDataType, IDataTypeValidator>(EntityDataType.class);
@@ -66,6 +69,7 @@ public final class PropertyValidator implements IPropertyValueValidator
         map.put(EntityDataType.INTEGER, new IntegerValidator());
         map.put(EntityDataType.REAL, new RealValidator());
         map.put(EntityDataType.CONTROLLEDVOCABULARY, new ControlledVocabularyValidator());
+        map.put(EntityDataType.MATERIAL, new MaterialValidator());
         return map;
     }
 
@@ -259,6 +263,29 @@ public final class PropertyValidator implements IPropertyValueValidator
                                 return term.getCode();
                             }
                         }));
+        }
+    }
+
+    private final static class MaterialValidator implements IDataTypeValidator
+    {
+
+        //
+        // IDataTypeValidator
+        //
+
+        public final String validate(final String value) throws UserFailureException
+        {
+            assert value != null : "Unspecified value.";
+            if (StringUtils.isBlank(value))
+            {
+                return null;
+            }
+            if (MaterialIdentifier.tryParseIdentifier(value) == null)
+            {
+                throw UserFailureException.fromTemplate(
+                        "Material specification '%s' has improper format.", value);
+            }
+            return value;
         }
     }
 }

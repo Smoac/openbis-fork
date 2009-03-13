@@ -41,8 +41,6 @@ public final class MaterialTypeSelectionWidget extends
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    private final boolean includeAdditionalOption;
-
     private final String additionalOptionLabelOrNull;
 
     /**
@@ -53,22 +51,34 @@ public final class MaterialTypeSelectionWidget extends
             final IViewContext<ICommonClientServiceAsync> viewContext,
             final String additionalOptionLabel, final String idSuffix)
     {
-        return new MaterialTypeSelectionWidget(viewContext, true, additionalOptionLabel, idSuffix);
+        return new MaterialTypeSelectionWidget(viewContext, additionalOptionLabel, idSuffix);
+    }
+
+    public static MaterialTypeSelectionWidget createWithInitialValue(
+            final IViewContext<ICommonClientServiceAsync> viewContext,
+            final MaterialType initValueOrNull, final String idSuffix)
+    {
+        MaterialTypeSelectionWidget chooser =
+                new MaterialTypeSelectionWidget(viewContext, null, idSuffix);
+        if (initValueOrNull != null)
+        {
+            chooser.setValue(new MaterialTypeModel(initValueOrNull));
+        }
+        return chooser;
     }
 
     public MaterialTypeSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext,
             final String idSuffix)
     {
-        this(viewContext, false, null, idSuffix);
+        this(viewContext, null, idSuffix);
     }
 
     private MaterialTypeSelectionWidget(IViewContext<ICommonClientServiceAsync> viewContext,
-            boolean includeNoneOption, String additionalOptionLabelOrNull, String idSuffix)
+            String additionalOptionLabelOrNull, String idSuffix)
     {
         super(viewContext, SUFFIX + idSuffix, Dict.MATERIAL_TYPE, ModelDataPropertyNames.CODE,
                 "material type", "material types");
         this.viewContext = viewContext;
-        this.includeAdditionalOption = includeNoneOption;
         this.additionalOptionLabelOrNull = additionalOptionLabelOrNull;
     }
 
@@ -86,13 +96,13 @@ public final class MaterialTypeSelectionWidget extends
     /** @return true if none option has been enabled and chosen */
     public final boolean isAdditionalOptionSelected()
     {
-        return includeAdditionalOption && isAnythingSelected() && tryGetSelected() == null;
+        return includeAdditionalOption() && isAnythingSelected() && tryGetSelected() == null;
     }
 
     @Override
     protected List<MaterialTypeModel> convertItems(List<MaterialType> result)
     {
-        if (includeAdditionalOption)
+        if (includeAdditionalOption())
         {
             return MaterialTypeModel.convertWithAdditionalOption(result,
                     additionalOptionLabelOrNull);
@@ -100,6 +110,11 @@ public final class MaterialTypeSelectionWidget extends
         {
             return MaterialTypeModel.convert(result);
         }
+    }
+
+    private boolean includeAdditionalOption()
+    {
+        return additionalOptionLabelOrNull != null;
     }
 
     @Override

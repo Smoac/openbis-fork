@@ -37,6 +37,7 @@ import org.hibernate.validator.Length;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
@@ -68,6 +69,12 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
      * </p>
      */
     private VocabularyTermPE vocabularyTerm;
+
+    /**
+     * If the property is of MATERIAL, this field is not <code>null</code> and {@link #value} and
+     * {@link #vocabularyTerm} fields are set to <code>null</code>.
+     */
+    private MaterialPE material;
 
     protected transient Long id;
 
@@ -125,8 +132,8 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
      * Sets the entity that holds this property. Needs to be of the correct sub-class of
      * {@link IIdAndCodeHolder}.
      * <p>
-     * <i>Note: Consider using the <code>addProperty()</code> method of the holder instead of
-     * using this method!</i>
+     * <i>Note: Consider using the <code>addProperty()</code> method of the holder instead of using
+     * this method!</i>
      */
     abstract public void setHolder(final IIdAndCodeHolder entity);
 
@@ -150,17 +157,33 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
         return vocabularyTerm;
     }
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = ColumnNames.MATERIAL_PROP_COLUMN)
+    public MaterialPE getMaterialValue()
+    {
+        return material;
+    }
+
+    public void setMaterialValue(MaterialPE material)
+    {
+        this.material = material;
+    }
+
     //
     // IUntypedValueSetter
     //
 
     public final void setUntypedValue(final String valueOrNull,
-            final VocabularyTermPE vocabularyTermOrNull)
+            final VocabularyTermPE vocabularyTermOrNull, MaterialPE materialOrNull)
     {
-        assert valueOrNull != null || vocabularyTermOrNull != null : "Either value or vocabulary term should not be null.";
+        assert valueOrNull != null || vocabularyTermOrNull != null || materialOrNull != null : "Either value, vocabulary term or material should not be null.";
         if (vocabularyTermOrNull != null)
         {
+            assert materialOrNull == null;
             setVocabularyTerm(vocabularyTermOrNull);
+        } else if (materialOrNull != null)
+        {
+            setMaterialValue(materialOrNull);
         } else
         {
             setValue(valueOrNull);
@@ -188,7 +211,21 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
 
     public final String tryGetUntypedValue()
     {
-        return getVocabularyTerm() == null ? getValue() : getVocabularyTerm().getCode();
+        if (getVocabularyTerm() != null)
+        {
+            return getVocabularyTerm().getCode();
+        } else if (getMaterialValue() != null)
+        {
+            return createMaterialIdentifier(getMaterialValue()).print();
+        } else
+        {
+            return getValue();
+        }
+    }
+
+    private static MaterialIdentifier createMaterialIdentifier(MaterialPE material)
+    {
+        return new MaterialIdentifier(material.getCode(), material.getMaterialType().getCode());
     }
 
     /**

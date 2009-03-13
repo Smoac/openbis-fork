@@ -172,6 +172,8 @@ public final class ColumnNames
     
     public static final String EVENT_TYPE = "event_type";
     
+    public static final String MATERIAL_PROP_COLUMN = "mate_prop_id";
+
     private ColumnNames()
     {
         // Can not be instantiated.

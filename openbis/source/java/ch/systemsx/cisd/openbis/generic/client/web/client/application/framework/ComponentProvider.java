@@ -90,7 +90,8 @@ final class ComponentProvider
             {
                 public ITabItem create()
                 {
-                    DisposableComponent browser = MaterialBrowserGrid.create(viewContext);
+                    DisposableComponent browser =
+                            MaterialBrowserGrid.createWithTypeChooser(viewContext);
                     return DefaultTabItem.create(getMessage(Dict.MATERIAL_BROWSER), browser, false);
                 }
 

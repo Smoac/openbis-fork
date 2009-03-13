@@ -112,9 +112,10 @@ abstract public class AbstractGenericEntityRegistrationForm<T extends EntityType
         final boolean isMandatory = etpt.isMandatory();
         final String label = etpt.getPropertyType().getLabel();
         final String propertyTypeCode = etpt.getPropertyType().getCode();
+        String fieldId = createFormFieldId(getId(), propertyTypeCode);
         field =
                 PropertyFieldFactory.createField(etpt.getPropertyType(), isMandatory, label,
-                        createFormFieldId(getId(), propertyTypeCode));
+                        fieldId, viewContext.getCommonViewContext());
         field.setData(ETPT, etpt);
         field.setTitle(propertyTypeCode);
         return field;
