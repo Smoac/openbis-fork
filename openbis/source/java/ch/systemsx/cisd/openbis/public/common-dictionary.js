@@ -119,7 +119,6 @@ var common = {
   part_of: "Container {0}",
   invalidation: "Invalidation",
   invalidation_template: "Invalidated by: {0}<br>Invalidation Date: {1}<br>Invalidation Reason: {2}",
-  button_invalidate: "Invalidate",
   
   //
   // Experiment Browser
@@ -193,6 +192,7 @@ var common = {
  //
  vocabulary_browser: "Vocabulary Browser",
  is_managed_internally: "Managed Internally?",
+ terms: "Terms",
  
  //
  // Project Browser

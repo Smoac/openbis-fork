@@ -378,6 +378,8 @@ public abstract class Dict
 
     public static final String IS_MANAGED_INTERNALLY = "is_managed_internally";
 
+    public static final String TERMS = "terms";
+    
     //
     // Project Browser
     //
