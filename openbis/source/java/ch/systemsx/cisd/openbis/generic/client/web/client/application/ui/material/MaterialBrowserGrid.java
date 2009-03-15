@@ -29,18 +29,28 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.MaterialModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.material.CommonMaterialColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EditableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Material;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEditableEntity;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
 
 /**
  * A {@link LayoutContainer} which contains the grid where the materials are displayed.
@@ -130,10 +140,9 @@ public final class MaterialBrowserGrid extends AbstractBrowserGrid<Material, Mat
         toolbar.setCriteriaChangedListener(refreshButtonListener);
         toolbar.add(new FillToolItem());
 
-        String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
-        Button showDetailsButton =
-                createSelectedItemButton(showDetailsTitle, asShowEntityInvoker(false));
-        toolbar.add(new AdapterToolItem(showDetailsButton));
+        String editTitle = viewContext.getMessage(Dict.BUTTON_EDIT);
+        Button editButton = createSelectedItemButton(editTitle, asShowEntityInvoker(true));
+        toolbar.add(new AdapterToolItem(editButton));
 
     }
 
@@ -218,6 +227,29 @@ public final class MaterialBrowserGrid extends AbstractBrowserGrid<Material, Mat
     @Override
     protected final void showEntityViewer(MaterialModel modelData, boolean editMode)
     {
-        // do nothing
+        final Material material = modelData.getBaseObject();
+        final EntityKind entityKind = EntityKind.MATERIAL;
+        ITabItemFactory tabView = null;
+        final IClientPluginFactory clientPluginFactory =
+                viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
+                        material.getMaterialType());
+        if (editMode)
+        {
+            final IClientPlugin<MaterialType, MaterialTypePropertyType, MaterialProperty, IIdentifierHolder> createClientPlugin =
+                    clientPluginFactory.createClientPlugin(entityKind);
+            final IEditableEntity<MaterialType, MaterialTypePropertyType, MaterialProperty> entity =
+                    createEditableEntity(material, criteria.getMaterialType());
+            tabView = createClientPlugin.createEntityEditor(entity);
+        }
+        DispatcherHelper.dispatchNaviEvent(tabView);
+    }
+
+    private IEditableEntity<MaterialType, MaterialTypePropertyType, MaterialProperty> createEditableEntity(
+            Material experiment, MaterialType selectedType)
+    {
+        final EntityKind entityKind = EntityKind.MATERIAL;
+        return new EditableEntity<MaterialType, MaterialTypePropertyType, MaterialProperty>(
+                entityKind, selectedType.getMaterialTypePropertyTypes(),
+                experiment.getProperties(), selectedType, experiment.getCode());
     }
 }

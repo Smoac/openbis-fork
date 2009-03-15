@@ -52,7 +52,9 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.exp
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentViewer;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.material.GenericMaterialBatchRegistrationForm;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.material.GenericMaterialEditForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleBatchRegistrationForm;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleEditForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer;
 
@@ -152,9 +154,24 @@ public final class ClientPluginFactory extends
         }
 
         public ITabItemFactory createEntityEditor(
-                IEditableEntity<SampleType, SampleTypePropertyType, SampleProperty> entity)
+                final IEditableEntity<SampleType, SampleTypePropertyType, SampleProperty> entity)
         {
-            return null;// FIXME
+            return new ITabItemFactory()
+                {
+                    public ITabItem create()
+                    {
+                        Component component =
+                                new GenericSampleEditForm(getViewContext().getCommonViewContext(),
+                                        entity, true);
+                        return new DefaultTabItem(getViewContext().getMessage(Dict.EDIT_TITLE,
+                                entity.getIdentifier()), component, false);
+                    }
+
+                    public String getId()
+                    {
+                        return GenericSampleEditForm.ID_PREFIX + entity.getIdentifier();
+                    }
+                };
         }
 
     }
@@ -168,6 +185,28 @@ public final class ClientPluginFactory extends
         public final Widget createBatchRegistrationForEntityType(final MaterialType materialType)
         {
             return new GenericMaterialBatchRegistrationForm(getViewContext(), materialType);
+        }
+
+        @Override
+        public ITabItemFactory createEntityEditor(
+                final IEditableEntity<MaterialType, MaterialTypePropertyType, MaterialProperty> entity)
+        {
+            return new ITabItemFactory()
+                {
+                    public ITabItem create()
+                    {
+                        Component component =
+                                new GenericMaterialEditForm(
+                                        getViewContext().getCommonViewContext(), entity, true);
+                        return new DefaultTabItem(getViewContext().getMessage(Dict.EDIT_TITLE,
+                                entity.getIdentifier()), component, false);
+                    }
+
+                    public String getId()
+                    {
+                        return GenericMaterialEditForm.ID_PREFIX + entity.getIdentifier();
+                    }
+                };
         }
     }
 

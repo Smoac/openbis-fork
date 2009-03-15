@@ -146,9 +146,21 @@ public final class ClientPluginFactory extends
         }
 
         public ITabItemFactory createEntityEditor(
-                IEditableEntity<SampleType, SampleTypePropertyType, SampleProperty> entity)
+                final IEditableEntity<SampleType, SampleTypePropertyType, SampleProperty> entity)
         {
-            return null;// FIXME
+            return new ITabItemFactory()
+                {
+                    public ITabItem create()
+                    {
+                        Component component = new DummyComponent();
+                        return new DefaultTabItem(entity.getIdentifier(), component, false);
+                    }
+
+                    public String getId()
+                    {
+                        return DummyComponent.ID;
+                    }
+                };
         }
 
     }

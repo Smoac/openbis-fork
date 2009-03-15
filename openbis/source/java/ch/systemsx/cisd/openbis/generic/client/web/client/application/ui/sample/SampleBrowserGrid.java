@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -33,11 +34,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EditableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -48,7 +51,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEditableEntity;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 
 /**
  * A {@link LayoutContainer} which contains the grid where the samples are displayed.
@@ -137,6 +143,11 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
 
         toolbar.add(new FillToolItem());
         toolbar.add(new AdapterToolItem(showDetailsButton));
+
+        toolbar.add(new SeparatorToolItem());
+        String editTitle = viewContext.getMessage(Dict.BUTTON_EDIT);
+        Button editButton = createSelectedItemButton(editTitle, asShowEntityInvoker(true));
+        toolbar.add(new AdapterToolItem(editButton));
     }
 
     @Override
@@ -181,11 +192,34 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
     {
         final Sample sample = sampleModel.getBaseObject();
         final EntityKind entityKind = EntityKind.SAMPLE;
-        final IClientPlugin<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>, IIdentifierHolder> createClientPlugin =
+        final ITabItemFactory tabView;
+        final IClientPluginFactory clientPluginFactory =
                 viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
-                        sample.getSampleType()).createClientPlugin(entityKind);
-        final ITabItemFactory tabView = createClientPlugin.createEntityViewer(sample);
+                        sample.getSampleType());
+        if (editMode)
+        {
+            final IClientPlugin<SampleType, SampleTypePropertyType, SampleProperty, IIdentifierHolder> createClientPlugin =
+                    clientPluginFactory.createClientPlugin(entityKind);
+            tabView =
+                    createClientPlugin.createEntityEditor(createEditableEntity(sample, criteria
+                            .getSampleType()));
+        } else
+        {
+
+            final IClientPlugin<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>, IIdentifierHolder> createClientPlugin =
+                    clientPluginFactory.createClientPlugin(entityKind);
+            tabView = createClientPlugin.createEntityViewer(sample);
+        }
         DispatcherHelper.dispatchNaviEvent(tabView);
+    }
+
+    private IEditableEntity<SampleType, SampleTypePropertyType, SampleProperty> createEditableEntity(
+            Sample sample, SampleType sampleType)
+    {
+        final EntityKind entityKind = EntityKind.SAMPLE;
+        return new EditableEntity<SampleType, SampleTypePropertyType, SampleProperty>(entityKind,
+                sampleType.getSampleTypePropertyTypes(), sample.getProperties(), sampleType, sample
+                        .getIdentifier());
     }
 
     private static final String createHeader(ListSampleCriteria criteria)

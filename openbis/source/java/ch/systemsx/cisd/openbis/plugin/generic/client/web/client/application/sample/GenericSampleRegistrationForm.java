@@ -40,7 +40,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.PropertiesEditor;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.SamplePropertyEditor;
 
 /**
  * The <i>generic</i> sample registration form.

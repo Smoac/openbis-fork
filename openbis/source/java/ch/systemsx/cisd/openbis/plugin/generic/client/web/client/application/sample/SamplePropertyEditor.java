@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
+package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
 import java.util.List;
 
@@ -23,10 +23,18 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.PropertiesEditor;
 
 public class SamplePropertyEditor<T, S, P> extends
         PropertiesEditor<SampleType, SampleTypePropertyType, SampleProperty>
 {
+
+    public SamplePropertyEditor(List<SampleTypePropertyType> entityTypesPropertyTypes,
+            List<SampleProperty> properties, String id,
+            IViewContext<ICommonClientServiceAsync> viewContext)
+    {
+        super(id, entityTypesPropertyTypes, properties, viewContext);
+    }
 
     public SamplePropertyEditor(List<SampleTypePropertyType> entityTypesPropertyTypes, String id,
             IViewContext<ICommonClientServiceAsync> viewContext)
