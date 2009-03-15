@@ -27,6 +27,7 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -138,12 +139,6 @@ public final class GenericExperimentRegistrationForm
             setUploadEnabled(true);
         }
 
-    }
-
-    @Override
-    protected ExperimentProperty createEntityProperty()
-    {
-        return new ExperimentProperty();
     }
 
     @Override
@@ -259,6 +254,15 @@ public final class GenericExperimentRegistrationForm
     private void resetPanel()
     {
         formPanel.reset();
+    }
+
+    @Override
+    protected PropertiesEditor<ExperimentType, ExperimentTypePropertyType, ExperimentProperty> createPropertiesEditor(
+            List<ExperimentTypePropertyType> etpt, String id,
+            IViewContext<ICommonClientServiceAsync> context)
+    {
+        return new ExperimentPropertyEditor<ExperimentType, ExperimentTypePropertyType, ExperimentProperty>(
+                etpt, id, context);
     }
 
 }

@@ -36,11 +36,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -296,6 +298,12 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void registerExperimentType(ExperimentType entityType,
             final AsyncCallback<Void> asyncCallback);
 
-    /** @see ICommonClientService#deleteDataSets(List) */
+    /**
+     * @see ICommonClientService#updateExperiment(String, List)
+     */
+    public void updateExperiment(final String experimentIdentifier,
+            List<ExperimentProperty> properties, final AsyncCallback<Void> asyncCallback)
+            throws UserFailureException;
+             /** @see ICommonClientService#deleteDataSets(List) */
     public void deleteDataSets(List<String> dataSetCodes, AsyncCallback<Void> asyncCallback);
 }

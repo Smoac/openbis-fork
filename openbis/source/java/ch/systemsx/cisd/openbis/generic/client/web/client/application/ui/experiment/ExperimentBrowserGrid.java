@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -32,18 +33,28 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExperimentModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.experiment.CommonExperimentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EditableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEditableEntity;
 
 /**
  * A {@link LayoutContainer} which contains the grid where the experiments are displayed.
@@ -87,8 +98,12 @@ public final class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment,
 
         String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
         Button showDetailsButton =
-                createSelectedItemButton(showDetailsTitle, asShowEntityInvoker());
+                createSelectedItemButton(showDetailsTitle, asShowEntityInvoker(false));
         this.topToolbar.add(new AdapterToolItem(showDetailsButton));
+        this.topToolbar.add(new SeparatorToolItem());
+        String editTitle = viewContext.getMessage(Dict.BUTTON_EDIT);
+        Button editButton = createSelectedItemButton(editTitle, asShowEntityInvoker(true));
+        this.topToolbar.add(new AdapterToolItem(editButton));
     }
 
     @Override
@@ -114,15 +129,37 @@ public final class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment,
         criteria.setResultSetKey(resultSetConfig.getResultSetKey());
     }
 
+    private IEditableEntity<ExperimentType, ExperimentTypePropertyType, ExperimentProperty> createEditableEntity(
+            Experiment experiment, ExperimentType selectedType)
+    {
+        final EntityKind entityKind = EntityKind.EXPERIMENT;
+        return new EditableEntity<ExperimentType, ExperimentTypePropertyType, ExperimentProperty>(
+                entityKind, selectedType.getExperimentTypePropertyTypes(), experiment
+                        .getProperties(), selectedType, experiment.getIdentifier());
+    }
+
     @Override
-    protected void showEntityViewer(ExperimentModel experimentModel)
+    protected void showEntityViewer(ExperimentModel experimentModel, boolean editMode)
     {
         final Experiment experiment = experimentModel.getBaseObject();
         final EntityKind entityKind = EntityKind.EXPERIMENT;
-        final ITabItemFactory tabView =
+        final ITabItemFactory tabView;
+        final IClientPluginFactory clientPluginFactory =
                 viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
-                        experiment.getExperimentType()).createClientPlugin(entityKind)
-                        .createEntityViewer(experiment);
+                        experiment.getExperimentType());
+        if (editMode)
+        {
+            final IClientPlugin<ExperimentType, ExperimentTypePropertyType, ExperimentProperty, IIdentifierHolder> createClientPlugin =
+                    clientPluginFactory.createClientPlugin(entityKind);
+            tabView =
+                    createClientPlugin.createEntityEditor(createEditableEntity(experiment, criteria
+                            .getExperimentType()));
+        } else
+        {
+            final IClientPlugin<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>, IIdentifierHolder> createClientPlugin =
+                    clientPluginFactory.createClientPlugin(entityKind);
+            tabView = createClientPlugin.createEntityViewer(experiment);
+        }
         DispatcherHelper.dispatchNaviEvent(tabView);
     }
 
@@ -175,7 +212,7 @@ public final class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment,
 
     private boolean hasColumnsDefinitionChanged(ExperimentType entityType)
     {
-        return (criteria == null || entityType.equals(criteria.getExperimentType()) == false);
+        return criteria == null || entityType.equals(criteria.getExperimentType()) == false;
     }
 
     @Override

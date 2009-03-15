@@ -20,7 +20,10 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEditableEntity;
 
 /**
  * A dummy {@link IClientPlugin} implementation which throws {@link UnsupportedOperationException}
@@ -28,8 +31,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
  * 
  * @author Christian Ribeaud
  */
-public class ClientPluginAdapter<E extends EntityType, I extends IIdentifierHolder> implements
-        IClientPlugin<E, I>
+public class ClientPluginAdapter<E extends EntityType, S extends EntityTypePropertyType<E>, P extends EntityProperty<E, S>, I extends IIdentifierHolder>
+        implements IClientPlugin<E, S, P, I>
 {
 
     //
@@ -50,4 +53,10 @@ public class ClientPluginAdapter<E extends EntityType, I extends IIdentifierHold
     {
         throw new UnsupportedOperationException("Not yet implemented.");
     }
+
+    public ITabItemFactory createEntityEditor(IEditableEntity<E, S, P> entity)
+    {
+        throw new UnsupportedOperationException("Not yet implemented.");
+    }
+
 }

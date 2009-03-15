@@ -105,4 +105,5 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
             genericExperimentViewer.layout();
         }
     }
+
 }

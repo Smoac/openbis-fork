@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -284,6 +285,16 @@ public final class PropertyValueRenderers
             final IMessageProvider messageProvider)
     {
         return new EntityPropertyPropertyValueRenderer<ExperimentProperty>(messageProvider);
+    }
+
+    /**
+     * Creates a {@link IPropertyValueRenderer} implementation for rendering
+     * {@link MaterialProperty}.
+     */
+    public final static IPropertyValueRenderer<MaterialProperty> createMaterialPropertyPropertyValueRenderer(
+            final IMessageProvider messageProvider)
+    {
+        return new EntityPropertyPropertyValueRenderer<MaterialProperty>(messageProvider);
     }
 
 }

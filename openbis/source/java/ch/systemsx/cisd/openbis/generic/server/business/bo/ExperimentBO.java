@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -288,6 +289,52 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         {
             experiment.addProperty(experimentProperty);
         }
+    }
+
+    public void edit(ExperimentIdentifier identifier, List<ExperimentProperty> properties)
+    {
+        loadByExperimentIdentifier(identifier);
+        updateProperties(properties);
+        dataChanged = true;
+    }
+
+    private void updateProperties(List<ExperimentProperty> properties)
+    {
+        final List<ExperimentPropertyPE> convertedProperties =
+                propertiesConverter.convertProperties(properties
+                        .toArray(ExperimentProperty.EMPTY_ARRAY), experiment.getExperimentType()
+                        .getCode(), findRegistrator());
+        final List<ExperimentPropertyPE> oldProperties =
+                new ArrayList<ExperimentPropertyPE>(experiment.getProperties());
+        final Set<ExperimentPropertyPE> set = new HashSet<ExperimentPropertyPE>();
+        for (ExperimentPropertyPE p : convertedProperties)
+        {
+            int index = find(oldProperties, p);
+            if (index > -1)
+            {
+                final ExperimentPropertyPE existingProperty = oldProperties.get(index);
+                existingProperty.setValue(p.getValue());
+                existingProperty.setVocabularyTerm(p.getVocabularyTerm());
+                set.add(existingProperty);
+            } else
+            {
+                set.add(p);
+            }
+        }
+        experiment.setProperties(set);
+    }
+
+    private int find(List<ExperimentPropertyPE> oldProperties, ExperimentPropertyPE p)
+    {
+        for (int i = 0; i < oldProperties.size(); i++)
+        {
+            if (oldProperties.get(i).getEntityTypePropertyType().getPropertyType().equals(
+                    p.getEntityTypePropertyType().getPropertyType()))
+            {
+                return i;
+            }
+        }
+        return -1;
     }
 
 }

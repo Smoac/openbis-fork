@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
@@ -42,7 +43,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleCriteria
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
@@ -125,7 +130,7 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
     {
         String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
         Button showDetailsButton =
-                createSelectedItemButton(showDetailsTitle, asShowEntityInvoker());
+                createSelectedItemButton(showDetailsTitle, asShowEntityInvoker(false));
 
         SelectionChangedListener<?> refreshButtonListener = addRefreshButton(toolbar);
         toolbar.setCriteriaChangedListener(refreshButtonListener);
@@ -172,14 +177,14 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
     }
 
     @Override
-    protected void showEntityViewer(SampleModel sampleModel)
+    protected void showEntityViewer(SampleModel sampleModel, boolean editMode)
     {
         final Sample sample = sampleModel.getBaseObject();
         final EntityKind entityKind = EntityKind.SAMPLE;
-        final ITabItemFactory tabView =
+        final IClientPlugin<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>, IIdentifierHolder> createClientPlugin =
                 viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
-                        sample.getSampleType()).createClientPlugin(entityKind).createEntityViewer(
-                        sample);
+                        sample.getSampleType()).createClientPlugin(entityKind);
+        final ITabItemFactory tabView = createClientPlugin.createEntityViewer(sample);
         DispatcherHelper.dispatchNaviEvent(tabView);
     }
 

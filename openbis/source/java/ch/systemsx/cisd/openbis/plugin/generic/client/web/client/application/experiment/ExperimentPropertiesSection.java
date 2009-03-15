@@ -51,15 +51,15 @@ public class ExperimentPropertiesSection extends SectionPanel
         super("Experiment Properties");
         this.experiment = experiment;
         this.viewContext = viewContext;
-        add(createPropertyGrid());
+        final PropertyGrid propertyGrid = createPropertyGrid();
+        add(propertyGrid);
     }
 
     private final PropertyGrid createPropertyGrid()
     {
         final Map<String, Object> properties = createProperties(viewContext);
         final PropertyGrid propertyGrid = new PropertyGrid(viewContext, properties.size());
-        propertyGrid.getElement()
-                .setId(PROPERTIES_ID_PREFIX + experiment.getIdentifier());
+        propertyGrid.getElement().setId(PROPERTIES_ID_PREFIX + experiment.getIdentifier());
         propertyGrid.registerPropertyValueRenderer(Person.class, PropertyValueRenderers
                 .createPersonPropertyValueRenderer(viewContext));
         propertyGrid.registerPropertyValueRenderer(ExperimentType.class, PropertyValueRenderers

@@ -30,6 +30,11 @@ var generic = {
   generated_from_sample: "Parent",
   part_of_sample: "Container",  
   
+   //
+  // Edit
+  //
+  edit_title: "Edit {0}",
+  
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma
 };

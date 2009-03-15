@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -257,9 +258,9 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
-     * Assumes that preparation of the export ({@link #prepareExportSamples(TableExportCriteria)} or
-     * {@link #prepareExportExperiments(TableExportCriteria)} has been invoked before and returned
-     * with an exportDataKey passed here as a parameter.
+     * Assumes that preparation of the export ({@link #prepareExportSamples(TableExportCriteria)}
+     * or {@link #prepareExportExperiments(TableExportCriteria)} has been invoked before and
+     * returned with an exportDataKey passed here as a parameter.
      */
     public String getExportTable(String exportDataKey, String lineSeparator)
             throws UserFailureException;
@@ -342,7 +343,14 @@ public interface ICommonClientService extends IClientService
     /** Registers a new experiment type */
     public void registerExperimentType(ExperimentType entityType) throws UserFailureException;
 
+    /**
+     * Updates experiment.
+     */
+    public void updateExperiment(final String experimentIdentifier,
+            List<ExperimentProperty> properties) throws UserFailureException;
+            
     /** Deletes the specified data sets. */
     public void deleteDataSets(List<String> dataSetCodes) throws UserFailureException;
 
+   
 }

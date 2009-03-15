@@ -18,11 +18,14 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application;
 
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.widget.Component;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractClientPluginFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ViewerTabItem;
@@ -31,11 +34,21 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ICl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEditableEntity;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentEditForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentViewer;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.material.GenericMaterialBatchRegistrationForm;
@@ -72,20 +85,20 @@ public final class ClientPluginFactory extends
     //
 
     @SuppressWarnings("unchecked")
-    public final <T extends EntityType, I extends IIdentifierHolder> IClientPlugin<T, I> createClientPlugin(
+    public final <T extends EntityType, S extends EntityTypePropertyType<T>, P extends EntityProperty<T, S>, I extends IIdentifierHolder> IClientPlugin<T, S, P, I> createClientPlugin(
             EntityKind entityKind)
     {
         if (EntityKind.EXPERIMENT.equals(entityKind))
         {
-            return (IClientPlugin<T, I>) new ExperimentClientPlugin();
+            return (IClientPlugin<T, S, P, I>) new ExperimentClientPlugin();
         }
         if (EntityKind.SAMPLE.equals(entityKind))
         {
-            return (IClientPlugin<T, I>) new SampleClientPlugin();
+            return (IClientPlugin<T, S, P, I>) new SampleClientPlugin();
         }
         if (EntityKind.MATERIAL.equals(entityKind))
         {
-            return (IClientPlugin<T, I>) new MaterialClientPlugin();
+            return (IClientPlugin<T, S, P, I>) new MaterialClientPlugin();
         }
         throw new UnsupportedOperationException("IClientPlugin for entity kind '" + entityKind
                 + "' not implemented yet.");
@@ -101,7 +114,8 @@ public final class ClientPluginFactory extends
     // Helper classes
     //
 
-    private final class SampleClientPlugin implements IClientPlugin<SampleType, IIdentifierHolder>
+    private final class SampleClientPlugin implements
+            IClientPlugin<SampleType, SampleTypePropertyType, SampleProperty, IIdentifierHolder>
     {
 
         //
@@ -136,10 +150,18 @@ public final class ClientPluginFactory extends
         {
             return new GenericSampleBatchRegistrationForm(getViewContext(), sampleType);
         }
+
+        public ITabItemFactory createEntityEditor(
+                IEditableEntity<SampleType, SampleTypePropertyType, SampleProperty> entity)
+        {
+            return null;// FIXME
+        }
+
     }
 
-    private final class MaterialClientPlugin extends
-            ClientPluginAdapter<MaterialType, IIdentifierHolder>
+    private final class MaterialClientPlugin
+            extends
+            ClientPluginAdapter<MaterialType, MaterialTypePropertyType, MaterialProperty, IIdentifierHolder>
     {
 
         @Override
@@ -149,8 +171,9 @@ public final class ClientPluginFactory extends
         }
     }
 
-    private final class ExperimentClientPlugin extends
-            ClientPluginAdapter<ExperimentType, IIdentifierHolder>
+    private final class ExperimentClientPlugin
+            extends
+            ClientPluginAdapter<ExperimentType, ExperimentTypePropertyType, ExperimentProperty, IIdentifierHolder>
     {
 
         //
@@ -182,5 +205,28 @@ public final class ClientPluginFactory extends
         {
             return new GenericExperimentRegistrationForm(getViewContext(), entityType);
         }
+
+        @Override
+        public ITabItemFactory createEntityEditor(
+                final IEditableEntity<ExperimentType, ExperimentTypePropertyType, ExperimentProperty> entity)
+        {
+            return new ITabItemFactory()
+                {
+                    public ITabItem create()
+                    {
+                        Component component =
+                                new GenericExperimentEditForm(getViewContext()
+                                        .getCommonViewContext(), entity, true);
+                        return new DefaultTabItem(getViewContext().getMessage(Dict.EDIT_TITLE,
+                                entity.getIdentifier()), component, false);
+                    }
+
+                    public String getId()
+                    {
+                        return GenericExperimentEditForm.ID_PREFIX + entity.getIdentifier();
+                    }
+                };
+        }
+
     }
 }

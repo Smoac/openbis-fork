@@ -27,6 +27,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.MatchingEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.MatchingEntityModel.MatchingEntityColumnKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -35,7 +37,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 
 /**
  * A {@link LayoutContainer} extension which displays the matching entities.
@@ -83,14 +89,16 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
     }
 
     @Override
-    protected void showEntityViewer(MatchingEntityModel matchingEntityModel)
+    protected void showEntityViewer(MatchingEntityModel matchingEntityModel, boolean editMode)
     {
         final MatchingEntity matchingEntity = matchingEntityModel.getBaseObject();
         final EntityKind entityKind = matchingEntity.getEntityKind();
-        final ITabItemFactory tabView =
+        final IClientPluginFactory clientPluginFactory =
                 viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
-                        matchingEntity.getEntityType()).createClientPlugin(entityKind)
-                        .createEntityViewer(matchingEntity);
+                        matchingEntity.getEntityType());
+        final IClientPlugin<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>, IIdentifierHolder> createClientPlugin =
+                clientPluginFactory.createClientPlugin(entityKind);
+        final ITabItemFactory tabView = createClientPlugin.createEntityViewer(matchingEntity);
         DispatcherHelper.dispatchNaviEvent(tabView);
     }
 

@@ -35,9 +35,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ICl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEditableEntity;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.SampleTypeCode;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 
@@ -83,16 +90,16 @@ public final class ClientPluginFactory extends
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends EntityType, I extends IIdentifierHolder> IClientPlugin<T, I> createClientPlugin(
+    public <T extends EntityType, S extends EntityTypePropertyType<T>, P extends EntityProperty<T, S>, I extends IIdentifierHolder> IClientPlugin<T, S, P, I> createClientPlugin(
             final EntityKind entityKind)
     {
         if (EntityKind.EXPERIMENT.equals(entityKind))
         {
-            return (IClientPlugin<T, I>) new ExperimentClientPlugin();
+            return (IClientPlugin<T, S, P, I>) new ExperimentClientPlugin();
         }
         if (EntityKind.SAMPLE.equals(entityKind))
         {
-            return (IClientPlugin<T, I>) new SampleClientPlugin();
+            return (IClientPlugin<T, S, P, I>) new SampleClientPlugin();
         }
         throw new UnsupportedOperationException("IClientPlugin for entity kind '" + entityKind
                 + "' not implemented yet.");
@@ -102,7 +109,8 @@ public final class ClientPluginFactory extends
     // Helper classes
     //
 
-    private final class SampleClientPlugin implements IClientPlugin<SampleType, IIdentifierHolder>
+    private final class SampleClientPlugin implements
+            IClientPlugin<SampleType, SampleTypePropertyType, SampleProperty, IIdentifierHolder>
     {
         //
         // IViewClientPlugin
@@ -136,10 +144,18 @@ public final class ClientPluginFactory extends
         {
             return new DummyComponent();
         }
+
+        public ITabItemFactory createEntityEditor(
+                IEditableEntity<SampleType, SampleTypePropertyType, SampleProperty> entity)
+        {
+            return null;// FIXME
+        }
+
     }
 
-    private final static class ExperimentClientPlugin extends
-            ClientPluginAdapter<ExperimentType, IIdentifierHolder>
+    private final static class ExperimentClientPlugin
+            extends
+            ClientPluginAdapter<ExperimentType, ExperimentTypePropertyType, ExperimentProperty, IIdentifierHolder>
     {
 
         //

@@ -132,7 +132,7 @@ public final class MaterialBrowserGrid extends AbstractBrowserGrid<Material, Mat
 
         String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
         Button showDetailsButton =
-                createSelectedItemButton(showDetailsTitle, asShowEntityInvoker());
+                createSelectedItemButton(showDetailsTitle, asShowEntityInvoker(false));
         toolbar.add(new AdapterToolItem(showDetailsButton));
 
     }
@@ -216,7 +216,7 @@ public final class MaterialBrowserGrid extends AbstractBrowserGrid<Material, Mat
     }
 
     @Override
-    protected final void showEntityViewer(MaterialModel modelData)
+    protected final void showEntityViewer(MaterialModel modelData, boolean editMode)
     {
         // do nothing
     }

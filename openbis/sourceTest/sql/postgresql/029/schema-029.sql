@@ -118,7 +118,7 @@ CREATE TABLE experiment_properties (
     cvte_id tech_id,
     pers_id_registerer tech_id NOT NULL,
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
-    modification_timestamp time_stamp DEFAULT NULL::timestamp with time zone,
+    modification_timestamp time_stamp DEFAULT now(),
     mate_prop_id tech_id,
     CONSTRAINT expr_ck CHECK ((((((value IS NOT NULL) AND (cvte_id IS NULL)) AND (mate_prop_id IS NULL)) OR (((value IS NULL) AND (cvte_id IS NOT NULL)) AND (mate_prop_id IS NULL))) OR (((value IS NULL) AND (cvte_id IS NULL)) AND (mate_prop_id IS NOT NULL))))
 );
@@ -148,7 +148,7 @@ CREATE TABLE experiments (
     inva_id tech_id,
     is_public boolean_char DEFAULT false NOT NULL,
     dast_id tech_id,
-    modification_timestamp time_stamp DEFAULT NULL::timestamp with time zone
+    modification_timestamp time_stamp DEFAULT now()
 );
 CREATE DOMAIN boolean_char_or_unknown AS character(1) DEFAULT 'U'::bpchar
 	CONSTRAINT boolean_char_or_unknown_check CHECK ((VALUE = ANY (ARRAY['F'::bpchar, 'T'::bpchar, 'U'::bpchar])));
@@ -207,7 +207,7 @@ CREATE TABLE material_properties (
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     pers_id_registerer tech_id NOT NULL,
     cvte_id tech_id,
-    modification_timestamp time_stamp DEFAULT NULL::timestamp with time zone,
+    modification_timestamp time_stamp DEFAULT now(),
     mate_prop_id tech_id,
     CONSTRAINT mapr_ck CHECK ((((((value IS NOT NULL) AND (cvte_id IS NULL)) AND (mate_prop_id IS NULL)) OR (((value IS NULL) AND (cvte_id IS NOT NULL)) AND (mate_prop_id IS NULL))) OR (((value IS NULL) AND (cvte_id IS NULL)) AND (mate_prop_id IS NOT NULL))))
 );
@@ -234,7 +234,7 @@ CREATE TABLE materials (
     mate_id_inhibitor_of tech_id,
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     dbin_id tech_id NOT NULL,
-    modification_timestamp time_stamp DEFAULT NULL::timestamp with time zone
+    modification_timestamp time_stamp DEFAULT now()
 );
 CREATE DOMAIN user_id AS character varying(50);
 CREATE TABLE persons (
@@ -315,7 +315,7 @@ CREATE TABLE sample_properties (
     cvte_id tech_id,
     pers_id_registerer tech_id NOT NULL,
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
-    modification_timestamp time_stamp DEFAULT NULL::timestamp with time zone,
+    modification_timestamp time_stamp DEFAULT now(),
     mate_prop_id tech_id,
     CONSTRAINT sapr_ck CHECK ((((((value IS NOT NULL) AND (cvte_id IS NULL)) AND (mate_prop_id IS NULL)) OR (((value IS NULL) AND (cvte_id IS NOT NULL)) AND (mate_prop_id IS NULL))) OR (((value IS NULL) AND (cvte_id IS NULL)) AND (mate_prop_id IS NOT NULL))))
 );
@@ -351,7 +351,7 @@ CREATE TABLE samples (
     dbin_id tech_id,
     grou_id tech_id,
     samp_id_part_of tech_id,
-    modification_timestamp time_stamp DEFAULT NULL::timestamp with time zone,
+    modification_timestamp time_stamp DEFAULT now(),
     CONSTRAINT samp_dbin_grou_arc_ck CHECK ((((dbin_id IS NOT NULL) AND (grou_id IS NULL)) OR ((dbin_id IS NULL) AND (grou_id IS NOT NULL))))
 );
 CREATE FUNCTION controlled_vocabulary_check() RETURNS trigger

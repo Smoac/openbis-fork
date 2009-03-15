@@ -20,7 +20,10 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEditableEntity;
 
 /**
  * The client plugin.
@@ -34,9 +37,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
  * 
  * @author Christian Ribeaud
  */
-public interface IClientPlugin<T extends EntityType, I extends IIdentifierHolder>
+public interface IClientPlugin<T extends EntityType, S extends EntityTypePropertyType<T>, P extends EntityProperty<T, S>, I extends IIdentifierHolder>
 {
-
     /**
      * Shows a detailed view of the entity specified by its <var>identifier</var>.
      */
@@ -51,4 +53,9 @@ public interface IClientPlugin<T extends EntityType, I extends IIdentifierHolder
      * Shows a batch registration form for entities of given <var>entityType</var>.
      */
     public Widget createBatchRegistrationForEntityType(final T entityType);
+
+    /**
+     * Shows a editor of the specified entity..
+     */
+    public ITabItemFactory createEntityEditor(final IEditableEntity<T, S, P> editableEntity);
 }

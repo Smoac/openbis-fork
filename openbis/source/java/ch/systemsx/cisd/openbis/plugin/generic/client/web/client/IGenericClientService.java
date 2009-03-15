@@ -77,4 +77,5 @@ public interface IGenericClientService extends IClientService
      */
     public List<BatchRegistrationResult> registerMaterials(final MaterialType materialType,
             final String sessionKey) throws UserFailureException;
+
 }

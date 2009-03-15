@@ -256,4 +256,5 @@ public final class GenericServer extends AbstractPluginServer<IGenericServer> im
         materialTable.add(newMaterials, materialTypePE);
         materialTable.save();
     }
+
 }

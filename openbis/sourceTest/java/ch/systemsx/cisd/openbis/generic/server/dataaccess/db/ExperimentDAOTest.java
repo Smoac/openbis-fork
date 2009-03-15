@@ -21,7 +21,10 @@ import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+
+import junit.framework.Assert;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.AssertJUnit;
@@ -45,6 +48,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.ExperimentTypeCode;
     { "db", "experiment" })
 public class ExperimentDAOTest extends AbstractDAOTest
 {
+    private static final String MODIFIED = "_MODIFIED";
+
     //
     // Experiments existing in the test database
     //
@@ -191,6 +196,29 @@ public class ExperimentDAOTest extends AbstractDAOTest
         assertEquals(sizeBefore + 1, experimentsAfter.size());
         Collections.sort(experimentsAfter);
         assertExperimentsEqual(experiment, experimentsAfter.get(sizeBefore));
+    }
+
+    @Test
+    public void testUpdateExperiment() throws Exception
+    {
+        List<ExperimentPE> experimentsBefore = daoFactory.getExperimentDAO().listExperiments();
+        int sizeBefore = experimentsBefore.size();
+        Collections.sort(experimentsBefore);
+        assertEqualsOrGreater(8, sizeBefore);
+
+        ExperimentPE experiment = experimentsBefore.get(0);
+        String codeBefore = experiment.getCode();
+        String codeModified = codeBefore + MODIFIED;
+        experiment.setCode(codeModified);
+        final Date modificationTimestamp = experiment.getModificationDate();
+        daoFactory.getExperimentDAO().createExperiment(experiment);
+
+        List<ExperimentPE> experimentsAfter = daoFactory.getExperimentDAO().listExperiments();
+        assertEquals(sizeBefore, experimentsAfter.size());
+        Collections.sort(experimentsAfter);
+        final ExperimentPE experimentFound = experimentsAfter.get(0);
+        assertEquals(codeModified, experimentFound.getCode());
+        Assert.assertFalse(modificationTimestamp.equals(experimentFound.getModificationDate()));
     }
 
     @Test

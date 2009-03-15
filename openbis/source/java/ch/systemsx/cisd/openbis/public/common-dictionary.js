@@ -37,7 +37,6 @@ var common = {
   //
   
   button_save: "Save",
-  button_choose: "Choose",
   button_cancel: "Cancel",
   button_reset: "Reset",
   button_submit: "Submit",
@@ -46,7 +45,6 @@ var common = {
   button_exportData: "Export Table",
   button_add_group: "Add Group",
   button_show_details: "Show Details",
-  button_browse: "Browse",
   
   tooltip_refresh_disabled: "To activate select appropriate criteria first.",
   tooltip_refresh_enabled: "Load or update the table.",
@@ -119,6 +117,7 @@ var common = {
   part_of: "Container {0}",
   invalidation: "Invalidation",
   invalidation_template: "Invalidated by: {0}<br>Invalidation Date: {1}<br>Invalidation Reason: {2}",
+  button_invalidate: "Invalidate",
   
   //
   // Experiment Browser
@@ -192,7 +191,6 @@ var common = {
  //
  vocabulary_browser: "Vocabulary Browser",
  is_managed_internally: "Managed Internally?",
- terms: "Terms",
  
  //
  // Project Browser
@@ -228,7 +226,11 @@ var common = {
  button_delete_datasets: "Delete",
  confirm_dataset_deletion_title: "Data Sets Deletion Confirmation",
  confirm_dataset_deletion_msg: "Do you really want to delete the following data sets?\n\n{0}",
- 
+  
+ //
+ // Edit
+ //
+ edit: "Edit",
  
  //
  // Material Browser
@@ -243,7 +245,6 @@ var common = {
  //
  material_import: "Import Materials",
  
- 
  // 
  // Material Chooser
  //
@@ -252,6 +253,7 @@ var common = {
  choose_any_material: "Choose Any Material...",
  incorrect_material_syntax: "Incorrect material specification. Please provide the material code followed by the type in brackets: 'code (type)'.",
  
- // LAST LINE: KEEP IT AT THE END
+ 
+  // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma
 };

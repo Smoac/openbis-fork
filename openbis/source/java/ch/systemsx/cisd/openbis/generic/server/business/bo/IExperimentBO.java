@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.List;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -57,4 +60,8 @@ public interface IExperimentBO extends IBusinessObject
      */
     public void addAttachment(AttachmentPE attachment);
 
+    /**
+     * Changes given experiment. Allowed changes: properties.
+     */
+    public void edit(ExperimentIdentifier identifier, List<ExperimentProperty> properties);
 }

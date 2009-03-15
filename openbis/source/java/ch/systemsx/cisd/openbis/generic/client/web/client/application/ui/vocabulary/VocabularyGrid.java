@@ -75,7 +75,7 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
                             {
                                 public void invoke(BaseEntityModel<Vocabulary> selectedItem)
                                 {
-                                    showEntityViewer(selectedItem);
+                                    showEntityViewer(selectedItem, false);
                                 }
                             });
         showDetailsButton.setId(SHOW_DETAILS_BUTTON_ID);
@@ -116,7 +116,7 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
     }
 
     @Override
-    protected void showEntityViewer(BaseEntityModel<Vocabulary> modelData)
+    protected void showEntityViewer(BaseEntityModel<Vocabulary> modelData, boolean editMode)
     {
         final Vocabulary vocabulary = modelData.getBaseObject();
         final ITabItemFactory tabFactory = new ITabItemFactory()

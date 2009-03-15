@@ -22,6 +22,7 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyTermModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -31,43 +32,44 @@ public class PropertyFieldFactory
     /**
      * Creates a field for given data type.
      */
-    public static Field<?> createField(final PropertyType pt, boolean isMandatory, String label,
-            String fieldId, IViewContext<ICommonClientServiceAsync> viewContext)
+    @SuppressWarnings("unchecked")
+    public static <T> Field<T> createField(final PropertyType pt, boolean isMandatory,
+            String label, String fieldId, IViewContext<ICommonClientServiceAsync> viewContext,
+            String originalRawValue)
     {
-        final Field<?> field;
+        final Field<T> field;
         final DataTypeCode dataType = pt.getDataType().getCode();
         switch (dataType)
         {
             case BOOLEAN:
-                field = new CheckBoxField(label, isMandatory);
+                field = (Field<T>) new CheckBoxField(label, isMandatory);
                 break;
             case VARCHAR:
-                field = new VarcharField(label, isMandatory);
+                field = (Field<T>) new VarcharField(label, isMandatory);
                 break;
             case TIMESTAMP:
-                field = new DateFormField(label, isMandatory);
+                field = (Field<T>) new DateFormField(label, isMandatory);
                 break;
             case CONTROLLEDVOCABULARY:
                 field =
-                        new ControlledVocabullaryField(label, isMandatory, pt.getVocabulary()
-                                .getTerms());
+                        (Field<T>) new VocabularyTermSelectionWidget(fieldId, label, pt
+                                .getVocabulary().getTerms(), isMandatory);
                 break;
             case INTEGER:
-                field = new IntegerField(label, isMandatory);
+                field = (Field<T>) new IntegerField(label, isMandatory);
                 break;
             case REAL:
-                field = new RealField(label, isMandatory);
-                break;
-            case MATERIAL:
-                field =
-                        MaterialChooserField.create(label, isMandatory, pt.getMaterialType(),
-                                viewContext);
+                field = (Field<T>) new RealField(label, isMandatory);
                 break;
             default:
-                field = new VarcharField(label, isMandatory);
+                field = (Field<T>) new VarcharField(label, isMandatory);
                 break;
         }
         field.setId(fieldId);
+        if (originalRawValue != null)
+        {
+            field.setValue(field.getPropertyEditor().convertStringValue(originalRawValue));
+        }
         return field;
     }
 
@@ -79,6 +81,9 @@ public class PropertyFieldFactory
         } else if (value instanceof Date)
         {
             return DateRenderer.renderDate((Date) value);
+        } else if (value instanceof VocabularyTermModel)
+        {
+            return ((VocabularyTermModel) value).getTerm();
         } else
         {
             return value.toString();

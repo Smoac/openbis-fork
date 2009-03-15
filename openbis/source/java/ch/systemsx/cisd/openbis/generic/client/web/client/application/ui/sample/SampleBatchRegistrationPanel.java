@@ -28,7 +28,12 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
@@ -70,9 +75,11 @@ public final class SampleBatchRegistrationPanel extends LayoutContainer
                         removeAll();
                         final EntityKind entityKind = EntityKind.SAMPLE;
                         add(toolBar);
-                        add(viewContext.getClientPluginFactoryProvider().getClientPluginFactory(
-                                entityKind, sampleType).createClientPlugin(entityKind)
-                                .createBatchRegistrationForEntityType(sampleType));
+                        final IClientPlugin<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>, IIdentifierHolder> createClientPlugin =
+                                viewContext.getClientPluginFactoryProvider()
+                                        .getClientPluginFactory(entityKind, sampleType)
+                                        .createClientPlugin(entityKind);
+                        add(createClientPlugin.createBatchRegistrationForEntityType(sampleType));
                         layout();
                     }
                 }

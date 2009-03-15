@@ -105,4 +105,5 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         logAccess(sessionToken, "register_materials", "MATERIAL_TYPE(%s) MATERIALS(%s)",
                 materialTypeCode, CollectionUtils.abbreviate(newMaterials, 20));
     }
+
 }

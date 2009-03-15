@@ -16,24 +16,24 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.Element;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.PropertyFieldFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.PropertiesEditor;
 
 /**
  * The <i>generic</i> entity registration form.
@@ -46,15 +46,11 @@ abstract public class AbstractGenericEntityRegistrationForm<T extends EntityType
 
     public static final String ID_SUFFIX_CODE = "code";
 
-    private static final String ETPT = "PROPERTY_TYPE";
-
     private final IViewContext<IGenericClientServiceAsync> viewContext;
-
-    private ArrayList<Field<?>> propertyFields;
 
     protected TextField<String> codeField;
 
-    private final List<S> entityTypesPropertyTypes;
+    private PropertiesEditor<T, S, P> propertiesEditor;
 
     public AbstractGenericEntityRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext,
@@ -62,14 +58,18 @@ abstract public class AbstractGenericEntityRegistrationForm<T extends EntityType
     {
         super(viewContext, createId(entityKind));
         this.viewContext = viewContext;
-        this.entityTypesPropertyTypes = entityTypesPropertyTypes;
+        propertiesEditor =
+                createPropertiesEditor(entityTypesPropertyTypes, createId(entityKind), viewContext
+                        .getCommonViewContext());
     }
 
     abstract protected List<Field<?>> getEntitySpecificFields();
 
     abstract protected void createEntitySpecificFields();
 
-    abstract protected P createEntityProperty();
+    abstract protected PropertiesEditor<T, S, P> createPropertiesEditor(
+            List<S> entityTypesPropertyTypes, String string,
+            IViewContext<ICommonClientServiceAsync> vidvContext);
 
     protected static String createId(EntityKind entityKind)
     {
@@ -86,11 +86,6 @@ abstract public class AbstractGenericEntityRegistrationForm<T extends EntityType
         codeField = new CodeField(viewContext, viewContext.getMessage(Dict.CODE));
         codeField.setId(getId() + ID_SUFFIX_CODE);
         createEntitySpecificFields();
-        propertyFields = new ArrayList<Field<?>>();
-        for (final S stpt : entityTypesPropertyTypes)
-        {
-            propertyFields.add(createProperty(stpt));
-        }
     }
 
     private final void addFormFields()
@@ -100,47 +95,15 @@ abstract public class AbstractGenericEntityRegistrationForm<T extends EntityType
         {
             formPanel.add(specificField);
         }
-        for (final Field<?> propertyField : propertyFields)
+        for (final Field<?> propertyField : propertiesEditor.getPropertyFields())
         {
             formPanel.add(propertyField);
         }
     }
 
-    private final Field<?> createProperty(final S etpt)
-    {
-        final Field<?> field;
-        final boolean isMandatory = etpt.isMandatory();
-        final String label = etpt.getPropertyType().getLabel();
-        final String propertyTypeCode = etpt.getPropertyType().getCode();
-        String fieldId = createFormFieldId(getId(), propertyTypeCode);
-        field =
-                PropertyFieldFactory.createField(etpt.getPropertyType(), isMandatory, label,
-                        fieldId, viewContext.getCommonViewContext());
-        field.setData(ETPT, etpt);
-        field.setTitle(propertyTypeCode);
-        return field;
-    }
-
-    private final static String createFormFieldId(String idPrefix, final String propertyTypeCode)
-    {
-        return idPrefix + propertyTypeCode.toLowerCase().replace(".", "-").replace("_", "-");
-    }
-
     protected final List<P> extractProperties()
     {
-        final List<P> properties = new ArrayList<P>();
-        for (final Field<?> field : propertyFields)
-        {
-            if (field.getValue() != null)
-            {
-                final S stpt = field.getData(ETPT);
-                final P sampleProperty = createEntityProperty();
-                sampleProperty.setValue(PropertyFieldFactory.valueToString(field.getValue()));
-                sampleProperty.setEntityTypePropertyType(stpt);
-                properties.add(sampleProperty);
-            }
-        }
-        return properties;
+        return propertiesEditor.extractProperties();
     }
 
     @Override

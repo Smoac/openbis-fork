@@ -441,5 +441,9 @@ public abstract class Dict
     public static final String COMBO_BOX_EXPECTED_VALUE_FROM_THE_LIST =
             "combo_box_expected_value_from_the_list";
 
+    public static final String EDIT_TITLE = "edit_title";
+
+    public static final String BUTTON_EDIT = "edit";
+
     // ----- end generic ------------------
 }

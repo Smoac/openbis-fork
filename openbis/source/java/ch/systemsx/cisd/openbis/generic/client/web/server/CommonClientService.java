@@ -70,6 +70,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -954,7 +955,22 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public void deleteDataSets(List<String> dataSetCodes)
+    public void updateExperiment(String experimentIdentifier, List<ExperimentProperty> properties)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            final ExperimentIdentifier identifier =
+                    new ExperimentIdentifierFactory(experimentIdentifier).createIdentifier();
+            commonServer.editExperiment(sessionToken, identifier, properties);
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+    
+     public void deleteDataSets(List<String> dataSetCodes)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try

@@ -22,6 +22,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -38,6 +39,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.PropertiesEditor;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.SamplePropertyEditor;
 
 /**
  * The <i>generic</i> sample registration form.
@@ -129,12 +132,6 @@ public final class GenericSampleRegistrationForm extends
     }
 
     @Override
-    protected SampleProperty createEntityProperty()
-    {
-        return new SampleProperty();
-    }
-
-    @Override
     protected void createEntitySpecificFields()
     {
         groupSelectionWidget = new GroupSelectionWidget(viewContext, getId(), true);
@@ -156,5 +153,14 @@ public final class GenericSampleRegistrationForm extends
         fields.add(parent);
         fields.add(container);
         return fields;
+    }
+
+    @Override
+    protected PropertiesEditor<SampleType, SampleTypePropertyType, SampleProperty> createPropertiesEditor(
+            List<SampleTypePropertyType> entityTypesPropertyTypes, String string,
+            IViewContext<ICommonClientServiceAsync> context)
+    {
+        return new SamplePropertyEditor<SampleType, SampleTypePropertyType, SampleProperty>(
+                entityTypesPropertyTypes, string, context);
     }
 }

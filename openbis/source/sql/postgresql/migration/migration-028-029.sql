@@ -2,15 +2,15 @@
 -- add modification_timestamp field to allow edition with Hibernate
 -- -------
 
-ALTER TABLE samples	ADD COLUMN modification_timestamp TIME_STAMP DEFAULT NULL;
+ALTER TABLE samples	ADD COLUMN modification_timestamp TIME_STAMP DEFAULT CURRENT_TIMESTAMP;
 
-ALTER TABLE experiments	ADD COLUMN modification_timestamp TIME_STAMP DEFAULT NULL;
+ALTER TABLE experiments	ADD COLUMN modification_timestamp TIME_STAMP DEFAULT CURRENT_TIMESTAMP;
 
 ALTER TABLE materials
-	ADD COLUMN modification_timestamp TIME_STAMP DEFAULT NULL;
-ALTER TABLE experiment_properties	ADD COLUMN modification_timestamp TIME_STAMP DEFAULT NULL;ALTER TABLE material_properties	ADD COLUMN modification_timestamp TIME_STAMP DEFAULT NULL;
+	ADD COLUMN modification_timestamp TIME_STAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE experiment_properties	ADD COLUMN modification_timestamp TIME_STAMP DEFAULT CURRENT_TIMESTAMP;ALTER TABLE material_properties	ADD COLUMN modification_timestamp TIME_STAMP DEFAULT CURRENT_TIMESTAMP;
 
-ALTER TABLE sample_properties	ADD COLUMN modification_timestamp TIME_STAMP DEFAULT NULL;
+ALTER TABLE sample_properties	ADD COLUMN modification_timestamp TIME_STAMP DEFAULT CURRENT_TIMESTAMP;
 
 -- -------
 -- add property data type which references materials

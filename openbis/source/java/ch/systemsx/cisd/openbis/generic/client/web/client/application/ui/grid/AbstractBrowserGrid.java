@@ -82,8 +82,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SortInfo.SortDir;
 public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityModel<T>> extends
         LayoutContainer
 {
-    /** Shows the detail view for the specified entity */
-    abstract protected void showEntityViewer(M modelData);
+    /**
+     * Shows the detail view for the specified entity
+     */
+    abstract protected void showEntityViewer(M modelData, boolean editMode);
 
     abstract protected void listEntities(DefaultResultSetConfig<String, T> resultSetConfig,
             AbstractAsyncCallback<ResultSet<T>> callback);
@@ -493,7 +495,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 public final void handleEvent(final GridEvent be)
                 {
                     ModelData modelData = be.grid.getStore().getAt(be.rowIndex);
-                    showEntityViewer((M) modelData);
+                    showEntityViewer((M) modelData, false);
                 }
             };
     }
@@ -522,13 +524,13 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         void invoke(M selectedItem);
     }
 
-    protected final ISelectedEntityInvoker<M> asShowEntityInvoker()
+    protected final ISelectedEntityInvoker<M> asShowEntityInvoker(final boolean editMode)
     {
         return new ISelectedEntityInvoker<M>()
             {
                 public void invoke(M selectedItem)
                 {
-                    showEntityViewer(selectedItem);
+                    showEntityViewer(selectedItem, editMode);
                 }
             };
     }

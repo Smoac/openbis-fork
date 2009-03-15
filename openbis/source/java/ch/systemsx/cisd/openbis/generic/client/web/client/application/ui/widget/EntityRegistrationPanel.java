@@ -35,8 +35,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonView
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 
 /**
  * The {@link LayoutContainer} extension for registering an entity.
@@ -128,10 +132,10 @@ abstract public class EntityRegistrationPanel<T extends ModelData, S extends Com
         private void showRegistrationForm(final EntityType entityType)
         {
             removeAll();
-            registrationWidget =
+            final IClientPlugin<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>, IIdentifierHolder> clientPlugin =
                     viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
-                            entityType).createClientPlugin(entityKind)
-                            .createRegistrationForEntityType(entityType);
+                            entityType).createClientPlugin(entityKind);
+            registrationWidget = clientPlugin.createRegistrationForEntityType(entityType);
             add(registrationWidget);
             layout();
         }

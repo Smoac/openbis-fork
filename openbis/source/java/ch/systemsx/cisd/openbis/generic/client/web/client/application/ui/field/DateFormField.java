@@ -30,9 +30,9 @@ public final class DateFormField extends DateField
     public DateFormField(final String fieldLabel, final boolean mandatory)
     {
         VarcharField.configureField(this, fieldLabel, mandatory);
-        getPropertyEditor().setFormat(DateRenderer.SHORT_DATE_TIME_FORMAT);
-        final String pattern = DateRenderer.SHORT_DATE_FORMAT_PATTERN;
+        getPropertyEditor().setFormat(DateRenderer.DEFAULT_DATE_TIME_FORMAT);
+        final String pattern = DateRenderer.DEFAULT_DATE_FORMAT_PATTERN;
         setEmptyText(pattern.toUpperCase());
-        setMaxLength(pattern.length());
+        setMaxLength(pattern.length() + 6);
     }
 }

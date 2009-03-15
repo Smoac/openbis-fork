@@ -28,7 +28,13 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 
 /**
@@ -67,9 +73,12 @@ public final class MaterialBatchRegistrationPanel extends LayoutContainer
                         removeAll();
                         final EntityKind entityKind = EntityKind.MATERIAL;
                         add(toolBar);
-                        add(viewContext.getClientPluginFactoryProvider().getClientPluginFactory(
-                                entityKind, materialType).createClientPlugin(entityKind)
-                                .createBatchRegistrationForEntityType(materialType));
+                        final IClientPluginFactory clientPluginFactory =
+                                viewContext.getClientPluginFactoryProvider()
+                                        .getClientPluginFactory(entityKind, materialType);
+                        final IClientPlugin<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>, IIdentifierHolder> createClientPlugin =
+                                clientPluginFactory.createClientPlugin(entityKind);
+                        add(createClientPlugin.createBatchRegistrationForEntityType(materialType));
                         layout();
                     }
                 }

@@ -16,11 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.Version;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -79,6 +82,8 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
     protected transient Long id;
 
     protected EntityTypePropertyTypePE entityTypePropertyType;
+
+    private Date modificationDate;
 
     /**
      * This bridge allows to save in the search index not only the value of property, but also the
@@ -190,6 +195,18 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
         }
     }
 
+    @Version
+    @Column(name = ColumnNames.MODIFICATION_TIMESTAMP_COLUMN, nullable = false)
+    public Date getModificationDate()
+    {
+        return modificationDate;
+    }
+
+    public void setModificationDate(Date versionDate)
+    {
+        this.modificationDate = versionDate;
+    }
+
     //
     // Object
     //
@@ -266,4 +283,5 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
         builder.append(getEntityTypePropertyType());
         return builder.toHashCode();
     }
+
 }

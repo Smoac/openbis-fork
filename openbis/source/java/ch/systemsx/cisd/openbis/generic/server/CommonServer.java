@@ -33,6 +33,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTypeBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
@@ -51,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -99,11 +101,9 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     private final ICommonBusinessObjectFactory businessObjectFactory;
 
-    private final DataStoreServerSessionManager dssSessionManager;
-
+private final DataStoreServerSessionManager dssSessionManager;
     public CommonServer(final IAuthenticationService authenticationService,
-            final ISessionManager<Session> sessionManager,
-            DataStoreServerSessionManager dssSessionManager, final IDAOFactory daoFactory,
+            final ISessionManager<Session> sessionManager, DataStoreServerSessionManager dssSessionManager, final IDAOFactory daoFactory,
             final ICommonBusinessObjectFactory businessObjectFactory)
     {
         super(sessionManager, daoFactory);
@@ -588,7 +588,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             }
         }
         assertDataSetsAreKnown(dataSets, locations);
-        
+
         for (ExternalDataPE dataSet : dataSets)
         {
             externalDataDAO.markAsDeleted(dataSet, session.tryGetPerson(), null);
@@ -625,6 +625,15 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
                             + "May be the responsible Data Store Server is not running.\n"
                             + unknownDataSets);
         }
+    }
+
+    public void editExperiment(String sessionToken, ExperimentIdentifier identifier,
+            List<ExperimentProperty> properties)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
+        experimentBO.edit(identifier, properties);
+        experimentBO.save();
     }
 
 }

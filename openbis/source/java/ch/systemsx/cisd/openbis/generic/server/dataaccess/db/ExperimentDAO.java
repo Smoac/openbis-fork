@@ -110,8 +110,7 @@ public class ExperimentDAO extends AbstractDAO implements IExperimentDAO
         validatePE(experiment);
 
         final HibernateTemplate template = getHibernateTemplate();
-        template.save(experiment);
+        template.saveOrUpdate(experiment);
         template.flush();
     }
-
 }
