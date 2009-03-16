@@ -281,8 +281,8 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             if (index > -1)
             {
                 final T existingProperty = oldProperties.get(index);
-                existingProperty.setValue(p.getValue());
-                existingProperty.setVocabularyTerm(p.getVocabularyTerm());
+                existingProperty.setUntypedValue(p.getValue(), p.getVocabularyTerm(), p
+                        .getMaterialValue());
                 set.add(existingProperty);
             } else
             {
