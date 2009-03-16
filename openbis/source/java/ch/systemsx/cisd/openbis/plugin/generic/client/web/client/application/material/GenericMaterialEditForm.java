@@ -16,13 +16,17 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.material;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import com.extjs.gxt.ui.client.widget.form.Field;
+import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EditableMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEditableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
@@ -35,15 +39,15 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.exp
  * 
  * @author Izabela Adamczyk
  */
-public final class GenericMaterialEditForm extends
-        AbstractGenericEntityEditForm<MaterialType, MaterialTypePropertyType, MaterialProperty>
+public final class GenericMaterialEditForm
+        extends
+        AbstractGenericEntityEditForm<MaterialType, MaterialTypePropertyType, MaterialProperty, EditableMaterial>
 {
 
     private final IViewContext<IGenericClientServiceAsync> viewContext;
 
     public GenericMaterialEditForm(IViewContext<IGenericClientServiceAsync> viewContext,
-            IEditableEntity<MaterialType, MaterialTypePropertyType, MaterialProperty> entity,
-            boolean editMode)
+            EditableMaterial entity, boolean editMode)
     {
         super(viewContext, entity, editMode);
         this.viewContext = viewContext;
@@ -76,7 +80,7 @@ public final class GenericMaterialEditForm extends
         protected final void process(final Void result)
         {
             infoBox.displayInfo(createSuccessfullRegistrationInfo());
-            showPropertyGrid();
+            showCheckPage();
         }
     }
 
@@ -87,6 +91,18 @@ public final class GenericMaterialEditForm extends
     {
         return new MaterialPropertyEditor<MaterialType, MaterialTypePropertyType, MaterialProperty>(
                 entityTypesPropertyTypes, properties, id);
+    }
+
+    @Override
+    protected List<Field<?>> getEntitySpecificFormFields()
+    {
+        return new ArrayList<Field<?>>();
+    }
+
+    @Override
+    protected List<Widget> getEntitySpecificDisplayComponents()
+    {
+        return new ArrayList<Widget>();
     }
 
 }

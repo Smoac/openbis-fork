@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.event.ComponentEvent;
@@ -23,6 +24,7 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -37,11 +39,11 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.exp
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.PropertiesEditor;
 
 /**
- * The <i>generic</i> entity edit form.
+ * The <i>generic</i> entity edit form. Two modes are available: edit and check.
  * 
  * @author Izabela Adamczyk
  */
-abstract public class AbstractGenericEntityEditForm<T extends EntityType, S extends EntityTypePropertyType<T>, P extends EntityProperty<T, S>>
+abstract public class AbstractGenericEntityEditForm<T extends EntityType, S extends EntityTypePropertyType<T>, P extends EntityProperty<T, S>, V extends IEditableEntity<T, S, P>>
         extends AbstractRegistrationForm
 {
 
@@ -51,34 +53,46 @@ abstract public class AbstractGenericEntityEditForm<T extends EntityType, S exte
 
     private boolean editMode;
 
-    private Button editButton;
+    protected final V entity;
 
-    protected final IEditableEntity<T, S, P> entity;
+    private List<Widget> checkComponents;
+
+    abstract protected List<Widget> getEntitySpecificDisplayComponents();
+
+    abstract protected List<Field<?>> getEntitySpecificFormFields();
 
     abstract protected PropertiesEditor<T, S, P> createPropertiesEditor(
             List<S> entityTypesPropertyTypes, List<P> properties, String string);
 
-    public AbstractGenericEntityEditForm(final IViewContext<?> viewContext,
-            IEditableEntity<T, S, P> entity, boolean editMode)
+    public AbstractGenericEntityEditForm(final IViewContext<?> viewContext, V entity,
+            boolean editMode)
     {
         super(viewContext, createId(entity.getEntityKind(), entity.getIdentifier()));
+        checkComponents = new ArrayList<Widget>();
         this.entity = entity;
         this.editMode = editMode;
         editor =
                 createPropertiesEditor(entity.getEntityTypePropertyTypes(), entity.getProperties(),
                         createId(entity.getEntityKind(), entity.getIdentifier()));
         grid = new EntityPropertyGrid<T, S, P>(viewContext, entity.getProperties());
-        add(grid.getWidget());
-        add(editButton =
-                new Button(viewContext.getMessage(Dict.BUTTON_EDIT),
-                        new SelectionListener<ComponentEvent>()
-                            {
-                                @Override
-                                public void componentSelected(ComponentEvent ce)
-                                {
-                                    showPropertyEditor();
-                                }
-                            }));
+        for (Widget w : getEntitySpecificDisplayComponents())
+        {
+            checkComponents.add(w);
+        }
+        checkComponents.add(grid.getWidget());
+        checkComponents.add(new Button(viewContext.getMessage(Dict.BUTTON_EDIT),
+                new SelectionListener<ComponentEvent>()
+                    {
+                        @Override
+                        public void componentSelected(ComponentEvent ce)
+                        {
+                            showEditor();
+                        }
+                    }));
+        for (Widget w : checkComponents)
+        {
+            add(w);
+        }
     }
 
     protected static String createId(EntityKind entityKind, String identifier)
@@ -93,6 +107,10 @@ abstract public class AbstractGenericEntityEditForm<T extends EntityType, S exte
 
     private final void addFormFields()
     {
+        for (final Field<?> specificField : getEntitySpecificFormFields())
+        {
+            formPanel.add(specificField);
+        }
         for (final Field<?> propertyField : editor.getPropertyFields())
         {
             formPanel.add(propertyField);
@@ -108,28 +126,30 @@ abstract public class AbstractGenericEntityEditForm<T extends EntityType, S exte
     protected final void onRender(final Element target, final int index)
     {
         super.onRender(target, index);
-        setMode(editMode);
+        setEditMode(editMode);
         addFormFields();
     }
 
-    private void setMode(boolean edit)
+    private void setEditMode(boolean edit)
     {
         this.editMode = edit;
         formPanel.setVisible(edit);
-        grid.getWidget().setVisible(edit == false);
-        editButton.setVisible(edit == false);
+        for (Widget w : checkComponents)
+        {
+            w.setVisible(edit == false);
+        }
     }
 
-    protected void showPropertyEditor()
+    protected void showEditor()
     {
-        setMode(true);
+        setEditMode(true);
         infoBox.reset();
     }
 
-    protected void showPropertyGrid()
+    protected void showCheckPage()
     {
         updateState();
-        setMode(false);
+        setEditMode(false);
     }
 
     @SuppressWarnings("unchecked")

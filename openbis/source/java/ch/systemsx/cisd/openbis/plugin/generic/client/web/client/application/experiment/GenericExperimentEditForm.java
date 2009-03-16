@@ -16,16 +16,20 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import com.extjs.gxt.ui.client.widget.form.Field;
+import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EditableExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEditableEntity;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityEditForm;
 
@@ -36,14 +40,13 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Abs
  */
 public final class GenericExperimentEditForm
         extends
-        AbstractGenericEntityEditForm<ExperimentType, ExperimentTypePropertyType, ExperimentProperty>
+        AbstractGenericEntityEditForm<ExperimentType, ExperimentTypePropertyType, ExperimentProperty, EditableExperiment>
 {
 
     private final IViewContext<IGenericClientServiceAsync> viewContext;
 
     public GenericExperimentEditForm(IViewContext<IGenericClientServiceAsync> viewContext,
-            IEditableEntity<ExperimentType, ExperimentTypePropertyType, ExperimentProperty> entity,
-            boolean editMode)
+            EditableExperiment entity, boolean editMode)
     {
         super(viewContext, entity, editMode);
         this.viewContext = viewContext;
@@ -76,7 +79,7 @@ public final class GenericExperimentEditForm
         protected final void process(final Void result)
         {
             infoBox.displayInfo(createSuccessfullRegistrationInfo());
-            showPropertyGrid();
+            showCheckPage();
         }
     }
 
@@ -87,6 +90,18 @@ public final class GenericExperimentEditForm
     {
         return new ExperimentPropertyEditor<ExperimentType, ExperimentTypePropertyType, ExperimentProperty>(
                 entityTypesPropertyTypes, properties, id);
+    }
+
+    @Override
+    protected List<Field<?>> getEntitySpecificFormFields()
+    {
+        return new ArrayList<Field<?>>();
+    }
+
+    @Override
+    protected List<Widget> getEntitySpecificDisplayComponents()
+    {
+        return new ArrayList<Widget>();
     }
 
 }
