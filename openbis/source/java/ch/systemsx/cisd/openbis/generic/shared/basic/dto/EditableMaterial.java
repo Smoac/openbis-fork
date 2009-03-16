@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import java.util.Date;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EditableEntity;
 
 /**
  * @author Izabela Adamczyk
