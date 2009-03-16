@@ -30,9 +30,10 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexReader.FieldOption;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.highlight.Formatter;
 import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.QueryScorer;
-import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
+import org.apache.lucene.search.highlight.TokenGroup;
 import org.apache.lucene.search.highlight.TokenSources;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
@@ -259,8 +260,21 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
 
         private static Highlighter createHighlighter(Query query)
         {
-            SimpleHTMLFormatter htmlFormatter = new SimpleHTMLFormatter();
+            Formatter htmlFormatter = createFormatter();
             return new Highlighter(htmlFormatter, new QueryScorer(query));
+        }
+
+        private static Formatter createFormatter()
+        {
+            // NOTE: we do not use SimpleHTMLFormatter because we want to escape html in the search
+            // results.
+            return new Formatter()
+                {
+                    public String highlightTerm(String text, TokenGroup tokenGroup)
+                    {
+                        return text; // no highlight at all
+                    }
+                };
         }
 
         public String getBestFragment(String fieldContent, String fieldName, int documentId)
