@@ -22,6 +22,7 @@ import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.util.List;
+import java.util.Set;
 
 import org.testng.annotations.Test;
 
@@ -34,6 +35,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
@@ -150,6 +153,27 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         assertEquals(externalData.getComplete(), dataSet.getComplete());
         assertEquals(externalData.getStorageFormat(), dataSet.getStorageFormat());
         assertEquals(externalData.isPlaceholder(), dataSet.isPlaceholder());
+    }
+    
+    @Test 
+    public void testMarkAsDeleted()
+    {
+        testCreateDataSet();
+        final IExternalDataDAO externalDataDAO = daoFactory.getExternalDataDAO();
+        SamplePE sample = pickASample();
+        List<ExternalDataPE> list = externalDataDAO.listExternalData(sample, SourceType.MEASUREMENT);
+        ExternalDataPE data = list.get(0);
+        
+        externalDataDAO.markAsDeleted(data, getTestPerson(), "testing deletion");
+        
+        assertEquals(0, externalDataDAO.listExternalData(sample, SourceType.MEASUREMENT).size());
+        DataPE retrievedData = externalDataDAO.tryToFindDataSetByCode(data.getCode());
+        assertEquals(true, retrievedData.isDeleted());
+        Set<EventPE> events = retrievedData.getEvents();
+        assertEquals(1, events.size());
+        EventPE event = events.iterator().next();
+        assertEquals("testing deletion", event.getReason());
+        assertEquals(EventType.DELETION, event.getEventType());
     }
 
     protected VocabularyTermPE pickAStorageFormatVocabularyTerm()

@@ -83,6 +83,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE>
     private String code;
 
     private boolean placeholder;
+    
+    private boolean deleted;
 
     /** Registration date of the database instance. */
     private Date registrationDate;
@@ -147,6 +149,17 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE>
     public void setPlaceholder(final boolean placeholder)
     {
         this.placeholder = placeholder;
+    }
+
+    @Column(name = ColumnNames.IS_DELETED_COLUMN)
+    public boolean isDeleted()
+    {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted)
+    {
+        this.deleted = deleted;
     }
 
     @ManyToOne(fetch = FetchType.EAGER)

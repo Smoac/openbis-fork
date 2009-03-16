@@ -91,10 +91,10 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
             Set<DataPE> data = procedure.getData();
             for (DataPE dataSet : data)
             {
-                HibernateUtils.initialize(dataSet.getParents());
-                if (dataSet instanceof ExternalDataPE)
+                if (dataSet.isDeleted() == false && dataSet instanceof ExternalDataPE)
                 {
                     ExternalDataPE externalDataPE = (ExternalDataPE) dataSet;
+                    HibernateUtils.initialize(dataSet.getParents());
                     enrichWithParentsAndProcedure(externalDataPE);
                     externalData.add(externalDataPE);
                 }

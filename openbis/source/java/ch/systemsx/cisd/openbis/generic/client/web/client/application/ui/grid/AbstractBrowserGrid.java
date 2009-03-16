@@ -214,6 +214,14 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     {
         columnListener.registerCellClickListener(columnID, listener);
     }
+    
+    /**
+     * Allows multiple selection instead of single selection.
+     */
+    public void allowMultipleSelection()
+    {
+        grid.getSelectionModel().setSelectionMode(SelectionMode.MULTI);
+    }
 
     private List<PagingColumnFilter<T>> createFilterWidgets()
     {
@@ -270,13 +278,13 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             {
                 public T tryGetSingleSelected()
                 {
-                    M selectedModel = tryGetSelectedItem();
-                    if (selectedModel != null)
-                    {
-                        return selectedModel.getBaseObject();
-                    } else
+                    List<M> items = getSelectedItems();
+                    if (items.isEmpty())
                     {
                         return null;
+                    } else
+                    {
+                        return items.get(0).getBaseObject();
                     }
                 }
 
@@ -530,7 +538,10 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             {
                 public void invoke(M selectedItem)
                 {
-                    showEntityViewer(selectedItem, editMode);
+                    if (selectedItem != null)
+                    {
+                        showEntityViewer(selectedItem, editMode);
+                    }
                 }
             };
     }
@@ -568,10 +579,10 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 @Override
                 public void componentSelected(ButtonEvent ce)
                 {
-                    M selectedItem = tryGetSelectedItem();
-                    if (selectedItem != null)
+                    List<M> selectedItems = getSelectedItems();
+                    if (selectedItems.isEmpty() == false)
                     {
-                        invoker.invoke(selectedItem);
+                        invoker.invoke(selectedItems.get(0));
                     }
                 }
             });
@@ -581,7 +592,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     {
                         public void handleEvent(SelectionEvent<ModelData> se)
                         {
-                            boolean enabled = se.selection.size() > 0;
+                            boolean enabled = se.selection.size() == 1;
                             button.setEnabled(enabled);
                         }
 
@@ -590,12 +601,11 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     /**
-     * @return item selected in the grid or null if nothing is selected (can happen when a grid is
-     *         empty)
+     * Returns all selected items or an empty list if nothing selected.
      */
-    protected final M tryGetSelectedItem()
+    protected final List<M> getSelectedItems()
     {
-        return grid.getSelectionModel().getSelectedItem();
+        return grid.getSelectionModel().getSelectedItems();
     }
 
     protected final SelectionChangedListener<?> addRefreshButton(ToolBar container)

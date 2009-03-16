@@ -86,7 +86,7 @@ final class ExternalDataDAO extends AbstractDAO implements IExternalDataDAO
 
         final List<ExternalDataPE> list =
                 cast(getHibernateTemplate().find(
-                        String.format("from %s e where e.%s = ?", TABLE_NAME, sourceType
+                        String.format("from %s e where e.%s = ? and e.deleted = false", TABLE_NAME, sourceType
                                 .getFieldName()), toArray(sample)));
         if (operationLog.isDebugEnabled())
         {
@@ -196,6 +196,7 @@ final class ExternalDataDAO extends AbstractDAO implements IExternalDataDAO
     {
         assert dataSet != null : "Unspecified data set.";
         
+        dataSet.setDeleted(true);
         EventPE event = new EventPE();
         event.setEventType(EventType.DELETION);
         event.setReason(reason);

@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -128,11 +127,14 @@ public abstract class AbstractExternalDataGrid extends AbstractSimpleBrowserGrid
                 @Override
                 public void componentSelected(ButtonEvent ce)
                 {
-                    BaseEntityModel<ExternalData> item = tryGetSelectedItem();
-                    if (item != null)
+                    List<BaseEntityModel<ExternalData>> items = getSelectedItems();
+                    if (items.isEmpty() == false)
                     {
-                        ExternalData dataSet = item.getBaseObject();
-                        List<ExternalData> dataSets = Arrays.asList(dataSet);
+                        List<ExternalData> dataSets = new ArrayList<ExternalData>();
+                        for (BaseEntityModel<ExternalData> item : items)
+                        {
+                            dataSets.add(item.getBaseObject());
+                        }
                         IBrowserGridActionInvoker invoker = asActionInvoker();
                         new DeletionConfirmationDialog(viewContext, dataSets, invoker).show();
                     }
@@ -140,6 +142,7 @@ public abstract class AbstractExternalDataGrid extends AbstractSimpleBrowserGrid
                 }
             });
         pagingToolbar.add(new AdapterToolItem(deleteButton));
+        allowMultipleSelection();
     }
 
     @Override

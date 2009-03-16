@@ -97,6 +97,8 @@ public final class ColumnNames
     public static final String IS_ORIGINAL_SOURCE_COLUMN = "is_original_source";
 
     public static final String IS_PLACEHOLDER_COLUMN = "is_placeholder";
+    
+    public static final String IS_DELETED_COLUMN = "is_deleted";
 
     public static final String LABEL_COLUMN = "label";
 

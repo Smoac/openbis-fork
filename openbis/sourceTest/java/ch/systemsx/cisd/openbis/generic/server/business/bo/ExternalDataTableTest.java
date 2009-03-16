@@ -153,7 +153,11 @@ public final class ExternalDataTableTest extends AbstractBOTest
     {
         final ExperimentIdentifier identifier = new ExperimentIdentifier(
                 new ProjectIdentifier("db", "group", "project"), "exp");
-        final ExternalDataPE externalDataPE = new ExternalDataPE();
+        final ExternalDataPE data1 = new ExternalDataPE();
+        data1.setCode("d1");
+        final ExternalDataPE data2 = new ExternalDataPE();
+        data2.setCode("d2");
+        data2.setDeleted(true);
         context.checking(new Expectations()
             {
                 {
@@ -174,7 +178,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
                     one(experimentDAO).tryFindByCodeAndProject(projectPE, "EXP");
                     ExperimentPE experimentPE = new ExperimentPE();
                     ProcedurePE procedurePE = new ProcedurePE();
-                    procedurePE.setData(new HashSet<DataPE>(Arrays.asList(externalDataPE)));
+                    procedurePE.setData(new HashSet<DataPE>(Arrays.asList(data1, data2)));
                     experimentPE.addProcedure(procedurePE);
                     will(returnValue(experimentPE));
                 }
@@ -185,7 +189,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
         
         List<ExternalDataPE> list = externalDataTable.getExternalData();
         assertEquals(1, list.size());
-        assertSame(externalDataPE, list.get(0));
+        assertSame(data1, list.get(0));
         
         context.assertIsSatisfied();
     }
