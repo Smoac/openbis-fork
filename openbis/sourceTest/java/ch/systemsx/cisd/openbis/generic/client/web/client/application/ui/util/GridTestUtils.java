@@ -18,11 +18,17 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util;
 
 import junit.framework.Assert;
 
+import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.GridEvent;
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.BrowserGridPagingToolBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.TestUtil;
 
 /**
  * Utility methods to test subclasses of {@link AbstractBrowserGrid}
@@ -39,4 +45,42 @@ public class GridTestUtils
         Assert.assertTrue(refresh.isEnabled());
         GWTTestUtil.clickButtonWithID(BrowserGridPagingToolBar.REFRESH_BUTTON_ID);
     }
+
+    /**
+     * Fires a double click event on a first row which contains given value in a column with a
+     * specified id.
+     */
+    public static <T extends ModelData> void fireDoubleClick(final Grid<T> table, String columnId,
+            String columnValue)
+    {
+        GridEvent event = createGridEvent(table, columnId, columnValue);
+        table.fireEvent(Events.CellDoubleClick, event);
+    }
+
+    private static <T extends ModelData> GridEvent createGridEvent(final Grid<T> table,
+            String columnId, String columnValue)
+    {
+        final ListStore<T> store = table.getStore();
+        String codes = "";
+        for (int i = 0; i < store.getCount(); i++)
+        {
+            final T row = store.getAt(i);
+            String rowCode = TestUtil.normalize(row.get(columnId));
+            if (columnValue.equalsIgnoreCase(rowCode))
+            {
+                final GridEvent gridEvent = new GridEvent(table);
+                gridEvent.rowIndex = i;
+                return gridEvent;
+            }
+            codes += rowCode;
+            if (i < store.getCount() - 1)
+            {
+                codes += ", ";
+            }
+        }
+        Assert.fail("The column with id '" + columnId + "' has never the value '" + columnValue
+                + "'. Following values were found: " + codes);
+        return null; // just to make the compiler happy
+    }
+
 }
