@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sa
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
@@ -27,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEditableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityEditForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.PropertiesEditor;
 
@@ -39,9 +39,9 @@ public final class GenericSampleEditForm extends
         AbstractGenericEntityEditForm<SampleType, SampleTypePropertyType, SampleProperty>
 {
 
-    private final IViewContext<ICommonClientServiceAsync> viewContext;
+    private final IViewContext<IGenericClientServiceAsync> viewContext;
 
-    public GenericSampleEditForm(IViewContext<ICommonClientServiceAsync> viewContext,
+    public GenericSampleEditForm(IViewContext<IGenericClientServiceAsync> viewContext,
             IEditableEntity<SampleType, SampleTypePropertyType, SampleProperty> entity,
             boolean editMode)
     {
@@ -55,7 +55,7 @@ public final class GenericSampleEditForm extends
     public final void submitValidForm()
     {
         final List<SampleProperty> properties = extractProperties();
-        viewContext.getService().updateSample(entity.getIdentifier(), properties,
+        viewContext.getCommonService().updateSample(entity.getIdentifier(), properties,
                 new RegisterSampleCallback(viewContext));
     }
 

@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ma
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
@@ -27,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEditableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityEditForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.PropertiesEditor;
 
@@ -39,9 +39,9 @@ public final class GenericMaterialEditForm extends
         AbstractGenericEntityEditForm<MaterialType, MaterialTypePropertyType, MaterialProperty>
 {
 
-    private final IViewContext<ICommonClientServiceAsync> viewContext;
+    private final IViewContext<IGenericClientServiceAsync> viewContext;
 
-    public GenericMaterialEditForm(IViewContext<ICommonClientServiceAsync> viewContext,
+    public GenericMaterialEditForm(IViewContext<IGenericClientServiceAsync> viewContext,
             IEditableEntity<MaterialType, MaterialTypePropertyType, MaterialProperty> entity,
             boolean editMode)
     {
@@ -55,7 +55,7 @@ public final class GenericMaterialEditForm extends
     public final void submitValidForm()
     {
         final List<MaterialProperty> properties = extractProperties();
-        viewContext.getService().updateMaterial(entity.getIdentifier(), properties,
+        viewContext.getCommonService().updateMaterial(entity.getIdentifier(), properties,
                 new RegisterMaterialCallback(viewContext));
     }
 

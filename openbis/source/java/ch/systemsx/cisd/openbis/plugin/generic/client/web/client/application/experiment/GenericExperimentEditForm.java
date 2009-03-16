@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ex
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
@@ -27,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEditableEntity;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityEditForm;
 
 /**
@@ -39,9 +39,9 @@ public final class GenericExperimentEditForm
         AbstractGenericEntityEditForm<ExperimentType, ExperimentTypePropertyType, ExperimentProperty>
 {
 
-    private final IViewContext<ICommonClientServiceAsync> viewContext;
+    private final IViewContext<IGenericClientServiceAsync> viewContext;
 
-    public GenericExperimentEditForm(IViewContext<ICommonClientServiceAsync> viewContext,
+    public GenericExperimentEditForm(IViewContext<IGenericClientServiceAsync> viewContext,
             IEditableEntity<ExperimentType, ExperimentTypePropertyType, ExperimentProperty> entity,
             boolean editMode)
     {
@@ -55,7 +55,7 @@ public final class GenericExperimentEditForm
     public final void submitValidForm()
     {
         final List<ExperimentProperty> properties = extractProperties();
-        viewContext.getService().updateExperiment(entity.getIdentifier(), properties,
+        viewContext.getCommonService().updateExperiment(entity.getIdentifier(), properties,
                 new RegisterExperimentCallback(viewContext));
     }
 

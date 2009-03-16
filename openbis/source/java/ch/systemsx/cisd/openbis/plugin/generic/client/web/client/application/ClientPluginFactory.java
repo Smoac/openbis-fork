@@ -161,8 +161,7 @@ public final class ClientPluginFactory extends
                     public ITabItem create()
                     {
                         Component component =
-                                new GenericSampleEditForm(getViewContext().getCommonViewContext(),
-                                        entity, true);
+                                new GenericSampleEditForm(getViewContext(), entity, true);
                         return new DefaultTabItem(getViewContext().getMessage(Dict.EDIT_TITLE,
                                 entity.getIdentifier()), component, false);
                     }
@@ -196,8 +195,7 @@ public final class ClientPluginFactory extends
                     public ITabItem create()
                     {
                         Component component =
-                                new GenericMaterialEditForm(
-                                        getViewContext().getCommonViewContext(), entity, true);
+                                new GenericMaterialEditForm(getViewContext(), entity, true);
                         return new DefaultTabItem(getViewContext().getMessage(Dict.EDIT_TITLE,
                                 entity.getIdentifier()), component, false);
                     }
@@ -254,8 +252,7 @@ public final class ClientPluginFactory extends
                     public ITabItem create()
                     {
                         Component component =
-                                new GenericExperimentEditForm(getViewContext()
-                                        .getCommonViewContext(), entity, true);
+                                new GenericExperimentEditForm(getViewContext(), entity, true);
                         return new DefaultTabItem(getViewContext().getMessage(Dict.EDIT_TITLE,
                                 entity.getIdentifier()), component, false);
                     }
