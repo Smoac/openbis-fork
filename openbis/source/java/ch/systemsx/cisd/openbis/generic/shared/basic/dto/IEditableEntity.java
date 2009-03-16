@@ -35,4 +35,6 @@ public interface IEditableEntity<T extends EntityType, S extends EntityTypePrope
     public T getType();
 
     public String getIdentifier();
+
+    public Long getId();
 }

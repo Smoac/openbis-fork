@@ -168,7 +168,7 @@ public final class ClientPluginFactory extends
 
                     public String getId()
                     {
-                        return GenericSampleEditForm.ID_PREFIX + entity.getIdentifier();
+                        return GenericSampleEditForm.ID_PREFIX + entity.getId();
                     }
                 };
         }
@@ -202,7 +202,7 @@ public final class ClientPluginFactory extends
 
                     public String getId()
                     {
-                        return GenericMaterialEditForm.ID_PREFIX + entity.getIdentifier();
+                        return GenericMaterialEditForm.ID_PREFIX + entity.getId();
                     }
                 };
         }
@@ -259,7 +259,7 @@ public final class ClientPluginFactory extends
 
                     public String getId()
                     {
-                        return GenericExperimentEditForm.ID_PREFIX + entity.getIdentifier();
+                        return GenericExperimentEditForm.ID_PREFIX + entity.getId();
                     }
                 };
         }
