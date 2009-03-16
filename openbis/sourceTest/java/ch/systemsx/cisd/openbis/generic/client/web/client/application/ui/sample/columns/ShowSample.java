@@ -16,18 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns;
 
-import com.extjs.gxt.ui.client.Events;
-import com.extjs.gxt.ui.client.event.GridEvent;
-import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.GridTestUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
-import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.TestUtil;
 
 /**
  * A {@link AbstractDefaultTestCommand} extension for showing a sample of given code.
@@ -50,31 +47,11 @@ public final class ShowSample extends AbstractDefaultTestCommand
         final Widget widget = GWTTestUtil.getWidgetWithID(SampleBrowserGrid.GRID_ID);
         assertTrue(widget instanceof Grid);
         final Grid<SampleModel> table = (Grid<SampleModel>) widget;
-        table.fireEvent(Events.CellDoubleClick, createGridEvent(table));
+        fireDoubleClick(table);
     }
 
-    private GridEvent createGridEvent(final Grid<SampleModel> table)
+    private void fireDoubleClick(final Grid<SampleModel> table)
     {
-        final ListStore<SampleModel> store = table.getStore();
-        String codes = "";
-        for (int i = 0; i < store.getCount(); i++)
-        {
-            final SampleModel row = store.getAt(i);
-            String rowCode = TestUtil.normalize(row.get(CommonSampleColDefKind.CODE.id()));
-            if (code.equalsIgnoreCase(rowCode))
-            {
-                final GridEvent gridEvent = new GridEvent(table);
-                gridEvent.rowIndex = i;
-                return gridEvent;
-            }
-            codes += rowCode;
-            if (i < store.getCount() - 1)
-            {
-                codes += ", ";
-            }
-        }
-        fail("Sample '" + code + "' not found in store with following codes: " + codes);
-        return null; // just to make the compiler happy
+        GridTestUtils.fireDoubleClick(table, CommonSampleColDefKind.CODE.id(), code);
     }
-
 }

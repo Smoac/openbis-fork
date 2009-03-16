@@ -16,17 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment;
 
-import com.extjs.gxt.ui.client.Events;
-import com.extjs.gxt.ui.client.event.GridEvent;
-import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExperimentModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.experiment.CommonExperimentColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.GridTestUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
-import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.TestUtil;
 
 /**
  * A {@link AbstractDefaultTestCommand} extension for showing a experiment of given code.
@@ -40,7 +37,6 @@ public class ShowExperiment extends AbstractDefaultTestCommand
     public ShowExperiment(final String code)
     {
         this.code = code;
-        addCallbackClass(ExperimentBrowserGrid.ListEntitiesCallback.class);
     }
 
     @SuppressWarnings("unchecked")
@@ -49,23 +45,6 @@ public class ShowExperiment extends AbstractDefaultTestCommand
         final Widget widget = GWTTestUtil.getWidgetWithID(ExperimentBrowserGrid.GRID_ID);
         assertTrue(widget instanceof Grid);
         final Grid<ExperimentModel> table = (Grid<ExperimentModel>) widget;
-        table.fireEvent(Events.CellDoubleClick, createGridEvent(table));
-    }
-
-    private GridEvent createGridEvent(final Grid<ExperimentModel> table)
-    {
-        final ListStore<ExperimentModel> store = table.getStore();
-        for (int i = 0; i < store.getCount(); i++)
-        {
-            final ExperimentModel row = store.getAt(i);
-            if (code.equalsIgnoreCase(TestUtil.normalize(row.get(CommonExperimentColDefKind.CODE.id()))))
-            {
-                final GridEvent gridEvent = new GridEvent(table);
-                gridEvent.rowIndex = i;
-                return gridEvent;
-            }
-        }
-        fail("Experiment '" + code + "' not found in store with " + store.getCount() + " rows.");
-        return null;
+        GridTestUtils.fireDoubleClick(table, CommonExperimentColDefKind.CODE.id(), code);
     }
 }
