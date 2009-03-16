@@ -46,7 +46,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EditableEntity;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EditableExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -129,14 +129,12 @@ public final class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment,
         criteria.setResultSetKey(resultSetConfig.getResultSetKey());
     }
 
-    private IEditableEntity<ExperimentType, ExperimentTypePropertyType, ExperimentProperty> createEditableEntity(
-            Experiment experiment, ExperimentType selectedType)
+    private EditableExperiment createEditableEntity(Experiment experiment,
+            ExperimentType selectedType)
     {
-        final EntityKind entityKind = EntityKind.EXPERIMENT;
-        return new EditableEntity<ExperimentType, ExperimentTypePropertyType, ExperimentProperty>(
-                entityKind, selectedType.getExperimentTypePropertyTypes(), experiment
-                        .getProperties(), selectedType, experiment.getIdentifier(), experiment
-                        .getId(), experiment.getModificationDate());
+        return new EditableExperiment(selectedType.getExperimentTypePropertyTypes(), experiment
+                .getProperties(), selectedType, experiment.getIdentifier(), experiment.getId(),
+                experiment.getModificationDate());
     }
 
     @Override
@@ -150,14 +148,14 @@ public final class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment,
                         experiment.getExperimentType());
         if (editMode)
         {
-            final IClientPlugin<ExperimentType, ExperimentTypePropertyType, ExperimentProperty, IIdentifierHolder> createClientPlugin =
+            final IClientPlugin<ExperimentType, ExperimentTypePropertyType, ExperimentProperty, IIdentifierHolder, EditableExperiment> createClientPlugin =
                     clientPluginFactory.createClientPlugin(entityKind);
             tabView =
                     createClientPlugin.createEntityEditor(createEditableEntity(experiment, criteria
                             .getExperimentType()));
         } else
         {
-            final IClientPlugin<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>, IIdentifierHolder> createClientPlugin =
+            final IClientPlugin<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>, IIdentifierHolder, IEditableEntity<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>>> createClientPlugin =
                     clientPluginFactory.createClientPlugin(entityKind);
             tabView = createClientPlugin.createEntityViewer(experiment);
         }

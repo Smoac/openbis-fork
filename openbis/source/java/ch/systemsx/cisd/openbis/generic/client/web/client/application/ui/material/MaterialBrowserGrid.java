@@ -45,9 +45,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Material;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EditableEntity;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EditableMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEditableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
@@ -235,22 +234,20 @@ public final class MaterialBrowserGrid extends AbstractBrowserGrid<Material, Mat
                         material.getMaterialType());
         if (editMode)
         {
-            final IClientPlugin<MaterialType, MaterialTypePropertyType, MaterialProperty, IIdentifierHolder> createClientPlugin =
+            final IClientPlugin<MaterialType, MaterialTypePropertyType, MaterialProperty, IIdentifierHolder, EditableMaterial> createClientPlugin =
                     clientPluginFactory.createClientPlugin(entityKind);
-            final IEditableEntity<MaterialType, MaterialTypePropertyType, MaterialProperty> entity =
+            final EditableMaterial entity =
                     createEditableEntity(material, criteria.getMaterialType());
             tabView = createClientPlugin.createEntityEditor(entity);
         }
         DispatcherHelper.dispatchNaviEvent(tabView);
     }
 
-    private IEditableEntity<MaterialType, MaterialTypePropertyType, MaterialProperty> createEditableEntity(
-            Material entity, MaterialType selectedType)
+    private EditableMaterial createEditableEntity(Material entity, MaterialType selectedType)
     {
-        final EntityKind entityKind = EntityKind.MATERIAL;
-        return new EditableEntity<MaterialType, MaterialTypePropertyType, MaterialProperty>(
-                entityKind, selectedType.getMaterialTypePropertyTypes(), entity.getProperties(),
-                selectedType, entity.getCode() + " (" + entity.getMaterialType().getCode() + ")",
-                entity.getId(), entity.getModificationDate());
+        return new EditableMaterial(selectedType.getMaterialTypePropertyTypes(), entity
+                .getProperties(), selectedType, entity.getCode() + " ("
+                + entity.getMaterialType().getCode() + ")", entity.getId(), entity
+                .getModificationDate());
     }
 }

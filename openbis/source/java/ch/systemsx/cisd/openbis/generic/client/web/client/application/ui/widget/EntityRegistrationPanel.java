@@ -132,7 +132,7 @@ abstract public class EntityRegistrationPanel<T extends ModelData, S extends Com
         private void showRegistrationForm(final EntityType entityType)
         {
             removeAll();
-            final IClientPlugin<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>, IIdentifierHolder> clientPlugin =
+            final IClientPlugin<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>, IIdentifierHolder, ?> clientPlugin =
                     viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
                             entityType).createClientPlugin(entityKind);
             registrationWidget = clientPlugin.createRegistrationForEntityType(entityType);

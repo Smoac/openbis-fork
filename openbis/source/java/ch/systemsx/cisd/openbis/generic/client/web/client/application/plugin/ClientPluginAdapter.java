@@ -31,8 +31,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEditableEntity;
  * 
  * @author Christian Ribeaud
  */
-public class ClientPluginAdapter<E extends EntityType, S extends EntityTypePropertyType<E>, P extends EntityProperty<E, S>, I extends IIdentifierHolder>
-        implements IClientPlugin<E, S, P, I>
+public class ClientPluginAdapter<E extends EntityType, S extends EntityTypePropertyType<E>, P extends EntityProperty<E, S>, I extends IIdentifierHolder, V extends IEditableEntity<E, S, P>>
+        implements IClientPlugin<E, S, P, I, V>
 {
 
     //
@@ -54,7 +54,7 @@ public class ClientPluginAdapter<E extends EntityType, S extends EntityTypePrope
         throw new UnsupportedOperationException("Not yet implemented.");
     }
 
-    public ITabItemFactory createEntityEditor(IEditableEntity<E, S, P> entity)
+    public ITabItemFactory createEntityEditor(V entity)
     {
         throw new UnsupportedOperationException("Not yet implemented.");
     }

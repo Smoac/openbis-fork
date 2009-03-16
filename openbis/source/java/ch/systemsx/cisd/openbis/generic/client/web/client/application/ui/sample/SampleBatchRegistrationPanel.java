@@ -75,7 +75,7 @@ public final class SampleBatchRegistrationPanel extends LayoutContainer
                         removeAll();
                         final EntityKind entityKind = EntityKind.SAMPLE;
                         add(toolBar);
-                        final IClientPlugin<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>, IIdentifierHolder> createClientPlugin =
+                        final IClientPlugin<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>, IIdentifierHolder, ?> createClientPlugin =
                                 viewContext.getClientPluginFactoryProvider()
                                         .getClientPluginFactory(entityKind, sampleType)
                                         .createClientPlugin(entityKind);

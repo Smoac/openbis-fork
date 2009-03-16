@@ -76,7 +76,7 @@ public final class MaterialBatchRegistrationPanel extends LayoutContainer
                         final IClientPluginFactory clientPluginFactory =
                                 viewContext.getClientPluginFactoryProvider()
                                         .getClientPluginFactory(entityKind, materialType);
-                        final IClientPlugin<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>, IIdentifierHolder> createClientPlugin =
+                        final IClientPlugin<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>, IIdentifierHolder, ?> createClientPlugin =
                                 clientPluginFactory.createClientPlugin(entityKind);
                         add(createClientPlugin.createBatchRegistrationForEntityType(materialType));
                         layout();

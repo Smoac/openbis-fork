@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEditableEntity;
  * 
  * @author Christian Ribeaud
  */
-public interface IClientPlugin<T extends EntityType, S extends EntityTypePropertyType<T>, P extends EntityProperty<T, S>, I extends IIdentifierHolder>
+public interface IClientPlugin<T extends EntityType, S extends EntityTypePropertyType<T>, P extends EntityProperty<T, S>, I extends IIdentifierHolder, V extends IEditableEntity<T, S, P>>
 {
     /**
      * Shows a detailed view of the entity specified by its <var>identifier</var>.
@@ -57,5 +57,5 @@ public interface IClientPlugin<T extends EntityType, S extends EntityTypePropert
     /**
      * Shows a editor of the specified entity..
      */
-    public ITabItemFactory createEntityEditor(final IEditableEntity<T, S, P> editableEntity);
+    public ITabItemFactory createEntityEditor(final V editableEntity);
 }

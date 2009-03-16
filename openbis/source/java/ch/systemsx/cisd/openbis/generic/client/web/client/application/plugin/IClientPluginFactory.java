@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEditableEntity;
 
 /**
  * Client plugin factory.
@@ -41,6 +42,6 @@ public interface IClientPluginFactory
      * Creates and returns a {@link IClientPlugin} implementation specific to given <var>entityKind</var>
      * and given <var>entityType</var> each time this method is called.
      */
-    public <T extends EntityType, S extends EntityTypePropertyType<T>, P extends EntityProperty<T, S>, I extends IIdentifierHolder> IClientPlugin<T, S, P, I> createClientPlugin(
+    public <T extends EntityType, S extends EntityTypePropertyType<T>, P extends EntityProperty<T, S>, I extends IIdentifierHolder, V extends IEditableEntity<T, S, P>> IClientPlugin<T, S, P, I, V> createClientPlugin(
             final EntityKind entityKind);
 }

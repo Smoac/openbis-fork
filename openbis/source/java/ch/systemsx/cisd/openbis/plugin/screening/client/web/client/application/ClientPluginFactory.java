@@ -34,6 +34,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.Cli
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EditableExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EditableSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -90,16 +92,16 @@ public final class ClientPluginFactory extends
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends EntityType, S extends EntityTypePropertyType<T>, P extends EntityProperty<T, S>, I extends IIdentifierHolder> IClientPlugin<T, S, P, I> createClientPlugin(
+    public <T extends EntityType, S extends EntityTypePropertyType<T>, P extends EntityProperty<T, S>, I extends IIdentifierHolder, V extends IEditableEntity<T, S, P>> IClientPlugin<T, S, P, I, V> createClientPlugin(
             final EntityKind entityKind)
     {
         if (EntityKind.EXPERIMENT.equals(entityKind))
         {
-            return (IClientPlugin<T, S, P, I>) new ExperimentClientPlugin();
+            return (IClientPlugin<T, S, P, I, V>) new ExperimentClientPlugin();
         }
         if (EntityKind.SAMPLE.equals(entityKind))
         {
-            return (IClientPlugin<T, S, P, I>) new SampleClientPlugin();
+            return (IClientPlugin<T, S, P, I, V>) new SampleClientPlugin();
         }
         throw new UnsupportedOperationException("IClientPlugin for entity kind '" + entityKind
                 + "' not implemented yet.");
@@ -109,8 +111,9 @@ public final class ClientPluginFactory extends
     // Helper classes
     //
 
-    private final class SampleClientPlugin implements
-            IClientPlugin<SampleType, SampleTypePropertyType, SampleProperty, IIdentifierHolder>
+    private final class SampleClientPlugin
+            implements
+            IClientPlugin<SampleType, SampleTypePropertyType, SampleProperty, IIdentifierHolder, EditableSample>
     {
         //
         // IViewClientPlugin
@@ -145,8 +148,7 @@ public final class ClientPluginFactory extends
             return new DummyComponent();
         }
 
-        public ITabItemFactory createEntityEditor(
-                final IEditableEntity<SampleType, SampleTypePropertyType, SampleProperty> entity)
+        public ITabItemFactory createEntityEditor(final EditableSample entity)
         {
             return new ITabItemFactory()
                 {
@@ -167,7 +169,7 @@ public final class ClientPluginFactory extends
 
     private final static class ExperimentClientPlugin
             extends
-            ClientPluginAdapter<ExperimentType, ExperimentTypePropertyType, ExperimentProperty, IIdentifierHolder>
+            ClientPluginAdapter<ExperimentType, ExperimentTypePropertyType, ExperimentProperty, IIdentifierHolder, EditableExperiment>
     {
 
         //

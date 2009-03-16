@@ -46,7 +46,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EditableEntity;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EditableSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -198,7 +198,7 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
                         sample.getSampleType());
         if (editMode)
         {
-            final IClientPlugin<SampleType, SampleTypePropertyType, SampleProperty, IIdentifierHolder> createClientPlugin =
+            final IClientPlugin<SampleType, SampleTypePropertyType, SampleProperty, IIdentifierHolder, EditableSample> createClientPlugin =
                     clientPluginFactory.createClientPlugin(entityKind);
             tabView =
                     createClientPlugin.createEntityEditor(createEditableEntity(sample, criteria
@@ -206,20 +206,17 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
         } else
         {
 
-            final IClientPlugin<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>, IIdentifierHolder> createClientPlugin =
+            final IClientPlugin<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>, IIdentifierHolder, IEditableEntity<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>>> createClientPlugin =
                     clientPluginFactory.createClientPlugin(entityKind);
             tabView = createClientPlugin.createEntityViewer(sample);
         }
         DispatcherHelper.dispatchNaviEvent(tabView);
     }
 
-    private IEditableEntity<SampleType, SampleTypePropertyType, SampleProperty> createEditableEntity(
-            Sample sample, SampleType sampleType)
+    private EditableSample createEditableEntity(Sample sample, SampleType sampleType)
     {
-        final EntityKind entityKind = EntityKind.SAMPLE;
-        return new EditableEntity<SampleType, SampleTypePropertyType, SampleProperty>(entityKind,
-                sampleType.getSampleTypePropertyTypes(), sample.getProperties(), sampleType, sample
-                        .getIdentifier(), sample.getId(), sample.getModificationDate());
+        return new EditableSample(sampleType.getSampleTypePropertyTypes(), sample.getProperties(),
+                sampleType, sample.getIdentifier(), sample.getId(), sample.getModificationDate());
     }
 
     private static final String createHeader(ListSampleCriteria criteria)
