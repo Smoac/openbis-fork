@@ -51,4 +51,9 @@ public interface IAuthorizationDAOFactory
      */
     public IRoleAssignmentDAO getRoleAssignmentDAO();
 
+    /**
+     * Returns the {@link IExternalDataDAO} implementation.
+     */
+    public IExternalDataDAO getExternalDataDAO();
+
 }

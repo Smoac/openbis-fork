@@ -27,9 +27,11 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ArrayPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.CollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.IPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**
  * A static class to execute {@link IPredicate}.
@@ -182,6 +184,12 @@ public final class PredicateExecutor
         {
             IDatabaseInstanceDAO databaseInstancesDAO = daoFactory.getDatabaseInstanceDAO();
             return databaseInstancesDAO.tryFindDatabaseInstanceByUUID(databaseInstanceUUID);
+        }
+
+        public ProjectPE tryToGetProject(String dataSetCode)
+        {
+            DataPE dataSet = daoFactory.getExternalDataDAO().tryToFindDataSetByCode(dataSetCode);
+            return dataSet.getProcedure().getExperiment().getProject();
         }
     }
 }

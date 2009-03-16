@@ -37,11 +37,6 @@ public interface IDAOFactory extends IAuthorizationDAOFactory
     public ISampleTypeDAO getSampleTypeDAO();
 
     /**
-     * Returns the {@link IExternalDataDAO} implementation.
-     */
-    public IExternalDataDAO getExternalDataDAO();
-
-    /**
      * Returns the {@link IHibernateSearchDAO} implementation.
      */
     public IHibernateSearchDAO getHibernateSearchDAO();
@@ -102,4 +97,5 @@ public interface IDAOFactory extends IAuthorizationDAOFactory
      * Returns the {@link IMaterialDAO} implementation.
      */
     public IMaterialDAO getMaterialDAO();
+
 }

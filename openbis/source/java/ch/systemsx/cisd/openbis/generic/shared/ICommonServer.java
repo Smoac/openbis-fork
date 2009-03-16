@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.Authoriz
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.GroupValidator;
@@ -290,6 +291,7 @@ public interface ICommonServer extends IServer
     /**
      * Performs an <i>Hibernate Search</i> based on given parameters.
      */
+    // TODO 2009-03-16 FJE, @ReturnValueFilter missing
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     public List<DataSetSearchHitDTO> searchForDataSets(String sessionToken,
@@ -337,10 +339,11 @@ public interface ICommonServer extends IServer
     /**
      * Deletes specified data sets.
      */
-    // TODO 2009-03-12 FJE, Authorization guard for data sets needed
     @Transactional
     @RolesAllowed(RoleSet.GROUP_ADMIN)
-    public void deleteDataSets(String sessionToken, List<String> dataSetCodes);
+    public void deleteDataSets(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
+            List<String> dataSetCodes);
 
     /**
      * Saves changed experiment.

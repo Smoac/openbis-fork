@@ -28,6 +28,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
@@ -51,6 +52,8 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
     private final IGroupDAO groupDAO;
 
     private final IPersonDAO personDAO;
+    
+    private final IExternalDataDAO externalDataDAO;
 
     private final DatabaseInstancePE homeDatabaseInstance;
 
@@ -62,7 +65,7 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
         personDAO = new PersonDAO(sessionFactory, homeDatabaseInstance);
         groupDAO = new GroupDAO(sessionFactory, homeDatabaseInstance);
         roleAssignmentDAO = new RoleAssignmentDAO(sessionFactory, homeDatabaseInstance);
-
+        externalDataDAO = new ExternalDataDAO(sessionFactory, homeDatabaseInstance);
     }
 
     private final DatabaseInstancePE getDatabaseInstanceId(final String databaseInstanceCode)
@@ -147,6 +150,11 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
     public final IRoleAssignmentDAO getRoleAssignmentDAO()
     {
         return roleAssignmentDAO;
+    }
+    
+    public final IExternalDataDAO getExternalDataDAO()
+    {
+        return externalDataDAO;
     }
 
 }

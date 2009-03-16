@@ -20,6 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.IDatabaseInstanceFinder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**
  * Interface of providers of data needed for authorization.
@@ -32,4 +33,11 @@ public interface IAuthorizationDataProvider extends IDatabaseInstanceFinder
      * Returns a list of all groups.
      */
     public List<GroupPE> listGroups();
+    
+    /**
+     * Returns the project of the experiment to which the specified data set belongs.
+     * 
+     * @return <code>null</code> if no data set found.
+     */
+    public ProjectPE tryToGetProject(String dataSetCode);
 }

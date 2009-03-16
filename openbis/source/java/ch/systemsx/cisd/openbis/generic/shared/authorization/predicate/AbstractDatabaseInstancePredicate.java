@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.authorization.predicate;
 
-import ch.systemsx.cisd.openbis.generic.shared.IDatabaseInstanceFinder;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
@@ -32,14 +31,14 @@ abstract class AbstractDatabaseInstancePredicate<T> extends AbstractPredicate<T>
     static final String STATUS_MESSAGE_PREFIX_FORMAT =
             "User '%s' does not have enough privileges to ";
 
-    private IDatabaseInstanceFinder databaseInstanceFinder;
+    protected IAuthorizationDataProvider authorizationDataProvider;
 
     boolean inited;
 
     protected DatabaseInstancePE getDatabaseInstance(final DatabaseInstanceIdentifier identifier)
     {
         return DatabaseInstanceIdentifierHelper.getDatabaseInstance(identifier,
-                databaseInstanceFinder);
+                authorizationDataProvider);
     }
 
     //
@@ -49,7 +48,7 @@ abstract class AbstractDatabaseInstancePredicate<T> extends AbstractPredicate<T>
     public void init(IAuthorizationDataProvider provider)
     {
         assert inited == false : "Already initialized";
-        this.databaseInstanceFinder = provider;
+        this.authorizationDataProvider = provider;
         inited = true;
     }
 
