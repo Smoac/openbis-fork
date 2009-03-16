@@ -54,18 +54,23 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
     private VocabularyTermGrid(IViewContext<ICommonClientServiceAsync> viewContext,
             Vocabulary vocabulary)
     {
-        super(viewContext, createBrowserId(vocabulary), createGridId(vocabulary));
+        super(viewContext, createBrowserId(vocabulary), createGridId(vocabulary.getCode()));
         this.vocabulary = vocabulary;
     }
 
-    public static String createGridId(Vocabulary vocabulary)
+    public static String createGridId(String vocabularyCode)
     {
-        return createBrowserId(vocabulary) + "-grid";
+        return createBrowserId(vocabularyCode) + "-grid";
     }
 
     public static String createBrowserId(Vocabulary vocabulary)
     {
-        return BROWSER_ID + "-" + vocabulary.getCode();
+        return createBrowserId(vocabulary.getCode());
+    }
+
+    public static String createBrowserId(String vocabularyCode)
+    {
+        return BROWSER_ID + "-" + vocabularyCode;
     }
 
     @Override
