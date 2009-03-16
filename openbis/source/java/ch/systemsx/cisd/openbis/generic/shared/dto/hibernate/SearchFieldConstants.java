@@ -52,6 +52,8 @@ public final class SearchFieldConstants
 
     public static final String PREFIX_ATTACHMENT_FILE_NAME = "attachment name: ";
 
+    public static final String PREFIX_DELETED = ""; // intentionally empty
+    
     public static final String PREFIX_PROCEDURE = ""; // intentionally empty
 
     public static final String PREFIX_EXPERIMENT_ATTACHMENTS = ""; // intentionally empty

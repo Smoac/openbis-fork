@@ -152,6 +152,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE>
     }
 
     @Column(name = ColumnNames.IS_DELETED_COLUMN)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_DELETED)
     public boolean isDeleted()
     {
         return deleted;

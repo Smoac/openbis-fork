@@ -39,6 +39,7 @@ import org.hibernate.FetchMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Restrictions;
 import org.hibernate.search.FullTextQuery;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
@@ -339,6 +340,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                 fullTextSession.createFullTextQuery(query, ExternalDataPE.class);
 
         Criteria criteria = getSession().createCriteria(ExternalDataPE.class);
+        criteria.add(Restrictions.eq("deleted", false));
         criteria.setFetchMode("parents", FetchMode.JOIN);
         criteria.setFetchMode("procedure", FetchMode.JOIN);
         criteria.setFetchMode("procedure.experimentInternal", FetchMode.JOIN);
