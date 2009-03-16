@@ -16,8 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.StringEscapeUtils;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTermWithStats;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 
@@ -34,6 +39,37 @@ public class VocabularyTermTranslator
         result.setRegistrationDate(vt.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(vt.getRegistrator()));
         return result;
+    }
+
+    public static List<VocabularyTermWithStats> translate(
+            List<ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats> terms)
+    {
+        List<VocabularyTermWithStats> result = new ArrayList<VocabularyTermWithStats>();
+        for (ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats term : terms)
+        {
+            result.add(translate(term));
+        }
+        return result;
+    }
+
+    private static VocabularyTermWithStats translate(
+            ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats term)
+    {
+        VocabularyTermWithStats result = new VocabularyTermWithStats(translate(term.getTerm()));
+        for (EntityKind entityKind : EntityKind.values())
+        {
+            result.registerUsage(entityKind, term.getUsageCounter(translate(entityKind)));
+        }
+        return result;
+    }
+
+    private static ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind translate(
+            EntityKind entityKind)
+    {
+        ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind origEntityKind =
+                ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind
+                        .valueOf(entityKind.name());
+        return origEntityKind;
     }
 
 }

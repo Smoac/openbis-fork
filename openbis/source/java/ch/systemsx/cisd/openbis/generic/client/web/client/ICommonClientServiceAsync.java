@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
@@ -52,7 +53,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 
 /**
  * Asynchronous version of {@link ICommonClientService}.
@@ -179,11 +179,12 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
 
     /** @see ICommonClientService#listVocabularyTerms(Vocabulary, DefaultResultSetConfig) */
     public void listVocabularyTerms(Vocabulary vocabulary,
-            DefaultResultSetConfig<String, VocabularyTerm> resultSetConfig,
-            AsyncCallback<ResultSet<VocabularyTerm>> callback);
+            DefaultResultSetConfig<String, VocabularyTermWithStats> resultSetConfig,
+            AsyncCallback<ResultSet<VocabularyTermWithStats>> callback);
 
     /** @see ICommonClientService#prepareExportVocabularyTerms(TableExportCriteria) */
-    public void prepareExportVocabularyTerms(TableExportCriteria<VocabularyTerm> exportCriteria,
+    public void prepareExportVocabularyTerms(
+            TableExportCriteria<VocabularyTermWithStats> exportCriteria,
             AsyncCallback<String> callback);
 
     /** @see ICommonClientService#listMaterialTypes(DefaultResultSetConfig) */

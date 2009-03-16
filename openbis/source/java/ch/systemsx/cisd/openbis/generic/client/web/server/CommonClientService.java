@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
@@ -61,6 +62,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.translator.RoleCodeTra
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.SearchableEntityTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.translator.VocabularyTermTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.TSVRenderer;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
@@ -84,7 +86,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -483,7 +484,7 @@ public final class CommonClientService extends AbstractClientService implements
         return prepareExportEntities(criteria);
     }
 
-    public String prepareExportVocabularyTerms(TableExportCriteria<VocabularyTerm> criteria)
+    public String prepareExportVocabularyTerms(TableExportCriteria<VocabularyTermWithStats> criteria)
     {
         return prepareExportEntities(criteria);
     }
@@ -654,17 +655,16 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public ResultSet<VocabularyTerm> listVocabularyTerms(final Vocabulary vocabulary,
-            DefaultResultSetConfig<String, VocabularyTerm> criteria)
+    public ResultSet<VocabularyTermWithStats> listVocabularyTerms(final Vocabulary vocabulary,
+            DefaultResultSetConfig<String, VocabularyTermWithStats> criteria)
     {
-        return listEntities(criteria, new IOriginalDataProvider<VocabularyTerm>()
+        return listEntities(criteria, new IOriginalDataProvider<VocabularyTermWithStats>()
             {
-                public List<VocabularyTerm> getOriginalData() throws UserFailureException
+                public List<VocabularyTermWithStats> getOriginalData() throws UserFailureException
                 {
-                    // NOTE: we do not have to hit the database, the result is actually in the
-                    // vocabulary specification. But we have to go through the server to provide
-                    // export functionality.
-                    return vocabulary.getTerms();
+                    List<ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats> terms =
+                            commonServer.listVocabularyTerms(getSessionToken(), vocabulary);
+                    return VocabularyTermTranslator.translate(terms);
                 }
             });
     }

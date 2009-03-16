@@ -19,45 +19,85 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.column
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTermWithStats;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
  * @author Tomasz Pylak
  */
-public enum VocabularyTermColDefKind implements IColumnDefinitionKind<VocabularyTerm>
+public enum VocabularyTermColDefKind implements IColumnDefinitionKind<VocabularyTermWithStats>
 {
-    CODE(new AbstractColumnDefinitionKind<VocabularyTerm>(Dict.CODE, 200)
+    CODE(new AbstractColumnDefinitionKind<VocabularyTermWithStats>(Dict.CODE, 200)
         {
             @Override
-            public String tryGetValue(VocabularyTerm entity)
+            public String tryGetValue(VocabularyTermWithStats entity)
             {
-                return entity.getCode();
+                return entity.getTerm().getCode();
             }
         }),
 
-    REGISTRATOR(new AbstractColumnDefinitionKind<VocabularyTerm>(Dict.REGISTRATOR)
+    REGISTRATOR(new AbstractColumnDefinitionKind<VocabularyTermWithStats>(Dict.REGISTRATOR)
         {
             @Override
-            public String tryGetValue(VocabularyTerm entity)
+            public String tryGetValue(VocabularyTermWithStats entity)
             {
-                return renderRegistrator(entity);
+                return renderRegistrator(entity.getTerm());
             }
         }),
 
-    REGISTRATION_DATE(new AbstractColumnDefinitionKind<VocabularyTerm>(Dict.REGISTRATION_DATE,
-            AbstractColumnDefinitionKind.DATE_COLUMN_WIDTH, false)
+    REGISTRATION_DATE(new AbstractColumnDefinitionKind<VocabularyTermWithStats>(
+            Dict.REGISTRATION_DATE, AbstractColumnDefinitionKind.DATE_COLUMN_WIDTH, false)
         {
             @Override
-            public String tryGetValue(VocabularyTerm entity)
+            public String tryGetValue(VocabularyTermWithStats entity)
             {
-                return renderRegistrationDate(entity);
+                return renderRegistrationDate(entity.getTerm());
             }
-        });
+        }),
 
-    private final AbstractColumnDefinitionKind<VocabularyTerm> columnDefinitionKind;
+    TOTAL_USAGE(new AbstractColumnDefinitionKind<VocabularyTermWithStats>(Dict.TERM_TOTAL_USAGE)
+        {
+            @Override
+            public String tryGetValue(VocabularyTermWithStats entity)
+            {
+                return "" + entity.getTotalUsageCounter();
+            }
+        }),
+
+    SAMPLE_USAGE(new AbstractColumnDefinitionKind<VocabularyTermWithStats>(
+            Dict.TERM_FOR_SAMPLES_USAGE, true)
+        {
+            @Override
+            public String tryGetValue(VocabularyTermWithStats entity)
+            {
+                return "" + entity.getUsageCounter(EntityKind.SAMPLE);
+            }
+        }),
+
+    EXPERIMENT_USAGE(new AbstractColumnDefinitionKind<VocabularyTermWithStats>(
+            Dict.TERM_FOR_EXPERIMENTS_USAGE, true)
+        {
+            @Override
+            public String tryGetValue(VocabularyTermWithStats entity)
+            {
+                return "" + entity.getUsageCounter(EntityKind.EXPERIMENT);
+            }
+        }),
+
+    MATERIAL_USAGE(new AbstractColumnDefinitionKind<VocabularyTermWithStats>(
+            Dict.TERM_FOR_MATERIALS_USAGE, true)
+        {
+            @Override
+            public String tryGetValue(VocabularyTermWithStats entity)
+            {
+                return "" + entity.getUsageCounter(EntityKind.MATERIAL);
+            }
+        }), ;
+
+    private final AbstractColumnDefinitionKind<VocabularyTermWithStats> columnDefinitionKind;
 
     private VocabularyTermColDefKind(
-            AbstractColumnDefinitionKind<VocabularyTerm> columnDefinitionKind)
+            AbstractColumnDefinitionKind<VocabularyTermWithStats> columnDefinitionKind)
     {
         this.columnDefinitionKind = columnDefinitionKind;
     }
@@ -67,7 +107,7 @@ public enum VocabularyTermColDefKind implements IColumnDefinitionKind<Vocabulary
         return name();
     }
 
-    public AbstractColumnDefinitionKind<VocabularyTerm> getDescriptor()
+    public AbstractColumnDefinitionKind<VocabularyTermWithStats> getDescriptor()
     {
         return columnDefinitionKind;
     }

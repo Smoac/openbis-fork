@@ -16,9 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.List;
+
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
 
 /**
  * Business object of a vocabulary. Holds an instance of {@link VocabularyPE}.
@@ -42,5 +45,15 @@ public interface IVocabularyBO extends IBusinessObject
      * Returns the loaded {@link VocabularyPE}.
      */
     public VocabularyPE getVocabulary();
+
+    /**
+     * Loads specified vocabulary from the database.
+     * 
+     * @throws UserFailureException if given <var>vocabulary</var> does not exist.
+     */
+    public void load(Vocabulary vocabulary) throws UserFailureException;
+
+    /** @return terms with their usage statistics for the loaded vocabulary */
+    public List<VocabularyTermWithStats> countTermsUsageStatistics();
 
 }

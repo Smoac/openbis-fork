@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -25,6 +29,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * The only productive implementation of {@link IVocabularyBO}.
@@ -77,5 +84,45 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
     {
         assert vocabularyPE != null : "Unspecified vocabulary";
         return vocabularyPE;
+    }
+
+    public List<VocabularyTermWithStats> countTermsUsageStatistics()
+    {
+        assert vocabularyPE != null : "Unspecified vocabulary";
+        enrichWithTerms();
+        Set<VocabularyTermPE> terms = vocabularyPE.getTerms();
+        List<VocabularyTermWithStats> stats = new ArrayList<VocabularyTermWithStats>();
+        for (VocabularyTermPE term : terms)
+        {
+            stats.add(countTermUsageStatistics(term));
+        }
+        return stats;
+    }
+
+    private VocabularyTermWithStats countTermUsageStatistics(VocabularyTermPE term)
+    {
+        VocabularyTermWithStats stats = new VocabularyTermWithStats(term);
+        for (EntityKind entityKind : EntityKind.values())
+        {
+            long numberOfUsages =
+                    getEntityPropertyTypeDAO(entityKind).countTermUsageStatistics(term);
+            stats.registerUsage(entityKind, numberOfUsages);
+        }
+        return stats;
+    }
+
+    public void load(Vocabulary vocabulary) throws UserFailureException
+    {
+        vocabularyPE = getVocabularyDAO().tryFindVocabularyByCode(vocabulary.getCode());
+        if (vocabularyPE == null)
+        {
+            throw UserFailureException.fromTemplate("Vocabulary '%s' does not exist.", vocabulary
+                    .getCode());
+        }
+    }
+
+    private void enrichWithTerms()
+    {
+        HibernateUtils.initialize(vocabularyPE.getTerms());
     }
 }

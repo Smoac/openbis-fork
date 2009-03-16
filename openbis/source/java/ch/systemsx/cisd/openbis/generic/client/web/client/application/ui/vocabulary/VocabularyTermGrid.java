@@ -30,15 +30,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetCo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 
 /**
  * Grid displaying vocabularies.
  * 
  * @author Tomasz Pylak
  */
-public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm>
+public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTermWithStats>
 {
     // browser consists of the grid and the paging toolbar
     private static final String BROWSER_ID = GenericConstants.ID_PREFIX + "vocabulary-term-browser";
@@ -74,27 +74,28 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
     }
 
     @Override
-    protected IColumnDefinitionKind<VocabularyTerm>[] getStaticColumnsDefinition()
+    protected IColumnDefinitionKind<VocabularyTermWithStats>[] getStaticColumnsDefinition()
     {
         return VocabularyTermColDefKind.values();
     }
 
     @Override
-    protected List<IColumnDefinition<VocabularyTerm>> getAvailableFilters()
+    protected List<IColumnDefinition<VocabularyTermWithStats>> getAvailableFilters()
     {
         return asColumnFilters(new VocabularyTermColDefKind[]
             { VocabularyTermColDefKind.CODE });
     }
 
     @Override
-    protected void listEntities(DefaultResultSetConfig<String, VocabularyTerm> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<VocabularyTerm>> callback)
+    protected void listEntities(
+            DefaultResultSetConfig<String, VocabularyTermWithStats> resultSetConfig,
+            AbstractAsyncCallback<ResultSet<VocabularyTermWithStats>> callback)
     {
         viewContext.getService().listVocabularyTerms(vocabulary, resultSetConfig, callback);
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<VocabularyTerm> exportCriteria,
+    protected void prepareExportEntities(TableExportCriteria<VocabularyTermWithStats> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportVocabularyTerms(exportCriteria, callback);

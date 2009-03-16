@@ -87,6 +87,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
@@ -457,11 +458,16 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         {
             for (final VocabularyPE vocabularyPE : vocabularies)
             {
-                HibernateUtils.initialize(vocabularyPE.getTerms());
+                enrichWithTerms(vocabularyPE);
             }
         }
         Collections.sort(vocabularies);
         return vocabularies;
+    }
+
+    private void enrichWithTerms(final VocabularyPE vocabularyPE)
+    {
+        HibernateUtils.initialize(vocabularyPE.getTerms());
     }
 
     public String assignPropertyType(final String sessionToken, final EntityKind entityKind,
@@ -661,6 +667,15 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         sampleBO.edit(identifier, properties);
         sampleBO.save();
 
+    }
+
+    public List<VocabularyTermWithStats> listVocabularyTerms(String sessionToken,
+            Vocabulary vocabulary)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IVocabularyBO vocabularyBO = businessObjectFactory.createVocabularyBO(session);
+        vocabularyBO.load(vocabulary);
+        return vocabularyBO.countTermsUsageStatistics();
     }
 
 }

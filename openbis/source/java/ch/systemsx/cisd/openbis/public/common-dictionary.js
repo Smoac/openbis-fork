@@ -195,6 +195,10 @@ var common = {
  is_managed_internally: "Managed Internally?",
  terms: "Terms",
  VOCABULARY_TERMS_BROWSER: "Vocabulary Terms of {0}",
+ TERM_FOR_SAMPLES_USAGE: "Usages for Samples",
+ TERM_FOR_EXPERIMENTS_USAGE: "Usages for Experiments",
+ TERM_FOR_MATERIALS_USAGE: "Usages for Materials",
+ TERM_TOTAL_USAGE: "Total Usages Number",
  
  //
  // Project Browser

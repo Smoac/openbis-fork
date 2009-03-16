@@ -24,6 +24,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -35,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -133,4 +135,19 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         return list;
     }
 
+    public final long countTermUsageStatistics(final VocabularyTermPE vocabularyTerm)
+            throws DataAccessException
+    {
+        String query =
+                String.format("select count(*) from %s props where props.vocabularyTerm = ?",
+                        entityKind.getEntityPropertyClass().getSimpleName());
+        final List<Long> sizes = cast(getHibernateTemplate().find(query, toArray(vocabularyTerm)));
+        final long count = DataAccessUtils.longResult(sizes);
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("Term '%s' is used %d times.", vocabularyTerm
+                    .getCode(), count));
+        }
+        return count;
+    }
 }

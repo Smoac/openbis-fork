@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 
 /**
  * An interface that contains all data access operations on {@link EntityTypePropertyTypePE}s.
@@ -61,4 +62,11 @@ public interface IEntityPropertyTypeDAO
      */
     public List<IEntityPropertiesHolder<EntityPropertyPE>> listEntities(
             final EntityTypePE entityType);
+
+    /**
+     * Counts how many times is the specified vocabulary term used as a property value for the
+     * entity kind represented by this class.
+     */
+    public long countTermUsageStatistics(final VocabularyTermPE vocabularyTerm)
+            throws DataAccessException;
 }

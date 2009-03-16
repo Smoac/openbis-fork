@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
@@ -50,7 +51,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 
 /**
  * Service interface for the generic GWT client.
@@ -221,13 +221,13 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns a list of all vocabulary terms for a specified vocabulary.
      */
-    public ResultSet<VocabularyTerm> listVocabularyTerms(Vocabulary vocabulary,
-            DefaultResultSetConfig<String, VocabularyTerm> resultSetConfig);
+    public ResultSet<VocabularyTermWithStats> listVocabularyTerms(Vocabulary vocabulary,
+            DefaultResultSetConfig<String, VocabularyTermWithStats> resultSetConfig);
 
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for Vocabulary Terms.
      */
-    public String prepareExportVocabularyTerms(TableExportCriteria<VocabularyTerm> criteria);
+    public String prepareExportVocabularyTerms(TableExportCriteria<VocabularyTermWithStats> criteria);
 
     public ResultSet<? extends EntityType> listMaterialTypes(
             DefaultResultSetConfig<String, MaterialType> criteria)
@@ -260,9 +260,9 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
-     * Assumes that preparation of the export ({@link #prepareExportSamples(TableExportCriteria)}
-     * or {@link #prepareExportExperiments(TableExportCriteria)} has been invoked before and
-     * returned with an exportDataKey passed here as a parameter.
+     * Assumes that preparation of the export ({@link #prepareExportSamples(TableExportCriteria)} or
+     * {@link #prepareExportExperiments(TableExportCriteria)} has been invoked before and returned
+     * with an exportDataKey passed here as a parameter.
      */
     public String getExportTable(String exportDataKey, String lineSeparator)
             throws UserFailureException;

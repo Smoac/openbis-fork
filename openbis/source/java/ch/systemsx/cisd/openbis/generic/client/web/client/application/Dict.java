@@ -379,8 +379,16 @@ public abstract class Dict
     public static final String IS_MANAGED_INTERNALLY = "is_managed_internally";
 
     public static final String TERMS = "terms";
-    
+
     public static final String VOCABULARY_TERMS_BROWSER = "VOCABULARY_TERMS_BROWSER";
+
+    public static final String TERM_FOR_SAMPLES_USAGE = "TERM_FOR_SAMPLES_USAGE";
+
+    public static final String TERM_FOR_EXPERIMENTS_USAGE = "TERM_FOR_EXPERIMENTS_USAGE";
+
+    public static final String TERM_FOR_MATERIALS_USAGE = "TERM_FOR_MATERIALS_USAGE";
+
+    public static final String TERM_TOTAL_USAGE = "TERM_TOTAL_USAGE";
 
     //
     // Project Browser
