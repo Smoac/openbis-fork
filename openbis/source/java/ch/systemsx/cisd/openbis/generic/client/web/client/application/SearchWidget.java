@@ -87,7 +87,6 @@ public final class SearchWidget extends LayoutContainer
             };
         textField = createTextField();
         entityChooser = createEntityChooser();
-        entityChooser.setVisible(false);
         add(entityChooser);
         add(textField);
         add(searchButton);
@@ -105,6 +104,7 @@ public final class SearchWidget extends LayoutContainer
                 new SearchableEntitySelectionWidget(viewContext);
         comboBox.setStyleAttribute("marginRight", "3px");
         comboBox.setId(ENTITY_CHOOSER_ID);
+        comboBox.setWidth(100);
         return comboBox;
     }
 
@@ -124,7 +124,6 @@ public final class SearchWidget extends LayoutContainer
         field.setWidth(200);
         field.addKeyListener(enterKeyListener);
         field.setStyleAttribute("marginRight", "3px");
-        field.setEmptyText(viewContext.getMessage(Dict.SEARCH_BUTTON) + "...");
         return field;
     }
 
@@ -234,7 +233,6 @@ public final class SearchWidget extends LayoutContainer
                             doSearch();
                         }
                     };
-        button.setVisible(false);
         return button;
     }
 }

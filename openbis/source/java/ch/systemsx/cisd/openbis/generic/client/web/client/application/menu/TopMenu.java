@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.DOM;
@@ -105,8 +106,9 @@ public class TopMenu extends LayoutContainer
         toolBar.add(new AdministrationMenu(viewContext, componentProvider));
 
         toolBar.add(new FillToolItem());
-        toolBar.add(new AdapterToolItem(userInfo()));
         toolBar.add(new AdapterToolItem(new SearchWidget(viewContext)));
+        toolBar.add(new SeparatorToolItem());
+        toolBar.add(new AdapterToolItem(userInfo()));
         toolBar.add(new LogoutButton(viewContext));
     }
 
