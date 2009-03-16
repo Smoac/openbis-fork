@@ -37,11 +37,13 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -54,8 +56,11 @@ import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetSearchHitDTO;
@@ -101,9 +106,11 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     private final ICommonBusinessObjectFactory businessObjectFactory;
 
-private final DataStoreServerSessionManager dssSessionManager;
+    private final DataStoreServerSessionManager dssSessionManager;
+
     public CommonServer(final IAuthenticationService authenticationService,
-            final ISessionManager<Session> sessionManager, DataStoreServerSessionManager dssSessionManager, final IDAOFactory daoFactory,
+            final ISessionManager<Session> sessionManager,
+            DataStoreServerSessionManager dssSessionManager, final IDAOFactory daoFactory,
             final ICommonBusinessObjectFactory businessObjectFactory)
     {
         super(sessionManager, daoFactory);
@@ -634,6 +641,26 @@ private final DataStoreServerSessionManager dssSessionManager;
         final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
         experimentBO.edit(identifier, properties);
         experimentBO.save();
+    }
+
+    public void editMaterial(String sessionToken, MaterialIdentifier identifier,
+            List<MaterialProperty> properties)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IMaterialBO materialBO = businessObjectFactory.createMaterialBO(session);
+        materialBO.edit(identifier, properties);
+        materialBO.save();
+
+    }
+
+    public void editSample(String sessionToken, SampleIdentifier identifier,
+            List<SampleProperty> properties)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
+        sampleBO.edit(identifier, properties);
+        sampleBO.save();
+
     }
 
 }

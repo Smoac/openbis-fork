@@ -41,7 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusinessObject
 {
-    private final IEntityPropertiesConverter entityPropertiesConverter;
+    protected final IEntityPropertiesConverter entityPropertiesConverter;
 
     AbstractSampleBusinessObject(final IDAOFactory daoFactory, final Session session)
     {

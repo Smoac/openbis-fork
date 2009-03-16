@@ -44,10 +44,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -304,6 +306,19 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void updateExperiment(final String experimentIdentifier,
             List<ExperimentProperty> properties, final AsyncCallback<Void> asyncCallback)
             throws UserFailureException;
-             /** @see ICommonClientService#deleteDataSets(List) */
+
+    /**
+     * @see ICommonClientService#updateMaterial(String, List)
+     */
+    public void updateMaterial(final String materialIdentifier, List<MaterialProperty> properties,
+            final AsyncCallback<Void> asyncCallback) throws UserFailureException;
+
+    /**
+     * @see ICommonClientService#updateSample(String, List)
+     */
+    public void updateSample(final String sampleIdentifier, List<SampleProperty> properties,
+            final AsyncCallback<Void> asyncCallback) throws UserFailureException;
+
+    /** @see ICommonClientService#deleteDataSets(List) */
     public void deleteDataSets(List<String> dataSetCodes, AsyncCallback<Void> asyncCallback);
 }

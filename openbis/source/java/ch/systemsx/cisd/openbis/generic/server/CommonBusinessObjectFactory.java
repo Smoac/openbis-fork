@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProcedureBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
@@ -41,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.MaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.MaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ProcedureBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ProjectBO;
@@ -150,5 +152,10 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     public IEntityTypeBO createEntityTypeBO(Session session)
     {
         return new EntityTypeBO(getDaoFactory(), session);
+    }
+
+    public IMaterialBO createMaterialBO(Session session)
+    {
+        return new MaterialBO(getDaoFactory(), session);
     }
 }

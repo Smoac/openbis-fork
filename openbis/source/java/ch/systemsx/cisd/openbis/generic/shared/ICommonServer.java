@@ -32,8 +32,11 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ProjectVa
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetSearchHitDTO;
@@ -331,7 +334,7 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     public void registerExperimentType(String sessionToken, ExperimentType entityType);
 
-/**
+    /**
      * Deletes specified data sets.
      */
     // TODO 2009-03-12 FJE, Authorization guard for data sets needed
@@ -339,7 +342,6 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleSet.GROUP_ADMIN)
     public void deleteDataSets(String sessionToken, List<String> dataSetCodes);
 
-    
     /**
      * Saves changed experiment.
      */
@@ -348,5 +350,23 @@ public interface ICommonServer extends IServer
     public void editExperiment(String sessionToken,
             @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class)
             ExperimentIdentifier experimentIdentifier, List<ExperimentProperty> properties);
+
+    /**
+     * Saves changed material.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.USER)
+    // TODO 2009-03-16 IA, Authorization guard for material identifiers
+    public void editMaterial(String sessionToken, MaterialIdentifier identifier,
+            List<MaterialProperty> properties);
+
+    /**
+     * Saves changed sample.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.USER)
+    public void editSample(String sessionToken,
+            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
+            SampleIdentifier identifier, List<SampleProperty> properties);
 
 }

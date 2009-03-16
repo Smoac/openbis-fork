@@ -18,7 +18,9 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
@@ -264,6 +266,43 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             return createEntityProperty(registrator, propertyType, entityTypPropertyType, validated);
         }
         return null;
+    }
+
+    public <T extends EntityPropertyPE, ET extends EntityType, ETPT extends EntityTypePropertyType<ET>, P extends EntityProperty<ET, ETPT>> Set<T> updateProperties(
+            List<T> oldProperties, String experiemntTypeCode, P[] newProperties,
+            PersonPE registrator)
+    {
+        final List<T> convertedProperties =
+                convertProperties(newProperties, experiemntTypeCode, registrator);
+        final Set<T> set = new HashSet<T>();
+        for (T p : convertedProperties)
+        {
+            int index = find(oldProperties, p);
+            if (index > -1)
+            {
+                final T existingProperty = oldProperties.get(index);
+                existingProperty.setValue(p.getValue());
+                existingProperty.setVocabularyTerm(p.getVocabularyTerm());
+                set.add(existingProperty);
+            } else
+            {
+                set.add(p);
+            }
+        }
+        return set;
+    }
+
+    static private <T extends EntityPropertyPE> int find(List<T> oldProperties, T p)
+    {
+        for (int i = 0; i < oldProperties.size(); i++)
+        {
+            if (oldProperties.get(i).getEntityTypePropertyType().getPropertyType().equals(
+                    p.getEntityTypePropertyType().getPropertyType()))
+            {
+                return i;
+            }
+        }
+        return -1;
     }
 
     //

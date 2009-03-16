@@ -91,7 +91,7 @@ public class MaterialDAO extends AbstractDAO implements IMaterialDAO
         assert material.getDatabaseInstance().isOriginalSource() : "Registration on a non-home database is not allowed";
         validatePE(material);
         material.setCode(CodeConverter.tryToDatabase(material.getCode()));
-        hibernateTemplate.save(material);
+        hibernateTemplate.saveOrUpdate(material);
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format("ADD: material '%s'.", material));

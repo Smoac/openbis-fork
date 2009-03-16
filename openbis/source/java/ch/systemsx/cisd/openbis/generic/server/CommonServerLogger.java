@@ -24,9 +24,12 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetSearchHitDTO;
@@ -311,9 +314,23 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logTracking(sessionToken, "edit_experiment", "EXPERIMENT(%s)", experimentIdentifier);
     }
-    
+
     public void deleteDataSets(String sessionToken, List<String> dataSetCodes)
     {
         logTracking(sessionToken, "delete_data_sets", "CODES(%s)", dataSetCodes);
+    }
+
+    public void editMaterial(String sessionToken, MaterialIdentifier identifier,
+            List<MaterialProperty> properties)
+    {
+        logTracking(sessionToken, "edit_material", "MATERIAL(%s)", identifier);
+
+    }
+
+    public void editSample(String sessionToken, SampleIdentifier identifier,
+            List<SampleProperty> properties)
+    {
+        logTracking(sessionToken, "edit_sample", "SAMPLE(%s)", identifier);
+
     }
 }

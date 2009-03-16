@@ -59,4 +59,6 @@ public interface ICommonBusinessObjectFactory
     public IMaterialTable createMaterialTable(Session session);
 
     public IEntityTypeBO createEntityTypeBO(Session session);
+
+    public IMaterialBO createMaterialBO(Session session);
 }

@@ -42,10 +42,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -348,9 +350,20 @@ public interface ICommonClientService extends IClientService
      */
     public void updateExperiment(final String experimentIdentifier,
             List<ExperimentProperty> properties) throws UserFailureException;
-            
+
+    /**
+     * Updates material.
+     */
+    public void updateMaterial(final String materialIdentifier, List<MaterialProperty> properties)
+            throws UserFailureException;
+
+    /**
+     * Updates sample.
+     */
+    public void updateSample(final String sampleIdentifier, List<SampleProperty> properties)
+            throws UserFailureException;
+
     /** Deletes the specified data sets. */
     public void deleteDataSets(List<String> dataSetCodes) throws UserFailureException;
 
-   
 }

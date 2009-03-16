@@ -54,22 +54,22 @@ public final class GenericMaterialEditForm extends
     @Override
     public final void submitValidForm()
     {
-        // final List<MaterialProperty> properties = extractProperties();
-        // viewContext.getService().updateExperiment(entity.getIdentifier(), properties,
-        // new RegisterExperimentCallback(viewContext));
+        final List<MaterialProperty> properties = extractProperties();
+        viewContext.getService().updateMaterial(entity.getIdentifier(), properties,
+                new RegisterMaterialCallback(viewContext));
     }
 
-    public final class RegisterExperimentCallback extends AbstractAsyncCallback<Void>
+    public final class RegisterMaterialCallback extends AbstractAsyncCallback<Void>
     {
 
-        RegisterExperimentCallback(final IViewContext<?> viewContext)
+        RegisterMaterialCallback(final IViewContext<?> viewContext)
         {
             super(viewContext, new InfoBoxCallbackListener<Void>(infoBox));
         }
 
         private final String createSuccessfullRegistrationInfo()
         {
-            return "Experiment successfully updated";
+            return "Material successfully updated";
         }
 
         @Override

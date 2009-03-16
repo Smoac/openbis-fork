@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.List;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -54,4 +55,9 @@ public interface IEntityPropertiesConverter
     public <T extends EntityPropertyPE, ET extends EntityType, ETPT extends EntityTypePropertyType<ET>> T createProperty(
             PropertyTypePE propertyType, EntityTypePropertyTypePE entityTypPropertyType,
             final PersonPE registrator, String value);
+
+    /** Updates Set<T> of properties. */
+    public <T extends EntityPropertyPE, ET extends EntityType, ETPT extends EntityTypePropertyType<ET>, P extends EntityProperty<ET, ETPT>> Set<T> updateProperties(
+            List<T> oldProperties, String experiemntTypeCode, P[] newProperties,
+            PersonPE registrator);
 }

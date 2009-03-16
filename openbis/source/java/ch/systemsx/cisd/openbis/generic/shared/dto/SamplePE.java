@@ -39,12 +39,14 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.Version;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Check;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
@@ -141,6 +143,8 @@ public class SamplePE implements IIdAndCodeHolder, Comparable<SamplePE>,
      */
     private Date registrationDate;
 
+    private Date modificationDate;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.INVALIDATION_COLUMN)
     public InvalidationPE getInvalidation()
@@ -211,6 +215,7 @@ public class SamplePE implements IIdAndCodeHolder, Comparable<SamplePE>,
         this.sampleType = sampleType;
     }
 
+    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entity")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_PROPERTIES)
@@ -452,6 +457,18 @@ public class SamplePE implements IIdAndCodeHolder, Comparable<SamplePE>,
     {
         property.setEntity(this);
         getSampleProperties().add(property);
+    }
+
+    @Version
+    @Column(name = ColumnNames.MODIFICATION_TIMESTAMP_COLUMN, nullable = false)
+    public Date getModificationDate()
+    {
+        return modificationDate;
+    }
+
+    public void setModificationDate(Date versionDate)
+    {
+        this.modificationDate = versionDate;
     }
 
     //

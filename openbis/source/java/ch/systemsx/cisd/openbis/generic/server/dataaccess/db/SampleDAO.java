@@ -92,7 +92,7 @@ public class SampleDAO extends AbstractDAO implements ISampleDAO
     {
         validatePE(sample);
         sample.setCode(CodeConverter.tryToDatabase(sample.getCode()));
-        hibernateTemplate.save(sample);
+        hibernateTemplate.saveOrUpdate(sample);
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format("ADD: sample '%s'.", sample));

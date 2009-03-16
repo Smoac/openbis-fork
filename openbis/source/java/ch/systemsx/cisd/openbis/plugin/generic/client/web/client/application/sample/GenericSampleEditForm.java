@@ -54,9 +54,9 @@ public final class GenericSampleEditForm extends
     @Override
     public final void submitValidForm()
     {
-        // final List<SampleProperty> properties = extractProperties();
-        // viewContext.getService().updateSample(entity.getIdentifier(), properties,
-        // new RegisterSampleCallback(viewContext));
+        final List<SampleProperty> properties = extractProperties();
+        viewContext.getService().updateSample(entity.getIdentifier(), properties,
+                new RegisterSampleCallback(viewContext));
     }
 
     public final class RegisterSampleCallback extends AbstractAsyncCallback<Void>

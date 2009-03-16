@@ -16,8 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.List;
+
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -30,18 +33,18 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 public interface ISampleBO
 {
 
-    /** 
-     * Loads a sample given by its identifier. 
+    /**
+     * Loads a sample given by its identifier.
      * 
-     *  @throws UserFailureException if no sample found.
+     * @throws UserFailureException if no sample found.
      */
     void loadBySampleIdentifier(final SampleIdentifier identifier) throws UserFailureException;
-    
+
     /**
      * Tries to load the sample with specified identifier.
      */
     void tryToLoadBySampleIdentifier(SampleIdentifier identifier);
-    
+
     /**
      * Returns the loaded or defined sample or <code>null</code>.
      */
@@ -72,4 +75,9 @@ public interface ISampleBO
      * Enriches the loaded sample with a valid {@link ProcedurePE}.
      */
     void enrichWithValidProcedure();
+
+    /**
+     * Changes given sample. Currently allowed changes: properties.
+     */
+    void edit(SampleIdentifier identifier, List<SampleProperty> properties);
 }

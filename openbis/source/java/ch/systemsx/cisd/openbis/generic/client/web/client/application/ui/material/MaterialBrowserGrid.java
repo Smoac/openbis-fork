@@ -245,11 +245,11 @@ public final class MaterialBrowserGrid extends AbstractBrowserGrid<Material, Mat
     }
 
     private IEditableEntity<MaterialType, MaterialTypePropertyType, MaterialProperty> createEditableEntity(
-            Material experiment, MaterialType selectedType)
+            Material entity, MaterialType selectedType)
     {
         final EntityKind entityKind = EntityKind.MATERIAL;
         return new EditableEntity<MaterialType, MaterialTypePropertyType, MaterialProperty>(
-                entityKind, selectedType.getMaterialTypePropertyTypes(),
-                experiment.getProperties(), selectedType, experiment.getCode());
+                entityKind, selectedType.getMaterialTypePropertyTypes(), entity.getProperties(),
+                selectedType, entity.getCode() + " (" + entity.getMaterialType().getCode() + ")");
     }
 }

@@ -35,12 +35,14 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
+import javax.persistence.Version;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
 import org.hibernate.search.annotations.DocumentId;
@@ -108,6 +110,8 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
      * </p>
      */
     private Date registrationDate;
+
+    private Date modificationDate;
 
     @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false, updatable = false)
     @Generated(GenerationTime.INSERT)
@@ -201,6 +205,7 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
         this.inhibitorOf = inhibitorOf;
     }
 
+    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entity")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_PROPERTIES)
@@ -289,6 +294,18 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
         builder.append("code", getCode());
         builder.append("materialType", getMaterialType());
         return builder.toString();
+    }
+
+    @Version
+    @Column(name = ColumnNames.MODIFICATION_TIMESTAMP_COLUMN, nullable = false)
+    public Date getModificationDate()
+    {
+        return modificationDate;
+    }
+
+    public void setModificationDate(Date versionDate)
+    {
+        this.modificationDate = versionDate;
     }
 
     //
