@@ -83,7 +83,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE>
     private String code;
 
     private boolean placeholder;
-    
+
     private boolean deleted;
 
     /** Registration date of the database instance. */
@@ -105,7 +105,6 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE>
 
     private Set<EventPE> events = new HashSet<EventPE>();
 
-
     @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false)
     @Generated(GenerationTime.ALWAYS)
     public Date getRegistrationDate()
@@ -122,7 +121,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE>
     @NotNull(message = ValidationMessages.DATA_SET_TYPE_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.DATA_SET_TYPE_COLUMN)
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_DATASET_TYPE)
-    /** Returns <code>dataSetType</code>. */
+    /**  Returns <code>dataSetType</code>. */
     public DataSetTypePE getDataSetType()
     {
         return dataSetType;
@@ -152,7 +151,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE>
     }
 
     @Column(name = ColumnNames.IS_DELETED_COLUMN)
-    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_DELETED)
+    @IndexedEmbedded(prefix = SearchFieldConstants.DELETED)
     public boolean isDeleted()
     {
         return deleted;
@@ -342,7 +341,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE>
         event.setDataInternal(this);
         getEventsInternal().add(event);
     }
-    
+
     public void removeEvent(final EventPE event)
     {
         assert event != null : "Unspecified event.";

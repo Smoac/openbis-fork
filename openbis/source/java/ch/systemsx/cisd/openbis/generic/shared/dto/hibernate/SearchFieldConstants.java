@@ -52,11 +52,7 @@ public final class SearchFieldConstants
 
     public static final String PREFIX_ATTACHMENT_FILE_NAME = "attachment name: ";
 
-    public static final String PREFIX_DELETED = ""; // intentionally empty
-    
-    public static final String PREFIX_PROCEDURE = ""; // intentionally empty
-
-    public static final String PREFIX_EXPERIMENT_ATTACHMENTS = ""; // intentionally empty
+    public static final String DELETED = "deleted: ";
 
     public static final String PERSON_LAST_NAME = "Last Name";
 
@@ -64,4 +60,14 @@ public final class SearchFieldConstants
 
     public static final String CODE = "code";
 
+    /**
+     * These constants were intentionally left empty. Constant can be empty only when we are sure,
+     * that the name of the index field will be unique and non empty anyway (e.g. it is build in a
+     * bridge class or the field name consists of some other non empty elements).
+     */
+
+    public static final String PREFIX_PROCEDURE = "";
+
+    // intentionally empty, see class comment
+    public static final String PREFIX_EXPERIMENT_ATTACHMENTS = "";
 }
