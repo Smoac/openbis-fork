@@ -27,8 +27,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
- * Command for checking the content (i.e. <code>ListStore</code>) of a table (i.e.
- * <code>Grid</code>). It uses a fluent API approach for its methods to prepare expectations.
+ * Command for checking the content (i.e. <code>ListStore</code>) of a table (i.e. <code>Grid</code>
+ * ). It uses a fluent API approach for its methods to prepare expectations.
  * 
  * @author Franz-Josef Elmer
  */
@@ -78,7 +78,17 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
     }
 
     /**
-     * Prepares this with the expectation upon a certain row to be appear in the table.
+     * Prepares this with the expectation upon a certain column in a row to appear in the table.
+     */
+
+    public CheckTableCommand expectedColumn(String columnId, String columnValue)
+    {
+        expectedRow(new Row().withCell(columnId, columnValue));
+        return this;
+    }
+
+    /**
+     * Prepares this with the expectation upon a certain row to appear in the table.
      */
     public CheckTableCommand expectedRow(final Row row)
     {
@@ -165,5 +175,4 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
         assertTrue("Not a Widget of type Grid: " + widget.getClass(), widget instanceof Grid);
         return ((Grid<ModelData>) widget).getStore();
     }
-
 }
