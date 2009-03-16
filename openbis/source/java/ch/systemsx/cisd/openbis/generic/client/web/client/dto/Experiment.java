@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
@@ -43,6 +44,10 @@ public class Experiment extends CodeWithRegistration<Experiment> implements IIde
     private Invalidation invalidation;
 
     private List<Attachment> attachments;
+
+    private Long id;
+
+    private Date modificationDate;
 
     public Project getProject()
     {
@@ -116,6 +121,26 @@ public class Experiment extends CodeWithRegistration<Experiment> implements IIde
     public final int compareTo(final Experiment o)
     {
         return getIdentifier().compareTo(o.getIdentifier());
+    }
+
+    public Long getId()
+    {
+        return id;
+    }
+
+    public void setId(Long id)
+    {
+        this.id = id;
+    }
+
+    public Date getModificationDate()
+    {
+        return modificationDate;
+    }
+
+    public void setModificationDate(Date modificationDate)
+    {
+        this.modificationDate = modificationDate;
     }
 
 }

@@ -48,6 +48,8 @@ public final class SampleTranslator
     {
         final Sample result = new Sample();
         result.setCode(samplePE.getCode());
+        result.setModificationDate(samplePE.getModificationDate());
+        result.setId(samplePE.getId());
         result.setIdentifier(samplePE.getSampleIdentifier().toString());
         if (withDetails)
         {

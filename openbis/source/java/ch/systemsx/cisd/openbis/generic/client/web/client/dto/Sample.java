@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.common.annotation.CollectionMapping;
@@ -53,6 +54,10 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
     private Invalidation invalidation;
 
     private Procedure validProcedure;
+
+    private Long id;
+
+    private Date modificationDate;
 
     public SampleType getSampleType()
     {
@@ -162,5 +167,25 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
     public final int compareTo(final Sample o)
     {
         return getIdentifier().compareTo(o.getIdentifier());
+    }
+
+    public Long getId()
+    {
+        return id;
+    }
+
+    public void setId(Long id)
+    {
+        this.id = id;
+    }
+
+    public Date getModificationDate()
+    {
+        return modificationDate;
+    }
+
+    public void setModificationDate(Date modificationDate)
+    {
+        this.modificationDate = modificationDate;
     }
 }

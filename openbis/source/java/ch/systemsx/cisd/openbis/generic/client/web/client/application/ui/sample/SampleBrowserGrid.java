@@ -219,7 +219,7 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
         final EntityKind entityKind = EntityKind.SAMPLE;
         return new EditableEntity<SampleType, SampleTypePropertyType, SampleProperty>(entityKind,
                 sampleType.getSampleTypePropertyTypes(), sample.getProperties(), sampleType, sample
-                        .getIdentifier());
+                        .getIdentifier(), sample.getId(), sample.getModificationDate());
     }
 
     private static final String createHeader(ListSampleCriteria criteria)

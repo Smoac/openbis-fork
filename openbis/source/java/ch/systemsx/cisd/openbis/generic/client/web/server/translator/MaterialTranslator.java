@@ -53,6 +53,8 @@ public final class MaterialTranslator
         }
         final Material result = new Material();
         result.setCode(materialPE.getCode());
+        result.setId(materialPE.getId());
+        result.setModificationDate(materialPE.getModificationDate());
         if (withDetails)
         {
             result.setMaterialType(MaterialTypeTranslator.translate(materialPE.getMaterialType()));

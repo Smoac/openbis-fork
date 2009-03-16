@@ -55,6 +55,8 @@ public final class ExperimentTranslator
             return null;
         }
         final Experiment result = new Experiment();
+        result.setId(experiment.getId());
+        result.setModificationDate(experiment.getModificationDate());
         result.setCode(experiment.getCode());
         result.setExperimentType(translate(experiment.getExperimentType()));
         result.setIdentifier(experiment.getIdentifier());

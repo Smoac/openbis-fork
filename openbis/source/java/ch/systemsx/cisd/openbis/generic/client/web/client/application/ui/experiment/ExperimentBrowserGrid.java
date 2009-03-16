@@ -135,7 +135,8 @@ public final class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment,
         final EntityKind entityKind = EntityKind.EXPERIMENT;
         return new EditableEntity<ExperimentType, ExperimentTypePropertyType, ExperimentProperty>(
                 entityKind, selectedType.getExperimentTypePropertyTypes(), experiment
-                        .getProperties(), selectedType, experiment.getIdentifier());
+                        .getProperties(), selectedType, experiment.getIdentifier(), experiment
+                        .getId(), experiment.getModificationDate());
     }
 
     @Override

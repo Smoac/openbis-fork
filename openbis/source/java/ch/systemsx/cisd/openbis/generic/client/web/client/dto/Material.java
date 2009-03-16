@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
@@ -36,6 +37,10 @@ public class Material extends CodeWithRegistration<Material>
     private MaterialType MaterialType;
 
     private Material inhibitorOf;
+
+    private Long id;
+
+    private Date modificationDate;
 
     private List<MaterialProperty> properties;
 
@@ -77,5 +82,25 @@ public class Material extends CodeWithRegistration<Material>
     public void setInhibitorOf(Material inhibitorOf)
     {
         this.inhibitorOf = inhibitorOf;
+    }
+
+    public Long getId()
+    {
+        return id;
+    }
+
+    public void setId(Long id)
+    {
+        this.id = id;
+    }
+
+    public Date getModificationDate()
+    {
+        return modificationDate;
+    }
+
+    public void setModificationDate(Date modificationDate)
+    {
+        this.modificationDate = modificationDate;
     }
 }
