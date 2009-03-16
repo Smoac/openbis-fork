@@ -23,8 +23,6 @@ import java.util.Map;
 
 import com.extjs.gxt.ui.client.widget.form.Field;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.PropertyFieldFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -46,17 +44,14 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
 
     private Map<String, String> initialProperties;
 
-    private IViewContext<ICommonClientServiceAsync> viewContext;
-
     abstract protected P createEntityProperty();
 
     /**
      * Requires initial values of properties.
      */
     protected PropertiesEditor(String id, final List<S> entityTypesPropertyTypes,
-            final List<P> properties, IViewContext<ICommonClientServiceAsync> viewContext)
+            final List<P> properties)
     {
-        this.viewContext = viewContext;
         assert properties != null : "Undefined properties.";
         this.id = id;
         this.entityTypesPropertyTypes = entityTypesPropertyTypes;
@@ -71,10 +66,9 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
     /**
      * Does not require initial values of properties.
      */
-    public PropertiesEditor(String id, final List<S> entityTypesPropertyTypes,
-            IViewContext<ICommonClientServiceAsync> viewContext)
+    public PropertiesEditor(String id, final List<S> entityTypesPropertyTypes)
     {
-        this(id, entityTypesPropertyTypes, new ArrayList<P>(), viewContext);
+        this(id, entityTypesPropertyTypes, new ArrayList<P>());
     }
 
     private final Field<?> createPropertyField(final S etpt, String value)
@@ -85,7 +79,7 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
         final String propertyTypeCode = etpt.getPropertyType().getCode();
         field =
                 PropertyFieldFactory.createField(etpt.getPropertyType(), isMandatory, label,
-                        createFormFieldId(getId(), propertyTypeCode), viewContext, value);
+                        createFormFieldId(getId(), propertyTypeCode), value);
         field.setData(ETPT, etpt);
         field.setTitle(propertyTypeCode);
         return field;

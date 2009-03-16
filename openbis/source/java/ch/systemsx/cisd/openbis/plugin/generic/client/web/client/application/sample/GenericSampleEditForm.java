@@ -86,7 +86,7 @@ public final class GenericSampleEditForm extends
             String id)
     {
         return new SamplePropertyEditor<SampleType, SampleTypePropertyType, SampleProperty>(
-                entityTypesPropertyTypes, properties, id, viewContext);
+                entityTypesPropertyTypes, properties, id);
     }
 
 }

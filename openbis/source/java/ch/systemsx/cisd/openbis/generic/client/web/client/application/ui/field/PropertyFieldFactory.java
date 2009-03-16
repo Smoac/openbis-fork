@@ -20,8 +20,6 @@ import java.util.Date;
 
 import com.extjs.gxt.ui.client.widget.form.Field;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyTermModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -34,8 +32,7 @@ public class PropertyFieldFactory
      */
     @SuppressWarnings("unchecked")
     public static <T> Field<T> createField(final PropertyType pt, boolean isMandatory,
-            String label, String fieldId, IViewContext<ICommonClientServiceAsync> viewContext,
-            String originalRawValue)
+            String label, String fieldId, String originalRawValue)
     {
         final Field<T> field;
         final DataTypeCode dataType = pt.getDataType().getCode();

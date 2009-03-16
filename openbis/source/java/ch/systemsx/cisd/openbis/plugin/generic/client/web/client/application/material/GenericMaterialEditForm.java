@@ -86,7 +86,7 @@ public final class GenericMaterialEditForm extends
             List<MaterialProperty> properties, String id)
     {
         return new MaterialPropertyEditor<MaterialType, MaterialTypePropertyType, MaterialProperty>(
-                entityTypesPropertyTypes, properties, id, viewContext);
+                entityTypesPropertyTypes, properties, id);
     }
 
 }

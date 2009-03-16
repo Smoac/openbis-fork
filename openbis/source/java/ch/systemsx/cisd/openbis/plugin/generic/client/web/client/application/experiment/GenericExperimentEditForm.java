@@ -86,7 +86,7 @@ public final class GenericExperimentEditForm
             List<ExperimentProperty> properties, String id)
     {
         return new ExperimentPropertyEditor<ExperimentType, ExperimentTypePropertyType, ExperimentProperty>(
-                entityTypesPropertyTypes, properties, id, viewContext);
+                entityTypesPropertyTypes, properties, id);
     }
 
 }
