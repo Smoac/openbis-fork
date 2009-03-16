@@ -37,6 +37,9 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.menu.Item;
+import com.extjs.gxt.ui.client.widget.menu.Menu;
+import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolItem;
 import com.extjs.gxt.ui.client.widget.tree.Tree;
@@ -90,6 +93,18 @@ public final class GWTTestUtil
         assertWidgetFound("Menu element tree", id + LeftMenu.TREE_SUFFIX, tree);
         ((Tree) tree).setSelectedItem((TreeItem) item);
         ((Tree) tree).fireEvent(Event.ONCLICK);
+
+    }
+
+    /**
+     * Clicks on the menu option with specified id.
+     */
+    public static void selectTopMenuWithID(final String menu, final String action)
+    {
+        final String id = menu + "_" + action;
+        final Widget item = tryToFindByID(id);
+        assertWidgetFound("Menu element", id, item);
+        ((MenuItem) item).fireEvent(Event.ONCLICK);
 
     }
 
@@ -329,6 +344,9 @@ public final class GWTTestUtil
             if (widget instanceof ComplexPanel)
             {
                 return new ComplexPanelHandler(this).handle((ComplexPanel) widget);
+            } else if (widget instanceof Menu)
+            {
+                return new MenuHandler(this).handle((Menu) widget);
             } else if (widget instanceof Tree)
             {
                 return new TreeHandler(this).handle((Tree) widget);
@@ -384,6 +402,35 @@ public final class GWTTestUtil
             for (final ToolItem item : pagingToolBar.getItems())
             {
                 if (handler.handle(item))
+                {
+                    return true;
+                }
+
+            }
+            return false;
+        }
+    }
+
+    /** Handle for handling {@link Menu} widget. */
+    private static final class MenuHandler implements IWidgetHandler<Menu>
+    {
+        private final IWidgetHandler<Widget> handler;
+
+        MenuHandler(final IWidgetHandler<Widget> handler)
+        {
+            this.handler = handler;
+        }
+
+        //
+        // IWidgetHandler
+        //
+
+        public final boolean handle(final Menu menu)
+        {
+
+            for (final Item i : menu.getItems())
+            {
+                if (handler.handle(i))
                 {
                     return true;
                 }
@@ -461,21 +508,20 @@ public final class GWTTestUtil
 
         public final boolean handle(final Container<Component> container)
         {
-            final List<Component> items = container.getItems();
-            for (int i = 0, n = items.size(); i < n; i++)
+            for (Component c : container.getItems())
             {
-                if (handler.handle(items.get(i)))
+                if (handler.handle(c))
                 {
                     return true;
                 }
             }
+
             if (container instanceof ContentPanel)
             {
                 final ContentPanel contentPanel = (ContentPanel) container;
-                final List<Button> buttons = contentPanel.getButtonBar().getItems();
-                for (int i = 0, n = buttons.size(); i < n; i++)
+                for (Button b : contentPanel.getButtonBar().getItems())
                 {
-                    if (handler.handle(buttons.get(i)))
+                    if (handler.handle(b))
                     {
                         return true;
                     }
@@ -509,10 +555,9 @@ public final class GWTTestUtil
 
         public boolean handle(final MultiField<Field<?>> widget)
         {
-            final List<Field<?>> fields = widget.getAll();
-            for (int i = 0, n = fields.size(); i < n; i++)
+            for (Field<?> f : widget.getAll())
             {
-                if (handler.handle(fields.get(i)))
+                if (handler.handle(f))
                 {
                     return true;
                 }

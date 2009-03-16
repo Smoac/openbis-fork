@@ -53,7 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
  * 
  * @author Izabela Adamczyk
  */
-final class ComponentProvider
+public final class ComponentProvider
 {
     private final CommonViewContext viewContext;
 

@@ -28,7 +28,7 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.google.gwt.user.client.ui.RootPanel;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.TopMenu;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Footer;
 
 /**
@@ -83,7 +83,7 @@ final class AppView extends View
 
     private final void createNorth()
     {
-        north = new TopMenu(viewContext);
+        north = new TopMenu(viewContext, componentProvider);
         final BorderLayoutData data = new BorderLayoutData(LayoutRegion.NORTH, 30);
         viewport.add(north, data);
     }

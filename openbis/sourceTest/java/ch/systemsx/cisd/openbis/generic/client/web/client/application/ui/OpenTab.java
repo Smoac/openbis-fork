@@ -22,6 +22,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.SessionCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.LeftMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder.MenuCategoryKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder.MenuElementKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
@@ -32,9 +33,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestU
  */
 public final class OpenTab extends AbstractDefaultTestCommand
 {
-    private final String category;
+    private String category;
 
-    private final String option;
+    private String option;
+
+    // TODO 2009-03-16, Piotr Buczek: change to final and remove category/option
+    @SuppressWarnings("unused")
+    private String action;
 
     public OpenTab(final MenuCategoryKind category, final MenuElementKind option,
             final Class<? extends AsyncCallback<?>> callbackClass)
@@ -55,12 +60,32 @@ public final class OpenTab extends AbstractDefaultTestCommand
         this(category, option, null);
     }
 
+    public OpenTab(final ActionMenuKind action,
+            final Class<? extends AsyncCallback<?>> callbackClass)
+    {
+        if (callbackClass == null)
+        {
+            addCallbackClass(SessionContextCallback.class);
+        } else
+        {
+            addCallbackClass(callbackClass);
+        }
+        this.action = action.name();
+    }
+
+    public OpenTab(final ActionMenuKind action)
+    {
+        this(action, null);
+    }
+
     //
     // AbstractDefaultTestCommand
     //
 
     public final void execute()
     {
+        // TODO 2009-03-16, Piotr Buczek: change to use TopMenu
+        // GWTTestUtil.selectTopMenuWithID(TopMenu.ID, action);
         GWTTestUtil.selectMenuCategoryWithID(LeftMenu.ID, category);
         GWTTestUtil.selectMenuWithID(LeftMenu.ID, category, option);
     }

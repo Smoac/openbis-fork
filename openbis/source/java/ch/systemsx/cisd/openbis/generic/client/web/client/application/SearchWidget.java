@@ -46,7 +46,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
  * 
  * @author Christian Ribeaud
  */
-final class SearchWidget extends LayoutContainer
+public final class SearchWidget extends LayoutContainer
 {
     private static final String PREFIX = GenericConstants.ID_PREFIX + "search-widget_";
 
@@ -66,7 +66,7 @@ final class SearchWidget extends LayoutContainer
 
     private final EnterKeyListener enterKeyListener;
 
-    SearchWidget(final IViewContext<ICommonClientServiceAsync> viewContext)
+    public SearchWidget(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         final TableRowLayout tableRowLayout = createLayout();
         setLayout(tableRowLayout);
@@ -87,6 +87,7 @@ final class SearchWidget extends LayoutContainer
             };
         textField = createTextField();
         entityChooser = createEntityChooser();
+        entityChooser.setVisible(false);
         add(entityChooser);
         add(textField);
         add(searchButton);
@@ -123,6 +124,7 @@ final class SearchWidget extends LayoutContainer
         field.setWidth(200);
         field.addKeyListener(enterKeyListener);
         field.setStyleAttribute("marginRight", "3px");
+        field.setEmptyText(viewContext.getMessage(Dict.SEARCH_BUTTON) + "...");
         return field;
     }
 
@@ -232,6 +234,7 @@ final class SearchWidget extends LayoutContainer
                             doSearch();
                         }
                     };
+        button.setVisible(false);
         return button;
     }
 }
