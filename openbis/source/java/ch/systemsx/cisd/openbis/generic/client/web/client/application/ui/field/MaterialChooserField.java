@@ -46,11 +46,12 @@ public final class MaterialChooserField extends TextField<String> implements
         ChosenEntitySetter<Material>
 {
     public static Field<?> create(final String labelField, final boolean mandatory,
-            final MaterialType materialTypeOrNull,
+            final MaterialType materialTypeOrNull, String initialValueOrNull,
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         final MaterialChooserField chosenMaterialField =
-                new MaterialChooserField(mandatory, materialTypeOrNull, viewContext);
+                new MaterialChooserField(mandatory, materialTypeOrNull, initialValueOrNull,
+                        viewContext);
 
         Button chooseButton = new Button(viewContext.getMessage(Dict.BUTTON_BROWSE));
         chooseButton.addSelectionListener(new SelectionListener<ComponentEvent>()
@@ -70,8 +71,7 @@ public final class MaterialChooserField extends TextField<String> implements
     {
         DisposableEntityChooser<Material> materialBrowser =
                 MaterialBrowserGrid.create(viewContext, materialTypeOrNull);
-        new EntityChooserDialog<Material>(materialBrowser, chosenMaterialField, viewContext)
-                .show();
+        new EntityChooserDialog<Material>(materialBrowser, chosenMaterialField, viewContext).show();
     }
 
     // ------------------
@@ -100,7 +100,7 @@ public final class MaterialChooserField extends TextField<String> implements
     }
 
     private MaterialChooserField(boolean mandatory, MaterialType materialTypeOrNull,
-            IViewContext<ICommonClientServiceAsync> viewContext)
+            String initialValueOrNull, IViewContext<ICommonClientServiceAsync> viewContext)
     {
         this.mandatory = mandatory;
 
@@ -109,7 +109,13 @@ public final class MaterialChooserField extends TextField<String> implements
 
         setRegex(CODE_AND_TYPE_PATTERN);
         getMessages().setRegexText(viewContext.getMessage(Dict.INCORRECT_MATERIAL_SYNTAX));
-        setEmptyText(createEmptyText(materialTypeOrNull, viewContext));
+        if (initialValueOrNull != null)
+        {
+            setValue(initialValueOrNull);
+        } else
+        {
+            setEmptyText(createEmptyText(materialTypeOrNull, viewContext));
+        }
         FieldUtil.setMandatoryFlag(this, mandatory);
     }
 

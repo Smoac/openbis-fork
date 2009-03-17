@@ -36,7 +36,8 @@ public class PropertyFieldFactory
             String fieldId, String originalRawValue,
             IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        final Field<?> field = createField(pt, isMandatory, label, fieldId, viewContext);
+        final Field<?> field =
+                doCreateField(pt, isMandatory, label, fieldId, originalRawValue, viewContext);
         field.setId(fieldId);
         if (originalRawValue != null)
         {
@@ -45,8 +46,9 @@ public class PropertyFieldFactory
         return field;
     }
 
-    private static Field<?> createField(final PropertyType pt, boolean isMandatory, String label,
-            String fieldId, IViewContext<ICommonClientServiceAsync> viewContext)
+    private static Field<?> doCreateField(final PropertyType pt, boolean isMandatory, String label,
+            String fieldId, String originalRawValue,
+            IViewContext<ICommonClientServiceAsync> viewContext)
     {
         final DataTypeCode dataType = pt.getDataType().getCode();
         switch (dataType)
@@ -66,7 +68,7 @@ public class PropertyFieldFactory
                 return new RealField(label, isMandatory);
             case MATERIAL:
                 return MaterialChooserField.create(label, isMandatory, pt.getMaterialType(),
-                        viewContext);
+                        originalRawValue, viewContext);
         }
         throw new IllegalStateException("unknown enum " + dataType);
     }
