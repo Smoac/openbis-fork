@@ -364,6 +364,6 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /** Deletes the specified data sets. */
-    public void deleteDataSets(List<String> dataSetCodes) throws UserFailureException;
+    public void deleteDataSets(List<String> dataSetCodes, String reason) throws UserFailureException;
 
 }

@@ -233,7 +233,7 @@ var common = {
  data_producer_code: "Producer",
  button_delete_datasets: "Delete",
  confirm_dataset_deletion_title: "Data Sets Deletion Confirmation",
- confirm_dataset_deletion_msg: "Do you really want to delete the following data sets?\n\n{0}",
+ confirm_dataset_deletion_msg: "You are deleting {0} data set(s). Please enter a reason:",
  
  
  //

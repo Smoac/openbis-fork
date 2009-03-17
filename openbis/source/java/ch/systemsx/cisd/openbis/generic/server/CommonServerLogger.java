@@ -318,9 +318,9 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 experimentIdentifier, attachments.size());
     }
 
-    public void deleteDataSets(String sessionToken, List<String> dataSetCodes)
+    public void deleteDataSets(String sessionToken, List<String> dataSetCodes, String reason)
     {
-        logTracking(sessionToken, "delete_data_sets", "CODES(%s)", dataSetCodes);
+        logTracking(sessionToken, "delete_data_sets", "CODES(%s) REASON(%s)", dataSetCodes, reason);
     }
 
     public void editMaterial(String sessionToken, MaterialIdentifier identifier,

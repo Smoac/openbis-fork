@@ -1015,13 +1015,13 @@ public final class CommonClientService extends AbstractClientService implements
 
     }
 
-    public void deleteDataSets(List<String> dataSetCodes)
+    public void deleteDataSets(List<String> dataSetCodes, String reason)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
-            commonServer.deleteDataSets(sessionToken, dataSetCodes);
+            commonServer.deleteDataSets(sessionToken, dataSetCodes, reason);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

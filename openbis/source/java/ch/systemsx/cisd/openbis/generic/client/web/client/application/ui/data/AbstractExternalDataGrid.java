@@ -20,8 +20,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -35,7 +39,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DataSetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
@@ -67,30 +70,19 @@ public abstract class AbstractExternalDataGrid extends AbstractSimpleBrowserGrid
         }
     }
     
-    private static final class DeletionConfirmationDialog extends ConfirmationDialog
+    private static final class DeletionConfirmationDialog extends Dialog
     {
-
-        private static String render(List<ExternalData> dataSets)
-        {
-            StringBuilder builder = new StringBuilder();
-            for (ExternalData externalData : dataSets)
-            {
-                builder.append("\n").append(externalData.getCode());
-            }
-            return builder.toString();
-        }
-        
         private final IViewContext<?> viewContext;
 
         private final List<String> dataSetCodes;
 
         private final IBrowserGridActionInvoker invoker;
 
+        private final TextField<String> reason;
+
         public DeletionConfirmationDialog(IViewContext<?> viewContext, List<ExternalData> dataSets,
                 IBrowserGridActionInvoker invoker)
         {
-            super(viewContext.getMessage(Dict.CONFIRM_DATASET_DELETION_TITLE), viewContext
-                    .getMessage(Dict.CONFIRM_DATASET_DELETION_MSG, render(dataSets)));
             this.viewContext = viewContext;
             this.invoker = invoker;
             dataSetCodes = new ArrayList<String>();
@@ -98,14 +90,36 @@ public abstract class AbstractExternalDataGrid extends AbstractSimpleBrowserGrid
             {
                 dataSetCodes.add(externalData.getCode());
             }
-            setSize(400, 300);
+            setHeading(viewContext.getMessage(Dict.CONFIRM_DATASET_DELETION_TITLE));
+            setButtons(Dialog.OKCANCEL);
+            addText(viewContext.getMessage(Dict.CONFIRM_DATASET_DELETION_MSG, dataSets.size()));
+            reason = new TextField<String>();
+            reason.setSelectOnFocus(true);
+            reason.setHideLabel(true);
+            reason.setWidth("100%");
+            reason.setMaxLength(250);
+            reason.addKeyListener(new KeyListener()
+                {
+                    @Override
+                    public void handleEvent(ComponentEvent ce)
+                    {
+                        okBtn.setEnabled(reason.isValid());
+                    }
+                });
+            add(reason);
+            setHideOnButtonClick(true);
+            setModal(true);
         }
-
+        
         @Override
-        protected void onYes()
+        protected void onButtonPressed(Button button)
         {
-            viewContext.getCommonService().deleteDataSets(dataSetCodes,
-                    new DeletionCallback(viewContext, invoker));
+            super.onButtonPressed(button);
+            if (button.getItemId().equals(Dialog.OK) && reason.isValid())
+            {
+                viewContext.getCommonService().deleteDataSets(dataSetCodes, reason.getValue(),
+                        new DeletionCallback(viewContext, invoker));
+            }
         }
     }
     

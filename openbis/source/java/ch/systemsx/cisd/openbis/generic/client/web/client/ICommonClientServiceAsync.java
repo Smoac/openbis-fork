@@ -320,6 +320,6 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void updateSample(final String sampleIdentifier, List<SampleProperty> properties,
             final AsyncCallback<Void> asyncCallback) throws UserFailureException;
 
-    /** @see ICommonClientService#deleteDataSets(List) */
-    public void deleteDataSets(List<String> dataSetCodes, AsyncCallback<Void> asyncCallback);
+    /** @see ICommonClientService#deleteDataSets(List, String) */
+    public void deleteDataSets(List<String> dataSetCodes, String reason, AsyncCallback<Void> asyncCallback);
 }

@@ -586,7 +586,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         }
     }
 
-    public void deleteDataSets(String sessionToken, List<String> dataSetCodes)
+    public void deleteDataSets(String sessionToken, List<String> dataSetCodes, String reason)
     {
         Session session = getSessionManager().getSession(sessionToken);
         IExternalDataDAO externalDataDAO = getDAOFactory().getExternalDataDAO();
@@ -605,7 +605,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
         for (ExternalDataPE dataSet : dataSets)
         {
-            externalDataDAO.markAsDeleted(dataSet, session.tryGetPerson(), null);
+            externalDataDAO.markAsDeleted(dataSet, session.tryGetPerson(), reason);
         }
         Collection<DataStoreServerSession> sessions = dssSessionManager.getSessions();
         for (DataStoreServerSession dssSession : sessions)

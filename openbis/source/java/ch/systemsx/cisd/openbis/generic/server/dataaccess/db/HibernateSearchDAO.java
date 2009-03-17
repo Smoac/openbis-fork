@@ -355,24 +355,24 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
 
         Criteria criteria = getSession().createCriteria(ExternalDataPE.class);
         criteria.add(Restrictions.eq("deleted", false));
-        criteria.setFetchMode("parents", FetchMode.JOIN);
         criteria.setFetchMode("procedure", FetchMode.JOIN);
         criteria.setFetchMode("procedure.experimentInternal", FetchMode.JOIN);
-        criteria.setFetchMode("procedure.experimentInternal.experimentProperties", FetchMode.JOIN);
         hibernateQuery.setCriteriaQuery(criteria);
 
         List<ExternalDataPE> datasets = AbstractDAO.cast(hibernateQuery.list());
         datasets = filterNulls(datasets);
-        // NOTE: there is a limit on the number of JOINs, so we have to initialize sample properties
-        // manually
-        initSamplesWithProperties(datasets);
+        // NOTE: there is a limit on the number of JOINs, so we have to initialize parents, 
+        // experiment properties, and sample properties manually.
+        initParentsAndExperimentPropertiesAndSamplesWithProperties(datasets);
         return asDataSetHits(datasets);
     }
 
-    private void initSamplesWithProperties(List<ExternalDataPE> datasets)
+    private void initParentsAndExperimentPropertiesAndSamplesWithProperties(List<ExternalDataPE> datasets)
     {
         for (ExternalDataPE dataset : datasets)
         {
+            HibernateUtils.initialize(dataset.getParents());
+            HibernateUtils.initialize(dataset.getProcedure().getExperiment().getProperties());
             initSamplesWithProperties(dataset.getSampleAcquiredFrom());
             initSamplesWithProperties(dataset.getSampleDerivedFrom());
         }

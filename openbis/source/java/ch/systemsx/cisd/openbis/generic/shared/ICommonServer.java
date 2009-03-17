@@ -350,7 +350,7 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleSet.GROUP_ADMIN)
     public void deleteDataSets(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
-            List<String> dataSetCodes);
+            List<String> dataSetCodes, String reason);
 
     /**
      * Saves changed experiment.
