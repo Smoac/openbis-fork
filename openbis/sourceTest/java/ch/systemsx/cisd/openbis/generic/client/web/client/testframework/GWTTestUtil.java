@@ -42,8 +42,6 @@ import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolItem;
-import com.extjs.gxt.ui.client.widget.tree.Tree;
-import com.extjs.gxt.ui.client.widget.tree.TreeItem;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.ComplexPanel;
 import com.google.gwt.user.client.ui.ListBox;
@@ -324,9 +322,6 @@ public final class GWTTestUtil
             } else if (widget instanceof Menu)
             {
                 return new MenuHandler(this).handle((Menu) widget);
-            } else if (widget instanceof Tree)
-            {
-                return new TreeHandler(this).handle((Tree) widget);
             } else if (widget instanceof Container)
             {
                 return new ContainerHandler(this).handle((Container<Component>) widget);
@@ -467,33 +462,6 @@ public final class GWTTestUtil
             return false;
         }
 
-    }
-
-    private static final class TreeHandler implements IWidgetHandler<Tree>
-    {
-        private final IWidgetHandler<Widget> handler;
-
-        TreeHandler(final IWidgetHandler<Widget> handler)
-        {
-            this.handler = handler;
-        }
-
-        //
-        // IWidgetHandler
-        //
-
-        public final boolean handle(final Tree tree)
-        {
-            for (final TreeItem i : tree.getAllItems())
-            {
-                if (handler.handle(i))
-                {
-                    return true;
-                }
-
-            }
-            return false;
-        }
     }
 
     private static final class ComplexPanelHandler implements IWidgetHandler<ComplexPanel>

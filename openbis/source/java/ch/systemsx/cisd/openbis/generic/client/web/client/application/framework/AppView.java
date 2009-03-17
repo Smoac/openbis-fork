@@ -21,7 +21,6 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.util.Margins;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
@@ -42,15 +41,11 @@ final class AppView extends View
 
     private Viewport viewport;
 
-    private ContentPanel west;
-
     private MainTabPanel center;
 
     private TopMenu north;
 
     private ComponentProvider componentProvider;
-
-    private CategoriesBuilder categoriesBuilder;
 
     AppView(final Controller controller, final CommonViewContext viewContext)
     {
@@ -74,7 +69,6 @@ final class AppView extends View
         viewport = new Viewport();
         viewport.setLayout(new BorderLayout());
         createNorth();
-        createWest();
         createCenter();
         createSouth();
         RootPanel.get().clear();
@@ -86,14 +80,6 @@ final class AppView extends View
         north = new TopMenu(viewContext, componentProvider);
         final BorderLayoutData data = new BorderLayoutData(LayoutRegion.NORTH, 30);
         viewport.add(north, data);
-    }
-
-    private final void createWest()
-    {
-        west = new LeftMenu(categoriesBuilder.getCategories());
-        final BorderLayoutData data = new BorderLayoutData(LayoutRegion.WEST, 200, 150, 350);
-        data.setMargins(new Margins(5, 0, 5, 5));
-        viewport.add(west, data);
     }
 
     private final void createCenter()
@@ -119,7 +105,7 @@ final class AppView extends View
     protected final void initialize()
     {
         componentProvider = new ComponentProvider(viewContext);
-        categoriesBuilder = new CategoriesBuilder(componentProvider);
+        // categoriesBuilder = new CategoriesBuilder(componentProvider);
     }
 
     @Override
