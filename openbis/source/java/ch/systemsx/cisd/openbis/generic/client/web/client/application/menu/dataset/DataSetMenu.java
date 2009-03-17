@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.data
 
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
@@ -34,13 +35,12 @@ public class DataSetMenu extends TopMenuItem
 
     public DataSetMenu(IMessageProvider messageProvider, ComponentProvider componentProvider)
     {
-        super("Data Set");
-        setIconStyle("icon-menu-show");
+        super(messageProvider.getMessage(Dict.MENU_DATA_SET));
+        setIconStyle(TopMenu.ICON_STYLE);
+
         Menu menu = new Menu();
-        menu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_SEARCH, "Search",
+        menu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_SEARCH, messageProvider,
                 componentProvider.getDataSetSearch()));
-        menu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_IMPORT, "Import",
-                componentProvider.getDummyComponent()));
         setMenu(menu);
     }
 }

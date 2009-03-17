@@ -27,7 +27,7 @@ import com.google.gwt.http.client.Response;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ListExperiments;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ShowExperiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
@@ -49,8 +49,7 @@ public class GenericExperimentAttachmentDownloadTest extends AbstractGWTTestCase
     private void prepareShowExperiment(final String projectName, final String experimentTypeName,
             final String experimentCode)
     {
-        loginAndGotoTab(CategoriesBuilder.MenuCategoryKind.EXPERIMENTS,
-                CategoriesBuilder.MenuElementKind.BROWSE);
+        loginAndGotoTab(ActionMenuKind.EXPERIMENT_MENU_BROWSE);
         remoteConsole.prepare(new ListExperiments(projectName, experimentTypeName));
         remoteConsole.prepare(new ShowExperiment(experimentCode));
     }

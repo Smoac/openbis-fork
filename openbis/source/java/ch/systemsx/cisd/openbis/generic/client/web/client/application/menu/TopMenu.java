@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.datas
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.experiment.ExperimentMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.material.MaterialMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.sample.SampleMenu;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.User;
 
@@ -56,11 +57,16 @@ public class TopMenu extends LayoutContainer
 
     public static final String LOGOUT_BUTTON_ID = GenericConstants.ID_PREFIX + "logout-button";
 
+    public static final String ICON_STYLE = "icon-menu-show";
+
+    /** {@link ActionMenu} kind enum with names matching dictionary keys */
     public static enum ActionMenuKind
     {
-        ADMINISTRATION_MENU_MANAGE_GROUPS, AUTHORIZATION_MENU_USERS, AUTHORIZATION_MENU_ROLES,
+        ADMINISTRATION_MENU_MANAGE_GROUPS,
 
-        DATA_SET_MENU_SEARCH, DATA_SET_MENU_IMPORT,
+        AUTHORIZATION_MENU_USERS, AUTHORIZATION_MENU_ROLES,
+
+        DATA_SET_MENU_SEARCH,
 
         EXPERIMENT_MENU_BROWSE, EXPERIMENT_MENU_NEW, EXPERIMENT_MENU_TYPES,
 
@@ -68,13 +74,23 @@ public class TopMenu extends LayoutContainer
 
         SAMPLE_MENU_BROWSE, SAMPLE_MENU_NEW, SAMPLE_MENU_IMPORT, SAMPLE_MENU_TYPES,
 
-        PROJECT_MENU_NEW, PROJECT_MENU_BROWSE,
+        PROJECT_MENU_BROWSE, PROJECT_MENU_NEW,
 
         PROPERTY_TYPES_MENU_BROWSE_PROPERTY_TYPES, PROPERTY_TYPES_MENU_BROWSE_ASSIGNMENTS,
         PROPERTY_TYPES_MENU_NEW_PROPERTY_TYPES, PROPERTY_TYPES_MENU_ASSIGN_TO_EXPERIMENT_TYPE,
         PROPERTY_TYPES_MENU_ASSIGN_TO_SAMPLE_TYPE,
 
-        VOCABULARY_MENU_BROWSE, VOCABULARY_MENU_NEW,
+        VOCABULARY_MENU_BROWSE, VOCABULARY_MENU_NEW;
+
+        public String getMenuId()
+        {
+            return ID + "_" + this.name();
+        }
+
+        public String getMenuText(IMessageProvider messageProvider)
+        {
+            return messageProvider.getMessage(this.name());
+        }
     }
 
     private final ToolBar toolBar;

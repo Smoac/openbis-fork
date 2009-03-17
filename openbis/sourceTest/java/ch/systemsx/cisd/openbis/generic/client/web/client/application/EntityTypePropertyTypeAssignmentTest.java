@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PropertyTypeAssignmentColDefKind;
@@ -57,8 +57,7 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
     private final void prepareListingAfterAssignment(String propertyTypeCode,
             String entityTypeCode, EntityKind entityKind, int expectedEntries, boolean isMandatory)
     {
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.PROPERTY_TYPES,
-                CategoriesBuilder.MenuElementKind.LIST_ASSIGNMENTS,
+        remoteConsole.prepare(new OpenTab(ActionMenuKind.PROPERTY_TYPES_MENU_BROWSE_ASSIGNMENTS,
                 PropertyTypeAssignmentForm.AssignPropertyTypeCallback.class));
         CheckPropertyTypeAssignmentTable table = new CheckPropertyTypeAssignmentTable();
         table.expectedRow(new Row().withCell(
@@ -73,8 +72,7 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
 
     public final void testAssignExperimentPropertyType()
     {
-        loginAndGotoTab(CategoriesBuilder.MenuCategoryKind.PROPERTY_TYPES,
-                CategoriesBuilder.MenuElementKind.ASSIGN_ETPT);
+        loginAndGotoTab(ActionMenuKind.PROPERTY_TYPES_MENU_ASSIGN_TO_EXPERIMENT_TYPE);
         final boolean mandatory = true;
         remoteConsole.prepare(new FillPropertyTypeAssignmentForm(mandatory, USER_COMMENT,
                 COMPOUND_HCS, "a comment", EXPERIMENT));
@@ -84,12 +82,10 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
 
     public final void testGlobalValueAssignmentSamplePropertyType()
     {
-        loginAndGotoTab(CategoriesBuilder.MenuCategoryKind.PROPERTY_TYPES,
-                CategoriesBuilder.MenuElementKind.ASSIGN_STPT);
+        loginAndGotoTab(ActionMenuKind.PROPERTY_TYPES_MENU_ASSIGN_TO_SAMPLE_TYPE);
         remoteConsole.prepare(new FillPropertyTypeAssignmentForm(false, USER_COMMENT,
                 CONTROL_LAYOUT, NO_COMMENT, SAMPLE));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.SAMPLES,
-                CategoriesBuilder.MenuElementKind.BROWSE,
+        remoteConsole.prepare(new OpenTab(ActionMenuKind.SAMPLE_MENU_BROWSE,
                 PropertyTypeAssignmentForm.AssignPropertyTypeCallback.class));
         remoteConsole.prepare(new ListSamples(CISD, CONTROL_LAYOUT));
         CheckSampleTable table = new CheckSampleTable();

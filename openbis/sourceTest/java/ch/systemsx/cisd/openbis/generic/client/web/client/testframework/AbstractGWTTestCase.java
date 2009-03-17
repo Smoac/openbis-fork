@@ -28,8 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Client;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder.MenuCategoryKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder.MenuElementKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
@@ -140,30 +139,13 @@ public abstract class AbstractGWTTestCase extends GWTTestCase
 
     // ----------
 
-    /** login default user in and go to the specified tab */
-    protected final void loginAndGotoTab(MenuCategoryKind menuCategoryKind,
-            MenuElementKind menuElementKind)
-    {
-        loginAndGotoTab("test", "a", menuCategoryKind, menuElementKind);
-    }
-
-    /** login specified user in and go to the specified tab */
-    protected final void loginAndGotoTab(String userName, String passwd,
-            MenuCategoryKind menuCategoryKind, MenuElementKind menuElementKind)
-    {
-        remoteConsole.prepare(new Login(userName, passwd));
-        remoteConsole.prepare(new OpenTab(menuCategoryKind, menuElementKind));
-    }
-
-    // ----
-
-    /** login default user in and go to the specified tab (fire specified action menu) */
+    /** login default user in and open tab by {@link ActionMenu} */
     protected final void loginAndGotoTab(ActionMenuKind actionMenuKind)
     {
         loginAndGotoTab("test", "a", actionMenuKind);
     }
 
-    /** login specified user in and go to the specified tab (fire specified action menu) */
+    /** login specified user in and open tab by {@link ActionMenu} */
     protected final void loginAndGotoTab(String userName, String passwd,
             ActionMenuKind actionMenuKind)
     {

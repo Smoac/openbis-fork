@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.Widget;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.VocabularyColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.VocabularyTermColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.GridTestUtils;
@@ -42,8 +42,7 @@ public class VocabularyBrowserTest extends AbstractGWTTestCase
 
     public final void testListVocabularies()
     {
-        loginAndGotoTab(CategoriesBuilder.MenuCategoryKind.VOCABULARIES,
-                CategoriesBuilder.MenuElementKind.BROWSE);
+        loginAndGotoTab(ActionMenuKind.VOCABULARY_MENU_BROWSE);
         CheckTableCommand table =
                 new CheckTableCommand(VocabularyGrid.GRID_ID,
                         VocabularyGrid.ListEntitiesCallback.class);
@@ -55,9 +54,8 @@ public class VocabularyBrowserTest extends AbstractGWTTestCase
 
     public final void testShowTermDetails()
     {
-        loginAndGotoTab(CategoriesBuilder.MenuCategoryKind.VOCABULARIES,
-                CategoriesBuilder.MenuElementKind.BROWSE);
-
+        loginAndGotoTab(ActionMenuKind.VOCABULARY_MENU_BROWSE);
+        
         remoteConsole.prepare(new ClickOnVocabularyCmd(VOCABULARY_CODE));
 
         CheckTableCommand termsTable =

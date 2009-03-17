@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.admi
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
@@ -34,12 +35,13 @@ public class AuthorizationMenu extends MenuItem
 
     public AuthorizationMenu(IMessageProvider messageProvider, ComponentProvider componentProvider)
     {
-        super("Authorization");
-        setIconStyle("icon-menu-show");
+        super(messageProvider.getMessage(Dict.MENU_AUTHORIZATION));
+        setIconStyle(TopMenu.ICON_STYLE);
+
         Menu menu = new Menu();
-        menu.add(new ActionMenu(TopMenu.ActionMenuKind.AUTHORIZATION_MENU_USERS, "Users",
+        menu.add(new ActionMenu(TopMenu.ActionMenuKind.AUTHORIZATION_MENU_USERS, messageProvider,
                 componentProvider.getPersonsView()));
-        menu.add(new ActionMenu(TopMenu.ActionMenuKind.AUTHORIZATION_MENU_ROLES, "Roles",
+        menu.add(new ActionMenu(TopMenu.ActionMenuKind.AUTHORIZATION_MENU_ROLES, messageProvider,
                 componentProvider.getRolesView()));
         setSubMenu(menu);
     }

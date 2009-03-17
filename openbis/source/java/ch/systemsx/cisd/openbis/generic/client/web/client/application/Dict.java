@@ -323,6 +323,28 @@ public abstract class Dict
     public static final String PART_OF_SAMPLE = "part_of_sample";
 
     //
+    // Menu Titles
+    //
+
+    public static final String MENU_ADMINISTRATION = "menu_administration";
+
+    public static final String MENU_AUTHORIZATION = "menu_authorization";
+
+    public static final String MENU_PROJECT = "menu_project";
+
+    public static final String MENU_PROPERTY_TYPES = "menu_property_types";
+
+    public static final String MENU_VOCABULARY = "menu_vocabulary";
+
+    public static final String MENU_DATA_SET = "menu_data_set";
+
+    public static final String MENU_EXPERIMENT = "menu_experiment";
+
+    public static final String MENU_MATERIAL = "menu_material";
+
+    public static final String MENU_SAMPLE = "menu_sample";
+
+    //
     // Tab Titles
     //
 

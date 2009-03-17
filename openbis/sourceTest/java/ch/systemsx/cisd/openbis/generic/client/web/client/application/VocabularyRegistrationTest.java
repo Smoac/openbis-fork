@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.FillVocabularyRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 
@@ -37,8 +37,7 @@ public class VocabularyRegistrationTest extends AbstractGWTTestCase
 
     public final void testRegisterVocabulary()
     {
-        loginAndGotoTab(CategoriesBuilder.MenuCategoryKind.VOCABULARIES,
-                CategoriesBuilder.MenuElementKind.REGISTER);
+        loginAndGotoTab(ActionMenuKind.VOCABULARY_MENU_NEW);
         remoteConsole.prepare(createFillVocabularyRegistrationForm());
 
         // TODO 2008-12-22, Christian Ribeaud: Finish this once we have list vocabularies.

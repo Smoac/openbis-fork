@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.admi
 
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
@@ -31,16 +32,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  */
 public class AdministrationMenu extends TopMenuItem
 {
-    // TODO 2009-03-16, Piotr Buczek: use messageProvider for Strings
-
     public AdministrationMenu(IMessageProvider messageProvider, ComponentProvider componentProvider)
     {
-        super("Administration");
-        setId(TopMenu.ID);
-        setIconStyle("icon-menu-show");
+        super(messageProvider.getMessage(Dict.MENU_ADMINISTRATION));
+        setIconStyle(TopMenu.ICON_STYLE);
+
         Menu menu = new Menu();
         menu.add(new ActionMenu(TopMenu.ActionMenuKind.ADMINISTRATION_MENU_MANAGE_GROUPS,
-                "Manage Groups", componentProvider.getGroupsView()));
+                messageProvider, componentProvider.getGroupsView()));
         menu.add(new ProjectMenu(messageProvider, componentProvider));
         menu.add(new VocabularyMenu(messageProvider, componentProvider));
         menu.add(new PropertyTypesMenu(messageProvider, componentProvider));

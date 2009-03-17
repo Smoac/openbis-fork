@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.CheckSampleTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ExportSamplesTestCommand;
@@ -104,7 +104,6 @@ public class SampleBrowserTest extends AbstractGWTTestCase
 
     private void loginAndGotoListSamplesTab()
     {
-        loginAndGotoTab(CategoriesBuilder.MenuCategoryKind.SAMPLES,
-                CategoriesBuilder.MenuElementKind.BROWSE);
+        loginAndGotoTab(ActionMenuKind.SAMPLE_MENU_BROWSE);
     }
 }

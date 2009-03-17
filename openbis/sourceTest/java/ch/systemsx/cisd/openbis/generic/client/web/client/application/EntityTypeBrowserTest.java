@@ -16,8 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder.MenuCategoryKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder.MenuElementKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.EntityTypeColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialTypeGrid;
@@ -36,7 +35,7 @@ public class EntityTypeBrowserTest extends AbstractGWTTestCase
 
     public final void testListMaterialTypes()
     {
-        loginAndGotoTab(MenuCategoryKind.MATERIALS, MenuElementKind.BROWSE_TYPES);
+        loginAndGotoTab(ActionMenuKind.MATERIAL_MENU_TYPES);
         CheckTableCommand table =
                 new CheckTableCommand(MaterialTypeGrid.GRID_ID,
                         MaterialTypeGrid.ListEntitiesCallback.class);
@@ -45,7 +44,7 @@ public class EntityTypeBrowserTest extends AbstractGWTTestCase
 
     public final void testListSampleTypes()
     {
-        loginAndGotoTab(MenuCategoryKind.SAMPLES, MenuElementKind.BROWSE_TYPES);
+        loginAndGotoTab(ActionMenuKind.SAMPLE_MENU_TYPES);
         CheckTableCommand table =
                 new CheckTableCommand(SampleTypeGrid.GRID_ID,
                         SampleTypeGrid.ListEntitiesCallback.class);
@@ -54,7 +53,7 @@ public class EntityTypeBrowserTest extends AbstractGWTTestCase
 
     public final void testListExperimentTypes()
     {
-        loginAndGotoTab(MenuCategoryKind.EXPERIMENTS, MenuElementKind.BROWSE_TYPES);
+        loginAndGotoTab(ActionMenuKind.EXPERIMENT_MENU_TYPES);
         CheckTableCommand table =
                 new CheckTableCommand(ExperimentTypeGrid.GRID_ID,
                         ExperimentTypeGrid.ListEntitiesCallback.class);

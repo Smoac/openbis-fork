@@ -16,7 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.OpenTab;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.CheckExperimentTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ChooseTypeOfNewExperiment;
@@ -38,8 +39,7 @@ public class GenericExperimentRegistrationTest extends AbstractGWTTestCase
 
     private final void loginAndPreprareRegistration(final String sampleType)
     {
-        loginAndGotoTab(CategoriesBuilder.MenuCategoryKind.EXPERIMENTS,
-                CategoriesBuilder.MenuElementKind.REGISTER);
+        loginAndGotoTab(ActionMenuKind.EXPERIMENT_MENU_NEW);
         remoteConsole.prepare(new ChooseTypeOfNewExperiment(sampleType));
     }
 
@@ -56,8 +56,9 @@ public class GenericExperimentRegistrationTest extends AbstractGWTTestCase
                                 "MALE")).addProperty(
                         new PropertyField(GenericExperimentRegistrationForm.ID
                                 + "user-purchase-date", "2008-12-17")));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.EXPERIMENTS,
-                CategoriesBuilder.MenuElementKind.BROWSE,
+        remoteConsole.prepare(new OpenTab(TopMenu.ActionMenuKind.EXPERIMENT_MENU_BROWSE,
+        // CategoriesBuilder.MenuCategoryKind.EXPERIMENTS,
+                // CategoriesBuilder.MenuElementKind.BROWSE,
                 GenericExperimentRegistrationForm.RegisterExperimentCallback.class));
         remoteConsole.prepare(new ListExperiments("DEFAULT", experimentTypeCode));
         remoteConsole.prepare(new CheckExperimentTable()
@@ -80,8 +81,9 @@ public class GenericExperimentRegistrationTest extends AbstractGWTTestCase
                 .addProperty(
                         new PropertyField(GenericExperimentRegistrationForm.ID
                                 + "user-purchase-date", "2008-12-18")));
-        remoteConsole.prepare(new OpenTab(CategoriesBuilder.MenuCategoryKind.SAMPLES,
-                CategoriesBuilder.MenuElementKind.BROWSE,
+        remoteConsole.prepare(new OpenTab(TopMenu.ActionMenuKind.SAMPLE_MENU_BROWSE,
+        // CategoriesBuilder.MenuCategoryKind.SAMPLES,
+                // CategoriesBuilder.MenuElementKind.BROWSE,
                 GenericExperimentRegistrationForm.RegisterExperimentCallback.class));
         remoteConsole.prepare(new ListSamples("CISD", "CELL_PLATE"));
         CheckSampleTable table = new CheckSampleTable();

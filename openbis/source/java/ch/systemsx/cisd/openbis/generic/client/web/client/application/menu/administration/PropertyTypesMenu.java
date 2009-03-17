@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.admi
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
@@ -34,22 +35,21 @@ public class PropertyTypesMenu extends MenuItem
 
     public PropertyTypesMenu(IMessageProvider messageProvider, ComponentProvider componentProvider)
     {
-        super("Property Type");
-        setIconStyle("icon-menu-show");
+        super(messageProvider.getMessage(Dict.MENU_PROPERTY_TYPES));
+        setIconStyle(TopMenu.ICON_STYLE);
+
         Menu menu = new Menu();
         menu.add(new ActionMenu(TopMenu.ActionMenuKind.PROPERTY_TYPES_MENU_BROWSE_PROPERTY_TYPES,
-                "Browse Property Types", componentProvider.getPropertyTypeBrowser()));
+                messageProvider, componentProvider.getPropertyTypeBrowser()));
         menu.add(new ActionMenu(TopMenu.ActionMenuKind.PROPERTY_TYPES_MENU_BROWSE_ASSIGNMENTS,
-                "Browse Assignments", componentProvider.getPropertyTypeAssignmentBrowser()));
+                messageProvider, componentProvider.getPropertyTypeAssignmentBrowser()));
         menu.add(new ActionMenu(TopMenu.ActionMenuKind.PROPERTY_TYPES_MENU_NEW_PROPERTY_TYPES,
-                "New Property Type", componentProvider.getPropertyTypeRegistration()));
+                messageProvider, componentProvider.getPropertyTypeRegistration()));
         menu.add(new ActionMenu(
                 TopMenu.ActionMenuKind.PROPERTY_TYPES_MENU_ASSIGN_TO_EXPERIMENT_TYPE,
-                "Assign to Experiment Type", componentProvider
-                        .getPropertyTypeExperimentTypeAssignmentForm()));
+                messageProvider, componentProvider.getPropertyTypeExperimentTypeAssignmentForm()));
         menu.add(new ActionMenu(TopMenu.ActionMenuKind.PROPERTY_TYPES_MENU_ASSIGN_TO_SAMPLE_TYPE,
-                "Assign to Sample Type", componentProvider
-                        .getPropertyTypeSampleTypeAssignmentForm()));
+                messageProvider, componentProvider.getPropertyTypeSampleTypeAssignmentForm()));
         setSubMenu(menu);
     }
 }

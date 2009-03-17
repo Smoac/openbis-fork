@@ -45,14 +45,15 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolItem;
 import com.extjs.gxt.ui.client.widget.tree.Tree;
 import com.extjs.gxt.ui.client.widget.tree.TreeItem;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.ComplexPanel;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.LeftMenu;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenuItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.PagingToolBarAdapter;
 
 /**
@@ -68,44 +69,14 @@ public final class GWTTestUtil
     }
 
     /**
-     * Clicks on the menu category with specified id.
+     * Clicks on the {@link ActionMenu} specified by {@link ActionMenuKind}.
      */
-    public static void selectMenuCategoryWithID(final String menu, final String category)
+    public static void selectTopActionMenu(final ActionMenuKind action)
     {
-        final String id = menu + "_" + category;
-        final Widget widget = tryToFindByID(id);
-        assertWidgetFound("Menu category", id, widget);
-        Assert.assertTrue("Widget '" + id + "' isn't a ContentPanel (menu category): "
-                + widget.getClass(), widget instanceof ContentPanel);
-        ((ContentPanel) widget).fireEvent(Events.Select);
-    }
-
-    /**
-     * Clicks on the menu option with specified id.
-     */
-    public static void selectMenuWithID(final String menu, final String category,
-            final String option)
-    {
-        final String id = menu + "_" + category + "_" + option;
+        final String id = action.getMenuId();
         final Widget item = tryToFindByID(id);
         assertWidgetFound("Menu element", id, item);
-        final Widget tree = tryToFindByID(menu + "_" + category + LeftMenu.TREE_SUFFIX);
-        assertWidgetFound("Menu element tree", id + LeftMenu.TREE_SUFFIX, tree);
-        ((Tree) tree).setSelectedItem((TreeItem) item);
-        ((Tree) tree).fireEvent(Event.ONCLICK);
-
-    }
-
-    /**
-     * Clicks on the menu option with specified id.
-     */
-    public static void selectTopMenuWithID(final String menu, final String action)
-    {
-        final String id = menu + "_" + action;
-        final Widget item = tryToFindByID(id);
-        assertWidgetFound("Menu element", id, item);
-        ((MenuItem) item).fireEvent(Event.ONCLICK);
-
+        ((MenuItem) item).fireEvent(Events.Select);
     }
 
     /**
@@ -344,6 +315,12 @@ public final class GWTTestUtil
             if (widget instanceof ComplexPanel)
             {
                 return new ComplexPanelHandler(this).handle((ComplexPanel) widget);
+            } else if (widget instanceof TopMenuItem)
+            {
+                return new TopMenuItemHandler(this).handle((TopMenuItem) widget);
+            } else if (widget instanceof MenuItem)
+            {
+                return new MenuItemHandler(this).handle((MenuItem) widget);
             } else if (widget instanceof Menu)
             {
                 return new MenuHandler(this).handle((Menu) widget);
@@ -411,6 +388,56 @@ public final class GWTTestUtil
         }
     }
 
+    /** Handle for handling {@link TopMenuItem} widget. */
+    private static final class TopMenuItemHandler implements IWidgetHandler<TopMenuItem>
+    {
+        private final IWidgetHandler<Widget> handler;
+
+        TopMenuItemHandler(final IWidgetHandler<Widget> handler)
+        {
+            this.handler = handler;
+        }
+
+        //
+        // IWidgetHandler
+        //
+
+        public final boolean handle(final TopMenuItem topMenuItem)
+        {
+            if (handler.handle(topMenuItem.getMenu()))
+            {
+                return true;
+            }
+            return false;
+        }
+
+    }
+
+    /** Handle for handling {@link MenuItem} widget. */
+    private static final class MenuItemHandler implements IWidgetHandler<MenuItem>
+    {
+        private final IWidgetHandler<Widget> handler;
+
+        MenuItemHandler(final IWidgetHandler<Widget> handler)
+        {
+            this.handler = handler;
+        }
+
+        //
+        // IWidgetHandler
+        //
+
+        public final boolean handle(final MenuItem menuItem)
+        {
+            if (handler.handle(menuItem.getSubMenu()))
+            {
+                return true;
+            }
+            return false;
+        }
+
+    }
+
     /** Handle for handling {@link Menu} widget. */
     private static final class MenuHandler implements IWidgetHandler<Menu>
     {
@@ -427,17 +454,19 @@ public final class GWTTestUtil
 
         public final boolean handle(final Menu menu)
         {
-
-            for (final Item i : menu.getItems())
+            if (menu != null)
             {
-                if (handler.handle(i))
+                for (final Item i : menu.getItems())
                 {
-                    return true;
+                    if (handler.handle(i))
+                    {
+                        return true;
+                    }
                 }
-
             }
             return false;
         }
+
     }
 
     private static final class TreeHandler implements IWidgetHandler<Tree>

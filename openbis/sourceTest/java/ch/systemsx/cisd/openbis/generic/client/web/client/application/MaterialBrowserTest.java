@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.CheckMaterialTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.ListMaterials;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialRow;
@@ -32,9 +32,8 @@ public class MaterialBrowserTest extends AbstractGWTTestCase
 
     public final void testListMaterials()
     {
-        loginAndGotoTab(CategoriesBuilder.MenuCategoryKind.MATERIALS,
-                CategoriesBuilder.MenuElementKind.BROWSE);
-
+        loginAndGotoTab(ActionMenuKind.MATERIAL_MENU_BROWSE);
+        
         remoteConsole.prepare(new ListMaterials("BACTERIUM"));
         CheckMaterialTable table = new CheckMaterialTable();
         table.expectedRow(new MaterialRow("BACTERIUM-X").userProperty("ORGANISM", "FLY"));

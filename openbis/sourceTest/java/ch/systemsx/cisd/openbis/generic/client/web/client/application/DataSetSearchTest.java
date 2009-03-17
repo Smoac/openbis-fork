@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.DataSetSearchHitColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchHitGrid;
@@ -103,7 +103,6 @@ public class DataSetSearchTest extends AbstractGWTTestCase
 
     private void loginAndGotoTab()
     {
-        loginAndGotoTab(CategoriesBuilder.MenuCategoryKind.DATA_SETS,
-                CategoriesBuilder.MenuElementKind.SEARCH);
+        loginAndGotoTab(ActionMenuKind.DATA_SET_MENU_SEARCH);
     }
 }

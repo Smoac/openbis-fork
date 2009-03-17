@@ -23,9 +23,10 @@ import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
- * {@link MenuItem} with action fired on click.
+ * {@link MenuItem} with action fired on selection.
  * 
  * @author Izabela Adamczyk
  * @author Piotr Buczek
@@ -33,16 +34,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMe
 public class ActionMenu extends MenuItem
 {
 
-    private ActionMenu(final ActionMenuKind action, final String text)
+    private ActionMenu(final String id, final String text)
     {
         super(text);
-        setId(TopMenu.ID + "_" + action.name());
+        setId(id);
     }
 
-    public ActionMenu(final ActionMenuKind action, final String name,
-            final ITabItemFactory tabToOpen)
+    private ActionMenu(final String id, final String name, final ITabItemFactory tabToOpen)
     {
-        this(action, name);
+        this(id, name);
         addSelectionListener(new SelectionListener<ComponentEvent>()
             {
 
@@ -52,6 +52,12 @@ public class ActionMenu extends MenuItem
                     DispatcherHelper.dispatchNaviEvent(tabToOpen);
                 }
             });
+    }
+
+    public ActionMenu(final ActionMenuKind action, IMessageProvider messageProvider,
+            final ITabItemFactory tabToOpen)
+    {
+        this(action.getMenuId(), action.getMenuText(messageProvider), tabToOpen);
     }
 
 }

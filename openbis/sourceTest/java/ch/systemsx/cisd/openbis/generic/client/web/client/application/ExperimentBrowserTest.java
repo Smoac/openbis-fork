@@ -16,8 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder.MenuCategoryKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CategoriesBuilder.MenuElementKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.CheckExperimentTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ListExperiments;
@@ -33,7 +32,7 @@ public class ExperimentBrowserTest extends AbstractGWTTestCase
 
     public final void testListExperiments()
     {
-        loginAndGotoTab(MenuCategoryKind.EXPERIMENTS, MenuElementKind.BROWSE);
+        loginAndGotoTab(ActionMenuKind.EXPERIMENT_MENU_BROWSE);
         remoteConsole.prepare(new ListExperiments("DEFAULT (CISD)", "SIRNA_HCS"));
         CheckExperimentTable table = new CheckExperimentTable();
         table.expectedRow(new ExperimentRow("EXP-REUSE").valid());

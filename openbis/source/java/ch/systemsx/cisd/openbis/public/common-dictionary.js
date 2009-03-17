@@ -152,6 +152,51 @@ var common = {
   entity_type_assignments: "{0} Type Assignment{1}",
   
   //
+  // Menu Titles
+  //
+  
+  menu_administration: "Administration",
+  ADMINISTRATION_MENU_MANAGE_GROUPS: "Manage Groups",
+  
+  menu_authorization: "Authorization",
+  AUTHORIZATION_MENU_USERS: "Users",
+  AUTHORIZATION_MENU_ROLES: "Roles",
+
+  menu_data_set: "Data Set",
+  DATA_SET_MENU_SEARCH: "Search",
+  
+  menu_experiment: "Experiment",
+  EXPERIMENT_MENU_BROWSE: "Browse",
+  EXPERIMENT_MENU_NEW: "New",
+  EXPERIMENT_MENU_TYPES: "Types",
+  
+  menu_material: "Material",
+  MATERIAL_MENU_BROWSE: "Browse",
+  MATERIAL_MENU_IMPORT: "Import",
+  MATERIAL_MENU_TYPES: "Types",
+   
+  menu_sample: "Sample",
+  SAMPLE_MENU_BROWSE: "Browse",
+  SAMPLE_MENU_NEW: "New",
+  SAMPLE_MENU_IMPORT: "Import",
+  SAMPLE_MENU_TYPES: "Types",
+  
+  menu_project: "Project",
+  PROJECT_MENU_BROWSE: "Browse",
+  PROJECT_MENU_NEW: "New",
+  
+  menu_property_types: "Property Types",
+  PROPERTY_TYPES_MENU_BROWSE_PROPERTY_TYPES: "Browse Property Types",
+  PROPERTY_TYPES_MENU_BROWSE_ASSIGNMENTS: "Browse Assignments",
+  PROPERTY_TYPES_MENU_NEW_PROPERTY_TYPES: "New Property Types",
+  PROPERTY_TYPES_MENU_ASSIGN_TO_EXPERIMENT_TYPE: "Assign To Experiment Type",
+  PROPERTY_TYPES_MENU_ASSIGN_TO_SAMPLE_TYPE: "Assign To Sample Type",
+  
+  menu_vocabulary: "Vocabulary",
+  VOCABULARY_MENU_BROWSE: "Browse",
+  VOCABULARY_MENU_NEW: "New",
+    
+  //
   // Tab Titles
   //
   

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.mate
 
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
@@ -34,14 +35,15 @@ public class MaterialMenu extends TopMenuItem
 
     public MaterialMenu(IMessageProvider messageProvider, ComponentProvider componentProvider)
     {
-        super("Material");
-        setIconStyle("icon-menu-show");
+        super(messageProvider.getMessage(Dict.MENU_MATERIAL));
+        setIconStyle(TopMenu.ICON_STYLE);
+
         Menu menu = new Menu();
-        menu.add(new ActionMenu(TopMenu.ActionMenuKind.MATERIAL_MENU_BROWSE, "Browse",
+        menu.add(new ActionMenu(TopMenu.ActionMenuKind.MATERIAL_MENU_BROWSE, messageProvider,
                 componentProvider.getMaterialBrowser()));
-        menu.add(new ActionMenu(TopMenu.ActionMenuKind.MATERIAL_MENU_IMPORT, "Import",
+        menu.add(new ActionMenu(TopMenu.ActionMenuKind.MATERIAL_MENU_IMPORT, messageProvider,
                 componentProvider.getMaterialBatchRegistration()));
-        menu.add(new ActionMenu(TopMenu.ActionMenuKind.MATERIAL_MENU_TYPES, "Types",
+        menu.add(new ActionMenu(TopMenu.ActionMenuKind.MATERIAL_MENU_TYPES, messageProvider,
                 componentProvider.getMaterialTypeBrowser()));
         setMenu(menu);
     }
