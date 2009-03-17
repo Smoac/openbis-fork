@@ -68,7 +68,8 @@ public final class GenericExperimentEditForm
         super(viewContext, entity, editMode);
         this.viewContext = viewContext;
         sessionKey = createSimpleId(EntityKind.EXPERIMENT, entity.getId() + "");
-        attachmentManager = new AttachmentManager(sessionKey, DEFAULT_NUMBER_OF_ATTACHMENTS);
+        attachmentManager =
+                new AttachmentManager(sessionKey, DEFAULT_NUMBER_OF_ATTACHMENTS, "New Attachment");
         addUploadFeatures(formPanel, sessionKey);
         formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
             {

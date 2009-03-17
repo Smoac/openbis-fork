@@ -29,7 +29,7 @@ import com.extjs.gxt.ui.client.widget.form.FileUploadField;
  */
 public class AttachmentManager
 {
-    private static final String FIELD_LABEL_TEMPLATE = "Attachment";
+    private final String fieldLabel;
 
     private static final String FIELD_NAME_TEMPLATE = "{0}_{1}";
 
@@ -37,9 +37,10 @@ public class AttachmentManager
 
     private final String sessionKey;
 
-    public AttachmentManager(String sessionKey, int initialNumberOfAttachments)
+    public AttachmentManager(String sessionKey, int initialNumberOfAttachments, String fieldLabel)
     {
         this.sessionKey = sessionKey;
+        this.fieldLabel = fieldLabel;
         attachmentFields = new ArrayList<FileUploadField>();
         for (int i = 0; i < initialNumberOfAttachments; i++)
         {
@@ -78,7 +79,7 @@ public class AttachmentManager
     {
         final FileUploadField file = new FileUploadField();
         final int number = counter + 1;
-        file.setFieldLabel(FIELD_LABEL_TEMPLATE);
+        file.setFieldLabel(fieldLabel);
         file.setName(Format.substitute(FIELD_NAME_TEMPLATE, sessionKey, number));
         return file;
     }

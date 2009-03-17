@@ -68,7 +68,7 @@ public final class GenericExperimentRegistrationForm
     private ProjectSelectionWidget projectSelectionWidget;
 
     private AttachmentManager attachmentManager =
-            new AttachmentManager(SESSION_KEY, DEFAULT_NUMBER_OF_ATTACHMENTS);
+            new AttachmentManager(SESSION_KEY, DEFAULT_NUMBER_OF_ATTACHMENTS, "Attachment");
 
     private TextArea samplesArea;
 
