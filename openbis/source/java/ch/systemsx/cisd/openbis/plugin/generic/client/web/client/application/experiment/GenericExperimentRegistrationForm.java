@@ -182,7 +182,7 @@ public final class GenericExperimentRegistrationForm
                 {
                     if (formPanel.isValid())
                     {
-                        if (attachmentManager.attachmentsDefined())
+                        if (attachmentManager.attachmentsDefined() > 0)
                         {
                             setUploadEnabled(false);
                             formPanel.submit();

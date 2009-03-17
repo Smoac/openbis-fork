@@ -22,6 +22,8 @@ import java.util.List;
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.util.Format;
+import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.google.gwt.user.client.ui.Widget;
@@ -58,6 +60,8 @@ public final class GenericExperimentEditForm
 
     private String sessionKey;
 
+    private Html attachmentsInfo;
+
     public GenericExperimentEditForm(IViewContext<IGenericClientServiceAsync> viewContext,
             EditableExperiment entity, boolean editMode)
     {
@@ -93,7 +97,7 @@ public final class GenericExperimentEditForm
                 {
                     if (formPanel.isValid())
                     {
-                        if (attachmentManager.attachmentsDefined())
+                        if (attachmentManager.attachmentsDefined() > 0)
                         {
                             // setUploadEnabled(false);
                             formPanel.submit();
@@ -162,13 +166,26 @@ public final class GenericExperimentEditForm
     protected List<Widget> getEntitySpecificCheckPageWidgets()
     {
         final ArrayList<Widget> widgets = new ArrayList<Widget>();
-
+        widgets.add(attachmentsInfo = new Html());
         return widgets;
     }
 
     @Override
     protected void updateCheckPageWidgets()
     {
+        attachmentsInfo.setHtml(getAttachmentInfoText(attachmentManager.attachmentsDefined()));
     }
 
+    public String getAttachmentInfoText(int attachmentDefined)
+    {
+        if (attachmentDefined > 0)
+        {
+            return Format.substitute("Added {0} new attachment{1}.", attachmentDefined,
+                    attachmentDefined == 1 ? "" : "s");
+
+        } else
+        {
+            return "No new attachments added.";
+        }
+    }
 }

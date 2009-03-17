@@ -24,7 +24,7 @@ import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 
 /**
  * Stores and manages {@link FileUploadField} fields.
- *
+ * 
  * @author Izabela Adamczyk
  */
 public class AttachmentManager
@@ -60,17 +60,18 @@ public class AttachmentManager
         return field;
     }
 
-    public boolean attachmentsDefined()
+    public int attachmentsDefined()
     {
+        int i = 0;
         for (FileUploadField field : attachmentFields)
         {
             Object value = field.getValue();
             if (value != null && String.valueOf(value).length() > 0)
             {
-                return true;
+                i++;
             }
         }
-        return false;
+        return i;
     }
 
     private final FileUploadField createFileUploadField(final int counter)

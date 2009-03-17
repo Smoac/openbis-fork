@@ -146,6 +146,7 @@ abstract public class AbstractGenericEntityEditForm<T extends EntityType, S exte
     {
         setEditMode(true);
         infoBox.reset();
+        formPanel.reset();
     }
 
     protected void showCheckPage()
