@@ -357,7 +357,7 @@ public interface ICommonServer extends IServer
             ExperimentIdentifier experimentIdentifier, List<ExperimentProperty> properties,
             List<AttachmentPE> attachments,
             @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class)
-            ProjectIdentifier newProjectIdentifierOrNull);
+            ProjectIdentifier newProjectIdentifier);
 
     /**
      * Saves changed material.

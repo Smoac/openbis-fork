@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.GroupCodeHelper;
  * 
  * @author Christian Ribeaud
  */
-public final class GroupIdentifierPredicate extends AbstractGroupPredicate<GroupIdentifier>
+public class GroupIdentifierPredicate extends AbstractGroupPredicate<GroupIdentifier>
 {
     public GroupIdentifierPredicate()
     {
@@ -47,7 +47,7 @@ public final class GroupIdentifierPredicate extends AbstractGroupPredicate<Group
     }
 
     @Override
-    final Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
+    Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final GroupIdentifier groupIdentifier)
     {
         assert inited : "Predicate has not been initialized";

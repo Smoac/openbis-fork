@@ -28,17 +28,30 @@ public class EditableExperiment extends
 
     private final String project;
 
+    private String code;
+
     public EditableExperiment(List<ExperimentTypePropertyType> etpts,
             List<ExperimentProperty> properties, ExperimentType type, String identifier, Long id,
-            Date modificationDate, String project)
+            Date modificationDate, String project, String code)
     {
         super(EntityKind.EXPERIMENT, etpts, properties, type, identifier, id, modificationDate);
         this.project = project;
+        this.code = code;
     }
 
     public String getProjectIdentifier()
     {
         return project;
+    }
+
+    public void setIdentifier(String identifier)
+    {
+        this.identifier = identifier;
+    }
+
+    public String getCode()
+    {
+        return code;
     }
 
 }

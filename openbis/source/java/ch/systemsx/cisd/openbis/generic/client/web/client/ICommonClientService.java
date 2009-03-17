@@ -349,7 +349,7 @@ public interface ICommonClientService extends IClientService
      * Updates experiment.
      */
     public void updateExperiment(String attachmentSessionKey, final String experimentIdentifier,
-            List<ExperimentProperty> properties, String newProjectIdentifierOrNull)
+            List<ExperimentProperty> properties, String newProjectIdentifier)
             throws UserFailureException;
 
     /**

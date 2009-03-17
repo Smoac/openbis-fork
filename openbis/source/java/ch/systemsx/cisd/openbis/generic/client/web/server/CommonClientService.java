@@ -998,8 +998,7 @@ public final class CommonClientService extends AbstractClientService implements
             final ExperimentIdentifier identifier =
                     new ExperimentIdentifierFactory(experimentIdentifier).createIdentifier();
             final ProjectIdentifier project =
-                    newProjectIdentifier == null ? null : new ProjectIdentifierFactory(
-                            newProjectIdentifier).createIdentifier();
+                    new ProjectIdentifierFactory(newProjectIdentifier).createIdentifier();
             commonServer.editExperiment(sessionToken, identifier, properties, attachments, project);
         } catch (final UserFailureException e)
         {

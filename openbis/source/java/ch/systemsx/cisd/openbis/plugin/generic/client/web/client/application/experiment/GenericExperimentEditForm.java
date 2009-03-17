@@ -125,22 +125,14 @@ public final class GenericExperimentEditForm
     private void save()
     {
         final List<ExperimentProperty> properties = extractProperties();
-        final String newProjectIdentifierOrNull = extractIdentifier();
-        viewContext.getCommonService()
-                .updateExperiment(sessionKey, entity.getIdentifier(), properties,
-                        newProjectIdentifierOrNull, new RegisterExperimentCallback(viewContext));
+        final String newProjectIdentifier = extractIdentifier();
+        viewContext.getCommonService().updateExperiment(sessionKey, entity.getIdentifier(),
+                properties, newProjectIdentifier, new RegisterExperimentCallback(viewContext));
     }
 
     private String extractIdentifier()
     {
-        final String newIdentifier = projectChooser.tryGetSelectedProject().getIdentifier();
-        if (originalProjectIdentifier.equals(newIdentifier))
-        {
-            return null;
-        } else
-        {
-            return newIdentifier;
-        }
+        return projectChooser.tryGetSelectedProject().getIdentifier();
     }
 
     @Override
@@ -202,6 +194,8 @@ public final class GenericExperimentEditForm
     protected void updateCheckPageWidgets()
     {
         projectChooser.updateOriginalValue();
+        originalProjectIdentifier = projectChooser.tryGetSelectedProject().getIdentifier();
+        entity.setIdentifier(originalProjectIdentifier + "/" + entity.getCode());
         attachmentsInfo.setHtml(getAttachmentInfoText(attachmentManager.attachmentsDefined()));
     }
 

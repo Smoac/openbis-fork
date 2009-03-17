@@ -292,11 +292,11 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     }
 
     public void edit(ExperimentIdentifier identifier, List<ExperimentProperty> properties,
-            List<AttachmentPE> newAttachments, ProjectIdentifier newProjectIdentifierOrNull)
+            List<AttachmentPE> newAttachments, ProjectIdentifier newProjectIdentifier)
     {
         loadByExperimentIdentifier(identifier);
         updateProperties(properties);
-        updateProject(newProjectIdentifierOrNull);
+        updateProject(newProjectIdentifier);
         for (AttachmentPE a : newAttachments)
         {
             addAttachment(a);
@@ -304,22 +304,16 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         dataChanged = true;
     }
 
-    private void updateProject(ProjectIdentifier newProjectIdentifierOrNull)
+    private void updateProject(ProjectIdentifier newProjectIdentifier)
     {
-        if (newProjectIdentifierOrNull != null)
+        ProjectPE project =
+                getProjectDAO().tryFindProject(newProjectIdentifier.getDatabaseInstanceCode(),
+                        newProjectIdentifier.getGroupCode(), newProjectIdentifier.getProjectCode());
+        if (project == null)
         {
-            ProjectPE project =
-                    getProjectDAO().tryFindProject(
-                            newProjectIdentifierOrNull.getDatabaseInstanceCode(),
-                            newProjectIdentifierOrNull.getGroupCode(),
-                            newProjectIdentifierOrNull.getProjectCode());
-            if (project == null)
-            {
-                throw UserFailureException.fromTemplate(ERR_PROJECT_NOT_FOUND,
-                        newProjectIdentifierOrNull);
-            }
-            experiment.setProject(project);
+            throw UserFailureException.fromTemplate(ERR_PROJECT_NOT_FOUND, newProjectIdentifier);
         }
+        experiment.setProject(project);
     }
 
     private void updateProperties(List<ExperimentProperty> properties)

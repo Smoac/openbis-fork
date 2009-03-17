@@ -643,11 +643,22 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public void editExperiment(String sessionToken, ExperimentIdentifier identifier,
             List<ExperimentProperty> properties, List<AttachmentPE> attachments,
-            ProjectIdentifier newProjectIdentifierOrNull)
+            ProjectIdentifier newProjectIdentifier)
     {
         final Session session = getSessionManager().getSession(sessionToken);
+        if (newProjectIdentifier.equals(identifier) == false)
+        {
+            final IExternalDataTable externalDataTable =
+                    businessObjectFactory.createExternalDataTable(session);
+            externalDataTable.loadByExperimentIdentifier(identifier);
+            if (externalDataTable.getExternalData().size() > 0)
+            {
+                throw new UserFailureException(
+                        "Changing the project of experiment containing data sets is not allowed.");
+            }
+        }
         final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
-        experimentBO.edit(identifier, properties, attachments, newProjectIdentifierOrNull);
+        experimentBO.edit(identifier, properties, attachments, newProjectIdentifier);
         experimentBO.save();
     }
 

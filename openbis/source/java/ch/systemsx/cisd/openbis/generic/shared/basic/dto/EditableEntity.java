@@ -34,7 +34,7 @@ public class EditableEntity<T extends EntityType, S extends EntityTypePropertyTy
 
     private final T type;
 
-    private final String identifier;
+    protected String identifier;
 
     private final Long id;
 

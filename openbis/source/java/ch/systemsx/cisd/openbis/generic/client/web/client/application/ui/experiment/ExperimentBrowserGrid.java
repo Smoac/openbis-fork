@@ -134,7 +134,8 @@ public final class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment,
     {
         return new EditableExperiment(selectedType.getExperimentTypePropertyTypes(), experiment
                 .getProperties(), selectedType, experiment.getIdentifier(), experiment.getId(),
-                experiment.getModificationDate(), experiment.getProject().getIdentifier());
+                experiment.getModificationDate(), experiment.getProject().getIdentifier(),
+                experiment.getCode());
     }
 
     @Override
