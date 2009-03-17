@@ -22,7 +22,6 @@ import java.util.List;
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
@@ -60,10 +59,6 @@ public final class GenericExperimentRegistrationForm
 
     public static final String SESSION_KEY = createSimpleId(EntityKind.EXPERIMENT);
 
-    private static final String FIELD_LABEL_TEMPLATE = "Attachment" + " {0}";
-
-    private static final String FIELD_NAME_TEMPLATE = SESSION_KEY + "_{0}";
-
     private static final int DEFAULT_NUMBER_OF_ATTACHMENTS = 3;
 
     private final IViewContext<IGenericClientServiceAsync> viewContext;
@@ -72,7 +67,8 @@ public final class GenericExperimentRegistrationForm
 
     private ProjectSelectionWidget projectSelectionWidget;
 
-    private List<FileUploadField> attachmentFields = new ArrayList<FileUploadField>();
+    private AttachmentManager attachmentManager =
+            new AttachmentManager(SESSION_KEY, DEFAULT_NUMBER_OF_ATTACHMENTS);
 
     private TextArea samplesArea;
 
@@ -154,11 +150,6 @@ public final class GenericExperimentRegistrationForm
         samplesArea.setEmptyText(viewContext.getMessage(Dict.SAMPLES_LIST));
         samplesArea.setId(ID + ID_SUFFIX_SAMPLES);
 
-        for (int i = 0; i < DEFAULT_NUMBER_OF_ATTACHMENTS; i++)
-        {
-            attachmentFields.add(createFileUploadField(i));
-        }
-
         formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
             {
                 @Override
@@ -191,7 +182,7 @@ public final class GenericExperimentRegistrationForm
                 {
                     if (formPanel.isValid())
                     {
-                        if (attachmentsDefined())
+                        if (attachmentManager.attachmentsDefined())
                         {
                             setUploadEnabled(false);
                             formPanel.submit();
@@ -210,20 +201,11 @@ public final class GenericExperimentRegistrationForm
         final ArrayList<Field<?>> fields = new ArrayList<Field<?>>();
         fields.add(projectSelectionWidget);
         fields.add(samplesArea);
-        for (FileUploadField attachmentField : attachmentFields)
+        for (FileUploadField attachmentField : attachmentManager.getFields())
         {
             fields.add(attachmentField);
         }
         return fields;
-    }
-
-    private final FileUploadField createFileUploadField(final int counter)
-    {
-        final FileUploadField file = new FileUploadField();
-        final int number = counter + 1;
-        file.setFieldLabel(Format.substitute(FIELD_LABEL_TEMPLATE, number));
-        file.setName(Format.substitute(FIELD_NAME_TEMPLATE, number));
-        return file;
     }
 
     private void registerExperiment()
@@ -235,19 +217,6 @@ public final class GenericExperimentRegistrationForm
         newExp.setSamples(extractSamples());
         viewContext.getService().registerExperiment(SESSION_KEY, newExp,
                 new RegisterExperimentCallback(viewContext));
-    }
-
-    private boolean attachmentsDefined()
-    {
-        for (FileUploadField field : attachmentFields)
-        {
-            Object value = field.getValue();
-            if (value != null && String.valueOf(value).length() > 0)
-            {
-                return true;
-            }
-        }
-        return false;
     }
 
     private void resetPanel()

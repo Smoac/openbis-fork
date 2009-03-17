@@ -348,7 +348,7 @@ public interface ICommonClientService extends IClientService
     /**
      * Updates experiment.
      */
-    public void updateExperiment(final String experimentIdentifier,
+    public void updateExperiment(String attachmentSessionKey, final String experimentIdentifier,
             List<ExperimentProperty> properties) throws UserFailureException;
 
     /**

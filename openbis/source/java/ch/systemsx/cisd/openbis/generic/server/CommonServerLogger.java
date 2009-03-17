@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetSearchHitDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -311,9 +312,10 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     public void editExperiment(String sessionToken, ExperimentIdentifier experimentIdentifier,
-            List<ExperimentProperty> properties)
+            List<ExperimentProperty> properties, List<AttachmentPE> attachments)
     {
-        logTracking(sessionToken, "edit_experiment", "EXPERIMENT(%s)", experimentIdentifier);
+        logTracking(sessionToken, "edit_experiment", "EXPERIMENT(%s) ATTACHMENTS_ADDED(%s)",
+                experimentIdentifier, attachments.size());
     }
 
     public void deleteDataSets(String sessionToken, List<String> dataSetCodes)

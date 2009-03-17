@@ -63,5 +63,6 @@ public interface IExperimentBO extends IBusinessObject
     /**
      * Changes given experiment. Currently allowed changes: properties.
      */
-    public void edit(ExperimentIdentifier identifier, List<ExperimentProperty> properties);
+    public void edit(ExperimentIdentifier identifier, List<ExperimentProperty> properties,
+            List<AttachmentPE> attachments);
 }

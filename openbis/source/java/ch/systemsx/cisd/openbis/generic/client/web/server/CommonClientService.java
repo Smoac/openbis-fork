@@ -23,8 +23,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
+
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
+import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -86,6 +89,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentContentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -958,19 +963,56 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public void updateExperiment(String experimentIdentifier, List<ExperimentProperty> properties)
+    private final static AttachmentPE createAttachment(String fileName, final byte[] content)
+    {
+        final AttachmentPE attachment = new AttachmentPE();
+        attachment.setFileName(fileName);
+        final AttachmentContentPE attachmentContent = new AttachmentContentPE();
+        attachmentContent.setValue(content);
+        attachment.setAttachmentContent(attachmentContent);
+        return attachment;
+    }
+
+    public void updateExperiment(String sessionKey, String experimentIdentifier,
+            List<ExperimentProperty> properties)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
+
+        UploadedFilesBean uploadedFiles = null;
+        HttpSession session = null;
         try
         {
             final String sessionToken = getSessionToken();
+            session = getHttpSession();
+            uploadedFiles = (UploadedFilesBean) session.getAttribute(sessionKey);
+            List<AttachmentPE> attachments = new ArrayList<AttachmentPE>();
+            if (uploadedFiles != null)
+            {
+                for (final IUncheckedMultipartFile multipartFile : uploadedFiles.iterable())
+                {
+                    String fileName = multipartFile.getOriginalFilename();
+                    byte[] content = multipartFile.getBytes();
+                    attachments.add(createAttachment(fileName, content));
+                }
+            }
             final ExperimentIdentifier identifier =
                     new ExperimentIdentifierFactory(experimentIdentifier).createIdentifier();
-            commonServer.editExperiment(sessionToken, identifier, properties);
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+            commonServer.editExperiment(sessionToken, identifier, properties, attachments);
+        } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
+        } finally
+        {
+            if (uploadedFiles != null)
+            {
+                uploadedFiles.deleteTransferredFiles();
+            }
+            if (session != null)
+            {
+                session.removeAttribute(sessionKey);
+            }
         }
+
     }
 
     public void deleteDataSets(List<String> dataSetCodes)

@@ -302,9 +302,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             final AsyncCallback<Void> asyncCallback);
 
     /**
-     * @see ICommonClientService#updateExperiment(String, List)
+     * @see ICommonClientService#updateExperiment(String, String, List)
      */
-    public void updateExperiment(final String experimentIdentifier,
+    public void updateExperiment(String attachmentSessionKey, final String experimentIdentifier,
             List<ExperimentProperty> properties, final AsyncCallback<Void> asyncCallback)
             throws UserFailureException;
 

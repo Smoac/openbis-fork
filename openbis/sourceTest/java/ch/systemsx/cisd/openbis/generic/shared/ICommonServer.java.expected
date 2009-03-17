@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetSearchHitDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -356,10 +357,10 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.USER)
-    public void editExperiment(
-            String sessionToken,
-            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ExperimentIdentifier experimentIdentifier,
-            List<ExperimentProperty> properties);
+    public void editExperiment(String sessionToken,
+            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class)
+            ExperimentIdentifier experimentIdentifier, List<ExperimentProperty> properties,
+            List<AttachmentPE> attachments);
 
     /**
      * Saves changed material.

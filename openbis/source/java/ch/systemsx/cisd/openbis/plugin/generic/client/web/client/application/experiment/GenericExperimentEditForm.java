@@ -19,7 +19,11 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ex
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -32,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityEditForm;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.FormPanelListener;
 
 /**
  * The <i>generic</i> experiment edit form.
@@ -43,23 +48,74 @@ public final class GenericExperimentEditForm
         AbstractGenericEntityEditForm<ExperimentType, ExperimentTypePropertyType, ExperimentProperty, EditableExperiment>
 {
 
+    public static final String ID_PREFIX = createId(EntityKind.EXPERIMENT, "");
+
+    private static final int DEFAULT_NUMBER_OF_ATTACHMENTS = 3;
+
     private final IViewContext<IGenericClientServiceAsync> viewContext;
+
+    private final AttachmentManager attachmentManager;
+
+    private String sessionKey;
 
     public GenericExperimentEditForm(IViewContext<IGenericClientServiceAsync> viewContext,
             EditableExperiment entity, boolean editMode)
     {
         super(viewContext, entity, editMode);
         this.viewContext = viewContext;
+        sessionKey = createSimpleId(EntityKind.EXPERIMENT, entity.getId() + "");
+        attachmentManager = new AttachmentManager(sessionKey, DEFAULT_NUMBER_OF_ATTACHMENTS);
+        addUploadFeatures(formPanel, sessionKey);
+        formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
+            {
+                @Override
+                protected void onSuccessfullUpload()
+                {
+                    save();
+                }
+
+                @Override
+                protected void setUploadEnabled()
+                {
+                    // GenericExperimentRegistrationForm.this.setUploadEnabled(true);
+                }
+            });
+        redefineSaveListeners();
     }
 
-    public static final String ID_PREFIX = createId(EntityKind.EXPERIMENT, "");
+    void redefineSaveListeners()
+    {
+        saveButton.removeAllListeners();
+        saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
+            {
+                @Override
+                public final void componentSelected(final ButtonEvent ce)
+                {
+                    if (formPanel.isValid())
+                    {
+                        if (attachmentManager.attachmentsDefined())
+                        {
+                            // setUploadEnabled(false);
+                            formPanel.submit();
+                        } else
+                        {
+                            save();
+                        }
+                    }
+                }
+            });
+    }
+
+    private void save()
+    {
+        final List<ExperimentProperty> properties = extractProperties();
+        viewContext.getCommonService().updateExperiment(sessionKey, entity.getIdentifier(),
+                properties, new RegisterExperimentCallback(viewContext));
+    }
 
     @Override
     public final void submitValidForm()
     {
-        final List<ExperimentProperty> properties = extractProperties();
-        viewContext.getCommonService().updateExperiment(entity.getIdentifier(), properties,
-                new RegisterExperimentCallback(viewContext));
     }
 
     public final class RegisterExperimentCallback extends AbstractAsyncCallback<Void>
@@ -95,7 +151,12 @@ public final class GenericExperimentEditForm
     @Override
     protected List<Field<?>> getEntitySpecificFormFields()
     {
-        return new ArrayList<Field<?>>();
+        List<Field<?>> fields = new ArrayList<Field<?>>();
+        for (FileUploadField f : attachmentManager.getFields())
+        {
+            fields.add(f);
+        }
+        return fields;
     }
 
     @Override

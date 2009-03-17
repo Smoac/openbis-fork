@@ -290,10 +290,15 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         }
     }
 
-    public void edit(ExperimentIdentifier identifier, List<ExperimentProperty> properties)
+    public void edit(ExperimentIdentifier identifier, List<ExperimentProperty> properties,
+            List<AttachmentPE> newAttachments)
     {
         loadByExperimentIdentifier(identifier);
         updateProperties(properties);
+        for (AttachmentPE a : newAttachments)
+        {
+            addAttachment(a);
+        }
         dataChanged = true;
     }
 

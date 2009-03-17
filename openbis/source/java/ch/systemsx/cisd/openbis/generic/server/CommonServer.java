@@ -63,6 +63,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetSearchHitDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
@@ -641,11 +642,11 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     }
 
     public void editExperiment(String sessionToken, ExperimentIdentifier identifier,
-            List<ExperimentProperty> properties)
+            List<ExperimentProperty> properties, List<AttachmentPE> attachments)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
-        experimentBO.edit(identifier, properties);
+        experimentBO.edit(identifier, properties, attachments);
         experimentBO.save();
     }
 
