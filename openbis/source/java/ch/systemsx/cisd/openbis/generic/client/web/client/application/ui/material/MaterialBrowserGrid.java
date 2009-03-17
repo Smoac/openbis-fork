@@ -226,21 +226,21 @@ public final class MaterialBrowserGrid extends AbstractBrowserGrid<Material, Mat
     @Override
     protected final void showEntityViewer(MaterialModel modelData, boolean editMode)
     {
-        final Material material = modelData.getBaseObject();
-        final EntityKind entityKind = EntityKind.MATERIAL;
-        ITabItemFactory tabView = null;
-        final IClientPluginFactory clientPluginFactory =
-                viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
-                        material.getMaterialType());
         if (editMode)
         {
+            final Material material = modelData.getBaseObject();
+            final EntityKind entityKind = EntityKind.MATERIAL;
+            ITabItemFactory tabView = null;
+            final IClientPluginFactory clientPluginFactory =
+                    viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
+                            material.getMaterialType());
             final IClientPlugin<MaterialType, MaterialTypePropertyType, MaterialProperty, IIdentifierHolder, EditableMaterial> createClientPlugin =
                     clientPluginFactory.createClientPlugin(entityKind);
             final EditableMaterial entity =
                     createEditableEntity(material, criteria.getMaterialType());
             tabView = createClientPlugin.createEntityEditor(entity);
+            DispatcherHelper.dispatchNaviEvent(tabView);
         }
-        DispatcherHelper.dispatchNaviEvent(tabView);
     }
 
     private EditableMaterial createEditableEntity(Material entity, MaterialType selectedType)
