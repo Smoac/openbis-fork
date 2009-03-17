@@ -57,9 +57,11 @@ abstract public class AbstractGenericEntityEditForm<T extends EntityType, S exte
 
     private final List<Widget> checkComponents;
 
-    abstract protected List<Widget> getEntitySpecificDisplayComponents();
+    abstract protected List<Widget> getEntitySpecificCheckPageWidgets();
 
     abstract protected List<Field<?>> getEntitySpecificFormFields();
+
+    abstract protected void updateCheckPageWidgets();
 
     abstract protected PropertiesEditor<T, S, P> createPropertiesEditor(
             List<S> entityTypesPropertyTypes, List<P> properties, String string);
@@ -75,7 +77,7 @@ abstract public class AbstractGenericEntityEditForm<T extends EntityType, S exte
                 createPropertiesEditor(entity.getEntityTypePropertyTypes(), entity.getProperties(),
                         createId(entity.getEntityKind(), entity.getIdentifier()));
         grid = new EntityPropertyGrid<T, S, P>(viewContext, entity.getProperties());
-        for (Widget w : getEntitySpecificDisplayComponents())
+        for (Widget w : getEntitySpecificCheckPageWidgets())
         {
             checkComponents.add(w);
         }
@@ -161,5 +163,7 @@ abstract public class AbstractGenericEntityEditForm<T extends EntityType, S exte
         }
         entity.setProperties(editor.extractProperties());
         grid.setProperties(entity.getProperties());
+        updateCheckPageWidgets();
     }
+
 }

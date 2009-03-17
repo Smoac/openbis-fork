@@ -159,9 +159,16 @@ public final class GenericExperimentEditForm
     }
 
     @Override
-    protected List<Widget> getEntitySpecificDisplayComponents()
+    protected List<Widget> getEntitySpecificCheckPageWidgets()
     {
-        return new ArrayList<Widget>();
+        final ArrayList<Widget> widgets = new ArrayList<Widget>();
+
+        return widgets;
+    }
+
+    @Override
+    protected void updateCheckPageWidgets()
+    {
     }
 
 }

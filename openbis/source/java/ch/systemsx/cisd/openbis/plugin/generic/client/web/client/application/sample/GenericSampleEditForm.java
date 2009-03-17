@@ -99,9 +99,14 @@ public final class GenericSampleEditForm
     }
 
     @Override
-    protected List<Widget> getEntitySpecificDisplayComponents()
+    protected List<Widget> getEntitySpecificCheckPageWidgets()
     {
         return new ArrayList<Widget>();
+    }
+
+    @Override
+    protected void updateCheckPageWidgets()
+    {
     }
 
 }
