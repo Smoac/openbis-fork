@@ -20,6 +20,8 @@ import java.util.Date;
 
 import com.extjs.gxt.ui.client.widget.form.Field;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyTermModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -30,44 +32,48 @@ public class PropertyFieldFactory
     /**
      * Creates a field for given data type.
      */
-    @SuppressWarnings("unchecked")
-    public static <T> Field<T> createField(final PropertyType pt, boolean isMandatory,
-            String label, String fieldId, String originalRawValue)
+    public static Field<?> createField(final PropertyType pt, boolean isMandatory, String label,
+            String fieldId, String originalRawValue,
+            IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        final Field<T> field;
+        final Field<?> field = createField(pt, isMandatory, label, fieldId, viewContext);
+        field.setId(fieldId);
+        if (originalRawValue != null)
+        {
+            setValue(field, originalRawValue);
+        }
+        return field;
+    }
+
+    private static Field<?> createField(final PropertyType pt, boolean isMandatory, String label,
+            String fieldId, IViewContext<ICommonClientServiceAsync> viewContext)
+    {
         final DataTypeCode dataType = pt.getDataType().getCode();
         switch (dataType)
         {
             case BOOLEAN:
-                field = (Field<T>) new CheckBoxField(label, isMandatory);
-                break;
+                return new CheckBoxField(label, isMandatory);
             case VARCHAR:
-                field = (Field<T>) new VarcharField(label, isMandatory);
-                break;
+                return new VarcharField(label, isMandatory);
             case TIMESTAMP:
-                field = (Field<T>) new DateFormField(label, isMandatory);
-                break;
+                return new DateFormField(label, isMandatory);
             case CONTROLLEDVOCABULARY:
-                field =
-                        (Field<T>) new VocabularyTermSelectionWidget(fieldId, label, pt
-                                .getVocabulary().getTerms(), isMandatory);
-                break;
+                return new VocabularyTermSelectionWidget(fieldId, label, pt.getVocabulary()
+                        .getTerms(), isMandatory);
             case INTEGER:
-                field = (Field<T>) new IntegerField(label, isMandatory);
-                break;
+                return new IntegerField(label, isMandatory);
             case REAL:
-                field = (Field<T>) new RealField(label, isMandatory);
-                break;
-            default:
-                field = (Field<T>) new VarcharField(label, isMandatory);
-                break;
+                return new RealField(label, isMandatory);
+            case MATERIAL:
+                return MaterialChooserField.create(label, isMandatory, pt.getMaterialType(),
+                        viewContext);
         }
-        field.setId(fieldId);
-        if (originalRawValue != null)
-        {
-            field.setValue(field.getPropertyEditor().convertStringValue(originalRawValue));
-        }
-        return field;
+        throw new IllegalStateException("unknown enum " + dataType);
+    }
+
+    private static <T> void setValue(final Field<T> field, String originalRawValue)
+    {
+        field.setValue(field.getPropertyEditor().convertStringValue(originalRawValue));
     }
 
     public static final String valueToString(final Object value)

@@ -96,7 +96,7 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
         final String propertyTypeCode = etpt.getPropertyType().getCode();
         field =
                 PropertyFieldFactory.createField(etpt.getPropertyType(), isMandatory, label,
-                        createFormFieldId(getId(), propertyTypeCode), value);
+                        createFormFieldId(getId(), propertyTypeCode), value, null);
         field.setData(ETPT, etpt);
         field.setTitle(propertyTypeCode);
         return field;

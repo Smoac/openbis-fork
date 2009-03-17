@@ -140,7 +140,7 @@ public final class GenericExperimentRegistrationForm
     protected void createEntitySpecificFields()
     {
 
-        projectSelectionWidget = new ProjectSelectionWidget(viewContext, getId());
+        projectSelectionWidget = new ProjectSelectionWidget(viewContext, null, getId());
         FieldUtil.markAsMandatory(projectSelectionWidget);
         projectSelectionWidget.setFieldLabel(viewContext.getMessage(Dict.PROJECT));
 
