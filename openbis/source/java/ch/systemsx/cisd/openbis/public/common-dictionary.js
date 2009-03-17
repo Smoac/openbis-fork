@@ -75,8 +75,8 @@ var common = {
   // Header
   //
   
-  header_userWithoutHomegroup: "{0} (no home group)",
-  header_userWithHomegroup: "{0} (home group: {1})",
+  header_userWithoutHomegroup: "{0}",
+  header_userWithHomegroup: "{0} ({1})",
   header_logoutButtonLabel: "Logout",
   
   //
