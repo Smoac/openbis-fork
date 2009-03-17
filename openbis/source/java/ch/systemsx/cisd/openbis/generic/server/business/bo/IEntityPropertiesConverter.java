@@ -53,7 +53,7 @@ public interface IEntityPropertiesConverter
      * Creates {@link EntityPropertyPE}.
      */
     public <T extends EntityPropertyPE, ET extends EntityType, ETPT extends EntityTypePropertyType<ET>> T createProperty(
-            PropertyTypePE propertyType, EntityTypePropertyTypePE entityTypPropertyType,
+            PropertyTypePE propertyType, EntityTypePropertyTypePE entityTypePropertyType,
             final PersonPE registrator, String value);
 
     /** Updates Set<T> of properties. */

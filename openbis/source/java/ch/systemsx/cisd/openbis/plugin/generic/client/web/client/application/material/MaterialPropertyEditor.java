@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.PropertiesEditor;
 
-public class MaterialPropertyEditor<T, S, P> extends
+public class MaterialPropertyEditor extends
         PropertiesEditor<MaterialType, MaterialTypePropertyType, MaterialProperty>
 {
 

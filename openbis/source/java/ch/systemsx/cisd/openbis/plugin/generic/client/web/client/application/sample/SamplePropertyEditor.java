@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.PropertiesEditor;
 
-public class SamplePropertyEditor<T, S, P> extends
+public class SamplePropertyEditor extends
         PropertiesEditor<SampleType, SampleTypePropertyType, SampleProperty>
 {
 

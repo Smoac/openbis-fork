@@ -21,12 +21,13 @@ import java.util.List;
 /**
  * @author Izabela Adamczyk
  */
+// TODO 2009-03-17, Tomasz Pylak: Move this interface and all subclasses to client specific package 
 public interface IEditableEntity<T extends EntityType, S extends EntityTypePropertyType<T>, P extends EntityProperty<T, S>>
 
 {
     public EntityKind getEntityKind();
 
-    public void updateProperties(List<P> properties);
+    public void setProperties(List<P> properties);
 
     public List<P> getProperties();
 

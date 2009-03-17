@@ -228,8 +228,7 @@ public final class GenericExperimentRegistrationForm
     protected PropertiesEditor<ExperimentType, ExperimentTypePropertyType, ExperimentProperty> createPropertiesEditor(
             List<ExperimentTypePropertyType> etpt, String id)
     {
-        return new ExperimentPropertyEditor<ExperimentType, ExperimentTypePropertyType, ExperimentProperty>(
-                etpt, id);
+        return new ExperimentPropertyEditor(etpt, id);
     }
 
 }

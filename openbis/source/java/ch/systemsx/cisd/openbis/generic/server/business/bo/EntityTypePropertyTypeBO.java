@@ -75,7 +75,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
             {
                 throw new UserFailureException(String.format(
                         "Cannot create mandatory assignment. Please specify "
-                                + "'Global Value', which will be used for %s %s%s "
+                                + "'Initial Value', which will be used for %s %s%s "
                                 + "of type '%s' already existing in the database.", size,
                         entityKind.getLabel(), createPlural(size), entityType.getCode()));
             }

@@ -157,7 +157,6 @@ public final class GenericSampleRegistrationForm extends
     protected PropertiesEditor<SampleType, SampleTypePropertyType, SampleProperty> createPropertiesEditor(
             List<SampleTypePropertyType> entityTypesPropertyTypes, String string)
     {
-        return new SamplePropertyEditor<SampleType, SampleTypePropertyType, SampleProperty>(
-                entityTypesPropertyTypes, string);
+        return new SamplePropertyEditor(entityTypesPropertyTypes, string);
     }
 }

@@ -47,15 +47,15 @@ abstract public class AbstractGenericEntityEditForm<T extends EntityType, S exte
         extends AbstractRegistrationForm
 {
 
-    PropertiesEditor<T, S, P> editor;
+    private final PropertiesEditor<T, S, P> editor;
 
-    EntityPropertyGrid<T, S, P> grid;
+    private final EntityPropertyGrid<T, S, P> grid;
 
     private boolean editMode;
 
     protected final V entity;
 
-    private List<Widget> checkComponents;
+    private final List<Widget> checkComponents;
 
     abstract protected List<Widget> getEntitySpecificDisplayComponents();
 
@@ -159,7 +159,7 @@ abstract public class AbstractGenericEntityEditForm<T extends EntityType, S exte
         {
             f.updateOriginalValue(f.getValue());
         }
-        entity.updateProperties(editor.extractProperties());
+        entity.setProperties(editor.extractProperties());
         grid.setProperties(entity.getProperties());
     }
 }

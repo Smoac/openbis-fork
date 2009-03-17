@@ -89,8 +89,7 @@ public final class GenericSampleEditForm
             List<SampleTypePropertyType> entityTypesPropertyTypes, List<SampleProperty> properties,
             String id)
     {
-        return new SamplePropertyEditor<SampleType, SampleTypePropertyType, SampleProperty>(
-                entityTypesPropertyTypes, properties, id);
+        return new SamplePropertyEditor(entityTypesPropertyTypes, properties, id);
     }
 
     @Override

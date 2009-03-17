@@ -22,7 +22,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
 
-public class ExperimentPropertyEditor<T, S, P> extends
+public class ExperimentPropertyEditor extends
         PropertiesEditor<ExperimentType, ExperimentTypePropertyType, ExperimentProperty>
 {
 

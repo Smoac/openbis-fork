@@ -89,8 +89,7 @@ public final class GenericMaterialEditForm
             List<MaterialTypePropertyType> entityTypesPropertyTypes,
             List<MaterialProperty> properties, String id)
     {
-        return new MaterialPropertyEditor<MaterialType, MaterialTypePropertyType, MaterialProperty>(
-                entityTypesPropertyTypes, properties, id);
+        return new MaterialPropertyEditor(entityTypesPropertyTypes, properties, id);
     }
 
     @Override

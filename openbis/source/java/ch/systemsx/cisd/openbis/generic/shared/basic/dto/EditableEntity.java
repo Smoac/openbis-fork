@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import java.util.Date;
 import java.util.List;
 
-
 /**
  * @author Izabela Adamczyk
  */
@@ -37,9 +36,9 @@ public class EditableEntity<T extends EntityType, S extends EntityTypePropertyTy
 
     private final String identifier;
 
-    private Long id;
+    private final Long id;
 
-    private Date modificationDate;
+    private final Date modificationDate;
 
     public EditableEntity(EntityKind kind, List<S> etpts, List<P> properties, T type,
             String identifier, Long id, Date modificationDate)
@@ -78,7 +77,7 @@ public class EditableEntity<T extends EntityType, S extends EntityTypePropertyTy
         return type;
     }
 
-    public void updateProperties(List<P> newProperties)
+    public void setProperties(List<P> newProperties)
     {
         this.properties.clear();
         this.properties.addAll(newProperties);
@@ -93,10 +92,4 @@ public class EditableEntity<T extends EntityType, S extends EntityTypePropertyTy
     {
         return modificationDate;
     }
-
-    public void setModificationDate(Date modificationDate)
-    {
-        this.modificationDate = modificationDate;
-    }
-
 }

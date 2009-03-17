@@ -36,13 +36,13 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
 {
     private static final String ETPT = "PROPERTY_TYPE";
 
-    final List<S> entityTypesPropertyTypes;
+    private final List<S> entityTypesPropertyTypes;
 
-    private ArrayList<Field<?>> propertyFields;
+    private final List<Field<?>> propertyFields;
 
     private final String id;
 
-    private Map<String, String> initialProperties;
+    private final Map<String, String> initialProperties;
 
     abstract protected P createEntityProperty();
 
@@ -55,12 +55,29 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
         assert properties != null : "Undefined properties.";
         this.id = id;
         this.entityTypesPropertyTypes = entityTypesPropertyTypes;
-        initialProperties = new HashMap<String, String>();
+        this.initialProperties = createInitialProperties(properties);
+        this.propertyFields = createPropertyFields();
+    }
+
+    private List<Field<?>> createPropertyFields()
+    {
+        List<Field<?>> result = new ArrayList<Field<?>>();
+        for (final S stpt : entityTypesPropertyTypes)
+        {
+            result.add(createPropertyField(stpt, initialProperties.get(stpt.getPropertyType()
+                    .getCode())));
+        }
+        return result;
+    }
+
+    private Map<String, String> createInitialProperties(final List<P> properties)
+    {
+        Map<String, String> result = new HashMap<String, String>();
         for (P p : properties)
         {
-            initialProperties.put(p.getEntityTypePropertyType().getPropertyType().getCode(), p
-                    .getValue());
+            result.put(p.getEntityTypePropertyType().getPropertyType().getCode(), p.getValue());
         }
+        return result;
     }
 
     /**
@@ -120,17 +137,8 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
      * Returns a list of fields appropriate for entity type - property type assignments specific to
      * given {@link PropertiesEditor}.
      */
-    public final ArrayList<Field<?>> getPropertyFields()
+    public final List<Field<?>> getPropertyFields()
     {
-        if (propertyFields == null)
-        {
-            propertyFields = new ArrayList<Field<?>>();
-            for (final S stpt : entityTypesPropertyTypes)
-            {
-                propertyFields.add(createPropertyField(stpt, initialProperties.get(stpt
-                        .getPropertyType().getCode())));
-            }
-        }
         return propertyFields;
     }
 

@@ -144,8 +144,7 @@ public final class GenericExperimentEditForm
             List<ExperimentTypePropertyType> entityTypesPropertyTypes,
             List<ExperimentProperty> properties, String id)
     {
-        return new ExperimentPropertyEditor<ExperimentType, ExperimentTypePropertyType, ExperimentProperty>(
-                entityTypesPropertyTypes, properties, id);
+        return new ExperimentPropertyEditor(entityTypesPropertyTypes, properties, id);
     }
 
     @Override
