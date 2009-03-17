@@ -84,6 +84,7 @@
                 <prop key="hibernate.cache.provider_class">
                     org.hibernate.cache.EhCacheProvider
                 </prop>
+                <prop key="hibernate.max_fetch_depth">4</prop>
                 <prop key="hibernate.search.default.directory_provider">
                     org.hibernate.search.store.FSDirectoryProvider
                 </prop>

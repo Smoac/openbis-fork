@@ -29,7 +29,9 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexReader.FieldOption;
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.highlight.Formatter;
 import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.QueryScorer;
@@ -40,7 +42,6 @@ import org.hibernate.FetchMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.Restrictions;
 import org.hibernate.search.FullTextQuery;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
@@ -59,12 +60,14 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.LuceneQueryBuilder;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.SearchAnalyzer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetSearchHitDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IMatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -348,35 +351,39 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
     private List<DataSetSearchHitDTO> searchForDataSets(Session session,
             DataSetSearchCriteria datasetSearchCriteria)
     {
-        Query query = LuceneQueryBuilder.createQuery(datasetSearchCriteria);
+        BooleanQuery query = new BooleanQuery();
+        query.add(LuceneQueryBuilder.createQuery(datasetSearchCriteria), Occur.MUST);
+        SearchAnalyzer searchAnalyzer = LuceneQueryBuilder.createSearchAnalyzer();
+        query.add(LuceneQueryBuilder.parseQuery(SearchFieldConstants.DELETED, "false", searchAnalyzer),
+                Occur.MUST);
         final FullTextSession fullTextSession = Search.getFullTextSession(session);
         final FullTextQuery hibernateQuery =
                 fullTextSession.createFullTextQuery(query, ExternalDataPE.class);
 
         Criteria criteria = getSession().createCriteria(ExternalDataPE.class);
-        criteria.add(Restrictions.eq("deleted", false));
+        criteria.setFetchMode("parents", FetchMode.JOIN);
         criteria.setFetchMode("procedure", FetchMode.JOIN);
         criteria.setFetchMode("procedure.experimentInternal", FetchMode.JOIN);
+        criteria.setFetchMode("procedure.experimentInternal.experimentProperties", FetchMode.JOIN);
         hibernateQuery.setCriteriaQuery(criteria);
 
         List<ExternalDataPE> datasets = AbstractDAO.cast(hibernateQuery.list());
         datasets = filterNulls(datasets);
-        // NOTE: there is a limit on the number of JOINs, so we have to initialize parents, 
-        // experiment properties, and sample properties manually.
-        initParentsAndExperimentPropertiesAndSamplesWithProperties(datasets);
+        // NOTE: there is a limit on the number of JOINs, so we have to initialize sample properties
+        // manually
+        initSamplesWithProperties(datasets);
         return asDataSetHits(datasets);
     }
 
-    private void initParentsAndExperimentPropertiesAndSamplesWithProperties(List<ExternalDataPE> datasets)
+    private void initSamplesWithProperties(List<ExternalDataPE> datasets)
     {
         for (ExternalDataPE dataset : datasets)
         {
-            HibernateUtils.initialize(dataset.getParents());
-            HibernateUtils.initialize(dataset.getProcedure().getExperiment().getProperties());
             initSamplesWithProperties(dataset.getSampleAcquiredFrom());
             initSamplesWithProperties(dataset.getSampleDerivedFrom());
         }
     }
+
 
     private void initSamplesWithProperties(SamplePE sampleOrNull)
     {
