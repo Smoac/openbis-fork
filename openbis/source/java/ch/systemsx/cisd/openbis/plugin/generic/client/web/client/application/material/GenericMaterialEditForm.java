@@ -22,6 +22,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
@@ -87,9 +88,10 @@ public final class GenericMaterialEditForm
     @Override
     protected PropertiesEditor<MaterialType, MaterialTypePropertyType, MaterialProperty> createPropertiesEditor(
             List<MaterialTypePropertyType> entityTypesPropertyTypes,
-            List<MaterialProperty> properties, String id)
+            List<MaterialProperty> properties, String id,
+            IViewContext<ICommonClientServiceAsync> context)
     {
-        return new MaterialPropertyEditor(entityTypesPropertyTypes, properties, id);
+        return new MaterialPropertyEditor(entityTypesPropertyTypes, properties, id, context);
     }
 
     @Override

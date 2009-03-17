@@ -23,6 +23,8 @@ import java.util.Map;
 
 import com.extjs.gxt.ui.client.widget.form.Field;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.PropertyFieldFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -50,22 +52,22 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
      * Requires initial values of properties.
      */
     protected PropertiesEditor(String id, final List<S> entityTypesPropertyTypes,
-            final List<P> properties)
+            final List<P> properties, IViewContext<ICommonClientServiceAsync> viewContext)
     {
         assert properties != null : "Undefined properties.";
         this.id = id;
         this.entityTypesPropertyTypes = entityTypesPropertyTypes;
         this.initialProperties = createInitialProperties(properties);
-        this.propertyFields = createPropertyFields();
+        this.propertyFields = createPropertyFields(viewContext);
     }
 
-    private List<Field<?>> createPropertyFields()
+    private List<Field<?>> createPropertyFields(IViewContext<ICommonClientServiceAsync> viewContext)
     {
         List<Field<?>> result = new ArrayList<Field<?>>();
         for (final S stpt : entityTypesPropertyTypes)
         {
             result.add(createPropertyField(stpt, initialProperties.get(stpt.getPropertyType()
-                    .getCode())));
+                    .getCode()), viewContext));
         }
         return result;
     }
@@ -83,12 +85,14 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
     /**
      * Does not require initial values of properties.
      */
-    public PropertiesEditor(String id, final List<S> entityTypesPropertyTypes)
+    public PropertiesEditor(String id, final List<S> entityTypesPropertyTypes,
+            IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        this(id, entityTypesPropertyTypes, new ArrayList<P>());
+        this(id, entityTypesPropertyTypes, new ArrayList<P>(), viewContext);
     }
 
-    private final Field<?> createPropertyField(final S etpt, String value)
+    private final Field<?> createPropertyField(final S etpt, String value,
+            IViewContext<ICommonClientServiceAsync> viewContext)
     {
         final Field<?> field;
         final boolean isMandatory = etpt.isMandatory();
@@ -96,7 +100,7 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
         final String propertyTypeCode = etpt.getPropertyType().getCode();
         field =
                 PropertyFieldFactory.createField(etpt.getPropertyType(), isMandatory, label,
-                        createFormFieldId(getId(), propertyTypeCode), value, null);
+                        createFormFieldId(getId(), propertyTypeCode), value, viewContext);
         field.setData(ETPT, etpt);
         field.setTitle(propertyTypeCode);
         return field;

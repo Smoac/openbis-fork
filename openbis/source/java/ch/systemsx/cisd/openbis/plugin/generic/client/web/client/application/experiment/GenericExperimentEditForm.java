@@ -28,6 +28,7 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
@@ -147,9 +148,10 @@ public final class GenericExperimentEditForm
     @Override
     protected PropertiesEditor<ExperimentType, ExperimentTypePropertyType, ExperimentProperty> createPropertiesEditor(
             List<ExperimentTypePropertyType> entityTypesPropertyTypes,
-            List<ExperimentProperty> properties, String id)
+            List<ExperimentProperty> properties, String id,
+            IViewContext<ICommonClientServiceAsync>  context)
     {
-        return new ExperimentPropertyEditor(entityTypesPropertyTypes, properties, id);
+        return new ExperimentPropertyEditor(entityTypesPropertyTypes, properties, id, context);
     }
 
     @Override

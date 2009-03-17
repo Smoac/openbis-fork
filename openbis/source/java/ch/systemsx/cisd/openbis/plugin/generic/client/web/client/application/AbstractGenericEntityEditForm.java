@@ -26,6 +26,7 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -64,7 +65,8 @@ abstract public class AbstractGenericEntityEditForm<T extends EntityType, S exte
     abstract protected void updateCheckPageWidgets();
 
     abstract protected PropertiesEditor<T, S, P> createPropertiesEditor(
-            List<S> entityTypesPropertyTypes, List<P> properties, String string);
+            List<S> entityTypesPropertyTypes, List<P> properties, String string,
+            IViewContext<ICommonClientServiceAsync> context);
 
     public AbstractGenericEntityEditForm(final IViewContext<?> viewContext, V entity,
             boolean editMode)
@@ -75,13 +77,14 @@ abstract public class AbstractGenericEntityEditForm<T extends EntityType, S exte
         this.editMode = editMode;
         editor =
                 createPropertiesEditor(entity.getEntityTypePropertyTypes(), entity.getProperties(),
-                        createId(entity.getEntityKind(), entity.getIdentifier()));
+                        createId(entity.getEntityKind(), entity.getIdentifier()), viewContext
+                                .getCommonViewContext());
         grid = new EntityPropertyGrid<T, S, P>(viewContext, entity.getProperties());
+        checkComponents.add(grid.getWidget());
         for (Widget w : getEntitySpecificCheckPageWidgets())
         {
             checkComponents.add(w);
         }
-        checkComponents.add(grid.getWidget());
         checkComponents.add(new Button(viewContext.getMessage(Dict.BUTTON_EDIT),
                 new SelectionListener<ComponentEvent>()
                     {
@@ -109,13 +112,13 @@ abstract public class AbstractGenericEntityEditForm<T extends EntityType, S exte
 
     private final void addFormFields()
     {
-        for (final Field<?> specificField : getEntitySpecificFormFields())
-        {
-            formPanel.add(specificField);
-        }
         for (final Field<?> propertyField : editor.getPropertyFields())
         {
             formPanel.add(propertyField);
+        }
+        for (final Field<?> specificField : getEntitySpecificFormFields())
+        {
+            formPanel.add(specificField);
         }
     }
 

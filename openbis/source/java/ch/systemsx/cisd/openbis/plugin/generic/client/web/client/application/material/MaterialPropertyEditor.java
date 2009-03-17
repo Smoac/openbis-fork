@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ma
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
@@ -28,14 +30,16 @@ public class MaterialPropertyEditor extends
 {
 
     public MaterialPropertyEditor(List<MaterialTypePropertyType> entityTypesPropertyTypes,
-            List<MaterialProperty> properties, String id)
+            List<MaterialProperty> properties, String id,
+            IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(id, entityTypesPropertyTypes, properties);
+        super(id, entityTypesPropertyTypes, properties, viewContext);
     }
 
-    public MaterialPropertyEditor(List<MaterialTypePropertyType> entityTypesPropertyTypes, String id)
+    public MaterialPropertyEditor(List<MaterialTypePropertyType> entityTypesPropertyTypes,
+            String id, IViewContext<ICommonClientServiceAsync>  viewContext)
     {
-        super(id, entityTypesPropertyTypes);
+        super(id, entityTypesPropertyTypes, viewContext);
     }
 
     @Override

@@ -22,6 +22,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
@@ -87,9 +88,9 @@ public final class GenericSampleEditForm
     @Override
     protected PropertiesEditor<SampleType, SampleTypePropertyType, SampleProperty> createPropertiesEditor(
             List<SampleTypePropertyType> entityTypesPropertyTypes, List<SampleProperty> properties,
-            String id)
+            String id, IViewContext<ICommonClientServiceAsync>  context)
     {
-        return new SamplePropertyEditor(entityTypesPropertyTypes, properties, id);
+        return new SamplePropertyEditor(entityTypesPropertyTypes, properties, id, context);
     }
 
     @Override

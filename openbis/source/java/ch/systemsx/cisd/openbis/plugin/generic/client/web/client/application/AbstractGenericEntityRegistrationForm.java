@@ -22,6 +22,7 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.Element;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -57,7 +58,9 @@ abstract public class AbstractGenericEntityRegistrationForm<T extends EntityType
     {
         super(viewContext, createId(entityKind));
         this.viewContext = viewContext;
-        propertiesEditor = createPropertiesEditor(entityTypesPropertyTypes, createId(entityKind));
+        propertiesEditor =
+                createPropertiesEditor(entityTypesPropertyTypes, createId(entityKind), viewContext
+                        .getCommonViewContext());
     }
 
     abstract protected List<Field<?>> getEntitySpecificFields();
@@ -65,7 +68,8 @@ abstract public class AbstractGenericEntityRegistrationForm<T extends EntityType
     abstract protected void createEntitySpecificFields();
 
     abstract protected PropertiesEditor<T, S, P> createPropertiesEditor(
-            List<S> entityTypesPropertyTypes, String string);
+            List<S> entityTypesPropertyTypes, String string,
+            IViewContext<ICommonClientServiceAsync> context);
 
     protected static String createId(EntityKind entityKind)
     {
