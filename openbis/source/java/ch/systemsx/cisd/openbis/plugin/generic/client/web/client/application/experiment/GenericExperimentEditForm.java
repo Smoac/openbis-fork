@@ -32,6 +32,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ProjectSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EditableExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
@@ -63,12 +65,20 @@ public final class GenericExperimentEditForm
 
     private Html attachmentsInfo;
 
+    private ProjectSelectionWidget projectChooser;
+
+    private String originalProjectIdentifier;
+
     public GenericExperimentEditForm(IViewContext<IGenericClientServiceAsync> viewContext,
             EditableExperiment entity, boolean editMode)
     {
         super(viewContext, entity, editMode);
         this.viewContext = viewContext;
         sessionKey = createSimpleId(EntityKind.EXPERIMENT, entity.getId() + "");
+        originalProjectIdentifier = entity.getProjectIdentifier();
+        projectChooser =
+                new ProjectSelectionWidget(viewContext, sessionKey, originalProjectIdentifier);
+        FieldUtil.markAsMandatory(projectChooser);
         attachmentManager =
                 new AttachmentManager(sessionKey, DEFAULT_NUMBER_OF_ATTACHMENTS, "New Attachment");
         addUploadFeatures(formPanel, sessionKey);
@@ -115,8 +125,22 @@ public final class GenericExperimentEditForm
     private void save()
     {
         final List<ExperimentProperty> properties = extractProperties();
-        viewContext.getCommonService().updateExperiment(sessionKey, entity.getIdentifier(),
-                properties, new RegisterExperimentCallback(viewContext));
+        final String newProjectIdentifierOrNull = extractIdentifier();
+        viewContext.getCommonService()
+                .updateExperiment(sessionKey, entity.getIdentifier(), properties,
+                        newProjectIdentifierOrNull, new RegisterExperimentCallback(viewContext));
+    }
+
+    private String extractIdentifier()
+    {
+        final String newIdentifier = projectChooser.tryGetSelectedProject().getIdentifier();
+        if (originalProjectIdentifier.equals(newIdentifier))
+        {
+            return null;
+        } else
+        {
+            return newIdentifier;
+        }
     }
 
     @Override
@@ -149,7 +173,7 @@ public final class GenericExperimentEditForm
     protected PropertiesEditor<ExperimentType, ExperimentTypePropertyType, ExperimentProperty> createPropertiesEditor(
             List<ExperimentTypePropertyType> entityTypesPropertyTypes,
             List<ExperimentProperty> properties, String id,
-            IViewContext<ICommonClientServiceAsync>  context)
+            IViewContext<ICommonClientServiceAsync> context)
     {
         return new ExperimentPropertyEditor(entityTypesPropertyTypes, properties, id, context);
     }
@@ -158,6 +182,7 @@ public final class GenericExperimentEditForm
     protected List<Field<?>> getEntitySpecificFormFields()
     {
         List<Field<?>> fields = new ArrayList<Field<?>>();
+        fields.add(projectChooser);
         for (FileUploadField f : attachmentManager.getFields())
         {
             fields.add(f);
@@ -176,6 +201,7 @@ public final class GenericExperimentEditForm
     @Override
     protected void updateCheckPageWidgets()
     {
+        projectChooser.updateOriginalValue();
         attachmentsInfo.setHtml(getAttachmentInfoText(attachmentManager.attachmentsDefined()));
     }
 

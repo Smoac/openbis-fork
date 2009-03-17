@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -291,15 +292,34 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     }
 
     public void edit(ExperimentIdentifier identifier, List<ExperimentProperty> properties,
-            List<AttachmentPE> newAttachments)
+            List<AttachmentPE> newAttachments, ProjectIdentifier newProjectIdentifierOrNull)
     {
         loadByExperimentIdentifier(identifier);
         updateProperties(properties);
+        updateProject(newProjectIdentifierOrNull);
         for (AttachmentPE a : newAttachments)
         {
             addAttachment(a);
         }
         dataChanged = true;
+    }
+
+    private void updateProject(ProjectIdentifier newProjectIdentifierOrNull)
+    {
+        if (newProjectIdentifierOrNull != null)
+        {
+            ProjectPE project =
+                    getProjectDAO().tryFindProject(
+                            newProjectIdentifierOrNull.getDatabaseInstanceCode(),
+                            newProjectIdentifierOrNull.getGroupCode(),
+                            newProjectIdentifierOrNull.getProjectCode());
+            if (project == null)
+            {
+                throw UserFailureException.fromTemplate(ERR_PROJECT_NOT_FOUND,
+                        newProjectIdentifierOrNull);
+            }
+            experiment.setProject(project);
+        }
     }
 
     private void updateProperties(List<ExperimentProperty> properties)

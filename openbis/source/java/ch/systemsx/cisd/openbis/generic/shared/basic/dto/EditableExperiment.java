@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import java.util.Date;
 import java.util.List;
 
-
 /**
  * @author Izabela Adamczyk
  */
@@ -27,11 +26,19 @@ public class EditableExperiment extends
         EditableEntity<ExperimentType, ExperimentTypePropertyType, ExperimentProperty>
 {
 
+    private final String project;
+
     public EditableExperiment(List<ExperimentTypePropertyType> etpts,
             List<ExperimentProperty> properties, ExperimentType type, String identifier, Long id,
-            Date modificationDate)
+            Date modificationDate, String project)
     {
         super(EntityKind.EXPERIMENT, etpts, properties, type, identifier, id, modificationDate);
+        this.project = project;
+    }
+
+    public String getProjectIdentifier()
+    {
+        return project;
     }
 
 }

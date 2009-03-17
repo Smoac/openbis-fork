@@ -302,11 +302,11 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             final AsyncCallback<Void> asyncCallback);
 
     /**
-     * @see ICommonClientService#updateExperiment(String, String, List)
+     * @see ICommonClientService#updateExperiment(String, String, List,String)
      */
     public void updateExperiment(String attachmentSessionKey, final String experimentIdentifier,
-            List<ExperimentProperty> properties, final AsyncCallback<Void> asyncCallback)
-            throws UserFailureException;
+            List<ExperimentProperty> properties, String newProjectIdentifier,
+            final AsyncCallback<Void> asyncCallback) throws UserFailureException;
 
     /**
      * @see ICommonClientService#updateMaterial(String, List)
@@ -321,5 +321,6 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             final AsyncCallback<Void> asyncCallback) throws UserFailureException;
 
     /** @see ICommonClientService#deleteDataSets(List, String) */
-    public void deleteDataSets(List<String> dataSetCodes, String reason, AsyncCallback<Void> asyncCallback);
+    public void deleteDataSets(List<String> dataSetCodes, String reason,
+            AsyncCallback<Void> asyncCallback);
 }

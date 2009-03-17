@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.DropDownList;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -55,6 +56,7 @@ public final class ProjectSelectionWidget extends
         public ProjectComboModel(Project project)
         {
             set(DISPLAY_COLUMN_ID, renderProjectWithGroup(project));
+            set(ModelDataPropertyNames.PROJECT_IDENTIFIER, project.getIdentifier());
             set(ModelDataPropertyNames.OBJECT, project);
         }
 
@@ -68,11 +70,20 @@ public final class ProjectSelectionWidget extends
 
     private final IViewContext<?> viewContext;
 
+    private final String initialProjectIdentifier;
+
     public ProjectSelectionWidget(final IViewContext<?> viewContext, final String idSuffix)
+    {
+        this(viewContext, idSuffix, null);
+    }
+
+    public ProjectSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
+            String initialProjectIdentifier)
     {
         super(viewContext, SUFFIX + idSuffix, Dict.PROJECT, DISPLAY_COLUMN_ID, CHOOSE_SUFFIX,
                 EMPTY_RESULT_SUFFIX);
         this.viewContext = viewContext;
+        this.initialProjectIdentifier = initialProjectIdentifier;
     }
 
     /**
@@ -108,8 +119,19 @@ public final class ProjectSelectionWidget extends
                 setReadOnly(true);
             }
             applyEmptyText();
+            if (initialProjectIdentifier != null)
+            {
+                trySelectByIdentifier(initialProjectIdentifier);
+                updateOriginalValue();
+            }
             fireEvent(AppEvents.CALLBACK_FINISHED);
         }
+
+    }
+
+    public void updateOriginalValue()
+    {
+        setOriginalValue(getValue());
     }
 
     @Override
@@ -128,5 +150,11 @@ public final class ProjectSelectionWidget extends
     {
         DefaultResultSetConfig<String, Project> config = DefaultResultSetConfig.createFetchAll();
         viewContext.getCommonService().listProjects(config, new ListProjectsCallback(viewContext));
+    }
+
+    public void trySelectByIdentifier(String projectIdentifier)
+    {
+        GWTUtils
+                .setSelectedItem(this, ModelDataPropertyNames.PROJECT_IDENTIFIER, projectIdentifier);
     }
 }

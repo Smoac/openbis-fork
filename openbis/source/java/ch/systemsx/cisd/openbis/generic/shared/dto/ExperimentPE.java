@@ -202,7 +202,7 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
 
     @ManyToOne(fetch = FetchType.EAGER)
     @NotNull(message = ValidationMessages.PROJECT_NOT_NULL_MESSAGE)
-    @JoinColumn(name = ColumnNames.PROJECT_COLUMN, updatable = false)
+    @JoinColumn(name = ColumnNames.PROJECT_COLUMN, updatable = true)
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_PROJECT)
     public ProjectPE getProject()
     {

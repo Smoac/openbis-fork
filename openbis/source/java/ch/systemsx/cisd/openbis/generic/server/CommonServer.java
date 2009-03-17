@@ -642,11 +642,12 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     }
 
     public void editExperiment(String sessionToken, ExperimentIdentifier identifier,
-            List<ExperimentProperty> properties, List<AttachmentPE> attachments)
+            List<ExperimentProperty> properties, List<AttachmentPE> attachments,
+            ProjectIdentifier newProjectIdentifierOrNull)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
-        experimentBO.edit(identifier, properties, attachments);
+        experimentBO.edit(identifier, properties, attachments, newProjectIdentifierOrNull);
         experimentBO.save();
     }
 

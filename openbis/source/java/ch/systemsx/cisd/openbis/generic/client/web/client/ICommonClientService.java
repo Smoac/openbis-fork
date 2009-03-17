@@ -260,9 +260,9 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
-     * Assumes that preparation of the export ({@link #prepareExportSamples(TableExportCriteria)} or
-     * {@link #prepareExportExperiments(TableExportCriteria)} has been invoked before and returned
-     * with an exportDataKey passed here as a parameter.
+     * Assumes that preparation of the export ({@link #prepareExportSamples(TableExportCriteria)}
+     * or {@link #prepareExportExperiments(TableExportCriteria)} has been invoked before and
+     * returned with an exportDataKey passed here as a parameter.
      */
     public String getExportTable(String exportDataKey, String lineSeparator)
             throws UserFailureException;
@@ -349,7 +349,8 @@ public interface ICommonClientService extends IClientService
      * Updates experiment.
      */
     public void updateExperiment(String attachmentSessionKey, final String experimentIdentifier,
-            List<ExperimentProperty> properties) throws UserFailureException;
+            List<ExperimentProperty> properties, String newProjectIdentifierOrNull)
+            throws UserFailureException;
 
     /**
      * Updates material.
@@ -364,6 +365,7 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /** Deletes the specified data sets. */
-    public void deleteDataSets(List<String> dataSetCodes, String reason) throws UserFailureException;
+    public void deleteDataSets(List<String> dataSetCodes, String reason)
+            throws UserFailureException;
 
 }

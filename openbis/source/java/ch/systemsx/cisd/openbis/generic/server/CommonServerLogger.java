@@ -312,10 +312,12 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     public void editExperiment(String sessionToken, ExperimentIdentifier experimentIdentifier,
-            List<ExperimentProperty> properties, List<AttachmentPE> attachments)
+            List<ExperimentProperty> properties, List<AttachmentPE> attachments,
+            ProjectIdentifier newProjectIdentifierOrNull)
     {
-        logTracking(sessionToken, "edit_experiment", "EXPERIMENT(%s) ATTACHMENTS_ADDED(%s)",
-                experimentIdentifier, attachments.size());
+        logTracking(sessionToken, "edit_experiment",
+                "EXPERIMENT(%s) ATTACHMENTS_ADDED(%s) NEW_PROJECT(%s)", experimentIdentifier,
+                attachments.size(), newProjectIdentifierOrNull);
     }
 
     public void deleteDataSets(String sessionToken, List<String> dataSetCodes, String reason)

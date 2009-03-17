@@ -974,7 +974,7 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     public void updateExperiment(String sessionKey, String experimentIdentifier,
-            List<ExperimentProperty> properties)
+            List<ExperimentProperty> properties, String newProjectIdentifier)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
 
@@ -997,7 +997,10 @@ public final class CommonClientService extends AbstractClientService implements
             }
             final ExperimentIdentifier identifier =
                     new ExperimentIdentifierFactory(experimentIdentifier).createIdentifier();
-            commonServer.editExperiment(sessionToken, identifier, properties, attachments);
+            final ProjectIdentifier project =
+                    newProjectIdentifier == null ? null : new ProjectIdentifierFactory(
+                            newProjectIdentifier).createIdentifier();
+            commonServer.editExperiment(sessionToken, identifier, properties, attachments, project);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

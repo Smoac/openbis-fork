@@ -94,6 +94,8 @@ public final class ModelDataPropertyNames
 
     public static final String IS_MANAGED_INTERNALLY = "isManagedInternally";
 
+    public static final String PROJECT_IDENTIFIER = "projectIdentifier";
+
     private ModelDataPropertyNames()
     {
         // Can not be instantiated.

@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
 /**
  * A generic experiment <i>Business Object</i>.
@@ -64,5 +65,5 @@ public interface IExperimentBO extends IBusinessObject
      * Changes given experiment. Currently allowed changes: properties.
      */
     public void edit(ExperimentIdentifier identifier, List<ExperimentProperty> properties,
-            List<AttachmentPE> attachments);
+            List<AttachmentPE> attachments, ProjectIdentifier newProjectIdentifierOrNull);
 }
