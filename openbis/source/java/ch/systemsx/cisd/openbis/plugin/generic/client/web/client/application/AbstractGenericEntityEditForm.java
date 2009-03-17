@@ -21,8 +21,10 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -96,7 +98,7 @@ abstract public class AbstractGenericEntityEditForm<T extends EntityType, S exte
                     }));
         for (Widget w : checkComponents)
         {
-            add(w);
+            add(w, new RowData(1, -1, new Margins(5)));
         }
     }
 

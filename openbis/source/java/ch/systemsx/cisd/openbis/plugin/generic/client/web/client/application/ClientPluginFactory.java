@@ -255,7 +255,7 @@ public final class ClientPluginFactory extends
                         Component component =
                                 new GenericExperimentEditForm(getViewContext(), entity, true);
                         return new DefaultTabItem(getViewContext().getMessage(Dict.EDIT_TITLE,
-                                entity.getIdentifier()), component, false);
+                                getViewContext().getMessage(Dict.EXPERIMENT)), component, false);
                     }
 
                     public String getId()

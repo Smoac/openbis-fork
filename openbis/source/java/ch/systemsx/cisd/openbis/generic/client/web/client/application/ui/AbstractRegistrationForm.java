@@ -22,7 +22,7 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.HiddenField;
@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  * 
  * @author Christian Ribeaud
  */
-public abstract class AbstractRegistrationForm extends LayoutContainer
+public abstract class AbstractRegistrationForm extends ContentPanel
 {
     public static final String SAVE_BUTTON = "save-button";
 
@@ -71,7 +71,10 @@ public abstract class AbstractRegistrationForm extends LayoutContainer
     {
         this.labelWidth = labelWidth;
         this.fieldWitdh = fieldWidth;
+        setHeaderVisible(false);
         setLayout(new FlowLayout(5));
+        setBodyBorder(false);
+        setBorders(false);
         setScrollMode(Scroll.AUTO);
         setId(id);
         add(infoBox = createInfoBox());

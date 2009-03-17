@@ -76,6 +76,8 @@ public final class GenericExperimentEditForm
         this.viewContext = viewContext;
         sessionKey = createSimpleId(EntityKind.EXPERIMENT, entity.getId() + "");
         originalProjectIdentifier = entity.getProjectIdentifier();
+        setHeaderVisible(true);
+        updateHeader();
         projectChooser =
                 new ProjectSelectionWidget(viewContext, sessionKey, originalProjectIdentifier);
         FieldUtil.markAsMandatory(projectChooser);
@@ -197,6 +199,7 @@ public final class GenericExperimentEditForm
         originalProjectIdentifier = projectChooser.tryGetSelectedProject().getIdentifier();
         entity.setIdentifier(originalProjectIdentifier + "/" + entity.getCode());
         attachmentsInfo.setHtml(getAttachmentInfoText(attachmentManager.attachmentsDefined()));
+        updateHeader();
     }
 
     public String getAttachmentInfoText(int attachmentDefined)
@@ -210,5 +213,10 @@ public final class GenericExperimentEditForm
         {
             return "No new attachments added.";
         }
+    }
+
+    private void updateHeader()
+    {
+        setHeading("Experiment " + entity.getIdentifier());
     }
 }
