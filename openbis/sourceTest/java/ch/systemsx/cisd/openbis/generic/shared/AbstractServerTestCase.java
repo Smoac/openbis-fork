@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProcedureBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeBO;
@@ -70,9 +71,9 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 {
     protected static final Principal PRINCIPAL =
             new Principal(CommonTestUtils.USER_ID, "john", "doe", "j@d");
-    
+
     protected static final String SESSION_TOKEN = "session-token";
-    
+
     protected static final Session SESSION =
             new Session(CommonTestUtils.USER_ID, SESSION_TOKEN, PRINCIPAL, "remote-host", 1);
 
@@ -103,6 +104,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
     protected IGroupBO groupBO;
 
     protected ISampleBO sampleBO;
+
+    protected IMaterialBO materialBO;
 
     protected IExternalDataTable externalDataTable;
 
@@ -162,6 +165,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         // BO
         groupBO = context.mock(IGroupBO.class);
         sampleBO = context.mock(ISampleBO.class);
+        materialBO = context.mock(IMaterialBO.class);
         experimentBO = context.mock(IExperimentBO.class);
         propertyTypeBO = context.mock(IPropertyTypeBO.class);
         vocabularyBO = context.mock(IVocabularyBO.class);
@@ -207,7 +211,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
     }
-    
+
     protected Session createSession()
     {
         return new Session(CommonTestUtils.USER_ID, SESSION_TOKEN, PRINCIPAL, "remote-host", 2);

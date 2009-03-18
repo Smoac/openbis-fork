@@ -31,8 +31,13 @@ import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -50,8 +55,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -61,14 +68,30 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 public final class CommonServerTest extends AbstractServerTestCase
 {
+    private static final String MATERIAL_TYPE_1 = "MATERIAL-TYPE-1";
+
+    private static final String MATERIAL_1 = "MATERIAL-1";
+
+    private static final String SAMPLE_1 = "SAMPLE-1";
+
+    private static final String EXP_1 = "EXP-1";
+
+    private static final String PROJECT_1 = "PROJECT-1";
+
+    private static final String GROUP_1 = "GROUP-1";
+
+    private static final String DATABASE_1 = "DATABASE-1";
+
     private ICommonBusinessObjectFactory commonBusinessObjectFactory;
+
     private DataStoreServerSessionManager dssSessionManager;
+
     private IDataStoreService dataStoreService;
 
     private final ICommonServer createServer()
     {
-        return new CommonServer(authenticationService, sessionManager,
-                dssSessionManager, daoFactory, commonBusinessObjectFactory);
+        return new CommonServer(authenticationService, sessionManager, dssSessionManager,
+                daoFactory, commonBusinessObjectFactory);
     }
 
     private final static PersonPE createSystemUser()
@@ -489,8 +512,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(new ArrayList<ExperimentPE>()));
                 }
             });
-        createServer()
-                .listExperiments(SESSION_TOKEN, experimentType, projectIdentifier);
+        createServer().listExperiments(SESSION_TOKEN, experimentType, projectIdentifier);
         context.assertIsSatisfied();
     }
 
@@ -709,7 +731,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(d1));
                 }
             });
-        
+
         try
         {
             createServer().deleteDataSets(SESSION_TOKEN, Arrays.asList(d1.getCode()), "");
@@ -724,12 +746,13 @@ public final class CommonServerTest extends AbstractServerTestCase
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testDeleteDataSetsButOneDataSetIsUnknown()
     {
         prepareGetSession();
-        dssSessionManager.registerDataStoreServer(new DataStoreServerSession("url", dataStoreService));
+        dssSessionManager.registerDataStoreServer(new DataStoreServerSession("url",
+                dataStoreService));
         final ExternalDataPE d1 = createDataSet("d1");
         final ExternalDataPE d2 = createDataSet("d2");
         context.checking(new Expectations()
@@ -745,30 +768,104 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(dataStoreService).getKnownDataSets(with(any(String.class)),
                             with(equal(locations)));
                     will(returnValue(Arrays.asList(d1.getLocation())));
-                    
+
                 }
             });
-        
+
         try
         {
-            createServer().deleteDataSets(SESSION_TOKEN, Arrays.asList(d1.getCode(), d2.getCode()), "");
+            createServer().deleteDataSets(SESSION_TOKEN, Arrays.asList(d1.getCode(), d2.getCode()),
+                    "");
             fail("UserFailureException expected");
         } catch (UserFailureException e)
         {
             assertEquals(
                     "The following data sets are unknown by any registered Data Store Server. "
-                    + "May be the responsible Data Store Server is not running.\n[d2]", e
-                    .getMessage());
+                            + "May be the responsible Data Store Server is not running.\n[d2]", e
+                            .getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
-    @Test 
+
+    @Test
+    public void testEditMaterialNothingChanged() throws Exception
+    {
+        final MaterialIdentifier identifier =
+                new MaterialIdentifier(MATERIAL_1, MATERIAL_TYPE_1);
+        final List<MaterialProperty> properties = new ArrayList<MaterialProperty>();
+        prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(commonBusinessObjectFactory).createMaterialBO(SESSION);
+                    will(returnValue(materialBO));
+
+                    one(materialBO).edit(identifier, properties);
+                    one(materialBO).save();
+
+                }
+            });
+        createServer().editMaterial(SESSION_TOKEN, identifier, properties);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testEditSampleNothingChanged() throws Exception
+    {
+        final SampleIdentifier identifier =
+                SampleIdentifier.createOwnedBy(new SampleOwnerIdentifier(new GroupIdentifier(
+                        DATABASE_1, GROUP_1)), SAMPLE_1);
+        final List<SampleProperty> properties = new ArrayList<SampleProperty>();
+        prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(commonBusinessObjectFactory).createSampleBO(SESSION);
+                    will(returnValue(sampleBO));
+
+                    one(sampleBO).edit(identifier, properties);
+                    one(sampleBO).save();
+
+                }
+            });
+        createServer().editSample(SESSION_TOKEN, identifier, properties);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testEditExperimentNothingChanged() throws Exception
+    {
+        final ExperimentIdentifier identifier =
+                new ExperimentIdentifier(DATABASE_1, GROUP_1, PROJECT_1, EXP_1);
+        final List<ExperimentProperty> properties = new ArrayList<ExperimentProperty>();
+        final List<AttachmentPE> attachments = new ArrayList<AttachmentPE>();
+        final ProjectIdentifier newProjectIdentifier =
+                new ProjectIdentifier(DATABASE_1, GROUP_1, PROJECT_1);
+        prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(commonBusinessObjectFactory).createExperimentBO(SESSION);
+                    will(returnValue(experimentBO));
+
+                    one(experimentBO).edit(identifier, properties, attachments,
+                            newProjectIdentifier);
+                    one(experimentBO).save();
+
+                }
+            });
+        createServer().editExperiment(SESSION_TOKEN, identifier, properties, attachments,
+                newProjectIdentifier);
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public void testDeleteDataSets()
     {
         prepareGetSession();
-        dssSessionManager.registerDataStoreServer(new DataStoreServerSession("url", dataStoreService));
+        dssSessionManager.registerDataStoreServer(new DataStoreServerSession("url",
+                dataStoreService));
         final ExternalDataPE d1 = createDataSet("d1");
         final ExternalDataPE d2 = createDataSet("d2");
         context.checking(new Expectations()
@@ -784,18 +881,20 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(dataStoreService).getKnownDataSets(with(any(String.class)),
                             with(equal(locations)));
                     will(returnValue(locations));
-                    
+
                     one(externalDataDAO).markAsDeleted(d1, SESSION.tryGetPerson(), "reason");
                     one(externalDataDAO).markAsDeleted(d2, SESSION.tryGetPerson(), "reason");
-                    one(dataStoreService).deleteDataSets(with(any(String.class)), with(equal(locations)));
+                    one(dataStoreService).deleteDataSets(with(any(String.class)),
+                            with(equal(locations)));
                 }
             });
-        
-        createServer().deleteDataSets(SESSION_TOKEN, Arrays.asList(d1.getCode(), d2.getCode()), "reason");
-        
+
+        createServer().deleteDataSets(SESSION_TOKEN, Arrays.asList(d1.getCode(), d2.getCode()),
+                "reason");
+
         context.assertIsSatisfied();
     }
-    
+
     private ExternalDataPE createDataSet(String code)
     {
         ExternalDataPE data = new ExternalDataPE();

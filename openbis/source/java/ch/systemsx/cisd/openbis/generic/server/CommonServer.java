@@ -648,18 +648,63 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         final Session session = getSessionManager().getSession(sessionToken);
         if (newProjectIdentifier.equals(identifier) == false)
         {
-            final IExternalDataTable externalDataTable =
-                    businessObjectFactory.createExternalDataTable(session);
-            externalDataTable.loadByExperimentIdentifier(identifier);
-            if (externalDataTable.getExternalData().size() > 0)
-            {
-                throw new UserFailureException(
-                        "Changing the project of experiment containing data sets is not allowed.");
-            }
+            checkExternalData(identifier, session);
+            checkSampleConsistency(identifier, newProjectIdentifier, session);
         }
+
         final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
         experimentBO.edit(identifier, properties, attachments, newProjectIdentifier);
         experimentBO.save();
+    }
+
+    private void checkExternalData(ExperimentIdentifier identifier, final Session session)
+    {
+        final IExternalDataTable externalDataTable =
+                businessObjectFactory.createExternalDataTable(session);
+        externalDataTable.loadByExperimentIdentifier(identifier);
+        if (externalDataTable.getExternalData().size() > 0)
+        {
+            throw new UserFailureException(
+                    "Changing the project of experiment containing data sets is not allowed.");
+        }
+    }
+
+    private void checkSampleConsistency(ExperimentIdentifier identifier,
+            ProjectIdentifier newProjectIdentifier, final Session session)
+    {
+        ListSampleCriteriaDTO criteria =
+                ListSampleCriteriaDTO.createExperimentIdentifier(identifier);
+        final ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
+        sampleTable.loadSamplesByCriteria(criteria);
+        final List<SamplePE> samples = sampleTable.getSamples();
+        if (samples.size() > 0)
+        {
+            checkExperimentGroupMatches(samples.get(0).getSampleIdentifier(),
+                    newProjectIdentifier);
+        }
+    }
+
+    private void checkExperimentGroupMatches(SampleIdentifier sampleIdentifier,
+            ProjectIdentifier newProjectIdentifier)
+    {
+        assert sampleIdentifier != null : "Sample identifier not specified";
+        assert newProjectIdentifier != null : "Project identifier not specified";
+        final GroupIdentifier sampleGroup = sampleIdentifier.getGroupLevel();
+        if (sampleGroup == null)
+        {
+            throw new UserFailureException(
+                    "Inconsistency detected: shared sample found in experiment.");
+        }
+        if (sampleGroup.getDatabaseInstanceCode().equals(
+                newProjectIdentifier.getDatabaseInstanceCode()) == false
+                || sampleGroup.getGroupCode().equals(newProjectIdentifier.getGroupCode()) == false)
+        {
+            throw new UserFailureException(
+                    String
+                            .format(
+                                    "Project cannot be changed to '%s' because experiment containes samples from group '%s'.",
+                                    newProjectIdentifier, sampleGroup));
+        }
     }
 
     public void editMaterial(String sessionToken, MaterialIdentifier identifier,
