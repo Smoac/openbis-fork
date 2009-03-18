@@ -32,7 +32,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.E
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -71,7 +70,9 @@ public final class MaterialChooserField extends TextField<String> implements
     {
         DisposableEntityChooser<Material> materialBrowser =
                 MaterialBrowserGrid.create(viewContext, materialTypeOrNull);
-        new EntityChooserDialog<Material>(materialBrowser, chosenMaterialField, viewContext).show();
+        String title = viewContext.getMessage(Dict.TITLE_CHOOSE_MATERIAL);
+        new EntityChooserDialog<Material>(materialBrowser, chosenMaterialField, title, viewContext)
+                .show();
     }
 
     // ------------------
@@ -112,23 +113,8 @@ public final class MaterialChooserField extends TextField<String> implements
         if (initialValueOrNull != null)
         {
             setValue(initialValueOrNull);
-        } else
-        {
-            setEmptyText(createEmptyText(materialTypeOrNull, viewContext));
         }
         FieldUtil.setMandatoryFlag(this, mandatory);
-    }
-
-    private static String createEmptyText(MaterialType materialTypeOrNull,
-            IMessageProvider messageProvider)
-    {
-        if (materialTypeOrNull == null)
-        {
-            return messageProvider.getMessage(Dict.CHOOSE_ANY_MATERIAL);
-        } else
-        {
-            return messageProvider.getMessage(Dict.COMBO_BOX_CHOOSE, materialTypeOrNull.getCode());
-        }
     }
 
     @Override

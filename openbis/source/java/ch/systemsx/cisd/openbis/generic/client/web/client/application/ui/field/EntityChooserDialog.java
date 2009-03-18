@@ -52,10 +52,10 @@ class EntityChooserDialog<T> extends SimpleDialog
     }
 
     public EntityChooserDialog(DisposableEntityChooser<T> entityBrowser,
-            ChosenEntitySetter<T> chosenEntitySetter, IMessageProvider messageProvider)
+            ChosenEntitySetter<T> chosenEntitySetter, String title, IMessageProvider messageProvider)
     {
-        super(entityBrowser.getComponent(), messageProvider.getMessage(Dict.TITLE_CHOOSE_MATERIAL),
-                messageProvider.getMessage(Dict.BUTTON_CHOOSE), messageProvider);
+        super(entityBrowser.getComponent(), title, messageProvider.getMessage(Dict.BUTTON_CHOOSE),
+                messageProvider);
         this.entityBrowser = entityBrowser;
         this.onAcceptAction = createAcceptAction(chosenEntitySetter, entityBrowser);
         this.onCancelAction = createCancelAction(chosenEntitySetter, entityBrowser);

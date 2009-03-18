@@ -32,7 +32,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experim
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.EntityChooserDialog.ChosenEntitySetter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
@@ -111,7 +110,9 @@ public final class ExperimentChooserField extends TextField<String> implements
     {
         DisposableEntityChooser<Experiment> browser =
                 ExperimentBrowserGrid.createChooser(viewContext, group);
-        new EntityChooserDialog<Experiment>(browser, chosenMaterialField, viewContext).show();
+        String title = viewContext.getMessage(Dict.TITLE_CHOOSE_EXPERIMENT);
+        new EntityChooserDialog<Experiment>(browser, chosenMaterialField, title, viewContext)
+                .show();
     }
 
     // ------------------
@@ -163,16 +164,8 @@ public final class ExperimentChooserField extends TextField<String> implements
         if (initialValueOrNull != null)
         {
             setValue(initialValueOrNull);
-        } else
-        {
-            setEmptyText(createEmptyText(viewContext));
         }
         FieldUtil.setMandatoryFlag(this, mandatory);
-    }
-
-    private static String createEmptyText(IMessageProvider messageProvider)
-    {
-        return messageProvider.getMessage(Dict.BUTTON_CHOOSE, "an experiment");
     }
 
     @Override

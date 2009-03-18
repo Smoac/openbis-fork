@@ -459,6 +459,8 @@ public abstract class Dict
 
     public static final String INCORRECT_MATERIAL_SYNTAX = "incorrect_material_syntax";
 
+    public static final String TITLE_CHOOSE_EXPERIMENT = "TITLE_CHOOSE_EXPERIMENT";
+
     //
     // Unclassified
     //

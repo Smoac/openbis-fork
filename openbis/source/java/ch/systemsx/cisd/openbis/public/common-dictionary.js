@@ -302,6 +302,7 @@ var common = {
  title_choose_material: "Choose a Material",
  choose_any_material: "Choose Any Material...",
  incorrect_material_syntax: "Incorrect material specification. Please provide the material code followed by the type in brackets: 'code (type)'.",
+ TITLE_CHOOSE_EXPERIMENT: "Choose an Experiment",
  
  // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma
