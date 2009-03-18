@@ -16,24 +16,25 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractViewer<T extends IClientServiceAsync> extends LayoutContainer
+public abstract class AbstractViewer<T extends IClientServiceAsync> extends ContentPanel
 {
     protected final IViewContext<T> viewContext;
 
     public AbstractViewer(final IViewContext<T> viewContext)
     {
         this.viewContext = viewContext;
+        setHeaderVisible(false);
+        setBodyBorder(false);
+        setBorders(false);
     }
-    
+
     public abstract void loadData();
 }

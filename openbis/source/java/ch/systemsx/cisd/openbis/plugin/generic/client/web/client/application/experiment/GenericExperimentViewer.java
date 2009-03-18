@@ -17,16 +17,32 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.event.ToolBarEvent;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
+import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EditableExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**
@@ -42,12 +58,43 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
 
     private final String experimentIdentifier;
 
+    private TextToolItem editButton;
+
     public GenericExperimentViewer(final IViewContext<IGenericClientServiceAsync> viewContext,
             final String experimentIdentifier)
     {
         super(viewContext);
         setId(createId(experimentIdentifier));
         this.experimentIdentifier = experimentIdentifier;
+        final ToolBar toolBar = new ToolBar();
+        setTopComponent(toolBar);
+        toolBar.add(new FillToolItem());
+        editButton = new TextToolItem(viewContext.getMessage(Dict.BUTTON_EDIT));
+        toolBar.add(editButton);
+    }
+
+    private SelectionListener<ToolBarEvent> createEditListener(final Experiment experiment)
+    {
+        return new SelectionListener<ToolBarEvent>()
+            {
+                @Override
+                public void componentSelected(ToolBarEvent ce)
+                {
+                    final IClientPluginFactory clientPluginFactory =
+                            viewContext.getClientPluginFactoryProvider().getClientPluginFactory(
+                                    EntityKind.EXPERIMENT, experiment.getExperimentType());
+                    final IClientPlugin<ExperimentType, ExperimentTypePropertyType, ExperimentProperty, IIdentifierHolder, EditableExperiment> createClientPlugin =
+                            clientPluginFactory.createClientPlugin(EntityKind.EXPERIMENT);
+                    final ITabItemFactory tabView =
+                            createClientPlugin.createEntityEditor(new EditableExperiment(experiment
+                                    .getExperimentType().getExperimentTypePropertyTypes(),
+                                    experiment.getProperties(), experiment.getExperimentType(),
+                                    experiment.getIdentifier(), experiment.getId(), experiment
+                                            .getModificationDate(), experiment.getProject()
+                                            .getIdentifier(), experiment.getCode()));
+                    DispatcherHelper.dispatchNaviEvent(tabView);
+                }
+            };
     }
 
     public static String createId(String experimentIdentifier)
@@ -70,7 +117,7 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
                 new ExperimentInfoCallback(viewContext, this));
     }
 
-    public static final class ExperimentInfoCallback extends AbstractAsyncCallback<Experiment>
+    public final class ExperimentInfoCallback extends AbstractAsyncCallback<Experiment>
     {
         private final GenericExperimentViewer genericExperimentViewer;
 
@@ -94,6 +141,7 @@ public final class GenericExperimentViewer extends AbstractViewer<IGenericClient
         @Override
         protected final void process(final Experiment result)
         {
+            editButton.addSelectionListener(createEditListener(result));
             genericExperimentViewer.removeAll();
             genericExperimentViewer.setScrollMode(Scroll.AUTO);
             addSection(genericExperimentViewer,

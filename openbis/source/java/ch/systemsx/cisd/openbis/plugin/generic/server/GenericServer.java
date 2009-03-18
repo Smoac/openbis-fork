@@ -138,6 +138,7 @@ public final class GenericServer extends AbstractPluginServer<IGenericServer> im
         experimentBO.loadByExperimentIdentifier(identifier);
         experimentBO.enrichWithProperties();
         experimentBO.enrichWithAttachments();
+        experimentBO.enrichWithTypeDetails();
         final ExperimentPE experiment = experimentBO.getExperiment();
         return experiment;
     }
