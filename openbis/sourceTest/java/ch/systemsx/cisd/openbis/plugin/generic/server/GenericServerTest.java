@@ -158,7 +158,6 @@ public final class GenericServerTest extends AbstractServerTestCase
                     one(experimentBO).loadByExperimentIdentifier(experimentIdentifier);
                     one(experimentBO).enrichWithProperties();
                     one(experimentBO).enrichWithAttachments();
-                    one(experimentBO).enrichWithTypeDetails();
 
                     one(experimentBO).getExperiment();
                     will(returnValue(experimentPE));

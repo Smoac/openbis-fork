@@ -66,10 +66,4 @@ public interface IExperimentBO extends IBusinessObject
      */
     public void edit(ExperimentIdentifier identifier, List<ExperimentProperty> properties,
             List<AttachmentPE> attachments, ProjectIdentifier newProjectIdentifier);
-
-    /**
-     * Adds experiment type details.
-     */
-    public void enrichWithTypeDetails();
-
 }

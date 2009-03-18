@@ -34,11 +34,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
@@ -330,19 +328,4 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
                 newProperties, registrator));
     }
 
-    public void enrichWithTypeDetails()
-    {
-        if (experiment != null)
-        {
-            for (ExperimentTypePropertyTypePE etpt : experiment.getExperimentType()
-                    .getExperimentTypePropertyTypes())
-            {
-                final VocabularyPE vocabulary = etpt.getPropertyType().getVocabulary();
-                if (vocabulary != null)
-                {
-                    HibernateUtils.initialize(vocabulary.getTerms());
-                }
-            }
-        }
-    }
 }
