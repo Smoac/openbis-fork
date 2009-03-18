@@ -185,10 +185,10 @@ var common = {
   PROJECT_MENU_BROWSE: "Browse",
   PROJECT_MENU_NEW: "New",
   
-  menu_property_types: "Property Types",
+  menu_property_types: "Property Type",
   PROPERTY_TYPES_MENU_BROWSE_PROPERTY_TYPES: "Browse Property Types",
   PROPERTY_TYPES_MENU_BROWSE_ASSIGNMENTS: "Browse Assignments",
-  PROPERTY_TYPES_MENU_NEW_PROPERTY_TYPES: "New Property Types",
+  PROPERTY_TYPES_MENU_NEW_PROPERTY_TYPES: "New Property Type",
   PROPERTY_TYPES_MENU_ASSIGN_TO_EXPERIMENT_TYPE: "Assign To Experiment Type",
   PROPERTY_TYPES_MENU_ASSIGN_TO_SAMPLE_TYPE: "Assign To Sample Type",
   
