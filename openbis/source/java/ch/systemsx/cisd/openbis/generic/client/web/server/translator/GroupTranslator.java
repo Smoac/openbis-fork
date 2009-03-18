@@ -41,12 +41,13 @@ public final class GroupTranslator
             return null;
         }
         final Group result = new Group();
-        result.setCode(group.getCode());
+        result.setCode(StringEscapeUtils.escapeHtml(group.getCode()));
         result.setDescription(StringEscapeUtils.escapeHtml(group.getDescription()));
         result.setInstance(DatabaseInstanceTranslator.translate(group.getDatabaseInstance()));
         result.setRegistrationDate(group.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(group.getRegistrator()));
-        result.setIdentifier(IdentifierHelper.createGroupIdentifier(group).toString());
+        result.setIdentifier(StringEscapeUtils.escapeHtml(IdentifierHelper.createGroupIdentifier(
+                group).toString()));
         return result;
     }
 }

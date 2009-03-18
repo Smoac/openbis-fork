@@ -59,7 +59,7 @@ public final class VocabularyTranslator
             }
         }
         result.setTerms(list);
-        result.setCode(vocabulary.getCode());
+        result.setCode(StringEscapeUtils.escapeHtml(vocabulary.getCode()));
         result.setDescription(StringEscapeUtils.escapeHtml(vocabulary.getDescription()));
         return result;
     }

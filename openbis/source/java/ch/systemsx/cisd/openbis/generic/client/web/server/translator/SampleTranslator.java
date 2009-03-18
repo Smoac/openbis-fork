@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
@@ -47,10 +49,10 @@ public final class SampleTranslator
             final int generatedFromDep, final boolean withDetails)
     {
         final Sample result = new Sample();
-        result.setCode(samplePE.getCode());
+        result.setCode(StringEscapeUtils.escapeHtml(samplePE.getCode()));
         result.setModificationDate(samplePE.getModificationDate());
         result.setId(samplePE.getId());
-        result.setIdentifier(samplePE.getSampleIdentifier().toString());
+        result.setIdentifier(StringEscapeUtils.escapeHtml(samplePE.getSampleIdentifier().toString()));
         if (withDetails)
         {
             result.setSampleType(SampleTypeTranslator.translate(samplePE.getSampleType()));

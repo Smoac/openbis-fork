@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 
@@ -52,7 +54,7 @@ public final class MaterialTranslator
             return null;
         }
         final Material result = new Material();
-        result.setCode(materialPE.getCode());
+        result.setCode(StringEscapeUtils.escapeHtml(materialPE.getCode()));
         result.setId(materialPE.getId());
         result.setModificationDate(materialPE.getModificationDate());
         if (withDetails)

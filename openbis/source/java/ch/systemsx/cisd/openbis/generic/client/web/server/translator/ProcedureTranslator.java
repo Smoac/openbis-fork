@@ -57,7 +57,7 @@ public final class ProcedureTranslator
     private final static ProcedureType translate(final ProcedureTypePE procedureType)
     {
         final ProcedureType result = new ProcedureType();
-        result.setCode(procedureType.getCode());
+        result.setCode(StringEscapeUtils.escapeHtml(procedureType.getCode()));
         result.setDataAcquisition(procedureType.isDataAcquisition());
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(procedureType
                 .getDatabaseInstance()));

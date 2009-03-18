@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
@@ -40,9 +42,10 @@ public final class DatabaseInstanceTranslator
             return null;
         }
         final DatabaseInstance result = new DatabaseInstance();
-        result.setCode(databaseInstance.getCode());
-        result.setUuid(databaseInstance.getUuid());
-        result.setIdentifier(IdentifierHelper.createDatabaseInstanceIdentifier(databaseInstance).toString());
+        result.setCode(StringEscapeUtils.escapeHtml(databaseInstance.getCode()));
+        result.setUuid(StringEscapeUtils.escapeHtml(databaseInstance.getUuid()));
+        result.setIdentifier(StringEscapeUtils.escapeHtml(IdentifierHelper
+                .createDatabaseInstanceIdentifier(databaseInstance).toString()));
         return result;
     }
 

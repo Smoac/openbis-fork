@@ -57,13 +57,14 @@ public final class ProjectTranslator
             return null;
         }
         final Project result = new Project();
-        result.setCode(project.getCode());
+        result.setCode(StringEscapeUtils.escapeHtml(project.getCode()));
         result.setDescription(StringEscapeUtils.escapeHtml(project.getDescription()));
         result.setGroup(GroupTranslator.translate(project.getGroup()));
         result.setProjectLeader(PersonTranslator.translate(project.getProjectLeader()));
         result.setRegistrator(PersonTranslator.translate(project.getRegistrator()));
         result.setRegistrationDate(project.getRegistrationDate());
-        result.setIdentifier(IdentifierHelper.createProjectIdentifier(project).toString());
+        result.setIdentifier(StringEscapeUtils.escapeHtml(IdentifierHelper.createProjectIdentifier(
+                project).toString()));
         return result;
     }
 

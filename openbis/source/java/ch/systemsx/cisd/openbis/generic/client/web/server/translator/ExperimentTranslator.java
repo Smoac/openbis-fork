@@ -57,9 +57,9 @@ public final class ExperimentTranslator
         final Experiment result = new Experiment();
         result.setId(experiment.getId());
         result.setModificationDate(experiment.getModificationDate());
-        result.setCode(experiment.getCode());
+        result.setCode(StringEscapeUtils.escapeHtml(experiment.getCode()));
         result.setExperimentType(translate(experiment.getExperimentType()));
-        result.setIdentifier(experiment.getIdentifier());
+        result.setIdentifier(StringEscapeUtils.escapeHtml(experiment.getIdentifier()));
         result.setProject(ProjectTranslator.translate(experiment.getProject()));
         result.setRegistrationDate(experiment.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(experiment.getRegistrator()));
@@ -85,7 +85,7 @@ public final class ExperimentTranslator
     public final static ExperimentType translate(final ExperimentTypePE experimentType)
     {
         final ExperimentType result = new ExperimentType();
-        result.setCode(experimentType.getCode());
+        result.setCode(StringEscapeUtils.escapeHtml(experimentType.getCode()));
         result.setDescription(StringEscapeUtils.escapeHtml(experimentType.getDescription()));
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(experimentType
                 .getDatabaseInstance()));
@@ -121,7 +121,7 @@ public final class ExperimentTranslator
     public final static ExperimentTypePE translate(final ExperimentType experimentType)
     {
         final ExperimentTypePE result = new ExperimentTypePE();
-        result.setCode(experimentType.getCode());
+        result.setCode(StringEscapeUtils.escapeHtml(experimentType.getCode()));
         result.setDescription(StringEscapeUtils.escapeHtml(experimentType.getDescription()));
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(experimentType
                 .getDatabaseInstance()));

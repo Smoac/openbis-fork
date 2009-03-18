@@ -40,7 +40,7 @@ public class MaterialTypeTranslator
             return null;
         }
         final MaterialType result = new MaterialType();
-        result.setCode(entityTypeOrNull.getCode());
+        result.setCode(StringEscapeUtils.escapeHtml(entityTypeOrNull.getCode()));
         result.setDescription(StringEscapeUtils.escapeHtml(entityTypeOrNull.getDescription()));
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(entityTypeOrNull
                 .getDatabaseInstance()));

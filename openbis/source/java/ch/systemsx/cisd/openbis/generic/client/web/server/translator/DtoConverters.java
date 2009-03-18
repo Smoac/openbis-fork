@@ -159,7 +159,7 @@ public class DtoConverters
 
         public final String convertToSampleIdentifier(final SamplePE samplePE)
         {
-            return samplePE.getSampleIdentifier().toString();
+            return StringEscapeUtils.escapeHtml(samplePE.getSampleIdentifier().toString());
         }
 
         public final Sample convertToGeneratedFrom(final SamplePE samplePE)

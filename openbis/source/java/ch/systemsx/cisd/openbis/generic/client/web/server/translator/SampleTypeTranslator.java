@@ -36,7 +36,7 @@ public class SampleTypeTranslator
     public static SampleType translate(final SampleTypePE sampleTypePE)
     {
         final SampleType result = new SampleType();
-        result.setCode(sampleTypePE.getCode());
+        result.setCode(StringEscapeUtils.escapeHtml(sampleTypePE.getCode()));
         result.setListable(sampleTypePE.isListable());
         result.setDescription(StringEscapeUtils.escapeHtml(sampleTypePE.getDescription()));
         result.setGeneratedFromHierarchyDepth(sampleTypePE.getGeneratedFromHierarchyDepth());

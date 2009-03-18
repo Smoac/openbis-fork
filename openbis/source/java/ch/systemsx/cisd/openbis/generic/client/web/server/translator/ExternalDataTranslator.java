@@ -72,9 +72,10 @@ public class ExternalDataTranslator
         SamplePE sample = tryToGetSample(externalDataPE);
         ExternalData externalData = new ExternalData();
         externalData.setDataStoreBaseURL(dataStoreBaseURL);
-        externalData.setCode(externalDataPE.getCode());
+        externalData.setCode(StringEscapeUtils.escapeHtml(externalDataPE.getCode()));
         externalData.setComplete(BooleanOrUnknown.tryToResolve(externalDataPE.getComplete()));
-        externalData.setDataProducerCode(externalDataPE.getDataProducerCode());
+        externalData.setDataProducerCode(StringEscapeUtils.escapeHtml(externalDataPE
+                .getDataProducerCode()));
         externalData.setDataSetType(fill(new DataSetType(), externalDataPE.getDataSetType()));
         externalData.setDerived(externalDataPE.getSampleDerivedFrom() != null);
         externalData.setFileFormatType(fill(new FileFormatType(), externalDataPE
@@ -82,15 +83,17 @@ public class ExternalDataTranslator
         externalData.setInvalidation(tryToGetInvalidation(sample));
         externalData.setLocation(StringEscapeUtils.escapeHtml(externalDataPE.getLocation()));
         externalData.setLocatorType(fill(new LocatorType(), externalDataPE.getLocatorType()));
-        externalData.setParentCode(tryToGetCodeOfFirstParent(externalDataPE));
+        externalData.setParentCode(StringEscapeUtils
+                .escapeHtml(tryToGetCodeOfFirstParent(externalDataPE)));
         externalData.setProcedureType(getProcedureType(externalDataPE));
         externalData.setProductionDate(externalDataPE.getProductionDate());
         externalData.setRegistrationDate(externalDataPE.getRegistrationDate());
-        externalData.setSampleIdentifier(sample == null ? null : sample.getSampleIdentifier()
-                .toString());
+        externalData.setSampleIdentifier(sample == null ? null : StringEscapeUtils
+                .escapeHtml(sample.getSampleIdentifier().toString()));
         externalData.setSampleType(sample == null ? null : fill(new SampleType(), sample
                 .getSampleType()));
-        externalData.setSampleCode(sample == null ? null : sample.getCode());
+        externalData.setSampleCode(sample == null ? null : StringEscapeUtils.escapeHtml(sample
+                .getCode()));
         if (loadSampleProperties && sample != null)
         {
             externalData.setSampleProperties(SamplePropertyTranslator.translate(sample
