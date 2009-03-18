@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
 import java.util.List;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 
 /**
  * @author Izabela Adamczyk
  */
-// TODO 2009-03-17, Tomasz Pylak: Move this interface and all subclasses to client specific package 
 public interface IEditableEntity<T extends EntityType, S extends EntityTypePropertyType<T>, P extends EntityProperty<T, S>>
 
 {
