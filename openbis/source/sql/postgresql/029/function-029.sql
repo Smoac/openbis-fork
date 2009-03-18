@@ -157,7 +157,7 @@ BEGIN
    if NEW.mate_prop_id IS NOT NULL then
 			-- find material type id of the property type 
 			select pt.maty_prop_id into v_type_id_prop 
-			  from material_type_property_types etpt, property_types pt 
+			  from sample_type_property_types etpt, property_types pt 
 			 where NEW.stpt_id = etpt.id AND etpt.prty_id = pt.id;
 		
 			if v_type_id_prop IS NOT NULL then
@@ -186,7 +186,7 @@ BEGIN
    if NEW.mate_prop_id IS NOT NULL then
 			-- find material type id of the property type 
 			select pt.maty_prop_id into v_type_id_prop 
-			  from material_type_property_types etpt, property_types pt 
+			  from experiment_type_property_types etpt, property_types pt 
 			 where NEW.etpt_id = etpt.id AND etpt.prty_id = pt.id;
 		
 			if v_type_id_prop IS NOT NULL then
