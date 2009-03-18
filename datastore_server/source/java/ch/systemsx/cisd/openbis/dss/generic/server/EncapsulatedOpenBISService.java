@@ -246,6 +246,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
 
     synchronized public ExternalDataPE tryGetDataSet(String sToken, String dataSetCode) throws UserFailureException
     {
+        checkSessionToken();
         return service.tryGetDataSet(sToken, dataSetCode);
     }
 
