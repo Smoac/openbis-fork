@@ -162,7 +162,7 @@ public class ExternalDataTranslator
     {
         if (typePEOrNull != null)
         {
-            type.setCode(typePEOrNull.getCode());
+            type.setCode(StringEscapeUtils.escapeHtml(typePEOrNull.getCode()));
             type.setDescription(StringEscapeUtils.escapeHtml(typePEOrNull.getDescription()));
         }
         return type;
