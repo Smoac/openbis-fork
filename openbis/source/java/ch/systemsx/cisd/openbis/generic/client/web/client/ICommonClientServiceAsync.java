@@ -22,6 +22,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
@@ -315,10 +316,11 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             final AsyncCallback<Void> asyncCallback) throws UserFailureException;
 
     /**
-     * @see ICommonClientService#updateSample(String, List)
+     * @see ICommonClientService#updateSample(String, List, ExperimentIdentifier)
      */
     public void updateSample(final String sampleIdentifier, List<SampleProperty> properties,
-            final AsyncCallback<Void> asyncCallback) throws UserFailureException;
+            ExperimentIdentifier experimentIdentifierOrNull, final AsyncCallback<Void> asyncCallback)
+            throws UserFailureException;
 
     /** @see ICommonClientService#deleteDataSets(List, String) */
     public void deleteDataSets(List<String> dataSetCodes, String reason,

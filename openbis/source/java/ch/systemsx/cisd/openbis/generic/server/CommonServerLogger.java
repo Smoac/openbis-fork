@@ -333,9 +333,10 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     public void editSample(String sessionToken, SampleIdentifier identifier,
-            List<SampleProperty> properties)
+            List<SampleProperty> properties, ExperimentIdentifier experimentIdentifierOrNull)
     {
-        logTracking(sessionToken, "edit_sample", "SAMPLE(%s)", identifier);
+        logTracking(sessionToken, "edit_sample", "SAMPLE(%s), CHANGE_TO_EXPERIMENT(%S)",
+                identifier, experimentIdentifierOrNull);
 
     }
 

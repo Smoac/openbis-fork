@@ -17,15 +17,24 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField.ExperimentChooserFieldAdaptor;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Procedure;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EditableSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
@@ -44,6 +53,11 @@ public final class GenericSampleEditForm
         extends
         AbstractGenericEntityEditForm<SampleType, SampleTypePropertyType, SampleProperty, EditableSample>
 {
+    private final Sample originalSample;
+
+    private final ExperimentChooserFieldAdaptor experimentField;
+
+    private final PropertyGrid specificFieldsGrid;
 
     private final IViewContext<IGenericClientServiceAsync> viewContext;
 
@@ -52,6 +66,18 @@ public final class GenericSampleEditForm
     {
         super(viewContext, entity, editMode);
         this.viewContext = viewContext;
+        this.originalSample = entity.getSample();
+        this.experimentField = createExperimentField();
+        this.specificFieldsGrid = new PropertyGrid(viewContext, 1);
+        super.initializeComponents(viewContext);
+    }
+
+    private ExperimentChooserFieldAdaptor createExperimentField()
+    {
+        String label = viewContext.getMessage(Dict.EXPERIMENT);
+        ExperimentIdentifier originalExperiment = tryGetOriginalExperiment();
+        return ExperimentChooserField.create(label, false, originalSample.getGroup(),
+                originalExperiment, viewContext.getCommonViewContext());
     }
 
     public static final String ID_PREFIX = createId(EntityKind.SAMPLE, "");
@@ -61,7 +87,7 @@ public final class GenericSampleEditForm
     {
         final List<SampleProperty> properties = extractProperties();
         viewContext.getCommonService().updateSample(entity.getIdentifier(), properties,
-                new RegisterSampleCallback(viewContext));
+                experimentField.getValue(), new RegisterSampleCallback(viewContext));
     }
 
     public final class RegisterSampleCallback extends AbstractAsyncCallback<Void>
@@ -88,7 +114,7 @@ public final class GenericSampleEditForm
     @Override
     protected PropertiesEditor<SampleType, SampleTypePropertyType, SampleProperty> createPropertiesEditor(
             List<SampleTypePropertyType> entityTypesPropertyTypes, List<SampleProperty> properties,
-            String id, IViewContext<ICommonClientServiceAsync>  context)
+            String id, IViewContext<ICommonClientServiceAsync> context)
     {
         return new SamplePropertyEditor(entityTypesPropertyTypes, properties, id, context);
     }
@@ -96,18 +122,53 @@ public final class GenericSampleEditForm
     @Override
     protected List<Field<?>> getEntitySpecificFormFields()
     {
-        return new ArrayList<Field<?>>();
-    }
-
-    @Override
-    protected List<Widget> getEntitySpecificCheckPageWidgets()
-    {
-        return new ArrayList<Widget>();
+        ArrayList<Field<?>> fields = new ArrayList<Field<?>>();
+        fields.add(experimentField.getField());
+        return fields;
     }
 
     @Override
     protected void updateCheckPageWidgets()
     {
+        experimentField.updateOriginalValue();
+        updateSpecificPropertiesGrid();
     }
 
+    private ExperimentIdentifier tryGetOriginalExperiment()
+    {
+        Procedure proc = originalSample.getValidProcedure();
+        if (proc == null)
+        {
+            return null;
+        }
+        return ExperimentIdentifier.createIdentifier(proc.getExperiment());
+    }
+
+    @Override
+    protected List<Widget> getEntitySpecificCheckPageWidgets()
+    {
+        ArrayList<Widget> result = new ArrayList<Widget>();
+        updateSpecificPropertiesGrid();
+        result.add(specificFieldsGrid);
+        return result;
+    }
+
+    private void updateSpecificPropertiesGrid()
+    {
+        Map<String, String> valueMap = new HashMap<String, String>();
+        valueMap.put(viewContext.getMessage(Dict.EXPERIMENT), tryPrintSelectedExperiment());
+        this.specificFieldsGrid.setProperties(valueMap);
+    }
+
+    private String tryPrintSelectedExperiment()
+    {
+        ExperimentIdentifier value = experimentField.getValue();
+        if (value == null)
+        {
+            return null;
+        } else
+        {
+            return value.print();
+        }
+    }
 }

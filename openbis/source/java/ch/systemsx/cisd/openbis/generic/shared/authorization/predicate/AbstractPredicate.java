@@ -24,8 +24,8 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
- * An <i>abstract</i> <code>IPredicate</code> implementation which mainly checks method
- * parameters before doing the real work.
+ * An <i>abstract</i> <code>IPredicate</code> implementation which mainly checks method parameters
+ * before doing the real work.
  * 
  * @author Christian Ribeaud
  */
@@ -45,6 +45,12 @@ abstract class AbstractPredicate<T> implements IPredicate<T>
     abstract Status doEvaluation(final PersonPE person,
             final List<RoleWithIdentifier> allowedRoles, final T value);
 
+    /** can the checked value be null, false by default. To be subclassed in other cases */
+    protected boolean isNullValueAllowed()
+    {
+        return false;
+    }
+
     //
     // IPredicate
     //
@@ -54,7 +60,7 @@ abstract class AbstractPredicate<T> implements IPredicate<T>
     {
         assert person != null : "Unspecified person";
         assert allowedRoles != null : "Unspecified allowed roles";
-        if (valueOrNull == null)
+        if (valueOrNull == null && isNullValueAllowed() == false)
         {
             throw UserFailureException.fromTemplate("No %s specified.", getCandidateDescription());
         }

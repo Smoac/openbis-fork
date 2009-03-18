@@ -16,9 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.util.Date;
-import java.util.List;
-
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
 
 /**
  * @author Izabela Adamczyk
@@ -26,11 +24,17 @@ import java.util.List;
 public class EditableSample extends
         EditableEntity<SampleType, SampleTypePropertyType, SampleProperty>
 {
+    private final Sample sample;
 
-    public EditableSample(List<SampleTypePropertyType> etpts, List<SampleProperty> properties,
-            SampleType type, String identifier, Long id, Date modificationDate)
+    public EditableSample(Sample sample, SampleType sampleType)
     {
-        super(EntityKind.SAMPLE, etpts, properties, type, identifier, id, modificationDate);
+        super(EntityKind.SAMPLE, sampleType.getSampleTypePropertyTypes(), sample.getProperties(),
+                sampleType, sample.getIdentifier(), sample.getId(), sample.getModificationDate());
+        this.sample = sample;
     }
 
+    public Sample getSample()
+    {
+        return sample;
+    }
 }

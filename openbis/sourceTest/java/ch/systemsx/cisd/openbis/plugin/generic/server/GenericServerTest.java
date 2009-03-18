@@ -263,6 +263,7 @@ public final class GenericServerTest extends AbstractServerTestCase
     {
         prepareGetSession();
         final NewExperiment newExperiment = new NewExperiment();
+        final ExperimentPE experimentPE = createExperiment("type", "code", "groupCode");
         context.checking(new Expectations()
             {
                 {
@@ -271,6 +272,8 @@ public final class GenericServerTest extends AbstractServerTestCase
 
                     one(experimentBO).define(newExperiment);
                     exactly(2).of(experimentBO).save();
+
+                    prepareDefineDataAcquisitionProcedure(this, experimentPE);
                 }
             });
         createServer().registerExperiment(SESSION_TOKEN, newExperiment,
@@ -285,7 +288,6 @@ public final class GenericServerTest extends AbstractServerTestCase
         final String experimentTypeCode = "EXP-TYPE1";
         final String experimentCode = "EXP1";
         final String groupCode = "CISD";
-        final String procedureTypeCode = "DATA_ACQUISITION";
         String sample1Code = "SAMPLE1";
         final String sample1 = createSampleIdentifier(groupCode, sample1Code);
         final String sampleIdentifier2 = "SAMPLE2";
@@ -308,13 +310,8 @@ public final class GenericServerTest extends AbstractServerTestCase
 
                     one(experimentBO).define(newExperiment);
                     exactly(2).of(experimentBO).save();
-                    one(experimentBO).getExperiment();
-                    will(returnValue(experimentPE));
 
-                    one(genericBusinessObjectFactory).createProcedureBO(SESSION);
-                    will(returnValue(procedureBO));
-                    one(procedureBO).define(experimentPE, procedureTypeCode);
-                    one(procedureBO).save();
+                    prepareDefineDataAcquisitionProcedure(this, experimentPE);
                     one(procedureBO).getProcedure();
                     will(returnValue(procedurePE));
 
@@ -334,6 +331,18 @@ public final class GenericServerTest extends AbstractServerTestCase
         createServer().registerExperiment(SESSION_TOKEN, newExperiment,
                 new ArrayList<AttachmentPE>());
         context.assertIsSatisfied();
+    }
+
+    private void prepareDefineDataAcquisitionProcedure(Expectations exp, ExperimentPE experimentPE)
+    {
+        exp.one(experimentBO).getExperiment();
+        exp.will(Expectations.returnValue(experimentPE));
+
+        exp.one(genericBusinessObjectFactory).createProcedureBO(SESSION);
+        exp.will(Expectations.returnValue(procedureBO));
+        final String procedureTypeCode = "DATA_ACQUISITION";
+        exp.one(procedureBO).define(experimentPE, procedureTypeCode);
+        exp.one(procedureBO).save();
     }
 
     @Test

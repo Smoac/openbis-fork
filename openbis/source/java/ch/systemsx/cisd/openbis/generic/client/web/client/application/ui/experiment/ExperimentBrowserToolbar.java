@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
@@ -47,11 +48,13 @@ class ExperimentBrowserToolbar extends ToolBar
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    public ExperimentBrowserToolbar(final IViewContext<ICommonClientServiceAsync> viewContext)
+    /** @param groupOrNull if specified, only projects from that group will be presented */
+    public ExperimentBrowserToolbar(final IViewContext<ICommonClientServiceAsync> viewContext,
+            Group groupOrNull)
     {
         this.viewContext = viewContext;
         selectExperimentTypeCombo = new ExperimentTypeSelectionWidget(viewContext, ID);
-        selectProjectCombo = new ProjectSelectionWidget(viewContext, ID);
+        selectProjectCombo = new ProjectSelectionWidget(viewContext, groupOrNull, ID);
         display();
     }
 

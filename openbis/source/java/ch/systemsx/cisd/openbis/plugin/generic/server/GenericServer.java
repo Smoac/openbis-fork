@@ -199,12 +199,14 @@ public final class GenericServer extends AbstractPluginServer<IGenericServer> im
             experimentBO.addAttachment(att);
         }
         experimentBO.save();
+
+        ExperimentPE experiment = experimentBO.getExperiment();
+        final IProcedureBO procedureBO = businessObjectFactory.createProcedureBO(session);
+        procedureBO.define(experiment, ProcedureTypeCode.DATA_ACQUISITION.getCode());
+        procedureBO.save();
+
         if (newExperiment.getSamples().length > 0)
         {
-            ExperimentPE experiment = experimentBO.getExperiment();
-            final IProcedureBO procedureBO = businessObjectFactory.createProcedureBO(session);
-            procedureBO.define(experiment, ProcedureTypeCode.DATA_ACQUISITION.getCode());
-            procedureBO.save();
             final ProcedurePE procedure = procedureBO.getProcedure();
             List<SampleIdentifier> sampleIdentifiers =
                     IdentifierHelper.extractSampleIdentifiers(newExperiment.getSamples());

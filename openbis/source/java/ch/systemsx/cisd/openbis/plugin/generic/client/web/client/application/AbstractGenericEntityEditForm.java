@@ -19,17 +19,13 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.event.ComponentEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.util.Margins;
-import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
@@ -74,7 +70,7 @@ abstract public class AbstractGenericEntityEditForm<T extends EntityType, S exte
             boolean editMode)
     {
         super(viewContext, createId(entity.getEntityKind(), entity.getIdentifier()));
-        checkComponents = new ArrayList<Widget>();
+        this.checkComponents = new ArrayList<Widget>();
         this.entity = entity;
         this.editMode = editMode;
         editor =
@@ -82,25 +78,43 @@ abstract public class AbstractGenericEntityEditForm<T extends EntityType, S exte
                         createId(entity.getEntityKind(), entity.getIdentifier()), viewContext
                                 .getCommonViewContext());
         grid = new EntityPropertyGrid<T, S, P>(viewContext, entity.getProperties());
+    }
+
+    protected void initializeComponents(final IViewContext<?> viewContext)
+    {
         checkComponents.add(grid.getWidget());
         for (Widget w : getEntitySpecificCheckPageWidgets())
         {
             checkComponents.add(w);
         }
-        checkComponents.add(new Button(viewContext.getMessage(Dict.BUTTON_EDIT),
-                new SelectionListener<ComponentEvent>()
-                    {
-                        @Override
-                        public void componentSelected(ComponentEvent ce)
-                        {
-                            showEditor();
-                        }
-                    }));
+        // TODO 2009-03-18, Tomasz Pylak: Uncomment when LMS-794 is closed 
+        //checkComponents.add(createEditorButton(viewContext));
         for (Widget w : checkComponents)
         {
             add(w, new RowData(1, -1, new Margins(5)));
         }
     }
+
+    // TODO 2009-03-18, Tomasz Pylak: Uncomment when LMS-794 is closed 
+//    private Button createEditorButton(final IViewContext<?> viewContext)
+//    {
+//        return new Button(viewContext.getMessage(Dict.BUTTON_EDIT),
+//                new SelectionListener<ComponentEvent>()
+//                    {
+//                        @Override
+//                        public void componentSelected(ComponentEvent ce)
+//                        {
+//                            showEditor();
+//                        }
+//                    });
+//    }
+//
+//    protected void showEditor()
+//    {
+//        setEditMode(true);
+//        infoBox.reset();
+//        formPanel.reset();
+//    }
 
     protected static String createId(EntityKind entityKind, String identifier)
     {
@@ -145,13 +159,6 @@ abstract public class AbstractGenericEntityEditForm<T extends EntityType, S exte
         {
             w.setVisible(edit == false);
         }
-    }
-
-    protected void showEditor()
-    {
-        setEditMode(true);
-        infoBox.reset();
-        formPanel.reset();
     }
 
     protected void showCheckPage()

@@ -718,11 +718,11 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     }
 
     public void editSample(String sessionToken, SampleIdentifier identifier,
-            List<SampleProperty> properties)
+            List<SampleProperty> properties, ExperimentIdentifier experimentIdentifierOrNull)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
-        sampleBO.edit(identifier, properties);
+        sampleBO.edit(identifier, properties, experimentIdentifierOrNull);
         sampleBO.save();
 
     }

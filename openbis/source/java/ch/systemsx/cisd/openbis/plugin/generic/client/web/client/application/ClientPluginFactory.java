@@ -166,7 +166,7 @@ public final class ClientPluginFactory extends
                         Component component =
                                 new GenericSampleEditForm(getViewContext(), entity, true);
                         return new DefaultTabItem(getViewContext().getMessage(Dict.EDIT_TITLE,
-                                entity.getIdentifier()), component, false);
+                                entity.getIdentifier()), component, true);
                     }
 
                     public String getId()
@@ -199,7 +199,7 @@ public final class ClientPluginFactory extends
                         Component component =
                                 new GenericMaterialEditForm(getViewContext(), entity, true);
                         return new DefaultTabItem(getViewContext().getMessage(Dict.EDIT_TITLE,
-                                entity.getIdentifier()), component, false);
+                                entity.getIdentifier()), component, true);
                     }
 
                     public String getId()
@@ -255,7 +255,7 @@ public final class ClientPluginFactory extends
                         Component component =
                                 new GenericExperimentEditForm(getViewContext(), entity, true);
                         return new DefaultTabItem(getViewContext().getMessage(Dict.EDIT_TITLE,
-                                getViewContext().getMessage(Dict.EXPERIMENT)), component, false);
+                                getViewContext().getMessage(Dict.EXPERIMENT)), component, true);
                     }
 
                     public String getId()

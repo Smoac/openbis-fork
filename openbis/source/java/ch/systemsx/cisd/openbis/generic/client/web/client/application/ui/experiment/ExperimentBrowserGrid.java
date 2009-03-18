@@ -38,9 +38,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ICl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.experiment.CommonExperimentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -61,7 +62,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEditableEntity;
  * 
  * @author Tomasz Pylak
  */
-public final class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment, ExperimentModel>
+public class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment, ExperimentModel>
 {
     private static final String PREFIX = "experiment-browser";
 
@@ -73,11 +74,35 @@ public final class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment,
 
     private ListExperimentsCriteria criteria;
 
-    public static DisposableComponent create(
+    /**
+     * Creates a grid without additional toolbar buttons. It can server as a entity chooser.
+     * 
+     * @param groupOrNull if specified, only projects from that group will be presented
+     */
+    public static DisposableEntityChooser<Experiment> createChooser(
+            final IViewContext<ICommonClientServiceAsync> viewContext, Group groupOrNull)
+    {
+        final ExperimentBrowserToolbar toolbar =
+                new ExperimentBrowserToolbar(viewContext, groupOrNull);
+        final ExperimentBrowserGrid browserGrid = new ExperimentBrowserGrid(viewContext, toolbar)
+            {
+                @Override
+                protected void showEntityViewer(ExperimentModel experimentModel, boolean editMode)
+                {
+                    // do nothing - avoid showing the details after double click
+                }
+            };
+        browserGrid.addToolbarRefreshButton();
+        return browserGrid.asDisposableWithToolbar(toolbar);
+    }
+
+    /** Create a grid with the toolbar. */
+    public static DisposableEntityChooser<Experiment> create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        final ExperimentBrowserToolbar toolbar = new ExperimentBrowserToolbar(viewContext);
+        final ExperimentBrowserToolbar toolbar = new ExperimentBrowserToolbar(viewContext, null);
         final ExperimentBrowserGrid browserGrid = new ExperimentBrowserGrid(viewContext, toolbar);
+        browserGrid.extendToolbar();
         return browserGrid.asDisposableWithToolbar(toolbar);
     }
 
@@ -86,15 +111,12 @@ public final class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment,
     {
         super(viewContext, GRID_ID);
         this.topToolbar = topToolbar;
-        extendToolbar();
         setId(BROWSER_ID);
     }
 
     private void extendToolbar()
     {
-        SelectionChangedListener<?> refreshButtonListener = addRefreshButton(topToolbar);
-        this.topToolbar.setCriteriaChangedListener(refreshButtonListener);
-        this.topToolbar.add(new FillToolItem());
+        addToolbarRefreshButton();
 
         String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
         Button showDetailsButton =
@@ -104,6 +126,13 @@ public final class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment,
         String editTitle = viewContext.getMessage(Dict.BUTTON_EDIT);
         Button editButton = createSelectedItemButton(editTitle, asShowEntityInvoker(true));
         this.topToolbar.add(new AdapterToolItem(editButton));
+    }
+
+    private void addToolbarRefreshButton()
+    {
+        SelectionChangedListener<?> refreshButtonListener = addRefreshButton(topToolbar);
+        this.topToolbar.setCriteriaChangedListener(refreshButtonListener);
+        this.topToolbar.add(new FillToolItem());
     }
 
     @Override

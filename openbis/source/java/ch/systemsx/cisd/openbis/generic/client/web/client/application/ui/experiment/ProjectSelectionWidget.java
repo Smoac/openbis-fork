@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Mode
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Project;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 
@@ -70,20 +71,36 @@ public final class ProjectSelectionWidget extends
 
     private final IViewContext<?> viewContext;
 
-    private final String initialProjectIdentifier;
+    private final Group groupOrNull;
+
+    private final String initialProjectIdentifierOrNull;
 
     public ProjectSelectionWidget(final IViewContext<?> viewContext, final String idSuffix)
     {
-        this(viewContext, idSuffix, null);
+        this(viewContext, idSuffix, null, null);
+    }
+
+    /** @param groupOrNull if specified, only projects from that group will be presented */
+    public ProjectSelectionWidget(final IViewContext<?> viewContext, Group groupOrNull,
+            final String idSuffix)
+    {
+        this(viewContext, idSuffix, groupOrNull, null);
     }
 
     public ProjectSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
             String initialProjectIdentifier)
     {
+        this(viewContext, idSuffix, null, initialProjectIdentifier);
+    }
+
+    private ProjectSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
+            Group groupOrNull, String initialProjectIdentifier)
+    {
         super(viewContext, SUFFIX + idSuffix, Dict.PROJECT, DISPLAY_COLUMN_ID, CHOOSE_SUFFIX,
                 EMPTY_RESULT_SUFFIX);
         this.viewContext = viewContext;
-        this.initialProjectIdentifier = initialProjectIdentifier;
+        this.groupOrNull = groupOrNull;
+        this.initialProjectIdentifierOrNull = initialProjectIdentifier;
     }
 
     /**
@@ -119,9 +136,9 @@ public final class ProjectSelectionWidget extends
                 setReadOnly(true);
             }
             applyEmptyText();
-            if (initialProjectIdentifier != null)
+            if (initialProjectIdentifierOrNull != null)
             {
-                trySelectByIdentifier(initialProjectIdentifier);
+                trySelectByIdentifier(initialProjectIdentifierOrNull);
                 updateOriginalValue();
             }
             fireEvent(AppEvents.CALLBACK_FINISHED);
@@ -140,9 +157,22 @@ public final class ProjectSelectionWidget extends
         final List<ProjectComboModel> result = new ArrayList<ProjectComboModel>();
         for (final Project p : projects)
         {
-            result.add(new ProjectComboModel(p));
+            if (matchesTheGroup(p))
+            {
+                result.add(new ProjectComboModel(p));
+            }
         }
         return result;
+    }
+
+    private boolean matchesTheGroup(Project project)
+    {
+        if (groupOrNull == null)
+        {
+            return true;
+        }
+        Group projectGroup = project.getGroup();
+        return projectGroup.getCode().equals(groupOrNull.getCode());
     }
 
     @Override

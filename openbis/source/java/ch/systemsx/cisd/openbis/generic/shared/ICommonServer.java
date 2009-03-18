@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NullableGroupIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.GroupValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.MatchingEntityValidator;
@@ -131,9 +132,11 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.GROUP_ADMIN)
-    public void registerGroupRole(String sessionToken, RoleCode roleCode,
-            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class)
-            GroupIdentifier identifier, String person);
+    public void registerGroupRole(
+            String sessionToken,
+            RoleCode roleCode,
+            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) GroupIdentifier identifier,
+            String person);
 
     /**
      * Registers a new instance role.
@@ -147,9 +150,11 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.GROUP_ADMIN)
-    public void deleteGroupRole(String sessionToken, RoleCode roleCode,
-            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class)
-            GroupIdentifier groupIdentifier, String person);
+    public void deleteGroupRole(
+            String sessionToken,
+            RoleCode roleCode,
+            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) GroupIdentifier groupIdentifier,
+            String person);
 
     /**
      * Deletes role described by given role code and user id.
@@ -184,10 +189,10 @@ public interface ICommonServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<ExperimentPE> listExperiments(final String sessionToken,
+    public List<ExperimentPE> listExperiments(
+            final String sessionToken,
             ExperimentTypePE experimentType,
-            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class)
-            ProjectIdentifier project);
+            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ProjectIdentifier project);
 
     /**
      * For given {@link SampleIdentifier} returns the corresponding list of {@link ExternalDataPE}.
@@ -196,9 +201,9 @@ public interface ICommonServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<ExternalDataPE> listExternalData(final String sessionToken,
-            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
-            final SampleIdentifier identifier);
+    public List<ExternalDataPE> listExternalData(
+            final String sessionToken,
+            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) final SampleIdentifier identifier);
 
     /**
      * For given {@link ExperimentIdentifier} returns the corresponding list of
@@ -208,9 +213,9 @@ public interface ICommonServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<ExternalDataPE> listExternalData(final String sessionToken,
-            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class)
-            final ExperimentIdentifier identifier);
+    public List<ExternalDataPE> listExternalData(
+            final String sessionToken,
+            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) final ExperimentIdentifier identifier);
 
     /**
      * Performs an <i>Hibernate Search</i> based on given parameters.
@@ -286,9 +291,10 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.GROUP_ADMIN)
-    public void registerProject(String sessionToken,
-            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class)
-            ProjectIdentifier projectIdentifier, String description, String leaderId);
+    public void registerProject(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ProjectIdentifier projectIdentifier,
+            String description, String leaderId);
 
     /**
      * Performs an <i>Hibernate Search</i> based on given parameters.
@@ -344,20 +350,20 @@ public interface ICommonServer extends IServer
     @Transactional
     @RolesAllowed(RoleSet.GROUP_ADMIN)
     public void deleteDataSets(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
-            List<String> dataSetCodes, String reason);
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) List<String> dataSetCodes,
+            String reason);
 
     /**
      * Saves changed experiment.
      */
     @Transactional
     @RolesAllowed(RoleSet.USER)
-    public void editExperiment(String sessionToken,
-            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class)
-            ExperimentIdentifier experimentIdentifier, List<ExperimentProperty> properties,
+    public void editExperiment(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ExperimentIdentifier experimentIdentifier,
+            List<ExperimentProperty> properties,
             List<AttachmentPE> attachments,
-            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class)
-            ProjectIdentifier newProjectIdentifier);
+            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ProjectIdentifier newProjectIdentifier);
 
     /**
      * Saves changed material.
@@ -372,9 +378,11 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.USER)
-    public void editSample(String sessionToken,
-            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
-            SampleIdentifier identifier, List<SampleProperty> properties);
+    public void editSample(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) SampleIdentifier identifier,
+            List<SampleProperty> properties,
+            @AuthorizationGuard(guardClass = NullableGroupIdentifierPredicate.class) ExperimentIdentifier experimentIdentifierOrNull);
 
     /** Lists vocabulary terms of a given vocabulary. Includes terms usage statistics. */
     @Transactional

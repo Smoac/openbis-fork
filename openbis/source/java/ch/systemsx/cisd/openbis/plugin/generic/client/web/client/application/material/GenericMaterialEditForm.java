@@ -52,6 +52,7 @@ public final class GenericMaterialEditForm
     {
         super(viewContext, entity, editMode);
         this.viewContext = viewContext;
+        super.initializeComponents(viewContext);
     }
 
     public static final String ID_PREFIX = createId(EntityKind.MATERIAL, "");

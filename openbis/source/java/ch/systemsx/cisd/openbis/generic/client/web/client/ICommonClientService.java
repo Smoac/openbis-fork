@@ -20,6 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Group;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
@@ -260,9 +261,9 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
-     * Assumes that preparation of the export ({@link #prepareExportSamples(TableExportCriteria)}
-     * or {@link #prepareExportExperiments(TableExportCriteria)} has been invoked before and
-     * returned with an exportDataKey passed here as a parameter.
+     * Assumes that preparation of the export ({@link #prepareExportSamples(TableExportCriteria)} or
+     * {@link #prepareExportExperiments(TableExportCriteria)} has been invoked before and returned
+     * with an exportDataKey passed here as a parameter.
      */
     public String getExportTable(String exportDataKey, String lineSeparator)
             throws UserFailureException;
@@ -361,8 +362,8 @@ public interface ICommonClientService extends IClientService
     /**
      * Updates sample.
      */
-    public void updateSample(final String sampleIdentifier, List<SampleProperty> properties)
-            throws UserFailureException;
+    public void updateSample(final String sampleIdentifier, List<SampleProperty> properties,
+            ExperimentIdentifier experimentIdentifierOrNull) throws UserFailureException;
 
     /** Deletes the specified data sets. */
     public void deleteDataSets(List<String> dataSetCodes, String reason)

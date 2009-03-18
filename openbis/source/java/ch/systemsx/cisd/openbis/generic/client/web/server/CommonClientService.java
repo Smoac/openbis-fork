@@ -1046,7 +1046,10 @@ public final class CommonClientService extends AbstractClientService implements
 
     }
 
-    public void updateSample(String sampleIdentifier, List<SampleProperty> properties)
+    public void updateSample(
+            String sampleIdentifier,
+            List<SampleProperty> properties,
+            ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier experimentIdentifierOrNull)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
@@ -1054,7 +1057,15 @@ public final class CommonClientService extends AbstractClientService implements
             final String sessionToken = getSessionToken();
             final SampleIdentifier identifier =
                     new SampleIdentifierFactory(sampleIdentifier).createIdentifier();
-            commonServer.editSample(sessionToken, identifier, properties);
+            ExperimentIdentifier convExperimentIdentifierOrNull = null;
+            if (experimentIdentifierOrNull != null)
+            {
+                convExperimentIdentifierOrNull =
+                        BeanUtils
+                                .createBean(ExperimentIdentifier.class, experimentIdentifierOrNull);
+            }
+            commonServer.editSample(sessionToken, identifier, properties,
+                    convExperimentIdentifierOrNull);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

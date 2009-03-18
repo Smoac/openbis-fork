@@ -19,51 +19,57 @@ package ch.systemsx.cisd.openbis.generic.shared.authorization.predicate;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.util.GroupCodeHelper;
 
 /**
- * An <code>IPredicate</code> implementation based on {@link GroupIdentifier}.
+ * An <code>IPredicate</code> implementation based on {@link GroupIdentifierPredicate} which allows
+ * the identifier to be null.
  * 
- * @author Christian Ribeaud
+ * @author Tomasz Pylak
  */
-public class GroupIdentifierPredicate extends AbstractGroupPredicate<GroupIdentifier>
+public class NullableGroupIdentifierPredicate extends AbstractPredicate<GroupIdentifier>
 {
-    public GroupIdentifierPredicate()
+    private final GroupIdentifierPredicate delegator;
+
+    public NullableGroupIdentifierPredicate()
     {
+        this.delegator = new GroupIdentifierPredicate();
     }
 
     //
     // AbstractDatabaseInstancePredicate
     //
 
+    public final void init(IAuthorizationDataProvider provider)
+    {
+        delegator.init(provider);
+    }
+
+    @Override
+    protected boolean isNullValueAllowed()
+    {
+        return true;
+    }
+
     @Override
     public final String getCandidateDescription()
     {
-        return "group identifier";
+        return "nullable group identifier";
     }
 
     @Override
     Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final GroupIdentifier groupIdentifierOrNull)
     {
-        assert inited : "Predicate has not been initialized";
         if (groupIdentifierOrNull == null)
         {
             return Status.OK;
-        }
-        final String groupCode = GroupCodeHelper.getGroupCode(person, groupIdentifierOrNull);
-        final DatabaseInstancePE databaseInstance = getDatabaseInstance(groupIdentifierOrNull);
-        final boolean matching = evaluate(allowedRoles, databaseInstance, groupCode);
-        if (matching)
+        } else
         {
-            return Status.OK;
+            return delegator.doEvaluation(person, allowedRoles, groupIdentifierOrNull);
         }
-        return Status.createError(String.format(
-                "User '%s' does not have enough privileges to access data in the group '%s'.",
-                person.getUserId(), new GroupIdentifier(databaseInstance.getCode(), groupCode)));
     }
 }

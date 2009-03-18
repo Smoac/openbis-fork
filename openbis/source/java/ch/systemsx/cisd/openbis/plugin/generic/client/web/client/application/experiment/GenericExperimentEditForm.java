@@ -74,6 +74,7 @@ public final class GenericExperimentEditForm
     {
         super(viewContext, entity, editMode);
         this.viewContext = viewContext;
+        super.initializeComponents(viewContext);
         sessionKey = createSimpleId(EntityKind.EXPERIMENT, entity.getId() + "");
         originalProjectIdentifier = entity.getProjectIdentifier();
         setHeaderVisible(true);

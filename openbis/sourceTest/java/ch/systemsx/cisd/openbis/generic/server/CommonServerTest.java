@@ -824,12 +824,12 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(commonBusinessObjectFactory).createSampleBO(SESSION);
                     will(returnValue(sampleBO));
 
-                    one(sampleBO).edit(identifier, properties);
+                    one(sampleBO).edit(identifier, properties, null);
                     one(sampleBO).save();
 
                 }
             });
-        createServer().editSample(SESSION_TOKEN, identifier, properties);
+        createServer().editSample(SESSION_TOKEN, identifier, properties, null);
         context.assertIsSatisfied();
     }
 

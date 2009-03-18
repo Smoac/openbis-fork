@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -77,7 +78,9 @@ public interface ISampleBO
     void enrichWithValidProcedure();
 
     /**
-     * Changes given sample. Currently allowed changes: properties.
+     * Changes given sample. Currently allowed changes: properties and experiment to which the
+     * sample is connected.
      */
-    void edit(SampleIdentifier identifier, List<SampleProperty> properties);
+    void edit(SampleIdentifier identifier, List<SampleProperty> properties,
+            ExperimentIdentifier experimentIdentifierOrNull);
 }

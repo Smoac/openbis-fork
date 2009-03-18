@@ -200,9 +200,8 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
         {
             final IClientPlugin<SampleType, SampleTypePropertyType, SampleProperty, IIdentifierHolder, EditableSample> createClientPlugin =
                     clientPluginFactory.createClientPlugin(entityKind);
-            tabView =
-                    createClientPlugin.createEntityEditor(createEditableEntity(sample, criteria
-                            .getSampleType()));
+            EditableSample editableEntity = new EditableSample(sample, criteria.getSampleType());
+            tabView = createClientPlugin.createEntityEditor(editableEntity);
         } else
         {
 
@@ -211,12 +210,6 @@ public final class SampleBrowserGrid extends AbstractBrowserGrid<Sample, SampleM
             tabView = createClientPlugin.createEntityViewer(sample);
         }
         DispatcherHelper.dispatchNaviEvent(tabView);
-    }
-
-    private EditableSample createEditableEntity(Sample sample, SampleType sampleType)
-    {
-        return new EditableSample(sampleType.getSampleTypePropertyTypes(), sample.getProperties(),
-                sampleType, sample.getIdentifier(), sample.getId(), sample.getModificationDate());
     }
 
     private static final String createHeader(ListSampleCriteria criteria)
