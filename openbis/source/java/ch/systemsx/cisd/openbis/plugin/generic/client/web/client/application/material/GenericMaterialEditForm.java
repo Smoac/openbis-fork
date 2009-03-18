@@ -62,7 +62,7 @@ public final class GenericMaterialEditForm
     {
         final List<MaterialProperty> properties = extractProperties();
         viewContext.getCommonService().updateMaterial(entity.getIdentifier(), properties,
-                new RegisterMaterialCallback(viewContext));
+                entity.getModificationDate(), new RegisterMaterialCallback(viewContext));
     }
 
     public final class RegisterMaterialCallback extends AbstractAsyncCallback<Void>

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -82,5 +83,5 @@ public interface ISampleBO
      * sample is connected.
      */
     void edit(SampleIdentifier identifier, List<SampleProperty> properties,
-            ExperimentIdentifier experimentIdentifierOrNull);
+            ExperimentIdentifier experimentIdentifierOrNul, Date version);
 }

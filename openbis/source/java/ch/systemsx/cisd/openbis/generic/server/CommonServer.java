@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -643,7 +644,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public void editExperiment(String sessionToken, ExperimentIdentifier identifier,
             List<ExperimentProperty> properties, List<AttachmentPE> attachments,
-            ProjectIdentifier newProjectIdentifier)
+            ProjectIdentifier newProjectIdentifier, Date version)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         if (newProjectIdentifier.equals(identifier) == false)
@@ -653,7 +654,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         }
 
         final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
-        experimentBO.edit(identifier, properties, attachments, newProjectIdentifier);
+        experimentBO.edit(identifier, properties, attachments, newProjectIdentifier, version);
         experimentBO.save();
     }
 
@@ -679,8 +680,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         final List<SamplePE> samples = sampleTable.getSamples();
         if (samples.size() > 0)
         {
-            checkExperimentGroupMatches(samples.get(0).getSampleIdentifier(),
-                    newProjectIdentifier);
+            checkExperimentGroupMatches(samples.get(0).getSampleIdentifier(), newProjectIdentifier);
         }
     }
 
@@ -708,21 +708,22 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     }
 
     public void editMaterial(String sessionToken, MaterialIdentifier identifier,
-            List<MaterialProperty> properties)
+            List<MaterialProperty> properties, Date version)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IMaterialBO materialBO = businessObjectFactory.createMaterialBO(session);
-        materialBO.edit(identifier, properties);
+        materialBO.edit(identifier, properties, version);
         materialBO.save();
 
     }
 
     public void editSample(String sessionToken, SampleIdentifier identifier,
-            List<SampleProperty> properties, ExperimentIdentifier experimentIdentifierOrNull)
+            List<SampleProperty> properties, ExperimentIdentifier experimentIdentifierOrNull,
+            Date version)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
-        sampleBO.edit(identifier, properties, experimentIdentifierOrNull);
+        sampleBO.edit(identifier, properties, experimentIdentifierOrNull, version);
         sampleBO.save();
 
     }

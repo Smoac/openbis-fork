@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.dao.DataAccessException;
@@ -99,9 +100,13 @@ public final class MaterialBO extends AbstractBusinessObject implements IMateria
         }
     }
 
-    public void edit(MaterialIdentifier identifier, List<MaterialProperty> properties)
+    public void edit(MaterialIdentifier identifier, List<MaterialProperty> properties, Date version)
     {
         loadByMaterialIdentifier(identifier);
+        if (material.getModificationDate().equals(version) == false)
+        {
+            throw new UserFailureException("Material has been modified in the meantime.");
+        }
         updateProperties(properties);
         dataChanged = true;
     }

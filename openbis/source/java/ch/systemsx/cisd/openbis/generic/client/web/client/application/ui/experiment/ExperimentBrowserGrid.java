@@ -64,6 +64,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyT
  */
 public class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment, ExperimentModel>
 {
+    public static final String ID_SUFFIX_EDIT_BUTTON = "_edit-button";
+
     private static final String PREFIX = "experiment-browser";
 
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + PREFIX;
@@ -125,6 +127,7 @@ public class ExperimentBrowserGrid extends AbstractBrowserGrid<Experiment, Exper
         this.topToolbar.add(new SeparatorToolItem());
         String editTitle = viewContext.getMessage(Dict.BUTTON_EDIT);
         Button editButton = createSelectedItemButton(editTitle, asShowEntityInvoker(true));
+        editButton.setId(GRID_ID + ID_SUFFIX_EDIT_BUTTON);
         this.topToolbar.add(new AdapterToolItem(editButton));
     }
 

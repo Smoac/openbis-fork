@@ -130,7 +130,8 @@ public final class GenericExperimentEditForm
         final List<ExperimentProperty> properties = extractProperties();
         final String newProjectIdentifier = extractIdentifier();
         viewContext.getCommonService().updateExperiment(sessionKey, entity.getIdentifier(),
-                properties, newProjectIdentifier, new RegisterExperimentCallback(viewContext));
+                properties, newProjectIdentifier, entity.getModificationDate(),
+                new RegisterExperimentCallback(viewContext));
     }
 
     private String extractIdentifier()

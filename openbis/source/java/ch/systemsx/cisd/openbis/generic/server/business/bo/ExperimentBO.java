@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -292,9 +293,13 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     }
 
     public void edit(ExperimentIdentifier identifier, List<ExperimentProperty> properties,
-            List<AttachmentPE> newAttachments, ProjectIdentifier newProjectIdentifier)
+            List<AttachmentPE> newAttachments, ProjectIdentifier newProjectIdentifier, Date version)
     {
         loadByExperimentIdentifier(identifier);
+        if (experiment.getModificationDate().equals(version) == false)
+        {
+            throw new UserFailureException("Experiment has been modified in the meantime.");
+        }
         updateProperties(properties);
         updateProject(newProjectIdentifier);
         for (AttachmentPE a : newAttachments)

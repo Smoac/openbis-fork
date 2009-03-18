@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import org.jmock.Expectations;
@@ -791,22 +792,22 @@ public final class CommonServerTest extends AbstractServerTestCase
     @Test
     public void testEditMaterialNothingChanged() throws Exception
     {
-        final MaterialIdentifier identifier =
-                new MaterialIdentifier(MATERIAL_1, MATERIAL_TYPE_1);
+        final MaterialIdentifier identifier = new MaterialIdentifier(MATERIAL_1, MATERIAL_TYPE_1);
         final List<MaterialProperty> properties = new ArrayList<MaterialProperty>();
         prepareGetSession();
+        final Date version = new Date();
         context.checking(new Expectations()
             {
                 {
                     one(commonBusinessObjectFactory).createMaterialBO(SESSION);
                     will(returnValue(materialBO));
 
-                    one(materialBO).edit(identifier, properties);
+                    one(materialBO).edit(identifier, properties, version);
                     one(materialBO).save();
 
                 }
             });
-        createServer().editMaterial(SESSION_TOKEN, identifier, properties);
+        createServer().editMaterial(SESSION_TOKEN, identifier, properties, version);
         context.assertIsSatisfied();
     }
 
@@ -818,18 +819,19 @@ public final class CommonServerTest extends AbstractServerTestCase
                         DATABASE_1, GROUP_1)), SAMPLE_1);
         final List<SampleProperty> properties = new ArrayList<SampleProperty>();
         prepareGetSession();
+        final Date version = new Date();
         context.checking(new Expectations()
             {
                 {
                     one(commonBusinessObjectFactory).createSampleBO(SESSION);
                     will(returnValue(sampleBO));
 
-                    one(sampleBO).edit(identifier, properties, null);
+                    one(sampleBO).edit(identifier, properties, null, version);
                     one(sampleBO).save();
 
                 }
             });
-        createServer().editSample(SESSION_TOKEN, identifier, properties, null);
+        createServer().editSample(SESSION_TOKEN, identifier, properties, null, version);
         context.assertIsSatisfied();
     }
 
@@ -843,6 +845,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         final ProjectIdentifier newProjectIdentifier =
                 new ProjectIdentifier(DATABASE_1, GROUP_1, PROJECT_1);
         prepareGetSession();
+        final Date version = new Date();
         context.checking(new Expectations()
             {
                 {
@@ -850,13 +853,13 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(experimentBO));
 
                     one(experimentBO).edit(identifier, properties, attachments,
-                            newProjectIdentifier);
+                            newProjectIdentifier, version);
                     one(experimentBO).save();
 
                 }
             });
         createServer().editExperiment(SESSION_TOKEN, identifier, properties, attachments,
-                newProjectIdentifier);
+                newProjectIdentifier, version);
         context.assertIsSatisfied();
     }
 

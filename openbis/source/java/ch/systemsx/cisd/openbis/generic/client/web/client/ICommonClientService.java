@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client;
 
+import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -261,9 +262,9 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
-     * Assumes that preparation of the export ({@link #prepareExportSamples(TableExportCriteria)} or
-     * {@link #prepareExportExperiments(TableExportCriteria)} has been invoked before and returned
-     * with an exportDataKey passed here as a parameter.
+     * Assumes that preparation of the export ({@link #prepareExportSamples(TableExportCriteria)}
+     * or {@link #prepareExportExperiments(TableExportCriteria)} has been invoked before and
+     * returned with an exportDataKey passed here as a parameter.
      */
     public String getExportTable(String exportDataKey, String lineSeparator)
             throws UserFailureException;
@@ -350,20 +351,21 @@ public interface ICommonClientService extends IClientService
      * Updates experiment.
      */
     public void updateExperiment(String attachmentSessionKey, final String experimentIdentifier,
-            List<ExperimentProperty> properties, String newProjectIdentifier)
+            List<ExperimentProperty> properties, String newProjectIdentifier, Date version)
             throws UserFailureException;
 
     /**
      * Updates material.
      */
-    public void updateMaterial(final String materialIdentifier, List<MaterialProperty> properties)
-            throws UserFailureException;
+    public void updateMaterial(final String materialIdentifier, List<MaterialProperty> properties,
+            Date version) throws UserFailureException;
 
     /**
      * Updates sample.
      */
     public void updateSample(final String sampleIdentifier, List<SampleProperty> properties,
-            ExperimentIdentifier experimentIdentifierOrNull) throws UserFailureException;
+            ExperimentIdentifier experimentIdentifierOrNull, Date version)
+            throws UserFailureException;
 
     /** Deletes the specified data sets. */
     public void deleteDataSets(List<String> dataSetCodes, String reason)

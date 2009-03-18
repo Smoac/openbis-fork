@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client;
 
+import java.util.Date;
 import java.util.List;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -303,24 +304,23 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             final AsyncCallback<Void> asyncCallback);
 
     /**
-     * @see ICommonClientService#updateExperiment(String, String, List,String)
+     * @see ICommonClientService#updateExperiment(String, String, List, String, Date)
      */
     public void updateExperiment(String attachmentSessionKey, final String experimentIdentifier,
-            List<ExperimentProperty> properties, String newProjectIdentifier,
+            List<ExperimentProperty> properties, String newProjectIdentifier, Date version,
             final AsyncCallback<Void> asyncCallback) throws UserFailureException;
 
     /**
-     * @see ICommonClientService#updateMaterial(String, List)
+     * @see ICommonClientService#updateMaterial(String, List, Date)
      */
     public void updateMaterial(final String materialIdentifier, List<MaterialProperty> properties,
-            final AsyncCallback<Void> asyncCallback) throws UserFailureException;
+            Date version, final AsyncCallback<Void> asyncCallback) throws UserFailureException;
 
     /**
-     * @see ICommonClientService#updateSample(String, List, ExperimentIdentifier)
+     * @see ICommonClientService#updateSample(String, List, ExperimentIdentifier, Date)
      */
     public void updateSample(final String sampleIdentifier, List<SampleProperty> properties,
-            ExperimentIdentifier experimentIdentifierOrNull, final AsyncCallback<Void> asyncCallback)
-            throws UserFailureException;
+            ExperimentIdentifier experimentIdentifierOrNull, Date version, final AsyncCallback<Void> asyncCallback) throws UserFailureException;
 
     /** @see ICommonClientService#deleteDataSets(List, String) */
     public void deleteDataSets(List<String> dataSetCodes, String reason,

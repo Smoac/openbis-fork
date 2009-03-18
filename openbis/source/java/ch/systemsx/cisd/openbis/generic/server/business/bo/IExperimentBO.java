@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
@@ -65,5 +66,5 @@ public interface IExperimentBO extends IBusinessObject
      * Changes given experiment. Currently allowed changes: properties.
      */
     public void edit(ExperimentIdentifier identifier, List<ExperimentProperty> properties,
-            List<AttachmentPE> attachments, ProjectIdentifier newProjectIdentifier);
+            List<AttachmentPE> attachments, ProjectIdentifier newProjectIdentifier, Date version);
 }

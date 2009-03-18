@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.dao.DataAccessException;
@@ -198,9 +199,13 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     }
 
     public void edit(SampleIdentifier identifier, List<SampleProperty> properties,
-            ExperimentIdentifier experimentIdentifierOrNull)
+            ExperimentIdentifier experimentIdentifierOrNull, Date version)
     {
         loadBySampleIdentifier(identifier);
+        if (sample.getModificationDate().equals(version) == false)
+        {
+            throw new UserFailureException("Sample has been modified in the meantime.");
+        }
         updateProperties(properties);
         updateExperiment(experimentIdentifierOrNull);
         dataChanged = true;
@@ -265,7 +270,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     {
         if (validProcedureOrNull == null)
         {
-            return (newExperimentOrNull == null);
+            return newExperimentOrNull == null;
         } else
         {
             if (newExperimentOrNull == null)

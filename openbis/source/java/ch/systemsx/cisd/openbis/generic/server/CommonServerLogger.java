@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
@@ -313,7 +314,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     public void editExperiment(String sessionToken, ExperimentIdentifier experimentIdentifier,
             List<ExperimentProperty> properties, List<AttachmentPE> attachments,
-            ProjectIdentifier newProjectIdentifierOrNull)
+            ProjectIdentifier newProjectIdentifierOrNull, Date version)
     {
         logTracking(sessionToken, "edit_experiment",
                 "EXPERIMENT(%s) ATTACHMENTS_ADDED(%s) NEW_PROJECT(%s)", experimentIdentifier,
@@ -326,14 +327,15 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     public void editMaterial(String sessionToken, MaterialIdentifier identifier,
-            List<MaterialProperty> properties)
+            List<MaterialProperty> properties, Date version)
     {
         logTracking(sessionToken, "edit_material", "MATERIAL(%s)", identifier);
 
     }
 
     public void editSample(String sessionToken, SampleIdentifier identifier,
-            List<SampleProperty> properties, ExperimentIdentifier experimentIdentifierOrNull)
+            List<SampleProperty> properties, ExperimentIdentifier experimentIdentifierOrNull,
+            Date version)
     {
         logTracking(sessionToken, "edit_sample", "SAMPLE(%s), CHANGE_TO_EXPERIMENT(%S)",
                 identifier, experimentIdentifierOrNull);

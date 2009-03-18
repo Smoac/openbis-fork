@@ -21,6 +21,7 @@ import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DAT
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
@@ -974,7 +975,7 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     public void updateExperiment(String sessionKey, String experimentIdentifier,
-            List<ExperimentProperty> properties, String newProjectIdentifier)
+            List<ExperimentProperty> properties, String newProjectIdentifier, Date version)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
 
@@ -999,7 +1000,8 @@ public final class CommonClientService extends AbstractClientService implements
                     new ExperimentIdentifierFactory(experimentIdentifier).createIdentifier();
             final ProjectIdentifier project =
                     new ProjectIdentifierFactory(newProjectIdentifier).createIdentifier();
-            commonServer.editExperiment(sessionToken, identifier, properties, attachments, project);
+            commonServer.editExperiment(sessionToken, identifier, properties, attachments, project,
+                    version);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -1030,7 +1032,8 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public void updateMaterial(String materialIdentifier, List<MaterialProperty> properties)
+    public void updateMaterial(String materialIdentifier, List<MaterialProperty> properties,
+            Date version)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
@@ -1038,7 +1041,7 @@ public final class CommonClientService extends AbstractClientService implements
             final String sessionToken = getSessionToken();
             final MaterialIdentifier identifier =
                     MaterialIdentifier.tryParseIdentifier(materialIdentifier);
-            commonServer.editMaterial(sessionToken, identifier, properties);
+            commonServer.editMaterial(sessionToken, identifier, properties, version);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -1046,10 +1049,7 @@ public final class CommonClientService extends AbstractClientService implements
 
     }
 
-    public void updateSample(
-            String sampleIdentifier,
-            List<SampleProperty> properties,
-            ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier experimentIdentifierOrNull)
+    public void updateSample(String sampleIdentifier, List<SampleProperty> properties,ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier experimentIdentifierOrNull, Date  version)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
@@ -1065,7 +1065,7 @@ public final class CommonClientService extends AbstractClientService implements
                                 .createBean(ExperimentIdentifier.class, experimentIdentifierOrNull);
             }
             commonServer.editSample(sessionToken, identifier, properties,
-                    convExperimentIdentifierOrNull);
+                    convExperimentIdentifierOrNull,version);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

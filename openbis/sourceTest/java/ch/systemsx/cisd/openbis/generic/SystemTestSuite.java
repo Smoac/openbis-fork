@@ -63,6 +63,7 @@ public class SystemTestSuite extends GWTTestSuite
         // (NS_ERROR_DOM_SECURITY_ERR): Security error on CC
         // testSuite.addTestSuite(GenericExperimentRegistrationTest.class);
         testSuite.addTestSuite(GenericExperimentViewerTest.class);
+        // testSuite.addTestSuite(GenericExperimentEditorTest.class);
         testSuite.addTestSuite(PropertyTypeBrowserTest.class);
         testSuite.addTestSuite(PropertyTypeAssignmentBrowserTest.class);
         testSuite.addTestSuite(EntityTypePropertyTypeAssignmentTest.class);

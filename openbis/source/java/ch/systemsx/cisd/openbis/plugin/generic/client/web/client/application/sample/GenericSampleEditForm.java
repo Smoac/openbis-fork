@@ -87,7 +87,8 @@ public final class GenericSampleEditForm
     {
         final List<SampleProperty> properties = extractProperties();
         viewContext.getCommonService().updateSample(entity.getIdentifier(), properties,
-                experimentField.getValue(), new RegisterSampleCallback(viewContext));
+                experimentField.getValue(), entity.getModificationDate(),
+                new RegisterSampleCallback(viewContext));
     }
 
     public final class RegisterSampleCallback extends AbstractAsyncCallback<Void>

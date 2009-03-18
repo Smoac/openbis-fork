@@ -57,6 +57,17 @@ public class GridTestUtils
         table.fireEvent(Events.CellDoubleClick, event);
     }
 
+    /**
+     * Fires a single click event on a first row which contains given value in a column with a
+     * specified id.
+     */
+    public static <T extends ModelData> void fireSingleClick(final Grid<T> table, String columnId,
+            String columnValue)
+    {
+        GridEvent event = createGridEvent(table, columnId, columnValue);
+        table.fireEvent(Events.CellClick, event);
+    }
+
     private static <T extends ModelData> GridEvent createGridEvent(final Grid<T> table,
             String columnId, String columnValue)
     {
