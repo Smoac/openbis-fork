@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.sample;
 
 import com.extjs.gxt.ui.client.widget.menu.Menu;
-import com.extjs.gxt.ui.client.widget.menu.SeparatorMenuItem;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
@@ -48,7 +47,6 @@ public class SampleMenu extends TopMenuItem
                 componentProvider.getSampleBatchRegistration()));
         menu.add(new ActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_TYPES, messageProvider,
                 componentProvider.getSampleTypeBrowser()));
-        menu.add(new SeparatorMenuItem());
         setMenu(menu);
     }
 

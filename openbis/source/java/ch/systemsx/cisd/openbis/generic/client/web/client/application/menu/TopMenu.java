@@ -26,7 +26,6 @@ import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -113,7 +112,6 @@ public class TopMenu extends LayoutContainer
     final void refresh()
     {
         toolBar.removeAll();
-        toolBar.add(new AdapterToolItem(createTitleHeader()));
 
         toolBar.add(new DataSetMenu(viewContext, componentProvider));
         toolBar.add(new ExperimentMenu(viewContext, componentProvider));
@@ -152,15 +150,6 @@ public class TopMenu extends LayoutContainer
         final Html html = new Html(fullInfo);
         html.setStyleAttribute("marginRight", "7px");
         return html;
-    }
-
-    private final Html createTitleHeader()
-    {
-        final Element boldElement = DOM.createElement("b");
-        boldElement.setInnerHTML(viewContext.getMessage(Dict.APPLICATION_NAME));
-        final Html titleHeader = new Html(DOM.toString(boldElement));
-        titleHeader.setStyleAttribute("margin", "0 1em 0 1em");
-        return titleHeader;
     }
 
     //
