@@ -103,8 +103,7 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
                     getPropertyTypeDAO().getDataTypeByCode(EntityDataType.valueOf(dataTypeCode));
         } catch (final IllegalArgumentException e)
         {
-            throw UserFailureException.fromTemplate(String.format("Unknow data type code '%s'."),
-                    dataType);
+            throw UserFailureException.fromTemplate("Unknow data type code '%s'.", dataType);
         }
         assert dataTypePE != null : "Can not be null reaching this point.";
         return dataTypePE;
