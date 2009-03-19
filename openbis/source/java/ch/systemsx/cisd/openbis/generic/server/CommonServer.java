@@ -26,6 +26,7 @@ import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
@@ -105,6 +106,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  */
 public final class CommonServer extends AbstractServer<ICommonServer> implements ICommonServer
 {
+    @Private static final String DELETION_DESCRIPTION = "single deletion";
+
     private final IAuthenticationService authenticationService;
 
     private final ICommonBusinessObjectFactory businessObjectFactory;
@@ -606,7 +609,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
         for (ExternalDataPE dataSet : dataSets)
         {
-            externalDataDAO.markAsDeleted(dataSet, session.tryGetPerson(), reason);
+            externalDataDAO.markAsDeleted(dataSet, session.tryGetPerson(), DELETION_DESCRIPTION, reason);
         }
         Collection<DataStoreServerSession> sessions = dssSessionManager.getSessions();
         for (DataStoreServerSession dssSession : sessions)

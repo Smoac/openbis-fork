@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import static ch.systemsx.cisd.openbis.generic.server.CommonServer.DELETION_DESCRIPTION;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,6 +28,7 @@ import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
@@ -67,6 +70,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * 
  * @author Franz-Josef Elmer
  */
+@Friend(toClasses=CommonServer.class)
 public final class CommonServerTest extends AbstractServerTestCase
 {
     private static final String MATERIAL_TYPE_1 = "MATERIAL-TYPE-1";
@@ -885,8 +889,8 @@ public final class CommonServerTest extends AbstractServerTestCase
                             with(equal(locations)));
                     will(returnValue(locations));
 
-                    one(externalDataDAO).markAsDeleted(d1, SESSION.tryGetPerson(), "reason");
-                    one(externalDataDAO).markAsDeleted(d2, SESSION.tryGetPerson(), "reason");
+                    one(externalDataDAO).markAsDeleted(d1, SESSION.tryGetPerson(), DELETION_DESCRIPTION, "reason");
+                    one(externalDataDAO).markAsDeleted(d2, SESSION.tryGetPerson(), DELETION_DESCRIPTION, "reason");
                     one(dataStoreService).deleteDataSets(with(any(String.class)),
                             with(equal(locations)));
                 }

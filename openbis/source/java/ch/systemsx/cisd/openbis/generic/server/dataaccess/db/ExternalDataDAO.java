@@ -192,13 +192,14 @@ final class ExternalDataDAO extends AbstractDAO implements IExternalDataDAO
         }
     }
 
-    public void markAsDeleted(ExternalDataPE dataSet, PersonPE registrator, String reason)
+    public void markAsDeleted(ExternalDataPE dataSet, PersonPE registrator, String description, String reason)
     {
         assert dataSet != null : "Unspecified data set.";
         
         dataSet.setDeleted(true);
         EventPE event = new EventPE();
         event.setEventType(EventType.DELETION);
+        event.setDescription(description);
         event.setReason(reason);
         event.setRegistrator(registrator);
         dataSet.addEvent(event);

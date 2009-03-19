@@ -69,7 +69,9 @@ public interface IExternalDataDAO
 
     /**
      * Marks the specified data set for the specified reason as deleted.
+     * 
+     * @param description Description deletion circumstances. 
      */
-    public void markAsDeleted(ExternalDataPE dataSet, PersonPE registrator, String reason);
+    public void markAsDeleted(ExternalDataPE dataSet, PersonPE registrator, String description, String reason);
     
 }

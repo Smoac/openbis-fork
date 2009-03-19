@@ -164,7 +164,7 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         List<ExternalDataPE> list = externalDataDAO.listExternalData(sample, SourceType.MEASUREMENT);
         ExternalDataPE data = list.get(0);
         
-        externalDataDAO.markAsDeleted(data, getTestPerson(), "testing deletion");
+        externalDataDAO.markAsDeleted(data, getTestPerson(), "description", "testing deletion");
         
         assertEquals(0, externalDataDAO.listExternalData(sample, SourceType.MEASUREMENT).size());
         DataPE retrievedData = externalDataDAO.tryToFindDataSetByCode(data.getCode());
@@ -172,6 +172,7 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         Set<EventPE> events = retrievedData.getEvents();
         assertEquals(1, events.size());
         EventPE event = events.iterator().next();
+        assertEquals("description", event.getDescription());
         assertEquals("testing deletion", event.getReason());
         assertEquals(EventType.DELETION, event.getEventType());
     }
