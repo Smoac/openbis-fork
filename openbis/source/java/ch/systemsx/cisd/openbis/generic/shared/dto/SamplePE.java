@@ -50,7 +50,6 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Check;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
-import org.hibernate.search.annotations.ContainedIn;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
@@ -145,45 +144,6 @@ public class SamplePE implements IIdAndCodeHolder, Comparable<SamplePE>,
     private Date registrationDate;
 
     private Date modificationDate;
-
-    // -------------
-    // These methods are here only to make the Hibernate Search working. They should not be
-    // used as they do not maintain the bidirectional connections properly
-    // -------------
-
-    private Set<DataPE> acquiredDatasets = new HashSet<DataPE>();
-
-    private Set<DataPE> derivedDatasets = new HashSet<DataPE>();
-
-    @SuppressWarnings("unused")
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "sampleAcquiredFrom")
-    @ContainedIn
-    private Set<DataPE> getAcquiredDatasets()
-    {
-        return acquiredDatasets;
-    }
-
-    @SuppressWarnings("unused")
-    private void setAcquiredDatasets(Set<DataPE> acquiredDatasets)
-    {
-        this.acquiredDatasets = acquiredDatasets;
-    }
-
-    @SuppressWarnings("unused")
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "sampleDerivedFrom")
-    @ContainedIn
-    private Set<DataPE> getDerivedDatasets()
-    {
-        return derivedDatasets;
-    }
-
-    @SuppressWarnings("unused")
-    private void setDerivedDatasets(Set<DataPE> derivedDatasets)
-    {
-        this.derivedDatasets = derivedDatasets;
-    }
-
-    // --------------------
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.INVALIDATION_COLUMN)
