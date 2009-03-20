@@ -131,7 +131,6 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         final List<SearchHit> hits =
                 hibernateSearchDAO.searchEntitiesByTerm(MaterialPE.class, propertyValue);
         assertEquals(2, hits.size());
-        // { "materialProperties.value", "materialProperties.vocabularyTerm.code" },
         for (SearchHit searchHit : hits)
         {
             MaterialPE material = (MaterialPE) searchHit.getEntity();
