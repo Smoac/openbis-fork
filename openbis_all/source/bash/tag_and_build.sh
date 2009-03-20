@@ -33,6 +33,7 @@ OPENBIS_PATH=/localhome/cisd/sprint_builds/openBIS
 SPRINT_DIR=$OPENBIS_PATH/$TODAY-$FULL_VER
 echo "mkdir -p $SPRINT_DIR"  | ssh -T $CISD_SERVER
 scp *.zip $CISD_SERVER:$SPRINT_DIR
+echo "chmod g+w -R $SPRINT_DIR" | ssh -T $CISD_SERVER
 
 echo Copying new openBIS components to \'$SPRINT_SERVER\'...
 scp openBIS-server-*.zip $SPRINT_SERVER:.
