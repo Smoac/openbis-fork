@@ -16,11 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto.hibernate;
 
+import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.IndexedEmbedded;
 
 /**
- * Prefixes for indexed fields. Should be used everywhere where {@link IndexedEmbedded} annotation
- * is used, in this way we can make search query syntax independent from bean field names.
+ * Prefixes for indexed fields. Should be used everywhere where {@link IndexedEmbedded} or
+ * {@link Field} annotation is used, in this way we can make search query syntax independent from
+ * bean field names.
  * 
  * @author Tomasz Pylak
  */
@@ -52,7 +54,7 @@ public final class SearchFieldConstants
 
     public static final String PREFIX_ATTACHMENT_FILE_NAME = "attachment name: ";
 
-    public static final String DELETED = "deleted: ";
+    public static final String DELETED = "deleted";
 
     public static final String PERSON_LAST_NAME = "Last Name";
 
@@ -68,6 +70,5 @@ public final class SearchFieldConstants
 
     public static final String PREFIX_PROCEDURE = "";
 
-    // intentionally empty, see class comment
     public static final String PREFIX_EXPERIMENT_ATTACHMENTS = "";
 }
