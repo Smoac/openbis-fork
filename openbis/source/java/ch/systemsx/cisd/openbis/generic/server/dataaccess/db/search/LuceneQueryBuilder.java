@@ -20,6 +20,7 @@ import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldC
 import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.PREFIX_EXPERIMENT;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.PREFIX_EXPERIMENT_TYPE;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.PREFIX_GROUP;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.PREFIX_PROCEDURE;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.PREFIX_PROJECT;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.PREFIX_SAMPLE;
 import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.PREFIX_SAMPLE_TYPE;
@@ -56,7 +57,8 @@ public class LuceneQueryBuilder
             LogFactory.getLogger(LogCategory.OPERATION, LuceneQueryBuilder.class);
 
     /** @throws UserFailureException when some search patterns are incorrect */
-    public static Query createQuery(DataSetSearchCriteria dataSetCriteria) throws UserFailureException
+    public static Query createQuery(DataSetSearchCriteria dataSetCriteria)
+            throws UserFailureException
     {
         List<DataSetSearchCriterion> criteria = dataSetCriteria.getCriteria();
         Occur occureCondition = createOccureCondition(dataSetCriteria.getConnection());
@@ -162,6 +164,7 @@ public class LuceneQueryBuilder
     private static String tryGetIndexFieldName(DataSetSearchField searchField)
     {
         DataSetSearchFieldKind fieldKind = searchField.getKind();
+        String experimentField = PREFIX_PROCEDURE + PREFIX_EXPERIMENT;
         switch (fieldKind)
         {
             case DATA_SET_CODE:
@@ -171,15 +174,15 @@ public class LuceneQueryBuilder
             case FILE_TYPE:
                 return SearchFieldConstants.PREFIX_FILE_FORMAT_TYPE + CODE;
             case GROUP:
-                return PREFIX_EXPERIMENT + PREFIX_PROJECT + PREFIX_GROUP + CODE;
+                return experimentField + PREFIX_PROJECT + PREFIX_GROUP + CODE;
             case PROJECT:
-                return PREFIX_EXPERIMENT + PREFIX_PROJECT + CODE;
+                return experimentField + PREFIX_PROJECT + CODE;
             case EXPERIMENT:
-                return PREFIX_EXPERIMENT + CODE;
+                return experimentField + CODE;
             case EXPERIMENT_TYPE:
-                return PREFIX_EXPERIMENT + PREFIX_EXPERIMENT_TYPE + CODE;
+                return experimentField + PREFIX_EXPERIMENT_TYPE + CODE;
             case EXPERIMENT_PROPERTY:
-                return PREFIX_EXPERIMENT + getPropertyIndexField(searchField.getPropertyCode());
+                return experimentField + getPropertyIndexField(searchField.getPropertyCode());
             case SAMPLE:
                 return PREFIX_SAMPLE + CODE;
             case SAMPLE_TYPE:

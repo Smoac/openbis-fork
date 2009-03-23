@@ -59,6 +59,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.UuidUtil;
     { AbstractDAO.class })
 public abstract class AbstractDAOTest extends AbstractTransactionalTestNGSpringContextTests
 {
+    static final String LUCENE_INDEX_PATH = "targets/lucene/indices";
+
     static
     {
         LogInitializer.init();
@@ -66,7 +68,7 @@ public abstract class AbstractDAOTest extends AbstractTransactionalTestNGSpringC
         System.setProperty("database.kind", "test");
         System.setProperty("script-folder", "sourceTest");
         System.setProperty("hibernate.search.index-mode", "NO_INDEX");
-        System.setProperty("hibernate.search.index-base", "sourceTest/lucene/indices");
+        System.setProperty("hibernate.search.index-base", LUCENE_INDEX_PATH);
         System.setProperty("mass-upload-folder", "sourceTest/sql/postgresql");
     }
 

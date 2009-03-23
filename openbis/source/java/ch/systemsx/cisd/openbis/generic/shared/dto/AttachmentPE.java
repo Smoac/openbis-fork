@@ -38,6 +38,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.hibernate.search.annotations.ClassBridge;
+import org.hibernate.search.annotations.ContainedIn;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.FieldBridge;
@@ -169,6 +170,7 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
     @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN, updatable = false)
     @Private
     // for Hibernate and bean conversion only
+    @ContainedIn
     public ExperimentPE getParentInternal()
     {
         return parent;

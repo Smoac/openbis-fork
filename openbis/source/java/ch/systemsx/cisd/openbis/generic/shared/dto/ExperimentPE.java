@@ -48,6 +48,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
+import org.hibernate.search.annotations.ContainedIn;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
@@ -143,8 +144,6 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
     private Date registrationDate;
 
     private Date modificationDate;
-
-    // private Date modificationDate;
 
     @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false, updatable = false)
     @Generated(GenerationTime.INSERT)
@@ -361,7 +360,8 @@ public class ExperimentPE implements IEntityPropertiesHolder<ExperimentPropertyP
     }
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "experimentInternal")
-    @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN, updatable = false)
+    @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN, updatable = true)
+    @ContainedIn
     private List<ProcedurePE> getExperimentProcedures()
     {
         return procedures;

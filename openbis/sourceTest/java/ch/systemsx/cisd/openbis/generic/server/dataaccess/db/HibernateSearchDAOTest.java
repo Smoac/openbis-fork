@@ -21,30 +21,44 @@ import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.hibernate.classic.Session;
+import org.hibernate.search.FullTextSession;
+import org.hibernate.search.Search;
 import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.LuceneQueryBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchFieldKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetSearchHitDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
 
 /**
@@ -57,6 +71,24 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
 @Friend(toClasses = HibernateSearchDAO.class)
 public final class HibernateSearchDAOTest extends AbstractDAOTest
 {
+    private final static String LUCENE_INDEX_TEMPLATE_PATH = "./sourceTest/lucene/indices";
+
+    @BeforeClass
+    public void setUpIndex()
+    {
+        restoreSearchIndex();
+    }
+
+    // create a fresh copy of the Lucene index
+    private static void restoreSearchIndex()
+    {
+        File targetPath = new File(LUCENE_INDEX_PATH);
+        FileUtilities.deleteRecursively(targetPath);
+        targetPath.mkdirs();
+        File srcPath = new File(LUCENE_INDEX_TEMPLATE_PATH);
+        FileUtilities.copyDirectory(srcPath, targetPath);
+    }
+
     @SuppressWarnings("unused")
     @DataProvider(name = "registratorTerm")
     private final static Object[][] getRegistratorTerm()
@@ -215,7 +247,8 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
 
     // NOTE: such a check depends strongly on the test database content. Use it only when the better
     // way to check the results is much harder.
-    private void assertCorrectDatasetsFound(DataSetSearchCriteria criteria, DSLoc... expectedLocations)
+    private void assertCorrectDatasetsFound(DataSetSearchCriteria criteria,
+            DSLoc... expectedLocations)
     {
         List<DataSetSearchHitDTO> dataSets = searchForDatasets(criteria);
         AssertJUnit.assertEquals(expectedLocations.length, dataSets.size());
@@ -271,6 +304,26 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     }
 
     @Test
+    public final void testSearchForDataSetsSpecificSampleProperty()
+    {
+        String propertyValue = "stuff";
+        DataSetSearchCriterion criterion =
+                mkCriterion(DataSetSearchField.createSampleProperty("USER.COMMENT"), propertyValue);
+        DataSetSearchCriteria criteria = createAndDatasetQuery(criterion);
+        assertCorrectDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC2, DSLoc.LOC3);
+    }
+
+    @Test
+    public final void testSearchForDataSetsSimpleField()
+    {
+        DataSetSearchCriterion criterion =
+                mkCriterion(DataSetSearchField.createSimpleField(DataSetSearchFieldKind.PROJECT),
+                        "NEMO");
+        DataSetSearchCriteria criteria = createAndDatasetQuery(criterion);
+        assertCorrectDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC3, DSLoc.LOC4, DSLoc.LOC5);
+    }
+
+    @Test
     public final void testSearchForDataSetsAnyProperty()
     {
         List<String> propertyTypes = fetchPropertyTypeCodes();
@@ -302,5 +355,186 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         DataSetSearchCriteria criteria =
                 createAndDatasetQuery(criterion1, criterion2, criterion3, criterion4);
         assertCorrectDatasetsFound(criteria, DSLoc.LOC4, DSLoc.LOC5);
+    }
+
+    @Test
+    /*
+     * Checks if the dataset search index is properly updated after properties for a connected
+     * sample have changed.
+     */
+    public final void testSearchForDataSetsAfterSamplePropertiesUpdate()
+            throws InterruptedException
+    {
+        String propertyCode = "USER.COMMENT";
+        DataSetSearchCriterion criterion =
+                mkCriterion(DataSetSearchField.createSampleProperty(propertyCode), "stuff");
+
+        DataSetSearchCriteria criteria = createAndDatasetQuery(criterion);
+        assertCorrectDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC2, DSLoc.LOC3);
+
+        SamplePE sample = findSample("CP-TEST-3", "CISD");
+
+        String newValue = "Bonanza";
+        changeSampleProperty(sample, propertyCode, newValue);
+
+        flushSearchIndices();
+        assertCorrectDatasetsFound(criteria, DSLoc.LOC2, DSLoc.LOC3);
+        restoreSearchIndex();
+    }
+
+    @Test
+    /*
+     * Checks if the dataset search index is properly updated after properties for a connected
+     * experiment have changed.
+     */
+    public final void testSearchForDataSetsAfterExperimentPropertiesUpdate()
+            throws InterruptedException
+    {
+        String propertyCode = "USER.GENDER";
+        DataSetSearchCriterion criterion =
+                mkCriterion(DataSetSearchField.createExperimentProperty(propertyCode), "female");
+
+        DataSetSearchCriteria criteria = createAndDatasetQuery(criterion);
+        assertCorrectDatasetsFound(criteria, DSLoc.LOC1);
+
+        // This experiment has two datasets. Each of them has "male" value as a gender property.
+        // We change it to "female" and check, if 2 new search results appear.
+        ExperimentPE exp = findExperiment("EXP-TEST-2", "NEMO", "CISD");
+        String newValue = "male";
+        changeExperimentProperty(exp, propertyCode, newValue);
+        flushSearchIndices();
+        assertCorrectDatasetsFound(criteria);
+        restoreSearchIndex();
+    }
+
+    private void flushSearchIndices()
+    {
+        Session currentSession = sessionFactory.getCurrentSession();
+        FullTextSession fullTextSession = Search.getFullTextSession(currentSession);
+        fullTextSession.flushToIndexes();
+    }
+
+    private void flushSession()
+    {
+        sessionFactory.getCurrentSession().flush();
+    }
+
+    private void changeExperimentProperty(ExperimentPE exp, String propertyCode, String newValue)
+    {
+        ExperimentPropertyPE property = findProperty(exp, propertyCode);
+
+        removeProperty(exp, property);
+        flushSession();
+
+        ExperimentPropertyPE newProperty = new ExperimentPropertyPE();
+        copyPropertyWithNewValue(newValue, property, newProperty);
+        addProperty(exp, newProperty);
+        flushSession();
+    }
+
+    private void changeSampleProperty(SamplePE sample, String propertyCode, String newValue)
+    {
+        SamplePropertyPE property = findProperty(sample, propertyCode);
+
+        removeProperty(sample, property);
+        flushSession();
+
+        SamplePropertyPE newProperty = new SamplePropertyPE();
+        copyPropertyWithNewValue(newValue, property, newProperty);
+        addProperty(sample, newProperty);
+        flushSession();
+    }
+
+    private void copyPropertyWithNewValue(String newValue, EntityPropertyPE oldProperty,
+            EntityPropertyPE newProperty)
+    {
+        newProperty.setEntityTypePropertyType(oldProperty.getEntityTypePropertyType());
+        newProperty.setRegistrator(oldProperty.getRegistrator());
+        newProperty.setValue(newValue);
+    }
+
+    private static <T extends EntityPropertyPE> void addProperty(
+            IEntityPropertiesHolder<T> propertiesHolder, T newProperty)
+    {
+        Set<T> properties = getCopiedProperties(propertiesHolder);
+        properties.add(newProperty);
+        propertiesHolder.setProperties(properties);
+    }
+
+    private static <T extends EntityPropertyPE> Set<T> removeProperty(
+            IEntityPropertiesHolder<T> propertiesHolder, T property)
+    {
+        Set<T> properties = getCopiedProperties(propertiesHolder);
+        boolean removed = properties.remove(property);
+        assert removed : "property could not be removed";
+        propertiesHolder.setProperties(properties);
+        return properties;
+    }
+
+    private static <T extends EntityPropertyPE> Set<T> getCopiedProperties(
+            IEntityPropertiesHolder<T> propertiesHolder)
+    {
+        return new HashSet<T>(propertiesHolder.getProperties());
+    }
+
+    private static <T extends EntityPropertyPE> T findProperty(
+            IEntityPropertiesHolder<T> propertiesHolder, String propertyCode)
+    {
+        for (T prop : propertiesHolder.getProperties())
+        {
+            if (prop.getEntityTypePropertyType().getPropertyType().getCode().equals(propertyCode))
+            {
+                return prop;
+            }
+        }
+        fail("property not found: " + propertyCode);
+        return null; // never happens
+    }
+
+    private ExperimentPE findExperiment(String code, String projectCode, String groupCode)
+    {
+        ProjectPE project = findProject(projectCode, groupCode);
+        return findExperiment(code, project);
+    }
+
+    private ExperimentPE findExperiment(String code, ProjectPE project)
+    {
+        ExperimentPE exp = daoFactory.getExperimentDAO().tryFindByCodeAndProject(project, code);
+        assert exp != null : "cannot find experiment: " + code;
+        return exp;
+    }
+
+    private SamplePE findSample(String sampleCode, String groupCode)
+    {
+        GroupPE group = findGroup(groupCode);
+        SamplePE sample = findSample(sampleCode, group);
+        return sample;
+    }
+
+    private SamplePE findSample(String sampleCode, GroupPE group)
+    {
+        SamplePE sample =
+                daoFactory.getSampleDAO().tryFindByCodeAndGroup(sampleCode, group,
+                        HierarchyType.CHILD);
+        assert sample != null : "cannot find sample: " + sampleCode;
+        return sample;
+    }
+
+    private ProjectPE findProject(String code, String groupCode)
+    {
+        ProjectPE result =
+                daoFactory.getProjectDAO().tryFindProject(
+                        daoFactory.getHomeDatabaseInstance().getCode(), groupCode, code);
+        assert result != null : "cannot find the project: " + code;
+        return result;
+    }
+
+    private GroupPE findGroup(String groupCode)
+    {
+        GroupPE group =
+                daoFactory.getGroupDAO().tryFindGroupByCodeAndDatabaseInstance(groupCode,
+                        daoFactory.getHomeDatabaseInstance());
+        assert group != null : "cannot find the group: " + groupCode;
+        return group;
     }
 }

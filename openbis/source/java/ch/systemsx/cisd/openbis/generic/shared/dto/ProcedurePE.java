@@ -39,6 +39,9 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
+import org.hibernate.search.annotations.ContainedIn;
+import org.hibernate.search.annotations.DocumentId;
+import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.validator.NotNull;
 
@@ -53,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstant
  */
 @Entity
 @Table(name = TableNames.PROCEDURES_TABLE)
+@Indexed
 public class ProcedurePE implements IIdHolder, Serializable
 {
     public final static ProcedurePE[] EMPTY_ARRAY = new ProcedurePE[0];
@@ -114,6 +118,7 @@ public class ProcedurePE implements IIdHolder, Serializable
     @SequenceGenerator(name = SequenceNames.PROCEDURE_SEQUENCE, sequenceName = SequenceNames.PROCEDURE_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.PROCEDURE_SEQUENCE)
+    @DocumentId
     public final Long getId()
     {
         return id;
@@ -169,8 +174,9 @@ public class ProcedurePE implements IIdHolder, Serializable
         this.inputSamples = inputSamples;
     }
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = ColumnNames.PROCEDURE_PRODUCED_BY_COLUMN, updatable = false)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "procedure")
+    @JoinColumn(name = ColumnNames.PROCEDURE_PRODUCED_BY_COLUMN, updatable = true)
+    @ContainedIn
     public Set<DataPE> getData()
     {
         return data;

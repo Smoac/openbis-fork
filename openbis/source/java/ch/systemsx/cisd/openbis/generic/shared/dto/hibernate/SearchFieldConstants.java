@@ -68,7 +68,7 @@ public final class SearchFieldConstants
      * bridge class or the field name consists of some other non empty elements).
      */
 
-    public static final String PREFIX_PROCEDURE = "";
+    public static final String PREFIX_PROCEDURE = "in" + SEPARATOR;
 
     public static final String PREFIX_EXPERIMENT_ATTACHMENTS = "";
 }
