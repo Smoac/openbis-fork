@@ -55,7 +55,8 @@ public final class GenericSampleEditForm
 {
     private final Sample originalSample;
 
-    private final ExperimentChooserFieldAdaptor experimentField;
+    // null if sample cannot be attached to an experiment
+    private final ExperimentChooserFieldAdaptor experimentFieldOrNull;
 
     private final PropertyGrid specificFieldsGrid;
 
@@ -67,7 +68,8 @@ public final class GenericSampleEditForm
         super(viewContext, entity, editMode);
         this.viewContext = viewContext;
         this.originalSample = entity.getSample();
-        this.experimentField = createExperimentField();
+        this.experimentFieldOrNull =
+                canAttachToExperiment(originalSample) ? createExperimentField() : null;
         this.specificFieldsGrid = new PropertyGrid(viewContext, 1);
         super.initializeComponents(viewContext);
     }
@@ -86,8 +88,10 @@ public final class GenericSampleEditForm
     public final void submitValidForm()
     {
         final List<SampleProperty> properties = extractProperties();
+        ExperimentIdentifier experimentIdent =
+                experimentFieldOrNull != null ? experimentFieldOrNull.getValue() : null;
         viewContext.getCommonService().updateSample(entity.getIdentifier(), properties,
-                experimentField.getValue(), entity.getModificationDate(),
+                experimentIdent, entity.getModificationDate(),
                 new RegisterSampleCallback(viewContext));
     }
 
@@ -124,15 +128,21 @@ public final class GenericSampleEditForm
     protected List<Field<?>> getEntitySpecificFormFields()
     {
         ArrayList<Field<?>> fields = new ArrayList<Field<?>>();
-        fields.add(experimentField.getField());
+        if (experimentFieldOrNull != null)
+        {
+            fields.add(experimentFieldOrNull.getField());
+        }
         return fields;
     }
 
     @Override
     protected void updateCheckPageWidgets()
     {
-        experimentField.updateOriginalValue();
-        updateSpecificPropertiesGrid();
+        if (experimentFieldOrNull != null)
+        {
+            experimentFieldOrNull.updateOriginalValue();
+            updateSpecificPropertiesGrid();
+        }
     }
 
     private ExperimentIdentifier tryGetOriginalExperiment()
@@ -149,8 +159,11 @@ public final class GenericSampleEditForm
     protected List<Widget> getEntitySpecificCheckPageWidgets()
     {
         ArrayList<Widget> result = new ArrayList<Widget>();
-        updateSpecificPropertiesGrid();
-        result.add(specificFieldsGrid);
+        if (experimentFieldOrNull != null)
+        {
+            updateSpecificPropertiesGrid();
+            result.add(specificFieldsGrid);
+        }
         return result;
     }
 
@@ -163,7 +176,11 @@ public final class GenericSampleEditForm
 
     private String tryPrintSelectedExperiment()
     {
-        ExperimentIdentifier value = experimentField.getValue();
+        if (experimentFieldOrNull == null)
+        {
+            return null;
+        }
+        ExperimentIdentifier value = experimentFieldOrNull.getValue();
         if (value == null)
         {
             return null;
@@ -171,5 +188,10 @@ public final class GenericSampleEditForm
         {
             return value.print();
         }
+    }
+
+    private static boolean canAttachToExperiment(Sample sample)
+    {
+        return sample.getGroup() != null;
     }
 }
