@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.process;
+package ch.systemsx.cisd.hdf5.cleanup;
 
 /**
  * A class that implements the logic of cleaning up a resource even in case of an exception but

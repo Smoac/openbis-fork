@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.process;
+package ch.systemsx.cisd.hdf5.cleanup;
 
 import java.util.ArrayList;
 import java.util.List;
