@@ -44,8 +44,8 @@
             <manifest>
                 <attribute name="Main-Class" value="ch.systemsx.cisd.openbis.dss.generic.DataStoreServer" />
                 <attribute name="Class-Path"
-                           value="datastore_server-plugins.jar jetty.jar jetty-util.jar servlet-api-2.5.jar 
-                	          log4j.jar activation.jar mail.jar spring.jar fast-md5.jar
+                           value="datastore_server-plugins.jar cifex.jar jetty.jar jetty-util.jar 
+                	          servlet-api-2.5.jar log4j.jar activation.jar mail.jar spring.jar fast-md5.jar
                                   commons-codec.jar commons-lang.jar commons-io.jar commons-logging.jar 
                 	          commons-httpclient.jar" />
                 <attribute name="Version" value="${version.number}" />
@@ -63,6 +63,7 @@
     </target>
 
     <target name="dist" depends="jar">
+        <copy file="${lib}/cifex/cifex.jar" todir="${dist.datastore_server.lib}" />
         <copy file="${lib}/jetty/jetty.jar" todir="${dist.datastore_server.lib}" />
         <copy file="${lib}/jetty/jetty-util.jar" todir="${dist.datastore_server.lib}" />
         <copy file="${lib}/jetty/servlet-api-2.5.jar" todir="${dist.datastore_server.lib}" />

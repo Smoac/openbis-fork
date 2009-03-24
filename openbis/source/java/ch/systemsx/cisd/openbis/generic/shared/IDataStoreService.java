@@ -62,5 +62,13 @@ public interface IDataStoreService
     public void deleteDataSets(String sessionToken, List<String> dataSetLocations)
             throws InvalidAuthenticationException;
     
-
+    /**
+     * Uploads the specified data sets to CIFEX for the specified user (id and password) and with
+     * specified comment.
+     * 
+     * @param sessionToken Valid token to identify authorised access.
+     * @throws InvalidAuthenticationException if <code>sessionToken</code> is invalid.
+     */
+    public void uploadDataSetsToCIFEX(String sessionToken, List<String> dataSetLocations,
+            String comment, String userID, String password) throws InvalidAuthenticationException;
 }

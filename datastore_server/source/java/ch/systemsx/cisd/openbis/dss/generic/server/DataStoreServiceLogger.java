@@ -82,4 +82,10 @@ class DataStoreServiceLogger implements IDataStoreService
         log("delete_data_sets", "LOCATIONS(%s)", dataSetLocations);
     }
 
+    public void uploadDataSetsToCIFEX(String sessionToken, List<String> dataSetLocations,
+            String comment, String userID, String password) throws InvalidAuthenticationException
+    {
+        log("upload_data_sets", "LOCATIONS(%s) USER(%s) COMMENT(%s)", dataSetLocations, userID, comment);
+    }
+
 }
