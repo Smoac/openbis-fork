@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.array;
+package ch.systemsx.cisd.base.mdarray;
 
 import java.util.Arrays;
 
 import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.base.mdarray.MDAbstractArray;
+import ch.systemsx.cisd.base.mdarray.MDFloatArray;
 
 import static org.testng.AssertJUnit.*;
 

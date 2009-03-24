@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.array;
+package ch.systemsx.cisd.base.mdarray;
 
 import java.util.Arrays;
 

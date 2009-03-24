@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.array;
+package ch.systemsx.cisd.base.mdarray;
 
 /**
  * Base class of a multi-dimensional array. The <var>dimensions</var> of an array are provided

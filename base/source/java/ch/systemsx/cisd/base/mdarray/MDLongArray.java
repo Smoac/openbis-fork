@@ -14,45 +14,45 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.array;
+package ch.systemsx.cisd.base.mdarray;
 
 import java.util.Arrays;
 
 /**
- * A multi-dimensional <code>double</code> array.
+ * A multi-dimensional <code>long</code> array.
  * 
  * @author Bernd Rinn
  */
-public final class MDDoubleArray extends MDAbstractArray<Double>
+public final class MDLongArray extends MDAbstractArray<Long>
 {
-    private final double[] flattenedArray;
+    private final long[] flattenedArray;
 
-    public MDDoubleArray(long[] dimensions)
+    public MDLongArray(long[] dimensions)
     {
-        this(new double[getLength(dimensions)], toInt(dimensions), false);
+        this(new long[getLength(dimensions)], toInt(dimensions), false);
     }
 
-    public MDDoubleArray(double[] flattenedArray, long[] dimensions)
+    public MDLongArray(long[] flattenedArray, long[] dimensions)
     {
         this(flattenedArray, toInt(dimensions), true);
     }
 
-    public MDDoubleArray(double[] flattenedArray, long[] dimensions, boolean checkdimensions)
+    public MDLongArray(long[] flattenedArray, long[] dimensions, boolean checkdimensions)
     {
         this(flattenedArray, toInt(dimensions), checkdimensions);
     }
 
-    public MDDoubleArray(int[] dimensions)
+    public MDLongArray(int[] dimensions)
     {
-        this(new double[getLength(dimensions)], dimensions, false);
+        this(new long[getLength(dimensions)], dimensions, false);
     }
 
-    public MDDoubleArray(double[] flattenedArray, int[] dimensions)
+    public MDLongArray(long[] flattenedArray, int[] dimensions)
     {
         this(flattenedArray, dimensions, true);
     }
 
-    public MDDoubleArray(double[] flattenedArray, int[] dimensions, boolean checkdimensions)
+    public MDLongArray(long[] flattenedArray, int[] dimensions, boolean checkdimensions)
     {
         super(dimensions);
         assert flattenedArray != null;
@@ -69,12 +69,12 @@ public final class MDDoubleArray extends MDAbstractArray<Double>
         this.flattenedArray = flattenedArray;
     }
 
-    public MDDoubleArray(double[][] matrix)
+    public MDLongArray(long[][] matrix)
     {
         this(matrix, getDimensions(matrix));
     }
     
-    public MDDoubleArray(double[][] matrix, int[] dimensions)
+    public MDLongArray(long[][] matrix, int[] dimensions)
     {
         super(dimensions);
 
@@ -85,14 +85,14 @@ public final class MDDoubleArray extends MDAbstractArray<Double>
         {
             size *= dimensions[i];
         }
-        this.flattenedArray = new double[size];
+        this.flattenedArray = new long[size];
         for (int i = 0; i < sizeX; ++i)
         {
             System.arraycopy(matrix[i], 0, flattenedArray, i * sizeY, sizeY);
         }
     }
 
-    private static int[] getDimensions(double[][] matrix)
+    private static int[] getDimensions(long[][] matrix)
     {
         assert matrix != null;
         
@@ -106,13 +106,13 @@ public final class MDDoubleArray extends MDAbstractArray<Double>
     }
 
     @Override
-    public Double getAsObject(int... indices)
+    public Long getAsObject(int... indices)
     {
         return get(indices);
     }
 
     @Override
-    public void setToObject(Double value, int... indices)
+    public void setToObject(Long value, int... indices)
     {
         set(value, indices);
     }
@@ -121,7 +121,7 @@ public final class MDDoubleArray extends MDAbstractArray<Double>
      * Returns the array in flattened form. Changes to the returned object will change the
      * multi-dimensional array directly.
      */
-    public double[] getAsFlatArray()
+    public long[] getAsFlatArray()
     {
         return flattenedArray;
     }
@@ -129,17 +129,17 @@ public final class MDDoubleArray extends MDAbstractArray<Double>
     /**
      * Returns the value of array at the position defined by <var>indices</var>.
      */
-    public double get(int... indices)
+    public long get(int... indices)
     {
         return flattenedArray[computeIndex(indices)];
     }
-    
+
     /**
      * Returns the value of a one-dimensional array at the position defined by <var>index</var>.
      * <p>
      * <b>Do not call for arrays other than one-dimensional!</b>
      */
-    public double get(int index)
+    public long get(int index)
     {
         return flattenedArray[index];
     }
@@ -150,7 +150,7 @@ public final class MDDoubleArray extends MDAbstractArray<Double>
      * <p>
      * <b>Do not call for arrays other than two-dimensional!</b>
      */
-    public double get(int indexX, int indexY)
+    public long get(int indexX, int indexY)
     {
         return flattenedArray[computeIndex(indexX, indexY)];
     }
@@ -161,7 +161,7 @@ public final class MDDoubleArray extends MDAbstractArray<Double>
      * <p>
      * <b>Do not call for arrays other than three-dimensional!</b>
      */
-    public double get(int indexX, int indexY, int indexZ)
+    public long get(int indexX, int indexY, int indexZ)
     {
         return flattenedArray[computeIndex(indexX, indexY, indexZ)];
     }
@@ -169,7 +169,7 @@ public final class MDDoubleArray extends MDAbstractArray<Double>
     /**
      * Sets the <var>value</var> of array at the position defined by <var>indices</var>.
      */
-    public void set(double value, int... indices)
+    public void set(long value, int... indices)
     {
         flattenedArray[computeIndex(indices)] = value;
     }
@@ -180,7 +180,7 @@ public final class MDDoubleArray extends MDAbstractArray<Double>
      * <p>
      * <b>Do not call for arrays other than one-dimensional!</b>
      */
-    public void set(double value, int index)
+    public void set(long value, int index)
     {
         flattenedArray[index] = value;
     }
@@ -191,7 +191,7 @@ public final class MDDoubleArray extends MDAbstractArray<Double>
      * <p>
      * <b>Do not call for arrays other than two-dimensional!</b>
      */
-    public void set(double value, int indexX, int indexY)
+    public void set(long value, int indexX, int indexY)
     {
         flattenedArray[computeIndex(indexX, indexY)] = value;
     }
@@ -202,7 +202,7 @@ public final class MDDoubleArray extends MDAbstractArray<Double>
      * <p>
      * <b>Do not call for arrays other than three-dimensional!</b>
      */
-    public void set(double value, int indexX, int indexY, int indexZ)
+    public void set(long value, int indexX, int indexY, int indexZ)
     {
         flattenedArray[computeIndex(indexX, indexY, indexZ)] = value;
     }
@@ -212,11 +212,11 @@ public final class MDDoubleArray extends MDAbstractArray<Double>
      * <p>
      * <b>Do not call for arrays other than two-dimensional!</b>
      */
-    public double[][] toMatrix()
+    public long[][] toMatrix()
     {
         final int sizeX = dimensions[0];
         final int sizeY = dimensions[1];
-        final double[][] result = new double[sizeX][sizeY];
+        final long[][] result = new long[sizeX][sizeY];
         for (int i = 0; i < sizeX; ++i)
         {
             System.arraycopy(flattenedArray, i * sizeY, result[i], 0, sizeY);
@@ -227,7 +227,7 @@ public final class MDDoubleArray extends MDAbstractArray<Double>
     //
     // Object
     //
-    
+
     @Override
     public int hashCode()
     {
@@ -253,7 +253,7 @@ public final class MDDoubleArray extends MDAbstractArray<Double>
         {
             return false;
         }
-        MDDoubleArray other = (MDDoubleArray) obj;
+        MDLongArray other = (MDLongArray) obj;
         if (Arrays.equals(flattenedArray, other.flattenedArray) == false)
         {
             return false;

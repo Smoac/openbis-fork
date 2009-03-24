@@ -14,46 +14,45 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.array;
+package ch.systemsx.cisd.base.mdarray;
 
 import java.util.Arrays;
 
 /**
- * A multi-dimensional array of type <code>T</code>.
+ * A multi-dimensional <code>float</code> array.
  * 
  * @author Bernd Rinn
  */
-public class MDArray<T> extends MDAbstractArray<T>
+public final class MDFloatArray extends MDAbstractArray<Float>
 {
+    private final float[] flattenedArray;
 
-    private final T[] flattenedArray;
-    
-    public MDArray(Class<T> componentClass, long[] dimensions)
+    public MDFloatArray(long[] dimensions)
     {
-        this(createArray(componentClass, getLength(dimensions)), toInt(dimensions), false);
+        this(new float[getLength(dimensions)], toInt(dimensions), false);
     }
 
-    public MDArray(T[] flattenedArray, long[] dimensions)
+    public MDFloatArray(float[] flattenedArray, long[] dimensions)
     {
         this(flattenedArray, toInt(dimensions), true);
     }
 
-    public MDArray(T[] flattenedArray, long[] dimensions, boolean checkdimensions)
+    public MDFloatArray(float[] flattenedArray, long[] dimensions, boolean checkdimensions)
     {
         this(flattenedArray, toInt(dimensions), checkdimensions);
     }
 
-    public MDArray(Class<T> componentClass, int[] dimensions)
+    public MDFloatArray(int[] dimensions)
     {
-        this(createArray(componentClass, getLength(dimensions)), dimensions, false);
+        this(new float[getLength(dimensions)], dimensions, false);
     }
 
-    public MDArray(T[] flattenedArray, int[] dimensions)
+    public MDFloatArray(float[] flattenedArray, int[] dimensions)
     {
         this(flattenedArray, dimensions, true);
     }
 
-    public MDArray(T[] flattenedArray, int[] dimensions, boolean checkdimensions)
+    public MDFloatArray(float[] flattenedArray, int[] dimensions, boolean checkdimensions)
     {
         super(dimensions);
         assert flattenedArray != null;
@@ -70,24 +69,34 @@ public class MDArray<T> extends MDAbstractArray<T>
         this.flattenedArray = flattenedArray;
     }
 
-    @SuppressWarnings("unchecked")
-    private static <V> V[] createArray(Class<V> componentClass, final int vectorLength)
+    public MDFloatArray(float[][] matrix)
     {
-        final V[] value =
-                (V[]) java.lang.reflect.Array.newInstance(componentClass, vectorLength);
-        return value;
+        this(matrix, getDimensions(matrix));
+    }
+    
+    public MDFloatArray(float[][] matrix, int[] dimensions)
+    {
+        super(dimensions);
+
+        final int sizeX = dimensions[0];
+        final int sizeY = dimensions[1];
+        int size = 1;
+        for (int i = 0; i < dimensions.length; ++i)
+        {
+            size *= dimensions[i];
+        }
+        this.flattenedArray = new float[size];
+        for (int i = 0; i < sizeX; ++i)
+        {
+            System.arraycopy(matrix[i], 0, flattenedArray, i * sizeY, sizeY);
+        }
     }
 
-    @Override
-    public T getAsObject(int... indices)
+    private static int[] getDimensions(float[][] matrix)
     {
-        return get(indices);
-    }
-
-    @Override
-    public void setToObject(T value, int... indices)
-    {
-        set(indices, value);
+        assert matrix != null;
+        
+        return new int[] { matrix.length, matrix.length == 0 ? 0 : matrix[0].length };
     }
 
     @Override
@@ -96,11 +105,23 @@ public class MDArray<T> extends MDAbstractArray<T>
         return flattenedArray.length;
     }
 
+    @Override
+    public Float getAsObject(int... indices)
+    {
+        return get(indices);
+    }
+
+    @Override
+    public void setToObject(Float value, int... indices)
+    {
+        set(value, indices);
+    }
+
     /**
      * Returns the array in flattened form. Changes to the returned object will change the
      * multi-dimensional array directly.
      */
-    public T[] getAsFlatArray()
+    public float[] getAsFlatArray()
     {
         return flattenedArray;
     }
@@ -108,17 +129,17 @@ public class MDArray<T> extends MDAbstractArray<T>
     /**
      * Returns the value of array at the position defined by <var>indices</var>.
      */
-    public T get(int... indices)
+    public float get(int... indices)
     {
         return flattenedArray[computeIndex(indices)];
     }
-
+    
     /**
      * Returns the value of a one-dimensional array at the position defined by <var>index</var>.
      * <p>
      * <b>Do not call for arrays other than one-dimensional!</b>
      */
-    public T get(int index)
+    public float get(int index)
     {
         return flattenedArray[index];
     }
@@ -129,7 +150,7 @@ public class MDArray<T> extends MDAbstractArray<T>
      * <p>
      * <b>Do not call for arrays other than two-dimensional!</b>
      */
-    public T get(int indexX, int indexY)
+    public float get(int indexX, int indexY)
     {
         return flattenedArray[computeIndex(indexX, indexY)];
     }
@@ -140,7 +161,7 @@ public class MDArray<T> extends MDAbstractArray<T>
      * <p>
      * <b>Do not call for arrays other than three-dimensional!</b>
      */
-    public T get(int indexX, int indexY, int indexZ)
+    public float get(int indexX, int indexY, int indexZ)
     {
         return flattenedArray[computeIndex(indexX, indexY, indexZ)];
     }
@@ -148,7 +169,7 @@ public class MDArray<T> extends MDAbstractArray<T>
     /**
      * Sets the <var>value</var> of array at the position defined by <var>indices</var>.
      */
-    public void set(int[] indices, T value)
+    public void set(float value, int... indices)
     {
         flattenedArray[computeIndex(indices)] = value;
     }
@@ -159,7 +180,7 @@ public class MDArray<T> extends MDAbstractArray<T>
      * <p>
      * <b>Do not call for arrays other than one-dimensional!</b>
      */
-    public void set(T value, int index)
+    public void set(float value, int index)
     {
         flattenedArray[index] = value;
     }
@@ -170,7 +191,7 @@ public class MDArray<T> extends MDAbstractArray<T>
      * <p>
      * <b>Do not call for arrays other than two-dimensional!</b>
      */
-    public void set(T value, int indexX, int indexY)
+    public void set(float value, int indexX, int indexY)
     {
         flattenedArray[computeIndex(indexX, indexY)] = value;
     }
@@ -181,18 +202,26 @@ public class MDArray<T> extends MDAbstractArray<T>
      * <p>
      * <b>Do not call for arrays other than three-dimensional!</b>
      */
-    public void set(T value, int indexX, int indexY, int indexZ)
+    public void set(float value, int indexX, int indexY, int indexZ)
     {
         flattenedArray[computeIndex(indexX, indexY, indexZ)] = value;
     }
 
     /**
-     * Returns the component type of this array.
+     * Creates and returns a matrix from a two-dimensional array.
+     * <p>
+     * <b>Do not call for arrays other than two-dimensional!</b>
      */
-    @SuppressWarnings("unchecked")
-    public Class<T> getComponentClass()
+    public float[][] toMatrix()
     {
-        return (Class<T>) flattenedArray.getClass().getComponentType();
+        final int sizeX = dimensions[0];
+        final int sizeY = dimensions[1];
+        final float[][] result = new float[sizeX][sizeY];
+        for (int i = 0; i < sizeX; ++i)
+        {
+            System.arraycopy(flattenedArray, i * sizeY, result[i], 0, sizeY);
+        }
+        return result;
     }
     
     //
@@ -224,7 +253,7 @@ public class MDArray<T> extends MDAbstractArray<T>
         {
             return false;
         }
-        final MDArray<T> other = toMDArray(obj);
+        MDFloatArray other = (MDFloatArray) obj;
         if (Arrays.equals(flattenedArray, other.flattenedArray) == false)
         {
             return false;
@@ -234,12 +263,6 @@ public class MDArray<T> extends MDAbstractArray<T>
             return false;
         }
         return true;
-    }
-    
-    @SuppressWarnings("unchecked")
-    private MDArray<T> toMDArray(Object obj)
-    {
-        return (MDArray<T>) obj;
     }
 
 }
