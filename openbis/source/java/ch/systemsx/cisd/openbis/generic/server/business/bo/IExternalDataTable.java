@@ -52,8 +52,17 @@ public interface IExternalDataTable
      */
     List<ExternalDataPE> getExternalData();
     
+    /**
+     * Deletes loaded data sets for specified reason on all Data Store Servers registered
+     * at specified manager.
+     */
     void deleteLoadedDataSets(DataStoreServerSessionManager dssSessionManager, String reason);
     
-    void uploadLoadedDataSetsToCIFEX(DataStoreServerSessionManager dssSessionManager, String cifexURL, String password);
+    /**
+     * Uploads loaded data sets to CIFEX server of specified URL using specified password 
+     * for authentication (assuming same user ID as on openBIS server).
+     */
+    void uploadLoadedDataSetsToCIFEX(DataStoreServerSessionManager dssSessionManager,
+            String cifexURL, String password);
 
 }
