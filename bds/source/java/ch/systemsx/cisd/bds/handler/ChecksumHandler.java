@@ -38,7 +38,7 @@ import ch.systemsx.cisd.common.collections.CollectionIO;
 import ch.systemsx.cisd.common.collections.IFromStringConverter;
 import ch.systemsx.cisd.common.collections.IToStringConverter;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exceptions.StopException;
+import ch.systemsx.cisd.common.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
@@ -102,7 +102,7 @@ public final class ChecksumHandler implements IDataStructureHandler
     private final void addChecksum(final List<Checksum> checksums, final String path,
             final INode node)
     {
-        StopException.check();
+        InterruptedExceptionUnchecked.check();
         final String nodePath =
                 (path == null ? "" : path + Constants.PATH_SEPARATOR) + node.getName();
         if (node instanceof IFile)

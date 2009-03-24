@@ -25,7 +25,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
 
-import ch.systemsx.cisd.common.exceptions.WrappedIOException;
+import ch.systemsx.cisd.common.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.parser.filter.AlwaysAcceptLineFilter;
 import ch.systemsx.cisd.common.parser.filter.ILineFilter;
 
@@ -115,7 +115,7 @@ public final class ParserUtilities
             return tryFirstAcceptedLine(filter, lineIterator);
         } catch (final IOException ex)
         {
-            throw new WrappedIOException(ex);
+            throw new IOExceptionUnchecked(ex);
         } finally
         {
             LineIterator.closeQuietly(lineIterator);

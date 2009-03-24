@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.exceptions.StopException;
+import ch.systemsx.cisd.common.exceptions.InterruptedExceptionUnchecked;
 
 /**
  * Test cases for the {@link TimerUtilities}.
@@ -230,7 +230,7 @@ public class TimerUtilitiesTest
                     {
                         keepWheelsSpinning();
                         fail("should have been stopped.");
-                    } catch (StopException ex)
+                    } catch (InterruptedExceptionUnchecked ex)
                     {
                         // That is expected, signal success.
                         sem.release();

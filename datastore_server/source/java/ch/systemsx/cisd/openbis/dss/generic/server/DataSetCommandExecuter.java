@@ -23,7 +23,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.collections.ExtendedBlockingQueueFactory;
 import ch.systemsx.cisd.common.collections.IExtendedBlockingQueue;
-import ch.systemsx.cisd.common.exceptions.StopException;
+import ch.systemsx.cisd.common.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
@@ -73,7 +73,7 @@ class DataSetCommandExecuter implements IDataSetCommandExecutor
                     } catch (InterruptedException ex)
                     {
                         // Exit thread.
-                    } catch (StopException ex)
+                    } catch (InterruptedExceptionUnchecked ex)
                     {
                         // Exit thread.
                     }

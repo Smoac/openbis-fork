@@ -31,13 +31,22 @@ public class CheckedExceptionTunnel extends RuntimeException
     /**
      * Returns an unchecked exception from a <var>checkedException</var>.
      * 
-     * @param checkedException The checked exception to tunnel.
+     * @param checkedExceptionOrNull The checked exception to tunnel.
      */
-    public CheckedExceptionTunnel(final Exception checkedException)
+    public CheckedExceptionTunnel(final Exception checkedExceptionOrNull)
     {
-        super(checkedException);
+        super(checkedExceptionOrNull);
 
-        assert (checkedException != null && checkedException instanceof RuntimeException) == false;
+        assert (checkedExceptionOrNull instanceof RuntimeException) == false;
+    }
+    
+    protected CheckedExceptionTunnel(final String msg)
+    {
+        super(msg);
+    }
+
+    protected CheckedExceptionTunnel()
+    {
     }
 
     /**
@@ -47,7 +56,7 @@ public class CheckedExceptionTunnel extends RuntimeException
      * @param throwable The exception to represent by the return value.
      * @return A {@link RuntimeException} representing the <var>throwable</var>.
      * @throws Error If <var>throwable</var> is an {@link Error} (except when it is a
-     *             {@link ThreadDeath}, which returns a {@link StopException}).
+     *             {@link ThreadDeath}, which returns a {@link InterruptedExceptionUnchecked}).
      */
     public final static RuntimeException wrapIfNecessary(final Throwable throwable) throws Error
     {
@@ -55,7 +64,7 @@ public class CheckedExceptionTunnel extends RuntimeException
         {
             if (throwable instanceof ThreadDeath)
             {
-                return new StopException();
+                return new InterruptedExceptionUnchecked();
             } else
             {
                 throw (Error) throwable;
@@ -81,15 +90,15 @@ public class CheckedExceptionTunnel extends RuntimeException
         }
         if (exception instanceof IOException)
         {
-            return new WrappedIOException((IOException) exception);
+            return new IOExceptionUnchecked((IOException) exception);
         }
         if (exception instanceof InterruptedException)
         {
-            return new StopException((InterruptedException) exception);
+            return new InterruptedExceptionUnchecked((InterruptedException) exception);
         }
         if (exception instanceof java.util.concurrent.TimeoutException)
         {
-            return new TimeoutException((java.util.concurrent.TimeoutException) exception);
+            return new TimeoutExceptionUnchecked((java.util.concurrent.TimeoutException) exception);
         }
         return new CheckedExceptionTunnel(exception);
     }
@@ -104,11 +113,13 @@ public class CheckedExceptionTunnel extends RuntimeException
         if (exception instanceof CheckedExceptionTunnel)
         {
             // We are sure that the wrapped exception is an 'Exception'.
-            return (Exception) exception.getCause();
-        } else
-        {
-            return exception;
+            final Exception causeOrNull = (Exception) exception.getCause();
+            if (causeOrNull != null)
+            {
+                return causeOrNull;
+            }
         }
+        return exception;
     }
 
 }

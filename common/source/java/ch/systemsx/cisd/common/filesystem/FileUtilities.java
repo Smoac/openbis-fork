@@ -50,9 +50,9 @@ import ch.systemsx.cisd.common.concurrent.RecordingActivityObserverSensor;
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IDescribingActivitySensor;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exceptions.StopException;
+import ch.systemsx.cisd.common.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.UnknownLastChangedException;
-import ch.systemsx.cisd.common.exceptions.WrappedIOException;
+import ch.systemsx.cisd.common.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.parser.filter.AlwaysAcceptLineFilter;
@@ -101,7 +101,7 @@ public final class FileUtilities
      * @throws EnvironmentFailureException if a {@link IOException} occured.
      */
     public static void copyFileTo(final File sourceFile, final File destinationFile,
-            final boolean preservesLastModifiedDate) throws WrappedIOException
+            final boolean preservesLastModifiedDate) throws IOExceptionUnchecked
     {
         FileInputStream inputStream = null;
         FileOutputStream outputStream = null;
@@ -138,10 +138,10 @@ public final class FileUtilities
      *            is not <code>null</code>.
      * @return The content of the file. All newline characters are '\n' (Unix convention). Never
      *         returns <code>null</code>.
-     * @throws WrappedIOException for wrapping an {@link IOException}, e.g. if the file does not
+     * @throws IOExceptionUnchecked for wrapping an {@link IOException}, e.g. if the file does not
      *             exist.
      */
-    public static String loadToString(final File file) throws WrappedIOException
+    public static String loadToString(final File file) throws IOExceptionUnchecked
     {
         assert file != null;
 
@@ -166,10 +166,10 @@ public final class FileUtilities
      *            is not <code>null</code>.
      * @return The content of the file. All newline characters are '\n' (Unix convention). Never
      *         returns <code>null</code>.
-     * @throws WrappedIOException for wrapping an {@link IOException}, e.g. if the file does not
+     * @throws IOExceptionUnchecked for wrapping an {@link IOException}, e.g. if the file does not
      *             exist.
      */
-    public static String loadExactToString(final File file) throws WrappedIOException
+    public static String loadExactToString(final File file) throws IOExceptionUnchecked
     {
         assert file != null;
 
@@ -190,9 +190,9 @@ public final class FileUtilities
     /**
      * Writes the specified string to the specified file.
      * 
-     * @throws WrappedIOException for wrapping an {@link IOException}.
+     * @throws IOExceptionUnchecked for wrapping an {@link IOException}.
      */
-    public static void writeToFile(final File file, final String str) throws WrappedIOException
+    public static void writeToFile(final File file, final String str) throws IOExceptionUnchecked
     {
         assert file != null : "Unspecified file.";
         assert str != null : "Unspecified string.";
@@ -217,10 +217,10 @@ public final class FileUtilities
      * @param file the file that should be loaded. This method asserts that given <code>File</code>
      *            is not <code>null</code>.
      * @return The content of the file line by line.
-     * @throws WrappedIOException for wrapping an {@link IOException}, e.g. if the file does not
+     * @throws IOExceptionUnchecked for wrapping an {@link IOException}, e.g. if the file does not
      *             exist.
      */
-    public final static List<String> loadToStringList(final File file) throws WrappedIOException
+    public final static List<String> loadToStringList(final File file) throws IOExceptionUnchecked
     {
         return loadToStringList(file, null);
     }
@@ -233,11 +233,11 @@ public final class FileUtilities
      * @param lineFilterOrNull a line filter if you are not interested in all lines. May be
      *            <code>null</code>.
      * @return The content of the file line by line.
-     * @throws WrappedIOException for wrapping an {@link IOException}, e.g. if the file does not
+     * @throws IOExceptionUnchecked for wrapping an {@link IOException}, e.g. if the file does not
      *             exist.
      */
     public final static List<String> loadToStringList(final File file,
-            final ILineFilter lineFilterOrNull) throws WrappedIOException
+            final ILineFilter lineFilterOrNull) throws IOExceptionUnchecked
     {
         assert file != null : "Unspecified file.";
 
@@ -267,10 +267,10 @@ public final class FileUtilities
      *            <code>getResource()</code>).
      * @return The content of the resource, or <code>null</code> if the specified resource does
      *         not exist.
-     * @throws WrappedIOException for wrapping an {@link IOException}
+     * @throws IOExceptionUnchecked for wrapping an {@link IOException}
      */
     public static String loadToString(final Class<?> clazz, final String resource)
-            throws WrappedIOException
+            throws IOExceptionUnchecked
     {
         assert clazz != null : "Given class can not be null.";
         assert resource != null && resource.length() > 0 : "Given resource can not be null.";
@@ -299,11 +299,11 @@ public final class FileUtilities
      * @param resource absolute path of the resource (will be the argument of
      *            <code>getResource()</code>).
      * @return The content of the resource line by line.
-     * @throws WrappedIOException for wrapping an {@link IOException}, e.g. if the file does not
+     * @throws IOExceptionUnchecked for wrapping an {@link IOException}, e.g. if the file does not
      *             exist.
      */
     public final static List<String> loadToStringList(final Class<?> clazz, final String resource)
-            throws WrappedIOException
+            throws IOExceptionUnchecked
     {
         return loadToStringList(clazz, resource, null);
     }
@@ -321,11 +321,11 @@ public final class FileUtilities
      *            <code>null</code>.
      * @return The content of the resource line by line or <code>null</code> if given
      *         <var>resource</var> can not be found.
-     * @throws WrappedIOException for wrapping an {@link IOException}, e.g. if the file does not
+     * @throws IOExceptionUnchecked for wrapping an {@link IOException}, e.g. if the file does not
      *             exist.
      */
     public final static List<String> loadToStringList(final Class<?> clazz, final String resource,
-            final ILineFilter lineFilterOrNull) throws WrappedIOException
+            final ILineFilter lineFilterOrNull) throws IOExceptionUnchecked
     {
         assert clazz != null : "Given class can not be null.";
         assert StringUtils.isNotEmpty(resource) : "Given resource can not be empty.";
@@ -590,9 +590,9 @@ public final class FileUtilities
      * @param path Path of the file or directory to delete.
      * @return <code>true</code> if the path has been deleted successfully, <code>false</code>
      *         otherwise.
-     * @throws StopException If the current thread has been interrupted.
+     * @throws InterruptedExceptionUnchecked If the current thread has been interrupted.
      */
-    public static boolean deleteRecursively(final File path) throws StopException
+    public static boolean deleteRecursively(final File path) throws InterruptedExceptionUnchecked
     {
         assert path != null;
 
@@ -608,10 +608,10 @@ public final class FileUtilities
      *            <code>null</code> if nothing should be logged.
      * @return <code>true</code> if the path has been deleted successfully, <code>false</code>
      *         otherwise.
-     * @throws StopException If the current thread has been interrupted.
+     * @throws InterruptedExceptionUnchecked If the current thread has been interrupted.
      */
     public static boolean deleteRecursively(final File path, final ISimpleLogger loggerOrNull)
-            throws StopException
+            throws InterruptedExceptionUnchecked
     {
         return deleteRecursively(path, loggerOrNull, null);
     }
@@ -629,10 +629,10 @@ public final class FileUtilities
      *            directory becoming unresponsive).
      * @return <code>true</code> if the path has been deleted successfully, <code>false</code>
      *         otherwise.
-     * @throws StopException If the current thread has been interrupted.
+     * @throws InterruptedExceptionUnchecked If the current thread has been interrupted.
      */
     public static boolean deleteRecursively(final File path, final ISimpleLogger loggerOrNull,
-            final IActivityObserver observerOrNull) throws StopException
+            final IActivityObserver observerOrNull) throws InterruptedExceptionUnchecked
     {
         assert path != null;
 
@@ -642,7 +642,7 @@ public final class FileUtilities
             {
                 if (Thread.interrupted())
                 {
-                    throw new StopException();
+                    throw new InterruptedExceptionUnchecked();
                 }
                 if (observerOrNull != null)
                 {
@@ -681,10 +681,10 @@ public final class FileUtilities
      * @param logger The logger that should be used to log deletion of path entries, or
      *            <code>null</code> if nothing should be logged.
      * @return <code>true</code> if the <var>path</var> itself has been deleted.
-     * @throws StopException If the current thread has been interrupted.
+     * @throws InterruptedExceptionUnchecked If the current thread has been interrupted.
      */
     public static boolean deleteRecursively(final File path, final FileFilter filter,
-            final ISimpleLogger logger) throws StopException
+            final ISimpleLogger logger) throws InterruptedExceptionUnchecked
     {
         assert path != null;
 
@@ -706,11 +706,11 @@ public final class FileUtilities
      *            recursive deletion call is alive-and-kicking or hangs (e.g. due to a remote
      *            directory becoming unresponsive).
      * @return <code>true</code> if the <var>path</var> itself has been deleted.
-     * @throws StopException If the current thread has been interrupted.
+     * @throws InterruptedExceptionUnchecked If the current thread has been interrupted.
      */
     public static boolean deleteRecursively(final File path, final FileFilter filter,
             final ISimpleLogger logger, final IActivityObserver observerOrNull)
-            throws StopException
+            throws InterruptedExceptionUnchecked
     {
         assert path != null;
         assert filter != null;
@@ -726,7 +726,7 @@ public final class FileUtilities
                 {
                     if (Thread.interrupted())
                     {
-                        throw new StopException();
+                        throw new InterruptedExceptionUnchecked();
                     }
                     if (observerOrNull != null)
                     {
@@ -820,7 +820,7 @@ public final class FileUtilities
                 {
                     return;
                 }
-                StopException.check();
+                InterruptedExceptionUnchecked.check();
                 traverse(entry);
             }
         }
@@ -870,7 +870,7 @@ public final class FileUtilities
      *         file system.
      * @throws UnknownLastChangedException if the <var>path</var> does not exist or is not
      *             readable.
-     * @throws StopException if the thread that the method runs in gets interrupted.
+     * @throws InterruptedExceptionUnchecked if the thread that the method runs in gets interrupted.
      */
     public static long lastChanged(final File path, final boolean subDirectoriesOnly,
             final long stopWhenFindYounger) throws UnknownLastChangedException
@@ -899,7 +899,7 @@ public final class FileUtilities
      *         file system.
      * @throws UnknownLastChangedException if the <var>path</var> does not exist or is not
      *             readable.
-     * @throws StopException if the thread that the method runs in gets interrupted.
+     * @throws InterruptedExceptionUnchecked if the thread that the method runs in gets interrupted.
      */
     public static long lastChanged(final File path, final boolean subDirectoriesOnly,
             final long stopWhenFindYounger, final IActivityObserver observerOrNull)
@@ -927,7 +927,7 @@ public final class FileUtilities
      *         file system.
      * @throws UnknownLastChangedException if the <var>path</var> does not exist or is not
      *             readable.
-     * @throws StopException if the thread that the method runs in gets interrupted.
+     * @throws InterruptedExceptionUnchecked if the thread that the method runs in gets interrupted.
      */
     public static long lastChangedRelative(final File path, final boolean subDirectoriesOnly,
             final long stopWhenFindYoungerRelative) throws UnknownLastChangedException
@@ -957,7 +957,7 @@ public final class FileUtilities
      *         file system.
      * @throws UnknownLastChangedException if the <var>path</var> does not exist or is not
      *             readable.
-     * @throws StopException if the thread that the method runs in gets interrupted.
+     * @throws InterruptedExceptionUnchecked if the thread that the method runs in gets interrupted.
      */
     public static long lastChangedRelative(final File path, final boolean subDirectoriesOnly,
             final long stopWhenFindYoungerRelative, final IActivityObserver observerOrNull)
@@ -972,7 +972,7 @@ public final class FileUtilities
      *         file system.
      * @throws UnknownLastChangedException if the <var>path</var> does not exist or is not
      *             readable.
-     * @throws StopException if the thread that the method runs in gets interrupted.
+     * @throws InterruptedExceptionUnchecked if the thread that the method runs in gets interrupted.
      */
     public static long lastChanged(final File path) throws UnknownLastChangedException
     {

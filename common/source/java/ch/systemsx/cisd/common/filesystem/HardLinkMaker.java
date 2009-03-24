@@ -26,7 +26,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.TimingParameters;
-import ch.systemsx.cisd.common.exceptions.StopException;
+import ch.systemsx.cisd.common.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.CallableExecutor;
@@ -162,7 +162,7 @@ public class HardLinkMaker implements IFileImmutableCopier
 
     private static boolean checkIfIdenticalContent(final File file1, final File file2)
     {
-        StopException.check();
+        InterruptedExceptionUnchecked.check();
         try
         {
             return FileUtils.contentEquals(file1, file2);

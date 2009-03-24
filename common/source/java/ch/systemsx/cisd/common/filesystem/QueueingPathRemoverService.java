@@ -29,7 +29,7 @@ import ch.systemsx.cisd.common.collections.ExtendedLinkedBlockingQueue;
 import ch.systemsx.cisd.common.collections.IExtendedBlockingQueue;
 import ch.systemsx.cisd.common.collections.PersistentExtendedBlockingQueueDecorator;
 import ch.systemsx.cisd.common.collections.RecordBasedQueuePersister;
-import ch.systemsx.cisd.common.exceptions.StopException;
+import ch.systemsx.cisd.common.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -129,7 +129,7 @@ public class QueueingPathRemoverService
                     } catch (InterruptedException ex)
                     {
                         // Exit thread.
-                    } catch (StopException ex)
+                    } catch (InterruptedExceptionUnchecked ex)
                     {
                         // Exit thread.
                     }

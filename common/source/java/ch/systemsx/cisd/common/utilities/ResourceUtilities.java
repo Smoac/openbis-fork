@@ -25,7 +25,7 @@ import java.io.OutputStream;
 import org.apache.commons.io.IOUtils;
 
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.exceptions.WrappedIOException;
+import ch.systemsx.cisd.common.exceptions.IOExceptionUnchecked;
 
 /**
  * Utilities for handling Java resources.
@@ -65,10 +65,10 @@ public class ResourceUtilities
      * @param postfix The postfix to use for the temporary name.
      * @return The name of the temporary file.
      * @throws IllegalArgumentException If the resource cannot be found in the class path.
-     * @throws WrappedIOException If an {@link IOException} occurs.
+     * @throws IOExceptionUnchecked If an {@link IOException} occurs.
      */
     public static String copyResourceToTempFile(final String resource, final String prefix,
-            final String postfix) throws WrappedIOException
+            final String postfix) throws IOExceptionUnchecked
     {
         final InputStream resourceStream = ResourceUtilities.class.getResourceAsStream(resource);
         if (resourceStream == null)

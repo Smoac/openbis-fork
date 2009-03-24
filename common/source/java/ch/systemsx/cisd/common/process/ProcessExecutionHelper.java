@@ -37,7 +37,7 @@ import ch.systemsx.cisd.common.concurrent.ExecutionResult;
 import ch.systemsx.cisd.common.concurrent.ExecutionStatus;
 import ch.systemsx.cisd.common.concurrent.NamedCallable;
 import ch.systemsx.cisd.common.concurrent.NamingThreadPoolExecutor;
-import ch.systemsx.cisd.common.exceptions.StopException;
+import ch.systemsx.cisd.common.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 
 /**
@@ -107,10 +107,10 @@ public final class ProcessExecutionHelper
      * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
      * @return <code>true</code>, if the process did complete successfully, <code>false</code>
      *         otherwise.
-     * @throws StopException If the thread got interrupted.
+     * @throws InterruptedExceptionUnchecked If the thread got interrupted.
      */
     public static boolean runAndLog(final List<String> cmd, final Logger operationLog,
-            final Logger machineLog) throws StopException
+            final Logger machineLog) throws InterruptedExceptionUnchecked
     {
         return new ProcessExecutionHelper(cmd, ConcurrencyUtilities.NO_TIMEOUT,
                 DEFAULT_OUTPUT_READING_STRATEGY, operationLog, machineLog).runAndLog();
@@ -123,10 +123,10 @@ public final class ProcessExecutionHelper
      * @param operationLog The {@link Logger} to use for all message on the higher level.
      * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
      * @return The process result.
-     * @throws StopException If the thread got interrupted.
+     * @throws InterruptedExceptionUnchecked If the thread got interrupted.
      */
     public static ProcessResult run(final List<String> cmd, final Logger operationLog,
-            final Logger machineLog) throws StopException
+            final Logger machineLog) throws InterruptedExceptionUnchecked
     {
         return new ProcessExecutionHelper(cmd, ConcurrencyUtilities.NO_TIMEOUT,
                 DEFAULT_OUTPUT_READING_STRATEGY, operationLog, machineLog).run(true);
@@ -143,10 +143,10 @@ public final class ProcessExecutionHelper
      *            terminated by a watch dog.
      * @return <code>true</code>, if the process did complete successfully, <code>false</code>
      *         otherwise.
-     * @throws StopException If the thread got interrupted.
+     * @throws InterruptedExceptionUnchecked If the thread got interrupted.
      */
     public static boolean runAndLog(final List<String> cmd, final Logger operationLog,
-            final Logger machineLog, final long millisToWaitForCompletion) throws StopException
+            final Logger machineLog, final long millisToWaitForCompletion) throws InterruptedExceptionUnchecked
     {
         return new ProcessExecutionHelper(cmd, millisToWaitForCompletion,
                 DEFAULT_OUTPUT_READING_STRATEGY, operationLog, machineLog).runAndLog();
@@ -162,10 +162,10 @@ public final class ProcessExecutionHelper
      *            seconds. If the process is not finished after that time, it will be terminated by
      *            a watch dog.
      * @return The process result.
-     * @throws StopException If the thread got interrupted.
+     * @throws InterruptedExceptionUnchecked If the thread got interrupted.
      */
     public static ProcessResult run(final List<String> cmd, final Logger operationLog,
-            final Logger machineLog, final long millisToWaitForCompletion) throws StopException
+            final Logger machineLog, final long millisToWaitForCompletion) throws InterruptedExceptionUnchecked
     {
         return new ProcessExecutionHelper(cmd, millisToWaitForCompletion,
                 DEFAULT_OUTPUT_READING_STRATEGY, operationLog, machineLog).run(true);
@@ -184,11 +184,11 @@ public final class ProcessExecutionHelper
      *            <code>stdout</code> and <code>sterr</code>) of the process.
      * @return <code>true</code>, if the process did complete successfully, <code>false</code>
      *         otherwise.
-     * @throws StopException If the thread got interrupted.
+     * @throws InterruptedExceptionUnchecked If the thread got interrupted.
      */
     public static boolean runAndLog(final List<String> cmd, final Logger operationLog,
             final Logger machineLog, final long millisToWaitForCompletion,
-            final OutputReadingStrategy outputReadingStrategy) throws StopException
+            final OutputReadingStrategy outputReadingStrategy) throws InterruptedExceptionUnchecked
     {
         return new ProcessExecutionHelper(cmd, millisToWaitForCompletion, outputReadingStrategy,
                 operationLog, machineLog).runAndLog();
@@ -205,16 +205,16 @@ public final class ProcessExecutionHelper
      *            a watch dog.
      * @param outputReadingStrategy The strategy for when to read the output (both
      *            <code>stdout</code> and <code>sterr</code>) of the process.
-     * @param stopOnInterrupt If <code>true</code>, throw a {@link StopException} if the thread gets
+     * @param stopOnInterrupt If <code>true</code>, throw a {@link InterruptedExceptionUnchecked} if the thread gets
      *            interrupted while waiting on the future.
      * @return The process result.
-     * @throws StopException If the thread got interrupted and <var>stopOnInterrupt</var> is
+     * @throws InterruptedExceptionUnchecked If the thread got interrupted and <var>stopOnInterrupt</var> is
      *             <code>true</code>.
      */
     public static ProcessResult run(final List<String> cmd, final Logger operationLog,
             final Logger machineLog, final long millisToWaitForCompletion,
             final OutputReadingStrategy outputReadingStrategy, final boolean stopOnInterrupt)
-            throws StopException
+            throws InterruptedExceptionUnchecked
     {
         return new ProcessExecutionHelper(cmd, millisToWaitForCompletion, outputReadingStrategy,
                 operationLog, machineLog).run(stopOnInterrupt);
@@ -226,9 +226,9 @@ public final class ProcessExecutionHelper
         /**
          * Blocks until the result of the process is available and returns it.
          * 
-         * @throws StopException If the thread got interrupted.
+         * @throws InterruptedExceptionUnchecked If the thread got interrupted.
          */
-        ProcessResult getResult() throws StopException;
+        ProcessResult getResult() throws InterruptedExceptionUnchecked;
     }
 
     /**
@@ -536,11 +536,11 @@ public final class ProcessExecutionHelper
     }
 
     private final static void checkStop(ExecutionStatus executionStatus, boolean stopOnInterrupt)
-            throws StopException
+            throws InterruptedExceptionUnchecked
     {
         if (stopOnInterrupt && ExecutionStatus.INTERRUPTED.equals(executionStatus))
         {
-            throw new StopException();
+            throw new InterruptedExceptionUnchecked();
         }
     }
 
@@ -555,13 +555,13 @@ public final class ProcessExecutionHelper
         }
     }
 
-    private final boolean runAndLog() throws StopException
+    private final boolean runAndLog() throws InterruptedExceptionUnchecked
     {
         final ProcessResult result = run(false);
         result.log();
         if (result.isInterruped())
         {
-            throw new StopException();
+            throw new InterruptedExceptionUnchecked();
         }
         return result.isOK();
     }

@@ -22,7 +22,7 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusWithResult;
-import ch.systemsx.cisd.common.exceptions.TimeoutException;
+import ch.systemsx.cisd.common.exceptions.TimeoutExceptionUnchecked;
 import ch.systemsx.cisd.common.filesystem.StoreItem;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
@@ -90,7 +90,7 @@ public final class FileStoreRemoteMounted extends AbstractFileStore
         {
             // we do not run delete with a timeout
             return localImpl.delete(item);
-        } catch (TimeoutException ex)
+        } catch (TimeoutExceptionUnchecked ex)
         {
             return Status.createRetriableError(ex.getMessage());
         }
@@ -107,7 +107,7 @@ public final class FileStoreRemoteMounted extends AbstractFileStore
                         + "' exists: time out.");
             }
             return statusOrNull;
-        } catch (TimeoutException ex)
+        } catch (TimeoutExceptionUnchecked ex)
         {
             return BooleanStatus.createError(ex.getMessage());
         }
@@ -119,7 +119,7 @@ public final class FileStoreRemoteMounted extends AbstractFileStore
         try
         {
             return localImplMonitored.lastChanged(item, stopWhenFindYounger);
-        } catch (TimeoutException ex)
+        } catch (TimeoutExceptionUnchecked ex)
         {
             return StatusWithResult.<Long> createRetriableError(ex.getMessage());
         }
@@ -138,7 +138,7 @@ public final class FileStoreRemoteMounted extends AbstractFileStore
                         "Could not determine \"last changed time\" of %s: time out.", item));
             }
             return statusOrNull;
-        } catch (TimeoutException ex)
+        } catch (TimeoutExceptionUnchecked ex)
         {
             return StatusWithResult.<Long> createRetriableError(ex.getMessage());
         }
@@ -156,7 +156,7 @@ public final class FileStoreRemoteMounted extends AbstractFileStore
                         + "' is fully accessible: time out.");
             }
             return statusOrNull;
-        } catch (TimeoutException ex)
+        } catch (TimeoutExceptionUnchecked ex)
         {
             return BooleanStatus.createError(ex.getMessage());
         }

@@ -31,7 +31,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang.StringUtils;
 
-import ch.systemsx.cisd.common.exceptions.WrappedIOException;
+import ch.systemsx.cisd.common.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.parser.filter.AlwaysAcceptLineFilter;
 import ch.systemsx.cisd.common.parser.filter.ILineFilter;
 
@@ -87,10 +87,10 @@ public class TabFileLoader<T>
     /**
      * Loads from the specified tab file a list of objects of type <code>T</code>.
      * 
-     * @throws WrappedIOException if a {@link IOException} has occurred.
+     * @throws IOExceptionUnchecked if a {@link IOException} has occurred.
      */
     public List<T> load(final File file) throws ParserException, ParsingException,
-            IllegalArgumentException, WrappedIOException
+            IllegalArgumentException, IOExceptionUnchecked
     {
         assert file != null : "Given file must not be null";
         assert file.isFile() : "Given file '" + file.getAbsolutePath() + "' is not a file.";
@@ -102,7 +102,7 @@ public class TabFileLoader<T>
             return load(reader);
         } catch (final IOException ex)
         {
-            throw new WrappedIOException(ex);
+            throw new IOExceptionUnchecked(ex);
         } finally
         {
             IOUtils.closeQuietly(reader);

@@ -18,7 +18,7 @@ package ch.systemsx.cisd.common.concurrent;
 
 import java.util.concurrent.Future;
 
-import ch.systemsx.cisd.common.exceptions.StopException;
+import ch.systemsx.cisd.common.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 
 /**
@@ -47,7 +47,7 @@ public interface ITerminableFuture<V> extends Future<V>, ITerminable
      * @return <code>true</code>, if the task of the future has finished running when the method
      *         returns.
      */
-    public boolean waitForFinished(long timeoutMillis) throws StopException;
+    public boolean waitForFinished(long timeoutMillis) throws InterruptedExceptionUnchecked;
 
     /**
      * Returns <code>true</code>, if the task of the future has already finished running.
@@ -66,7 +66,7 @@ public interface ITerminableFuture<V> extends Future<V>, ITerminable
      * @return <code>true</code> if and only if the task of the future has terminated successfully
      *         or never been started.
      */
-    public boolean terminate() throws StopException;
+    public boolean terminate() throws InterruptedExceptionUnchecked;
 
     /**
      * Terminates the task of the future if it has already started running. If it has not yet
@@ -82,5 +82,5 @@ public interface ITerminableFuture<V> extends Future<V>, ITerminable
      * @return <code>true</code> if and only if the task of the future has terminated successfully
      *         or never been started.
      */
-    public boolean terminate(long timeoutMillis) throws StopException;
+    public boolean terminate(long timeoutMillis) throws InterruptedExceptionUnchecked;
 }

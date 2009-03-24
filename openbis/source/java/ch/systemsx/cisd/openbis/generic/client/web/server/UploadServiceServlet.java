@@ -35,7 +35,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractCommandController;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.exceptions.WrappedIOException;
+import ch.systemsx.cisd.common.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.Message;
@@ -91,7 +91,7 @@ public final class UploadServiceServlet extends AbstractCommandController
                 response.getWriter().write(textOrNull);
             } catch (final IOException ex)
             {
-                throw new WrappedIOException(ex);
+                throw new IOExceptionUnchecked(ex);
             }
         }
     }

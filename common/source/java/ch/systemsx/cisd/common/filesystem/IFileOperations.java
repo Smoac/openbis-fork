@@ -26,7 +26,7 @@ import java.util.List;
 import org.apache.commons.io.FileSystemUtils;
 
 import ch.systemsx.cisd.common.exceptions.UnknownLastChangedException;
-import ch.systemsx.cisd.common.exceptions.WrappedIOException;
+import ch.systemsx.cisd.common.exceptions.IOExceptionUnchecked;
 
 /**
  * Operations on {@link File} that are good to monitor when being performed on remote file systems
@@ -44,12 +44,12 @@ public interface IFileOperations extends IFileRemover
     /**
      * @see File#getCanonicalPath()
      */
-    public String getCanonicalPath(File file) throws WrappedIOException;
+    public String getCanonicalPath(File file) throws IOExceptionUnchecked;
 
     /**
      * @see File#getCanonicalFile()
      */
-    public File getCanonicalFile(File file) throws WrappedIOException;
+    public File getCanonicalFile(File file) throws IOExceptionUnchecked;
 
     /**
      * @see File#canRead()
@@ -91,7 +91,7 @@ public interface IFileOperations extends IFileRemover
      */
     public long length(File file);
 
-    public boolean createNewFile(File file) throws WrappedIOException;
+    public boolean createNewFile(File file) throws IOExceptionUnchecked;
 
     /**
      * @see File#delete()
@@ -143,9 +143,9 @@ public interface IFileOperations extends IFileRemover
     public boolean setReadOnly(File file);
 
     public File createTempFile(String prefix, String suffix, File directory)
-            throws WrappedIOException;
+            throws IOExceptionUnchecked;
 
-    public File createTempFile(String prefix, String suffix) throws WrappedIOException;
+    public File createTempFile(String prefix, String suffix) throws IOExceptionUnchecked;
 
     //
     // Advanced
@@ -300,19 +300,19 @@ public interface IFileOperations extends IFileRemover
      * Sets the file's last modification time to the current time without changing the content. If
      * the file does not exist, create it empty.
      * 
-     * @throws WrappedIOException If the file cannot be created or the last modification time cannot
+     * @throws IOExceptionUnchecked If the file cannot be created or the last modification time cannot
      *             be changed.
      */
-    public void touch(File file) throws WrappedIOException;
+    public void touch(File file) throws IOExceptionUnchecked;
 
     /**
      * Removes the given <var>fileToRemove</var>, if necessary recursively.
      * 
      * @param fileToRemove File or directory to remove. If it is a directory, it will be removed
      *            recursively.
-     * @throws WrappedIOException If the file or directory cannot be removed.
+     * @throws IOExceptionUnchecked If the file or directory cannot be removed.
      */
-    public void deleteRecursively(File fileToRemove) throws WrappedIOException;
+    public void deleteRecursively(File fileToRemove) throws IOExceptionUnchecked;
 
     /**
      * Removes the given <var>fileToRemove</var>, if necessary recursively. If it is a file, it will
@@ -331,10 +331,10 @@ public interface IFileOperations extends IFileRemover
      * @param source File or directory to move. Must exist when this method is called.
      * @param destinationDirectory The directory to move <var>source</var> to. Has to be an existing
      *            directory.
-     * @throws WrappedIOException If <var>source</var> cannot be moved into
+     * @throws IOExceptionUnchecked If <var>source</var> cannot be moved into
      *             <var>destinationDirectory</var>.
      */
-    public void moveToDirectory(File source, File destinationDirectory) throws WrappedIOException;
+    public void moveToDirectory(File source, File destinationDirectory) throws IOExceptionUnchecked;
 
     /**
      * Rename <var>source</var> to <var>destination</var>, or move <var>source</var> to
@@ -345,9 +345,9 @@ public interface IFileOperations extends IFileRemover
      * @param source File or directory to move. Must exist when this method is called.
      * @param destination If it does not exist, this is the new name for <var>source</var>. If it is
      *            an existing directory, <var>source</var> will be moved to this directory.
-     * @throws WrappedIOException If <var>source</var> cannot be moved to <var>destination</var>.
+     * @throws IOExceptionUnchecked If <var>source</var> cannot be moved to <var>destination</var>.
      */
-    public void move(File source, File destination) throws WrappedIOException;
+    public void move(File source, File destination) throws IOExceptionUnchecked;
 
     /**
      * Copies a file or a whole directory to a new location preserving the file dates.
@@ -358,12 +358,12 @@ public interface IFileOperations extends IFileRemover
      * @param source an existing file or directory to copy, must not be <code>null</code>
      * @param destination the new file or directory, must not be <code>null</code>
      * @throws NullPointerException if source or destination is <code>null</code>
-     * @throws WrappedIOException if source or destination is invalid
-     * @throws WrappedIOException if an IO error occurs during copying
+     * @throws IOExceptionUnchecked if source or destination is invalid
+     * @throws IOExceptionUnchecked if an IO error occurs during copying
      * @see #copyFile(File, File)
      * @see #copyDirectory(File, File)
      */
-    public void copy(File source, File destination) throws WrappedIOException;
+    public void copy(File source, File destination) throws IOExceptionUnchecked;
 
     /**
      * Copies a file or a whole directory to a new location preserving the file dates.
@@ -374,12 +374,12 @@ public interface IFileOperations extends IFileRemover
      * @param source an existing file or directory to copy, must not be <code>null</code>
      * @param destDir the directory to place the copy in, must not be <code>null</code>
      * @throws NullPointerException if source or destination is <code>null</code>
-     * @throws WrappedIOException if source or destination is invalid
-     * @throws WrappedIOException if an IO error occurs during copying
+     * @throws IOExceptionUnchecked if source or destination is invalid
+     * @throws IOExceptionUnchecked if an IO error occurs during copying
      * @see #copyFileToDirectory(File, File)
      * @see #copyDirectoryToDirectory(File, File)
      */
-    public void copyToDirectory(File source, File destDir) throws WrappedIOException;
+    public void copyToDirectory(File source, File destDir) throws IOExceptionUnchecked;
 
     /**
      * Copies a whole directory to a new location preserving the file dates.
@@ -394,10 +394,10 @@ public interface IFileOperations extends IFileRemover
      * @param srcDir an existing directory to copy, must not be <code>null</code>
      * @param destDir the new directory, must not be <code>null</code>
      * @throws NullPointerException if source or destination is <code>null</code>
-     * @throws WrappedIOException if source or destination is invalid
-     * @throws WrappedIOException if an IO error occurs during copying
+     * @throws IOExceptionUnchecked if source or destination is invalid
+     * @throws IOExceptionUnchecked if an IO error occurs during copying
      */
-    public void copyDirectory(File srcDir, File destDir) throws WrappedIOException;
+    public void copyDirectory(File srcDir, File destDir) throws IOExceptionUnchecked;
 
     /**
      * Copies a file to a new location preserving the file date.
@@ -409,11 +409,11 @@ public interface IFileOperations extends IFileRemover
      * @param srcFile an existing file to copy, must not be <code>null</code>
      * @param destFile the new file, must not be <code>null</code>
      * @throws NullPointerException if source or destination is <code>null</code>
-     * @throws WrappedIOException if source or destination is invalid
-     * @throws WrappedIOException if an IO error occurs during copying
+     * @throws IOExceptionUnchecked if source or destination is invalid
+     * @throws IOExceptionUnchecked if an IO error occurs during copying
      * @see #copyFileToDirectory(File, File)
      */
-    public void copyFile(File srcFile, File destFile) throws WrappedIOException;
+    public void copyFile(File srcFile, File destFile) throws IOExceptionUnchecked;
 
     /**
      * Copies a file to a directory preserving the file date.
@@ -425,10 +425,10 @@ public interface IFileOperations extends IFileRemover
      * @param srcFile an existing file to copy, must not be <code>null</code>
      * @param destDir the directory to place the copy in, must not be <code>null</code>
      * @throws NullPointerException if source or destination is null
-     * @throws WrappedIOException if source or destination is invalid
-     * @throws WrappedIOException if an IO error occurs during copying
+     * @throws IOExceptionUnchecked if source or destination is invalid
+     * @throws IOExceptionUnchecked if an IO error occurs during copying
      */
-    public void copyFileToDirectory(File srcFile, File destDir) throws WrappedIOException;
+    public void copyFileToDirectory(File srcFile, File destDir) throws IOExceptionUnchecked;
 
     /**
      * Copies a directory to within another directory preserving the file dates.
@@ -443,10 +443,10 @@ public interface IFileOperations extends IFileRemover
      * @param srcDir an existing directory to copy, must not be <code>null</code>
      * @param destDir the directory to place the copy in, must not be <code>null</code>
      * @throws NullPointerException if source or destination is <code>null</code>
-     * @throws WrappedIOException if source or destination is invalid
-     * @throws WrappedIOException if an IO error occurs during copying
+     * @throws IOExceptionUnchecked if source or destination is invalid
+     * @throws IOExceptionUnchecked if an IO error occurs during copying
      */
-    public void copyDirectoryToDirectory(File srcDir, File destDir) throws WrappedIOException;
+    public void copyDirectoryToDirectory(File srcDir, File destDir) throws IOExceptionUnchecked;
 
     //
     // Content
@@ -455,66 +455,66 @@ public interface IFileOperations extends IFileRemover
     /**
      * Returns the content of <var>file</var> as a byte array.
      * 
-     * @throws WrappedIOException if an IO error occurs during reading the file
+     * @throws IOExceptionUnchecked if an IO error occurs during reading the file
      */
-    public byte[] getContentAsByteArray(File file) throws WrappedIOException;
+    public byte[] getContentAsByteArray(File file) throws IOExceptionUnchecked;
 
     /**
      * Returns the content of <var>file</var> as a String.
      * 
-     * @throws WrappedIOException if an IO error occurs during reading the file
+     * @throws IOExceptionUnchecked if an IO error occurs during reading the file
      */
-    public String getContentAsString(File file) throws WrappedIOException;
+    public String getContentAsString(File file) throws IOExceptionUnchecked;
 
     /**
      * Returns the content of <var>file</var> as a String. Doesn't append new line at the end.
      * 
-     * @throws WrappedIOException if an IO error occurs during reading the file
+     * @throws IOExceptionUnchecked if an IO error occurs during reading the file
      */
-    public String getExactContentAsString(File file) throws WrappedIOException;
+    public String getExactContentAsString(File file) throws IOExceptionUnchecked;
 
     /**
      * Returns the content of <var>file</var> as a list of Strings.
      * 
-     * @throws WrappedIOException if an IO error occurs during reading the file
+     * @throws IOExceptionUnchecked if an IO error occurs during reading the file
      */
-    public List<String> getContentAsStringList(File file) throws WrappedIOException;
+    public List<String> getContentAsStringList(File file) throws IOExceptionUnchecked;
 
     /**
      * Returns a monitored {@link InputStream} of <var>file</var>.
      * 
-     * @throws WrappedIOException if an IO error occurs during opening the stream
+     * @throws IOExceptionUnchecked if an IO error occurs during opening the stream
      */
-    public InputStream getInputStream(File file) throws WrappedIOException;
+    public InputStream getInputStream(File file) throws IOExceptionUnchecked;
 
     /**
      * Returns a monitored {@link IInputStream} of <var>file</var>.
      * 
-     * @throws WrappedIOException if an IO error occurs during opening the stream
+     * @throws IOExceptionUnchecked if an IO error occurs during opening the stream
      */
-    public IInputStream getIInputStream(File file) throws WrappedIOException;
+    public IInputStream getIInputStream(File file) throws IOExceptionUnchecked;
 
     /**
      * Returns a monitored {@link InputStream} of <var>file</var>.
      * 
-     * @throws WrappedIOException if an IO error occurs during opening the stream
+     * @throws IOExceptionUnchecked if an IO error occurs during opening the stream
      */
-    public OutputStream getOutputStream(File file) throws WrappedIOException;
+    public OutputStream getOutputStream(File file) throws IOExceptionUnchecked;
 
     /**
      * Returns a monitored {@link IInputStream} of <var>file</var>.
      * 
-     * @throws WrappedIOException if an IO error occurs during opening the stream
+     * @throws IOExceptionUnchecked if an IO error occurs during opening the stream
      */
-    public IOutputStream getIOutputStream(File file) throws WrappedIOException;
+    public IOutputStream getIOutputStream(File file) throws IOExceptionUnchecked;
 
     /**
      * Writes <var>content</var> to <var>file</var>. If <var>file</var> already exists, it will be
      * overwritten.
      * 
-     * @throws WrappedIOException if an IO error occurs during writing
+     * @throws IOExceptionUnchecked if an IO error occurs during writing
      */
-    public void writeToFile(File file, String content) throws WrappedIOException;
+    public void writeToFile(File file, String content) throws IOExceptionUnchecked;
 
     //
     // File system
@@ -523,6 +523,6 @@ public interface IFileOperations extends IFileRemover
     /**
      * @see FileSystemUtils#freeSpaceKb(String)
      */
-    public long freeSpaceKb(String path) throws WrappedIOException;
+    public long freeSpaceKb(String path) throws IOExceptionUnchecked;
 
 }

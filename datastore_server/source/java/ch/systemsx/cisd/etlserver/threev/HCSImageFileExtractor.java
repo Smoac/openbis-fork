@@ -31,7 +31,7 @@ import ch.systemsx.cisd.bds.hcs.WellGeometry;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.exceptions.StopException;
+import ch.systemsx.cisd.common.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.ChannelSetHelper;
@@ -167,7 +167,7 @@ public final class HCSImageFileExtractor implements IHCSImageFileExtractor
         final ChannelSetHelper helper = new ChannelSetHelper();
         for (final IFile imageFile : imageFiles)
         {
-            StopException.check();
+            InterruptedExceptionUnchecked.check();
             if (operationLog.isDebugEnabled())
             {
                 operationLog.debug(String.format("Processing image file '%s'", imageFile));

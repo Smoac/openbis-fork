@@ -31,8 +31,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.TimingParameters;
-import ch.systemsx.cisd.common.exceptions.StopException;
-import ch.systemsx.cisd.common.exceptions.TimeoutException;
+import ch.systemsx.cisd.common.exceptions.InterruptedExceptionUnchecked;
+import ch.systemsx.cisd.common.exceptions.TimeoutExceptionUnchecked;
 import ch.systemsx.cisd.common.logging.ConsoleLogger;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.test.Retry10;
@@ -290,7 +290,7 @@ public class MonitoringProxyTest
         exceptionThrowingProxy.throwSignalException();
     }
 
-    @Test(groups = "slow", expectedExceptions = TimeoutException.class)
+    @Test(groups = "slow", expectedExceptions = TimeoutExceptionUnchecked.class)
     public void testVoidTimeoutWithException()
     {
         exceptionThrowingProxy.idle(true);
@@ -320,7 +320,7 @@ public class MonitoringProxyTest
         assertNull(defaultReturningProxy.getString(true));
     }
 
-    @Test(groups = "slow", expectedExceptions = TimeoutException.class)
+    @Test(groups = "slow", expectedExceptions = TimeoutExceptionUnchecked.class)
     public void testGetStringTimeoutWithException()
     {
         exceptionThrowingProxy.getString(true);
@@ -368,13 +368,13 @@ public class MonitoringProxyTest
         assertEquals(0, defaultReturningProxy.getInteger(true));
     }
 
-    @Test(groups = "slow", expectedExceptions = TimeoutException.class)
+    @Test(groups = "slow", expectedExceptions = TimeoutExceptionUnchecked.class)
     public void testGetIntTimeoutWithException()
     {
         exceptionThrowingProxy.getInteger(true);
     }
 
-    @Test(groups = "slow", expectedExceptions = StopException.class, retryAnalyzer = Retry10.class)
+    @Test(groups = "slow", expectedExceptions = InterruptedExceptionUnchecked.class, retryAnalyzer = Retry10.class)
     public void testInterruptTheUninterruptableThrowsException()
     {
         final ITest proxy =

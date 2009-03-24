@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.common.filesystem;
 
-import ch.systemsx.cisd.common.exceptions.WrappedIOException;
+import ch.systemsx.cisd.common.exceptions.IOExceptionUnchecked;
 
 /**
  * An interface for {@link java.io.InputStream}.
@@ -29,32 +29,32 @@ public interface IInputStream
     /**
      * @see java.io.InputStream#read()
      */
-    public int read() throws WrappedIOException;
+    public int read() throws IOExceptionUnchecked;
     
     /**
      * @see java.io.InputStream#read(byte[])
      */
-    public int read(byte b[]) throws WrappedIOException;
+    public int read(byte b[]) throws IOExceptionUnchecked;
     
     /**
      * @see java.io.InputStream#read(byte[], int, int)
      */
-    public int read(byte b[], int off, int len) throws WrappedIOException;
+    public int read(byte b[], int off, int len) throws IOExceptionUnchecked;
     
     /**
      * @see java.io.InputStream#skip(long)
      */
-    public long skip(long n) throws WrappedIOException;
+    public long skip(long n) throws IOExceptionUnchecked;
     
     /**
      * @see java.io.InputStream#available()
      */
-    public int available() throws WrappedIOException;
+    public int available() throws IOExceptionUnchecked;
 
     /**
      * @see java.io.InputStream#close()
      */
-    public void close() throws WrappedIOException;
+    public void close() throws IOExceptionUnchecked;
     
     /**
      * @see java.io.InputStream#mark(int)
@@ -64,7 +64,7 @@ public interface IInputStream
     /**
      * @see java.io.InputStream#reset()
      */
-    public void reset() throws WrappedIOException;
+    public void reset() throws IOExceptionUnchecked;
 
     /**
      * @see java.io.InputStream#markSupported()

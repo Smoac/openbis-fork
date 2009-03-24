@@ -26,30 +26,36 @@ package ch.systemsx.cisd.common.exceptions;
  * 
  * @author Bernd Rinn
  */
-public class StopException extends RuntimeException
+public class InterruptedExceptionUnchecked extends CheckedExceptionTunnel
 {
 
     private static final long serialVersionUID = 1L;
 
-    public StopException()
+    public InterruptedExceptionUnchecked()
     {
         super();
     }
 
-    public StopException(InterruptedException cause)
+    public InterruptedExceptionUnchecked(final InterruptedException cause)
     {
         super(cause);
     }
 
     /**
      * Checks whether the current thread has been interrupted and, if it has, throw a
-     * {@link StopException}.
+     * {@link InterruptedExceptionUnchecked}.
      */
-    public final static void check() throws StopException
+    public final static void check() throws InterruptedExceptionUnchecked
     {
         if (Thread.interrupted())
         {
-            throw new StopException();
+            throw new InterruptedExceptionUnchecked();
         }
+    }
+
+    @Override
+    public InterruptedException getCause()
+    {
+        return (InterruptedException) super.getCause();
     }
 }

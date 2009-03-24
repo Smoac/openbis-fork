@@ -21,7 +21,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import ch.systemsx.cisd.common.exceptions.StopException;
+import ch.systemsx.cisd.common.exceptions.InterruptedExceptionUnchecked;
 
 /**
  * Implementation of a {@link ITerminableFuture} that delegates to appropriate classes.
@@ -79,7 +79,7 @@ final class TerminableFuture<V> implements ITerminableFuture<V>
         return delegateTerminableCallable.hasStarted();
     }
 
-    public boolean waitForFinished(long timeoutMillis) throws StopException
+    public boolean waitForFinished(long timeoutMillis) throws InterruptedExceptionUnchecked
     {
         return delegateTerminableCallable.waitForFinished(timeoutMillis);
     }
@@ -95,7 +95,7 @@ final class TerminableFuture<V> implements ITerminableFuture<V>
         return delegateTerminableCallable.terminate();
     }
 
-    public final boolean terminate(long timeoutMillis) throws StopException
+    public final boolean terminate(long timeoutMillis) throws InterruptedExceptionUnchecked
     {
         cancel(false);
         return delegateTerminableCallable.terminate(timeoutMillis);

@@ -35,7 +35,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.collections.CollectionIO;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
-import ch.systemsx.cisd.common.exceptions.StopException;
+import ch.systemsx.cisd.common.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
@@ -174,7 +174,7 @@ public class ProcessExecutionHelperTest
 
     @Test(groups =
         { "requires_unix", "slow" }, expectedExceptions =
-        { StopException.class })
+        { InterruptedExceptionUnchecked.class })
     public void testSleepyExecutionGetsStopped() throws Exception
     {
         final Thread thisThread = Thread.currentThread();
@@ -202,7 +202,7 @@ public class ProcessExecutionHelperTest
 
     @Test(groups =
         { "requires_unix", "slow" }, expectedExceptions =
-        { StopException.class })
+        { InterruptedExceptionUnchecked.class })
     public void testSleepyExecutionGetsStoppedUsingRunUnblocking() throws Exception
     {
         final Thread thisThread = Thread.currentThread();

@@ -30,8 +30,8 @@ import java.util.concurrent.Future;
 
 import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities.ILogSettings;
-import ch.systemsx.cisd.common.exceptions.StopException;
-import ch.systemsx.cisd.common.exceptions.TimeoutException;
+import ch.systemsx.cisd.common.exceptions.InterruptedExceptionUnchecked;
+import ch.systemsx.cisd.common.exceptions.TimeoutExceptionUnchecked;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
 
@@ -42,8 +42,8 @@ import ch.systemsx.cisd.common.logging.LogLevel;
  * failed. (Note that by default no timeout is set and no retrying of failed operations is
  * performed.)
  * <p>
- * On calls to {@link Thread#interrupt()} the proxy will throw a {@link StopException}, on timeouts
- * a {@link TimeoutException}.
+ * On calls to {@link Thread#interrupt()} the proxy will throw a {@link InterruptedExceptionUnchecked}, on timeouts
+ * a {@link TimeoutExceptionUnchecked}.
  * <p>
  * Retrying failed invocations is enabled by calling {@link #timing(TimingParameters)} with a retry
  * parameter greater than 0. You need to carefully consider whether the methods in the interface are
@@ -199,7 +199,7 @@ public class MonitoringProxy<T>
             {
                 if (errorValueOnTimeout == false)
                 {
-                    throw new TimeoutException(describe(method) + " timed out (timeout="
+                    throw new TimeoutExceptionUnchecked(describe(method) + " timed out (timeout="
                             + timingParameters.getTimeoutMillis() + "ms).");
                 }
                 return getErrorValue(method);

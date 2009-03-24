@@ -24,7 +24,7 @@ import org.apache.commons.io.FileUtils;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exceptions.StopException;
+import ch.systemsx.cisd.common.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IImmutableCopier;
@@ -96,7 +96,7 @@ public class FileBasedFile implements IFile
         {
             try
             {
-                StopException.check();
+                InterruptedExceptionUnchecked.check();
                 FileUtils.copyFile(sourceFile, destinationFile, true);
             } catch (final IOException ex)
             {
@@ -125,7 +125,7 @@ public class FileBasedFile implements IFile
         {
             try
             {
-                StopException.check();
+                InterruptedExceptionUnchecked.check();
                 FileUtils.copyDirectory(sourceDirectory, destinationDirectory, true);
             } catch (final IOException ex)
             {

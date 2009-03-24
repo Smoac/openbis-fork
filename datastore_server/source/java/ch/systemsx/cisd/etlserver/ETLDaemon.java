@@ -38,7 +38,7 @@ import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.concurrent.TimerUtilities;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.HighLevelException;
-import ch.systemsx.cisd.common.exceptions.StopException;
+import ch.systemsx.cisd.common.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.filesystem.DirectoryScanningTimerTask;
 import ch.systemsx.cisd.common.filesystem.FaultyPathDirectoryScanningHandler;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -411,7 +411,7 @@ public final class ETLDaemon
                         QueueingPathRemoverService.stopAndWait(timeoutMillis);
                     } catch (final InterruptedException ex)
                     {
-                        throw new StopException(ex);
+                        throw new InterruptedExceptionUnchecked(ex);
                     } finally
                     {
                         if (operationLog.isInfoEnabled())

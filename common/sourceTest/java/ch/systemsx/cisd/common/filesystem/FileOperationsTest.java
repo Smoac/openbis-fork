@@ -29,8 +29,8 @@ import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.concurrent.IActivityObserver;
 import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
 import ch.systemsx.cisd.common.concurrent.RecordingActivityObserverSensor;
-import ch.systemsx.cisd.common.exceptions.TimeoutException;
-import ch.systemsx.cisd.common.exceptions.WrappedIOException;
+import ch.systemsx.cisd.common.exceptions.TimeoutExceptionUnchecked;
+import ch.systemsx.cisd.common.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 
 /**
@@ -56,13 +56,13 @@ public class FileOperationsTest
             ConcurrencyUtilities.sleep(hangMillis);
         }
 
-        public int available() throws WrappedIOException
+        public int available() throws IOExceptionUnchecked
         {
             hang();
             return 0;
         }
 
-        public void close() throws WrappedIOException
+        public void close() throws IOExceptionUnchecked
         {
             hang();
         }
@@ -78,30 +78,30 @@ public class FileOperationsTest
             return false;
         }
 
-        public int read() throws WrappedIOException
+        public int read() throws IOExceptionUnchecked
         {
             hang();
             return 0;
         }
 
-        public int read(byte[] b) throws WrappedIOException
+        public int read(byte[] b) throws IOExceptionUnchecked
         {
             hang();
             return 0;
         }
 
-        public int read(byte[] b, int off, int len) throws WrappedIOException
+        public int read(byte[] b, int off, int len) throws IOExceptionUnchecked
         {
             hang();
             return 0;
         }
 
-        public void reset() throws WrappedIOException
+        public void reset() throws IOExceptionUnchecked
         {
             hang();
         }
 
-        public long skip(long n) throws WrappedIOException
+        public long skip(long n) throws IOExceptionUnchecked
         {
             hang();
             return 0;
@@ -141,7 +141,7 @@ public class FileOperationsTest
                 "remote file operations").get();
     }
 
-    @Test(groups = "slow", expectedExceptions = TimeoutException.class)
+    @Test(groups = "slow", expectedExceptions = TimeoutExceptionUnchecked.class)
     public void testNoTimeoutOnInputStream() throws IOException
     {
         final IFileOperations ops = create(TimingParameters.createNoRetries(50L), 100L);

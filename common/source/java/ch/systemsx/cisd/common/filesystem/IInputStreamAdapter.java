@@ -19,7 +19,7 @@ package ch.systemsx.cisd.common.filesystem;
 import java.io.IOException;
 import java.io.InputStream;
 
-import ch.systemsx.cisd.common.exceptions.WrappedIOException;
+import ch.systemsx.cisd.common.exceptions.IOExceptionUnchecked;
 
 /**
  * An adapter for {@link IInputStream} that extends {@link java.io.InputStream}.
@@ -42,7 +42,7 @@ public class IInputStreamAdapter extends InputStream
         try
         {
             return delegate.available();
-        } catch (WrappedIOException ex)
+        } catch (IOExceptionUnchecked ex)
         {
             throw ex.getCause();
         }
@@ -54,7 +54,7 @@ public class IInputStreamAdapter extends InputStream
         try
         {
             delegate.close();
-        } catch (WrappedIOException ex)
+        } catch (IOExceptionUnchecked ex)
         {
             throw ex.getCause();
         }
@@ -78,7 +78,7 @@ public class IInputStreamAdapter extends InputStream
         try
         {
             return delegate.read();
-        } catch (WrappedIOException ex)
+        } catch (IOExceptionUnchecked ex)
         {
             throw ex.getCause();
         }
@@ -90,7 +90,7 @@ public class IInputStreamAdapter extends InputStream
         try
         {
             return delegate.read(b, off, len);
-        } catch (WrappedIOException ex)
+        } catch (IOExceptionUnchecked ex)
         {
             throw ex.getCause();
         }
@@ -102,7 +102,7 @@ public class IInputStreamAdapter extends InputStream
         try
         {
             return delegate.read(b);
-        } catch (WrappedIOException ex)
+        } catch (IOExceptionUnchecked ex)
         {
             throw ex.getCause();
         }
@@ -114,7 +114,7 @@ public class IInputStreamAdapter extends InputStream
         try
         {
             delegate.reset();
-        } catch (WrappedIOException ex)
+        } catch (IOExceptionUnchecked ex)
         {
             throw ex.getCause();
         }
@@ -126,7 +126,7 @@ public class IInputStreamAdapter extends InputStream
         try
         {
             return delegate.skip(n);
-        } catch (WrappedIOException ex)
+        } catch (IOExceptionUnchecked ex)
         {
             throw ex.getCause();
         }

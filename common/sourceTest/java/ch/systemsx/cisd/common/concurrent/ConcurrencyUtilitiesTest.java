@@ -37,7 +37,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities.ILogSettings;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.exceptions.StopException;
+import ch.systemsx.cisd.common.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.logging.LogLevel;
@@ -368,7 +368,7 @@ public class ConcurrencyUtilitiesTest
     }
 
     @Test(expectedExceptions =
-        { StopException.class })
+        { InterruptedExceptionUnchecked.class })
     public void testTryGetFutureStop()
     {
         final ThreadPoolExecutor eservice =

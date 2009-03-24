@@ -19,7 +19,7 @@ package ch.systemsx.cisd.common.filesystem;
 import java.io.IOException;
 
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.exceptions.WrappedIOException;
+import ch.systemsx.cisd.common.exceptions.IOExceptionUnchecked;
 
 /**
  * An adapter for {@link java.io.InputStream} that implements {@link IInputStream}.
@@ -36,7 +36,7 @@ public class InputStreamAdapter implements IInputStream
         this.delegate = delegate;
     }
 
-    public int available() throws WrappedIOException
+    public int available() throws IOExceptionUnchecked
     {
         try
         {
@@ -47,7 +47,7 @@ public class InputStreamAdapter implements IInputStream
         }
     }
 
-    public void close() throws WrappedIOException
+    public void close() throws IOExceptionUnchecked
     {
         try
         {
@@ -68,7 +68,7 @@ public class InputStreamAdapter implements IInputStream
         return delegate.markSupported();
     }
 
-    public int read() throws WrappedIOException
+    public int read() throws IOExceptionUnchecked
     {
         try
         {
@@ -79,7 +79,7 @@ public class InputStreamAdapter implements IInputStream
         }
     }
 
-    public int read(byte[] b, int off, int len) throws WrappedIOException
+    public int read(byte[] b, int off, int len) throws IOExceptionUnchecked
     {
         try
         {
@@ -90,7 +90,7 @@ public class InputStreamAdapter implements IInputStream
         }
     }
 
-    public int read(byte[] b) throws WrappedIOException
+    public int read(byte[] b) throws IOExceptionUnchecked
     {
         try
         {
@@ -101,7 +101,7 @@ public class InputStreamAdapter implements IInputStream
         }
     }
 
-    public void reset() throws WrappedIOException
+    public void reset() throws IOExceptionUnchecked
     {
         try
         {
@@ -112,7 +112,7 @@ public class InputStreamAdapter implements IInputStream
         }
     }
 
-    public long skip(long n) throws WrappedIOException
+    public long skip(long n) throws IOExceptionUnchecked
     {
         try
         {

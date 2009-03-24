@@ -20,7 +20,7 @@ import java.io.File;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.exceptions.StopException;
+import ch.systemsx.cisd.common.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
@@ -112,7 +112,7 @@ public final class RecursiveHardLinkMaker implements IImmutableCopier
             {
                 for (final File file : files)
                 {
-                    StopException.check();
+                    InterruptedExceptionUnchecked.check();
                     if (primCopyImmutably(file, dir, null) == false)
                     {
                         return false;

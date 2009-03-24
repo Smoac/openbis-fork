@@ -19,7 +19,7 @@ package ch.systemsx.cisd.common.filesystem;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import ch.systemsx.cisd.common.exceptions.WrappedIOException;
+import ch.systemsx.cisd.common.exceptions.IOExceptionUnchecked;
 
 /**
  * An adapter for {@link IOutputStream} that extends {@link java.io.OutputStream}.
@@ -42,7 +42,7 @@ public class IOutputStreamAdapter extends OutputStream
         try
         {
             delegate.write(b);
-        } catch (WrappedIOException ex)
+        } catch (IOExceptionUnchecked ex)
         {
             throw ex.getCause();
         }
@@ -54,7 +54,7 @@ public class IOutputStreamAdapter extends OutputStream
         try
         {
             delegate.close();
-        } catch (WrappedIOException ex)
+        } catch (IOExceptionUnchecked ex)
         {
             throw ex.getCause();
         }
@@ -66,7 +66,7 @@ public class IOutputStreamAdapter extends OutputStream
         try
         {
             delegate.flush();
-        } catch (WrappedIOException ex)
+        } catch (IOExceptionUnchecked ex)
         {
             throw ex.getCause();
         }
@@ -78,7 +78,7 @@ public class IOutputStreamAdapter extends OutputStream
         try
         {
             delegate.write(b, off, len);
-        } catch (WrappedIOException ex)
+        } catch (IOExceptionUnchecked ex)
         {
             throw ex.getCause();
         }
@@ -90,7 +90,7 @@ public class IOutputStreamAdapter extends OutputStream
         try
         {
             delegate.write(b);
-        } catch (WrappedIOException ex)
+        } catch (IOExceptionUnchecked ex)
         {
             throw ex.getCause();
         }

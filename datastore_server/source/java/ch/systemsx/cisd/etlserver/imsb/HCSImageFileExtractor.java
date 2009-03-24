@@ -37,7 +37,7 @@ import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.INode;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidExternalDataException;
-import ch.systemsx.cisd.common.exceptions.StopException;
+import ch.systemsx.cisd.common.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.ChannelSetHelper;
@@ -249,7 +249,7 @@ public class HCSImageFileExtractor implements IHCSImageFileExtractor
                 new ChannelWavelengthSortingHCSImageFileAccepterDecorator(accepter);
         for (final IFile imageFile : imageFiles)
         {
-            StopException.check();
+            InterruptedExceptionUnchecked.check();
             if (operationLog.isDebugEnabled())
             {
                 operationLog.debug(String.format("Processing image file '%s'", imageFile));

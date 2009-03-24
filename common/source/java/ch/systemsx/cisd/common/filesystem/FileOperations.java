@@ -40,7 +40,7 @@ import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
 import ch.systemsx.cisd.common.concurrent.RecordingActivityObserverSensor;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.UnknownLastChangedException;
-import ch.systemsx.cisd.common.exceptions.WrappedIOException;
+import ch.systemsx.cisd.common.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -171,7 +171,7 @@ public class FileOperations implements IFileOperations
         return file.canWrite();
     }
 
-    public boolean createNewFile(File file) throws WrappedIOException
+    public boolean createNewFile(File file) throws IOExceptionUnchecked
     {
         try
         {
@@ -183,7 +183,7 @@ public class FileOperations implements IFileOperations
     }
 
     public File createTempFile(String prefix, String suffix, File directory)
-            throws WrappedIOException
+            throws IOExceptionUnchecked
     {
         try
         {
@@ -194,7 +194,7 @@ public class FileOperations implements IFileOperations
         }
     }
 
-    public File createTempFile(String prefix, String suffix) throws WrappedIOException
+    public File createTempFile(String prefix, String suffix) throws IOExceptionUnchecked
     {
         try
         {
@@ -205,7 +205,7 @@ public class FileOperations implements IFileOperations
         }
     }
 
-    public File getCanonicalFile(File file) throws WrappedIOException
+    public File getCanonicalFile(File file) throws IOExceptionUnchecked
     {
         try
         {
@@ -216,7 +216,7 @@ public class FileOperations implements IFileOperations
         }
     }
 
-    public String getCanonicalPath(File file) throws WrappedIOException
+    public String getCanonicalPath(File file) throws IOExceptionUnchecked
     {
         try
         {
@@ -363,7 +363,7 @@ public class FileOperations implements IFileOperations
         return FileUtilities.checkFileReadAccessible(file, kindOfFile);
     }
 
-    public void touch(File file) throws WrappedIOException
+    public void touch(File file) throws IOExceptionUnchecked
     {
         try
         {
@@ -374,7 +374,7 @@ public class FileOperations implements IFileOperations
         }
     }
 
-    public void deleteRecursively(File fileToRemove) throws WrappedIOException
+    public void deleteRecursively(File fileToRemove) throws IOExceptionUnchecked
     {
         final boolean deleteOK =
                 FileUtilities.deleteRecursively(fileToRemove, null, observerOrNull);
@@ -395,7 +395,7 @@ public class FileOperations implements IFileOperations
         return QueueingPathRemoverService.removeRecursively(fileToRemove);
     }
 
-    public void move(File source, File destination) throws WrappedIOException
+    public void move(File source, File destination) throws IOExceptionUnchecked
     {
         if (destination.isDirectory())
         {
@@ -412,7 +412,7 @@ public class FileOperations implements IFileOperations
         }
     }
 
-    public void moveToDirectory(File source, File destinationDirectory) throws WrappedIOException
+    public void moveToDirectory(File source, File destinationDirectory) throws IOExceptionUnchecked
     {
         final File target = new File(destinationDirectory, source.getName());
         final boolean moveOK = source.renameTo(target);
@@ -435,7 +435,7 @@ public class FileOperations implements IFileOperations
         }
     }
 
-    public void copyDirectoryToDirectory(File srcDir, File destDir) throws WrappedIOException
+    public void copyDirectoryToDirectory(File srcDir, File destDir) throws IOExceptionUnchecked
     {
         try
         {
@@ -446,7 +446,7 @@ public class FileOperations implements IFileOperations
         }
     }
 
-    public void copyFile(File srcFile, File destFile) throws WrappedIOException
+    public void copyFile(File srcFile, File destFile) throws IOExceptionUnchecked
     {
         try
         {
@@ -457,7 +457,7 @@ public class FileOperations implements IFileOperations
         }
     }
 
-    public void copyFileToDirectory(File srcFile, File destDir) throws WrappedIOException
+    public void copyFileToDirectory(File srcFile, File destDir) throws IOExceptionUnchecked
     {
         try
         {
@@ -468,7 +468,7 @@ public class FileOperations implements IFileOperations
         }
     }
 
-    public void copy(File source, File destination) throws WrappedIOException
+    public void copy(File source, File destination) throws IOExceptionUnchecked
     {
         try
         {
@@ -479,7 +479,7 @@ public class FileOperations implements IFileOperations
         }
     }
 
-    public void copyToDirectory(File source, File destDir) throws WrappedIOException
+    public void copyToDirectory(File source, File destDir) throws IOExceptionUnchecked
     {
         try
         {
@@ -490,7 +490,7 @@ public class FileOperations implements IFileOperations
         }
     }
 
-    public byte[] getContentAsByteArray(File file) throws WrappedIOException
+    public byte[] getContentAsByteArray(File file) throws IOExceptionUnchecked
     {
         java.io.InputStream inputStream = null;
         try
@@ -499,34 +499,34 @@ public class FileOperations implements IFileOperations
             return IOUtils.toByteArray(inputStream);
         } catch (IOException ex)
         {
-            throw new WrappedIOException(ex);
+            throw new IOExceptionUnchecked(ex);
         } finally
         {
             IOUtils.closeQuietly(inputStream);
         }
     }
 
-    public String getContentAsString(File file) throws WrappedIOException
+    public String getContentAsString(File file) throws IOExceptionUnchecked
     {
         return FileUtilities.loadToString(file);
     }
 
-    public String getExactContentAsString(File file) throws WrappedIOException
+    public String getExactContentAsString(File file) throws IOExceptionUnchecked
     {
         return FileUtilities.loadExactToString(file);
     }
 
-    public List<String> getContentAsStringList(File file) throws WrappedIOException
+    public List<String> getContentAsStringList(File file) throws IOExceptionUnchecked
     {
         return FileUtilities.loadToStringList(file);
     }
 
-    public InputStream getInputStream(File file) throws WrappedIOException
+    public InputStream getInputStream(File file) throws IOExceptionUnchecked
     {
         return new IInputStreamAdapter(getIInputStream(file));
     }
 
-    public IInputStream getIInputStream(File file) throws WrappedIOException
+    public IInputStream getIInputStream(File file) throws IOExceptionUnchecked
     {
         try
         {
@@ -542,7 +542,7 @@ public class FileOperations implements IFileOperations
             }
         } catch (IOException ex)
         {
-            throw new WrappedIOException(ex);
+            throw new IOExceptionUnchecked(ex);
         }
     }
 
@@ -552,12 +552,12 @@ public class FileOperations implements IFileOperations
         return new InputStreamAdapter(new FileInputStream(file));
     }
 
-    public OutputStream getOutputStream(File file) throws WrappedIOException
+    public OutputStream getOutputStream(File file) throws IOExceptionUnchecked
     {
         return new IOutputStreamAdapter(getIOutputStream(file));
     }
 
-    public IOutputStream getIOutputStream(File file) throws WrappedIOException
+    public IOutputStream getIOutputStream(File file) throws IOExceptionUnchecked
     {
         try
         {
@@ -573,7 +573,7 @@ public class FileOperations implements IFileOperations
             }
         } catch (IOException ex)
         {
-            throw new WrappedIOException(ex);
+            throw new IOExceptionUnchecked(ex);
         }
     }
 
@@ -583,19 +583,19 @@ public class FileOperations implements IFileOperations
         return new OutputStreamAdapter(new FileOutputStream(file));
     }
 
-    public void writeToFile(File file, String content) throws WrappedIOException
+    public void writeToFile(File file, String content) throws IOExceptionUnchecked
     {
         FileUtilities.writeToFile(file, content);
     }
 
-    public long freeSpaceKb(String path) throws WrappedIOException
+    public long freeSpaceKb(String path) throws IOExceptionUnchecked
     {
         try
         {
             return FileSystemUtils.freeSpaceKb(path);
         } catch (IOException ex)
         {
-            throw new WrappedIOException(ex);
+            throw new IOExceptionUnchecked(ex);
         }
     }
 

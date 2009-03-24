@@ -31,7 +31,7 @@ import ch.systemsx.cisd.bds.storage.IFileBasedNode;
 import ch.systemsx.cisd.bds.storage.ILink;
 import ch.systemsx.cisd.bds.storage.INode;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exceptions.WrappedIOException;
+import ch.systemsx.cisd.common.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 
 /**
@@ -158,7 +158,7 @@ final class Directory extends AbstractNode implements IFileBasedDirectory
                 {
                     FileOperations.getMonitoredInstanceForCurrentThread().copyFile(file, newFile);
                 }
-            } catch (WrappedIOException ex)
+            } catch (IOExceptionUnchecked ex)
             {
                 throw EnvironmentFailureException.fromTemplate(ex,
                         "Can not copy file '%s' to directory '%s'.", file, nodeFile
@@ -223,7 +223,7 @@ final class Directory extends AbstractNode implements IFileBasedDirectory
         {
             FileOperations.getMonitoredInstanceForCurrentThread().copyDirectoryToDirectory(
                     nodeFile, directory);
-        } catch (WrappedIOException ex)
+        } catch (IOExceptionUnchecked ex)
         {
             throw EnvironmentFailureException.fromTemplate(ex,
                     "Can not copy directory '%s' to directory '%s'.", nodeFile.getAbsolutePath(),
@@ -240,7 +240,7 @@ final class Directory extends AbstractNode implements IFileBasedDirectory
             try
             {
                 FileOperations.getMonitoredInstanceForCurrentThread().deleteRecursively(file);
-            } catch (WrappedIOException ex)
+            } catch (IOExceptionUnchecked ex)
             {
                 throw EnvironmentFailureException.fromTemplate("Can not remove directory '%s'.",
                         file.getAbsolutePath());

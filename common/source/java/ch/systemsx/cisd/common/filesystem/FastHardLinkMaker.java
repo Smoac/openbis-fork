@@ -20,7 +20,7 @@ import java.io.File;
 
 import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
-import ch.systemsx.cisd.common.exceptions.WrappedIOException;
+import ch.systemsx.cisd.common.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.os.Unix;
 
 /**
@@ -44,7 +44,7 @@ public class FastHardLinkMaker implements IFileImmutableCopier
                     Unix.createHardLink(source.getAbsolutePath(), destination
                             .getAbsolutePath());
                     return true;
-                } catch (WrappedIOException ex)
+                } catch (IOExceptionUnchecked ex)
                 {
                     return false;
                 }

@@ -38,8 +38,8 @@ import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.HighLevelException;
-import ch.systemsx.cisd.common.exceptions.StopException;
-import ch.systemsx.cisd.common.exceptions.WrappedIOException;
+import ch.systemsx.cisd.common.exceptions.InterruptedExceptionUnchecked;
+import ch.systemsx.cisd.common.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
@@ -329,7 +329,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
 
         private void rollback(final Throwable throwable) throws Error
         {
-            stopped |= throwable instanceof StopException;
+            stopped |= throwable instanceof InterruptedExceptionUnchecked;
             if (stopped)
             {
                 Thread.interrupted(); // Ensure the thread's interrupted state is cleared.
@@ -478,7 +478,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
             try
             {
                 fileOperations.createNewFile(markerFile);
-            } catch (final WrappedIOException ex)
+            } catch (final IOExceptionUnchecked ex)
             {
                 throw EnvironmentFailureException.fromTemplate(ex,
                         "Cannot create marker file '%s'.", markerFile.getPath());

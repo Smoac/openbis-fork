@@ -25,7 +25,7 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import ch.systemsx.cisd.common.exceptions.WrappedIOException;
+import ch.systemsx.cisd.common.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
 import ch.systemsx.cisd.common.spring.MultipartFileAdapter;
 
@@ -65,7 +65,7 @@ public final class UploadedFilesBean
             multipartFiles.add(multipartFileAdapter);
         } catch (final IOException ex)
         {
-            throw new WrappedIOException(ex);
+            throw new IOExceptionUnchecked(ex);
         }
     }
 
@@ -129,7 +129,7 @@ public final class UploadedFilesBean
                 return FileUtils.readFileToByteArray(destFile);
             } catch (final IOException ex)
             {
-                throw new WrappedIOException(ex);
+                throw new IOExceptionUnchecked(ex);
             }
         }
 
@@ -141,7 +141,7 @@ public final class UploadedFilesBean
                 return FileUtils.openInputStream(destFile);
             } catch (final IOException ex)
             {
-                throw new WrappedIOException(ex);
+                throw new IOExceptionUnchecked(ex);
             }
         }
 

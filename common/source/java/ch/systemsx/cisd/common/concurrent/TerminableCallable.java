@@ -20,7 +20,7 @@ import java.util.concurrent.Callable;
 
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.HardStopException;
-import ch.systemsx.cisd.common.exceptions.StopException;
+import ch.systemsx.cisd.common.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 
 /**
@@ -326,7 +326,7 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
             } else if (throwableOrNull instanceof HardStopException)
             {
                 cause = FinishCause.STOPPED;
-            } else if (throwableOrNull instanceof StopException
+            } else if (throwableOrNull instanceof InterruptedExceptionUnchecked
                     || throwableOrNull instanceof InterruptedException)
             {
                 cause = FinishCause.INTERRUPTED;
@@ -338,9 +338,9 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
         }
     }
 
-    private InterruptedException getOrCreateInterruptedException(StopException stopEx)
+    private InterruptedException getOrCreateInterruptedException(InterruptedExceptionUnchecked stopEx)
     {
-        final InterruptedException causeOrNull = (InterruptedException) stopEx.getCause();
+        final InterruptedException causeOrNull = stopEx.getCause();
         return (causeOrNull != null) ? causeOrNull : new InterruptedException();
     }
 
@@ -390,7 +390,7 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
             }
             threadGuard.shutdownGuard();
             return result;
-        } catch (StopException ex)
+        } catch (InterruptedExceptionUnchecked ex)
         {
             throw getOrCreateInterruptedException(ex);
         } finally
@@ -459,14 +459,14 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
      * 
      * @return <code>true</code>, if the callable has finished running when the method returns.
      */
-    public boolean waitForFinished(long timeoutMillis) throws StopException
+    public boolean waitForFinished(long timeoutMillis) throws InterruptedExceptionUnchecked
     {
         try
         {
             return threadGuard.waitForFinished(timeoutMillis);
         } catch (InterruptedException ex)
         {
-            throw new StopException(ex);
+            throw new InterruptedExceptionUnchecked(ex);
         }
     }
 
@@ -492,9 +492,9 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
      * 
      * @return <code>true</code>, if the callable is confirmed to be terminated and cleaned up
      *         successfully in due time, or <code>false</code>, if a timeout has occurred.
-     * @throws StopException If the current thread is interrupted.
+     * @throws InterruptedExceptionUnchecked If the current thread is interrupted.
      */
-    public boolean terminate() throws StopException
+    public boolean terminate() throws InterruptedExceptionUnchecked
     {
         return terminate(timeoutTerminateMillis);
     }
@@ -509,16 +509,16 @@ public final class TerminableCallable<V> implements Callable<V>, ITerminable
      * @param timeoutMillis The method will wait at most this time (in milli-seconds).
      * @return <code>true</code>, if the callable is confirmed to be terminated or finished, or
      *         <code>false</code>, if a timeout has occurred.
-     * @throws StopException If the current thread is interrupted.
+     * @throws InterruptedExceptionUnchecked If the current thread is interrupted.
      */
-    public boolean terminate(long timeoutMillis) throws StopException
+    public boolean terminate(long timeoutMillis) throws InterruptedExceptionUnchecked
     {
         try
         {
             return threadGuard.terminateAndWait(waitInterruptMillis, timeoutMillis);
         } catch (InterruptedException ex)
         {
-            throw new StopException(ex);
+            throw new InterruptedExceptionUnchecked(ex);
         }
     }
 

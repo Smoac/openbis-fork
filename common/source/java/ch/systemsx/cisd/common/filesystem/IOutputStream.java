@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.common.filesystem;
 
-import ch.systemsx.cisd.common.exceptions.WrappedIOException;
+import ch.systemsx.cisd.common.exceptions.IOExceptionUnchecked;
 
 /**
  * An interface for {@link java.io.OutputStream}.
@@ -28,31 +28,31 @@ public interface IOutputStream extends ICloseable, ISynchronizable
     /**
      * @see java.io.OutputStream#write(int)
      */
-    public void write(int b) throws WrappedIOException;
+    public void write(int b) throws IOExceptionUnchecked;
 
     /**
      * @see java.io.OutputStream#write(byte[])
      */
-    public void write(byte b[]) throws WrappedIOException;
+    public void write(byte b[]) throws IOExceptionUnchecked;
 
     /**
      * @see java.io.OutputStream#write(byte[], int, int)
      */
-    public void write(byte b[], int off, int len) throws WrappedIOException;
+    public void write(byte b[], int off, int len) throws IOExceptionUnchecked;
 
     /**
      * @see java.io.OutputStream#flush()
      */
-    public void flush() throws WrappedIOException;
+    public void flush() throws IOExceptionUnchecked;
 
     /**
      * @see java.io.OutputStream#flush()
      */
-    public void synchronize() throws WrappedIOException;
+    public void synchronize() throws IOExceptionUnchecked;
 
     /**
      * @see java.io.OutputStream#close()
      */
-    public void close() throws WrappedIOException;
+    public void close() throws IOExceptionUnchecked;
 
 }

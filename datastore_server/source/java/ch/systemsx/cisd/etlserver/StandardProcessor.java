@@ -25,7 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.exceptions.StopException;
+import ch.systemsx.cisd.common.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.filesystem.PathPrefixPrepender;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -154,11 +154,11 @@ final class StandardProcessor implements IProcessor
         itemsToRemoveInCaseOfError.add(dataSetForProcessing);
         try
         {
-            StopException.check();
+            InterruptedExceptionUnchecked.check();
             createDataSetForProcessing(dataSet, dataSetForProcessing);
-            StopException.check();
+            InterruptedExceptionUnchecked.check();
             createProcessingParameters(instruction, processingDirectory, itemsToRemoveInCaseOfError);
-            StopException.check();
+            InterruptedExceptionUnchecked.check();
             createFinishedFile(processingDirectory, dataSetName);
             if (operationLog.isInfoEnabled())
             {
@@ -170,7 +170,7 @@ final class StandardProcessor implements IProcessor
             {
                 item.delete();
             }
-            if (ex instanceof StopException)
+            if (ex instanceof InterruptedExceptionUnchecked)
             {
                 operationLog
                         .warn(String

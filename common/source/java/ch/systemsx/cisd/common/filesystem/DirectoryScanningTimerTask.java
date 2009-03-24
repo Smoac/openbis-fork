@@ -32,7 +32,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.common.exceptions.StopException;
+import ch.systemsx.cisd.common.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.filesystem.IDirectoryScanningHandler.HandleInstruction;
 import ch.systemsx.cisd.common.filesystem.IDirectoryScanningHandler.HandleInstructionFlag;
 import ch.systemsx.cisd.common.logging.ConditionalNotificationLogger;
@@ -264,7 +264,7 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
                             ++numberOfItemsProcessedInLastRound;
                         } catch (final Exception ex)
                         {
-                            if (ex instanceof StopException)
+                            if (ex instanceof InterruptedExceptionUnchecked)
                             {
                                 break;
                             }
@@ -306,7 +306,7 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
             } while (numberOfItemsProcessedInLastRound > 0);
         } catch (final Exception ex)
         {
-            if (ex instanceof StopException == false)
+            if (ex instanceof InterruptedExceptionUnchecked == false)
             {
                 printNotification(ex);
             }

@@ -21,7 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-import ch.systemsx.cisd.common.exceptions.WrappedIOException;
+import ch.systemsx.cisd.common.exceptions.IOExceptionUnchecked;
 
 /**
  * Class to handle the opening and closing of a {@link RandomAccessFile}.
@@ -52,7 +52,7 @@ final class RandomAccessFileProvider
                 randomAccessFile = new RandomAccessFile(file, mode);
             } catch (FileNotFoundException ex)
             {
-                throw new WrappedIOException(ex);
+                throw new IOExceptionUnchecked(ex);
             }
         }
         return randomAccessFile;
@@ -67,7 +67,7 @@ final class RandomAccessFileProvider
                 randomAccessFile.close();
             } catch (IOException ex)
             {
-                throw new WrappedIOException(ex);
+                throw new IOExceptionUnchecked(ex);
             }
         }
     }

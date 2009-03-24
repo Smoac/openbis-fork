@@ -21,7 +21,7 @@ import java.io.IOException;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.exceptions.WrappedIOException;
+import ch.systemsx.cisd.common.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.utilities.NativeLibraryUtilities;
 
 /**
@@ -353,19 +353,19 @@ public class Unix
     private static void throwLinkCreationException(String type, String source, String target,
             String errorMessage)
     {
-        throw new WrappedIOException(new IOException(String.format(
+        throw new IOExceptionUnchecked(new IOException(String.format(
                 "Creating %s link '%s' -> '%s': %s", type, source, target, errorMessage)));
     }
 
     private static void throwStatException(String filename, String errorMessage)
     {
-        throw new WrappedIOException(new IOException(String.format(
+        throw new IOExceptionUnchecked(new IOException(String.format(
                 "Cannot obtain inode info for file '%s': %s", filename, errorMessage)));
     }
 
     private static void throwFileException(String operation, String filename, String errorMessage)
     {
-        throw new WrappedIOException(new IOException(String.format("Cannot %s of file '%s': %s",
+        throw new IOExceptionUnchecked(new IOException(String.format("Cannot %s of file '%s': %s",
                 operation, filename, errorMessage)));
     }
 
@@ -527,11 +527,11 @@ public class Unix
     /**
      * Creates a hard link from <var>fileName</var> to <var>linkName</var>.
      * 
-     * @throws WrappedIOException If the underlying system call fails, e.g. because
+     * @throws IOExceptionUnchecked If the underlying system call fails, e.g. because
      *             <var>fileName</var> does not exist or because <var>linkName</var> already exists.
      */
     public static final void createHardLink(String fileName, String linkName)
-            throws WrappedIOException
+            throws IOExceptionUnchecked
     {
         if (fileName == null)
         {
@@ -551,11 +551,11 @@ public class Unix
     /**
      * Creates a symbolic link from <var>fileName</var> to <var>linkName</var>.
      * 
-     * @throws WrappedIOException If the underlying system call fails, e.g. because
+     * @throws IOExceptionUnchecked If the underlying system call fails, e.g. because
      *             <var>fileName</var> does not exist or because <var>linkName</var> already exists.
      */
     public static final void createSymbolicLink(String fileName, String linkName)
-            throws WrappedIOException
+            throws IOExceptionUnchecked
     {
         if (fileName == null)
         {
@@ -572,7 +572,7 @@ public class Unix
         }
     }
 
-    private static Stat getStat(String fileName) throws WrappedIOException
+    private static Stat getStat(String fileName) throws IOExceptionUnchecked
     {
         if (fileName == null)
         {
@@ -586,7 +586,7 @@ public class Unix
         return result;
     }
 
-    private static Stat getLStat(String linkName) throws WrappedIOException
+    private static Stat getLStat(String linkName) throws IOExceptionUnchecked
     {
         if (linkName == null)
         {
@@ -603,10 +603,10 @@ public class Unix
     /**
      * Returns the inode for the <var>fileName</var>.
      * 
-     * @throws WrappedIOException If the information could not be obtained, e.g. because the link
+     * @throws IOExceptionUnchecked If the information could not be obtained, e.g. because the link
      *             does not exist.
      */
-    public static final long getInode(String fileName) throws WrappedIOException
+    public static final long getInode(String fileName) throws IOExceptionUnchecked
     {
         return getLStat(fileName).getInode();
     }
@@ -614,10 +614,10 @@ public class Unix
     /**
      * Returns the number of hard links for the <var>fileName</var>.
      * 
-     * @throws WrappedIOException If the information could not be obtained, e.g. because the link
+     * @throws IOExceptionUnchecked If the information could not be obtained, e.g. because the link
      *             does not exist.
      */
-    public static final int getNumberOfHardLinks(String fileName) throws WrappedIOException
+    public static final int getNumberOfHardLinks(String fileName) throws IOExceptionUnchecked
     {
         return getLStat(fileName).getNumberOfHardLinks();
     }
@@ -626,10 +626,10 @@ public class Unix
      * Returns <code>true</code> if <var>fileName</var> is a symbolic link and <code>false</code>
      * otherwise.
      * 
-     * @throws WrappedIOException If the information could not be obtained, e.g. because the link
+     * @throws IOExceptionUnchecked If the information could not be obtained, e.g. because the link
      *             does not exist.
      */
-    public static final boolean isSymbolicLink(String fileName) throws WrappedIOException
+    public static final boolean isSymbolicLink(String fileName) throws IOExceptionUnchecked
     {
         return getLStat(fileName).isSymbolicLink();
     }
@@ -638,10 +638,10 @@ public class Unix
      * Returns the value of the symbolik link <var>linkName</var>, or <code>null</code>, if
      * <var>linkName</var> is not a symbolic link.
      * 
-     * @throws WrappedIOException If the information could not be obtained, e.g. because the link
+     * @throws IOExceptionUnchecked If the information could not be obtained, e.g. because the link
      *             does not exist.
      */
-    public static final String tryReadSymbolicLink(String linkName) throws WrappedIOException
+    public static final String tryReadSymbolicLink(String linkName) throws IOExceptionUnchecked
     {
         final Stat stat = getLStat(linkName);
         return stat.isSymbolicLink() ? readlink(linkName, (int) stat.getSize()) : null;
@@ -650,10 +650,10 @@ public class Unix
     /**
      * Returns the information about <var>linkName</var>.
      * 
-     * @throws WrappedIOException If the information could not be obtained, e.g. because the link
+     * @throws IOExceptionUnchecked If the information could not be obtained, e.g. because the link
      *             does not exist.
      */
-    public static final Stat getLinkInfo(String linkName) throws WrappedIOException
+    public static final Stat getLinkInfo(String linkName) throws IOExceptionUnchecked
     {
         return getLinkInfo(linkName, true);
     }
@@ -661,10 +661,10 @@ public class Unix
     /**
      * Returns the information about <var>fileName</var>.
      * 
-     * @throws WrappedIOException If the information could not be obtained, e.g. because the file
+     * @throws IOExceptionUnchecked If the information could not be obtained, e.g. because the file
      *             does not exist.
      */
-    public static final Stat getFileInfo(String fileName) throws WrappedIOException
+    public static final Stat getFileInfo(String fileName) throws IOExceptionUnchecked
     {
         return getStat(fileName);
     }
@@ -674,11 +674,11 @@ public class Unix
      * <code>readSymbolicLinkTarget == true</code>, then the symbolic link target is read when
      * <var>linkName</var> is a symbolic link.
      * 
-     * @throws WrappedIOException If the information could not be obtained, e.g. because the link
+     * @throws IOExceptionUnchecked If the information could not be obtained, e.g. because the link
      *             does not exist.
      */
     public static final Stat getLinkInfo(String linkName, boolean readSymbolicLinkTarget)
-            throws WrappedIOException
+            throws IOExceptionUnchecked
     {
         final Stat stat = getLStat(linkName);
         final String symbolicLinkOrNull =
@@ -691,7 +691,7 @@ public class Unix
     /**
      * Sets the access mode of <var>filename</var> to the specified <var>mode</var> value.
      */
-    public static final void setAccessMode(String fileName, short mode) throws WrappedIOException
+    public static final void setAccessMode(String fileName, short mode) throws IOExceptionUnchecked
     {
         if (fileName == null)
         {
@@ -708,7 +708,7 @@ public class Unix
      * Sets the owner of <var>filename</var> to the specified <var>uid</var> and <var>gid</var>
      * values.
      */
-    public static final void setOwner(String fileName, int uid, int gid) throws WrappedIOException
+    public static final void setOwner(String fileName, int uid, int gid) throws IOExceptionUnchecked
     {
         if (fileName == null)
         {

@@ -38,7 +38,7 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.collections.CollectionIO;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
-import ch.systemsx.cisd.common.exceptions.StopException;
+import ch.systemsx.cisd.common.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -441,7 +441,7 @@ public final class RsyncCopierTest
     }
 
     @Test(groups =
-        { "slow", "requires_unix" }, expectedExceptions = StopException.class)
+        { "slow", "requires_unix" }, expectedExceptions = InterruptedExceptionUnchecked.class)
     public void testStopRsyncCopierCopyImmutably() throws Exception
     {
         final File rsyncExecutable = createSleepingRsyncExecutable("rsync", SLEEP_MILLIS);

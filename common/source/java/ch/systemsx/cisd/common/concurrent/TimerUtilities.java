@@ -20,7 +20,7 @@ import java.lang.reflect.Field;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import ch.systemsx.cisd.common.exceptions.StopException;
+import ch.systemsx.cisd.common.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 
 /**
@@ -60,7 +60,7 @@ public class TimerUtilities
     @SuppressWarnings("deprecation")
     private static void stopTimerThread(Thread timerThread)
     {
-        timerThread.stop(new StopException());
+        timerThread.stop(new InterruptedExceptionUnchecked());
     }
 
     /**

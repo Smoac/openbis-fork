@@ -234,7 +234,8 @@ public class CrowdAuthenticationService implements IAuthenticationService
             throw ex;
         } catch (final CheckedExceptionTunnel ex)
         {
-            throw new EnvironmentFailureException(ex.getMessage(), ex.getCause());
+            throw new EnvironmentFailureException(ex.getMessage(), CheckedExceptionTunnel
+                    .unwrapIfNecessary(ex));
         } catch (final RuntimeException ex)
         {
             throw new EnvironmentFailureException(ex.getMessage(), ex);

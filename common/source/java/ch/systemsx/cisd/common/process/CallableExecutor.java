@@ -20,7 +20,7 @@ import java.util.concurrent.Callable;
 
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.exceptions.StopException;
+import ch.systemsx.cisd.common.exceptions.InterruptedExceptionUnchecked;
 
 /**
  * Executes given {@link Callable}.
@@ -50,7 +50,7 @@ public final class CallableExecutor
      * Executes given <var>callable</var> until it returns a non-<code>null</code> value (or
      * until <code>maxInvocationsOnFailure</code> is reached).
      */
-    public final <T> T executeCallable(final Callable<T> callable) throws StopException
+    public final <T> T executeCallable(final Callable<T> callable) throws InterruptedExceptionUnchecked
     {
         int counter = 0;
         T result = null;
@@ -58,7 +58,7 @@ public final class CallableExecutor
         {
             do
             {
-                StopException.check();
+                InterruptedExceptionUnchecked.check();
                 result = callable.call();
                 if (result == null)
                 {

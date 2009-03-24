@@ -23,7 +23,7 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.IFileBasedFile;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exceptions.WrappedIOException;
+import ch.systemsx.cisd.common.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 
 /**
@@ -60,7 +60,7 @@ final class File extends AbstractNode implements IFileBasedFile
         {
             return FileOperations.getMonitoredInstanceForCurrentThread().getContentAsByteArray(
                     nodeFile);
-        } catch (WrappedIOException ex)
+        } catch (IOExceptionUnchecked ex)
         {
             throw new EnvironmentFailureException("Can not load data from file "
                     + nodeFile.getAbsolutePath(), ex.getCause());
@@ -72,7 +72,7 @@ final class File extends AbstractNode implements IFileBasedFile
         try
         {
             return FileOperations.getMonitoredInstanceForCurrentThread().getInputStream(nodeFile);
-        } catch (WrappedIOException ex)
+        } catch (IOExceptionUnchecked ex)
         {
             throw new EnvironmentFailureException("Can not open input stream for file "
                     + nodeFile.getAbsolutePath(), ex.getCause());
@@ -103,7 +103,7 @@ final class File extends AbstractNode implements IFileBasedFile
         {
             FileOperations.getMonitoredInstanceForCurrentThread().copyFileToDirectory(nodeFile,
                     directory);
-        } catch (WrappedIOException ex)
+        } catch (IOExceptionUnchecked ex)
         {
             throw EnvironmentFailureException.fromTemplate(ex.getCause(),
                     "Can not copy file '%s' to directory '%s'.", nodeFile.getAbsolutePath(),
