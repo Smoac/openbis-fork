@@ -191,6 +191,8 @@ var common = {
   PROPERTY_TYPES_MENU_NEW_PROPERTY_TYPES: "New Property Type",
   PROPERTY_TYPES_MENU_ASSIGN_TO_EXPERIMENT_TYPE: "Assign To Experiment Type",
   PROPERTY_TYPES_MENU_ASSIGN_TO_SAMPLE_TYPE: "Assign To Sample Type",
+  PROPERTY_TYPES_MENU_ASSIGN_TO_MATERIAL_TYPE: "Assign To Material Type",
+  PROPERTY_TYPES_MENU_ASSIGN_TO_DATA_SET_TYPE: "Assign To Data Set Type", 
   
   menu_vocabulary: "Vocabulary",
   VOCABULARY_MENU_BROWSE: "Browse",
@@ -199,7 +201,9 @@ var common = {
   //
   // Tab Titles
   //
-  
+
+  assign_data_set_property_type: "Assign Data Set Property Type",
+  assign_material_property_type: "Assign Material Property Type",  
   assign_experiment_property_type: "Assign Experiment Property Type",
   assign_sample_property_type: "Assign Sample Property Type",
   property_type_assignments: "Property Type Assignments",
@@ -278,10 +282,11 @@ var common = {
  data_producer_code: "Producer",
  button_delete_datasets: "Delete",
  confirm_dataset_deletion_title: "Data Sets Deletion Confirmation",
- confirm_dataset_deletion_msg: "You are deleting {0} data set(s). Please, enter a reason:",
+ confirm_dataset_deletion_msg: "You are deleting {0} data set(s). Please enter a reason:",
  button_upload_datasets: "Upload to CIFEX",
  confirm_dataset_upload_title: "Uploading Confirmation and Authentication",
  confirm_dataset_upload_msg: "You are uploading {0} data set(s) to CIFEX ({1}). Please, enter your CIFEX password:", 
+ 
  
  
  //
