@@ -22,6 +22,7 @@ import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.E
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -42,15 +43,20 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.HierarchyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedurePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProcedureTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
@@ -117,7 +123,6 @@ public final class SampleBOTest extends AbstractBOTest
         return new SampleIdentifier(IdentifierHelper.createGroupIdentifier(EXAMPLE_GROUP), code);
     }
 
-    
     private void prepareTryToLoadOfInstanceSample(final SampleIdentifier sampleIdentifier,
             final SamplePE sample)
     {
@@ -179,7 +184,7 @@ public final class SampleBOTest extends AbstractBOTest
     {
         SampleIdentifier sampleIdentifier = getSharedSampleIdentifier("s1");
         prepareTryToLoadOfInstanceSample(sampleIdentifier, null);
-        
+
         SampleBO sampleBO = createSampleBO();
         sampleBO.tryToLoadBySampleIdentifier(sampleIdentifier);
         sampleBO.enrichWithValidProcedure();
@@ -202,28 +207,28 @@ public final class SampleBOTest extends AbstractBOTest
         SampleIdentifier sampleIdentifier = getSharedSampleIdentifier("s1");
         SamplePE sample = new SamplePE();
         prepareTryToLoadOfInstanceSample(sampleIdentifier, sample);
-        
+
         SampleBO sampleBO = createSampleBO();
         sampleBO.tryToLoadBySampleIdentifier(sampleIdentifier);
-        
+
         assertSame(sample, sampleBO.tryToGetSample());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testLoadByGroupSampleIdentifier()
     {
         SampleIdentifier sampleIdentifier = getGroupSampleIdentifier("s1");
         SamplePE sample = new SamplePE();
         prepareTryToLoadOfGroupSample(sampleIdentifier, sample);
-        
+
         SampleBO sampleBO = createSampleBO();
         sampleBO.loadBySampleIdentifier(sampleIdentifier);
-        
+
         assertSame(sample, sampleBO.tryToGetSample());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testGetUndefinedSample()
     {
@@ -236,7 +241,7 @@ public final class SampleBOTest extends AbstractBOTest
             assertEquals("Unloaded sample.", e.getMessage());
         }
     }
-    
+
     @Test
     public void testEnrichWithValidProcedure()
     {
@@ -244,15 +249,15 @@ public final class SampleBOTest extends AbstractBOTest
         SamplePE sample = new SamplePE();
         sample.setProcedures(Arrays.asList(createProcedure(false), createProcedure(true)));
         prepareTryToLoadOfInstanceSample(sampleIdentifier, sample);
-        
+
         SampleBO sampleBO = createSampleBO();
         sampleBO.tryToLoadBySampleIdentifier(sampleIdentifier);
         sampleBO.enrichWithValidProcedure();
-        
+
         assertSame(sample, sampleBO.tryToGetSample());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testEnrichWithTwoValidProcedures()
     {
@@ -260,7 +265,7 @@ public final class SampleBOTest extends AbstractBOTest
         SamplePE sample = new SamplePE();
         sample.setProcedures(Arrays.asList(createProcedure(false), createProcedure(false)));
         prepareTryToLoadOfInstanceSample(sampleIdentifier, sample);
-        
+
         SampleBO sampleBO = createSampleBO();
         sampleBO.tryToLoadBySampleIdentifier(sampleIdentifier);
         try
@@ -273,11 +278,11 @@ public final class SampleBOTest extends AbstractBOTest
             assertTrue("Unexpected message: " + message, message
                     .startsWith("Expected exactly one valid procedure, but found 2"));
         }
-        
+
         assertSame(sample, sampleBO.tryToGetSample());
         context.assertIsSatisfied();
     }
-    
+
     @Test(expectedExceptions = UserFailureException.class)
     public final void testFailToDefineSharedSampleWithParentInAGroup()
     {
@@ -554,4 +559,125 @@ public final class SampleBOTest extends AbstractBOTest
         context.assertIsSatisfied();
     }
 
+    @Test
+    public final void testEditStaleSampleFails()
+    {
+        SampleIdentifier identifier = getGroupSampleIdentifier(DEFAULT_SAMPLE_CODE);
+        Date then = new Date(0);
+        Date now = new Date();
+
+        SamplePE sample = new SamplePE();
+        sample.setModificationDate(then);
+
+        prepareTryToLoadOfGroupSample(identifier, sample);
+        try
+        {
+            createSampleBO().edit(identifier, null, null, now);
+        } catch (UserFailureException e)
+        {
+            return;
+        }
+        fail("The edition of stale sample should throw an exception");
+    }
+
+    @Test
+    // No changes should be required when the sample is not attached to an experiment and we do not
+    // want to change it.
+    public final void testEditExperimentNoChangesRequired()
+    {
+        SampleIdentifier identifier = getGroupSampleIdentifier(DEFAULT_SAMPLE_CODE);
+        Date now = new Date();
+        final SamplePE sample = new SamplePE();
+        sample.setModificationDate(now);
+
+        prepareTryToLoadOfGroupSample(identifier, sample);
+        prepareNoPropertiesToUpdate(sample);
+        ExperimentIdentifier experimentIdentifier = null;
+        createSampleBO().edit(identifier, null, experimentIdentifier, now);
+    }
+
+    private void prepareNoPropertiesToUpdate(final SamplePE sample)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(propertiesConverter).updateProperties(sample.getProperties(), null, null,
+                            EXAMPLE_PERSON);
+                }
+            });
+    }
+
+    @Test
+    public final void testEditExperiment()
+    {
+        SampleIdentifier identifier = getGroupSampleIdentifier(DEFAULT_SAMPLE_CODE);
+        final ProjectPE project = createProject();
+        // create experiment with data acquisition procedure to which we will attach the sample
+        final ExperimentPE experimentToAttach = new ExperimentPE();
+        experimentToAttach.setCode("exp1");
+        experimentToAttach.setProject(project);
+        final ProcedurePE dataAcqProcedure = new ProcedurePE();
+        ProcedureTypePE dataAcqProcType = new ProcedureTypePE();
+        dataAcqProcType.setDataAcquisition(true);
+        dataAcqProcedure.setProcedureType(dataAcqProcType);
+        experimentToAttach.setProcedures(asModifiableList(dataAcqProcedure));
+
+        // create a sample already attached to an experiment
+        final ExperimentPE sampleExperiment = new ExperimentPE();
+        sampleExperiment.setCode("exp2");
+        sampleExperiment.setProject(project);
+        final ProcedurePE procedure = new ProcedurePE();
+        procedure.setExperiment(sampleExperiment);
+        final SamplePE sample = new SamplePE();
+        sample.setCode("sampleCode");
+        sample.setProcedures(asModifiableList(procedure));
+
+        Date now = new Date();
+        sample.setModificationDate(now);
+
+        prepareTryToLoadOfGroupSample(identifier, sample);
+        prepareNoPropertiesToUpdate(sample);
+        context.checking(new Expectations()
+            {
+                {
+                    one(daoFactory).getProjectDAO();
+                    will(returnValue(projectDAO));
+                    one(projectDAO).tryFindProject(null, null, null);
+                    will(returnValue(project));
+
+                    one(daoFactory).getExperimentDAO();
+                    will(returnValue(experimentDAO));
+                    one(experimentDAO).tryFindByCodeAndProject(project, null);
+                    will(returnValue(experimentToAttach));
+
+                    // no datasets attached
+                    allowing(externalDataDAO).listExternalData(with(sample),
+                            with(any(SourceType.class)));
+                    will(returnValue(new ArrayList<ExternalDataPE>()));
+                }
+            });
+        ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier();
+        createSampleBO().edit(identifier, null, experimentIdentifier, now);
+
+        assertEquals(1, sample.getProcedures().size());
+        assertEquals(dataAcqProcedure, sample.getProcedures().get(0));
+    }
+
+    private static <T> List<T> asModifiableList(T... elements)
+    {
+        ArrayList<T> result = new ArrayList<T>();
+        for (T elem : elements)
+        {
+            result.add(elem);
+        }
+        return result;
+    }
+
+    private ProjectPE createProject()
+    {
+        ProjectPE project = new ProjectPE();
+        project.setCode("code");
+        project.setGroup(EXAMPLE_GROUP);
+        return project;
+    }
 }
