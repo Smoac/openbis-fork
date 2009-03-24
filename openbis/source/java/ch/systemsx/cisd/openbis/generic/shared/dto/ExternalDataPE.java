@@ -57,6 +57,7 @@ public final class ExternalDataPE extends DataPE
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
     /** An empty array of <code>ExternalData</code>. */
+    @SuppressWarnings("hiding")
     public final static ExternalDataPE[] EMPTY_ARRAY = new ExternalDataPE[0];
 
     private String location;

@@ -31,6 +31,7 @@ public final class NewSampleComponent extends NewSampleComponentWithFixedMateria
 {
     private static final long serialVersionUID = GenericSharedConstants.VERSION;
 
+    @SuppressWarnings("hiding")
     public final static NewSampleComponent[] EMPTY_ARRAY = new NewSampleComponent[0];
 
     private String materialTypeCode;
