@@ -180,6 +180,10 @@ public final class Uploader extends AbstractUploadDownload
                         break;
                 }
             }
+            if (fileProvider != null)
+            {
+                fileProvider.closeFile();
+            }
         } catch (Throwable throwable)
         {
             fireExceptionEvent(throwable);
