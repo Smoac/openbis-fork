@@ -146,11 +146,18 @@ public final class CommonClientService extends AbstractClientService implements
 
 	// ----------- export and listing with cache generic functionality
 
-	@SuppressWarnings("unchecked")
-	private final <K> IResultSetManager<K> getResultSetManager() {
-		return (IResultSetManager<K>) getHttpSession().getAttribute(
-				SessionConstants.OPENBIS_RESULT_SET_MANAGER);
-	}
+    @SuppressWarnings("unchecked")
+    private final <K> IResultSetManager<K> getResultSetManager()
+    {
+        HttpSession httpSession = getHttpSession();
+        if (httpSession == null)
+        {
+            throw new ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException(
+                    "Your session has expired, please log in again.");
+        }
+        return (IResultSetManager<K>) httpSession
+                .getAttribute(SessionConstants.OPENBIS_RESULT_SET_MANAGER);
+    }
 
 	@SuppressWarnings("unchecked")
 	private final <T> CacheManager<String, T> getExportManager() {
