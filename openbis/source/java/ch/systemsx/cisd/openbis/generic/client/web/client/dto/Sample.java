@@ -24,6 +24,8 @@ import ch.systemsx.cisd.common.annotation.CollectionMapping;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
@@ -33,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
  * @author Izabela Adamczyk
  */
 public final class Sample extends CodeWithRegistration<Sample> implements IInvalidationProvider,
-        Comparable<Sample>, IIdentifierHolder
+        Comparable<Sample>, IIdentifierHolder, IEntityInformationHolder
 {
     public static final Sample[] EMPTY_ARRAY = new Sample[0];
 
@@ -187,5 +189,15 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
     public void setModificationDate(Date modificationDate)
     {
         this.modificationDate = modificationDate;
+    }
+
+    public EntityType getEntityType()
+    {
+        return getSampleType();
+    }
+
+    public EntityKind getEntityKind()
+    {
+        return EntityKind.SAMPLE;
     }
 }

@@ -24,24 +24,17 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabClickListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.AbstractPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.AbstractSimplePropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
@@ -135,7 +128,7 @@ public final class PropertyValueRenderers
             final String code = sample.getCode();
             final boolean invalidate = sample.getInvalidation() != null;
             final ClickListener listener =
-                    new OpenSampleDetailsTabClickListener(sample, viewContext);
+                    new OpenEntityDetailsTabClickListener(sample, viewContext);
             final Hyperlink link = LinkRenderer.getLinkWidget(code, listener, invalidate);
 
             FlowPanel panel = new FlowPanel();
@@ -147,35 +140,6 @@ public final class PropertyValueRenderers
             return panel;
         }
 
-        /** A {@link ClickListener} that opens Sample details tab on click. */
-        private static final class OpenSampleDetailsTabClickListener implements ClickListener
-        {
-            private final Sample sample;
-
-            private final IViewContext<?> viewContext;
-
-            public OpenSampleDetailsTabClickListener(Sample sample,
-                    final IViewContext<?> viewContext)
-            {
-                super();
-                this.sample = sample;
-                this.viewContext = viewContext;
-            }
-
-            public void onClick(Widget sender)
-            {
-
-                final EntityKind entityKind = EntityKind.SAMPLE;
-                final IClientPluginFactory clientPluginFactory =
-                        viewContext.getClientPluginFactoryProvider().getClientPluginFactory(
-                                entityKind, sample.getSampleType());
-                final IClientPlugin<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>, IIdentifierHolder, IEditableEntity<EntityType, EntityTypePropertyType<EntityType>, EntityProperty<EntityType, EntityTypePropertyType<EntityType>>>> createClientPlugin =
-                        clientPluginFactory.createClientPlugin(entityKind);
-                final ITabItemFactory tabView = createClientPlugin.createEntityViewer(sample);
-
-                DispatcherHelper.dispatchNaviEvent(tabView);
-            }
-        }
     }
 
     /**

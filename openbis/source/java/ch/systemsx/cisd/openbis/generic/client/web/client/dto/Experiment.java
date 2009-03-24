@@ -21,6 +21,8 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -31,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
  * @author Tomasz Pylak
  */
 public class Experiment extends CodeWithRegistration<Experiment> implements IIdentifierHolder,
-        IInvalidationProvider
+        IInvalidationProvider, IEntityInformationHolder
 {
     private Project project;
 
@@ -143,4 +145,13 @@ public class Experiment extends CodeWithRegistration<Experiment> implements IIde
         this.modificationDate = modificationDate;
     }
 
+    public EntityType getEntityType()
+    {
+        return getExperimentType();
+    }
+
+    public EntityKind getEntityKind()
+    {
+        return EntityKind.EXPERIMENT;
+    }
 }

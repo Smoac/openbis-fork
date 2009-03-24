@@ -21,6 +21,8 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
@@ -30,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
  * 
  * @author Izabela Adamczyk
  */
-public class Material extends CodeWithRegistration<Material>
+public class Material extends CodeWithRegistration<Material> implements IEntityInformationHolder
 {
     private DatabaseInstance databaseInstance;
 
@@ -102,5 +104,21 @@ public class Material extends CodeWithRegistration<Material>
     public void setModificationDate(Date modificationDate)
     {
         this.modificationDate = modificationDate;
+    }
+
+    public EntityType getEntityType()
+    {
+        return getMaterialType();
+    }
+
+    public EntityKind getEntityKind()
+    {
+        return EntityKind.MATERIAL;
+    }
+
+    public String getIdentifier()
+    {
+        // TODO 2009-03-24 Piotr Buczek: Implement this with detail view of materials
+        return null;
     }
 }
