@@ -34,7 +34,7 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.filesystem.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 
 /**
  * Test cases for the {@link CollectionIO} class.

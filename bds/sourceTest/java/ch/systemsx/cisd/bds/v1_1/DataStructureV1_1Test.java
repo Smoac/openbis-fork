@@ -27,6 +27,7 @@ import java.util.List;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.bds.DataStructureFactory;
 import ch.systemsx.cisd.bds.DataStructureLoader;
 import ch.systemsx.cisd.bds.ExperimentIdentifier;
@@ -39,7 +40,6 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.filesystem.FileStorage;
 import ch.systemsx.cisd.bds.v1_0.DataStructureV1_0Test;
-import ch.systemsx.cisd.common.filesystem.AbstractFileSystemTestCase;
 
 /**
  * Test cases for corresponding {@link DataStructureV1_1} class.

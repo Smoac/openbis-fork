@@ -22,7 +22,7 @@ jmethodID groupConstructorID;
 jclass statClass;
 jmethodID statConstructorID;
 
-JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_common_os_Unix_init
+JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_base_unix_Unix_init
   (JNIEnv *env, jclass clss)
 {
     stringClass = (*env)->FindClass(env, "java/lang/String");
@@ -31,7 +31,7 @@ JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_common_os_Unix_init
         return -1;
     }
     stringClass = (*env)->NewGlobalRef(env, stringClass);
-    passwordClass = (*env)->FindClass(env, "ch/systemsx/cisd/common/os/Unix$Password");
+    passwordClass = (*env)->FindClass(env, "ch/systemsx/cisd/base/unix/Unix$Password");
     if (passwordClass == NULL) /* Really shouldn't happen, will throw NoClassDefFoundError. */
     {
         return -1;
@@ -42,7 +42,7 @@ JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_common_os_Unix_init
     {
         return -1;
     }
-    groupClass = (*env)->FindClass(env, "ch/systemsx/cisd/common/os/Unix$Group");
+    groupClass = (*env)->FindClass(env, "ch/systemsx/cisd/base/unix/Unix$Group");
     if (groupClass == NULL) /* Really shouldn't happen, will throw NoClassDefFoundError. */
     {
         return -1;
@@ -53,7 +53,7 @@ JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_common_os_Unix_init
     {
         return -1;
     }
-    statClass = (*env)->FindClass(env, "ch/systemsx/cisd/common/os/Unix$Stat");
+    statClass = (*env)->FindClass(env, "ch/systemsx/cisd/base/unix/Unix$Stat");
     if (statClass == NULL) /* Really shouldn't happen, will throw NoClassDefFoundError. */
     {
         return -1;
@@ -67,7 +67,7 @@ JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_common_os_Unix_init
     return 0;
 }
 
-JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_common_os_Unix_link
+JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_base_unix_Unix_link
   (JNIEnv *env, jclass clss, jstring filename, jstring linktarget)
 {
     const char* pfilename;
@@ -89,7 +89,7 @@ JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_common_os_Unix_link
    return retval;
 }
 
-JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_common_os_Unix_symlink
+JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_base_unix_Unix_symlink
   (JNIEnv *env, jclass clss, jstring filename, jstring linktarget)
 {
     const char* pfilename;
@@ -150,17 +150,17 @@ jobject call_stat(JNIEnv *env, jclass clss, jstring filename, stat_func_ptr stat
     }
 }
 
-JNIEXPORT jobject JNICALL Java_ch_systemsx_cisd_common_os_Unix_stat(JNIEnv *env, jclass clss, jstring filename)
+JNIEXPORT jobject JNICALL Java_ch_systemsx_cisd_base_unix_Unix_stat(JNIEnv *env, jclass clss, jstring filename)
 {
     return call_stat(env, clss, filename, &stat);
 }
 
-JNIEXPORT jobject JNICALL Java_ch_systemsx_cisd_common_os_Unix_lstat(JNIEnv *env, jclass clss, jstring filename)
+JNIEXPORT jobject JNICALL Java_ch_systemsx_cisd_base_unix_Unix_lstat(JNIEnv *env, jclass clss, jstring filename)
 {
     return call_stat(env, clss, filename, &lstat);
 }
 
-JNIEXPORT jstring JNICALL Java_ch_systemsx_cisd_common_os_Unix_readlink(JNIEnv *env, jclass clss, jstring linkname, jint linkvallen)
+JNIEXPORT jstring JNICALL Java_ch_systemsx_cisd_base_unix_Unix_readlink(JNIEnv *env, jclass clss, jstring linkname, jint linkvallen)
 {
     const char* plinkname;
     char plinkvalue[linkvallen + 1];
@@ -179,7 +179,7 @@ JNIEXPORT jstring JNICALL Java_ch_systemsx_cisd_common_os_Unix_readlink(JNIEnv *
     }
 }
 
-JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_common_os_Unix_chmod(JNIEnv *env, jclass clss, jstring linkname, jshort mode)
+JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_base_unix_Unix_chmod(JNIEnv *env, jclass clss, jstring linkname, jshort mode)
 {
     const char* plinkname;
     int retval;
@@ -196,7 +196,7 @@ JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_common_os_Unix_chmod(JNIEnv *env, j
     }
 }
 
-JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_common_os_Unix_chown(JNIEnv *env, jclass clss, jstring linkname, jint uid, jint gid)
+JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_base_unix_Unix_chown(JNIEnv *env, jclass clss, jstring linkname, jint uid, jint gid)
 {
     const char* plinkname;
     int retval;
@@ -213,7 +213,7 @@ JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_common_os_Unix_chown(JNIEnv *env, j
     }
 }
 
-JNIEXPORT jstring JNICALL Java_ch_systemsx_cisd_common_os_Unix_getuser(JNIEnv *env, jclass clss, jint uid)
+JNIEXPORT jstring JNICALL Java_ch_systemsx_cisd_base_unix_Unix_getuser(JNIEnv *env, jclass clss, jint uid)
 {
     struct passwd *pw;
 	
@@ -227,7 +227,7 @@ JNIEXPORT jstring JNICALL Java_ch_systemsx_cisd_common_os_Unix_getuser(JNIEnv *e
     }
 }
 
-JNIEXPORT jstring JNICALL Java_ch_systemsx_cisd_common_os_Unix_getgroup(JNIEnv *env, jclass clss, jint gid)
+JNIEXPORT jstring JNICALL Java_ch_systemsx_cisd_base_unix_Unix_getgroup(JNIEnv *env, jclass clss, jint gid)
 {
     struct group *gp;
 	
@@ -241,17 +241,17 @@ JNIEXPORT jstring JNICALL Java_ch_systemsx_cisd_common_os_Unix_getgroup(JNIEnv *
     }
 }
 
-JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_common_os_Unix_getuid__(JNIEnv *env, jclass clss)
+JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_base_unix_Unix_getuid__(JNIEnv *env, jclass clss)
 {
     return getuid();
 }
 
-JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_common_os_Unix_geteuid(JNIEnv *env, jclass clss)
+JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_base_unix_Unix_geteuid(JNIEnv *env, jclass clss)
 {
     return geteuid();
 }
 
-JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_common_os_Unix_getuid__Ljava_lang_String_2(JNIEnv *env, jclass clss, jstring user)
+JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_base_unix_Unix_getuid__Ljava_lang_String_2(JNIEnv *env, jclass clss, jstring user)
 {
     const char* puser;
     struct passwd *pw;
@@ -268,7 +268,7 @@ JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_common_os_Unix_getuid__Ljava_lang_S
     }
 }
 
-JNIEXPORT jobject JNICALL Java_ch_systemsx_cisd_common_os_Unix_getpwnam(JNIEnv *env, jclass clss, jstring user)
+JNIEXPORT jobject JNICALL Java_ch_systemsx_cisd_base_unix_Unix_getpwnam(JNIEnv *env, jclass clss, jstring user)
 {
     const char* puser;
     struct passwd *pw;
@@ -295,7 +295,7 @@ JNIEXPORT jobject JNICALL Java_ch_systemsx_cisd_common_os_Unix_getpwnam(JNIEnv *
     }
 }
 
-JNIEXPORT jobject JNICALL Java_ch_systemsx_cisd_common_os_Unix_getpwuid(JNIEnv *env, jclass clss, jint uid)
+JNIEXPORT jobject JNICALL Java_ch_systemsx_cisd_base_unix_Unix_getpwuid(JNIEnv *env, jclass clss, jint uid)
 {
     struct passwd *pw;
     jstring user;
@@ -321,7 +321,7 @@ JNIEXPORT jobject JNICALL Java_ch_systemsx_cisd_common_os_Unix_getpwuid(JNIEnv *
     }
 }
 
-JNIEXPORT jobjectArray JNICALL Java_ch_systemsx_cisd_common_os_Unix_getgrnam(JNIEnv *env, jclass clss, jstring group)
+JNIEXPORT jobjectArray JNICALL Java_ch_systemsx_cisd_base_unix_Unix_getgrnam(JNIEnv *env, jclass clss, jstring group)
 {
     const char* pgroup;
     struct group *gr;
@@ -351,7 +351,7 @@ JNIEXPORT jobjectArray JNICALL Java_ch_systemsx_cisd_common_os_Unix_getgrnam(JNI
     }
 }
 
-JNIEXPORT jobjectArray JNICALL Java_ch_systemsx_cisd_common_os_Unix_getgrgid(JNIEnv *env, jclass clss, jint gid)
+JNIEXPORT jobjectArray JNICALL Java_ch_systemsx_cisd_base_unix_Unix_getgrgid(JNIEnv *env, jclass clss, jint gid)
 {
     struct group *gr;
     jstring group;
@@ -380,17 +380,17 @@ JNIEXPORT jobjectArray JNICALL Java_ch_systemsx_cisd_common_os_Unix_getgrgid(JNI
     }
 }
 
-JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_common_os_Unix_getgid__(JNIEnv *env, jclass clss)
+JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_base_unix_Unix_getgid__(JNIEnv *env, jclass clss)
 {
     return getgid();
 }
 
-JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_common_os_Unix_getegid(JNIEnv *env, jclass clss)
+JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_base_unix_Unix_getegid(JNIEnv *env, jclass clss)
 {
     return getegid();
 }
 
-JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_common_os_Unix_getgid__Ljava_lang_String_2(JNIEnv *env, jclass clss, jstring group)
+JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_base_unix_Unix_getgid__Ljava_lang_String_2(JNIEnv *env, jclass clss, jstring group)
 {
     const char* pgroup;
     struct group *gr;
@@ -407,17 +407,17 @@ JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_common_os_Unix_getgid__Ljava_lang_S
     }
 }
 
-JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_common_os_Unix_getpid(JNIEnv *env, jclass clss)
+JNIEXPORT jint JNICALL Java_ch_systemsx_cisd_base_unix_Unix_getpid(JNIEnv *env, jclass clss)
 {
     return getpid();
 }
 
-JNIEXPORT jstring JNICALL Java_ch_systemsx_cisd_common_os_Unix_strerror__I(JNIEnv *env, jclass clss, jint errnum)
+JNIEXPORT jstring JNICALL Java_ch_systemsx_cisd_base_unix_Unix_strerror__I(JNIEnv *env, jclass clss, jint errnum)
 {
     return (*env)->NewStringUTF(env, strerror(errnum < 0 ? -errnum : errnum));
 }
 
-JNIEXPORT jstring JNICALL Java_ch_systemsx_cisd_common_os_Unix_strerror__(JNIEnv *env, jclass clss)
+JNIEXPORT jstring JNICALL Java_ch_systemsx_cisd_base_unix_Unix_strerror__(JNIEnv *env, jclass clss)
 {
     return (*env)->NewStringUTF(env, strerror(errno));
 }

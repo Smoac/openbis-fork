@@ -33,12 +33,12 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.bds.hcs.WellGeometry;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.filesystem.NodeFactory;
-import ch.systemsx.cisd.common.filesystem.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.etlserver.IHCSImageFileAccepter;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;

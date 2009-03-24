@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.os;
+package ch.systemsx.cisd.base.unix;
 
 import java.io.Serializable;
 

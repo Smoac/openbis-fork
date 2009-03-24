@@ -27,12 +27,12 @@ import org.apache.commons.io.FileUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.bds.Reference;
 import ch.systemsx.cisd.bds.ReferenceType;
 import ch.systemsx.cisd.bds.exception.DataStructureException;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.filesystem.NodeFactory;
-import ch.systemsx.cisd.common.filesystem.AbstractFileSystemTestCase;
 
 /**
  * Test cases for corresponding {@link MappingFileHandler} class.

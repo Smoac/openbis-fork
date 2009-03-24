@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.filesystem;
+package ch.systemsx.cisd.base.tests;
 
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.io.FileUtils;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeMethod;
-
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**
  * An <code>abstract</code> test case which accesses the file system.
@@ -69,7 +68,7 @@ public abstract class AbstractFileSystemTestCase
     @BeforeMethod
     public void setUp() throws IOException
     {
-        FileUtilities.deleteRecursively(workingDirectory);
+        FileUtils.deleteDirectory(workingDirectory);
         workingDirectory.mkdir();
         assertTrue(workingDirectory.isDirectory() && workingDirectory.listFiles().length == 0);
     }
@@ -81,6 +80,6 @@ public abstract class AbstractFileSystemTestCase
         {
             return;
         }
-        FileUtilities.deleteRecursively(workingDirectory);
+        FileUtils.deleteDirectory(workingDirectory);
     }
 }

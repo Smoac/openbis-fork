@@ -25,7 +25,7 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.filesystem.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetType;
 
 /**

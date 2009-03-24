@@ -21,8 +21,8 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.bds.exception.StorageException;
-import ch.systemsx.cisd.common.filesystem.AbstractFileSystemTestCase;
 
 /**
  * Test cases for corresponding {@link FileStorage} class.

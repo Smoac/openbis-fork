@@ -26,10 +26,10 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.bds.Utilities.Boolean;
 import ch.systemsx.cisd.bds.storage.filesystem.FileStorage;
 import ch.systemsx.cisd.bds.v1_0.IDataStructureV1_0;
-import ch.systemsx.cisd.common.filesystem.AbstractFileSystemTestCase;
 
 /**
  * Test cases for corresponding {@link DataStructureLoader} class.

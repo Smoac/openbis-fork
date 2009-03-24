@@ -25,7 +25,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.common.filesystem.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 
 /**

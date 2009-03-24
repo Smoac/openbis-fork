@@ -14,25 +14,27 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.os;
+package ch.systemsx.cisd.base.unix;
+
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import org.apache.commons.io.FileUtils;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.common.filesystem.AbstractFileSystemTestCase;
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.os.FileLinkType;
-import ch.systemsx.cisd.common.os.Unix;
-import ch.systemsx.cisd.common.os.Unix.Group;
-import ch.systemsx.cisd.common.os.Unix.Password;
-import ch.systemsx.cisd.common.os.Unix.Stat;
-
-import static org.testng.AssertJUnit.*;
+import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.base.unix.Unix.Group;
+import ch.systemsx.cisd.base.unix.Unix.Password;
+import ch.systemsx.cisd.base.unix.Unix.Stat;
 
 /**
  * Test cases for the {@link Unix} system calls.
@@ -50,7 +52,7 @@ public class UnixTests extends AbstractFileSystemTestCase
         final short accessMode = (short) 0777;
         final String content = "someText\n";
         final File f = new File(workingDirectory, "someFile");
-        FileUtilities.writeToFile(f, content);
+        FileUtils.writeStringToFile(f, content);
         Unix.setAccessMode(f.getAbsolutePath(), accessMode);
         final Stat info = Unix.getLinkInfo(f.getAbsolutePath());
         Unix.setOwner(f.getAbsolutePath(), info.getUid(), info.getGid());
@@ -88,7 +90,7 @@ public class UnixTests extends AbstractFileSystemTestCase
     {
         final File f = new File(workingDirectory, "someOtherFile");
         final String content = "someMoreText\n";
-        FileUtilities.writeToFile(f, content);
+        FileUtils.writeStringToFile(f, content);
         final File s = new File(workingDirectory, "someLink");
         Unix.createSymbolicLink(f.getAbsolutePath(), s.getAbsolutePath());
         final Stat info = Unix.getLinkInfo(s.getAbsolutePath());

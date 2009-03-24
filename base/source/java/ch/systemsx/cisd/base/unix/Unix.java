@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.os;
+package ch.systemsx.cisd.base.unix;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +33,7 @@ import ch.systemsx.cisd.base.utilities.NativeLibraryUtilities;
  * 
  * @author Bernd Rinn
  */
-public class Unix
+public final class Unix
 {
 
     private enum ProcessDetection

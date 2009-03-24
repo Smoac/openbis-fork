@@ -24,7 +24,7 @@ import java.util.Properties;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.filesystem.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorType;

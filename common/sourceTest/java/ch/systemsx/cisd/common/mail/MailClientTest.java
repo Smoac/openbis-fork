@@ -23,7 +23,7 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.filesystem.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**
