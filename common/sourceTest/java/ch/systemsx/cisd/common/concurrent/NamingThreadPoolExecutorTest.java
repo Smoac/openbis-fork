@@ -34,6 +34,10 @@ import java.util.concurrent.TimeUnit;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.base.namedthread.NamedCallable;
+import ch.systemsx.cisd.base.namedthread.NamedRunnable;
+import ch.systemsx.cisd.base.namedthread.NamingThreadFactory;
+import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutor;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.test.Retry10;
 

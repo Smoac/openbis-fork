@@ -25,12 +25,12 @@ import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutor;
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.concurrent.ExecutionResult;
 import ch.systemsx.cisd.common.concurrent.IActivityObserver;
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor;
-import ch.systemsx.cisd.common.concurrent.NamingThreadPoolExecutor;
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IDescribingActivitySensor;
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IInactivityObserver;
 import ch.systemsx.cisd.common.exceptions.Status;

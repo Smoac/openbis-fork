@@ -28,6 +28,8 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+import ch.systemsx.cisd.base.namedthread.NamedCallable;
+import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutor;
 import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities.ILogSettings;
 import ch.systemsx.cisd.common.exceptions.InterruptedExceptionUnchecked;

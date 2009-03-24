@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.concurrent;
+package ch.systemsx.cisd.base.namedthread;
 
 /**
  * A {@link Thread} that knows its pool name.

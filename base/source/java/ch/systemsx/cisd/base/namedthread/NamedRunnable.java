@@ -14,35 +14,15 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.concurrent;
-
-import java.util.concurrent.FutureTask;
+package ch.systemsx.cisd.base.namedthread;
 
 /**
- * A {@link FutureTask} with a name.
- * 
+ * A {@link Runnable} with a name.
+ *
  * @author Bernd Rinn
  */
-class NamedFutureTask<V> extends FutureTask<V> implements NamedRunnable
+public interface NamedRunnable extends Runnable
 {
-
-    private final String name;
-
-    NamedFutureTask(NamedCallable<V> callable)
-    {
-        super(callable);
-        this.name = callable.getCallableName();
-    }
-
-    NamedFutureTask(NamedRunnable runnable, V result)
-    {
-        super(runnable, result);
-        this.name = runnable.getRunnableName();
-    }
-
-    public String getRunnableName()
-    {
-        return name;
-    }
-
+    /** Returns the name to be used for the thread name. */
+    public String getRunnableName();
 }

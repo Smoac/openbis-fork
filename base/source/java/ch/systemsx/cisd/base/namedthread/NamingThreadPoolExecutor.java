@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.concurrent;
+package ch.systemsx.cisd.base.namedthread;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
